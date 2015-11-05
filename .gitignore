@@ -28,5 +28,5 @@
 *.app
 
 pascinference
-bin/
-output/
+bin
+output

@@ -3,7 +3,7 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-#define dataN 100
+#define dataN 1000
 #define datan 2
 #define gammaK 3
 #define eps_squared 10
