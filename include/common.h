@@ -3,12 +3,12 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-#define dataN 10
+#define dataN 100
 #define datan 2
 #define gammaK 3
 #define eps_squared 10
 
-#define PRINT_DATA 1
+#define PRINT_DATA 0
 
 /* include PETSc */
 #include "petsc.h"

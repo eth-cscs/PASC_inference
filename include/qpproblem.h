@@ -3,6 +3,12 @@
 
 #include "common.h"
 
+/* include Permon headers */
+#include <flloppc.h>
+#include <fllopqp.h>
+#include <fllopqps.h>
+#include <fllopmat.h>
+
 class QPproblem {
 		PetscInt K, N, N_local; /* dimensions of the problem */
 		

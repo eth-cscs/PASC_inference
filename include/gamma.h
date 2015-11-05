@@ -8,12 +8,6 @@ class Gamma;
 #include "theta.h"
 #include "qpproblem.h"
 
-/* include Permon headers */
-#include <flloppc.h>
-#include <fllopqp.h>
-#include <fllopqps.h>
-#include <fllopmat.h>
-
 class Gamma {
 		PetscInt dim; /* number of gamma components = K */
 
