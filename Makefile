@@ -37,6 +37,7 @@ LIB+=-lm ${FLLOP_LIB}
 # make all
 all: $(SOURCES) $(EXECUTABLE) chkopts
 	mkdir -p bin
+	mkdir -p output
     
 # make main file
 $(EXECUTABLE): $(_OBJECTS) 
