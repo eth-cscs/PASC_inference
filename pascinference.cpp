@@ -4,6 +4,10 @@
 #include "theta.h"
 #include "savevtk.h"
 
+/* include QPproblem */
+#include "qpproblempermon.h"
+
+
 PetscMPIInt proc_n, proc_id; /* for MPI_Comm functions */	
 
 int main( int argc, char *argv[] )
@@ -34,7 +38,8 @@ int main( int argc, char *argv[] )
 	}	
 
 	/* initialize gamma */
-	ierr = gamma.init(data, gammaK); CHKERRQ(ierr);
+	QPproblemPermon qpproblem(&gamma,&theta,10);
+	ierr = gamma.init(data, gammaK, &qpproblem); CHKERRQ(ierr);
 	/* prepare gammas */
 	ierr = gamma.prepare_random(); CHKERRQ(ierr);	
 	if(PRINT_DATA){ /* print gamma */

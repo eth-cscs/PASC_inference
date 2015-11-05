@@ -1,6 +1,6 @@
 #include "gamma.h"
 
-PetscErrorCode Gamma::init(Data data, PetscInt dim)
+PetscErrorCode Gamma::init(Data data, PetscInt dim, QPproblem *qpproblem)
 {
 	PetscErrorCode ierr;
 	PetscInt i;
@@ -29,14 +29,8 @@ PetscErrorCode Gamma::init(Data data, PetscInt dim)
 	ierr = VecGetOwnershipRange(this->gamma_vecs[0], &this->local_begin, &this->local_end); CHKERRQ(ierr);
 
 	/* init QP problem */
-	this->qpproblem.init(this->global_size, this->local_size, this->dim, 10);
-
-	/* we can directly asseble some of QP objects which are independent of outer iterations */
-	this->qpproblem.assemble_A();
-	this->qpproblem.assemble_BE();
-	this->qpproblem.assemble_cE();
-	this->qpproblem.assemble_lb();
-	this->qpproblem.assemble_PBE();
+	this->qpproblem = qpproblem;
+	this->qpproblem->init();
 		
     PetscFunctionReturn(0);  	
 }
@@ -55,7 +49,7 @@ PetscErrorCode Gamma::finalize()
 	ierr = PetscFree(this->gamma_vecs); CHKERRQ(ierr);
 
 	/* finalize QP problem */
-	this->qpproblem.finalize();
+	this->qpproblem->finalize();
 
     PetscFunctionReturn(0);  	
 }
@@ -182,47 +176,7 @@ PetscErrorCode Gamma::compute(Data data, Theta theta)
 {
 	PetscErrorCode ierr; /* error handler */
 	
-	Vec b; /* linear term (RHS vector) */
-	Vec x; /* solution */
-
-	PetscScalar *x_arr; /* array with local values of solution x */
-	PetscScalar *gamma_arr;
-	
-	PetscInt k,i;
-	PetscInt x_begin, x_end;
-	
 	PetscFunctionBegin;
-	
-	/* --- PREPARE DATA FOR OPTIMIZATION PROBLEM --- */
-
-	ierr = this->qpproblem.get_b(&b); CHKERRQ(ierr);
-	ierr = this->qpproblem.get_x(&x); CHKERRQ(ierr);
-	
-	/* set new RHS, b = -g */
-	ierr = this->compute_g(b, data, theta); CHKERRQ(ierr);
-	ierr = VecScale(b, -1.0); CHKERRQ(ierr);
-	ierr = VecAssemblyBegin(b); CHKERRQ(ierr);
-	ierr = VecAssemblyEnd(b); CHKERRQ(ierr);	
-	if(PETSC_FALSE){
-		ierr = this->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
-
-		ierr = PetscViewerASCIIPrintf(PETSC_VIEWER_STDOUT_WORLD,"- x:\n"); CHKERRQ(ierr); 
-		ierr = PetscViewerASCIIPushTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
-		ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
-		ierr = PetscViewerASCIIPopTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
-
-	}
-
-	/* prepare initial vector from actual gamma */
-	for(k=0;k<this->dim;k++){
-		ierr = VecGetArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
-		for(i=0;i<this->local_size;i++){
-			ierr = VecSetValue(x, k*this->global_size+this->local_begin+i, gamma_arr[i], INSERT_VALUES); CHKERRQ(ierr);
-		}
-		ierr = VecRestoreArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
-	}
-	ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
-	ierr = VecAssemblyEnd(x); CHKERRQ(ierr);	
 
 	/* PRINT QP PROBLEM */
 	if(PRINT_DATA){ /* print quadratic problem objects */

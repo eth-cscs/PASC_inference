@@ -28,7 +28,7 @@ class Gamma {
 	public:
 		Vec *gamma_vecs; /* array with data vectors, TODO: should be private */
 
-		PetscErrorCode init(Data data, PetscInt dim); /* TODO: should be constructor */
+		PetscErrorCode init(Data, PetscInt, QPproblem*); /* TODO: should be constructor */
 		PetscErrorCode finalize(); /* TODO: should be destructor */
 
 		PetscErrorCode print(PetscViewer v);

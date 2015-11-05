@@ -43,6 +43,7 @@ class QPproblemPermon: public QPproblem {
 		PetscErrorCode project();
 				
 	public:
+		QPproblemPermon(Gamma*, Theta*, PetscScalar);
 		PetscErrorCode init();
 		PetscErrorCode finalize();
 		PetscErrorCode solve();

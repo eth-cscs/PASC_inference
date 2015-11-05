@@ -14,8 +14,8 @@ class QPproblem {
 		virtual PetscErrorCode init();
 		virtual PetscErrorCode finalize();
 		virtual PetscErrorCode solve();
-		virtual PetscErrorCode get_function_value(PetscScalar *fx);
-		virtual PetscErrorCode print(PetscViewer v);
+		virtual PetscErrorCode get_function_value(PetscScalar*);
+		virtual PetscErrorCode print(PetscViewer);
 		
 };
 
