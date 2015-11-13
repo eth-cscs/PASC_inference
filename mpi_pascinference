@@ -1,0 +1,9 @@
+#! /bin/bash
+
+MPIRUN=mpirun.mpich
+EXEC=./pascinference
+NPROC=$1
+ARGS=$@
+
+$MPIRUN -n $NPROC $EXEC $ARGS
+

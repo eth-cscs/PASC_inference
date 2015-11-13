@@ -1,0 +1,37 @@
+### THIS FILE CONTAINS SETTINGS FOR PERMON
+
+#-feti
+#-dual_mat_inv_pc_factor_mat_solver_package mumps
+#-dual_mat_inv_pc_type cholesky
+
+-qpt_homogenize_eq_always true
+#-qppf_mat_inv_pc_factor_mat_solver_package mumps
+#-qppf_variant dist
+-qp_chain_view
+#-qp_chain_view_kkt
+-qps_view_convergence
+-qppf_variant dist
+-qppf_mat_inv_ksp_type cg
+-qppf_mat_inv_pc_type none
+#-log_summary
+-qps_view_convergence
+#-fllop_view
+-fllop_trace
+
+## SMALSE options
+#-qps_smalse_maxeig 4
+#-qps_smalse_maxeig_iter
+#-qps_smalse_eta_direct 1
+-qps_smalse_eta 1
+#-qps_smalse_penalty_direct
+-qps_smalse_penalty 1
+#-qps_smalse_maxeig_inject
+-qps_smalse_m0 1
+-qps_smalse_beta 2
+#-qps_smalse_beta_penalty
+#-qps_smalse_inner_rtol 1e-4
+#-qps_smalse_penalty_update_policy
+#-qps_smalse_monitor
+#-qps_smalse_get_lambda
+#-qps_smalse_get_Bt_lambda
+-smalse_qps_mpgp_alpha 1.95
