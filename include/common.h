@@ -7,6 +7,7 @@
 #define datan 2
 #define gammaK 3
 #define eps_squared 10
+#define max_s_steps 10
 
 #define PRINT_DATA 0
 

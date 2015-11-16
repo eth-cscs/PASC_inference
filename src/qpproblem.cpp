@@ -106,7 +106,7 @@ PetscErrorCode QPproblem::assemble_A(){
 	ierr = MatAssemblyBegin(this->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
 	ierr = MatAssemblyEnd(this->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
 	/* A = 0.5*A (to obtain 1/2*x^T*A*x - b^T*x) */
-	ierr = MatScale(this->A, 20*0.5); CHKERRQ(ierr); // TODO: eps_sqr
+	ierr = MatScale(this->A, 10*0.5); CHKERRQ(ierr); // TODO: eps_sqr
 	
     PetscFunctionReturn(0);  
 }

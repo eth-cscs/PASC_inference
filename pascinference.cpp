@@ -49,7 +49,7 @@ int main( int argc, char *argv[] )
 	/* main cycle */
 	ierr = PetscViewerASCIIPrintf(my_viewer,"- run main cycle:\n"); CHKERRQ(ierr);
 	ierr = PetscViewerASCIIPushTab(my_viewer); CHKERRQ(ierr);
-	for(s=0;s<10;s++){
+	for(s=0;s<max_s_steps;s++){
 		ierr = PetscViewerASCIIPrintf(my_viewer,"- s = %d:\n",s); CHKERRQ(ierr);
 		ierr = PetscViewerASCIIPushTab(my_viewer); CHKERRQ(ierr);
 

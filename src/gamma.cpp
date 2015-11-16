@@ -188,24 +188,35 @@ PetscErrorCode Gamma::compute(Data data, Theta theta)
 	PetscScalar *gamma_arr;
 	
 	PetscInt k,i;
+	PetscInt x_begin, x_end;
 	
 	PetscFunctionBegin;
 	
 	/* --- PREPARE DATA FOR OPTIMIZATION PROBLEM --- */
+
+	ierr = this->qpproblem.get_b(&b); CHKERRQ(ierr);
+	ierr = this->qpproblem.get_x(&x); CHKERRQ(ierr);
 	
 	/* set new RHS, b = -g */
-	ierr = this->qpproblem.get_b(&b); CHKERRQ(ierr);
 	ierr = this->compute_g(b, data, theta); CHKERRQ(ierr);
 	ierr = VecScale(b, -1.0); CHKERRQ(ierr);
 	ierr = VecAssemblyBegin(b); CHKERRQ(ierr);
 	ierr = VecAssemblyEnd(b); CHKERRQ(ierr);	
-	
+	if(PETSC_FALSE){
+		ierr = this->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+
+		ierr = PetscViewerASCIIPrintf(PETSC_VIEWER_STDOUT_WORLD,"- x:\n"); CHKERRQ(ierr); 
+		ierr = PetscViewerASCIIPushTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = PetscViewerASCIIPopTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+
+	}
+
 	/* prepare initial vector from actual gamma */
-	ierr = this->qpproblem.get_x(&x); CHKERRQ(ierr);
 	for(k=0;k<this->dim;k++){
 		ierr = VecGetArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
 		for(i=0;i<this->local_size;i++){
-			ierr = VecSetValue(x, this->dim*this->local_begin + k*this->local_size + i, gamma_arr[i], INSERT_VALUES); CHKERRQ(ierr);
+			ierr = VecSetValue(x, k*this->global_size+this->local_begin+i, gamma_arr[i], INSERT_VALUES); CHKERRQ(ierr);
 		}
 		ierr = VecRestoreArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
 	}
@@ -223,11 +234,11 @@ PetscErrorCode Gamma::compute(Data data, Theta theta)
 	/* --- SET SOLUTION BACK TO GAMMA --- */
 
 	/* get local array from solution x */
+	ierr = VecGetOwnershipRange(x, &x_begin, &x_end); CHKERRQ(ierr);
 	ierr = VecGetArray(x,&x_arr); CHKERRQ(ierr);
-	for(k=0;k<this->dim;k++){
-		for(i = 0;i < this->local_size; i++){
-			ierr = VecSetValue(gamma_vecs[k], this->local_begin+i, x_arr[k*this->local_size+i],INSERT_VALUES);
-		}
+	for(i = x_begin;i < x_end; i++){
+		k = (PetscInt)floor(i/(PetscScalar)this->global_size);
+		ierr = VecSetValue(this->gamma_vecs[k], (i - k*this->global_size), x_arr[i-x_begin],INSERT_VALUES);
 	}
 	ierr = VecRestoreArray(x,&x_arr); CHKERRQ(ierr);
 
@@ -236,6 +247,17 @@ PetscErrorCode Gamma::compute(Data data, Theta theta)
 		ierr = VecAssemblyBegin(gamma_vecs[k]); CHKERRQ(ierr);
 		ierr = VecAssemblyEnd(gamma_vecs[k]); CHKERRQ(ierr);	
 	}
+
+	if(PETSC_FALSE){
+		ierr = PetscViewerASCIIPrintf(PETSC_VIEWER_STDOUT_WORLD,"- x:\n"); CHKERRQ(ierr); 
+		ierr = PetscViewerASCIIPushTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = PetscViewerASCIIPopTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+
+		ierr = this->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+	}
+
+
 	
 	/* clean the mess */
 //	ierr = VecDestroy(&b); CHKERRQ(ierr);
@@ -313,7 +335,8 @@ PetscErrorCode Gamma::compute_g(Vec g, Data data, Theta theta)
 		/* include g_part into vector g */
 		ierr = VecGetArray(g_part, &g_part_arr); CHKERRQ(ierr);
 		for(i=0;i<this->local_size;i++){
-			ierr = VecSetValue(g, g_local_begin + k*this->local_size + i, g_part_arr[i], INSERT_VALUES); CHKERRQ(ierr);
+//			ierr = VecSetValue(g, g_local_begin + k*this->local_size + i, g_part_arr[i], INSERT_VALUES); CHKERRQ(ierr);
+			ierr = VecSetValue(g, k*this->global_size+this->local_begin+i, g_part_arr[i], INSERT_VALUES); CHKERRQ(ierr);
 		}
 		ierr = VecRestoreArray(g_part, &g_part_arr); CHKERRQ(ierr);
 	}
