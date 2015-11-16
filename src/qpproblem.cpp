@@ -56,6 +56,16 @@ PetscErrorCode QPproblem::init(PetscInt N, PetscInt N_local, PetscInt K){
 	ierr = VecSetFromOptions(this->x); CHKERRQ(ierr);
 	ierr = PetscObjectSetName((PetscObject)this->x,"x"); CHKERRQ(ierr);
 
+	/* prepare gradient vector g */
+	ierr = VecDuplicate(this->b,&this->g); CHKERRQ(ierr);
+	ierr = VecSetFromOptions(this->g); CHKERRQ(ierr);
+	ierr = PetscObjectSetName((PetscObject)this->g,"g"); CHKERRQ(ierr);
+
+	/* prepare temporary vector temp */
+	ierr = VecDuplicate(this->b,&this->temp); CHKERRQ(ierr);
+	ierr = VecSetFromOptions(this->temp); CHKERRQ(ierr);
+	ierr = PetscObjectSetName((PetscObject)this->temp,"temp"); CHKERRQ(ierr);
+
     PetscFunctionReturn(0);  
 }
 
@@ -71,6 +81,8 @@ PetscErrorCode QPproblem::finalize(){
 	ierr = VecDestroy(&this->cE); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->lb); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->x); CHKERRQ(ierr);
+	ierr = VecDestroy(&this->g); CHKERRQ(ierr);
+	ierr = VecDestroy(&this->temp); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  		
 }
@@ -288,3 +300,36 @@ PetscErrorCode QPproblem::solve_permon(){
 
     PetscFunctionReturn(0);  
 }
+
+PetscErrorCode QPproblem::compute_gradient(){
+	PetscErrorCode ierr;
+
+	PetscFunctionBegin;
+
+	/* g = A*x - b */
+	ierr = MatMult(this->A, this->x, this->g); CHKERRQ(ierr);
+	ierr = VecAXPY(this->g, -1.0, this->b); CHKERRQ(ierr);
+
+    PetscFunctionReturn(0);  
+}
+
+PetscErrorCode QPproblem::get_function_value(PetscScalar *fx){
+	PetscErrorCode ierr;
+	PetscScalar value;
+	
+	PetscFunctionBegin;
+
+	/* fx = 1/2*<g-b,x> */
+	ierr = VecCopy(this->g,this->temp); CHKERRQ(ierr);
+	ierr = VecAXPY(this->temp, -1.0, this->b); CHKERRQ(ierr);
+	ierr = VecDot(this->x,this->temp,&value); CHKERRQ(ierr);
+	value = 0.5*value;
+	
+	/* set return value */
+	*fx = value;
+
+    PetscFunctionReturn(0);  
+}
+
+
+

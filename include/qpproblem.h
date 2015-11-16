@@ -21,6 +21,8 @@ class QPproblem {
 		Vec lb; /* lower bound */
 		
 		Vec x; /* solution vector */
+		Vec g; /* gradient in x */
+		Vec temp; /* temp vector for computation, same size as x */
 
 	public:
 
@@ -40,6 +42,9 @@ class QPproblem {
 		PetscErrorCode solve_permon();
 
 		PetscErrorCode print(PetscViewer v);
+
+		PetscErrorCode compute_gradient();
+		PetscErrorCode get_function_value(PetscScalar *fx);
 	
 };
 

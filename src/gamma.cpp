@@ -257,7 +257,8 @@ PetscErrorCode Gamma::compute(Data data, Theta theta)
 		ierr = this->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
 	}
 
-
+	/* recompute gradient */
+	ierr = this->qpproblem.compute_gradient(); CHKERRQ(ierr);
 	
 	/* clean the mess */
 //	ierr = VecDestroy(&b); CHKERRQ(ierr);
@@ -406,4 +407,16 @@ PetscInt Gamma::get_dim()
 	return this->dim;
 }
 
+PetscErrorCode Gamma::get_objectfunc_value(PetscScalar *value)
+{
+	PetscErrorCode ierr;	
 
+	PetscFunctionBegin;
+	/* suppose that gradient is computed ! */
+//	ierr = this->qpproblem.compute_gradient(); CHKERRQ(ierr);
+	
+	/* compute function value */
+	ierr = this->qpproblem.get_function_value(value); CHKERRQ(ierr);
+
+    PetscFunctionReturn(0);  		
+}

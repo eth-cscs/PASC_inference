@@ -8,6 +8,7 @@
 #define gammaK 3
 #define eps_squared 10
 #define max_s_steps 10
+#define deltaL_eps 0.0001
 
 #define PRINT_DATA 0
 

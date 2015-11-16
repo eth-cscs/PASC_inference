@@ -38,6 +38,7 @@ class Gamma {
 		PetscErrorCode prepare_fixed();		
 
 		PetscErrorCode compute(Data data, Theta theta);
+		PetscErrorCode get_objectfunc_value(PetscScalar *value);
 
 		/* GET functions */
 		PetscInt get_local_size();

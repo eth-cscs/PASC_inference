@@ -15,7 +15,8 @@ int main( int argc, char *argv[] )
 	Data data;
 	Gamma gamma;
 	Theta theta;
-	PetscInt s;
+	PetscInt s; /* index of main iterations */
+	PetscReal L, L_old, deltaL; /* object function value */
 
 	PetscLogDouble time_begin, time_end, time_elapsed; /* elapsed time of computation */
 	
@@ -43,6 +44,9 @@ int main( int argc, char *argv[] )
 	/* initialize theta */
 	ierr = theta.init(data,gamma); CHKERRQ(ierr);
 	
+	/* initialize value of object function */
+	L = PETSC_MAX_REAL; // TODO: the computation of L should be done in the different way
+	
 	/* here start to measure time for computation */
 	ierr = PetscTime(&time_begin);CHKERRQ(ierr);	
 	
@@ -55,13 +59,26 @@ int main( int argc, char *argv[] )
 
 		/* compute Theta */
 		ierr = theta.compute(data,gamma); CHKERRQ(ierr);
-		/* print Theta */
-		if(PRINT_DATA){ /* print gamma */
-			ierr = theta.print(my_viewer); CHKERRQ(ierr);
-		}	
 
 		/* compute gamma */
 		ierr = gamma.compute(data,theta); CHKERRQ(ierr);
+		
+		/* update value of object function */
+		L_old = L;
+		ierr = gamma.get_objectfunc_value(&L); CHKERRQ(ierr);
+		deltaL = PetscAbsScalar(L - L_old);
+		
+		/* print info about cost function */
+		if(PETSC_TRUE){ 
+			ierr = PetscViewerASCIIPrintf(my_viewer,"- L_old       = %f:\n",L_old); CHKERRQ(ierr);
+			ierr = PetscViewerASCIIPrintf(my_viewer,"- L           = %f:\n",L); CHKERRQ(ierr);
+			ierr = PetscViewerASCIIPrintf(my_viewer,"- |L - L_old| = %f:\n",deltaL); CHKERRQ(ierr);
+		}	
+
+		/* end the main cycle if the change of function value is sufficient */
+		if (deltaL < deltaL_eps){
+			break;
+		}
 		
 		ierr = PetscViewerASCIIPopTab(my_viewer); CHKERRQ(ierr);
 	}
@@ -83,6 +100,8 @@ int main( int argc, char *argv[] )
 	/* print info about elapsed time */
 	time_elapsed = time_end - time_begin;
 	ierr = PetscViewerASCIIPrintf(my_viewer,"- time for computation: %f s\n", time_elapsed); CHKERRQ(ierr);
+	ierr = PetscViewerASCIIPrintf(my_viewer,"- number of iterations: %d\n", s); CHKERRQ(ierr);
+	ierr = PetscViewerASCIIPrintf(my_viewer,"- |L - L_old|         = %f:\n",deltaL); CHKERRQ(ierr);
 	
 	Finalize();
 	return 0;
