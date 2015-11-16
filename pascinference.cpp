@@ -61,7 +61,8 @@ int main( int argc, char *argv[] )
 		ierr = theta.compute(data,gamma); CHKERRQ(ierr);
 
 		/* compute gamma */
-		ierr = gamma.compute(data,theta); CHKERRQ(ierr);
+//		ierr = gamma.compute(data,theta); CHKERRQ(ierr);
+		ierr = gamma.projection_step(data,theta); CHKERRQ(ierr);
 		
 		/* update value of object function */
 		L_old = L;

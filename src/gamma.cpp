@@ -29,13 +29,14 @@ PetscErrorCode Gamma::init(Data data, PetscInt dim)
 	ierr = VecGetOwnershipRange(this->gamma_vecs[0], &this->local_begin, &this->local_end); CHKERRQ(ierr);
 
 	/* init QP problem */
-	this->qpproblem.init(this->global_size, this->local_size, this->dim);
+	this->qpproblem.init(this->global_size, this->local_size, this->dim, 10);
 
 	/* we can directly asseble some of QP objects which are independent of outer iterations */
 	this->qpproblem.assemble_A();
 	this->qpproblem.assemble_BE();
 	this->qpproblem.assemble_cE();
 	this->qpproblem.assemble_lb();
+	this->qpproblem.assemble_PBE();
 		
     PetscFunctionReturn(0);  	
 }
@@ -256,9 +257,6 @@ PetscErrorCode Gamma::compute(Data data, Theta theta)
 
 		ierr = this->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
 	}
-
-	/* recompute gradient */
-	ierr = this->qpproblem.compute_gradient(); CHKERRQ(ierr);
 	
 	/* clean the mess */
 //	ierr = VecDestroy(&b); CHKERRQ(ierr);
@@ -413,10 +411,97 @@ PetscErrorCode Gamma::get_objectfunc_value(PetscScalar *value)
 
 	PetscFunctionBegin;
 	/* suppose that gradient is computed ! */
-//	ierr = this->qpproblem.compute_gradient(); CHKERRQ(ierr);
+	ierr = this->qpproblem.compute_gradient(); CHKERRQ(ierr);
 	
 	/* compute function value */
 	ierr = this->qpproblem.get_function_value(value); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  		
 }
+
+PetscErrorCode Gamma::projection_step(Data data, Theta theta)
+{
+	PetscErrorCode ierr; /* error handler */
+	
+	Vec b; /* linear term (RHS vector) */
+	Vec x; /* solution */
+
+	PetscScalar *x_arr; /* array with local values of solution x */
+	PetscScalar *gamma_arr;
+	
+	PetscInt k,i;
+	PetscInt x_begin, x_end;
+	
+	PetscFunctionBegin;
+	
+	/* --- PREPARE DATA FOR OPTIMIZATION PROBLEM --- */
+
+	ierr = this->qpproblem.get_b(&b); CHKERRQ(ierr);
+	ierr = this->qpproblem.get_x(&x); CHKERRQ(ierr);
+	
+	/* set new RHS, b = -g */
+	ierr = this->compute_g(b, data, theta); CHKERRQ(ierr);
+	ierr = VecScale(b, -1.0); CHKERRQ(ierr);
+	ierr = VecAssemblyBegin(b); CHKERRQ(ierr);
+	ierr = VecAssemblyEnd(b); CHKERRQ(ierr);	
+	if(PETSC_FALSE){
+		ierr = this->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+
+		ierr = PetscViewerASCIIPrintf(PETSC_VIEWER_STDOUT_WORLD,"- x:\n"); CHKERRQ(ierr); 
+		ierr = PetscViewerASCIIPushTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = PetscViewerASCIIPopTab(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+
+	}
+
+	/* prepare initial vector from actual gamma */
+	for(k=0;k<this->dim;k++){
+		ierr = VecGetArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
+		for(i=0;i<this->local_size;i++){
+			ierr = VecSetValue(x, k*this->global_size+this->local_begin+i, gamma_arr[i], INSERT_VALUES); CHKERRQ(ierr);
+		}
+		ierr = VecRestoreArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
+	}
+	ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
+	ierr = VecAssemblyEnd(x); CHKERRQ(ierr);	
+
+	/* PRINT QP PROBLEM */
+	if(PRINT_DATA){ /* print quadratic problem objects */
+		ierr = this->qpproblem.print(PETSC_VIEWER_STDOUT_WORLD);
+	}	
+
+	/* compute gradient */
+	ierr = this->qpproblem.compute_gradient(); CHKERRQ(ierr);
+
+	/* --- SOLVE OPTIMIZATION PROBLEM --- */
+	ierr = this->qpproblem.solve_projection_step();
+
+	/* --- SET SOLUTION BACK TO GAMMA --- */
+
+	/* get local array from solution x */
+	ierr = VecGetOwnershipRange(x, &x_begin, &x_end); CHKERRQ(ierr);
+	ierr = VecGetArray(x,&x_arr); CHKERRQ(ierr);
+	for(i = x_begin;i < x_end; i++){
+		k = (PetscInt)floor(i/(PetscScalar)this->global_size);
+		ierr = VecSetValue(this->gamma_vecs[k], (i - k*this->global_size), x_arr[i-x_begin],INSERT_VALUES);
+	}
+	ierr = VecRestoreArray(x,&x_arr); CHKERRQ(ierr);
+
+	/* the values of vectors are prepared for fun */
+	for(k=0;k<this->dim;k++){
+		ierr = VecAssemblyBegin(gamma_vecs[k]); CHKERRQ(ierr);
+		ierr = VecAssemblyEnd(gamma_vecs[k]); CHKERRQ(ierr);	
+	}
+
+	/* compute gradient */
+	ierr = this->qpproblem.compute_gradient(); CHKERRQ(ierr);
+
+	/* clean the mess */
+//	ierr = VecDestroy(&b); CHKERRQ(ierr);
+//	ierr = VecDestroy(&x); CHKERRQ(ierr);
+
+    PetscFunctionReturn(0); 
+}
+
+
+
