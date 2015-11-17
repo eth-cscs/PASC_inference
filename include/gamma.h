@@ -2,6 +2,7 @@
 #define	GAMMA_H
 
 class Gamma;
+class QPproblem;
 
 #include "common.h"
 #include "data.h"
@@ -19,16 +20,12 @@ class Gamma {
 		PetscMPIInt proc_n, proc_id; /* for MPI_Comm functions */	
 	
 		PetscRandom rnd; /* random numbers generator */
-
-		QPproblem *qpproblem; /* this is qp problem which need to be solved to obtain new gamma */
-
-		/* private functions */
-		PetscErrorCode compute_g(Vec g, Data data, Theta theta);
 		
 	public:
 		Vec *gamma_vecs; /* array with data vectors, TODO: should be private */
+		QPproblem *qpproblem; /* this is qp problem which need to be solved to obtain new gamma, TODO: should be private */
 
-		PetscErrorCode init(Data, PetscInt, QPproblem*); /* TODO: should be constructor */
+		PetscErrorCode init(Data, PetscInt); /* TODO: should be constructor */
 		PetscErrorCode finalize(); /* TODO: should be destructor */
 
 		PetscErrorCode print(PetscViewer v);
@@ -38,7 +35,6 @@ class Gamma {
 		PetscErrorCode prepare_fixed();		
 
 		PetscErrorCode compute(Data data, Theta theta);
-		PetscErrorCode projection_step(Data data, Theta theta);
 		PetscErrorCode get_objectfunc_value(PetscScalar *value);
 
 		/* GET functions */
@@ -48,7 +44,11 @@ class Gamma {
 		PetscInt get_global_size();
 		PetscInt get_dim();
 
+		/* SET functions */
+		PetscErrorCode set_QPproblem(QPproblem*);
 
+		// TODO: this should be somewhere else
+		PetscErrorCode compute_g(Vec g, Data *data, Theta *theta);
 	
 };
 

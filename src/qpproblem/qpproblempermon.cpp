@@ -1,7 +1,7 @@
 #include "qpproblempermon.h"
 
 /* constructor */
-QPproblemPermon::QPproblemPermon(Gamma *gamma, Theta *theta, PetscScalar eps_sqr) : QPproblem(gamma,theta, eps_sqr) {
+QPproblemPermon::QPproblemPermon(Data *data, Gamma *gamma, Theta *theta, PetscScalar eps_sqr) : QPproblem(data, gamma,theta, eps_sqr) {
 	this->N = this->gamma->get_global_size();
 	this->N_local = this->gamma->get_local_size();
 	this->K = this->gamma->get_dim();
@@ -82,11 +82,11 @@ PetscErrorCode QPproblemPermon::init(){
 	ierr = MatSetOption(this->PBE,MAT_SYMMETRIC,PETSC_TRUE); CHKERRQ(ierr);
 
 	/* we can immediately asseble some of QP objects which are independent of outer iterations */
-	this->qpproblem.assemble_A();
-	this->qpproblem.assemble_BE();
-	this->qpproblem.assemble_cE();
-	this->qpproblem.assemble_lb();
-	this->qpproblem.assemble_PBE();
+	this->assemble_A();
+	this->assemble_BE();
+	this->assemble_cE();
+	this->assemble_lb();
+	this->assemble_PBE();
 
     PetscFunctionReturn(0);  
 }
@@ -321,18 +321,18 @@ PetscErrorCode QPproblemPermon::solve(){
 	/* --- PREPARE DATA FOR OPTIMIZATION PROBLEM --- */
 
 	/* set new RHS, b = -g */
-	ierr = this->compute_g(this->b, data, theta); CHKERRQ(ierr);
+	ierr = this->gamma->compute_g(this->b, this->data, this->theta); CHKERRQ(ierr);
 	ierr = VecScale(this->b, -1.0); CHKERRQ(ierr);
 	ierr = VecAssemblyBegin(this->b); CHKERRQ(ierr);
 	ierr = VecAssemblyEnd(this->b); CHKERRQ(ierr);	
 
 	/* prepare initial vector from actual gamma, TODO: move this to Gamma */
-	for(k=0;k<this->dim;k++){
-		ierr = VecGetArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
-		for(i=0;i<this->local_size;i++){
-			ierr = VecSetValue(this->x, k*this->global_size+this->local_begin+i, gamma_arr[i], INSERT_VALUES); CHKERRQ(ierr);
+	for(k=0;k<this->K;k++){
+		ierr = VecGetArray(this->gamma->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
+		for(i=0;i<this->N_local;i++){
+			ierr = VecSetValue(this->x, k*this->gamma->get_global_size()+this->gamma->get_local_begin()+i, gamma_arr[i], INSERT_VALUES); CHKERRQ(ierr);
 		}
-		ierr = VecRestoreArray(this->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
+		ierr = VecRestoreArray(this->gamma->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
 	}
 	ierr = VecAssemblyBegin(this->x); CHKERRQ(ierr);
 	ierr = VecAssemblyEnd(this->x); CHKERRQ(ierr);	
@@ -378,23 +378,26 @@ PetscErrorCode QPproblemPermon::solve(){
 	/* it is not necessary to do more fun with Permon */
 	ierr = FllopFinalize(); CHKERRQ(ierr);
 
-    PetscFunctionReturn(0);  
-}
 
-PetscErrorCode QPproblemPermon::solve_projection_step(){
-	PetscErrorCode ierr;
-	PetscScalar alpha; 
+	/* --- SET SOLUTION BACK TO GAMMA --- */
 
-	PetscFunctionBegin;
+	// TODO: move following to Gamma 
 
-	/* -0.99/lambda_max */
-	alpha = -0.99/(this->eps_sqr*4.0);
+	/* get local array from solution x */
+	ierr = VecGetOwnershipRange(this->x, &x_begin, &x_end); CHKERRQ(ierr);
+	ierr = VecGetArray(this->x,&x_arr); CHKERRQ(ierr);
+	for(i = x_begin;i < x_end; i++){
+		k = (PetscInt)floor(i/(PetscScalar)this->N);
+		ierr = VecSetValue(this->gamma->gamma_vecs[k], (i - k*this->N), x_arr[i-x_begin],INSERT_VALUES);
+	}
+	ierr = VecRestoreArray(this->x,&x_arr); CHKERRQ(ierr);
 
-	/* x = x - alpha*g */
-	ierr = VecAXPY(this->x, alpha, this->g); CHKERRQ(ierr);
+	/* the values of vectors are prepared for fun */
+	for(k=0;k<this->K;k++){
+		ierr = VecAssemblyBegin(this->gamma->gamma_vecs[k]); CHKERRQ(ierr);
+		ierr = VecAssemblyEnd(this->gamma->gamma_vecs[k]); CHKERRQ(ierr);	
+	}
 
-	/* x = P(x) */
-	ierr = this->project(); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  
 }
@@ -411,11 +414,14 @@ PetscErrorCode QPproblemPermon::compute_gradient(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblem::get_function_value(PetscScalar *fx){
+PetscErrorCode QPproblemPermon::get_function_value(PetscScalar *fx){
 	PetscErrorCode ierr;
 	PetscScalar value;
 	
 	PetscFunctionBegin;
+
+	/* compute gradient */
+	ierr = this->compute_gradient(); CHKERRQ(ierr);
 
 	/* fx = 1/2*<g-b,x> */
 	ierr = VecCopy(this->g,this->temp); CHKERRQ(ierr);

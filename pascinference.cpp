@@ -38,8 +38,8 @@ int main( int argc, char *argv[] )
 	}	
 
 	/* initialize gamma */
-	QPproblemPermon qpproblem(&gamma,&theta,10);
-	ierr = gamma.init(data, gammaK, &qpproblem); CHKERRQ(ierr);
+	ierr = gamma.init(data, gammaK); CHKERRQ(ierr);
+
 	/* prepare gammas */
 	ierr = gamma.prepare_random(); CHKERRQ(ierr);	
 	if(PRINT_DATA){ /* print gamma */
@@ -48,6 +48,11 @@ int main( int argc, char *argv[] )
 
 	/* initialize theta */
 	ierr = theta.init(data,gamma); CHKERRQ(ierr);
+
+	/* initialize QP solver */
+	QPproblemPermon qpproblem(&data,&gamma,&theta,10);
+	gamma.qpproblem = &qpproblem;
+	gamma.qpproblem->init();
 	
 	/* initialize value of object function */
 	L = PETSC_MAX_REAL; // TODO: the computation of L should be done in the different way
@@ -66,8 +71,7 @@ int main( int argc, char *argv[] )
 		ierr = theta.compute(data,gamma); CHKERRQ(ierr);
 
 		/* compute gamma */
-//		ierr = gamma.compute(data,theta); CHKERRQ(ierr);
-		ierr = gamma.projection_step(data,theta); CHKERRQ(ierr);
+		ierr = gamma.compute(data,theta); CHKERRQ(ierr);
 		
 		/* update value of object function */
 		L_old = L;

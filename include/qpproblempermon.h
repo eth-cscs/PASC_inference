@@ -27,7 +27,6 @@ class QPproblemPermon: public QPproblem {
 		Vec temp; /* temp vector for computation, same size as x */
 		Vec temp2; /* temp vector for computation, same size as cE */
 
-		PetscScalar eps_sqr;
 		Mat PBE; /* projector onto Ker B */
 		
 		PetscErrorCode assemble_A();
@@ -43,7 +42,7 @@ class QPproblemPermon: public QPproblem {
 		PetscErrorCode project();
 				
 	public:
-		QPproblemPermon(Gamma*, Theta*, PetscScalar);
+		QPproblemPermon(Data*, Gamma*, Theta*, PetscScalar);
 		PetscErrorCode init();
 		PetscErrorCode finalize();
 		PetscErrorCode solve();
