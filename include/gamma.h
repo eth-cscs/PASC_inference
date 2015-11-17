@@ -20,7 +20,7 @@ class Gamma {
 	
 		PetscRandom rnd; /* random numbers generator */
 
-		QPproblem qpproblem; /* this is qp problem which need to be solved to obtain new gamma */
+		QPproblem *qpproblem; /* this is qp problem which need to be solved to obtain new gamma */
 
 		/* private functions */
 		PetscErrorCode compute_g(Vec g, Data data, Theta theta);
