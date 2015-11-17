@@ -5,7 +5,7 @@
 #include "savevtk.h"
 
 /* include QPproblem */
-#include "qpproblempermon.h"
+#include "qpproblemprojectionstep.h"
 
 
 PetscMPIInt proc_n, proc_id; /* for MPI_Comm functions */	
@@ -50,7 +50,7 @@ int main( int argc, char *argv[] )
 	ierr = theta.init(data,gamma); CHKERRQ(ierr);
 
 	/* initialize QP solver */
-	QPproblemPermon qpproblem(&data,&gamma,&theta,10);
+	QPproblemProjectionstep qpproblem(&data,&gamma,&theta,10);
 	gamma.qpproblem = &qpproblem;
 	gamma.qpproblem->init();
 	

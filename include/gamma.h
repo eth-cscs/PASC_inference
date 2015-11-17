@@ -47,8 +47,9 @@ class Gamma {
 		/* SET functions */
 		PetscErrorCode set_QPproblem(QPproblem*);
 
-		// TODO: this should be somewhere else
+		// TODO: this should be somewhere else, Model?
 		PetscErrorCode compute_g(Vec g, Data *data, Theta *theta);
+		PetscErrorCode compute_gk(Vec g, Data *data, Theta *theta, PetscInt k);
 	
 };
 

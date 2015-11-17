@@ -274,6 +274,61 @@ PetscErrorCode Gamma::compute_g(Vec g, Data *data, Theta *theta)
     PetscFunctionReturn(0); 
 }
 
+PetscErrorCode Gamma::compute_gk(Vec g, Data *data, Theta *theta, PetscInt k)
+{
+	PetscErrorCode ierr;
+	
+	Vec *x_minus_Theta;
+	PetscScalar alpha,p;
+	
+	PetscScalar *alphas;
+	
+	PetscInt i;
+	PetscInt g_local_begin;
+		
+	PetscFunctionBegin;
+
+	/* get the ownership range of given g */
+	ierr = VecGetOwnershipRange(g, &g_local_begin, NULL); CHKERRQ(ierr);
+
+	/* prepare array with coefficients */
+	ierr = PetscMalloc(data->get_dim()*sizeof(PetscScalar), &alphas); CHKERRQ(ierr);
+	for(i=0;i<data->get_dim();i++){
+		alphas[i] = 1.0;
+	}
+	
+	/* prepare array of vectors x_minus_Theta */
+	ierr = PetscMalloc(data->get_dim()*sizeof(Vec), &x_minus_Theta); CHKERRQ(ierr);
+	for(i=0;i<data->get_dim();i++){
+		ierr = VecDuplicate(data->data_vecs[i],&(x_minus_Theta[i])); CHKERRQ(ierr);
+	}
+
+	alpha = -1.0;
+	p = 2.0;
+	for(i=0;i<data->get_dim();i++){
+		/* x_minus_Theta = Theta */
+		ierr = VecSet(x_minus_Theta[i],theta->theta_arr[k*data->get_dim()+i]); CHKERRQ(ierr);
+
+		/* x_minus_Theta = x - Theta */
+		ierr = VecAYPX(x_minus_Theta[i], alpha, data->data_vecs[i]); CHKERRQ(ierr);
+
+		/* x_minus_Theta = x_minus_Theta.^2 */
+		ierr = VecPow(x_minus_Theta[i], p); CHKERRQ(ierr);
+	}
+	
+	/* compute the sum of x_minus_Theta[:] */
+	ierr = VecSet(g,0.0); CHKERRQ(ierr);
+	ierr = VecMAXPY(g, data->get_dim(), alphas, x_minus_Theta); CHKERRQ(ierr);
+
+	/* destroy temp vectors */
+	for(i=0;i<data->get_dim();i++){
+		ierr = VecDestroy(&(x_minus_Theta[i])); CHKERRQ(ierr);
+	}
+	ierr = PetscFree(alphas); CHKERRQ(ierr);
+	
+    PetscFunctionReturn(0); 
+}
+
 PetscErrorCode Gamma::print(PetscViewer v)
 {
 	PetscErrorCode ierr; /* error handler */
