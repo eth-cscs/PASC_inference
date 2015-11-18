@@ -23,6 +23,7 @@ int main( int argc, char *argv[] )
 	PetscReal L, L_old, deltaL; /* object function value */
 
 	PetscLogDouble time_begin, time_end, time_elapsed; /* elapsed time of computation */
+
 	
 	/* viewer */
 	PetscViewer my_viewer = PETSC_VIEWER_STDOUT_WORLD;
@@ -30,8 +31,18 @@ int main( int argc, char *argv[] )
 	/* say hello */	
 	ierr = PetscViewerASCIIPrintf(my_viewer,"- start program:\n"); CHKERRQ(ierr);
 	
+	/* parameters of application */
+	PetscInt dataN = 1000;
+	PetscScalar eps_sqr = 10;
+	/* load parameters from input */
+	// TODO: move to settings
+	ierr = PetscOptionsInt("-N","set the size of the problem","",dataN,&dataN,NULL); CHKERRQ(ierr);
+	ierr = PetscOptionsReal("-eps_sqr","regularization parameter","",eps_sqr,&eps_sqr,NULL); CHKERRQ(ierr);
+	
+	
+	
 	/* generate problem */
-	ierr = get_problem(&data); CHKERRQ(ierr);
+	ierr = generate_problem(&data,dataN); CHKERRQ(ierr);
 	/* print problem */
 	if(PRINT_DATA){
 		ierr = data.print(my_viewer); CHKERRQ(ierr);

@@ -250,7 +250,7 @@ PetscErrorCode QPproblemProjectionstep::project(){
 	ierr = VecMAXPY(this->temp2,this->K, alphas, this->gamma->gamma_vecs); CHKERRQ(ierr);
 	ierr = VecNorm(this->temp2,NORM_2, &norm_Bx); CHKERRQ(ierr);
 	
-	while(norm_Bx >= 0.00001){ // TODO: this should be done in different way
+	while(norm_Bx >= 0.0000001){ // TODO: this should be done in different way
 		for(k=0;k<this->K;k++){
 			/* project to Bx = 0 */
 			ierr = VecCopy(this->gamma->gamma_vecs[k],this->temp); CHKERRQ(ierr);

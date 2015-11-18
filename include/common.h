@@ -3,7 +3,6 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-#define dataN 1000
 #define datan 2
 #define gammaK 3
 #define max_s_steps 1000

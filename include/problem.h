@@ -11,6 +11,6 @@ PetscErrorCode get_problem_value1(PetscScalar *value1_out, PetscScalar *value2_o
 PetscErrorCode get_problem_value2(PetscScalar *value1_out, PetscScalar *value2_out);
 PetscErrorCode get_problem_value3(PetscScalar *value1_out, PetscScalar *value2_out);
 
-PetscErrorCode get_problem(Data *data_out);
+PetscErrorCode generate_problem(Data *data_out, PetscInt dataN);
 
 #endif

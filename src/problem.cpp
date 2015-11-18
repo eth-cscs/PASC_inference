@@ -50,7 +50,7 @@ PetscErrorCode get_problem_value3(PetscScalar *value1_out, PetscScalar *value2_o
     PetscFunctionReturn(0);  	
 }
 
-PetscErrorCode get_problem(Data *data_out)
+PetscErrorCode generate_problem(Data *data_out, PetscInt dataN)
 {
 	PetscErrorCode ierr;
 	PetscInt j,j_global;
