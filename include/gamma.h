@@ -23,7 +23,6 @@ class Gamma {
 		
 	public:
 		Vec *gamma_vecs; /* array with data vectors, TODO: should be private */
-		QPSolver *qpsolver; /* this is qp problem which need to be solved to obtain new gamma, TODO: should be private */
 
 		PetscErrorCode init(Data, PetscInt); /* TODO: should be constructor */
 		PetscErrorCode finalize(); /* TODO: should be destructor */
@@ -34,8 +33,7 @@ class Gamma {
 		PetscErrorCode prepare_uniform();		
 		PetscErrorCode prepare_fixed();		
 
-		PetscErrorCode compute(Data data, Theta theta);
-		PetscErrorCode get_objectfunc_value(PetscScalar *value);
+		PetscErrorCode compute(QPSolver *qp_solver, Data data, Theta theta);
 
 		/* GET functions */
 		PetscInt get_local_size();
@@ -43,10 +41,6 @@ class Gamma {
 		PetscInt get_local_end();
 		PetscInt get_global_size();
 		PetscInt get_dim();
-
-		/* solver functions */
-		PetscErrorCode set_QPSolver(QPSolver*);
-		PetscErrorCode correctsolver(PetscScalar);
 
 		// TODO: this should be somewhere else, Model?
 		PetscErrorCode compute_g(Vec g, Data *data, Theta *theta);

@@ -7,7 +7,7 @@ QPSolverProjectionstep::QPSolverProjectionstep(Data *data, Gamma *gamma, Theta *
 	this->K = this->gamma->get_dim();
 	
 	/* -0.99/lambda_max */
-	this->stepsize = -0.99/4.0;
+	this->stepsize = -1.99/4.0;
 
 }
 

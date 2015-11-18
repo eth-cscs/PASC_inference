@@ -6,17 +6,10 @@
 #define datan 2
 #define gammaK 3
 #define max_s_steps 1000
-#define deltaL_eps 0.00001
+#define deltaL_eps 0.0001
+#define deltaL_eps_exact 0.01
 
 #define PRINT_DATA 0
-
-/* define several solver type options */
-typedef enum {
-	QPSOLVER_PERMON,
-	QPSOLVER_PROJECTIONSTEP
-} QPSolverType;
-static const char *const QPSolverType_names[] = {"PERMON","PROJECTIONSTEP", "QPSolverType","QPSOLVER_",0}; /* name of the options in console parameters */
-
 
 /* include PETSc */
 #include "petsc.h"

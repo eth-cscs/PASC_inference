@@ -27,11 +27,10 @@ class QPSolverPermon: public QPSolver {
 		Vec temp; /* temp vector for computation, same size as x */
 		Vec temp2; /* temp vector for computation, same size as cE */
 
-		Mat PBE; /* projector onto Ker B */
+		PetscScalar rtol;
 		
 		PetscErrorCode assemble_A();
 		PetscErrorCode assemble_BE();
-		PetscErrorCode assemble_PBE();
 		PetscErrorCode assemble_cE();
 		PetscErrorCode assemble_lb();
 		PetscErrorCode set_b(Vec b);
@@ -48,6 +47,7 @@ class QPSolverPermon: public QPSolver {
 		PetscErrorCode solve();
 		PetscErrorCode get_function_value(PetscScalar *fx);
 		PetscErrorCode print(PetscViewer v);
+		PetscErrorCode correct(PetscScalar);
 
 		
 		

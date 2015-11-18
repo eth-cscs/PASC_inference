@@ -5,6 +5,8 @@ QPSolverPermon::QPSolverPermon(Data *data, Gamma *gamma, Theta *theta, PetscScal
 	this->N = this->gamma->get_global_size();
 	this->N_local = this->gamma->get_local_size();
 	this->K = this->gamma->get_dim();
+	
+	this->rtol = 0.0001;
 }
 
 PetscErrorCode QPSolverPermon::init(){
@@ -73,20 +75,11 @@ PetscErrorCode QPSolverPermon::init(){
 	ierr = VecSetFromOptions(this->temp2); CHKERRQ(ierr);
 	ierr = PetscObjectSetName((PetscObject)this->temp2,"temp2"); CHKERRQ(ierr);
 
-	/* prepare projector to ker BE */
-	ierr = MatCreate(PETSC_COMM_WORLD,&this->PBE); CHKERRQ(ierr);
-	ierr = MatSetSizes(this->PBE,this->K*this->N_local,this->K*this->N_local,this->K*this->N,this->K*this->N); CHKERRQ(ierr);
-	ierr = MatSetFromOptions(this->PBE); CHKERRQ(ierr);
-	ierr = MatMPIAIJSetPreallocation(this->PBE,this->N,NULL,this->K*this->N,NULL); CHKERRQ(ierr);
-	ierr = MatSeqAIJSetPreallocation(this->PBE,this->K*this->N_local,NULL); CHKERRQ(ierr);
-	ierr = MatSetOption(this->PBE,MAT_SYMMETRIC,PETSC_TRUE); CHKERRQ(ierr);
-
 	/* we can immediately asseble some of QP objects which are independent of outer iterations */
 	this->assemble_A();
 	this->assemble_BE();
 	this->assemble_cE();
 	this->assemble_lb();
-	this->assemble_PBE();
 
     PetscFunctionReturn(0);  
 }
@@ -105,7 +98,6 @@ PetscErrorCode QPSolverPermon::finalize(){
 	ierr = VecDestroy(&this->x); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->g); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->temp); CHKERRQ(ierr);
-	ierr = MatDestroy(&this->PBE); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  		
 }
@@ -141,33 +133,8 @@ PetscErrorCode QPSolverPermon::assemble_A(){
 	ierr = MatAssemblyBegin(this->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
 	ierr = MatAssemblyEnd(this->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
 	/* A = 0.5*A (to obtain 1/2*x^T*A*x - b^T*x) */
-	ierr = MatScale(this->A, this->eps_sqr*0.5); CHKERRQ(ierr);
+	ierr = MatScale(this->A, 0.5); CHKERRQ(ierr);
 	
-    PetscFunctionReturn(0);  
-}
-
-PetscErrorCode QPSolverPermon::assemble_PBE(){
-	PetscErrorCode ierr;
-	PetscInt k,i,j;
-
-	PetscFunctionBegin;
-
-	/* fill hessian matrix */
-	for(k=0;k<this->K;k++){
-		for(i=0;i<this->N;i++){
-			ierr = MatSetValue(this->PBE, k*this->N + i, k*this->N + i, this->K-1.0, INSERT_VALUES); CHKERRQ(ierr);
-			for(j=0;j<this->K;j++){
-				if(j != k){
-					ierr = MatSetValue(this->PBE, k*this->N + i, j*this->N + i, -1.0, INSERT_VALUES); CHKERRQ(ierr);
-				}
-			}
-		}	
-	}
-	/* Hessian matrix is filled and prepared */
-	ierr = MatAssemblyBegin(this->PBE,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-	ierr = MatAssemblyEnd(this->PBE,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
-	ierr = MatScale(this->PBE, 1.0/this->K); CHKERRQ(ierr);	
-    
     PetscFunctionReturn(0);  
 }
 
@@ -280,11 +247,6 @@ PetscErrorCode QPSolverPermon::print(PetscViewer v){
 	ierr = VecView(this->cE,v); CHKERRQ(ierr);
 	ierr = PetscViewerASCIIPopTab(v); CHKERRQ(ierr);
 
-	ierr = PetscViewerASCIIPrintf(v,"- projector to Ker BE:\n"); CHKERRQ(ierr); 
-	ierr = PetscViewerASCIIPushTab(v); CHKERRQ(ierr);
-	ierr = MatView(this->PBE,v); CHKERRQ(ierr);
-	ierr = PetscViewerASCIIPopTab(v); CHKERRQ(ierr);
-
 	ierr = PetscViewerASCIIPrintf(v,"- vector of bound constraints lb:\n"); CHKERRQ(ierr); 
 	ierr = PetscViewerASCIIPushTab(v); CHKERRQ(ierr);
 	ierr = VecView(this->lb,v); CHKERRQ(ierr);
@@ -322,7 +284,7 @@ PetscErrorCode QPSolverPermon::solve(){
 
 	/* set new RHS, b = -g */
 	ierr = this->gamma->compute_g(this->b, this->data, this->theta); CHKERRQ(ierr);
-	ierr = VecScale(this->b, -1.0); CHKERRQ(ierr);
+	ierr = VecScale(this->b, -1.0/this->eps_sqr); CHKERRQ(ierr);
 	ierr = VecAssemblyBegin(this->b); CHKERRQ(ierr);
 	ierr = VecAssemblyEnd(this->b); CHKERRQ(ierr);	
 
@@ -336,8 +298,6 @@ PetscErrorCode QPSolverPermon::solve(){
 	}
 	ierr = VecAssemblyBegin(this->x); CHKERRQ(ierr);
 	ierr = VecAssemblyEnd(this->x); CHKERRQ(ierr);	
-
-
 
 	/* start the fun with Permon */
     FllopInitialize(NULL,NULL,(char*)0);	
@@ -435,37 +395,12 @@ PetscErrorCode QPSolverPermon::get_function_value(PetscScalar *fx){
     PetscFunctionReturn(0);  
 }
 
-
-PetscErrorCode QPSolverPermon::project(){
-	PetscErrorCode ierr;
-	PetscScalar norm_Bx;
-
+PetscErrorCode QPSolverPermon::correct(PetscScalar increment){
 	PetscFunctionBegin;
-
-	/* shift Bx=c to Bx=0 */
-	/* g = -x_in */
-	ierr = VecSet(this->g,-1.0/(PetscScalar)this->K); CHKERRQ(ierr);
-	ierr = VecAXPY(this->x,1.0,this->g); CHKERRQ(ierr);
-
-	/* project to Bx=0 and x>=g */
-	/* compute norm(Bx) as a stopping crit. */
-	ierr = MatMult(this->BE,this->x,this->temp2); CHKERRQ(ierr);
-	ierr = VecNorm(this->temp2,NORM_2, &norm_Bx); CHKERRQ(ierr);
 	
-	while(norm_Bx >= 0.00001){ // TODO: this should be done in different way
-		/* project to Bx = 0 */
-		ierr = MatMult(this->PBE,this->x,this->temp); CHKERRQ(ierr);
-		
-		/* project to x>=g */
-		ierr = VecPointwiseMax(this->x,this->temp,this->g); CHKERRQ(ierr);
-		
-		/* compute norm(Bx) as a stopping crit. */
-		ierr = MatMult(this->BE,this->x,this->temp2); CHKERRQ(ierr);
-		ierr = VecNorm(this->temp2,NORM_2, &norm_Bx); CHKERRQ(ierr);
-	}
-
-	/* shift back Bx=0 to Bx=c */
-	ierr = VecAXPY(this->x,-1.0,this->g); CHKERRQ(ierr);
-
+	this->rtol = this->rtol/2.0;
+	
     PetscFunctionReturn(0);  
 }
+
+

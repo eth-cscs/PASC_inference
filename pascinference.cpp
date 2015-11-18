@@ -35,13 +35,10 @@ int main( int argc, char *argv[] )
 	/* parameters of application */
 	PetscInt dataN = 1000;
 	PetscScalar eps_sqr = 10;
-	QPSolverType qpsolvertype = QPSOLVER_PROJECTIONSTEP;
 	/* load parameters from input */
 	// TODO: move to settings
 	ierr = PetscOptionsInt("-N","set the size of the problem","",dataN,&dataN,NULL); CHKERRQ(ierr);
 	ierr = PetscOptionsReal("-eps_sqr","regularization parameter","",eps_sqr,&eps_sqr,NULL); CHKERRQ(ierr);
-	ierr = PetscOptionsEnum("-qpsolver","which QP solver to use","",QPSolverType_names,(PetscEnum)qpsolvertype,(PetscEnum*)&qpsolvertype,NULL); CHKERRQ(ierr);
-	
 	
 	
 	/* generate problem */
@@ -63,17 +60,13 @@ int main( int argc, char *argv[] )
 	/* initialize theta */
 	ierr = theta.init(data,gamma); CHKERRQ(ierr);
 
-	/* initialize QP solver */
-	// TODO: this should be somewhere else
-	QPSolver *qpsolver;
-	if(qpsolvertype == QPSOLVER_PERMON){
-		qpsolver = new QPSolverPermon(&data,&gamma,&theta,10);
-	}
-	if(qpsolvertype == QPSOLVER_PROJECTIONSTEP){
-		qpsolver = new QPSolverProjectionstep(&data,&gamma,&theta,10);
-	}
-	gamma.qpsolver = qpsolver;
-	gamma.qpsolver->init();
+	/* initialize QP solvers */
+	QPSolver *qpsolver; /* actual solver */
+	QPSolver *qpsolverpermon = new QPSolverPermon(&data, &gamma, &theta, eps_sqr);
+	QPSolver *qpsolverprojectionstep = new QPSolverProjectionstep(&data, &gamma, &theta, eps_sqr);
+	qpsolverpermon->init();
+	qpsolverprojectionstep->init();
+	qpsolver = qpsolverprojectionstep;
 	
 	/* initialize value of object function */
 	L = PETSC_MAX_REAL; // TODO: the computation of L should be done in the different way
@@ -88,27 +81,24 @@ int main( int argc, char *argv[] )
 		ierr = PetscViewerASCIIPrintf(my_viewer,"- s = %d:\n",s); CHKERRQ(ierr);
 		ierr = PetscViewerASCIIPushTab(my_viewer); CHKERRQ(ierr);
 
-		/* compute Theta */
+		/* --- COMPUTE Theta --- */
 		ierr = theta.compute(data,gamma); CHKERRQ(ierr);
 
-		/* compute gamma */
-		ierr = gamma.compute(data,theta); CHKERRQ(ierr);
-		
-		/* update value of object function */
+		/* --- COMPUTE gamma --- */
+		ierr = gamma.compute(qpsolver,data,theta); CHKERRQ(ierr);
 		L_old = L;
-		ierr = gamma.get_objectfunc_value(&L); CHKERRQ(ierr);
+		ierr = qpsolver->get_function_value(&L); CHKERRQ(ierr);
 		deltaL = PetscAbsScalar(L - L_old);
-		
-		/* if L_new > L_old then make something with solver */
-		if(L > L_old){
-			ierr = gamma.correctsolver(L - L_old); CHKERRQ(ierr);
+
+		if(L > L_old || deltaL < deltaL_eps_exact){
+			qpsolver = qpsolverpermon;
 		}
-		
+
 		/* print info about cost function */
 		if(PETSC_TRUE){ 
-			ierr = PetscViewerASCIIPrintf(my_viewer,"- L_old       = %f:\n",L_old); CHKERRQ(ierr);
-			ierr = PetscViewerASCIIPrintf(my_viewer,"- L           = %f:\n",L); CHKERRQ(ierr);
-			ierr = PetscViewerASCIIPrintf(my_viewer,"- |L - L_old| = %f:\n",deltaL); CHKERRQ(ierr);
+			ierr = PetscViewerASCIIPrintf(my_viewer,"  - L_old       = %f:\n",L_old); CHKERRQ(ierr);
+			ierr = PetscViewerASCIIPrintf(my_viewer,"  - L           = %f:\n",L); CHKERRQ(ierr);
+			ierr = PetscViewerASCIIPrintf(my_viewer,"  - |L - L_old| = %f:\n",deltaL); CHKERRQ(ierr);
 		}	
 
 		/* end the main cycle if the change of function value is sufficient */
@@ -128,10 +118,14 @@ int main( int argc, char *argv[] )
 		ierr = PetscViewerASCIIPrintf(my_viewer,"- save solution to VTK:\n"); CHKERRQ(ierr);
 		ierr = save_VTK(data,gamma); CHKERRQ(ierr);
 	}
-	
+
 	theta.finalize();
 	gamma.finalize();
 	data.finalize();
+
+	qpsolverpermon->finalize();
+	qpsolverprojectionstep->finalize();
+
 	
 	/* print info about elapsed time */
 	time_elapsed = time_end - time_begin;
