@@ -7,7 +7,7 @@ QPSolverProjectionstep::QPSolverProjectionstep(Data *data, Gamma *gamma, Theta *
 	this->K = this->gamma->get_dim();
 	
 	/* -0.99/lambda_max */
-	this->stepsize = -1.99/(this->eps_sqr*4.0);
+	this->stepsize = -0.99/4.0;
 
 }
 
@@ -97,7 +97,7 @@ PetscErrorCode QPSolverProjectionstep::assemble_Asub(){
 	ierr = MatAssemblyBegin(this->Asub,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
 	ierr = MatAssemblyEnd(this->Asub,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
 	/* A = 0.5*A (to obtain 1/2*x^T*A*x - b^T*x) */
-	ierr = MatScale(this->Asub, this->eps_sqr*0.5); CHKERRQ(ierr);
+	ierr = MatScale(this->Asub, 0.5); CHKERRQ(ierr);
 	
     PetscFunctionReturn(0);  
 }
@@ -152,17 +152,17 @@ PetscErrorCode QPSolverProjectionstep::solve(){
 
 	PetscFunctionBegin;
 
-	/* compute gradient */
-	ierr = this->compute_gradient(); CHKERRQ(ierr);
-
 	/* --- PREPARE DATA FOR OPTIMIZATION PROBLEM --- */
 	/* set new RHS, b = -g */
 	for(k=0;k<this->K;k++){
 		ierr = this->gamma->compute_gk(this->bs[k], this->data, this->theta, k); CHKERRQ(ierr); // TODO: move to model?
-		ierr = VecScale(this->bs[k], -1.0); CHKERRQ(ierr);
+		ierr = VecScale(this->bs[k], -1.0/this->eps_sqr); CHKERRQ(ierr);
 		ierr = VecAssemblyBegin(this->bs[k]); CHKERRQ(ierr);
 		ierr = VecAssemblyEnd(this->bs[k]); CHKERRQ(ierr);	
 	}
+
+	/* compute gradient */
+	ierr = this->compute_gradient(); CHKERRQ(ierr);
 
 	// TODO: x = gamma
 
@@ -256,7 +256,7 @@ PetscErrorCode QPSolverProjectionstep::project(){
 	ierr = VecNorm(this->temp2,NORM_2, &norm_Bx); CHKERRQ(ierr);
 	
 	it = 0;
-	while(norm_Bx >= 0.0000001){ // TODO: this should be done in different way
+	while(norm_Bx >= 0.00000001){ // TODO: this should be done in different way
 		for(k=0;k<this->K;k++){
 			/* project to Bx = 0 */
 			ierr = VecCopy(this->gamma->gamma_vecs[k],this->temp); CHKERRQ(ierr);
