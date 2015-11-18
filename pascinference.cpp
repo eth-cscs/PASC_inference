@@ -6,6 +6,7 @@
 
 /* include QPSolver */
 #include "qpsolver_projectionstep.h"
+#include "qpsolver_permon.h"
 
 
 PetscMPIInt proc_n, proc_id; /* for MPI_Comm functions */	
@@ -34,10 +35,12 @@ int main( int argc, char *argv[] )
 	/* parameters of application */
 	PetscInt dataN = 1000;
 	PetscScalar eps_sqr = 10;
+	QPSolverType qpsolvertype = QPSOLVER_PROJECTIONSTEP;
 	/* load parameters from input */
 	// TODO: move to settings
 	ierr = PetscOptionsInt("-N","set the size of the problem","",dataN,&dataN,NULL); CHKERRQ(ierr);
 	ierr = PetscOptionsReal("-eps_sqr","regularization parameter","",eps_sqr,&eps_sqr,NULL); CHKERRQ(ierr);
+	ierr = PetscOptionsEnum("-qpsolver","which QP solver to use","",QPSolverType_names,(PetscEnum)qpsolvertype,(PetscEnum*)&qpsolvertype,NULL); CHKERRQ(ierr);
 	
 	
 	
@@ -61,8 +64,15 @@ int main( int argc, char *argv[] )
 	ierr = theta.init(data,gamma); CHKERRQ(ierr);
 
 	/* initialize QP solver */
-	QPSolverProjectionstep qpsolver(&data,&gamma,&theta,10);
-	gamma.qpsolver = &qpsolver;
+	// TODO: this should be somewhere else
+	QPSolver *qpsolver;
+	if(qpsolvertype == QPSOLVER_PERMON){
+		qpsolver = new QPSolverPermon(&data,&gamma,&theta,10);
+	}
+	if(qpsolvertype == QPSOLVER_PROJECTIONSTEP){
+		qpsolver = new QPSolverProjectionstep(&data,&gamma,&theta,10);
+	}
+	gamma.qpsolver = qpsolver;
 	gamma.qpsolver->init();
 	
 	/* initialize value of object function */

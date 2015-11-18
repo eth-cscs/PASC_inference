@@ -7,7 +7,7 @@ QPSolverProjectionstep::QPSolverProjectionstep(Data *data, Gamma *gamma, Theta *
 	this->K = this->gamma->get_dim();
 	
 	/* -0.99/lambda_max */
-	this->stepsize = -0.99/(this->eps_sqr*4.0);
+	this->stepsize = -1.99/(this->eps_sqr*4.0);
 
 }
 
@@ -285,6 +285,7 @@ PetscErrorCode QPSolverProjectionstep::project(){
 
 	/* print number of projection iterations; TODO: make it in different way */
 	ierr = PetscViewerASCIIPrintf(PETSC_VIEWER_STDOUT_WORLD,"- it_proj     = %d:\n",it); CHKERRQ(ierr);
+	ierr = PetscViewerASCIIPrintf(PETSC_VIEWER_STDOUT_WORLD,"- stepsize    = %f:\n",this->stepsize); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  
 }

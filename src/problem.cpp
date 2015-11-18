@@ -22,6 +22,7 @@ PetscErrorCode get_problem_value2(PetscScalar *value1_out, PetscScalar *value2_o
 {
 	PetscErrorCode ierr;
 	PetscScalar covariance[4] = {0.005, 0.0, 0.0, 0.05};
+//	PetscScalar covariance[4] = {0.001, 0.0, 0.0, 0.01};
 	PetscScalar mu[2] = {0.0, -0.5};
 
 	PetscFunctionBegin;
@@ -38,6 +39,7 @@ PetscErrorCode get_problem_value3(PetscScalar *value1_out, PetscScalar *value2_o
 {
 	PetscErrorCode ierr;
 	PetscScalar covariance[4] = {0.005, 0.0, 0.0, 0.05};
+//	PetscScalar covariance[4] = {0.001, 0.0, 0.0, 0.01};
 	PetscScalar mu[2] = {0.0, 0.5};
 
 	PetscFunctionBegin;
