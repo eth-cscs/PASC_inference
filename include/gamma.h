@@ -44,8 +44,9 @@ class Gamma {
 		PetscInt get_global_size();
 		PetscInt get_dim();
 
-		/* SET functions */
+		/* solver functions */
 		PetscErrorCode set_QPproblem(QPproblem*);
+		PetscErrorCode correctsolver(PetscScalar);
 
 		// TODO: this should be somewhere else, Model?
 		PetscErrorCode compute_g(Vec g, Data *data, Theta *theta);

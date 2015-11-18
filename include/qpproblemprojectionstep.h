@@ -13,6 +13,8 @@ class QPproblemProjectionstep: public QPproblem {
 		Vec *gs; /* blocks of gradient in x */
 		Vec temp,temp2; /* temp vector for computation, same size as gamma_vec[0] */
 
+		PetscScalar stepsize; /* step-size of projection step */
+
 		PetscErrorCode assemble_Asub();
 		PetscErrorCode set_bs(Vec *bs);
 		PetscErrorCode get_bs(Vec **bs);
@@ -24,8 +26,9 @@ class QPproblemProjectionstep: public QPproblem {
 		PetscErrorCode init();
 		PetscErrorCode finalize();
 		PetscErrorCode solve();
-		PetscErrorCode get_function_value(PetscScalar *fx);
-		PetscErrorCode print(PetscViewer v);
+		PetscErrorCode get_function_value(PetscScalar*);
+		PetscErrorCode print(PetscViewer);
+		PetscErrorCode correct(PetscScalar);
 		
 };
 

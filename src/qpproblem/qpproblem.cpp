@@ -32,3 +32,8 @@ PetscErrorCode QPproblem::print(PetscViewer){
 	PetscFunctionBegin;
     PetscFunctionReturn(0);  
 }
+
+PetscErrorCode QPproblem::correct(PetscScalar){
+	PetscFunctionBegin;
+    PetscFunctionReturn(0);  
+}

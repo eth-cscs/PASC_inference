@@ -5,6 +5,10 @@ QPproblemProjectionstep::QPproblemProjectionstep(Data *data, Gamma *gamma, Theta
 	this->N = this->gamma->get_global_size();
 	this->N_local = this->gamma->get_local_size();
 	this->K = this->gamma->get_dim();
+	
+	/* -0.99/lambda_max */
+	this->stepsize = -0.99/(this->eps_sqr*4.0);
+
 }
 
 PetscErrorCode QPproblemProjectionstep::init(){
@@ -144,10 +148,12 @@ PetscErrorCode QPproblemProjectionstep::print(PetscViewer v){
 
 PetscErrorCode QPproblemProjectionstep::solve(){
 	PetscErrorCode ierr;
-	PetscScalar alpha;
 	PetscInt k;
 
 	PetscFunctionBegin;
+
+	/* compute gradient */
+	ierr = this->compute_gradient(); CHKERRQ(ierr);
 
 	/* --- PREPARE DATA FOR OPTIMIZATION PROBLEM --- */
 	/* set new RHS, b = -g */
@@ -161,12 +167,10 @@ PetscErrorCode QPproblemProjectionstep::solve(){
 	// TODO: x = gamma
 
 	/* --- SOLVE OPTIMIZATION PROBLEM --- */
-	/* -0.99/lambda_max */
-	alpha = -0.99/(this->eps_sqr*4.0);
 
 	/* x = x - alpha*g */
 	for(k=0;k<this->K;k++){
-		ierr = VecAXPY(this->gamma->gamma_vecs[k], alpha, this->gs[k]); CHKERRQ(ierr);
+		ierr = VecAXPY(this->gamma->gamma_vecs[k], this->stepsize, this->gs[k]); CHKERRQ(ierr);
 	}
 
 	/* x = P(x) */
@@ -225,6 +229,7 @@ PetscErrorCode QPproblemProjectionstep::project(){
 	PetscScalar *alphas; /* = 1 */
 	PetscScalar *betas; /* = -1/K */
 	PetscInt k;
+	PetscInt it; /* iteration counter */
 
 	PetscFunctionBegin;
 
@@ -250,6 +255,7 @@ PetscErrorCode QPproblemProjectionstep::project(){
 	ierr = VecMAXPY(this->temp2,this->K, alphas, this->gamma->gamma_vecs); CHKERRQ(ierr);
 	ierr = VecNorm(this->temp2,NORM_2, &norm_Bx); CHKERRQ(ierr);
 	
+	it = 0;
 	while(norm_Bx >= 0.0000001){ // TODO: this should be done in different way
 		for(k=0;k<this->K;k++){
 			/* project to Bx = 0 */
@@ -264,6 +270,8 @@ PetscErrorCode QPproblemProjectionstep::project(){
 		ierr = VecSet(this->temp2,0.0); CHKERRQ(ierr);
 		ierr = VecMAXPY(this->temp2,this->K, alphas, this->gamma->gamma_vecs); CHKERRQ(ierr);
 		ierr = VecNorm(this->temp2,NORM_2, &norm_Bx); CHKERRQ(ierr);
+
+		it += 1;
 	}
 
 	/* shift back Bx=0 to Bx=c */
@@ -275,5 +283,16 @@ PetscErrorCode QPproblemProjectionstep::project(){
 	ierr = PetscFree(alphas); CHKERRQ(ierr);
 	ierr = PetscFree(betas); CHKERRQ(ierr);
 
+	/* print number of projection iterations; TODO: make it in different way */
+	ierr = PetscViewerASCIIPrintf(PETSC_VIEWER_STDOUT_WORLD,"- it_proj     = %d:\n",it); CHKERRQ(ierr);
+
+    PetscFunctionReturn(0);  
+}
+
+PetscErrorCode QPproblemProjectionstep::correct(PetscScalar increment){
+	PetscFunctionBegin;
+	
+	this->stepsize = this->stepsize/2.0;
+	
     PetscFunctionReturn(0);  
 }

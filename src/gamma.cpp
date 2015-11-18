@@ -387,6 +387,16 @@ PetscErrorCode Gamma::get_objectfunc_value(PetscScalar *value)
     PetscFunctionReturn(0);  		
 }
 
+PetscErrorCode Gamma::correctsolver(PetscScalar increment)
+{
+	PetscErrorCode ierr; /* error handler */
+	
+	PetscFunctionBegin;
+	
+	ierr = this->qpproblem->correct(increment); CHKERRQ(ierr);
+
+    PetscFunctionReturn(0);  		
+}
 
 
 

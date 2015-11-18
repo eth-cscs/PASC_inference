@@ -89,6 +89,11 @@ int main( int argc, char *argv[] )
 		ierr = gamma.get_objectfunc_value(&L); CHKERRQ(ierr);
 		deltaL = PetscAbsScalar(L - L_old);
 		
+		/* if L_new > L_old then make something with solver */
+		if(L > L_old){
+			ierr = gamma.correctsolver(L - L_old); CHKERRQ(ierr);
+		}
+		
 		/* print info about cost function */
 		if(PETSC_TRUE){ 
 			ierr = PetscViewerASCIIPrintf(my_viewer,"- L_old       = %f:\n",L_old); CHKERRQ(ierr);

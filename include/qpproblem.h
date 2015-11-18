@@ -21,6 +21,7 @@ class QPproblem {
 		virtual PetscErrorCode solve();
 		virtual PetscErrorCode get_function_value(PetscScalar*);
 		virtual PetscErrorCode print(PetscViewer);
+		virtual PetscErrorCode correct(PetscScalar); /* if L_new > L_old change parameters of solver */
 		
 };
 
