@@ -1,9 +1,9 @@
 #ifndef QPPROBLEMPROJECTIONSTEP_H
 #define	QPPROBLEMPROJECTIONSTEP_H
 
-#include "qpproblem.h"
+#include "qpsolver.h"
 
-class QPproblemProjectionstep: public QPproblem {
+class QPSolverProjectionstep: public QPSolver {
 	protected:
 		PetscInt K, N, N_local; /* dimensions of the problem */
 		
@@ -22,7 +22,7 @@ class QPproblemProjectionstep: public QPproblem {
 		PetscErrorCode project();
 				
 	public:
-		QPproblemProjectionstep(Data*, Gamma*, Theta*, PetscScalar);
+		QPSolverProjectionstep(Data*, Gamma*, Theta*, PetscScalar);
 		PetscErrorCode init();
 		PetscErrorCode finalize();
 		PetscErrorCode solve();

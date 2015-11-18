@@ -1,7 +1,7 @@
 #ifndef QPPROBLEMPERMON_H
 #define	QPPROBLEMPERMON_H
 
-#include "qpproblem.h"
+#include "qpsolver.h"
 
 /* include Permon headers */
 #include <flloppc.h>
@@ -10,7 +10,7 @@
 #include <fllopmat.h>
 
 
-class QPproblemPermon: public QPproblem {
+class QPSolverPermon: public QPSolver {
 	protected:
 		PetscInt K, N, N_local; /* dimensions of the problem */
 		
@@ -42,7 +42,7 @@ class QPproblemPermon: public QPproblem {
 		PetscErrorCode project();
 				
 	public:
-		QPproblemPermon(Data*, Gamma*, Theta*, PetscScalar);
+		QPSolverPermon(Data*, Gamma*, Theta*, PetscScalar);
 		PetscErrorCode init();
 		PetscErrorCode finalize();
 		PetscErrorCode solve();

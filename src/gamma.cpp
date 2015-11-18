@@ -31,7 +31,7 @@ PetscErrorCode Gamma::init(Data data, PetscInt dim)
     PetscFunctionReturn(0);  	
 }
 
-PetscErrorCode Gamma::set_QPproblem(QPproblem*){
+PetscErrorCode Gamma::set_QPSolver(QPSolver*){
 	PetscFunctionBegin;
 	/* init QP problem */
 	
@@ -53,7 +53,7 @@ PetscErrorCode Gamma::finalize()
 	ierr = PetscFree(this->gamma_vecs); CHKERRQ(ierr);
 
 	/* finalize QP problem */
-	this->qpproblem->finalize();
+	this->qpsolver->finalize();
 
     PetscFunctionReturn(0);  	
 }
@@ -184,11 +184,11 @@ PetscErrorCode Gamma::compute(Data data, Theta theta)
 
 	/* PRINT QP PROBLEM */
 	if(PRINT_DATA){ /* print quadratic problem objects */
-		ierr = this->qpproblem->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = this->qpsolver->print(PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
 	}	
 
 	/* --- SOLVE OPTIMIZATION PROBLEM --- */
-	ierr = this->qpproblem->solve(); CHKERRQ(ierr);
+	ierr = this->qpsolver->solve(); CHKERRQ(ierr);
 
     PetscFunctionReturn(0); 
 }
@@ -382,7 +382,7 @@ PetscErrorCode Gamma::get_objectfunc_value(PetscScalar *value)
 	PetscFunctionBegin;
 
 	/* compute function value from QP problem */
-	ierr = this->qpproblem->get_function_value(value); CHKERRQ(ierr);
+	ierr = this->qpsolver->get_function_value(value); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  		
 }
@@ -393,7 +393,7 @@ PetscErrorCode Gamma::correctsolver(PetscScalar increment)
 	
 	PetscFunctionBegin;
 	
-	ierr = this->qpproblem->correct(increment); CHKERRQ(ierr);
+	ierr = this->qpsolver->correct(increment); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  		
 }

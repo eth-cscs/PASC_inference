@@ -4,8 +4,8 @@
 #include "theta.h"
 #include "savevtk.h"
 
-/* include QPproblem */
-#include "qpproblemprojectionstep.h"
+/* include QPSolver */
+#include "qpsolver_projectionstep.h"
 
 
 PetscMPIInt proc_n, proc_id; /* for MPI_Comm functions */	
@@ -61,9 +61,9 @@ int main( int argc, char *argv[] )
 	ierr = theta.init(data,gamma); CHKERRQ(ierr);
 
 	/* initialize QP solver */
-	QPproblemProjectionstep qpproblem(&data,&gamma,&theta,10);
-	gamma.qpproblem = &qpproblem;
-	gamma.qpproblem->init();
+	QPSolverProjectionstep qpsolver(&data,&gamma,&theta,10);
+	gamma.qpsolver = &qpsolver;
+	gamma.qpsolver->init();
 	
 	/* initialize value of object function */
 	L = PETSC_MAX_REAL; // TODO: the computation of L should be done in the different way

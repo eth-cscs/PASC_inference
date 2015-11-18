@@ -7,7 +7,7 @@
 #include "data.h"
 
 
-class QPproblem {
+class QPSolver {
 	protected:
 		Data *data;
 		Gamma *gamma;
@@ -15,7 +15,7 @@ class QPproblem {
 
 		PetscScalar eps_sqr;
 	public:
-		QPproblem(Data*, Gamma *, Theta *, PetscScalar);
+		QPSolver(Data*, Gamma *, Theta *, PetscScalar);
 		virtual PetscErrorCode init();
 		virtual PetscErrorCode finalize();
 		virtual PetscErrorCode solve();

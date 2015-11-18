@@ -1,13 +1,13 @@
-#include "qpproblempermon.h"
+#include "qpsolver_permon.h"
 
 /* constructor */
-QPproblemPermon::QPproblemPermon(Data *data, Gamma *gamma, Theta *theta, PetscScalar eps_sqr) : QPproblem(data, gamma,theta, eps_sqr) {
+QPSolverPermon::QPSolverPermon(Data *data, Gamma *gamma, Theta *theta, PetscScalar eps_sqr) : QPSolver(data, gamma,theta, eps_sqr) {
 	this->N = this->gamma->get_global_size();
 	this->N_local = this->gamma->get_local_size();
 	this->K = this->gamma->get_dim();
 }
 
-PetscErrorCode QPproblemPermon::init(){
+PetscErrorCode QPSolverPermon::init(){
 	PetscErrorCode ierr; /* error handler */
 
 	PetscFunctionBegin;
@@ -91,7 +91,7 @@ PetscErrorCode QPproblemPermon::init(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::finalize(){
+PetscErrorCode QPSolverPermon::finalize(){
 	PetscErrorCode ierr;
 
 	PetscFunctionBegin;
@@ -110,7 +110,7 @@ PetscErrorCode QPproblemPermon::finalize(){
     PetscFunctionReturn(0);  		
 }
 
-PetscErrorCode QPproblemPermon::assemble_A(){
+PetscErrorCode QPSolverPermon::assemble_A(){
 	PetscErrorCode ierr;
 	PetscInt k,i;
 
@@ -146,7 +146,7 @@ PetscErrorCode QPproblemPermon::assemble_A(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::assemble_PBE(){
+PetscErrorCode QPSolverPermon::assemble_PBE(){
 	PetscErrorCode ierr;
 	PetscInt k,i,j;
 
@@ -171,7 +171,7 @@ PetscErrorCode QPproblemPermon::assemble_PBE(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::set_b(Vec b){
+PetscErrorCode QPSolverPermon::set_b(Vec b){
 	PetscFunctionBegin;
 
 	this->b = b;
@@ -179,7 +179,7 @@ PetscErrorCode QPproblemPermon::set_b(Vec b){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::get_b(Vec *b){
+PetscErrorCode QPSolverPermon::get_b(Vec *b){
 	PetscFunctionBegin;
 
 	*b = this->b;
@@ -187,7 +187,7 @@ PetscErrorCode QPproblemPermon::get_b(Vec *b){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::set_x(Vec x){
+PetscErrorCode QPSolverPermon::set_x(Vec x){
 	PetscFunctionBegin;
 
 	this->x = x;
@@ -195,7 +195,7 @@ PetscErrorCode QPproblemPermon::set_x(Vec x){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::get_x(Vec *x){
+PetscErrorCode QPSolverPermon::get_x(Vec *x){
 	PetscFunctionBegin;
 
 	*x = this->x;
@@ -203,7 +203,7 @@ PetscErrorCode QPproblemPermon::get_x(Vec *x){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::assemble_BE(){
+PetscErrorCode QPSolverPermon::assemble_BE(){
 	PetscErrorCode ierr;
 	PetscInt k,i;
 
@@ -228,7 +228,7 @@ PetscErrorCode QPproblemPermon::assemble_BE(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::assemble_cE(){
+PetscErrorCode QPSolverPermon::assemble_cE(){
 	PetscErrorCode ierr;
 
 	PetscFunctionBegin;
@@ -240,7 +240,7 @@ PetscErrorCode QPproblemPermon::assemble_cE(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::assemble_lb(){
+PetscErrorCode QPSolverPermon::assemble_lb(){
 	PetscErrorCode ierr;
 
 	PetscFunctionBegin;
@@ -252,7 +252,7 @@ PetscErrorCode QPproblemPermon::assemble_lb(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::print(PetscViewer v){
+PetscErrorCode QPSolverPermon::print(PetscViewer v){
 	PetscErrorCode ierr;
 
 	PetscFunctionBegin;
@@ -300,7 +300,7 @@ PetscErrorCode QPproblemPermon::print(PetscViewer v){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::solve(){
+PetscErrorCode QPSolverPermon::solve(){
 	PetscErrorCode ierr;
 
 	QP qp; /* qp problem */
@@ -402,7 +402,7 @@ PetscErrorCode QPproblemPermon::solve(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::compute_gradient(){
+PetscErrorCode QPSolverPermon::compute_gradient(){
 	PetscErrorCode ierr;
 
 	PetscFunctionBegin;
@@ -414,7 +414,7 @@ PetscErrorCode QPproblemPermon::compute_gradient(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemPermon::get_function_value(PetscScalar *fx){
+PetscErrorCode QPSolverPermon::get_function_value(PetscScalar *fx){
 	PetscErrorCode ierr;
 	PetscScalar value;
 	
@@ -436,7 +436,7 @@ PetscErrorCode QPproblemPermon::get_function_value(PetscScalar *fx){
 }
 
 
-PetscErrorCode QPproblemPermon::project(){
+PetscErrorCode QPSolverPermon::project(){
 	PetscErrorCode ierr;
 	PetscScalar norm_Bx;
 

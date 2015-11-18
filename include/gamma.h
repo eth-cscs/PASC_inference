@@ -2,12 +2,12 @@
 #define	GAMMA_H
 
 class Gamma;
-class QPproblem;
+class QPSolver;
 
 #include "common.h"
 #include "data.h"
 #include "theta.h"
-#include "qpproblem.h"
+#include "qpsolver.h"
 
 class Gamma {
 		PetscInt dim; /* number of gamma components = K */
@@ -23,7 +23,7 @@ class Gamma {
 		
 	public:
 		Vec *gamma_vecs; /* array with data vectors, TODO: should be private */
-		QPproblem *qpproblem; /* this is qp problem which need to be solved to obtain new gamma, TODO: should be private */
+		QPSolver *qpsolver; /* this is qp problem which need to be solved to obtain new gamma, TODO: should be private */
 
 		PetscErrorCode init(Data, PetscInt); /* TODO: should be constructor */
 		PetscErrorCode finalize(); /* TODO: should be destructor */
@@ -45,7 +45,7 @@ class Gamma {
 		PetscInt get_dim();
 
 		/* solver functions */
-		PetscErrorCode set_QPproblem(QPproblem*);
+		PetscErrorCode set_QPSolver(QPSolver*);
 		PetscErrorCode correctsolver(PetscScalar);
 
 		// TODO: this should be somewhere else, Model?

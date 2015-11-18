@@ -1,7 +1,7 @@
-#include "qpproblemprojectionstep.h"
+#include "qpsolver_projectionstep.h"
 
 /* constructor */
-QPproblemProjectionstep::QPproblemProjectionstep(Data *data, Gamma *gamma, Theta *theta, PetscScalar eps_sqr) : QPproblem(data, gamma,theta, eps_sqr) {
+QPSolverProjectionstep::QPSolverProjectionstep(Data *data, Gamma *gamma, Theta *theta, PetscScalar eps_sqr) : QPSolver(data, gamma,theta, eps_sqr) {
 	this->N = this->gamma->get_global_size();
 	this->N_local = this->gamma->get_local_size();
 	this->K = this->gamma->get_dim();
@@ -11,7 +11,7 @@ QPproblemProjectionstep::QPproblemProjectionstep(Data *data, Gamma *gamma, Theta
 
 }
 
-PetscErrorCode QPproblemProjectionstep::init(){
+PetscErrorCode QPSolverProjectionstep::init(){
 	PetscErrorCode ierr; /* error handler */
 	PetscInt k;
 
@@ -47,7 +47,7 @@ PetscErrorCode QPproblemProjectionstep::init(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::finalize(){
+PetscErrorCode QPSolverProjectionstep::finalize(){
 	PetscErrorCode ierr;
 	PetscInt i;
 
@@ -68,7 +68,7 @@ PetscErrorCode QPproblemProjectionstep::finalize(){
     PetscFunctionReturn(0);  		
 }
 
-PetscErrorCode QPproblemProjectionstep::assemble_Asub(){
+PetscErrorCode QPSolverProjectionstep::assemble_Asub(){
 	PetscErrorCode ierr;
 	PetscInt i;
 
@@ -102,7 +102,7 @@ PetscErrorCode QPproblemProjectionstep::assemble_Asub(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::set_bs(Vec *bs){
+PetscErrorCode QPSolverProjectionstep::set_bs(Vec *bs){
 	PetscFunctionBegin;
 
 	this->bs = bs;
@@ -110,7 +110,7 @@ PetscErrorCode QPproblemProjectionstep::set_bs(Vec *bs){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::get_bs(Vec **bs){
+PetscErrorCode QPSolverProjectionstep::get_bs(Vec **bs){
 	PetscFunctionBegin;
 
 	*bs = this->bs;
@@ -118,7 +118,7 @@ PetscErrorCode QPproblemProjectionstep::get_bs(Vec **bs){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::print(PetscViewer v){
+PetscErrorCode QPSolverProjectionstep::print(PetscViewer v){
 	PetscErrorCode ierr;
 
 	PetscFunctionBegin;
@@ -146,7 +146,7 @@ PetscErrorCode QPproblemProjectionstep::print(PetscViewer v){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::solve(){
+PetscErrorCode QPSolverProjectionstep::solve(){
 	PetscErrorCode ierr;
 	PetscInt k;
 
@@ -182,7 +182,7 @@ PetscErrorCode QPproblemProjectionstep::solve(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::compute_gradient(){
+PetscErrorCode QPSolverProjectionstep::compute_gradient(){
 	PetscErrorCode ierr;
 	PetscInt k;
 
@@ -197,7 +197,7 @@ PetscErrorCode QPproblemProjectionstep::compute_gradient(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::get_function_value(PetscScalar *fx){
+PetscErrorCode QPSolverProjectionstep::get_function_value(PetscScalar *fx){
 	PetscErrorCode ierr;
 	PetscScalar value,my_sum;
 	PetscInt k;
@@ -223,7 +223,7 @@ PetscErrorCode QPproblemProjectionstep::get_function_value(PetscScalar *fx){
 }
 
 
-PetscErrorCode QPproblemProjectionstep::project(){
+PetscErrorCode QPSolverProjectionstep::project(){
 	PetscErrorCode ierr;
 	PetscScalar norm_Bx;
 	PetscScalar *alphas; /* = 1 */
@@ -289,7 +289,7 @@ PetscErrorCode QPproblemProjectionstep::project(){
     PetscFunctionReturn(0);  
 }
 
-PetscErrorCode QPproblemProjectionstep::correct(PetscScalar increment){
+PetscErrorCode QPSolverProjectionstep::correct(PetscScalar increment){
 	PetscFunctionBegin;
 	
 	this->stepsize = this->stepsize/2.0;
