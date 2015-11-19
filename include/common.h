@@ -9,6 +9,7 @@
 #define deltaL_eps 0.0001
 #define deltaL_eps_exact 0.01
 
+#define DUALIZE 0
 
 /* include PETSc */
 #include "petsc.h"

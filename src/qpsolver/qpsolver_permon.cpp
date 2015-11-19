@@ -81,6 +81,16 @@ PetscErrorCode QPSolverPermon::init(){
 	this->assemble_cE();
 	this->assemble_lb();
 
+	if(DUALIZE){
+		ierr = MatCreate(PETSC_COMM_WORLD,&this->R); CHKERRQ(ierr);
+		ierr = MatSetSizes(this->R,this->K*this->N_local,PETSC_DECIDE,this->K*this->N,this->K); CHKERRQ(ierr);
+		ierr = MatSetFromOptions(this->R); CHKERRQ(ierr);
+		ierr = MatMPIAIJSetPreallocation(this->R,this->K,NULL,this->K,NULL); CHKERRQ(ierr);
+		ierr = MatSeqAIJSetPreallocation(this->R,this->K,NULL); CHKERRQ(ierr);
+		
+		this->assemble_R();
+	}
+
     PetscFunctionReturn(0);  
 }
 
@@ -99,6 +109,10 @@ PetscErrorCode QPSolverPermon::finalize(){
 	ierr = VecDestroy(&this->g); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->temp); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->temp2); CHKERRQ(ierr);
+
+	if(DUALIZE){
+		ierr = MatDestroy(&this->R); CHKERRQ(ierr);
+	}
 
     PetscFunctionReturn(0);  		
 }
@@ -141,6 +155,28 @@ PetscErrorCode QPSolverPermon::assemble_A(){
 	ierr = MatAssemblyEnd(this->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
 	/* A = 0.5*A (to obtain 1/2*x^T*A*x - b^T*x) */
 	ierr = MatScale(this->A, 0.5*this->eps_sqr); CHKERRQ(ierr);
+	
+    PetscFunctionReturn(0);  
+}
+
+PetscErrorCode QPSolverPermon::assemble_R(){
+	PetscErrorCode ierr;
+	PetscInt k,i;
+	PetscInt local_begin;
+	PetscScalar value;
+
+	PetscFunctionBegin;
+
+	local_begin = this->gamma->get_local_begin();
+	value = 1.0/(PetscScalar)this->N;
+	
+	for(k=0;k<this->K;k++){
+		for(i=0;i<this->N_local;i++){
+			ierr = MatSetValue(this->R, this->K*local_begin + k*this->N_local + i, k, value, INSERT_VALUES); CHKERRQ(ierr);
+		}	
+	}
+	ierr = MatAssemblyBegin(this->R,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+	ierr = MatAssemblyEnd(this->R,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
 	
     PetscFunctionReturn(0);  
 }
@@ -241,6 +277,13 @@ PetscErrorCode QPSolverPermon::print(PetscViewer v){
 	ierr = MatView(this->A,v); CHKERRQ(ierr);
 	ierr = PetscViewerASCIIPopTab(v); CHKERRQ(ierr);
 	
+	if(DUALIZE){
+		ierr = PetscViewerASCIIPrintf(v,"- kernel basis R:\n"); CHKERRQ(ierr); 
+		ierr = PetscViewerASCIIPushTab(v); CHKERRQ(ierr);
+		ierr = MatView(this->R,v); CHKERRQ(ierr);
+		ierr = PetscViewerASCIIPopTab(v); CHKERRQ(ierr);		
+	}
+
 	ierr = PetscViewerASCIIPrintf(v,"- right hand-side vector b:\n"); CHKERRQ(ierr); 
 	ierr = PetscViewerASCIIPushTab(v); CHKERRQ(ierr);
 	ierr = VecView(this->b,v); CHKERRQ(ierr);
@@ -322,6 +365,10 @@ PetscErrorCode QPSolverPermon::solve(){
 	ierr = QPSetOperator(qp, this->A, QP_SYM_SYMMETRIC); CHKERRQ(ierr);
 	ierr = QPSetEq(qp,this->BE,this->cE); CHKERRQ(ierr);
 	ierr = QPSetBox(qp,this->lb,NULL); CHKERRQ(ierr);
+	if(DUALIZE){
+		ierr = QPSetOperatorNullSpace(qp,this->R); CHKERRQ(ierr);
+	}
+
 	/* create the QP solver (QPS) */
 	ierr = QPSCreate(PETSC_COMM_WORLD, &qps); CHKERRQ(ierr);
 	/* insert the QP problem into the solver */
@@ -336,7 +383,18 @@ PetscErrorCode QPSolverPermon::solve(){
 	/* set QPS options from the options database */
 	ierr = QPSSetFromOptions(qps); CHKERRQ(ierr);
 
+	/* perform some transformations */
+
 	/* --- SOLVE OPTIMIZATION PROBLEM --- */
+
+	ierr = QPTHomogenizeEq(qp); CHKERRQ(ierr);
+	if(DUALIZE){
+		ierr = QPTDualize(qp,MAT_INV_MONOLITHIC,MAT_REG_NONE); CHKERRQ(ierr);
+	}
+//	ierr = QPTOrthonormalizeEq(qp,MAT_ORTH_GS,MAT_ORTH_FORM_IMPLICIT); CHKERRQ(ierr);
+
+
+	/* run solver */
 	ierr = QPSSolve(qps); CHKERRQ(ierr);
 
 	/* get the solution vector */

@@ -1,11 +1,10 @@
 ### THIS FILE CONTAINS SETTINGS FOR PERMON
 
-#-feti
-#-dual_mat_inv_pc_factor_mat_solver_package mumps
-#-dual_mat_inv_pc_type cholesky
+-feti
+-dual_mat_inv_pc_factor_mat_solver_package mumps
+-dual_mat_inv_pc_type cholesky
 
 -qpt_homogenize_eq_always true
-#-qppf_mat_inv_pc_factor_mat_solver_package mumps
 #-qppf_variant dist
 -qp_chain_view
 #-qp_chain_view_kkt

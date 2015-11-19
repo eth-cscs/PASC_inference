@@ -17,6 +17,8 @@ class QPSolverPermon: public QPSolver {
 		Mat A; /* Hessian matrix */
 		Vec b; /* vector of linear term */
 		
+		Mat R; /* Im R = Ker A */
+		
 		Mat BE; /* matrix of equality constraints */
 		Vec cE; /* vector of equality constraints */
 		
@@ -30,6 +32,7 @@ class QPSolverPermon: public QPSolver {
 		PetscScalar rtol;
 		
 		PetscErrorCode assemble_A();
+		PetscErrorCode assemble_R();
 		PetscErrorCode assemble_BE();
 		PetscErrorCode assemble_cE();
 		PetscErrorCode assemble_lb();
