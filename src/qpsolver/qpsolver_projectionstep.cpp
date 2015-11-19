@@ -7,7 +7,7 @@ QPSolverProjectionstep::QPSolverProjectionstep(Data *data, Gamma *gamma, Theta *
 	this->K = this->gamma->get_dim();
 	
 	/* -0.99/lambda_max */
-	this->stepsize = -1.99/4.0;
+	this->stepsize = -1.99/(4.0*this->eps_sqr);
 
 }
 
@@ -97,7 +97,7 @@ PetscErrorCode QPSolverProjectionstep::assemble_Asub(){
 	ierr = MatAssemblyBegin(this->Asub,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
 	ierr = MatAssemblyEnd(this->Asub,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
 	/* A = 0.5*A (to obtain 1/2*x^T*A*x - b^T*x) */
-	ierr = MatScale(this->Asub, 0.5); CHKERRQ(ierr);
+	ierr = MatScale(this->Asub, 0.5*this->eps_sqr); CHKERRQ(ierr);
 	
     PetscFunctionReturn(0);  
 }
@@ -156,7 +156,7 @@ PetscErrorCode QPSolverProjectionstep::solve(){
 	/* set new RHS, b = -g */
 	for(k=0;k<this->K;k++){
 		ierr = this->gamma->compute_gk(this->bs[k], this->data, this->theta, k); CHKERRQ(ierr); // TODO: move to model?
-		ierr = VecScale(this->bs[k], -1.0/this->eps_sqr); CHKERRQ(ierr);
+		ierr = VecScale(this->bs[k], -1.0); CHKERRQ(ierr);
 		ierr = VecAssemblyBegin(this->bs[k]); CHKERRQ(ierr);
 		ierr = VecAssemblyEnd(this->bs[k]); CHKERRQ(ierr);	
 	}

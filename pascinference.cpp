@@ -35,16 +35,18 @@ int main( int argc, char *argv[] )
 	/* parameters of application */
 	PetscInt dataN = 1000;
 	PetscScalar eps_sqr = 10;
+	PetscBool print_data = PETSC_FALSE;
 	/* load parameters from input */
 	// TODO: move to settings
 	ierr = PetscOptionsInt("-N","set the size of the problem","",dataN,&dataN,NULL); CHKERRQ(ierr);
+	ierr = PetscOptionsBool("-print_data","print data or not","",print_data,&print_data,NULL); CHKERRQ(ierr);
 	ierr = PetscOptionsReal("-eps_sqr","regularization parameter","",eps_sqr,&eps_sqr,NULL); CHKERRQ(ierr);
 	
 	
 	/* generate problem */
 	ierr = generate_problem(&data,dataN); CHKERRQ(ierr);
 	/* print problem */
-	if(PRINT_DATA){
+	if(print_data){
 		ierr = data.print(my_viewer); CHKERRQ(ierr);
 	}	
 
@@ -53,7 +55,7 @@ int main( int argc, char *argv[] )
 
 	/* prepare gammas */
 	ierr = gamma.prepare_random(); CHKERRQ(ierr);	
-	if(PRINT_DATA){ /* print gamma */
+	if(print_data){ /* print gamma */
 		ierr = gamma.print(my_viewer); CHKERRQ(ierr);
 	}	
 
@@ -86,6 +88,10 @@ int main( int argc, char *argv[] )
 
 		/* --- COMPUTE gamma --- */
 		ierr = gamma.compute(qpsolver,data,theta); CHKERRQ(ierr);
+		if(print_data){
+			ierr = qpsolver->print(my_viewer); CHKERRQ(ierr);
+		}
+	
 		L_old = L;
 		ierr = qpsolver->get_function_value(&L); CHKERRQ(ierr);
 		deltaL = PetscAbsScalar(L - L_old);

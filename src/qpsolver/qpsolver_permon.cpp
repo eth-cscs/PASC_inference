@@ -19,8 +19,8 @@ PetscErrorCode QPSolverPermon::init(){
 	ierr = MatCreate(PETSC_COMM_WORLD,&this->A); CHKERRQ(ierr);
 	ierr = MatSetSizes(this->A,this->K*this->N_local,this->K*this->N_local,this->K*this->N,this->K*this->N); CHKERRQ(ierr);
 	ierr = MatSetFromOptions(this->A); CHKERRQ(ierr);
-	ierr = MatMPIAIJSetPreallocation(this->A,3,NULL,3,NULL); CHKERRQ(ierr);
-	ierr = MatSeqAIJSetPreallocation(this->A,3,NULL); CHKERRQ(ierr);
+	ierr = MatMPIAIJSetPreallocation(this->A,3*this->K,NULL,3*this->K,NULL); CHKERRQ(ierr);
+	ierr = MatSeqAIJSetPreallocation(this->A,3*this->K,NULL); CHKERRQ(ierr);
 	ierr = MatSetOption(this->A,MAT_SYMMETRIC,PETSC_TRUE); CHKERRQ(ierr);
 
 	/* prepare RHS b */
@@ -98,6 +98,7 @@ PetscErrorCode QPSolverPermon::finalize(){
 	ierr = VecDestroy(&this->x); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->g); CHKERRQ(ierr);
 	ierr = VecDestroy(&this->temp); CHKERRQ(ierr);
+	ierr = VecDestroy(&this->temp2); CHKERRQ(ierr);
 
     PetscFunctionReturn(0);  		
 }
@@ -105,27 +106,33 @@ PetscErrorCode QPSolverPermon::finalize(){
 PetscErrorCode QPSolverPermon::assemble_A(){
 	PetscErrorCode ierr;
 	PetscInt k,i;
+	PetscInt row_global, local_begin;
 
 	PetscFunctionBegin;
 
+	local_begin = this->gamma->get_local_begin();
+	
 	/* fill hessian matrix */
 	for(k=0;k<this->K;k++){
-		for(i=0;i<this->N;i++){
+		for(i=0;i<this->N_local;i++){
+			row_global = local_begin + i;
+			
 			/* first row */
-			if(i == 0){
-				ierr = MatSetValue(this->A, k*this->N + i, k*this->N + i, 1.0, INSERT_VALUES); CHKERRQ(ierr);
-				ierr = MatSetValue(this->A, k*this->N + i, k*this->N + i + 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
+			if(row_global == 0){
+				ierr = MatSetValue(this->A, this->K*local_begin + k*this->N_local + i, this->K*local_begin + k*this->N_local + i, 1.0, INSERT_VALUES); CHKERRQ(ierr);
+				ierr = MatSetValue(this->A, this->K*local_begin + k*this->N_local + i, this->K*local_begin + k*this->N_local + i + 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
 			}
+
 			/* common row */
-			if(i > 0 && i < this->N-1){
-				ierr = MatSetValue(this->A, k*this->N + i, k*this->N + i + 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
-				ierr = MatSetValue(this->A, k*this->N + i, k*this->N + i, 2.0, INSERT_VALUES); CHKERRQ(ierr);
-				ierr = MatSetValue(this->A, k*this->N + i, k*this->N + i - 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
+			if(row_global > 0 && row_global < this->N-1){
+				ierr = MatSetValue(this->A, this->K*local_begin + k*this->N_local + i, this->K*local_begin + k*this->N_local + i + 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
+				ierr = MatSetValue(this->A, this->K*local_begin + k*this->N_local + i, this->K*local_begin + k*this->N_local + i, 2.0, INSERT_VALUES); CHKERRQ(ierr);
+				ierr = MatSetValue(this->A, this->K*local_begin + k*this->N_local + i, this->K*local_begin + k*this->N_local + i - 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
 			}
 			/* last row */
-			if(i == this->N-1){
-				ierr = MatSetValue(this->A, k*this->N + i, k*this->N + i - 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
-				ierr = MatSetValue(this->A, k*this->N + i, k*this->N + i, 1.0, INSERT_VALUES); CHKERRQ(ierr);
+			if(row_global == this->N-1){
+				ierr = MatSetValue(this->A, this->K*local_begin + k*this->N_local + i, this->K*local_begin + k*this->N_local + i - 1, -1.0, INSERT_VALUES); CHKERRQ(ierr);
+				ierr = MatSetValue(this->A, this->K*local_begin + k*this->N_local + i, this->K*local_begin + k*this->N_local + i, 1.0, INSERT_VALUES); CHKERRQ(ierr);
 			}
 		}	
 	}
@@ -133,7 +140,7 @@ PetscErrorCode QPSolverPermon::assemble_A(){
 	ierr = MatAssemblyBegin(this->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
 	ierr = MatAssemblyEnd(this->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);	
 	/* A = 0.5*A (to obtain 1/2*x^T*A*x - b^T*x) */
-	ierr = MatScale(this->A, 0.5); CHKERRQ(ierr);
+	ierr = MatScale(this->A, 0.5*this->eps_sqr); CHKERRQ(ierr);
 	
     PetscFunctionReturn(0);  
 }
@@ -173,14 +180,16 @@ PetscErrorCode QPSolverPermon::get_x(Vec *x){
 PetscErrorCode QPSolverPermon::assemble_BE(){
 	PetscErrorCode ierr;
 	PetscInt k,i;
+	PetscInt local_begin;
 
 	PetscFunctionBegin;
 
+	local_begin = this->gamma->get_local_begin();
 	/* fill BE matrix */
 	for(k=0;k<this->K;k++){
 		/* fill eye(n),eye(n),eye(n) */
-		for(i=0;i<this->N;i++){
-			ierr = MatSetValue(this->BE, i, k*this->N + i, 1.0, INSERT_VALUES); CHKERRQ(ierr);
+		for(i=0;i<this->N_local;i++){
+			ierr = MatSetValue(this->BE, local_begin + i, this->K*local_begin + k*this->N_local + i, 1.0, INSERT_VALUES); CHKERRQ(ierr);
 		}
 	}
 	ierr = MatAssemblyBegin(this->BE,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
@@ -269,33 +278,36 @@ PetscErrorCode QPSolverPermon::solve(){
 	QPS qps; /* qp solver */
 
 	PetscScalar normb; /* norm of b */
-	PetscScalar rtol, atol, dtol; /* algorithm settings */
+	PetscScalar atol, dtol; /* algorithm settings */
 	PetscInt maxit; /* max number of iterations */
 
 	PetscScalar *x_arr; /* array with local values of solution x */
 	PetscScalar *gamma_arr;
 	
 	PetscInt k,i;
-	PetscInt x_begin, x_end;
 
 	PetscFunctionBegin;
 
 	/* --- PREPARE DATA FOR OPTIMIZATION PROBLEM --- */
 
+
 	/* set new RHS, b = -g */
 	ierr = this->gamma->compute_g(this->b, this->data, this->theta); CHKERRQ(ierr);
-	ierr = VecScale(this->b, -1.0/this->eps_sqr); CHKERRQ(ierr);
+	ierr = VecScale(this->b, -1.0); CHKERRQ(ierr);
 	ierr = VecAssemblyBegin(this->b); CHKERRQ(ierr);
 	ierr = VecAssemblyEnd(this->b); CHKERRQ(ierr);	
 
 	/* prepare initial vector from actual gamma, TODO: move this to Gamma */
-	for(k=0;k<this->K;k++){
+	ierr = VecGetArray(this->x,&x_arr); CHKERRQ(ierr);
+	for(k = 0; k < this->K; k++){
 		ierr = VecGetArray(this->gamma->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
-		for(i=0;i<this->N_local;i++){
-			ierr = VecSetValue(this->x, k*this->gamma->get_global_size()+this->gamma->get_local_begin()+i, gamma_arr[i], INSERT_VALUES); CHKERRQ(ierr);
+		for(i = 0;i < this->N_local; i++){
+			x_arr[k*this->N_local + i] = gamma_arr[i];
 		}
 		ierr = VecRestoreArray(this->gamma->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
 	}
+	ierr = VecRestoreArray(this->x,&x_arr); CHKERRQ(ierr);
+
 	ierr = VecAssemblyBegin(this->x); CHKERRQ(ierr);
 	ierr = VecAssemblyEnd(this->x); CHKERRQ(ierr);	
 
@@ -317,11 +329,10 @@ PetscErrorCode QPSolverPermon::solve(){
 	/* set default QPS options */
 	ierr = VecNorm(this->b,NORM_2,&normb); CHKERRQ(ierr);
 	
-	rtol  = 0.001/normb;
 	atol  = PETSC_DEFAULT;
 	dtol  = PETSC_DEFAULT;
 	maxit = PETSC_DEFAULT;
-	TRY( QPSSetTolerances(qps, rtol, atol, dtol, maxit) );
+	TRY( QPSSetTolerances(qps, this->rtol/normb, atol, dtol, maxit) );
 	/* set QPS options from the options database */
 	ierr = QPSSetFromOptions(qps); CHKERRQ(ierr);
 
@@ -344,11 +355,13 @@ PetscErrorCode QPSolverPermon::solve(){
 	// TODO: move following to Gamma 
 
 	/* get local array from solution x */
-	ierr = VecGetOwnershipRange(this->x, &x_begin, &x_end); CHKERRQ(ierr);
 	ierr = VecGetArray(this->x,&x_arr); CHKERRQ(ierr);
-	for(i = x_begin;i < x_end; i++){
-		k = (PetscInt)floor(i/(PetscScalar)this->N);
-		ierr = VecSetValue(this->gamma->gamma_vecs[k], (i - k*this->N), x_arr[i-x_begin],INSERT_VALUES);
+	for(k = 0; k < this->K; k++){
+		ierr = VecGetArray(this->gamma->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
+		for(i = 0;i < this->N_local; i++){
+			gamma_arr[i] = x_arr[k*this->N_local + i];
+		}
+		ierr = VecRestoreArray(this->gamma->gamma_vecs[k],&gamma_arr); CHKERRQ(ierr);
 	}
 	ierr = VecRestoreArray(this->x,&x_arr); CHKERRQ(ierr);
 
