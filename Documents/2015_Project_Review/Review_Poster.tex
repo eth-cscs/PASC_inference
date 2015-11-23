@@ -257,7 +257,8 @@ magenta line is the optimal fit of $O(n^2 \log n)$ to this sequence.  On right (
 \begin{center} \centerline{
 \includegraphics[width=9cm]{Library_Hierarchy.pdf}
 \includegraphics[width=9cm]{Scaling.pdf}
-\includegraphics[width=14cm]{FLLOP_weak_scalability.png}}
+\includegraphics[width=8cm]{FLLOP_weak_scalability.pdf}
+\includegraphics[width=9cm]{ParallelQP.pdf}}
  \caption{A hierarchy of state-of-the-art libraries (left) contains the templated-C++ minimal linear algebra (Minlin) library for dense linear algebra operations on CPUs (OpenMP) and GPUs (cuBLAS), the PERMON (Parallel, Efficient, Robust, Modular, Object-oriented, Numerical) toolbox for constrained optimisation methods, utilising the Portable Extensible Toolkit for Scientific Computation (PETSc) library, which in turn utilises the ViennaCL linear algebra backend  to offload linear algebra computation to accelerators. Parallel scaling (centre left, Cray XE6 at CSCS) of the FEM-BV framework in simultaneous (i.e., embarrassingly parallel) analysis of 40960 test data sets (courtesy of P. Metzner). K denotes the number of locally-stationary common graphs models that were identified for all of the data sets, and C is the persistency (i.e., a maximal allowed \# switches between these local models pro data set). Computational expense increases for the non-stationary case, but strong scalability also improves.   The initial results (centre right) for the above-mentioned QP problem solved with PERMON indicate that weak scaling can still be approached (here on dual 8-core Intel Sandybridge nodes at IT4Innovations, Ostrava), in spite of the dependencies which make the problem difficult to formulate for parallel platforms. Interfacing sequential Matlab with parallel PETSc (right) is possible, but only with considerable communication overhead. }
  \end{center} \label{fig:Scaling}
 \end{figure}
