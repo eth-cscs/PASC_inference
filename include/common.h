@@ -11,15 +11,17 @@
 
 #define DUALIZE 0
 
-/* include PETSc */
-#include "petsc.h"
-#include <petsctime.h> /* time management */
-
 /* include common c++ header files */
 #include <iostream>
-//#include <complex>
 
-using namespace std;
+/* include MINLIN */
+#include <minlin/minlin.h>
+#include <minlin/modules/threx/threx.h>
+#include <qpopt/smalbe.h>
+
+using namespace minlin::threx;
+
+MINLIN_INIT
 
 /* general utils */
 void Initialize(int, char**);

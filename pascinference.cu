@@ -1,3 +1,11 @@
+/*******************************************************************************
+PASC INFERENCE library
+Lukas Pospisil, Illia Horenko, Patrick Gagliardini, Will Sawyer
+USI Lugano, 2016
+lukas.pospisil@usi.ch
+
+*******************************************************************************/
+
 #include "common.h"
 #include "problem.h"
 #include "gamma.h"
