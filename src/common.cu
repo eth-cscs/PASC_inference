@@ -4,8 +4,6 @@
  * initialize the application
  */ 
 void Initialize(int argc, char *argv[]){
-	/* init the Petsc */
-	PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
 
 }
 
@@ -13,7 +11,6 @@ void Initialize(int argc, char *argv[]){
  * final call of the application
  */ 
 void Finalize(){
-	/* finalize the Petsc */
-	PetscFinalize();
+
 }
 

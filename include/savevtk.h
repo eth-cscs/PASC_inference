@@ -5,7 +5,7 @@
 #include "data.h"
 #include "gamma.h"
 
-PetscErrorCode save_VTK(Data data, Gamma gamma);
+void save_VTK(Data data, Gamma gamma);
 
 
 #endif

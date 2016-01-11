@@ -5,7 +5,7 @@
 
 class QPSolverProjectionstep: public QPSolver {
 	protected:
-		PetscInt K, N, N_local; /* dimensions of the problem */
+		int K, N, N_local; /* dimensions of the problem */
 		
 		Mat Asub; /* block of Hessian matrix */
 		Vec *bs; /* blocks of vectors of linear term */
@@ -15,20 +15,20 @@ class QPSolverProjectionstep: public QPSolver {
 
 		PetscScalar stepsize; /* step-size of projection step */
 
-		PetscErrorCode assemble_Asub();
-		PetscErrorCode set_bs(Vec *bs);
-		PetscErrorCode get_bs(Vec **bs);
-		PetscErrorCode compute_gradient();
-		PetscErrorCode project();
+		void assemble_Asub();
+		void set_bs(Vec *bs);
+		void get_bs(Vec **bs);
+		void compute_gradient();
+		void project();
 				
 	public:
 		QPSolverProjectionstep(Data*, Gamma*, Theta*, PetscScalar);
-		PetscErrorCode init();
-		PetscErrorCode finalize();
-		PetscErrorCode solve();
-		PetscErrorCode get_function_value(PetscScalar*);
-		PetscErrorCode print(PetscViewer);
-		PetscErrorCode correct(PetscScalar);
+		void init();
+		void finalize();
+		void solve();
+		void get_function_value(PetscScalar*);
+		void print(PetscViewer);
+		void correct(PetscScalar);
 		
 };
 

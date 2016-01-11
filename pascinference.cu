@@ -14,21 +14,16 @@ lukas.pospisil@usi.ch
 
 /* include QPSolver */
 #include "qpsolver_projectionstep.h"
-#include "qpsolver_permon.h"
-
-
-PetscMPIInt proc_n, proc_id; /* for MPI_Comm functions */	
 
 int main( int argc, char *argv[] )
 {
 	Initialize(argc,argv);
 
 	/* variables */
-	PetscErrorCode ierr;
 	Data data;
 	Gamma gamma;
 	Theta theta;
-	PetscInt s; /* index of main iterations */
+	int s; /* index of main iterations */
 	PetscReal L, L_old, deltaL; /* object function value */
 
 	PetscLogDouble time_begin, time_end, time_elapsed; /* elapsed time of computation */
@@ -41,7 +36,7 @@ int main( int argc, char *argv[] )
 	ierr = PetscViewerASCIIPrintf(my_viewer,"- start program:\n"); CHKERRQ(ierr);
 	
 	/* parameters of application */
-	PetscInt dataN = 1000;
+	int dataN = 1000;
 	PetscScalar eps_sqr = 10;
 	PetscBool print_data = PETSC_FALSE;
 	/* load parameters from input */
@@ -137,7 +132,6 @@ int main( int argc, char *argv[] )
 	gamma.finalize();
 	data.finalize();
 
-	qpsolverpermon->finalize();
 	qpsolverprojectionstep->finalize();
 
 	

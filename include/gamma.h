@@ -10,12 +10,12 @@ class QPSolver;
 #include "qpsolver.h"
 
 class Gamma {
-		PetscInt dim; /* number of gamma components = K */
+		int dim; /* number of gamma components = K */
 
-		PetscInt global_size; /* global data size with overlap */
-		PetscInt local_size; /* local data size with overlap */
+		int global_size; /* global data size with overlap */
+		int local_size; /* local data size with overlap */
 
-		PetscInt local_begin, local_end; /* ownership range */
+		int local_begin, local_end; /* ownership range */
 
 		PetscMPIInt proc_n, proc_id; /* for MPI_Comm functions */	
 	
@@ -24,27 +24,27 @@ class Gamma {
 	public:
 		Vec *gamma_vecs; /* array with data vectors, TODO: should be private */
 
-		PetscErrorCode init(Data, PetscInt); /* TODO: should be constructor */
-		PetscErrorCode finalize(); /* TODO: should be destructor */
+		void init(Data, int); /* TODO: should be constructor */
+		void finalize(); /* TODO: should be destructor */
 
-		PetscErrorCode print(PetscViewer v);
+		void print(PetscViewer v);
 
-		PetscErrorCode prepare_random();
-		PetscErrorCode prepare_uniform();		
-		PetscErrorCode prepare_fixed();		
+		void prepare_random();
+		void prepare_uniform();		
+		void prepare_fixed();		
 
-		PetscErrorCode compute(QPSolver *qp_solver, Data data, Theta theta);
+		void compute(QPSolver *qp_solver, Data data, Theta theta);
 
 		/* GET functions */
-		PetscInt get_local_size();
-		PetscInt get_local_begin();
-		PetscInt get_local_end();
-		PetscInt get_global_size();
-		PetscInt get_dim();
+		int get_local_size();
+		int get_local_begin();
+		int get_local_end();
+		int get_global_size();
+		int get_dim();
 
 		// TODO: this should be somewhere else, Model?
-		PetscErrorCode compute_g(Vec g, Data *data, Theta *theta);
-		PetscErrorCode compute_gk(Vec g, Data *data, Theta *theta, PetscInt k);
+		void compute_g(Vec g, Data *data, Theta *theta);
+		void compute_gk(Vec g, Data *data, Theta *theta, int k);
 	
 };
 
