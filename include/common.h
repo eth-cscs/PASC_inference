@@ -27,5 +27,7 @@ MINLIN_INIT
 void Initialize(int, char**);
 void Finalize();
 
+void Message(string text);
+//void Message_error(string text);
 
 #endif

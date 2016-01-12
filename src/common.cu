@@ -14,3 +14,9 @@ void Finalize(){
 
 }
 
+/*!
+ * print message
+ */
+void Message(string text){
+	cout << text << endl;
+}  
