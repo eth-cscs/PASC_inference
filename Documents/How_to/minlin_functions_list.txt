@@ -1,0 +1,171 @@
+=== VECTOR ===
+
+- construction
+Vector(difference_type n, orientation_type orientation = ColumnOriented)
+Vector(const Vector& other)
+Vector(const Vector<OtherExpression>& other)
+Vector(const Matrix<OtherExpression>& other)
+Vector(const expression_type& expression, orientation_type orientation = ColumnOriented)
+
+- assignment
+operator=
+
+- compound assigment
+operator+=
+operator-=
+operator*=
+operator/=
+
+- indexing
+operator()(difference_type i)
+operator()(difference_type start, difference_type finish)
+
+- properties
+difference_type rows()
+difference_type cols()
+difference_type size()
+orientation_type orientation()
+expression_type& expression()
+
+- Scalar-Vector operators
+operator+
+operator-
+operator*
+div
+pow
+atan2
+
+- Vector-Vector operators
+operator+
+operator-
+mul
+div
+pow
+atan2
+
+- functions
+bool any_of(const Vector<Expression>& vec)
+bool all_of(const Vector<Expression>& vec)
+
+- logical operators
+operator||
+operator&&
+operator!
+
+- n_ary_operators
+mul(const Vector<E1>& v1, const Vector<E2>& v2, const Vector<E3>& v3)
+mul(const Vector<E1>& v1, const Vector<E2>& v2, const Vector<E3>& v3, const Vector<E4>& v4)
+...
+mul(const Vector<E1>& v1, ... const Vector<E10>& v10)
+
+- reduction operators
+min(const Vector<Expression>& vec)
+max(const Vector<Expression>& vec)
+sum(const Vector<Expression>& vec)
+prod(const Vector<Expression>& vec)
+norm(const Vector<Expression>& vec)
+norm(const Vector<Expression>& vec, double p)
+dot(const Vector<LeftExpression>& left, const Vector<RightExpression>& right)
+
+- relational operators
+operator==
+operator!=
+operator<
+operator<=
+operator>
+operator>=
+
+- unary operators
+abs, acos, asin, atan, ceil, cos, cosh, exp, floor, log, log10, sin, sinh, sqrt, tan, tanh
+
+
+=== MATRIX ===
+
+- construction
+Matrix(difference_type m, difference_type n)
+Matrix(const Matrix& other)
+Matrix(const Matrix<OtherExpression>& other)
+
+- assignment
+operator=
+
+- compound assigment
+operator+=
+operator-=
+operator*=
+operator/=
+
+- indexing
+operator()(difference_type i, difference_type j)
+operator()(difference_type p)
+operator()(difference_type row_start, difference_type row_finish, difference_type col_start, difference_type col_finish)
+
+- properties
+orientation_type orientation()
+difference_type size()
+difference_type rows()
+difference_type cols()
+expression_type& expression()
+
+
+- Scalar-Matrix operators
+operator+
+operator-
+operator*
+div
+pow
+atan2
+
+- Matrix-Scalar operators
+operator+
+operator-
+operator*
+div
+pow
+atan2
+
+- Matrix-Matrix operators
+operator+
+operator-
+mul
+div
+pow
+atan2
+operator*
+
+- functions
+bool any_of
+bool all_of
+
+- logical operators
+operator||
+operator&&
+operator!
+
+- n_ary_operators
+mul(const Matrix<E1>& m1, const Matrix<E2>& m2, const Matrix<E3>& m3)
+mul(const Matrix<E1>& m1, const Matrix<E2>& m2, const Matrix<E3>& m3, const Matrix<E4>& m4)
+...
+mul(const Matrix<E1>& m1, ... const Matrix<E10>& m10)
+
+- reduction operators
+min(const Matrix<Expression>& mat)
+max(const Matrix<Expression>& mat)
+sum(const Matrix<Expression>& mat)
+prod(const Matrix<Expression>& mat)
+
+- relational operators
+operator==
+operator!=
+operator<
+operator<=
+operator>
+operator>=
+
+- unary operators
+transpose(const Matrix<Expression>& mat)
+numel(const Matrix<Expression>& mat)
+size(const Matrix<Expression>& mat, typename Expression::difference_type dimension)
+
+- matrix-vector operators
+operator*(const Matrix<LeftExpression>& left, const Vector<RightExpression>& right)

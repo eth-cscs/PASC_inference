@@ -85,6 +85,21 @@ set(CUDA_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla ${CMAKE_CXX_FLAGS_${BUILD_TYPE_U
 string(REPLACE "-std=c++11" "" CUDA_CXX_FLAGS ${CUDA_CXX_FLAGS}) # remove C++11 from options
 cuda_include_directories(${MINLIN_INCLUDE})
 
+# from source files create shared library
+CUDA_ADD_LIBRARY(externals_common src/common.cu
+				 SHARED)
+CUDA_ADD_LIBRARY(externals_problem src/problem.cu
+				 SHARED)
+CUDA_ADD_LIBRARY(externals_data src/data.cu
+				 SHARED)
+CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu
+				 SHARED)
+CUDA_ADD_LIBRARY(externals_theta src/theta.cu
+				 SHARED)
+CUDA_ADD_LIBRARY(externals_savevtk src/savevtk.cu
+				 SHARED)
+
+
 # add main executable file
 cuda_add_executable(pascinference_device pascinference.cu
 	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
@@ -93,6 +108,15 @@ target_link_libraries(pascinference_device mkl_core mkl_gnu_thread mkl_rt boost_
 set_target_properties(pascinference_device PROPERTIES
 	OUTPUT_NAME pascinference
 	)
+target_link_libraries(pascinference_device 
+	externals_common
+	externals_problem
+	externals_data
+	externals_gamma
+	externals_theta
+	externals_savevtk
+)
+
 	
 # make output directory, here the results will be stored
-file(MAKE_DIRECTORY output)	
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output)	

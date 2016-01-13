@@ -8,21 +8,22 @@ class Theta;
 #include "gamma.h"
 
 class Theta {
-		int dim_data; /* number of data components = n */
-		int dim_gamma; /* number of gamma components = K */
+		int dim; /* number of data components = n */
+		int K; /* number of gamma components */
 
 	public:
-		float *theta_arr; /* array with theta, should be same in every proc */
+		ThetaVector<Scalar> theta_vec; /* vector with theta */
 
 		void init(Data data, Gamma gamma); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
-		void print(PetscViewer v);
+		void print();
+		void print(int nmb_of_spaces);
 		void compute(Data data, Gamma gamma);
 		
 		
 		/* GET functions */
-		int get_dim_data();
-		int get_dim_gamma();
+		int get_dim();
+		int get_K();
 
 	
 };

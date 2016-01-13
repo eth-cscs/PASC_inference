@@ -1,77 +1,98 @@
 #include "theta.h"
 
-PetscErrorCode Theta::init(Data data, Gamma gamma){
-	PetscErrorCode ierr;
-	PetscInt i,k;
-	
-	PetscFunctionBegin;
+void Theta::init(Data data, Gamma gamma){
+	this->dim = data.get_dim();
+	this->K = gamma.get_K();
 
-	this->dim_data = data.get_dim();
-	this->dim_gamma = gamma.get_dim();
+	ThetaVector<Scalar> D(this->dim*this->K);
+	this->theta_vec = D;
+	this->theta_vec(all) = 0.0;
 
-	ierr = PetscMalloc(this->dim_data*this->dim_gamma*sizeof(PetscScalar),&this->theta_arr); CHKERRQ(ierr);
-	/* set zeros to theta */
-	for(k=0;k<this->dim_gamma;k++){
-		for(i=0;i<this->dim_data;i++){
-			this->theta_arr[k*this->dim_data + i] = 0.0;
-		}
-	}
-
-    PetscFunctionReturn(0);  	
 }
 
-PetscErrorCode Theta::finalize()
+void Theta::finalize()
 {
-	PetscErrorCode ierr;
-	
-	PetscFunctionBegin;
 
-	ierr = PetscFree(this->theta_arr); CHKERRQ(ierr);
-
-    PetscFunctionReturn(0);  	
 }
 	
 
-PetscErrorCode Theta::compute(Data data, Gamma gamma){
-	PetscErrorCode ierr;
-	PetscScalar sum_gamma;
-	PetscScalar gammaTx;
+void Theta::compute(Data data, Gamma gamma){
+	Scalar sum_gamma;
+	Scalar gammaTx;
 	
-	PetscInt i,k;
+	int i,k;
 		
-	PetscFunctionBegin;
-
-	for(k=0;k<gamma.get_dim();k++){
+	for(k=0;k<gamma.get_K();k++){
 
 		/* compute sum of gamma[k] */
-		ierr = VecSum(gamma.gamma_vecs[k],&sum_gamma); CHKERRQ(ierr);
+		
+		sum_gamma = sum(gamma.gamma_vecs[k]);
 
 		for(i=0;i<data.get_dim();i++){
 			/* compute dot product */
-			ierr = VecDot(gamma.gamma_vecs[k],data.data_vecs[i], &gammaTx); CHKERRQ(ierr);
+			gammaTx = dot(gamma.gamma_vecs[k],data.data_vecs[i]);
 			
-			this->theta_arr[k*data.get_dim()+i] = gammaTx/sum_gamma;
+			this->theta_vec(k*data.get_dim()+i) = gammaTx/sum_gamma;
 		}
 	}
-	
-    PetscFunctionReturn(0); 
 }
 
-PetscErrorCode Theta::print(PetscViewer v)
+void Theta::print()
 {
-	PetscErrorCode ierr; /* error handler */
-	PetscInt k,i; /* iterator */
-	
-	PetscFunctionBegin;
-	
-	ierr = PetscViewerASCIIPrintf(v,"- Theta:\n"); CHKERRQ(ierr);
-	for(k=0;k<this->dim_gamma;k++){
-		ierr = PetscViewerASCIIPrintf(v,"  - Theta_%d = ( ",k); CHKERRQ(ierr);
-		for(i=0;i<this->dim_data;i++){
-			ierr = PetscViewerASCIIPrintf(v,"%f ",this->theta_arr[k*this->dim_data+i]); CHKERRQ(ierr);
-		}
-		ierr = PetscViewerASCIIPrintf(v,")\n"); CHKERRQ(ierr);
-	}
+	int k; /* iterator */
+	int start_idx, end_idx;
 
-    PetscFunctionReturn(0);  		
+	std::ostringstream oss;
+	std::ostringstream oss_values;
+	
+	Message_info("- Theta:");
+	for(k=0;k<this->K;k++){
+		start_idx = k*this->dim;
+		end_idx = (k+1)*this->dim-1;
+		
+		oss << " - Theta_" << k << " = ";
+		oss_values << this->theta_vec(range(start_idx,end_idx));
+		Message_info_values(oss.str(),oss_values.str());
+
+		oss.str("");
+		oss.clear();
+		oss_values.str("");
+		oss_values.clear();
+	}
+	
+}
+
+void Theta::print(int nmb_of_spaces)
+{
+	int k,i; /* iterator */
+	int start_idx, end_idx;
+
+	std::ostringstream oss_spaces;
+
+	std::ostringstream oss;
+	std::ostringstream oss_values;
+	
+	for(i=0;i<nmb_of_spaces;i++){
+		oss_spaces << " ";
+	}
+	
+	oss << oss_spaces.str() << "- Theta:";
+	Message_info(oss.str());
+	oss.str("");
+	oss.clear();
+	
+	for(k=0;k<this->K;k++){
+		start_idx = k*this->dim;
+		end_idx = (k+1)*this->dim-1;
+		
+		oss << oss_spaces.str() << " - Theta_" << k << " = ";
+		oss_values << this->theta_vec(range(start_idx,end_idx));
+		Message_info_values(oss.str(),oss_values.str());
+
+		oss.str("");
+		oss.clear();
+		oss_values.str("");
+		oss_values.clear();
+	}
+	
 }

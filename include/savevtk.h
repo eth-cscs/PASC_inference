@@ -5,8 +5,9 @@
 #include "data.h"
 #include "gamma.h"
 
-void save_VTK(Data data, Gamma gamma);
+#include <fstream>
 
+void save_VTK(Data data, Gamma gamma);
 
 #endif
 

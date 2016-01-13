@@ -7,68 +7,58 @@ lukas.pospisil@usi.ch
 *******************************************************************************/
 
 #include "common.h"
-//#include "problem.h"
-//#include "gamma.h"
-//#include "theta.h"
-//#include "savevtk.h"
+#include "problem.h"
+#include "gamma.h"
+#include "theta.h"
+#include "savevtk.h"
 
 /* include QPSolver */
 //#include "qpsolver_projectionstep.h"
 
-typedef double Real; /* we are going to compute in double/float? */
 
 int main( int argc, char *argv[] )
 {
-	Initialize(argc,argv);
+	/* parameters of application */
+	int dataT = DEFAULT_T; // TODO: do it in a different way
+	int gammaK = DEFAULT_K;
+	int max_s_steps = ALGORITHM_max_s_steps;
+
+	Initialize(argc,argv); // TODO: load parameters of problem from console input
 
 	/* variables */
-//	Data data;
-//	Gamma gamma;
-//	Theta theta;
-//	int s; /* index of main iterations */
-//	Real L, L_old, deltaL; /* object function value */
-
-//	PetscLogDouble time_begin, time_end, time_elapsed; /* elapsed time of computation */
-
-	
-	/* viewer */
-//	PetscViewer my_viewer = PETSC_VIEWER_STDOUT_WORLD;
+	Data data;
+	Gamma gamma;
+	Theta theta;
+	int s; /* index of main iterations */
+	Scalar L, L_old, deltaL; /* object function value */
 
 	/* say hello */	
-//	ierr = PetscViewerASCIIPrintf(my_viewer,"- start program:\n"); CHKERRQ(ierr);
-	
-	/* parameters of application */
-//	int dataN = 1000;
-//	PetscScalar eps_sqr = 10;
-//	PetscBool print_data = PETSC_FALSE;
-	/* load parameters from input */
-	// TODO: move to settings
-//	ierr = PetscOptionsInt("-N","set the size of the problem","",dataN,&dataN,NULL); CHKERRQ(ierr);
-//	ierr = PetscOptionsBool("-print_data","print data or not","",print_data,&print_data,NULL); CHKERRQ(ierr);
-//	ierr = PetscOptionsReal("-eps_sqr","regularization parameter","",eps_sqr,&eps_sqr,NULL); CHKERRQ(ierr);
-	
+	Message("- start program");
 	
 	/* generate problem */
-//	ierr = generate_problem(&data,dataN); CHKERRQ(ierr);
+	generate_problem(&data,dataT);
 	/* print problem */
-//	if(print_data){
-//		ierr = data.print(my_viewer); CHKERRQ(ierr);
-//	}	
+	if(DEBUG_PRINTDATA){
+		data.print();
+	}	
 
 	/* initialize gamma */
-//	ierr = gamma.init(data, gammaK); CHKERRQ(ierr);
+	gamma.init(data, gammaK);
 
 	/* prepare gammas */
-//	ierr = gamma.prepare_random(); CHKERRQ(ierr);	
-//	if(print_data){ /* print gamma */
-//		ierr = gamma.print(my_viewer); CHKERRQ(ierr);
-//	}	
+	gamma.prepare_random();	
+	if(DEBUG_PRINTDATA){ /* print gamma */
+		gamma.print();
+	}
 
 	/* initialize theta */
-//	ierr = theta.init(data,gamma); CHKERRQ(ierr);
+	theta.init(data,gamma);
+	if(DEBUG_PRINTDATA){ /* print theta */
+		theta.print();
+	}
 
 	/* initialize QP solvers */
-//	QPSolver *qpsolver; /* actual solver */
+//	QPSolver qpsolver;
 //	QPSolver *qpsolverpermon = new QPSolverPermon(&data, &gamma, &theta, eps_sqr);
 //	QPSolver *qpsolverprojectionstep = new QPSolverProjectionstep(&data, &gamma, &theta, eps_sqr);
 //	qpsolverpermon->init();
@@ -76,72 +66,67 @@ int main( int argc, char *argv[] )
 //	qpsolver = qpsolverprojectionstep;
 	
 	/* initialize value of object function */
-//	L = PETSC_MAX_REAL; // TODO: the computation of L should be done in the different way
-	
-	/* here start to measure time for computation */
-//	ierr = PetscTime(&time_begin);CHKERRQ(ierr);	
+	L = std::numeric_limits<Scalar>::max(); // TODO: the computation of L should be done in the different way
 	
 	/* main cycle */
-//	ierr = PetscViewerASCIIPrintf(my_viewer,"- run main cycle:\n"); CHKERRQ(ierr);
-//	ierr = PetscViewerASCIIPushTab(my_viewer); CHKERRQ(ierr);
-//	for(s=0;s<max_s_steps;s++){
-//		ierr = PetscViewerASCIIPrintf(my_viewer,"- s = %d:\n",s); CHKERRQ(ierr);
-//		ierr = PetscViewerASCIIPushTab(my_viewer); CHKERRQ(ierr);
+	Message("- run main cycle:");
+	for(s=0;s < max_s_steps;s++){
+		Message_info_value(" - s = ",s);
 
 		/* --- COMPUTE Theta --- */
-//		ierr = theta.compute(data,gamma); CHKERRQ(ierr);
-
+		theta.compute(data,gamma);
+		if(DEBUG_PRINTDATA){ /* print theta */
+			theta.print(2);
+		}
+		
 		/* --- COMPUTE gamma --- */
-//		ierr = gamma.compute(qpsolver,data,theta); CHKERRQ(ierr);
-//		if(print_data){
-//			ierr = qpsolver->print(my_viewer); CHKERRQ(ierr);
-//		}
-	
-//		L_old = L;
+/*		gamma.compute(qpsolver,data,theta); CHKERRQ(ierr);
+		if(DEBUG_PRINTDATA){
+			ierr = qpsolver->print(my_viewer); CHKERRQ(ierr);
+		}
+*/
+		/* compute stopping criteria */
+		L_old = L;
 //		ierr = qpsolver->get_function_value(&L); CHKERRQ(ierr);
 //		deltaL = PetscAbsScalar(L - L_old);
 
-//		if(L > L_old || deltaL < deltaL_eps_exact){
-//			qpsolver = qpsolverpermon;
-//		}
-
 		/* print info about cost function */
-//		if(PETSC_TRUE){ 
-//			ierr = PetscViewerASCIIPrintf(my_viewer,"  - L_old       = %f:\n",L_old); CHKERRQ(ierr);
-//			ierr = PetscViewerASCIIPrintf(my_viewer,"  - L           = %f:\n",L); CHKERRQ(ierr);
-//			ierr = PetscViewerASCIIPrintf(my_viewer,"  - |L - L_old| = %f:\n",deltaL); CHKERRQ(ierr);
-//		}	
+		if(DEBUG_PRINTL){
+			Message_info_value("  - L_old       = ",L_old);
+			Message_info_value("  - L           = ",L);
+			Message_info_value("  - |L - L_old| = ",deltaL);
+		}	
 
 		/* end the main cycle if the change of function value is sufficient */
-//		if (deltaL < deltaL_eps){
-//			break;
-//		}
+		if (deltaL < ALGORITHM_deltaL_eps){
+			break;
+		}
 		
-//		ierr = PetscViewerASCIIPopTab(my_viewer); CHKERRQ(ierr);
-//	}
-//	ierr = PetscViewerASCIIPopTab(my_viewer); CHKERRQ(ierr);
-
-	/* here stop to measure time for computation */
-//	ierr = PetscTime(&time_end);CHKERRQ(ierr);	
+	}
+	Message("- main cycle finished");
 
 	/* save the solution to VTK */
-//	if(PETSC_TRUE){
-//		ierr = PetscViewerASCIIPrintf(my_viewer,"- save solution to VTK:\n"); CHKERRQ(ierr);
-//		ierr = save_VTK(data,gamma); CHKERRQ(ierr);
-//	}
+	if(EXPORT_SAVEVTK){
+		Message("- save solution to VTK");
+		save_VTK(data,gamma);
+	}
 
-//	theta.finalize();
-//	gamma.finalize();
-//	data.finalize();
+	theta.finalize();
+	gamma.finalize();
+	data.finalize();
 
 //	qpsolverprojectionstep->finalize();
 
 	
-	/* print info about elapsed time */
-//	time_elapsed = time_end - time_begin;
-//	ierr = PetscViewerASCIIPrintf(my_viewer,"- time for computation: %f s\n", time_elapsed); CHKERRQ(ierr);
-//	ierr = PetscViewerASCIIPrintf(my_viewer,"- number of iterations: %d\n", s); CHKERRQ(ierr);
-//	ierr = PetscViewerASCIIPrintf(my_viewer,"- |L - L_old|         = %f:\n",deltaL); CHKERRQ(ierr);
+	/* print info about elapsed time and solution */
+
+	Message_info("- final info:");
+	Message_info_time(" - time for computation: ",timer.stop());
+	Message_info_value(" - number of iterations: ",s);
+	Message_info_value(" - |L - L_old| = ",deltaL);
+
+	/* say bye */	
+	Message("- end program");
 	
 	Finalize();
 	return 0;
