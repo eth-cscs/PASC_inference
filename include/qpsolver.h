@@ -13,16 +13,25 @@ class QPSolver {
 		Gamma *gamma;
 		Theta *theta;
 
-		PetscScalar eps_sqr;
-	public:
-		QPSolver(Data*, Gamma *, Theta *, PetscScalar);
-		virtual void init();
-		virtual void finalize();
-		virtual void solve();
-		virtual void get_function_value(PetscScalar*);
-		virtual void print(PetscViewer);
-		virtual void correct(PetscScalar); /* if L_new > L_old change parameters of solver */
+		Scalar eps_sqr;
 		
+		/* data of QP problem */
+		GammaMatrix<Scalar> A_sub; /* Hessian */
+		GammaVector<Scalar> *bs; /* rhs */
+		GammaVector<Scalar> *gs; /* gradient */
+		
+
+		
+	public:
+		QPSolver(Data*, Gamma *, Theta *, Scalar);
+		void init();
+		void finalize();
+		void solve();
+		Scalar get_function_value();
+		void print();
+		void print(int nmb_of_spaces);
+		void print(int nmb_of_spaces, bool print_A_sub);
+
 };
 
 

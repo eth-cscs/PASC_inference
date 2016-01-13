@@ -75,44 +75,12 @@ void Gamma::prepare_uniform()
 	}
 }
 
-//void Gamma::compute(QPSolver *qpsolver, Data data, Theta theta)
-//{
-	/* --- SOLVE OPTIMIZATION PROBLEM --- */
-//	ierr = qpsolver->solve(); CHKERRQ(ierr);
-//}
-/*
-void Gamma::compute_g(Vec g, Data *data, Theta *theta)
+void Gamma::compute(QPSolver *qpsolver, Data data, Theta theta)
 {
-	void ierr;
-	
-	Vec g_part;
-	PetscScalar *g_part_arr, *g_arr;
-	int i,k;
-		
-	PetscFunctionBegin;
-
-	ierr = VecDuplicate(this->gamma_vecs[0],&g_part); CHKERRQ(ierr);
-
-	ierr = VecGetArray(g,&g_arr); CHKERRQ(ierr);
-	for(k=0;k<this->dim;k++){
-		ierr = this->compute_gk(g_part, data, theta, k); CHKERRQ(ierr);
-		
-		ierr = VecGetArray(g_part,&g_part_arr); CHKERRQ(ierr);
-		for(i=0;i<this->local_size;i++){
-			g_arr[k*this->local_size+i] = g_part_arr[i];
-		}
-		ierr = VecRestoreArray(g_part,&g_part_arr); CHKERRQ(ierr);
-	}
-	ierr = VecRestoreArray(g,&g_arr); CHKERRQ(ierr);
-
-	ierr = VecAssemblyBegin(g); CHKERRQ(ierr);
-	ierr = VecAssemblyEnd(g); CHKERRQ(ierr);		
-
-	ierr = VecDestroy(&g_part); CHKERRQ(ierr);
-	
-    PetscFunctionReturn(0); 
+	/* --- SOLVE OPTIMIZATION PROBLEM --- */
+	qpsolver->solve();
 }
-*/
+
 //void Gamma::compute_gk(Vec g, Data *data, Theta *theta, int k)
 //{
 //	Vec *x_minus_Theta;
@@ -168,21 +136,7 @@ void Gamma::compute_g(Vec g, Data *data, Theta *theta)
 
 void Gamma::print()
 {
-	int k;
-	std::ostringstream oss;
-	std::ostringstream oss_values;
-	
-	Message_info("- gamma:");
-	for(k=0;k<this->K;k++){
-		oss << " - gamma[" << k << "] = ";
-		oss_values << this->gamma_vecs[k];
-		Message_info_values(oss.str(),oss_values.str());
-
-		oss.str("");
-		oss.clear();
-		oss_values.str("");
-		oss_values.clear();
-	}
+	this->print(0);
 }
 
 void Gamma::print(int nmb_of_spaces)

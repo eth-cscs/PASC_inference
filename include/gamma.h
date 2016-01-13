@@ -2,17 +2,17 @@
 #define	GAMMA_H
 
 class Gamma;
-//class QPSolver;
+class QPSolver;
 
 #include "common.h"
 #include "data.h"
-//#include "theta.h"
-//#include "qpsolver.h"
+#include "theta.h"
+#include "qpsolver.h"
 
 class Gamma {
 		int K; /* number of gamma components*/
 		int T; /* length of time serie */
-		
+				
 	public:
 		GammaVector<Scalar> *gamma_vecs; /* array with gamma vectors, TODO: should be private */
 
@@ -25,7 +25,7 @@ class Gamma {
 		void prepare_random();
 		void prepare_uniform();		
 
-//		void compute(QPSolver *qp_solver, Data data, Theta theta);
+		void compute(QPSolver *qpsolver, Data data, Theta theta);
 
 		/* GET functions */
 		int get_T();

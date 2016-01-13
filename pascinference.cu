@@ -11,9 +11,7 @@ lukas.pospisil@usi.ch
 #include "gamma.h"
 #include "theta.h"
 #include "savevtk.h"
-
-/* include QPSolver */
-//#include "qpsolver_projectionstep.h"
+#include "qpsolver.h"
 
 
 int main( int argc, char *argv[] )
@@ -29,6 +27,8 @@ int main( int argc, char *argv[] )
 	Data data;
 	Gamma gamma;
 	Theta theta;
+	QPSolver qpsolver(&data,&gamma,&theta, 1.0);
+
 	int s; /* index of main iterations */
 	Scalar L, L_old, deltaL; /* object function value */
 
@@ -58,12 +58,11 @@ int main( int argc, char *argv[] )
 	}
 
 	/* initialize QP solvers */
-//	QPSolver qpsolver;
-//	QPSolver *qpsolverpermon = new QPSolverPermon(&data, &gamma, &theta, eps_sqr);
-//	QPSolver *qpsolverprojectionstep = new QPSolverProjectionstep(&data, &gamma, &theta, eps_sqr);
-//	qpsolverpermon->init();
-//	qpsolverprojectionstep->init();
-//	qpsolver = qpsolverprojectionstep;
+	qpsolver.init();
+	if(DEBUG_PRINTDATA){ /* print state of qpsolver */
+		qpsolver.print();
+	}
+	
 	
 	/* initialize value of object function */
 	L = std::numeric_limits<Scalar>::max(); // TODO: the computation of L should be done in the different way
@@ -80,11 +79,11 @@ int main( int argc, char *argv[] )
 		}
 		
 		/* --- COMPUTE gamma --- */
-/*		gamma.compute(qpsolver,data,theta); CHKERRQ(ierr);
+		gamma.compute(&qpsolver,data,theta);
 		if(DEBUG_PRINTDATA){
-			ierr = qpsolver->print(my_viewer); CHKERRQ(ierr);
+			qpsolver.print(2,false);
 		}
-*/
+
 		/* compute stopping criteria */
 		L_old = L;
 //		ierr = qpsolver->get_function_value(&L); CHKERRQ(ierr);
@@ -114,12 +113,9 @@ int main( int argc, char *argv[] )
 	theta.finalize();
 	gamma.finalize();
 	data.finalize();
-
-//	qpsolverprojectionstep->finalize();
-
+	qpsolver.finalize();
 	
 	/* print info about elapsed time and solution */
-
 	Message_info("- final info:");
 	Message_info_time(" - time for computation: ",timer.stop());
 	Message_info_value(" - number of iterations: ",s);

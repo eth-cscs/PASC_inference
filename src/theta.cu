@@ -39,27 +39,7 @@ void Theta::compute(Data data, Gamma gamma){
 
 void Theta::print()
 {
-	int k; /* iterator */
-	int start_idx, end_idx;
-
-	std::ostringstream oss;
-	std::ostringstream oss_values;
-	
-	Message_info("- Theta:");
-	for(k=0;k<this->K;k++){
-		start_idx = k*this->dim;
-		end_idx = (k+1)*this->dim-1;
-		
-		oss << " - Theta_" << k << " = ";
-		oss_values << this->theta_vec(range(start_idx,end_idx));
-		Message_info_values(oss.str(),oss_values.str());
-
-		oss.str("");
-		oss.clear();
-		oss_values.str("");
-		oss_values.clear();
-	}
-	
+	this->print(0);
 }
 
 void Theta::print(int nmb_of_spaces)

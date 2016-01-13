@@ -16,8 +16,10 @@
 
 /* define HostVector/DeviceVector for each data type */
 #define DataVector HostVector
-#define GammaVector HostVector
 #define ThetaVector HostVector
+#define GammaVector HostVector
+#define GammaMatrix HostMatrix
+
 
 /* we are going to compute in double/float? */
 typedef double Scalar; 
