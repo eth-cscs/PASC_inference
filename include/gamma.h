@@ -32,8 +32,7 @@ class Gamma {
 		int get_K();
 
 		// TODO: this should be somewhere else, Model?
-//		void compute_g(Vec g, Data *data, Theta *theta);
-//		void compute_gk(Vec g, Data *data, Theta *theta, int k);
+		void compute_gk(GammaVector<Scalar> *g, Data *data, Theta *theta, int k);
 	
 };
 

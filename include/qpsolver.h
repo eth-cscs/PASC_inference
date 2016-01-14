@@ -6,6 +6,9 @@
 #include "theta.h"
 #include "data.h"
 
+/* thrust tools */
+#include <thrust/sort.h>
+
 
 class QPSolver {
 	protected:
@@ -19,8 +22,13 @@ class QPSolver {
 		GammaMatrix<Scalar> A_sub; /* Hessian */
 		GammaVector<Scalar> *bs; /* rhs */
 		GammaVector<Scalar> *gs; /* gradient */
+		GammaVector<Scalar> *ds; /* projected gradient */
+		GammaVector<Scalar> *Ads; /* A*ds */
 		
-
+		/* private functions */
+		void project(GammaVector<Scalar> **x);
+		void project_sub(GammaVector<Scalar> *x_sub);
+		void sort_bubble(GammaVector<Scalar> *x);
 		
 	public:
 		QPSolver(Data*, Gamma *, Theta *, Scalar);
@@ -31,6 +39,11 @@ class QPSolver {
 		void print();
 		void print(int nmb_of_spaces);
 		void print(int nmb_of_spaces, bool print_A_sub);
+
+		int get_T();
+		int get_K();
+		int get_dim();
+
 
 };
 
