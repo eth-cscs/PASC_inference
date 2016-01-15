@@ -13,6 +13,19 @@ lukas.pospisil@usi.ch
 #include "savevtk.h"
 #include "qpsolver.h"
 
+/* PROBLEM SETTINGS */
+#define DEFAULT_T 500 /* default length of generated time serie */
+#define DEFAULT_K 3 /* default number of clusters */
+
+#define DEBUG_PRINTDATA false /* print values of all data */
+
+#define ALGORITHM_deltaL_eps 0.0001 /*stopping criteria of outer main loop */
+#define ALGORITHM_max_s_steps 100 /* max number of outer steps */
+#define ALGORITHM_EPSSQUARE 10.0 /* FEM regularization parameter */
+#define DEBUG_ALGORITHM_PRINTDATA false /* print values of Theta, Gamma, QPSolver during main cycle */
+#define DEBUG_ALGORITHM_PRINTDATA_L true /* print descent of object function in main outer loop */
+#define DEBUG_ALGORITHM_PRINTDATA_GAMMA false /* print values of Gamma during main cycle */
+#define DEBUG_ALGORITHM_PRINTDATA_THETA false /* print values of Theta during main cycle */
 
 int main( int argc, char *argv[] )
 {
@@ -27,10 +40,10 @@ int main( int argc, char *argv[] )
 	Data data;
 	Gamma gamma;
 	Theta theta;
-	QPSolver qpsolver(&data,&gamma,&theta, 1.0);
+	QPSolver qpsolver(&data,&gamma,&theta, ALGORITHM_EPSSQUARE);
 
 	int s; /* index of main iterations */
-	Scalar L, L_old, deltaL; /* object function value */
+	Scalar L, L_old, Lgamma, Ltheta, deltaL; /* object function value */
 
 	/* say hello */	
 	Message("- start program");
@@ -74,24 +87,30 @@ int main( int argc, char *argv[] )
 
 		/* --- COMPUTE Theta --- */
 		theta.compute(data,gamma);
-		if(DEBUG_PRINTDATA){ /* print theta */
+		if(DEBUG_ALGORITHM_PRINTDATA_THETA || DEBUG_ALGORITHM_PRINTDATA){ /* print theta */
 			theta.print(2);
 		}
+		qpsolver.compute_b();
+		Ltheta = qpsolver.get_function_value();
 		
 		/* --- COMPUTE gamma --- */
 		gamma.compute(&qpsolver,data,theta);
-		if(DEBUG_PRINTDATA){
+		if(DEBUG_ALGORITHM_PRINTDATA_GAMMA || DEBUG_ALGORITHM_PRINTDATA){
 			qpsolver.print(2,false);
 		}
+		qpsolver.compute_b();
+		Lgamma = qpsolver.get_function_value();
 
 		/* compute stopping criteria */
 		L_old = L;
-//		ierr = qpsolver->get_function_value(&L); CHKERRQ(ierr);
-//		deltaL = PetscAbsScalar(L - L_old);
+		L = qpsolver.get_function_value();
+		deltaL = abs(L - L_old);
 
 		/* print info about cost function */
-		if(DEBUG_PRINTL){
+		if(DEBUG_ALGORITHM_PRINTDATA_L || DEBUG_ALGORITHM_PRINTDATA){
 			Message_info_value("  - L_old       = ",L_old);
+			Message_info_value("  - Ltheta      = ",Ltheta);
+			Message_info_value("  - Lgamma      = ",Lgamma);
 			Message_info_value("  - L           = ",L);
 			Message_info_value("  - |L - L_old| = ",deltaL);
 		}	

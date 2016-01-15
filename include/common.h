@@ -33,6 +33,7 @@ void Finalize();
 
 void Message(std::string text);
 void Message_info(std::string text);
+void Message_info_main(std::string text);
 void Message_info_values(std::string text, std::string values);
 void Message_info_value(std::string text, int value);
 void Message_info_value(std::string text, double value);

@@ -9,7 +9,6 @@
 /* thrust tools */
 #include <thrust/sort.h>
 
-
 class QPSolver {
 	protected:
 		Data *data;
@@ -34,6 +33,7 @@ class QPSolver {
 		QPSolver(Data*, Gamma *, Theta *, Scalar);
 		void init();
 		void finalize();
+		void compute_b();
 		void solve();
 		Scalar get_function_value();
 		void print();

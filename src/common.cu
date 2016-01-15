@@ -38,6 +38,10 @@ void Message(std::string text){
 /*!
  * print info message
  */
+void Message_info_main(std::string text){
+	std::cout << "\033[33m" << text << "\033[0m" << std::endl;
+}  
+
 void Message_info(std::string text){
 	std::cout << "\033[36m" << text << "\033[0m" << std::endl;
 }  
