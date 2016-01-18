@@ -16,9 +16,9 @@ class QPSolver {
 		Theta *theta;
 
 		Scalar eps_sqr;
+		int it;
 		
 		/* data of QP problem */
-		GammaMatrix<Scalar> A_sub; /* Hessian */
 		GammaVector<Scalar> *bs; /* rhs */
 		GammaVector<Scalar> *gs; /* gradient */
 		GammaVector<Scalar> *ds; /* projected gradient */
@@ -33,17 +33,20 @@ class QPSolver {
 		QPSolver(Data*, Gamma *, Theta *, Scalar);
 		void init();
 		void finalize();
+		void get_Ax(GammaVector<Scalar> *Ax, GammaVector<Scalar> x);
 		void compute_b();
 		void solve();
-		Scalar get_function_value();
+		Scalar get_function_value(GammaVector<Scalar> *x);
+		Scalar get_function_value(GammaVector<Scalar> *x, bool use_gradient);
+
 		void print();
 		void print(int nmb_of_spaces);
-		void print(int nmb_of_spaces, bool print_A_sub);
 
 		int get_T();
 		int get_K();
 		int get_dim();
 
+		int get_it();
 
 };
 

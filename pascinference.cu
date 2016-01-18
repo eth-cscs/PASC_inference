@@ -14,7 +14,7 @@ lukas.pospisil@usi.ch
 #include "qpsolver.h"
 
 /* PROBLEM SETTINGS */
-#define DEFAULT_T 500 /* default length of generated time serie */
+#define DEFAULT_T 5000 /* default length of generated time serie */
 #define DEFAULT_K 3 /* default number of clusters */
 
 #define DEBUG_PRINTDATA false /* print values of all data */
@@ -24,6 +24,7 @@ lukas.pospisil@usi.ch
 #define ALGORITHM_EPSSQUARE 10.0 /* FEM regularization parameter */
 #define DEBUG_ALGORITHM_PRINTDATA false /* print values of Theta, Gamma, QPSolver during main cycle */
 #define DEBUG_ALGORITHM_PRINTDATA_L true /* print descent of object function in main outer loop */
+#define DEBUG_ALGORITHM_PRINTDATA_QPIT true /* print number of QPSolver iteration in every outer step */
 #define DEBUG_ALGORITHM_PRINTDATA_GAMMA false /* print values of Gamma during main cycle */
 #define DEBUG_ALGORITHM_PRINTDATA_THETA false /* print values of Theta during main cycle */
 
@@ -43,19 +44,25 @@ int main( int argc, char *argv[] )
 	QPSolver qpsolver(&data,&gamma,&theta, ALGORITHM_EPSSQUARE);
 
 	int s; /* index of main iterations */
-	Scalar L, L_old, Lgamma, Ltheta, deltaL; /* object function value */
+	Scalar L, L_old, deltaL; /* object function value */
+
 
 	/* say hello */	
+	timer.start(); /* start timer for whole program */
 	Message("- start program");
 	
 	/* generate problem */
+	timer.start(); /* start timer for generating problem */
 	generate_problem(&data,dataT);
+	Message_info_time(" - problem generated in: ",timer.stop());
+	
 	/* print problem */
 	if(DEBUG_PRINTDATA){
 		data.print();
 	}	
 
 	/* initialize gamma */
+	timer.start(); /* start timer for initializing gamma */
 	gamma.init(data, gammaK);
 
 	/* prepare gammas */
@@ -63,6 +70,7 @@ int main( int argc, char *argv[] )
 	if(DEBUG_PRINTDATA){ /* print gamma */
 		gamma.print();
 	}
+	Message_info_time(" - gamma generated in: ",timer.stop());
 
 	/* initialize theta */
 	theta.init(data,gamma);
@@ -75,7 +83,7 @@ int main( int argc, char *argv[] )
 	if(DEBUG_PRINTDATA){ /* print state of qpsolver */
 		qpsolver.print();
 	}
-	
+
 	
 	/* initialize value of object function */
 	L = std::numeric_limits<Scalar>::max(); // TODO: the computation of L should be done in the different way
@@ -86,33 +94,37 @@ int main( int argc, char *argv[] )
 		Message_info_value(" - s = ",s);
 
 		/* --- COMPUTE Theta --- */
+		timer.start(); /* start timer for solving Theta-problem */
 		theta.compute(data,gamma);
 		if(DEBUG_ALGORITHM_PRINTDATA_THETA || DEBUG_ALGORITHM_PRINTDATA){ /* print theta */
 			theta.print(2);
 		}
-		qpsolver.compute_b();
-		Ltheta = qpsolver.get_function_value();
+		Message_info_time("  - theta problem solved in: ",timer.stop());
+
 		
 		/* --- COMPUTE gamma --- */
+		timer.start(); /* start timer for solving gamma-problem */
 		gamma.compute(&qpsolver,data,theta);
 		if(DEBUG_ALGORITHM_PRINTDATA_GAMMA || DEBUG_ALGORITHM_PRINTDATA){
-			qpsolver.print(2,false);
+			qpsolver.print(2);
 		}
-		qpsolver.compute_b();
-		Lgamma = qpsolver.get_function_value();
+		Message_info_time("  - gamma problem solved in: ",timer.stop());
 
 		/* compute stopping criteria */
 		L_old = L;
-		L = qpsolver.get_function_value();
+		L = qpsolver.get_function_value(gamma.gamma_vecs);
 		deltaL = abs(L - L_old);
+
+		/* print info about qp solver performace */
+		if(DEBUG_ALGORITHM_PRINTDATA_QPIT || DEBUG_ALGORITHM_PRINTDATA){
+			Message_info_value("  - it QPSolver = ",qpsolver.get_it());
+		}	
 
 		/* print info about cost function */
 		if(DEBUG_ALGORITHM_PRINTDATA_L || DEBUG_ALGORITHM_PRINTDATA){
-			Message_info_value("  - L_old       = ",L_old);
-			Message_info_value("  - Ltheta      = ",Ltheta);
-			Message_info_value("  - Lgamma      = ",Lgamma);
+//			Message_info_value("  - L_old       = ",L_old);
 			Message_info_value("  - L           = ",L);
-			Message_info_value("  - |L - L_old| = ",deltaL);
+//			Message_info_value("  - |L - L_old| = ",deltaL);
 		}	
 
 		/* end the main cycle if the change of function value is sufficient */
@@ -137,7 +149,7 @@ int main( int argc, char *argv[] )
 	/* print info about elapsed time and solution */
 	Message_info("- final info:");
 	Message_info_time(" - time for computation: ",timer.stop());
-	Message_info_value(" - number of iterations: ",s);
+	Message_info_value(" - number of outer iterations: ",s);
 	Message_info_value(" - |L - L_old| = ",deltaL);
 
 	/* say bye */	

@@ -1,17 +1,17 @@
 #include "qpsolver.h"
 
 /* SPGQP SETTINGS */
-#define ALGORITHM_SPGQP_m 1
+#define ALGORITHM_SPGQP_m 30
 #define ALGORITHM_SPGQP_gamma 0.9
 #define ALGORITHM_SPGQP_sigma2 1.0
 #define ALGORITHM_SPGQP_eps 0.0001
 #define ALGORITHM_SPGQP_maxit 10000
 #define ALGORITHM_SPGQP_lambdaest 4.0
-#define DEBUG_ALGORITHM_BASIC true /* basic information about used algorithm and parameters */
+#define DEBUG_ALGORITHM_BASIC false /* basic information about used algorithm and parameters */
 #define DEBUG_ALGORITHM_SAYHELLO false /* information about used algorithm and parameters */
 #define DEBUG_ALGORITHM_PRINTF false /* print object function value in every iteration */
 #define DEBUG_ALGORITHM_PRINTFS false /* print vector of object functions in every iteration */
-#define DEBUG_ALGORITHM_PRINTCOEFF true /* print computed coefficients in every iteration */
+#define DEBUG_ALGORITHM_PRINTCOEFF false /* print computed coefficients in every iteration */
 
 
 /* constructor */
@@ -24,34 +24,11 @@ QPSolver::QPSolver(Data* data, Gamma *gamma, Theta *theta, Scalar eps_sqr){
 
 /* prepare data which are constant */
 void QPSolver::init(){
-	int t,k;
+	int k;
 
 	int T = this->get_T();
 	int K = this->get_K();
 	
-	/* prepare block of hessian matrix */
-	GammaMatrix<Scalar> A_sub(T,T); 
-	for(t=0;t<T;t++){
-		/* first row */
-		if(t == 0){
-			A_sub(t,t) = 1.0;
-			A_sub(t,t+1) = -1.0;
-		}
-		/* common row */
-		if(t > 0 && t < T-1){
-			A_sub(t,t+1) = -1.0;
-			A_sub(t,t) = 2.0;
-			A_sub(t,t-1) = -1.0;
-		}
-		/* last row */
-		if(t == T-1){
-			A_sub(t,t-1) = -1.0;
-			A_sub(t,t) = 1.0;
-		}
-	}	
-	A_sub *= this->eps_sqr;
-	this->A_sub = A_sub;
-
 	/* prepare RHS bs, gs, ds */
 	this->bs = new GammaVector<Scalar>[K];
 	this->gs = new GammaVector<Scalar>[K];
@@ -78,6 +55,26 @@ void QPSolver::finalize(){
 	delete []this->Ads;
 }
 
+void QPSolver::get_Ax(GammaVector<double> *Ax, GammaVector<double> x){
+	int N = x.size();
+	int t;
+
+	for(t=0;t<N;t++){
+		/* first row */
+		if(t == 0){
+			(*Ax)(t) = x(t) - x(t+1);
+		}
+		/* common row */
+		if(t > 0 && t < N-1){
+			(*Ax)(t) = -x(t-1) + 2.0*x(t) - x(t+1);
+		}
+		/* last row */
+		if(t == N-1){
+			(*Ax)(t) = -x(t-1) + x(t);
+		}
+	}
+}
+
 void QPSolver::compute_b(){
 	int k;
 	for(k=0;k<this->gamma->get_K();k++){ // TODO: parallel
@@ -96,7 +93,7 @@ void QPSolver::solve(){
 	Scalar alphainit = 1.0/(this->eps_sqr*ALGORITHM_SPGQP_lambdaest);
 
 	/* output performance */
-	int it = 0;
+	this->it = 0;
 	int hess_mult = 0;
 	Scalar comp_time;
 	timer.start();
@@ -112,44 +109,26 @@ void QPSolver::solve(){
 	Scalar dAd; /* dot(Ad,d) */
 	Scalar alpha_bb; /* BB step-size */
 	
-	// TODO: temp
-	Scalar fx_orig;
-	Scalar fx_final;
-	
-	
 	/* compute and set new RHS */
 	/* b = -g(data,theta) */
 	this->compute_b();
 
-	fx_orig = this->get_function_value();
-	
 	/* project initial approximation to feasible set */
-//	this->project(&(this->gamma->gamma_vecs));
+	this->project(&(this->gamma->gamma_vecs));
 
 	/* compute gradient, g = A*x-b */
 	hess_mult += 1;
 	for(k=0;k<K;k++){ // TODO: parallel
-		this->gs[k] = this->A_sub*this->gamma->gamma_vecs[k]; 
+		get_Ax(&(this->gs[k]),this->gamma->gamma_vecs[k]); 
 		this->gs[k] -= this->bs[k];
 	}
 	
-//	std::cout << this->A_sub << std::endl;
-	
-//	std::cout << "g:" << std::endl;
-//	for(k=0;k<K;k++){ // TODO: parallel
-//		std::cout << this->gs[k] << std::endl;
-//	}
-
 	/* compute function value */
-	fx = this->get_function_value();
+	fx = this->get_function_value(this->gamma->gamma_vecs);
 	fs(all) = fx;
-
-//	std::cout << "fs:" << fs << std::endl;
 	
 	/* initial step-size */
 	alpha_bb = alphainit;
-
-//	std::cout << "alpha_bb:" << alphainit << std::endl;
 
 	/* print basic informations about algorithm */
 	if(DEBUG_ALGORITHM_SAYHELLO){
@@ -165,24 +144,14 @@ void QPSolver::solve(){
 	}
 	
 	/* main cycle */
-	while(it < maxit){
+	while(this->it < maxit){
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		for(k = 0; k < K;k++){ // TODO: parallel
-			this->ds[k] = this->gamma->gamma_vecs[k] - alpha_bb*this->gs[k];
+			this->ds[k] = this->gamma->gamma_vecs[k] - alpha_bb*(this->gs[k]);
 		}
 
-//	std::cout << "d1:" << std::endl;
-//	for(k=0;k<K;k++){ // TODO: parallel
-//		std::cout << this->ds[k] << std::endl;
-//	}
-		
 		/* d = P(d) */
 		this->project(&(this->ds));
-
-//	std::cout << "d2:" << std::endl;
-//	for(k=0;k<K;k++){ // TODO: parallel
-//		std::cout << this->ds[k] << std::endl;
-//	}
 		
 		/* d = d - x */
 		/* Ad = A*d */
@@ -194,25 +163,13 @@ void QPSolver::solve(){
 		gd = 0.0;
 		hess_mult+=1;
 		for(k = 0; k < K;k++){ // TODO: parallel
-			this->ds[k] -= this->gamma->gamma_vecs[k];
-			this->Ads[k] = this->A_sub*this->ds[k];
+			this->ds[k] += -this->gamma->gamma_vecs[k];
+			get_Ax(&(this->Ads[k]),this->ds[k]);
 
 			dd += dot(this->ds[k],this->ds[k]);
 			dAd += dot(this->Ads[k],this->ds[k]);
 			gd += dot(this->gs[k],this->ds[k]);
 		}
-
-//	std::cout << "d:" << std::endl;
-//	for(k=0;k<K;k++){ // TODO: parallel
-//		std::cout << this->ds[k] << std::endl;
-//	}
-//	std::cout << "Ad:" << std::endl;
-//	for(k=0;k<K;k++){ // TODO: parallel
-//		std::cout << this->Ads[k] << std::endl;
-//	}
-//	std::cout << "dd:" << dd << std::endl;
-//	std::cout << "dAd:" << dAd << std::endl;
-//	std::cout << "gd:" << gd << std::endl;
 		
 		/* stopping criteria */
 		if(dd < eps){
@@ -225,12 +182,7 @@ void QPSolver::solve(){
 		/* compute step-size from A-condition */
 		xi = (fx_max - fx)/dAd;
 		beta_bar = -gd/dAd;
-		beta_hat = beta_bar; //gamma*beta_bar + sqrt(gamma*gamma*beta_bar*beta_bar + 2*xi);
-
-//	std::cout << "fmax:" << fx_max << std::endl;
-//	std::cout << "xi:" << xi << std::endl;
-//	std::cout << "beta_bar:" << beta_bar << std::endl;
-//	std::cout << "beta_hat:" << beta_hat << std::endl;
+		beta_hat = gamma*beta_bar + sqrt(gamma*gamma*beta_bar*beta_bar + 2*xi);
 
 		/* beta = min(sigma2,beta_hat) */
 		if(beta_hat < sigma2){
@@ -239,38 +191,22 @@ void QPSolver::solve(){
 			beta = sigma2;
 		}
 
-//	std::cout << "beta:" << beta << std::endl;
-		
 		/* update approximation and gradient */
 		/* x = x + beta*d */
 		/* g = g + beta*Ad */
-
-		std::cout << "fx_before:" << this->get_function_value() << std::endl;
 		for(k = 0; k < K;k++){ // TODO: parallel
-			this->gamma->gamma_vecs[k] += beta*this->ds[k]; 
-//			this->gs[k] += beta*this->Ads[k];
+			this->gamma->gamma_vecs[k] += (this->ds[k])*beta; 
 
-			this->gs[k] = this->A_sub*this->gamma->gamma_vecs[k];
-			this->gs[k] += -this->bs[k];
+			/* use recursive formula to compute gradient */
+			this->gs[k] += (this->Ads[k])*beta;
+
+//			this->gs[k] = this->A_sub*this->gamma->gamma_vecs[k];
+//			this->gs[k] -= this->bs[k];
 
 		}
-		std::cout << "fx_after:" << this->get_function_value() << std::endl;
-
 		
-
-//	std::cout << "x:" << std::endl;
-//	for(k=0;k<K;k++){ // TODO: parallel
-//		std::cout << this->gamma->gamma_vecs[k] << std::endl;
-//	}
-
-//	std::cout << "g:" << std::endl;
-//	for(k=0;k<K;k++){ // TODO: parallel
-//		std::cout << this->gs[k] << std::endl;
-//	}
-		
-		/* compute new function value */
-		fx = this->get_function_value();
-
+		/* compute new function value using gradient */
+		fx = this->get_function_value(this->gamma->gamma_vecs, true);
 		
 		/* update fs */
 		/* fs(1:end-1) = fs(2:end); */
@@ -281,17 +217,13 @@ void QPSolver::solve(){
 			fs(0,m-2) = fs(1,m-1);
 			fs(m-1) = fx;
 		}
-
-//	std::cout << "fs:" << fs << std::endl;
 		
 		/* update BB step-size */
 		alpha_bb = dd/dAd;
-
-//	std::cout << "alpha_bb:" << alpha_bb << std::endl;
 		
 		/* print progress of algorithm */
 		if(DEBUG_ALGORITHM_PRINTF || DEBUG_ALGORITHM_PRINTFS || DEBUG_ALGORITHM_PRINTCOEFF){
-			std::cout << "\033[33mit = \033[0m" << it << std::endl;
+			std::cout << "\033[33mit = \033[0m" << this->it << std::endl;
 		}
 
 		if(DEBUG_ALGORITHM_PRINTF){
@@ -320,7 +252,7 @@ void QPSolver::solve(){
 		}
 		
 		/* increase iteration counter */
-		it += 1;
+		this->it += 1;
 	} /* main cycle end */
 
 	comp_time = timer.stop();
@@ -328,22 +260,17 @@ void QPSolver::solve(){
 	if(DEBUG_ALGORITHM_SAYHELLO){
 		Message_info_main("\n- final info:");
 		Message_info_time(" - time: \t\t",comp_time);
-		Message_info_value(" - it: \t\t\t",it);
+		Message_info_value(" - it: \t\t\t",this->it);
 		Message_info_value(" - hess_mult: \t\t",hess_mult);
 		Message_info_value(" - final fx = \t\t",fx);
 		Message_info("- SPGQP END ---------------------------------------------------------------");
 	}
 
-	fx_final = this->get_function_value();
-
 	/* very short info */
 	if(DEBUG_ALGORITHM_BASIC){
 		Message_info("  - SPGQP algorithm");
-		Message_info_value("   - it    = ",it);
+		Message_info_value("   - it    = ",this->it);
 		Message_info_time("   - time  = ",comp_time);
-
-		Message_info_value("   - f_orig   = ",fx_orig);
-		Message_info_value("   - f_final  = ",fx_final);
 
 	}
 
@@ -455,34 +382,47 @@ void QPSolver::sort_bubble(GammaVector<Scalar> *x){
     }
 }
 
-Scalar QPSolver::get_function_value(){
-	Scalar fx = 0.0;
+Scalar QPSolver::get_function_value(GammaVector<Scalar> *x){
+	return this->get_function_value(x,false);
+}
+
+Scalar QPSolver::get_function_value(GammaVector<Scalar> *x, bool use_gradient){
+	Scalar fx;
 	int k;
-/*	for(k=0;k<this->get_K();k++){ // TODO: parallel
-		 fx += 0.5*dot(this->gs[k]-this->bs[k],this->gamma->gamma_vecs[k]);
-	}
-*/ 
 
-	GammaVector<Scalar> temp(this->get_T());
+	if(use_gradient){
+		/* use computed gradient in this->gs to compute function value */
+		for(k=0;k<this->get_K();k++){ // TODO: parallel
+			fx += 0.5*dot(this->gs[k]-this->bs[k],this->gamma->gamma_vecs[k]);
+		}
+	} else {
+		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
+		
+		GammaVector<Scalar> Ax(this->get_T());
+		Scalar xAx, xb;
 
-	for(k=0;k<this->get_K();k++){ // TODO: parallel
-		 temp = this->A_sub*this->gamma->gamma_vecs[k];
-		 fx += 0.5*dot(temp,this->gamma->gamma_vecs[k]);
-		 fx -= dot(this->gamma->gamma_vecs[k],this->bs[k]);
+		fx = 0.0;
+		for(k=0;k<this->get_K();k++){ // TODO: parallel
+			get_Ax(&Ax,x[k]);
+		 
+			xAx = dot(Ax,x[k]);
+			fx += 0.5*xAx;
+		 
+			xb = dot(x[k],this->bs[k]);
+			fx -= xb;
+		}
+
 	}	
 
-	return fx;
+	return fx;	
 }
+
 
 void QPSolver::print(){
 	this->print(0);
 }
 
 void QPSolver::print(int nmb_of_spaces){
-	this->print(nmb_of_spaces, true);
-}
-
-void QPSolver::print(int nmb_of_spaces, bool print_A_sub){
 	int i,k;
 	int K = this->get_K();
 	
@@ -510,15 +450,6 @@ void QPSolver::print(int nmb_of_spaces, bool print_A_sub){
 	oss << oss_spaces.str() << " - dim = ";
 	Message_info_value(oss.str(),this->get_dim());
 	oss.str(""); oss.clear();
-
-	if(print_A_sub){
-		oss << oss_spaces.str() << " - block of Hessian matrix Asub:";
-		Message_info(oss.str());
-		oss.str(""); oss.clear();
-		oss_values << this->A_sub;
-		Message_info_values(oss.str(),oss_values.str());	
-		oss_values.str(""); oss_values.clear();
-	}
 
 	oss << oss_spaces.str() << " - right hand-side vector b:";
 	Message_info(oss.str());
@@ -556,4 +487,7 @@ int QPSolver::get_K(){
 	return this->gamma->get_K();
 }
 
+int QPSolver::get_it(){
+	return this->it;
+}
 

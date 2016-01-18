@@ -8,9 +8,6 @@ Timer timer;
  */ 
 void Initialize(int argc, char *argv[]){
 
-  /* initial timer */
-  timer.start();
-
   /* initialize random seed: */
   if(RANDOM_BY_TIME){
 	srand(time(NULL));
