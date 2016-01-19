@@ -19,11 +19,21 @@ QPSolver::QPSolver(Data* data, Gamma *gamma, Theta *theta, Scalar eps_sqr){
 	this->data = data;
 	this->gamma = gamma;
 	this->theta = theta;
-	this->eps_sqr = eps_sqr;	
+	this->eps_sqr = eps_sqr;
+	
+	this->time_projection = 0.0;
+	this->time_matmult = 0.0;
+	this->time_dot = 0.0;
+	this->time_update = 0.0;
+	this->time_total = 0.0;
+	
 }
 
 /* prepare data which are constant */
 void QPSolver::init(){
+	/* the time for initialization is the part of total time, it is necessary to add it */
+	timer.start(); 
+	
 	int k;
 
 	int T = this->get_T();
@@ -45,17 +55,25 @@ void QPSolver::init(){
 		this->Ads[k] = b;
 	}
 
+	this->time_total += timer.stop();
 }
 
 void QPSolver::finalize(){
+	/* the time is the part of total time, it is necessary to add it */
+	timer.start(); 
+
 	/* clean the mess */
 	delete []this->bs;
 	delete []this->gs;
 	delete []this->ds;
 	delete []this->Ads;
+
+	this->time_total += timer.stop();
 }
 
-void QPSolver::get_Ax(GammaVector<double> *Ax, GammaVector<double> x){
+void QPSolver::get_Ax(GammaVector<Scalar> *Ax, GammaVector<Scalar> x){
+	timer.start(); /* add to time_matmult */
+
 	int N = x.size();
 	int t;
 
@@ -73,6 +91,25 @@ void QPSolver::get_Ax(GammaVector<double> *Ax, GammaVector<double> x){
 			(*Ax)(t) = -x(t-1) + x(t);
 		}
 	}
+
+	this->hess_mult += 1;	
+	this->time_matmult += timer.stop();	
+}
+
+Scalar QPSolver::get_dot(GammaVector<Scalar> x, GammaVector<Scalar> y){
+	Scalar xx;
+
+	get_dot(&xx, x, y);
+
+	return xx;
+}
+
+void QPSolver::get_dot(Scalar *xx, GammaVector<Scalar> x, GammaVector<Scalar> y){
+	timer.start(); /* add to time_dot */
+
+	*xx = dot(x,y);
+
+	this->time_dot += timer.stop();	
 }
 
 void QPSolver::compute_b(){
@@ -84,6 +121,8 @@ void QPSolver::compute_b(){
 }
 
 void QPSolver::solve(){
+	timer.start(); /* add to time total in the end of solution */
+
 	/* algorithm parameters */
 	int m = ALGORITHM_SPGQP_m;
 	Scalar gamma = ALGORITHM_SPGQP_gamma;
@@ -94,9 +133,7 @@ void QPSolver::solve(){
 
 	/* output performance */
 	this->it = 0;
-	int hess_mult = 0;
-	Scalar comp_time;
-	timer.start();
+	this->hess_mult = 0;
 
 	int k; /* iterator through clusters */
 	int K = this->get_K(); /* number of clusters */
@@ -117,7 +154,6 @@ void QPSolver::solve(){
 	this->project(&(this->gamma->gamma_vecs));
 
 	/* compute gradient, g = A*x-b */
-	hess_mult += 1;
 	for(k=0;k<K;k++){ // TODO: parallel
 		get_Ax(&(this->gs[k]),this->gamma->gamma_vecs[k]); 
 		this->gs[k] -= this->bs[k];
@@ -147,7 +183,9 @@ void QPSolver::solve(){
 	while(this->it < maxit){
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		for(k = 0; k < K;k++){ // TODO: parallel
+			timer.start();
 			this->ds[k] = this->gamma->gamma_vecs[k] - alpha_bb*(this->gs[k]);
+			this->time_update += timer.stop();
 		}
 
 		/* d = P(d) */
@@ -161,14 +199,16 @@ void QPSolver::solve(){
 		dd = 0.0;
 		dAd = 0.0;
 		gd = 0.0;
-		hess_mult+=1;
 		for(k = 0; k < K;k++){ // TODO: parallel
+			timer.start();
 			this->ds[k] += -this->gamma->gamma_vecs[k];
+			this->time_update += timer.stop();
+
 			get_Ax(&(this->Ads[k]),this->ds[k]);
 
-			dd += dot(this->ds[k],this->ds[k]);
-			dAd += dot(this->Ads[k],this->ds[k]);
-			gd += dot(this->gs[k],this->ds[k]);
+			dd += get_dot(this->ds[k],this->ds[k]);
+			dAd += get_dot(this->Ads[k],this->ds[k]);
+			gd += get_dot(this->gs[k],this->ds[k]);
 		}
 		
 		/* stopping criteria */
@@ -195,10 +235,14 @@ void QPSolver::solve(){
 		/* x = x + beta*d */
 		/* g = g + beta*Ad */
 		for(k = 0; k < K;k++){ // TODO: parallel
+			timer.start();
 			this->gamma->gamma_vecs[k] += (this->ds[k])*beta; 
+			this->time_update += timer.stop();
 
 			/* use recursive formula to compute gradient */
+			timer.start();
 			this->gs[k] += (this->Ads[k])*beta;
+			this->time_update += timer.stop();
 
 //			this->gs[k] = this->A_sub*this->gamma->gamma_vecs[k];
 //			this->gs[k] -= this->bs[k];
@@ -255,13 +299,14 @@ void QPSolver::solve(){
 		this->it += 1;
 	} /* main cycle end */
 
-	comp_time = timer.stop();
+	this->time_total += timer.stop();
+
 	/* say goodbye */
 	if(DEBUG_ALGORITHM_SAYHELLO){
 		Message_info_main("\n- final info:");
-		Message_info_time(" - time: \t\t",comp_time);
+		Message_info_time(" - time: \t\t",this->time_total);
 		Message_info_value(" - it: \t\t\t",this->it);
-		Message_info_value(" - hess_mult: \t\t",hess_mult);
+		Message_info_value(" - hess_mult: \t\t",this->hess_mult);
 		Message_info_value(" - final fx = \t\t",fx);
 		Message_info("- SPGQP END ---------------------------------------------------------------");
 	}
@@ -270,13 +315,15 @@ void QPSolver::solve(){
 	if(DEBUG_ALGORITHM_BASIC){
 		Message_info("  - SPGQP algorithm");
 		Message_info_value("   - it    = ",this->it);
-		Message_info_time("   - time  = ",comp_time);
+		Message_info_time("   - time  = ",this->time_total);
 
 	}
 
 }
 
 void QPSolver::project(GammaVector<Scalar> **x){
+	timer.start(); /* add to projection time */
+
 	int t,k;
 	GammaVector<Scalar> x_sub(this->get_K());
 
@@ -295,6 +342,7 @@ void QPSolver::project(GammaVector<Scalar> **x){
 		}
 	}
 
+	this->time_projection += timer.stop();
 }
 
 /* project x_sub to feasible set defined by equality and inequality constraints
@@ -393,7 +441,7 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> *x, bool use_gradient){
 	if(use_gradient){
 		/* use computed gradient in this->gs to compute function value */
 		for(k=0;k<this->get_K();k++){ // TODO: parallel
-			fx += 0.5*dot(this->gs[k]-this->bs[k],this->gamma->gamma_vecs[k]);
+			fx += 0.5*get_dot(this->gs[k]-this->bs[k],this->gamma->gamma_vecs[k]);
 		}
 	} else {
 		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
@@ -405,10 +453,10 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> *x, bool use_gradient){
 		for(k=0;k<this->get_K();k++){ // TODO: parallel
 			get_Ax(&Ax,x[k]);
 		 
-			xAx = dot(Ax,x[k]);
+			xAx = get_dot(Ax,x[k]);
 			fx += 0.5*xAx;
 		 
-			xb = dot(x[k],this->bs[k]);
+			xb = get_dot(x[k],this->bs[k]);
 			fx -= xb;
 		}
 
@@ -489,5 +537,33 @@ int QPSolver::get_K(){
 
 int QPSolver::get_it(){
 	return this->it;
+}
+
+int QPSolver::get_hessmult(){
+	return this->hess_mult;
+}
+
+double QPSolver::get_time_projection(){
+	return this->time_projection;
+}
+
+double QPSolver::get_time_matmult(){
+	return this->time_matmult;
+}
+
+double QPSolver::get_time_dot(){
+	return this->time_dot;
+}
+
+double QPSolver::get_time_update(){
+	return this->time_update;
+}
+
+double QPSolver::get_time_total(){
+	return this->time_total;
+}
+
+double QPSolver::get_time_other(){
+	return this->time_total - (this->time_projection + this->time_matmult + this->time_dot + this->time_update);
 }
 

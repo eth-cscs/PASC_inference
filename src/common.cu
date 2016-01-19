@@ -89,3 +89,7 @@ double Timer::stop(){
 	
 	return out_time;
 }
+
+int Timer::status(){
+	return this->time_stack.size();
+}

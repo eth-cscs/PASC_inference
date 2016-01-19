@@ -115,11 +115,6 @@ int main( int argc, char *argv[] )
 		L = qpsolver.get_function_value(gamma.gamma_vecs);
 		deltaL = abs(L - L_old);
 
-		/* print info about qp solver performace */
-		if(DEBUG_ALGORITHM_PRINTDATA_QPIT || DEBUG_ALGORITHM_PRINTDATA){
-			Message_info_value("  - it QPSolver = ",qpsolver.get_it());
-		}	
-
 		/* print info about cost function */
 		if(DEBUG_ALGORITHM_PRINTDATA_L || DEBUG_ALGORITHM_PRINTDATA){
 //			Message_info_value("  - L_old       = ",L_old);
@@ -151,9 +146,20 @@ int main( int argc, char *argv[] )
 	Message_info_time(" - time for computation: ",timer.stop());
 	Message_info_value(" - number of outer iterations: ",s);
 	Message_info_value(" - |L - L_old| = ",deltaL);
+	Message_info(" - QPSolver:");
+	Message_info_value("  - it =         ", qpsolver.get_it());
+	Message_info_value("  - hess_mult =  ", qpsolver.get_hessmult());
+	Message_info_time( "  - time =  ", qpsolver.get_time_total());
+	Message_info_time( "   - t_project =  ", qpsolver.get_time_projection());
+	Message_info_time( "   - t_matmult =  ", qpsolver.get_time_matmult());
+	Message_info_time( "   - t_dot =      ", qpsolver.get_time_dot());
+	Message_info_time( "   - t_update =   ", qpsolver.get_time_update());
+	Message_info_time( "   - t_other =    ", qpsolver.get_time_other());
 
 	/* say bye */	
 	Message("- end program");
+//	Message_info_value("- timer status:",timer.status());
+
 	
 	Finalize();
 	return 0;

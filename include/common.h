@@ -50,6 +50,7 @@ class Timer {
 	public:
 		void start();
 		double stop();
+		int status();
 	
 };
 

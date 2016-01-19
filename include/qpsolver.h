@@ -17,6 +17,7 @@ class QPSolver {
 
 		Scalar eps_sqr;
 		int it;
+		int hess_mult;
 		
 		/* data of QP problem */
 		GammaVector<Scalar> *bs; /* rhs */
@@ -29,11 +30,22 @@ class QPSolver {
 		void project_sub(GammaVector<Scalar> *x_sub);
 		void sort_bubble(GammaVector<Scalar> *x);
 		
+		double time_projection; /* the sum of time necessary to perform projections */
+		double time_matmult; /* the sum of time necessary to perform matrix multiplication */
+		double time_dot; /* the sum of time necessary to compute dot_products */
+		double time_update; /* total time of vector updates */
+		double time_total; /* total time of SPG algorithm */
+		
 	public:
 		QPSolver(Data*, Gamma *, Theta *, Scalar);
 		void init();
 		void finalize();
-		void get_Ax(GammaVector<Scalar> *Ax, GammaVector<Scalar> x);
+
+		void get_Ax(GammaVector<Scalar> *Ax, GammaVector<Scalar> x); 
+
+		Scalar get_dot(GammaVector<Scalar> x, GammaVector<Scalar> y);
+		void get_dot(Scalar *xx, GammaVector<Scalar> x, GammaVector<Scalar> y);
+
 		void compute_b();
 		void solve();
 		Scalar get_function_value(GammaVector<Scalar> *x);
@@ -47,6 +59,13 @@ class QPSolver {
 		int get_dim();
 
 		int get_it();
+		int get_hessmult();
+		double get_time_projection();
+		double get_time_matmult();
+		double get_time_dot();
+		double get_time_update();
+		double get_time_total();
+		double get_time_other();
 
 };
 
