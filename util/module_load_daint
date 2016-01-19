@@ -1,0 +1,22 @@
+#
+# MINLIN library
+# this script loads the right modules on CSCS DAINT machine
+#
+
+module switch PrgEnv-cray/5.2.82 PrgEnv-gnu
+module load boost
+module load cudatoolkit
+module load cmake
+module load craype-accel-nvidia35
+module load cray-netcdf-hdf5parallel
+module load cray-hdf5-parallel
+module load cray-mpich
+
+# nvcc doesn't work with gcc 4.9, so we load 4.8.2
+module swap gcc/4.8.2
+
+# we need the intel module for mkl (we use $MKLROOT)
+module load intel
+
+# add ld library path
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/14.0.1.106/composer_xe_2013_sp1.1.106/mkl/lib/intel64
