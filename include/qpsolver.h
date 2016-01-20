@@ -5,7 +5,9 @@
 #include "gamma.h"
 #include "theta.h"
 #include "data.h"
+
 #include "operations.h"
+#include "projection.h"
 
 class QPSolver {
 	protected:
@@ -22,11 +24,6 @@ class QPSolver {
 		GammaVector<Scalar> *gs; /* gradient */
 		GammaVector<Scalar> *ds; /* projected gradient */
 		GammaVector<Scalar> *Ads; /* A*ds */
-		
-		/* private functions */
-		void project(GammaVector<Scalar> **x);
-		void project_sub(GammaVector<Scalar> *x_sub);
-		void sort_bubble(GammaVector<Scalar> *x);
 		
 		double time_projection; /* the sum of time necessary to perform projections */
 		double time_matmult; /* the sum of time necessary to perform matrix multiplication */

@@ -110,7 +110,7 @@ void QPSolver::solve(){
 	this->compute_b();
 
 	/* project initial approximation to feasible set */
-	this->project(&(this->gamma->gamma_vecs));
+	get_projection(&(this->gamma->gamma_vecs), this->get_K(), &this->time_projection);
 
 	/* compute gradient, g = A*x-b */
 	for(k=0;k<K;k++){ // TODO: parallel
@@ -148,7 +148,7 @@ void QPSolver::solve(){
 		}
 
 		/* d = P(d) */
-		this->project(&(this->ds));
+		get_projection(&(this->ds), this->get_K(), &this->time_projection);
 		
 		/* d = d - x */
 		/* Ad = A*d */
@@ -278,115 +278,6 @@ void QPSolver::solve(){
 
 	}
 
-}
-
-void QPSolver::project(GammaVector<Scalar> **x){
-	timer.start(); /* add to projection time */
-
-	int t,k;
-	GammaVector<Scalar> x_sub(this->get_K());
-
-	for(t=0;t<this->get_T();t++){	// TODO: this is the place, where the parallel impementation should make a point
-		/* cut x_sub from x */
-		for(k=0;k<this->get_K();k++){
-			x_sub(k) = (*x)[k](t);
-		}
-		
-		/* compute subprojection */
-		this->project_sub(&x_sub);
-
-		/* add x_sub back to x */
-		for(k=0;k<this->get_K();k++){
-			(*x)[k](t) = x_sub(k);
-		}
-	}
-
-	this->time_projection += timer.stop();
-}
-
-/* project x_sub to feasible set defined by equality and inequality constraints
- * sum(x_sub) = 1
- * x_sub >= 0
- */
-void QPSolver::project_sub(GammaVector<Scalar> *x_sub){
-	int n = this->get_K(); /* nmb of components of x_sub */
-	int i;
-
-	bool is_inside = true;
-	
-	/* control equality constraints */
-	if(sum(*x_sub) != 1){ 
-		is_inside = false;
-	}
-	
-	/* control inequality constraints */
-	for(i = 0; i < n; i++){ // TODO: could be performed parallely  
-		if((*x_sub)(i) < 0.0){
-			is_inside = false;
-		}
-	}
-
-	/* if given point is not inside the feasible domain, then do projection */
-	if(!is_inside){
-		/* compute sorted x_sub */
-		GammaVector<Scalar> y(n);
-		for(i=0;i<n;i++){ // TODO: it is really necessary?
-			y(i) = (*x_sub)(i); 
-		}
-		this->sort_bubble(&y);
-
-		/* now perform analytical solution of projection problem */	
-		Scalar t_hat = 0.0;
-		i = n - 1;
-		Scalar ti;
-
-		while(i >= 1){
-			ti = (sum(y(i,n-1)) - 1.0)/(Scalar)(n-i);
-			if(ti >= y(i-1)){
-				t_hat = ti;
-				i = -1; /* break */
-			} else {
-				i = i - 1;
-			}
-		}
-
-		if(i == 0){
-			t_hat = (sum(y)-1.0)/(Scalar)n;
-		}
-    
-		for(i = 0; i < n; i++){ // TODO: could be performed parallely  
-			/* (*x_sub)(i) = max(*x_sub-t_hat,0); */
-			ti = (*x_sub)(i) - t_hat;	
-			if(ti > 0.0){
-				(*x_sub)(i) = ti;
-			} else {
-				(*x_sub)(i) = 0.0;
-			}
-		}
-	}
-}
-
-/* sort values of scalar vector */
-void QPSolver::sort_bubble(GammaVector<Scalar> *x){
-	int n = x->size();
-	int i;
-	int nnew;
-	Scalar swap;
-
-	while(n > 0){
-		/* Iterate through x */
-		nnew = 0;
-		for(i=1;i<n;i++){
-			/* Swap elements in wrong order */
-			if ((*x)(i) < (*x)(i - 1)){
-				swap = (*x)(i);
-				(*x)(i) = (*x)(i-1);
-				(*x)(i-1) = swap;
-				nnew = i;
-			}
-        }
-		n = nnew;
-    }
 }
 
 Scalar QPSolver::get_function_value(GammaVector<Scalar> *x){
