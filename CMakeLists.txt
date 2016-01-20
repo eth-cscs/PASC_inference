@@ -100,6 +100,8 @@ CUDA_ADD_LIBRARY(externals_savevtk src/savevtk.cu
 				 SHARED)
 CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu
 				 SHARED)
+CUDA_ADD_LIBRARY(externals_operations src/operations.cu
+				 SHARED)
 
 
 # add main executable file
@@ -118,6 +120,7 @@ target_link_libraries(pascinference_device
 	externals_theta
 	externals_savevtk
 	externals_qpsolver
+	externals_operations
 )
 
 	

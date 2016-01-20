@@ -5,9 +5,7 @@
 #include "gamma.h"
 #include "theta.h"
 #include "data.h"
-
-/* thrust tools */
-#include <thrust/sort.h>
+#include "operations.h"
 
 class QPSolver {
 	protected:
@@ -40,11 +38,6 @@ class QPSolver {
 		QPSolver(Data*, Gamma *, Theta *, Scalar);
 		void init();
 		void finalize();
-
-		void get_Ax(GammaVector<Scalar> *Ax, GammaVector<Scalar> x); 
-
-		Scalar get_dot(GammaVector<Scalar> x, GammaVector<Scalar> y);
-		void get_dot(Scalar *xx, GammaVector<Scalar> x, GammaVector<Scalar> y);
 
 		void compute_b();
 		void solve();

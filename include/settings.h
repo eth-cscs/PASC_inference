@@ -6,10 +6,10 @@
 #define EXPORT_SAVEVTK_filename "output/data.vtk" /* name of file to export VTK */
 
 /* define HostVector/DeviceVector for each data type */
-#define DataVector DeviceVector
-#define ThetaVector DeviceVector
-#define GammaVector DeviceVector
-#define GammaMatrix DeviceMatrix
+#define DataVector HostVector
+#define ThetaVector HostVector
+#define GammaVector HostVector
+#define GammaMatrix HostMatrix
 
 
 /* we are going to compute in double/float? */

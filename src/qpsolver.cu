@@ -71,47 +71,6 @@ void QPSolver::finalize(){
 	this->time_total += timer.stop();
 }
 
-void QPSolver::get_Ax(GammaVector<Scalar> *Ax, GammaVector<Scalar> x){
-	timer.start(); /* add to time_matmult */
-
-	int N = x.size();
-	int t;
-
-	for(t=0;t<N;t++){
-		/* first row */
-		if(t == 0){
-			(*Ax)(t) = x(t) - x(t+1);
-		}
-		/* common row */
-		if(t > 0 && t < N-1){
-			(*Ax)(t) = -x(t-1) + 2.0*x(t) - x(t+1);
-		}
-		/* last row */
-		if(t == N-1){
-			(*Ax)(t) = -x(t-1) + x(t);
-		}
-	}
-
-	this->hess_mult += 1;	
-	this->time_matmult += timer.stop();	
-}
-
-Scalar QPSolver::get_dot(GammaVector<Scalar> x, GammaVector<Scalar> y){
-	Scalar xx;
-
-	get_dot(&xx, x, y);
-
-	return xx;
-}
-
-void QPSolver::get_dot(Scalar *xx, GammaVector<Scalar> x, GammaVector<Scalar> y){
-	timer.start(); /* add to time_dot */
-
-	*xx = dot(x,y);
-
-	this->time_dot += timer.stop();	
-}
-
 void QPSolver::compute_b(){
 	int k;
 	for(k=0;k<this->gamma->get_K();k++){ // TODO: parallel
@@ -155,7 +114,7 @@ void QPSolver::solve(){
 
 	/* compute gradient, g = A*x-b */
 	for(k=0;k<K;k++){ // TODO: parallel
-		get_Ax(&(this->gs[k]),this->gamma->gamma_vecs[k]); 
+		get_Ax_laplace(&(this->gs[k]),this->gamma->gamma_vecs[k],&this->time_matmult); 
 		this->gs[k] -= this->bs[k];
 	}
 	
@@ -204,11 +163,11 @@ void QPSolver::solve(){
 			this->ds[k] += -this->gamma->gamma_vecs[k];
 			this->time_update += timer.stop();
 
-			get_Ax(&(this->Ads[k]),this->ds[k]);
+			get_Ax_laplace(&(this->Ads[k]),this->ds[k],&this->time_matmult);
 
-			dd += get_dot(this->ds[k],this->ds[k]);
-			dAd += get_dot(this->Ads[k],this->ds[k]);
-			gd += get_dot(this->gs[k],this->ds[k]);
+			dd += get_dot(this->ds[k],this->ds[k],&this->time_dot);
+			dAd += get_dot(this->Ads[k],this->ds[k],&this->time_dot);
+			gd += get_dot(this->gs[k],this->ds[k],&this->time_dot);
 		}
 		
 		/* stopping criteria */
@@ -441,7 +400,7 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> *x, bool use_gradient){
 	if(use_gradient){
 		/* use computed gradient in this->gs to compute function value */
 		for(k=0;k<this->get_K();k++){ // TODO: parallel
-			fx += 0.5*get_dot(this->gs[k]-this->bs[k],this->gamma->gamma_vecs[k]);
+			fx += 0.5*get_dot(this->gs[k]-this->bs[k],this->gamma->gamma_vecs[k],&this->time_dot);
 		}
 	} else {
 		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
@@ -451,12 +410,12 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> *x, bool use_gradient){
 
 		fx = 0.0;
 		for(k=0;k<this->get_K();k++){ // TODO: parallel
-			get_Ax(&Ax,x[k]);
+			get_Ax_laplace(&Ax,x[k],&this->time_matmult);
 		 
-			xAx = get_dot(Ax,x[k]);
+			xAx = get_dot(Ax,x[k],&this->time_dot);
 			fx += 0.5*xAx;
 		 
-			xb = get_dot(x[k],this->bs[k]);
+			xb = get_dot(x[k],this->bs[k],&this->time_dot);
 			fx -= xb;
 		}
 

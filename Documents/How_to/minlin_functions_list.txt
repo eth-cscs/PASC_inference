@@ -6,6 +6,7 @@ Vector(const Vector& other)
 Vector(const Vector<OtherExpression>& other)
 Vector(const Matrix<OtherExpression>& other)
 Vector(const expression_type& expression, orientation_type orientation = ColumnOriented)
+pointer() - returns a pointer using thrust::raw_pointer_cast 
 
 - assignment
 operator=
