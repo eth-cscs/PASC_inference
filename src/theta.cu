@@ -19,20 +19,23 @@ void Theta::finalize()
 void Theta::compute(Data data, Gamma gamma){
 	Scalar sum_gamma;
 	Scalar gammaTx;
+	int dim = data.get_dim();
+	int T = gamma.get_T();
+	int K = gamma.get_K();
 	
 	int i,k;
 		
-	for(k=0;k<gamma.get_K();k++){
+	for(k=0;k<K;k++){
 
 		/* compute sum of gamma[k] */
 		
-		sum_gamma = sum(gamma.gamma_vecs[k]);
+		sum_gamma = sum(gamma.gamma_vec(k*T,(k+1)*T-1));
 
-		for(i=0;i<data.get_dim();i++){
+		for(i=0;i<dim;i++){
 			/* compute dot product */
-			gammaTx = dot(gamma.gamma_vecs[k],data.data_vecs[i]);
+			gammaTx = dot(gamma.gamma_vec(k*T,(k+1)*T-1),data.data_vecs[i]);
 			
-			this->theta_vec(k*data.get_dim()+i) = gammaTx/sum_gamma;
+			this->theta_vec(k*dim+i) = gammaTx/sum_gamma;
 		}
 	}
 }

@@ -14,7 +14,7 @@ class Gamma {
 		int T; /* length of time serie */
 				
 	public:
-		GammaVector<Scalar> *gamma_vecs; /* array with gamma vectors, TODO: should be private */
+		GammaVector<Scalar> gamma_vec; /* long vector with gamma [gamma_1, ... gamma_K] */ //TODO: should be private
 
 		void init(Data, int); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
@@ -32,7 +32,7 @@ class Gamma {
 		int get_K();
 
 		// TODO: this should be somewhere else, Model?
-		void compute_gk(GammaVector<Scalar> *g, Data *data, Theta *theta, int k);
+		void compute_gk(GammaVector<Scalar> *g, Data *data, Theta *theta);
 	
 };
 

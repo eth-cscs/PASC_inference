@@ -1,7 +1,7 @@
 #include "projection.h"
 
 /* projection with timer */
-void get_projection(GammaVector<Scalar> **x, int K, double *time_to_add){
+void get_projection(GammaVector<Scalar> *x, int K, double *time_to_add){
 	timer.start(); /* add to projection time */
 	
 	get_projection(x, K);
@@ -9,16 +9,17 @@ void get_projection(GammaVector<Scalar> **x, int K, double *time_to_add){
 	(*time_to_add) += timer.stop();
 }
 
-void get_projection(GammaVector<Scalar> **x, int K){
+void get_projection(GammaVector<Scalar> *x, int K){
 
 	int t,k;
-	int T = (*x)[0].size(); /* length of vectors */
+	int N = (*x).size();
+	int T = N/K; /* length of vectors */
 	GammaVector<Scalar> x_sub(K);
 
 	for(t=0;t<T;t++){	// TODO: this is the place, where the parallel impementation should make a point
 		/* cut x_sub from x */
 		for(k=0;k<K;k++){
-			x_sub(k) = (*x)[k](t);
+			x_sub(k) = (*x)(k*T+t);
 		}
 		
 		/* compute subprojection */
@@ -26,7 +27,7 @@ void get_projection(GammaVector<Scalar> **x, int K){
 
 		/* add x_sub back to x */
 		for(k=0;k<K;k++){
-			(*x)[k](t) = x_sub(k);
+			(*x)(k*T+t) = x_sub(k);
 		}
 	}
 }

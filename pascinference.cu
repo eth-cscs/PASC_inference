@@ -14,7 +14,7 @@ lukas.pospisil@usi.ch
 #include "qpsolver.h"
 
 /* PROBLEM SETTINGS */
-#define DEFAULT_T 5000 /* default length of generated time serie */
+#define DEFAULT_T 1000 /* default length of generated time serie */
 #define DEFAULT_K 3 /* default number of clusters */
 
 #define DEBUG_PRINTDATA false /* print values of all data */
@@ -112,7 +112,7 @@ int main( int argc, char *argv[] )
 
 		/* compute stopping criteria */
 		L_old = L;
-		L = qpsolver.get_function_value(gamma.gamma_vecs);
+		L = qpsolver.get_function_value(gamma.gamma_vec);
 		deltaL = abs(L - L_old);
 
 		/* print info about cost function */
@@ -158,7 +158,7 @@ int main( int argc, char *argv[] )
 
 	/* say bye */	
 	Message("- end program");
-//	Message_info_value("- timer status:",timer.status());
+	Message_info_value("- timer status: ",timer.status());
 
 	
 	Finalize();

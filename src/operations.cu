@@ -7,22 +7,13 @@ void get_dot(Scalar *xx, GammaVector<Scalar> x, GammaVector<Scalar> y){
 
 void get_Ax_laplace(GammaVector<Scalar> *Ax, GammaVector<Scalar> x){
 	int N = x.size();
-	int t;
 
-	for(t=0;t<N;t++){
-		/* first row */
-		if(t == 0){
-			(*Ax)(t) = x(t) - x(t+1);
-		}
-		/* common row */
-		if(t > 0 && t < N-1){
-			(*Ax)(t) = -x(t-1) + 2.0*x(t) - x(t+1);
-		}
-		/* last row */
-		if(t == N-1){
-			(*Ax)(t) = -x(t-1) + x(t);
-		}
-	}
+	(*Ax)(1,N-2) = 2*x(1,N-2) - x(0,N-3) - x(2,N-1);
+	
+	/* first and last */
+	(*Ax)(0) = x(0) - x(1);
+	(*Ax)(N-1) = x(N-1) - x(N-2);
+
 }
 
 /* overloaded functions */

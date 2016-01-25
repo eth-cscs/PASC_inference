@@ -34,26 +34,20 @@ void QPSolver::init(){
 	/* the time for initialization is the part of total time, it is necessary to add it */
 	timer.start(); 
 	
-	int k;
-
 	int T = this->get_T();
 	int K = this->get_K();
 	
 	/* prepare RHS bs, gs, ds */
-	this->bs = new GammaVector<Scalar>[K];
-	this->gs = new GammaVector<Scalar>[K];
-	this->ds = new GammaVector<Scalar>[K];
-	this->Ads = new GammaVector<Scalar>[K];
+
 	/* alloc first vector */
-	DataVector<Scalar> b(T);
+	DataVector<Scalar> b(K*T);
 	/* set initial zero value to all vectors */
 	b(all) = 0.0;
-	for(k=0;k<K;k++){
-		this->bs[k] = b;
-		this->gs[k] = b;
-		this->ds[k] = b;
-		this->Ads[k] = b;
-	}
+
+	this->b = b;
+	this->g = b;
+	this->d = b;
+	this->Ad = b;
 
 	this->time_total += timer.stop();
 }
@@ -63,20 +57,15 @@ void QPSolver::finalize(){
 	timer.start(); 
 
 	/* clean the mess */
-	delete []this->bs;
-	delete []this->gs;
-	delete []this->ds;
-	delete []this->Ads;
 
 	this->time_total += timer.stop();
 }
 
 void QPSolver::compute_b(){
-	int k;
-	for(k=0;k<this->gamma->get_K();k++){ // TODO: parallel
-		this->gamma->compute_gk(&(this->bs[k]), this->data, this->theta, k);
-		this->bs[k] *= -1.0;
-	}
+
+	this->gamma->compute_gk(&this->b, this->data, this->theta);
+	this->b *= -1.0;
+
 }
 
 void QPSolver::solve(){
@@ -94,7 +83,6 @@ void QPSolver::solve(){
 	this->it = 0;
 	this->hess_mult = 0;
 
-	int k; /* iterator through clusters */
 	int K = this->get_K(); /* number of clusters */
 	Scalar fx; /* function value */
 	GammaVector<Scalar> fs(m); /* store function values for generalized A-condition */
@@ -110,16 +98,14 @@ void QPSolver::solve(){
 	this->compute_b();
 
 	/* project initial approximation to feasible set */
-	get_projection(&(this->gamma->gamma_vecs), this->get_K(), &this->time_projection);
+	get_projection(&(this->gamma->gamma_vec), this->get_K(), &this->time_projection);
 
 	/* compute gradient, g = A*x-b */
-	for(k=0;k<K;k++){ // TODO: parallel
-		get_Ax_laplace(&(this->gs[k]),this->gamma->gamma_vecs[k],&this->time_matmult); 
-		this->gs[k] -= this->bs[k];
-	}
+	get_Ax_laplace(&this->g,this->gamma->gamma_vec,&this->time_matmult); 
+	this->g -= this->b;
 	
 	/* compute function value */
-	fx = this->get_function_value(this->gamma->gamma_vecs);
+	fx = this->get_function_value(this->gamma->gamma_vec);
 	fs(all) = fx;
 	
 	/* initial step-size */
@@ -141,34 +127,26 @@ void QPSolver::solve(){
 	/* main cycle */
 	while(this->it < maxit){
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
-		for(k = 0; k < K;k++){ // TODO: parallel
-			timer.start();
-			this->ds[k] = this->gamma->gamma_vecs[k] - alpha_bb*(this->gs[k]);
-			this->time_update += timer.stop();
-		}
+		timer.start();
+		this->d = this->gamma->gamma_vec - alpha_bb*(this->g);
+		this->time_update += timer.stop();
 
 		/* d = P(d) */
-		get_projection(&(this->ds), this->get_K(), &this->time_projection);
+		get_projection(&this->d, K, &this->time_projection);
 		
 		/* d = d - x */
 		/* Ad = A*d */
 		/* dd = dot(d,d) */
 		/* dAd = dot(Ad,d) */
 		/* gd = dot(g,d) */
-		dd = 0.0;
-		dAd = 0.0;
-		gd = 0.0;
-		for(k = 0; k < K;k++){ // TODO: parallel
-			timer.start();
-			this->ds[k] += -this->gamma->gamma_vecs[k];
-			this->time_update += timer.stop();
+		timer.start();
+		this->d += -this->gamma->gamma_vec;
+		this->time_update += timer.stop();
 
-			get_Ax_laplace(&(this->Ads[k]),this->ds[k],&this->time_matmult);
-
-			dd += get_dot(this->ds[k],this->ds[k],&this->time_dot);
-			dAd += get_dot(this->Ads[k],this->ds[k],&this->time_dot);
-			gd += get_dot(this->gs[k],this->ds[k],&this->time_dot);
-		}
+		get_Ax_laplace(&this->Ad,this->d,&this->time_matmult);
+		dd = get_dot(this->d,this->d,&this->time_dot);
+		dAd = get_dot(this->Ad,this->d,&this->time_dot);
+		gd = get_dot(this->g,this->d,&this->time_dot);
 		
 		/* stopping criteria */
 		if(dd < eps){
@@ -193,23 +171,17 @@ void QPSolver::solve(){
 		/* update approximation and gradient */
 		/* x = x + beta*d */
 		/* g = g + beta*Ad */
-		for(k = 0; k < K;k++){ // TODO: parallel
-			timer.start();
-			this->gamma->gamma_vecs[k] += (this->ds[k])*beta; 
-			this->time_update += timer.stop();
+		timer.start();
+		this->gamma->gamma_vec += (this->d)*beta; 
+		this->time_update += timer.stop();
 
-			/* use recursive formula to compute gradient */
-			timer.start();
-			this->gs[k] += (this->Ads[k])*beta;
-			this->time_update += timer.stop();
-
-//			this->gs[k] = this->A_sub*this->gamma->gamma_vecs[k];
-//			this->gs[k] -= this->bs[k];
-
-		}
+		/* use recursive formula to compute gradient */
+		timer.start();
+		this->g += (this->Ad)*beta;
+		this->time_update += timer.stop();
 		
 		/* compute new function value using gradient */
-		fx = this->get_function_value(this->gamma->gamma_vecs, true);
+		fx = this->get_function_value(this->gamma->gamma_vec, true);
 		
 		/* update fs */
 		/* fs(1:end-1) = fs(2:end); */
@@ -280,36 +252,29 @@ void QPSolver::solve(){
 
 }
 
-Scalar QPSolver::get_function_value(GammaVector<Scalar> *x){
+Scalar QPSolver::get_function_value(GammaVector<Scalar> x){
 	return this->get_function_value(x,false);
 }
 
-Scalar QPSolver::get_function_value(GammaVector<Scalar> *x, bool use_gradient){
-	Scalar fx;
-	int k;
+Scalar QPSolver::get_function_value(GammaVector<Scalar> x, bool use_gradient){
+	Scalar fx = 0.0;
 
 	if(use_gradient){
 		/* use computed gradient in this->gs to compute function value */
-		for(k=0;k<this->get_K();k++){ // TODO: parallel
-			fx += 0.5*get_dot(this->gs[k]-this->bs[k],this->gamma->gamma_vecs[k],&this->time_dot);
-		}
+		fx = 0.5*get_dot(this->g-this->b,x,&this->time_dot);
 	} else {
 		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
 		
-		GammaVector<Scalar> Ax(this->get_T());
+		GammaVector<Scalar> Ax(this->get_T()*this->get_K());
 		Scalar xAx, xb;
 
-		fx = 0.0;
-		for(k=0;k<this->get_K();k++){ // TODO: parallel
-			get_Ax_laplace(&Ax,x[k],&this->time_matmult);
+		get_Ax_laplace(&Ax,x,&this->time_matmult);
 		 
-			xAx = get_dot(Ax,x[k],&this->time_dot);
-			fx += 0.5*xAx;
+		xAx = get_dot(Ax,x,&this->time_dot);
+		fx += 0.5*xAx;
 		 
-			xb = get_dot(x[k],this->bs[k],&this->time_dot);
-			fx -= xb;
-		}
-
+		xb = get_dot(x,this->b,&this->time_dot);
+		fx -= xb;
 	}	
 
 	return fx;	
@@ -323,6 +288,7 @@ void QPSolver::print(){
 void QPSolver::print(int nmb_of_spaces){
 	int i,k;
 	int K = this->get_K();
+	int T = this->get_T();
 	
 	std::ostringstream oss_spaces;
 
@@ -354,7 +320,7 @@ void QPSolver::print(int nmb_of_spaces){
 	oss.str(""); oss.clear();
 	for(k=0;k<K;k++){
 		oss << oss_spaces.str() << "   b[" << k << "] = ";
-		oss_values << this->bs[k];
+		oss_values << this->b(k*T,(k+1)*T-1);
 		Message_info_values(oss.str(),oss_values.str());	
 		oss.str(""); oss.clear();
 		oss_values.str(""); oss_values.clear();
@@ -365,7 +331,7 @@ void QPSolver::print(int nmb_of_spaces){
 	oss.str(""); oss.clear();
 	for(k=0;k<K;k++){
 		oss << oss_spaces.str() << "   x[" << k << "] = ";
-		oss_values << this->gamma->gamma_vecs[k];
+		oss_values << this->gamma->gamma_vec(k*T,(k+1)*T-1);
 		Message_info_values(oss.str(),oss_values.str());	
 		oss.str(""); oss.clear();
 		oss_values.str(""); oss_values.clear();

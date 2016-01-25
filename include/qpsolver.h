@@ -20,10 +20,10 @@ class QPSolver {
 		int hess_mult;
 		
 		/* data of QP problem */
-		GammaVector<Scalar> *bs; /* rhs */
-		GammaVector<Scalar> *gs; /* gradient */
-		GammaVector<Scalar> *ds; /* projected gradient */
-		GammaVector<Scalar> *Ads; /* A*ds */
+		GammaVector<Scalar> b; /* rhs */
+		GammaVector<Scalar> g; /* gradient */
+		GammaVector<Scalar> d; /* projected gradient */
+		GammaVector<Scalar> Ad; /* A*ds */
 		
 		double time_projection; /* the sum of time necessary to perform projections */
 		double time_matmult; /* the sum of time necessary to perform matrix multiplication */
@@ -38,8 +38,8 @@ class QPSolver {
 
 		void compute_b();
 		void solve();
-		Scalar get_function_value(GammaVector<Scalar> *x);
-		Scalar get_function_value(GammaVector<Scalar> *x, bool use_gradient);
+		Scalar get_function_value(GammaVector<Scalar> x);
+		Scalar get_function_value(GammaVector<Scalar> x, bool use_gradient);
 
 		void print();
 		void print(int nmb_of_spaces);
