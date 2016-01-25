@@ -14,7 +14,7 @@ lukas.pospisil@usi.ch
 #include "qpsolver.h"
 
 /* PROBLEM SETTINGS */
-#define DEFAULT_T 1000 /* default length of generated time serie */
+#define DEFAULT_T 100 /* default length of generated time serie */
 #define DEFAULT_K 3 /* default number of clusters */
 
 #define DEBUG_PRINTDATA false /* print values of all data */
@@ -24,7 +24,7 @@ lukas.pospisil@usi.ch
 #define ALGORITHM_EPSSQUARE 10.0 /* FEM regularization parameter */
 #define DEBUG_ALGORITHM_PRINTDATA false /* print values of Theta, Gamma, QPSolver during main cycle */
 #define DEBUG_ALGORITHM_PRINTDATA_L true /* print descent of object function in main outer loop */
-#define DEBUG_ALGORITHM_PRINTDATA_QPIT true /* print number of QPSolver iteration in every outer step */
+#define DEBUG_ALGORITHM_PRINTDATA_QPIT false /* print number of QPSolver iteration in every outer step */
 #define DEBUG_ALGORITHM_PRINTDATA_GAMMA false /* print values of Gamma during main cycle */
 #define DEBUG_ALGORITHM_PRINTDATA_THETA false /* print values of Theta during main cycle */
 
