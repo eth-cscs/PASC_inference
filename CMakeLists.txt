@@ -59,10 +59,6 @@ set(MINLIN_HOST_DEFS
 	__host__=\ 
 	__device__=\ 
 	USE_MINLIN)
-set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
-	-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
-	-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
-	-DUSE_MINLIN)
 include_directories(${MINLIN_INCLUDE})
 
 # MINLIN HOST EXECUTABLE
@@ -87,25 +83,46 @@ set(CUDA_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla ${CMAKE_CXX_FLAGS_${BUILD_TYPE_U
 string(REPLACE "-std=c++11" "" CUDA_CXX_FLAGS ${CUDA_CXX_FLAGS}) # remove C++11 from options
 cuda_include_directories(${MINLIN_INCLUDE})
 
-# from source files create shared library
-CUDA_ADD_LIBRARY(externals_common src/common.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_problem src/problem.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_data src/data.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_theta src/theta.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_savevtk src/savevtk.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_operations src/operations.cu
-				 SHARED)
-CUDA_ADD_LIBRARY(externals_projection src/projection.cu
-				 SHARED)
+# add USE_GPU flag to all libs and exec files
+if(${USE_GPU})
+	message(STATUS "${Red}The code is compiled to run on GPU${ColourReset}")
+	set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
+		-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
+		-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
+		-DUSE_GPU
+		-DUSE_MINLIN)
+
+	# from source files create shared library
+	CUDA_ADD_LIBRARY(externals_common src/common.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_problem src/problem.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_data src/data.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_theta src/theta.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_savevtk src/savevtk.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_operations src/operations.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_projection src/projection.cu OPTIONS -DUSE_GPU SHARED)
+
+else(${USE_GPU})
+	message(STATUS "${Red}The code is compiled to run on CPU${ColourReset}")
+	set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
+		-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
+		-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
+		-DUSE_MINLIN)
+
+	# from source files create shared library
+	CUDA_ADD_LIBRARY(externals_common src/common.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_problem src/problem.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_data src/data.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_theta src/theta.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_savevtk src/savevtk.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_operations src/operations.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_projection src/projection.cu SHARED )
+
+endif(${USE_GPU})
+
 
 
 # add main executable file
@@ -127,16 +144,6 @@ target_link_libraries(pascinference_device
 	externals_operations
 	externals_projection
 )
-
-# add USE_GPU flag to all libs and exec files
-if(${USE_GPU})
-	message(STATUS "${Red}The code is compiled to run on GPU${ColourReset}")
-	set(MINLIN_DEVICE_DEFS
-		-DUSE_GPU)
-
-else(${USE_GPU})
-	message(STATUS "${Red}The code is compiled to run on CPU${ColourReset}")
-endif(${USE_GPU})
 	
 # make output directory, here the results will be stored
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output)	
