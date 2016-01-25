@@ -112,7 +112,7 @@ int main( int argc, char *argv[] )
 
 		/* compute stopping criteria */
 		L_old = L;
-		L = qpsolver.get_function_value(gamma.gamma_vec);
+		L = qpsolver.get_function_value();
 		deltaL = abs(L - L_old);
 
 		/* print info about cost function */
@@ -147,9 +147,10 @@ int main( int argc, char *argv[] )
 	Message_info_value(" - number of outer iterations: ",s);
 	Message_info_value(" - |L - L_old| = ",deltaL);
 	Message_info(" - QPSolver:");
-	Message_info_value("  - it =         ", qpsolver.get_it());
-	Message_info_value("  - hess_mult =  ", qpsolver.get_hessmult());
-	Message_info_time( "  - time =  ", qpsolver.get_time_total());
+	Message_info_value("  - it =         ", qpsolver.get_it_all());
+	Message_info_value("  - hessmult =  ", qpsolver.get_hessmult_all());
+	Message_info_time( "  - time =       ", qpsolver.get_time_total());
+	Message_info_time( "   - t_init =     ", qpsolver.get_time_init());
 	Message_info_time( "   - t_project =  ", qpsolver.get_time_projection());
 	Message_info_time( "   - t_matmult =  ", qpsolver.get_time_matmult());
 	Message_info_time( "   - t_dot =      ", qpsolver.get_time_dot());

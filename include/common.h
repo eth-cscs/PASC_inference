@@ -17,11 +17,12 @@
 #include <minlin/modules/threx/threx.h>
 //#include <qpopt/smalbe.h>
 
+/* include settings */
+#include "settings.h"
+
 using namespace minlin::threx;
 MINLIN_INIT
 
-/* include settings */
-#include "settings.h"
 
 /* for global time management */
 class Timer;

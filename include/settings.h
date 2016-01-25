@@ -6,11 +6,21 @@
 #define EXPORT_SAVEVTK_filename "output/data.vtk" /* name of file to export VTK */
 
 /* define HostVector/DeviceVector for each data type */
-#define DataVector HostVector
-#define ThetaVector HostVector
-#define GammaVector HostVector
-#define GammaMatrix HostMatrix
+#ifdef USE_GPU
+	/* compute using CUDA on Device */
+	#define DataVector DeviceVector
+	#define ThetaVector DeviceVector
+	#define GammaVector DeviceVector
+	#define GammaMatrix DeviceMatrix
 
+#else
+	/* compute without CUDA on Host */
+	#define DataVector HostVector
+	#define ThetaVector HostVector
+	#define GammaVector HostVector
+	#define GammaMatrix HostMatrix
+
+#endif
 
 /* we are going to compute in double/float? */
 typedef double Scalar; 

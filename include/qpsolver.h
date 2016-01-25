@@ -16,8 +16,11 @@ class QPSolver {
 		Theta *theta;
 
 		Scalar eps_sqr;
+
 		int it;
-		int hess_mult;
+		int it_all;
+		int hessmult;
+		int hessmult_all;
 		
 		/* data of QP problem */
 		GammaVector<Scalar> b; /* rhs */
@@ -29,6 +32,7 @@ class QPSolver {
 		double time_matmult; /* the sum of time necessary to perform matrix multiplication */
 		double time_dot; /* the sum of time necessary to compute dot_products */
 		double time_update; /* total time of vector updates */
+		double time_init; /* total time of initializing qpsolver */
 		double time_total; /* total time of SPG algorithm */
 		
 	public:
@@ -38,6 +42,7 @@ class QPSolver {
 
 		void compute_b();
 		void solve();
+		Scalar get_function_value();
 		Scalar get_function_value(GammaVector<Scalar> x);
 		Scalar get_function_value(GammaVector<Scalar> x, bool use_gradient);
 
@@ -49,11 +54,14 @@ class QPSolver {
 		int get_dim();
 
 		int get_it();
+		int get_it_all();
 		int get_hessmult();
+		int get_hessmult_all();
 		double get_time_projection();
 		double get_time_matmult();
 		double get_time_dot();
 		double get_time_update();
+		double get_time_init();
 		double get_time_total();
 		double get_time_other();
 

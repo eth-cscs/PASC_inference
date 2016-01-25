@@ -25,6 +25,7 @@ QPSolver::QPSolver(Data* data, Gamma *gamma, Theta *theta, Scalar eps_sqr){
 	this->time_matmult = 0.0;
 	this->time_dot = 0.0;
 	this->time_update = 0.0;
+	this->time_init = 0.0;
 	this->time_total = 0.0;
 	
 }
@@ -49,6 +50,9 @@ void QPSolver::init(){
 	this->d = b;
 	this->Ad = b;
 
+	this->it_all = 0;
+	this->hessmult_all = 0;
+
 	this->time_total += timer.stop();
 }
 
@@ -70,6 +74,7 @@ void QPSolver::compute_b(){
 
 void QPSolver::solve(){
 	timer.start(); /* add to time total in the end of solution */
+	timer.start(); /* here starts the counter of time_init */
 
 	/* algorithm parameters */
 	int m = ALGORITHM_SPGQP_m;
@@ -81,7 +86,7 @@ void QPSolver::solve(){
 
 	/* output performance */
 	this->it = 0;
-	this->hess_mult = 0;
+	this->hessmult = 0;
 
 	int K = this->get_K(); /* number of clusters */
 	Scalar fx; /* function value */
@@ -123,6 +128,8 @@ void QPSolver::solve(){
 		Message_info_value(" - eps = \t\t",eps);
 		Message_info_value(" - maxit = \t\t",maxit);
 	}
+
+	this->time_init = timer.stop();
 	
 	/* main cycle */
 	while(this->it < maxit){
@@ -230,6 +237,8 @@ void QPSolver::solve(){
 		this->it += 1;
 	} /* main cycle end */
 
+	this->it_all += this->it;
+	this->hessmult_all += this->hessmult;
 	this->time_total += timer.stop();
 
 	/* say goodbye */
@@ -237,7 +246,7 @@ void QPSolver::solve(){
 		Message_info_main("\n- final info:");
 		Message_info_time(" - time: \t\t",this->time_total);
 		Message_info_value(" - it: \t\t\t",this->it);
-		Message_info_value(" - hess_mult: \t\t",this->hess_mult);
+		Message_info_value(" - hessmult: \t\t",this->hessmult);
 		Message_info_value(" - final fx = \t\t",fx);
 		Message_info("- SPGQP END ---------------------------------------------------------------");
 	}
@@ -250,6 +259,10 @@ void QPSolver::solve(){
 
 	}
 
+}
+
+Scalar QPSolver::get_function_value(){
+	return this->get_function_value(this->gamma->gamma_vec);
 }
 
 Scalar QPSolver::get_function_value(GammaVector<Scalar> x){
@@ -355,9 +368,18 @@ int QPSolver::get_it(){
 	return this->it;
 }
 
-int QPSolver::get_hessmult(){
-	return this->hess_mult;
+int QPSolver::get_it_all(){
+	return this->it_all;
 }
+
+int QPSolver::get_hessmult(){
+	return this->hessmult;
+}
+
+int QPSolver::get_hessmult_all(){
+	return this->hessmult_all;
+}
+
 
 double QPSolver::get_time_projection(){
 	return this->time_projection;
@@ -379,7 +401,11 @@ double QPSolver::get_time_total(){
 	return this->time_total;
 }
 
+double QPSolver::get_time_init(){
+	return this->time_init;
+}
+
 double QPSolver::get_time_other(){
-	return this->time_total - (this->time_projection + this->time_matmult + this->time_dot + this->time_update);
+	return this->time_total - (this->time_projection + this->time_matmult + this->time_dot + this->time_update + this->time_init);
 }
 
