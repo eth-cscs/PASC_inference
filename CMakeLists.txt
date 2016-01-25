@@ -11,6 +11,9 @@
 project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
+#load options from command line
+option(USE_GPU "USE_GPU" ON)
+
 #define some colors for fun
 if(NOT WIN32)
   string(ASCII 27 Esc)
@@ -59,7 +62,6 @@ set(MINLIN_HOST_DEFS
 set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
 	-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
 	-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
-	-DUSE_GPU
 	-DUSE_MINLIN)
 include_directories(${MINLIN_INCLUDE})
 
@@ -126,6 +128,15 @@ target_link_libraries(pascinference_device
 	externals_projection
 )
 
+# add USE_GPU flag to all libs and exec files
+if(${USE_GPU})
+	message(STATUS "${Red}The code is compiled to run on GPU${ColourReset}")
+	set(MINLIN_DEVICE_DEFS
+		-DUSE_GPU)
+
+else(${USE_GPU})
+	message(STATUS "${Red}The code is compiled to run on CPU${ColourReset}")
+endif(${USE_GPU})
 	
 # make output directory, here the results will be stored
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output)	
