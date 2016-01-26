@@ -14,7 +14,7 @@ lukas.pospisil@usi.ch
 #include "qpsolver.h"
 
 /* PROBLEM SETTINGS */
-#define DEFAULT_T 10 /* default length of generated time serie */
+#define DEFAULT_T 100 /* default length of generated time serie */
 #define DEFAULT_K 3 /* default number of clusters */
 
 #define DEBUG_PRINTDATA false /* print values of all data */

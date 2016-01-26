@@ -11,19 +11,21 @@ void get_projection(GammaVector<Scalar> *x, int K, double *time_to_add){
 
 void get_projection(GammaVector<Scalar> *x, int K){
 
-	int t,k;
 	int N = (*x).size();
 	int T = N/K; /* length of vectors */
 
 #ifdef USE_GPU
 	/* call projection using kernel */
+	Scalar *xp = (*x).pointer();
+	
 	// TODO: compute optimal nmb of threads/kernels
-	get_projection_sub<<<T, 1>>>(x,T,K);
+	kernel_get_projection_sub<<<T, 1>>>(xp,T,K);
 	
 	/* synchronize kernels, if there is an error with cuda, then it will appear here */ 
 	gpuErrchk( cudaDeviceSynchronize() );	
 	
 #else
+	int t,k;
 	Scalar x_sub[K];  /* GammaVector<Scalar> x_sub(K); */
 
 	#pragma omp parallel for private(t)	
@@ -103,7 +105,7 @@ void kernel_get_projection_sub(Scalar *x, int T, const int K){
 			for(k=0;k<K;k++){
 				y[k] = x[k*T+t]; 
 			}
-			sort_bubble(y,K);
+			device_sort_bubble(y,K);
 
 			/* now perform analytical solution of projection problem */	
 			Scalar t_hat = 0.0;
