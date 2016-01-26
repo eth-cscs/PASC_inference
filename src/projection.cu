@@ -141,6 +141,8 @@ void kernel_get_projection_sub(Scalar *x, int T, const int K){
 					x[k*T+t] = 0.0;
 				}
 			}
+			
+			delete y;
 		}
 		
 	}
