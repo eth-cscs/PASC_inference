@@ -26,6 +26,8 @@ QPSolver::QPSolver(Data* data, Gamma *gamma, Theta *theta, Scalar eps_sqr){
 	this->time_dot = 0.0;
 	this->time_update = 0.0;
 	this->time_init = 0.0;
+	this->time_stepsize = 0.0;
+	this->time_fs = 0.0;
 	this->time_total = 0.0;
 	
 }
@@ -129,7 +131,7 @@ void QPSolver::solve(){
 		Message_info_value(" - maxit = \t\t",maxit);
 	}
 
-	this->time_init = timer.stop();
+	this->time_init = timer.stop(); /* here stop the initialization */
 	
 	/* main cycle */
 	while(this->it < maxit){
@@ -161,9 +163,12 @@ void QPSolver::solve(){
 		}
 		
 		/* fx_max = max(fs) */
+		timer.start(); /* manipulation with fs */
 		fx_max = max(fs);	
+		this->time_fs += timer.stop();
 		
 		/* compute step-size from A-condition */
+		timer.start(); /* step-size timer */
 		xi = (fx_max - fx)/dAd;
 		beta_bar = -gd/dAd;
 		beta_hat = gamma*beta_bar + sqrt(gamma*gamma*beta_bar*beta_bar + 2*xi);
@@ -174,6 +179,7 @@ void QPSolver::solve(){
 		} else {
 			beta = sigma2;
 		}
+		this->time_stepsize += timer.stop();
 
 		/* update approximation and gradient */
 		/* x = x + beta*d */
@@ -193,15 +199,19 @@ void QPSolver::solve(){
 		/* update fs */
 		/* fs(1:end-1) = fs(2:end); */
 		/* fs(end) = f;	*/
+		timer.start(); /* manipulation with fs */
 		if(m == 1){
 			fs(0) = fx;
 		} else {
 			fs(0,m-2) = fs(1,m-1);
 			fs(m-1) = fx;
 		}
+		this->time_fs += timer.stop();
 		
 		/* update BB step-size */
+		timer.start(); /* step-size timer */
 		alpha_bb = dd/dAd;
+		this->time_stepsize += timer.stop();
 		
 		/* print progress of algorithm */
 		if(DEBUG_ALGORITHM_PRINTF || DEBUG_ALGORITHM_PRINTFS || DEBUG_ALGORITHM_PRINTCOEFF){
@@ -405,7 +415,15 @@ double QPSolver::get_time_init(){
 	return this->time_init;
 }
 
+double QPSolver::get_time_stepsize(){
+	return this->time_stepsize;
+}
+
+double QPSolver::get_time_fs(){
+	return this->time_fs;
+}
+
 double QPSolver::get_time_other(){
-	return this->time_total - (this->time_projection + this->time_matmult + this->time_dot + this->time_update + this->time_init);
+	return this->time_total - (this->time_projection + this->time_matmult + this->time_dot + this->time_update + this->time_init + this->time_stepsize + this->time_fs);
 }
 

@@ -155,6 +155,8 @@ int main( int argc, char *argv[] )
 	Message_info_time( "   - t_matmult =  ", qpsolver.get_time_matmult());
 	Message_info_time( "   - t_dot =      ", qpsolver.get_time_dot());
 	Message_info_time( "   - t_update =   ", qpsolver.get_time_update());
+	Message_info_time( "   - t_stepsize = ", qpsolver.get_time_stepsize());
+	Message_info_time( "   - t_fs =       ", qpsolver.get_time_fs());
 	Message_info_time( "   - t_other =    ", qpsolver.get_time_other());
 
 	/* say bye */	
