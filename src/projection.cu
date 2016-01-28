@@ -1,7 +1,7 @@
 #include "projection.h"
 
 /* projection with timer */
-void get_projection(GammaVector<Scalar> *x, int K, double *time_to_add){
+void get_projection(GammaVector<Scalar> &x, int K, double *time_to_add){
 	timer.start(); /* add to projection time */
 	
 	get_projection(x, K);
@@ -9,14 +9,14 @@ void get_projection(GammaVector<Scalar> *x, int K, double *time_to_add){
 	(*time_to_add) += timer.stop();
 }
 
-void get_projection(GammaVector<Scalar> *x, int K){
+void get_projection(GammaVector<Scalar> &x, int K){
 
-	int N = (*x).size();
+	int N = x.size();
 	int T = N/K; /* length of vectors */
 
 #ifdef USE_GPU
 	/* call projection using kernel */
-	Scalar *xp = (*x).pointer();
+	Scalar *xp = x.pointer();
 	
 	// TODO: compute optimal nmb of threads/kernels
 	kernel_get_projection_sub<<<T, 1>>>(xp,T,K);
@@ -32,7 +32,7 @@ void get_projection(GammaVector<Scalar> *x, int K){
 	for(t=0;t<T;t++){
 		/* cut x_sub from x */
 		for(k=0;k<K;k++){
-			x_sub[k] = (*x)(k*T+t);
+			x_sub[k] = x(k*T+t);
 		}
 		
 		/* compute subprojection */
@@ -40,7 +40,7 @@ void get_projection(GammaVector<Scalar> *x, int K){
 
 		/* add x_sub back to x */
 		for(k=0;k<K;k++){
-			(*x)(k*T+t) = x_sub[k];
+			x(k*T+t) = x_sub[k];
 		}
 	}
 #endif

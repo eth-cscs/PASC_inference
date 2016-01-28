@@ -103,18 +103,6 @@ void QPSolver::solve(){
 	/* compute and set new RHS */
 	/* b = -g(data,theta) */
 	this->compute_b();
-
-	/* project initial approximation to feasible set */
-	get_projection(&(this->gamma->gamma_vec), this->get_K(), &this->time_projection);
-
-	/* compute gradient, g = A*x-b */
-	get_Ax_laplace(this->g,this->gamma->gamma_vec,&this->time_matmult); 
-	this->hessmult += 1; /* there was muliplication by A */
-	this->g -= this->b;
-	
-	/* compute function value */
-	fx = this->get_function_value(this->gamma->gamma_vec, true);
-	fs(all) = fx;
 	
 	/* initial step-size */
 	alpha_bb = alphainit;
@@ -127,12 +115,31 @@ void QPSolver::solve(){
 		Message_info_value(" - gamma = \t\t",gamma);
 		Message_info_value(" - sigma2 = \t\t",sigma2);
 		Message_info_value(" - alpha_init = \t",alphainit);
-		Message_info_value(" - init fx = \t\t",fx);
 		Message_info_value(" - eps = \t\t",eps);
 		Message_info_value(" - maxit = \t\t",maxit);
 	}
 
-	this->time_init = timer.stop(); /* here stop the initialization */
+	this->time_init += timer.stop(); /* here stops basic initialization */
+
+	/* project initial approximation to feasible set */
+	get_projection(this->gamma->gamma_vec, this->get_K(), &this->time_projection);
+
+	/* compute gradient, g = A*x-b */
+	get_Ax_laplace(this->g,this->gamma->gamma_vec,&this->time_matmult); 
+	this->hessmult += 1; /* there was muliplication by A */
+
+	timer.start(); /* here starts the counter init */
+	this->g -= this->b;
+	this->time_init += timer.stop();	
+	
+	/* compute function value */
+	fx = this->get_function_value(this->gamma->gamma_vec, true);
+	this->time_init += timer.stop(); /* here stop the initialization */
+
+	timer.start(); /* here starts the timer for fs */
+	fs(all) = fx;
+	this->time_fs += timer.stop();
+
 	
 	/* main cycle */
 	while(this->it < maxit){
@@ -142,7 +149,7 @@ void QPSolver::solve(){
 		this->time_update += timer.stop();
 
 		/* d = P(d) */
-		get_projection(&this->d, K, &this->time_projection);
+		get_projection(this->d, K, &this->time_projection);
 		
 		/* d = d - x */
 		/* Ad = A*d */
