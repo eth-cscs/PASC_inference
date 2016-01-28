@@ -2,18 +2,22 @@ LOGIN
 - connect to ELA machine (the access point to CSCS machines), use riGht password
 ssh pospisil@ela.cscs.ch
 - from ELA connect to DAINT machine (this machine has GPUs)
-ssh daint.cscs.ch
+ssh daint
 - clone repo from git
 git clone https://github.com/lukaspospisil/minlin.git
   or update if the repo has been already cloned
-git push
+git pull
 - load right modules using script in "util" folder 
 source module_load_daint
 (using "source" command, if I run it as a shell script then modules will be loaded only in this script)
+- or see available modules using
+module avail
+ and then load it using
+module load ..
 
 COMPILATION
 - in folder "examples_cmake" create new folder "build" and call cmake
-cmake ../
+cmake -DUSE_GPU=ON ..
 - now the makefile is generated, therefore compile project using
 make
 - if there is a problem with cmake, delete folder "build" and start again
@@ -31,4 +35,4 @@ salloc -N 1 --account=c11 --partition=normal
 - control connected GPUs using
 aprun nvidia-smi -L
 - run the program using
-aprun -n 1 ./program
+aprun -n 1 -d 8 ./program
