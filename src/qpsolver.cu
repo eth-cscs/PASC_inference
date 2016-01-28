@@ -108,11 +108,12 @@ void QPSolver::solve(){
 	get_projection(&(this->gamma->gamma_vec), this->get_K(), &this->time_projection);
 
 	/* compute gradient, g = A*x-b */
-	get_Ax_laplace(&this->g,this->gamma->gamma_vec,&this->time_matmult); 
+	get_Ax_laplace(this->g,this->gamma->gamma_vec,&this->time_matmult); 
+	this->hessmult += 1; /* there was muliplication by A */
 	this->g -= this->b;
 	
 	/* compute function value */
-	fx = this->get_function_value(this->gamma->gamma_vec);
+	fx = this->get_function_value(this->gamma->gamma_vec, true);
 	fs(all) = fx;
 	
 	/* initial step-size */
@@ -136,7 +137,7 @@ void QPSolver::solve(){
 	/* main cycle */
 	while(this->it < maxit){
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
-		timer.start();
+		timer.start(); /* this is vector update */
 		this->d = this->gamma->gamma_vec - alpha_bb*(this->g);
 		this->time_update += timer.stop();
 
@@ -145,14 +146,16 @@ void QPSolver::solve(){
 		
 		/* d = d - x */
 		/* Ad = A*d */
-		/* dd = dot(d,d) */
-		/* dAd = dot(Ad,d) */
-		/* gd = dot(g,d) */
 		timer.start();
 		this->d += -this->gamma->gamma_vec;
 		this->time_update += timer.stop();
 
-		get_Ax_laplace(&this->Ad,this->d,&this->time_matmult);
+		get_Ax_laplace(this->Ad,this->d,&this->time_matmult);
+		this->hessmult += 1; /* there was muliplication by A */
+
+		/* dd = dot(d,d) */
+		/* dAd = dot(Ad,d) */
+		/* gd = dot(g,d) */
 		dd = get_dot(this->d,this->d,&this->time_dot);
 		dAd = get_dot(this->Ad,this->d,&this->time_dot);
 		gd = get_dot(this->g,this->d,&this->time_dot);
@@ -183,12 +186,12 @@ void QPSolver::solve(){
 
 		/* update approximation and gradient */
 		/* x = x + beta*d */
-		/* g = g + beta*Ad */
-		timer.start();
+		timer.start();/* this is vector update */
 		this->gamma->gamma_vec += (this->d)*beta; 
 		this->time_update += timer.stop();
 
 		/* use recursive formula to compute gradient */
+		/* g = g + beta*Ad */
 		timer.start();
 		this->g += (this->Ad)*beta;
 		this->time_update += timer.stop();
@@ -249,7 +252,6 @@ void QPSolver::solve(){
 
 	this->it_all += this->it;
 	this->hessmult_all += this->hessmult;
-	this->time_total += timer.stop();
 
 	/* say goodbye */
 	if(DEBUG_ALGORITHM_SAYHELLO){
@@ -269,6 +271,7 @@ void QPSolver::solve(){
 
 	}
 
+	this->time_total += timer.stop();
 }
 
 Scalar QPSolver::get_function_value(){
@@ -291,7 +294,7 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> x, bool use_gradient){
 		GammaVector<Scalar> Ax(this->get_T()*this->get_K());
 		Scalar xAx, xb;
 
-		get_Ax_laplace(&Ax,x,&this->time_matmult);
+		get_Ax_laplace(Ax,x,&this->time_matmult);
 		 
 		xAx = get_dot(Ax,x,&this->time_dot);
 		fx += 0.5*xAx;
