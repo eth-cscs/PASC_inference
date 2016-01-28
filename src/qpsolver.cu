@@ -76,6 +76,7 @@ void QPSolver::compute_b(){
 
 void QPSolver::solve(){
 	timer.start(); /* add to time total in the end of solution */
+
 	timer.start(); /* here starts the counter of time_init */
 
 	/* algorithm parameters */
@@ -100,10 +101,6 @@ void QPSolver::solve(){
 	Scalar dAd; /* dot(Ad,d) */
 	Scalar alpha_bb; /* BB step-size */
 	
-	/* compute and set new RHS */
-	/* b = -g(data,theta) */
-	this->compute_b();
-	
 	/* initial step-size */
 	alpha_bb = alphainit;
 
@@ -120,6 +117,10 @@ void QPSolver::solve(){
 	}
 
 	this->time_init += timer.stop(); /* here stops basic initialization */
+
+	/* compute and set new RHS */
+	/* b = -g(data,theta) */
+	this->compute_b();
 
 	/* project initial approximation to feasible set */
 	get_projection(this->gamma->gamma_vec, this->get_K(), &this->time_projection);
