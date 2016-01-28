@@ -70,19 +70,23 @@ void Gamma::prepare_uniform()
 
 void Gamma::compute(QPSolver *qpsolver, Data data, Theta theta)
 {
+	/* compute and set new RHS */
+	this->compute_gk(qpsolver->b, data, theta);
+	qpsolver->b *= -1.0;
+	
 	/* --- SOLVE OPTIMIZATION PROBLEM --- */
 	qpsolver->solve();
 }
 
-void Gamma::compute_gk(GammaVector<Scalar>& g, Data *data, Theta *theta)
+void Gamma::compute_gk(GammaVector<Scalar>& g, Data data, Theta theta)
 {
 	int t,n,k;
-	GammaVector<Scalar> temp(data->get_dim());
+	GammaVector<Scalar> temp(data.get_dim());
 	
 	for(k=0;k<this->K;k++){
 		for(t=0;t<this->T;t++){ // TODO: this could be performed parallely 
-			for(n=0;n<data->get_dim();n++){
-				temp(n) = data->data_vecs[n](t) - theta->theta_vec(k*data->get_dim() + n);
+			for(n=0;n<data.get_dim();n++){
+				temp(n) = data.data_vecs[n](t) - theta.theta_vec(k*data.get_dim() + n);
 			} 
 			g(k*this->T + t) = dot(temp,temp);
 		}

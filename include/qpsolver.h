@@ -23,7 +23,6 @@ class QPSolver {
 		int hessmult_all;
 		
 		/* data of QP problem */
-		GammaVector<Scalar> b; /* rhs */
 		GammaVector<Scalar> g; /* gradient */
 		GammaVector<Scalar> d; /* projected gradient */
 		GammaVector<Scalar> Ad; /* A*ds */
@@ -38,11 +37,12 @@ class QPSolver {
 		double time_total; /* total time of SPG algorithm */
 		
 	public:
-		QPSolver(Data*, Gamma *, Theta *, Scalar);
+		GammaVector<Scalar> b; /* rhs */ // TODO: this should be private
+
+		QPSolver(Gamma *, Scalar);
 		void init();
 		void finalize();
 
-		void compute_b();
 		void solve();
 		Scalar get_function_value();
 		Scalar get_function_value(GammaVector<Scalar> x);

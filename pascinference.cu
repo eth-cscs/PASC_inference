@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
 	Data data;
 	Gamma gamma;
 	Theta theta;
-	QPSolver qpsolver(&data,&gamma,&theta, ALGORITHM_EPSSQUARE);
+	QPSolver qpsolver(&gamma, ALGORITHM_EPSSQUARE);
 
 	int s; /* index of main iterations */
 	Scalar L, L_old, deltaL; /* object function value */

@@ -15,10 +15,8 @@
 
 
 /* constructor */
-QPSolver::QPSolver(Data* data, Gamma *gamma, Theta *theta, Scalar eps_sqr){
-	this->data = data;
+QPSolver::QPSolver(Gamma *gamma, Scalar eps_sqr){
 	this->gamma = gamma;
-	this->theta = theta;
 	this->eps_sqr = eps_sqr;
 	
 	this->time_projection = 0.0;
@@ -67,13 +65,6 @@ void QPSolver::finalize(){
 	this->time_total += timer.stop();
 }
 
-void QPSolver::compute_b(){
-
-	this->gamma->compute_gk(this->b, this->data, this->theta);
-	this->b *= -1.0;
-
-}
-
 void QPSolver::solve(){
 	timer.start(); /* add to time total in the end of solution */
 
@@ -115,10 +106,6 @@ void QPSolver::solve(){
 		Message_info_value(" - eps = \t\t",eps);
 		Message_info_value(" - maxit = \t\t",maxit);
 	}
-
-	/* compute and set new RHS */
-	/* b = -g(data,theta) */
-	this->compute_b();
 
 	/* project initial approximation to feasible set */
 	get_projection(this->gamma->gamma_vec, this->get_K());
