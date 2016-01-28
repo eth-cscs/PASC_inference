@@ -8,7 +8,7 @@ class Data {
 		int T; /* length of time serie */
 
 	public:
-		DataVector<Scalar> *data_vecs; /* array with data vectors, TODO: should be private */
+		DataVector<Scalar> data_vec; /* array with data vectors, TODO: should be private */
 
 		void init(int dim, int T); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */

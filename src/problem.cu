@@ -46,8 +46,8 @@ void generate_problem(Data *data_out, int dataT)
 			get_problem_value3(&random_value1, &random_value2);
 		}
 		
-		data.data_vecs[0](t) = random_value1;
-		data.data_vecs[1](t) = random_value2;
+		data.data_vec(t) = random_value1;
+		data.data_vec(data.get_T()+t) = random_value2;
 	}
 
 	*data_out = data;

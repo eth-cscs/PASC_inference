@@ -26,8 +26,8 @@ void save_VTK(Data data, Gamma gamma)
 	/* points - coordinates */
 	myfile << "POINTS " << T << " FLOAT\n";
 	for(t=0;t < T;t++){
-		myfile << data.data_vecs[0](t) << " "; /* x */
-		myfile << data.data_vecs[1](t) << " "; /* y */
+		myfile << data.data_vec(t) << " "; /* x */
+		myfile << data.data_vec(T+t) << " "; /* y */
 		myfile << " 0.0\n"; /* z */
 	}
 	myfile << "\n";

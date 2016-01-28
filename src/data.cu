@@ -2,28 +2,21 @@
 
 void Data::init(int dim, int T)
 {
-	int i; /* iterator */
 
 	/* set input values */
 	this->dim = dim;
 	this->T = T;
 	
 	/* prepare array with data vectors */
-	this->data_vecs = new DataVector<Scalar>[this->dim];
-
-	/* alloc first vector */
-	DataVector<Scalar> D(this->T);
-	/* set initial zero value to all vectors */
-	D(all) = 0.0;
-	for(i=0;i<this->dim;i++){
-		this->data_vecs[i] = D;
-	}
+	DataVector<Scalar> new_data_vector(this->dim*this->T);
+	new_data_vector(all) = 0.0;
+	this->data_vec = new_data_vector;
 
 }
 
 void Data::finalize()
 {
-	delete []this->data_vecs;
+
 }
 
 
@@ -46,7 +39,7 @@ void Data::print()
 	Message_info("- generated data:");
 	for(i=0;i<this->dim;i++){
 		oss << " - data[" << i << "]: ";
-		oss_values << this->data_vecs[i];
+		oss_values << this->data_vec(i*this->T,(i+1)*this->T-1);
 		Message_info_values(oss.str(),oss_values.str());
 
 		oss.str("");

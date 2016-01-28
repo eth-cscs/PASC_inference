@@ -33,7 +33,7 @@ void Theta::compute(Data data, Gamma gamma){
 
 		for(i=0;i<dim;i++){
 			/* compute dot product */
-			gammaTx = dot(gamma.gamma_vec(k*T,(k+1)*T-1),data.data_vecs[i]);
+			gammaTx = dot(gamma.gamma_vec(k*T,(k+1)*T-1),data.data_vec(i*T,(i+1)*T-1));
 			
 			this->theta_vec(k*dim+i) = gammaTx/sum_gamma;
 		}
