@@ -135,7 +135,6 @@ void QPSolver::solve(){
 	
 	/* compute function value */
 	fx = this->get_function_value(this->gamma->gamma_vec, true);
-	this->time_init += timer.stop(); /* here stop the initialization */
 
 	timer.start(); /* here starts the timer for fs */
 	fs(all) = fx;
