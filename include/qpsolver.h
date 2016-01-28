@@ -9,9 +9,7 @@
 
 class QPSolver {
 	protected:
-		Data *data;
 		Gamma *gamma;
-		Theta *theta;
 
 		Scalar eps_sqr;
 
@@ -51,7 +49,6 @@ class QPSolver {
 
 		int get_T();
 		int get_K();
-		int get_dim();
 
 		int get_it();
 		int get_it_all();

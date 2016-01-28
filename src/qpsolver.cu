@@ -328,10 +328,6 @@ void QPSolver::print(int nmb_of_spaces){
 	Message_info_value(oss.str(),this->get_T());
 	oss.str(""); oss.clear();
 
-	oss << oss_spaces.str() << " - dim = ";
-	Message_info_value(oss.str(),this->get_dim());
-	oss.str(""); oss.clear();
-
 	oss << oss_spaces.str() << " - right hand-side vector b:";
 	Message_info(oss.str());
 	oss.str(""); oss.clear();
@@ -357,11 +353,7 @@ void QPSolver::print(int nmb_of_spaces){
 }
 
 int QPSolver::get_T(){
-	return this->data->get_T();
-}
-
-int QPSolver::get_dim(){
-	return this->data->get_dim();
+	return this->gamma->get_T();
 }
 
 int QPSolver::get_K(){
