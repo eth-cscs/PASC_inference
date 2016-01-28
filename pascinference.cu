@@ -99,7 +99,6 @@ int main( int argc, char *argv[] )
 		if(DEBUG_ALGORITHM_PRINTDATA_THETA || DEBUG_ALGORITHM_PRINTDATA){ /* print theta */
 			theta.print(2);
 		}
-		Message_info_value("TIMER STATUS: ",timer.status());
 		Message_info_time("  - theta problem solved in: ",timer.stop());
 
 		

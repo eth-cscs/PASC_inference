@@ -74,7 +74,7 @@ void Gamma::compute(QPSolver *qpsolver, Data data, Theta theta)
 	qpsolver->solve();
 }
 
-void Gamma::compute_gk(GammaVector<Scalar> *g, Data *data, Theta *theta)
+void Gamma::compute_gk(GammaVector<Scalar>& g, Data *data, Theta *theta)
 {
 	int t,n,k;
 	GammaVector<Scalar> temp(data->get_dim());
@@ -84,7 +84,7 @@ void Gamma::compute_gk(GammaVector<Scalar> *g, Data *data, Theta *theta)
 			for(n=0;n<data->get_dim();n++){
 				temp(n) = data->data_vecs[n](t) - theta->theta_vec(k*data->get_dim() + n);
 			} 
-			(*g)(k*this->T + t) = dot(temp,temp);
+			g(k*this->T + t) = dot(temp,temp);
 		}
 	}
 }

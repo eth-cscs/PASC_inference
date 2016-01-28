@@ -69,7 +69,7 @@ void QPSolver::finalize(){
 
 void QPSolver::compute_b(){
 
-	this->gamma->compute_gk(&this->b, this->data, this->theta);
+	this->gamma->compute_gk(this->b, this->data, this->theta);
 	this->b *= -1.0;
 
 }
@@ -116,24 +116,21 @@ void QPSolver::solve(){
 		Message_info_value(" - maxit = \t\t",maxit);
 	}
 
-	this->time_init += timer.stop(); /* here stops basic initialization */
-
 	/* compute and set new RHS */
 	/* b = -g(data,theta) */
 	this->compute_b();
 
 	/* project initial approximation to feasible set */
-	get_projection(this->gamma->gamma_vec, this->get_K(), &this->time_projection);
+	get_projection(this->gamma->gamma_vec, this->get_K());
 
 	/* compute gradient, g = A*x-b */
-	get_Ax_laplace(this->g,this->gamma->gamma_vec,&this->time_matmult); 
+	get_Ax_laplace(this->g,this->gamma->gamma_vec); 
 	this->hessmult += 1; /* there was muliplication by A */
-
-	timer.start(); /* here starts the counter init */
 	this->g -= this->b;
+
 	this->time_init += timer.stop();	
 	
-	/* compute function value */
+	/* compute function value - it has its own timer */
 	fx = this->get_function_value(this->gamma->gamma_vec, true);
 
 	timer.start(); /* here starts the timer for fs */
