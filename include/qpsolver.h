@@ -3,8 +3,6 @@
 
 #include "common.h"
 #include "gamma.h"
-#include "theta.h"
-#include "data.h"
 
 #include "operations.h"
 #include "projection.h"
