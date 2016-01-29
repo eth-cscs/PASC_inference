@@ -31,29 +31,41 @@ lukas.pospisil@usi.ch
 int main( int argc, char *argv[] )
 {
 	Timer timer_all; /* global timer for whole application */
-	Timer timer_problem; /* for generating the problem */
+	Timer timer_data; /* for generating the problem */
 	Timer timer_gamma; /* for gamma manipulation */
 	Timer timer_theta; /* for theta manipulation */
 	Timer timer_saveVTK; /* for final export to VTK */
 
 	timer_all.restart();
-	timer_problem.restart();
+	timer_data.restart();
 	timer_gamma.restart();
 	timer_theta.restart();
 	timer_saveVTK.restart();
 
-
 	timer_all.start(); /* here starts the timer for whole application */
 	
+	/* prepare data */
+	Data_kmeans data;
+	data.init(2,DEFAULT_T);
+	timer_data.start(); 
+	 data.generate();
+	timer_data.stop();
+
+
+	/* prepare problem */
+	Problem problem;
+	problem.init();
+	problem.set_data(data); /* set data to problem */
+	problem.finalize();
+
+	
 	/* parameters of application */
-	int dataT = DEFAULT_T; // TODO: do it in a different way
 	int gammaK = DEFAULT_K;
 	int max_s_steps = ALGORITHM_max_s_steps;
 
 	Initialize(argc,argv); // TODO: load parameters of problem from console input
 
 	/* variables */
-	Data data;
 	Gamma gamma;
 	Theta theta;
 	QPSolver qpsolver(&gamma, ALGORITHM_EPSSQUARE);
@@ -66,10 +78,7 @@ int main( int argc, char *argv[] )
 	Message("- start program");
 	
 	/* generate problem */
-	timer_problem.start(); /* start timer for generating problem */
- 	 generate_problem(&data,dataT);
-	timer_problem.stop();
-	Message_info_time(" - problem generated in: ",timer_problem.get_value_last());
+	Message_info_time(" - problem generated in: ",timer_data.get_value_last());
 	
 	/* print problem */
 	if(DEBUG_PRINTDATA){
@@ -173,11 +182,11 @@ int main( int argc, char *argv[] )
 	/* print info about elapsed time and solution */
 	Message_info(      "- final info:");
 	Message_info_time( " - time all: ",timer_all.get_value_sum());
-	Message_info_time( "  - time problem: ",timer_problem.get_value_sum());
-	Message_info_time( "  - time gamma:   ",timer_gamma.get_value_sum());
-	Message_info_time( "  - time theta:   ",timer_theta.get_value_sum());
-	Message_info_time( "  - time saveVTK: ",timer_saveVTK.get_value_sum());
-	Message_info_time( "  - time other:   ",timer_all.get_value_sum() - (timer_problem.get_value_sum() + timer_gamma.get_value_sum() + timer_theta.get_value_sum() +  timer_saveVTK.get_value_sum()));
+	Message_info_time( "  - time generate data: ",timer_data.get_value_sum());
+	Message_info_time( "  - time gamma:         ",timer_gamma.get_value_sum());
+	Message_info_time( "  - time theta:         ",timer_theta.get_value_sum());
+	Message_info_time( "  - time saveVTK:       ",timer_saveVTK.get_value_sum());
+	Message_info_time( "  - time other:         ",timer_all.get_value_sum() - (timer_data.get_value_sum() + timer_gamma.get_value_sum() + timer_theta.get_value_sum() +  timer_saveVTK.get_value_sum()));
 
 	Message_info_value(" - number of outer iterations: ",s);
 	Message_info_value(" - |L - L_old| = ",deltaL);
