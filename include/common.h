@@ -32,10 +32,6 @@ using namespace minlin::threx;
 MINLIN_INIT
 
 
-/* for global time management */
-class Timer;
-extern Timer timer;
-
 /* general utils */
 void Initialize(int, char**);
 void Finalize();
@@ -51,7 +47,7 @@ void Message_info_time(std::string text, double value);
 
 
 /* structure for time management (measure computing time) */
-class Timer {
+class StackTimer {
 		std::stack<double> time_stack;
 		double time;
 
@@ -62,6 +58,23 @@ class Timer {
 		int status();
 	
 };
+
+class Timer {
+		double time_sum;
+		double time_start;
+		double time_last;
+
+		double getUnixTime(void);
+		bool run_or_not;
+	public:
+		void restart();
+		void start();
+		void stop();
+		double get_value_sum();
+		double get_value_last();
+		bool status();
+};
+
 
 /* cuda error check */
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }

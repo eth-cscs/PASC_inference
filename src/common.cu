@@ -1,8 +1,5 @@
 #include "common.h"
 
-/* instance of global timer */
-Timer timer;
-
 /*!
  * initialize the application
  */ 
@@ -63,21 +60,20 @@ void Message_info_time(std::string text, double value){
 
 
 
-/* ------------ TIMER ------------ */
-
-double Timer::getUnixTime(void){
+/* ------------ STACK TIMER ------------ */
+double StackTimer::getUnixTime(void){
 	struct timespec tv;
 	if(clock_gettime(CLOCK_REALTIME, &tv) != 0) return 0;
 	return (((double) tv.tv_sec) + (double) (tv.tv_nsec / 1000000000.0));
 }
 
-void Timer::start(){
-	double t_start = getUnixTime();
+void StackTimer::start(){
+	double t_start = this->getUnixTime();
 	this->time_stack.push(t_start);
 }
 	
-double Timer::stop(){
-	double t_end = getUnixTime();
+double StackTimer::stop(){
+	double t_end = this->getUnixTime();
 	double t_start;
 	if(this->time_stack.empty()){
 		t_start = 0.0;
@@ -90,6 +86,44 @@ double Timer::stop(){
 	return out_time;
 }
 
-int Timer::status(){
+int StackTimer::status(){
 	return this->time_stack.size();
+}
+
+/* ------------ SIMPLE TIMER ------------ */
+double Timer::getUnixTime(void){
+	struct timespec tv;
+	if(clock_gettime(CLOCK_REALTIME, &tv) != 0) return 0;
+	return (((double) tv.tv_sec) + (double) (tv.tv_nsec / 1000000000.0));
+}
+
+void Timer::restart(){
+	this->time_sum = 0.0;
+	this->time_last = 0.0;
+	this->run_or_not = false;
+	this->time_start = std::numeric_limits<double>::max();
+}
+
+void Timer::start(){
+	this->time_start = this->getUnixTime();
+	this->run_or_not = true;
+}
+
+void Timer::stop(){
+	this->time_last = this->getUnixTime() - this->time_start;
+	this->time_sum += this->time_last;
+	this->run_or_not = false;
+	this->time_start = std::numeric_limits<double>::max();
+}
+
+double Timer::get_value_sum(){
+	return this->time_sum;
+}
+
+double Timer::get_value_last(){
+	return this->time_last;
+}
+
+bool Timer::status(){
+	return this->run_or_not;
 }

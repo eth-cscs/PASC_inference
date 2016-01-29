@@ -19,21 +19,20 @@ QPSolver::QPSolver(Gamma *gamma, Scalar eps_sqr){
 	this->gamma = gamma;
 	this->eps_sqr = eps_sqr;
 	
-	this->time_projection = 0.0;
-	this->time_matmult = 0.0;
-	this->time_dot = 0.0;
-	this->time_update = 0.0;
-	this->time_init = 0.0;
-	this->time_stepsize = 0.0;
-	this->time_fs = 0.0;
-	this->time_total = 0.0;
+	this->timer_projection.restart();
+	this->timer_matmult.restart();
+	this->timer_dot.restart();
+	this->timer_update.restart();
+	this->timer_stepsize.restart();
+	this->timer_fs.restart();
+	this->timer_total.restart();
 	
 }
 
 /* prepare data which are constant */
 void QPSolver::init(){
 	/* the time for initialization is the part of total time, it is necessary to add it */
-	timer.start(); 
+	this->timer_total.start(); 
 	
 	int T = this->get_T();
 	int K = this->get_K();
@@ -53,22 +52,21 @@ void QPSolver::init(){
 	this->it_all = 0;
 	this->hessmult_all = 0;
 
-	this->time_total += timer.stop();
+	this->timer_total.stop();
 }
 
 void QPSolver::finalize(){
 	/* the time is the part of total time, it is necessary to add it */
-	timer.start(); 
+	this->timer_total.start(); 
 
 	/* clean the mess */
 
-	this->time_total += timer.stop();
+	this->timer_total.stop();
 }
 
 void QPSolver::solve(){
-	timer.start(); /* add to time total in the end of solution */
+	this->timer_total.start(); /* stop this timer in the end of solution */
 
-	timer.start(); /* here starts the counter of time_init */
 
 	/* algorithm parameters */
 	int m = ALGORITHM_SPGQP_m;
@@ -108,48 +106,55 @@ void QPSolver::solve(){
 	}
 
 	/* project initial approximation to feasible set */
-	get_projection(this->gamma->gamma_vec, this->get_K());
+	this->timer_projection.start();
+	 get_projection(this->gamma->gamma_vec, this->get_K());
+	this->timer_projection.stop();
 
 	/* compute gradient, g = A*x-b */
-	get_Ax_laplace(this->g,this->gamma->gamma_vec); 
-	this->hessmult += 1; /* there was muliplication by A */
+	this->timer_matmult.start();
+	 get_Ax_laplace(this->g,this->gamma->gamma_vec); 
+ 	 this->hessmult += 1; /* there was muliplication by A */
+	this->timer_matmult.stop();
 	this->g -= this->b;
-
-	this->time_init += timer.stop();	
 	
 	/* compute function value - it has its own timer */
-	fx = this->get_function_value(this->gamma->gamma_vec, true);
-
-	timer.start(); /* here starts the timer for fs */
-	fs(all) = fx;
-	this->time_fs += timer.stop();
+	this->timer_fs.start();
+ 	 fx = this->get_function_value(this->gamma->gamma_vec, true);
+	 fs(all) = fx;
+	this->timer_fs.stop();
 
 	
 	/* main cycle */
 	while(this->it < maxit){
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
-		timer.start(); /* this is vector update */
-		this->d = this->gamma->gamma_vec - alpha_bb*(this->g);
-		this->time_update += timer.stop();
+		this->timer_update.start(); /* this is vector update */
+		 this->d = this->gamma->gamma_vec - alpha_bb*(this->g);
+		this->timer_update.stop();
 
 		/* d = P(d) */
-		get_projection(this->d, K, &this->time_projection);
+		this->timer_projection.start();
+		 get_projection(this->d, K);
+		this->timer_projection.stop();
 		
 		/* d = d - x */
 		/* Ad = A*d */
-		timer.start();
-		this->d += -this->gamma->gamma_vec;
-		this->time_update += timer.stop();
+		this->timer_update.start();
+		 this->d += -this->gamma->gamma_vec;
+		this->timer_update.stop();
 
-		get_Ax_laplace(this->Ad,this->d,&this->time_matmult);
-		this->hessmult += 1; /* there was muliplication by A */
+		this->timer_matmult.start();
+		 get_Ax_laplace(this->Ad,this->d);
+		 this->hessmult += 1; /* there was muliplication by A */
+		this->timer_matmult.stop();
 
 		/* dd = dot(d,d) */
 		/* dAd = dot(Ad,d) */
 		/* gd = dot(g,d) */
-		dd = get_dot(this->d,this->d,&this->time_dot);
-		dAd = get_dot(this->Ad,this->d,&this->time_dot);
-		gd = get_dot(this->g,this->d,&this->time_dot);
+		this->timer_dot.start();
+		 dd = get_dot(this->d,this->d);
+		 dAd = get_dot(this->Ad,this->d);
+		 gd = get_dot(this->g,this->d);
+		this->timer_dot.stop();
 		
 		/* stopping criteria */
 		if(dd < eps){
@@ -157,55 +162,49 @@ void QPSolver::solve(){
 		}
 		
 		/* fx_max = max(fs) */
-		timer.start(); /* manipulation with fs */
-		fx_max = max(fs);	
-		this->time_fs += timer.stop();
+		this->timer_fs.start(); /* manipulation with fs */
+		 fx_max = max(fs);	
+		this->timer_fs.stop();
 		
 		/* compute step-size from A-condition */
-		timer.start(); /* step-size timer */
-		xi = (fx_max - fx)/dAd;
-		beta_bar = -gd/dAd;
-		beta_hat = gamma*beta_bar + sqrt(gamma*gamma*beta_bar*beta_bar + 2*xi);
+		this->timer_stepsize.start(); /* step-size timer */
+		 xi = (fx_max - fx)/dAd;
+		 beta_bar = -gd/dAd;
+		 beta_hat = gamma*beta_bar + sqrt(gamma*gamma*beta_bar*beta_bar + 2*xi);
 
-		/* beta = min(sigma2,beta_hat) */
-		if(beta_hat < sigma2){
+		 /* beta = min(sigma2,beta_hat) */
+		 if(beta_hat < sigma2){
 			beta = beta_hat;
-		} else {
+		 } else {
 			beta = sigma2;
-		}
-		this->time_stepsize += timer.stop();
+		 }
+		this->timer_stepsize.stop();
 
 		/* update approximation and gradient */
-		/* x = x + beta*d */
-		timer.start();/* this is vector update */
-		this->gamma->gamma_vec += (this->d)*beta; 
-		this->time_update += timer.stop();
-
-		/* use recursive formula to compute gradient */
-		/* g = g + beta*Ad */
-		timer.start();
-		this->g += (this->Ad)*beta;
-		this->time_update += timer.stop();
+		this->timer_update.start();/* this is vector update */
+		 this->gamma->gamma_vec += (this->d)*beta; /* x = x + beta*d */
+		 this->g += (this->Ad)*beta; /* g = g + beta*Ad */
+		this->timer_update.stop();
 		
 		/* compute new function value using gradient */
-		fx = this->get_function_value(this->gamma->gamma_vec, true);
+		this->timer_fs.start();
+		 fx = this->get_function_value(this->gamma->gamma_vec, true);
 		
-		/* update fs */
-		/* fs(1:end-1) = fs(2:end); */
-		/* fs(end) = f;	*/
-		timer.start(); /* manipulation with fs */
-		if(m == 1){
+		 /* update fs */
+		 /* fs(1:end-1) = fs(2:end); */
+		 /* fs(end) = f;	*/
+		 if(m == 1){
 			fs(0) = fx;
-		} else {
+		 } else {
 			fs(0,m-2) = fs(1,m-1);
 			fs(m-1) = fx;
-		}
-		this->time_fs += timer.stop();
+		 }
+		this->timer_fs.stop();
 		
 		/* update BB step-size */
-		timer.start(); /* step-size timer */
-		alpha_bb = dd/dAd;
-		this->time_stepsize += timer.stop();
+		this->timer_stepsize.start(); /* step-size timer */
+		 alpha_bb = dd/dAd;
+		this->timer_stepsize.stop();
 		
 		/* print progress of algorithm */
 		if(DEBUG_ALGORITHM_PRINTF || DEBUG_ALGORITHM_PRINTFS || DEBUG_ALGORITHM_PRINTCOEFF){
@@ -244,10 +243,12 @@ void QPSolver::solve(){
 	this->it_all += this->it;
 	this->hessmult_all += this->hessmult;
 
+	this->timer_total.stop();
+
 	/* say goodbye */
 	if(DEBUG_ALGORITHM_SAYHELLO){
 		Message_info_main("\n- final info:");
-		Message_info_time(" - time: \t\t",this->time_total);
+		Message_info_time(" - time: \t\t",this->timer_total.get_value_last());
 		Message_info_value(" - it: \t\t\t",this->it);
 		Message_info_value(" - hessmult: \t\t",this->hessmult);
 		Message_info_value(" - final fx = \t\t",fx);
@@ -258,11 +259,10 @@ void QPSolver::solve(){
 	if(DEBUG_ALGORITHM_BASIC){
 		Message_info("  - SPGQP algorithm");
 		Message_info_value("   - it    = ",this->it);
-		Message_info_time("   - time  = ",this->time_total);
+		Message_info_time("   - time  = ",this->timer_total.get_value_last());
 
 	}
 
-	this->time_total += timer.stop();
 }
 
 Scalar QPSolver::get_function_value(){
@@ -278,19 +278,20 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> x, bool use_gradient){
 
 	if(use_gradient){
 		/* use computed gradient in this->gs to compute function value */
-		fx = 0.5*get_dot(this->g-this->b,x,&this->time_dot);
+		fx = 0.5*get_dot(this->g-this->b,x);
 	} else {
 		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
+		/* for safety - do not use any allocated vector */
 		
 		GammaVector<Scalar> Ax(this->get_T()*this->get_K());
 		Scalar xAx, xb;
 
-		get_Ax_laplace(Ax,x,&this->time_matmult);
+		get_Ax_laplace(Ax,x);
 		 
-		xAx = get_dot(Ax,x,&this->time_dot);
+		xAx = get_dot(Ax,x);
 		fx += 0.5*xAx;
 		 
-		xb = get_dot(x,this->b,&this->time_dot);
+		xb = get_dot(x,this->b);
 		fx -= xb;
 	}	
 
@@ -378,38 +379,31 @@ int QPSolver::get_hessmult_all(){
 
 
 double QPSolver::get_time_projection(){
-	return this->time_projection;
+	return this->timer_projection.get_value_sum();
 }
 
+
 double QPSolver::get_time_matmult(){
-	return this->time_matmult;
+	return this->timer_matmult.get_value_sum();
 }
 
 double QPSolver::get_time_dot(){
-	return this->time_dot;
+	return this->timer_dot.get_value_sum();
 }
 
 double QPSolver::get_time_update(){
-	return this->time_update;
+	return this->timer_update.get_value_sum();
 }
 
 double QPSolver::get_time_total(){
-	return this->time_total;
-}
-
-double QPSolver::get_time_init(){
-	return this->time_init;
+	return this->timer_total.get_value_sum();
 }
 
 double QPSolver::get_time_stepsize(){
-	return this->time_stepsize;
+	return this->timer_stepsize.get_value_sum();
 }
 
 double QPSolver::get_time_fs(){
-	return this->time_fs;
-}
-
-double QPSolver::get_time_other(){
-	return this->time_total - (this->time_projection + this->time_matmult + this->time_dot + this->time_update + this->time_init + this->time_stepsize + this->time_fs);
+	return this->timer_fs.get_value_sum();
 }
 

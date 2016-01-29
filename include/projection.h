@@ -6,7 +6,6 @@
 
 
 void get_projection(GammaVector<Scalar> &x, int K);
-void get_projection(GammaVector<Scalar> &x, int K, double *time_to_add);
 
 
 #ifdef USE_GPU

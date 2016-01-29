@@ -1,13 +1,5 @@
 #include "projection.h"
 
-/* projection with timer */
-void get_projection(GammaVector<Scalar> &x, int K, double *time_to_add){
-	timer.start(); /* add to projection time */
-	
-	get_projection(x, K);
-	
-	(*time_to_add) += timer.stop();
-}
 
 void get_projection(GammaVector<Scalar> &x, int K){
 

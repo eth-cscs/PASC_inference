@@ -23,14 +23,13 @@ class QPSolver {
 		GammaVector<Scalar> d; /* projected gradient */
 		GammaVector<Scalar> Ad; /* A*ds */
 		
-		double time_projection; /* the sum of time necessary to perform projections */
-		double time_matmult; /* the sum of time necessary to perform matrix multiplication */
-		double time_dot; /* the sum of time necessary to compute dot_products */
-		double time_update; /* total time of vector updates */
-		double time_stepsize; /* total time of step-size computation */
-		double time_fs; /* total time of manipulation with fs vector during iterations */
-		double time_init; /* total time of initializing qpsolver */
-		double time_total; /* total time of SPG algorithm */
+		Timer timer_projection; /* the sum of time necessary to perform projections */
+		Timer timer_matmult; /* the sum of time necessary to perform matrix multiplication */
+		Timer timer_dot; /* the sum of time necessary to compute dot_products */
+		Timer timer_update; /* total time of vector updates */
+		Timer timer_stepsize; /* total time of step-size computation */
+		Timer timer_fs; /* total time of manipulation with fs vector during iterations */
+		Timer timer_total; /* total time of SPG algorithm */
 		
 	public:
 		GammaVector<Scalar> b; /* rhs */ // TODO: this should be private
@@ -58,11 +57,9 @@ class QPSolver {
 		double get_time_matmult();
 		double get_time_dot();
 		double get_time_update();
-		double get_time_init();
 		double get_time_stepsize();
 		double get_time_fs();
 		double get_time_total();
-		double get_time_other();
 
 };
 
