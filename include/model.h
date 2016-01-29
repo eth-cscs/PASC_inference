@@ -11,8 +11,12 @@ class Model {
 		int T; /* length of time-series */
 		int K; /* number of clusters */
 
-		Theta theta; /* model parameters */
 		Gamma gamma; /* characteristic function of clusters */
+		Theta theta; /* model parameters */
+
+		Timer timer_gamma; /* for gamma manipulation */
+		Timer timer_theta; /* for theta manipulation */
+
 		
 	public:
 

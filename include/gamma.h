@@ -16,7 +16,7 @@ class Gamma {
 	public:
 		GammaVector<Scalar> gamma_vec; /* long vector with gamma [gamma_1, ... gamma_K] */ //TODO: should be private
 
-		void init(Data, int); /* TODO: should be constructor */
+		void init(int T, int K); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
 
 		void print();

@@ -14,7 +14,7 @@ class Theta {
 	public:
 		ThetaVector<Scalar> theta_vec; /* vector with theta */
 
-		void init(Data data, Gamma gamma); /* TODO: should be constructor */
+		void init(int dim, int K); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
 		void print();
 		void print(int nmb_of_spaces);

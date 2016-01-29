@@ -1,8 +1,8 @@
 #include "theta.h"
 
-void Theta::init(Data data, Gamma gamma){
-	this->dim = data.get_dim();
-	this->K = gamma.get_K();
+void Theta::init(int dim, int K){
+	this->dim = dim;
+	this->K = K;
 
 	ThetaVector<Scalar> D(this->dim*this->K);
 	this->theta_vec = D;

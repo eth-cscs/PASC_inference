@@ -1,14 +1,14 @@
 #include "gamma.h"
 
-void Gamma::init(Data data, int K)
+void Gamma::init(int T, int K)
 {
 	
 	/* set input values */
 	this->K = K;
-	this->T = data.get_T();
+	this->T = T;
 
 	/* prepare gamma vector */
-	GammaVector<Scalar> new_gamma_vec(T*K);
+	GammaVector<Scalar> new_gamma_vec(this->T*this->K);
 	new_gamma_vec(all) = 0.0;
 
 	
