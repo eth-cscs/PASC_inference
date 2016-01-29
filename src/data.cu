@@ -54,7 +54,7 @@ void Data::print()
  * 
 **/
 void Data::generate(){
-	// TODO: here implement implicit random data generator
+	// TODO: here implement implicit random data generator, for example put random numbers everywhere
 }
 
 //void Data::get_covtrace(PetscScalar *covtrace)

@@ -8,6 +8,9 @@ lukas.pospisil@usi.ch
 
 #include "common.h"
 #include "problem.h"
+#include "data.h"
+#include "model.h"
+
 #include "gamma.h"
 #include "theta.h"
 #include "savevtk.h"
@@ -51,11 +54,16 @@ int main( int argc, char *argv[] )
 	 data.generate();
 	timer_data.stop();
 
+	/* prepare model */
+	Model_kmeans model;
+	model.init(2,DEFAULT_T,DEFAULT_K);
+
 
 	/* prepare problem */
 	Problem problem;
 	problem.init();
 	problem.set_data(data); /* set data to problem */
+	problem.set_model(model); /* set model to problem */
 	problem.finalize();
 
 	
