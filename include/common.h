@@ -31,9 +31,12 @@
 using namespace minlin::threx;
 MINLIN_INIT
 
+/* global variables */
+extern int DEBUG_MODE;
+
 
 /* general utils */
-void Initialize(int, char**);
+void Initialize(int, const char**);
 void Finalize();
 
 void Message(std::string text);

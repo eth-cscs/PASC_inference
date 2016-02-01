@@ -2,6 +2,10 @@
 
 void InputOutput::saveVTK(std::string name_of_file, DataVector<Scalar> data_vec, GammaVector<Scalar> gamma_vec, int dim, int T, int K)
 {
+	Timer timer_saveVTK; 
+	timer_saveVTK.restart();
+	timer_saveVTK.start();
+	
 	int t,k;
 		
 	std::ostringstream oss_name_of_file;
@@ -58,5 +62,9 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector<Scalar> data_vec,
 
 	/* close file */
 	myfile.close();
+
+	timer_saveVTK.stop();
+	if(DEBUG_MODE >= 2) Message_info_time(" - problem saved to VTK in: ",timer_saveVTK.get_value_sum());
+	
 
 }

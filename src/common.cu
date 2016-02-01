@@ -1,9 +1,12 @@
 #include "common.h"
 
+/* global variables */
+int DEBUG_MODE = DEFAULT_DEBUG_MODE; /* default debug mode */
+
 /*!
  * initialize the application
  */ 
-void Initialize(int argc, char *argv[]){
+void Initialize(int argc, const char *argv[]){
 
   /* initialize random seed: */
   if(RANDOM_BY_TIME){

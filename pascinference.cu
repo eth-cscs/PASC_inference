@@ -11,56 +11,101 @@ lukas.pospisil@usi.ch
 #include "data.h"
 #include "model.h"
 
-/* PROBLEM SETTINGS */
-#define DEFAULT_T 10 /* default length of generated time serie */
-#define DEFAULT_K 3 /* default number of clusters */
-
+#include <boost/program_options.hpp>
 
 #define ALGORITHM_deltaL_eps 0.0001 /*stopping criteria of outer main loop */
 #define ALGORITHM_max_s_steps 100 /* max number of outer steps */
-#define ALGORITHM_EPSSQUARE 10.0 /* FEM regularization parameter */
+#define ALGORITHM_EPSSQUARE 10.0 /* default FEM regularization parameter */
 
+int T = 10; /* default length of generated time serie */
+int K = 3; /* default number of clusters */
+int dim = 2; /* default dimension of the problem */
 
-int main( int argc, char *argv[] )
+bool load_from_console(int argc, const char *argv[]){
+	bool return_value = true; /* continue of not? */
+
+	namespace po = boost::program_options;
+
+	/* define command line options */
+	po::options_description description("PASC Inference Usage");
+	description.add_options()
+		("help,h", "Display this help message")
+		("version,v", "Display the version number")
+		("debug", po::value<int>(), "Debug mode")
+		("length,T", po::value<int>(), "Length of time series")
+		("clusters,K", po::value<int>(), "number of clusters");	
+	
+	/* parse command line arguments */	
+	po::variables_map vm;
+	po::store(po::command_line_parser(argc, argv).options(description).run(), vm);
+	po::notify(vm);		
+
+	/* what to do with parsed arguments? */	
+	if(vm.count("help")){ // TODO: this can be included in global application
+		std::cout << description;
+		return_value = false;
+	}
+
+	if(vm.count("version")){// TODO: this can be included in global application
+		std::cout << "not implemented yet" << std::endl;
+		return_value = false;
+	}
+
+	if(vm.count("debug")){// TODO: this can be included in global application
+		DEBUG_MODE = vm["debug"].as<int>(); /* set global variable */
+	}
+
+	if(vm.count("length")){
+		T = vm["length"].as<int>(); /* set global variable */
+	}
+
+	if(vm.count("clusters")){
+		K = vm["clusters"].as<int>(); /* set global variable */
+	}
+
+	
+	return return_value;
+}
+
+int main( int argc, const char *argv[] )
 {
-	Initialize(argc,argv); // TODO: load parameters of problem from console input
+	/* load parameters from console input */
+	if(!load_from_console(argc, argv)){
+		return 0;
+	}
+	
+		
+	Initialize(argc, argv); // TODO: load parameters of problem from console input
 
-	Timer timer_all; /* global timer for whole application */
+	Timer timer_program; /* global timer for whole application */
 	Timer timer_data; /* for generating the problem */
 	Timer timer_model; /* for manipulation with model */
 
-	Timer timer_saveVTK; /* for final export to VTK */
-
-	timer_all.restart();
+	timer_program.restart();
 	timer_data.restart();
 	timer_model.restart();
-//	timer_gamma.restart();
-//	timer_theta.restart();
-	timer_saveVTK.restart();
 
 	/* say hello */	
 	Message("- start program");
-	timer_all.start(); /* here starts the timer for whole application */
+	timer_program.start(); /* here starts the timer for whole application */
 	
 	/* prepare data */
 	Data_kmeans data;
-	data.init(2,DEFAULT_T);
+	data.init(dim,T); // TODO: make it more funny using input K
 	timer_data.start(); 
 	 data.generate();
 	timer_data.stop();
 
-	Message_info_time(" - problem generated in: ",timer_data.get_value_last());
-	/* print problem */
+	if(DEBUG_MODE >= 2) Message_info_time(" - problem generated in: ",timer_data.get_value_last());
 	if(DEBUG_MODE >= 3)	data.print();
 
 	/* prepare model */
 	Model_kmeans model;
 	timer_model.start(); 
-	 model.init(2,DEFAULT_T,DEFAULT_K);
+	 model.init(dim,T,K);
 	timer_model.stop();
 
-	Message_info_time(" - model prepared in: ",timer_model.get_value_last());
-	/* print problem */
+	if(DEBUG_MODE >= 2) Message_info_time(" - model prepared in: ",timer_model.get_value_last());
 	if(DEBUG_MODE >= 3)	model.print();
 
 	/* prepare problem */
@@ -79,18 +124,18 @@ int main( int argc, char *argv[] )
 	/* save the solution to VTK */
 	if(EXPORT_SAVEVTK){
 		Message("- save solution to VTK");
-//		timer_saveVTK.start();
 		problem.saveVTK("output/data.vtk");
-//		timer_saveVTK.stop();
 	}
 
 	/* here ends the application */
 	problem.finalize();
-	timer_all.stop();
+	timer_program.stop();
 
 	/* say bye */	
 	Message("- end program");
 
+	if(DEBUG_MODE >= 2) Message_info_time("- elapsed time: ",timer_program.get_value_sum());
+	if(DEBUG_MODE >= 3)	problem.print();
 	
 	Finalize();
 	return 0;
