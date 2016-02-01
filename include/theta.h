@@ -18,7 +18,7 @@ class Theta {
 		void finalize(); /* TODO: should be destructor */
 		void print();
 		void print(int nmb_of_spaces);
-		void compute(Data data, Gamma gamma);
+		void compute(DataVector<Scalar> data_vec, Gamma gamma);
 		
 		
 		/* GET functions */

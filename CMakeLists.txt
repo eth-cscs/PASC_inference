@@ -99,7 +99,7 @@ if(${USE_GPU})
 	CUDA_ADD_LIBRARY(externals_model src/model.cu OPTIONS -DUSE_GPU SHARED)
 	CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu OPTIONS -DUSE_GPU SHARED)
 	CUDA_ADD_LIBRARY(externals_theta src/theta.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_savevtk src/savevtk.cu OPTIONS -DUSE_GPU SHARED)
+	CUDA_ADD_LIBRARY(externals_inputoutput src/inputoutput.cu OPTIONS -DUSE_GPU SHARED)
 	CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu OPTIONS -DUSE_GPU SHARED)
 	CUDA_ADD_LIBRARY(externals_operations src/operations.cu OPTIONS -DUSE_GPU SHARED)
 	CUDA_ADD_LIBRARY(externals_projection src/projection.cu OPTIONS -DUSE_GPU SHARED)
@@ -118,7 +118,7 @@ else(${USE_GPU})
 	CUDA_ADD_LIBRARY(externals_model src/model.cu SHARED )
 	CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu SHARED )
 	CUDA_ADD_LIBRARY(externals_theta src/theta.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_savevtk src/savevtk.cu SHARED )
+	CUDA_ADD_LIBRARY(externals_inputoutput src/inputoutput.cu SHARED )
 	CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu SHARED )
 	CUDA_ADD_LIBRARY(externals_operations src/operations.cu SHARED )
 	CUDA_ADD_LIBRARY(externals_projection src/projection.cu SHARED )
@@ -142,7 +142,7 @@ target_link_libraries(pascinference_device
 	externals_model
 	externals_gamma
 	externals_theta
-	externals_savevtk
+	externals_inputoutput
 	externals_qpsolver
 	externals_operations
 	externals_projection

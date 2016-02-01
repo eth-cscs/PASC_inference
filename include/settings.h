@@ -5,6 +5,8 @@
 #define EXPORT_SAVEVTK true /* export results to VTK */
 #define EXPORT_SAVEVTK_filename "output/data.vtk" /* name of file to export VTK */
 
+#define DEBUG_MODE 3
+
 /* define HostVector/DeviceVector for each data type */
 #ifdef USE_GPU
 	/* compute using CUDA on Device */

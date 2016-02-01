@@ -30,6 +30,11 @@ int Data::get_T()
 	return this->T;
 }
 
+DataVector<Scalar> Data::get_data_vec()
+{
+	return this->data_vec;
+}
+
 void Data::print() 
 {
 	int i; /* iterator */
@@ -38,7 +43,7 @@ void Data::print()
 	
 	Message_info("-- DATA ---");
 	for(i=0;i<this->dim;i++){
-		oss << "- data[" << i << "]: ";
+		oss << " - data[" << i << "]: ";
 		oss_values << this->data_vec(i*this->T,(i+1)*this->T-1);
 		Message_info_values(oss.str(),oss_values.str());
 

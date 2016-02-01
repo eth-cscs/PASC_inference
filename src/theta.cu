@@ -16,10 +16,10 @@ void Theta::finalize()
 }
 	
 
-void Theta::compute(Data data, Gamma gamma){
+void Theta::compute(DataVector<Scalar> data_vec, Gamma gamma){
 	Scalar sum_gamma;
 	Scalar gammaTx;
-	int dim = data.get_dim();
+	int dim = this->dim;
 	int T = gamma.get_T();
 	int K = gamma.get_K();
 	
@@ -33,7 +33,7 @@ void Theta::compute(Data data, Gamma gamma){
 
 		for(i=0;i<dim;i++){
 			/* compute dot product */
-			gammaTx = dot(gamma.gamma_vec(k*T,(k+1)*T-1),data.data_vec(i*T,(i+1)*T-1));
+			gammaTx = dot(gamma.gamma_vec(k*T,(k+1)*T-1),data_vec(i*T,(i+1)*T-1));
 			
 			this->theta_vec(k*dim+i) = gammaTx/sum_gamma;
 		}
@@ -59,7 +59,7 @@ void Theta::print(int nmb_of_spaces)
 		oss_spaces << " ";
 	}
 	
-	oss << oss_spaces.str() << "- Theta:";
+	oss << oss_spaces.str() << "--- THETA ---";
 	Message_info(oss.str());
 	oss.str("");
 	oss.clear();

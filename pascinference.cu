@@ -11,36 +11,29 @@ lukas.pospisil@usi.ch
 #include "data.h"
 #include "model.h"
 
-#include "gamma.h"
-#include "theta.h"
-#include "savevtk.h"
-#include "qpsolver.h"
-
 /* PROBLEM SETTINGS */
-#define DEFAULT_T 5000 /* default length of generated time serie */
+#define DEFAULT_T 10 /* default length of generated time serie */
 #define DEFAULT_K 3 /* default number of clusters */
 
-#define DEBUG_PRINTDATA false /* print values of all data */
 
 #define ALGORITHM_deltaL_eps 0.0001 /*stopping criteria of outer main loop */
 #define ALGORITHM_max_s_steps 100 /* max number of outer steps */
 #define ALGORITHM_EPSSQUARE 10.0 /* FEM regularization parameter */
-#define DEBUG_ALGORITHM_PRINTDATA false /* print values of Theta, Gamma, QPSolver during main cycle */
-#define DEBUG_ALGORITHM_PRINTDATA_L true /* print descent of object function in main outer loop */
-#define DEBUG_ALGORITHM_PRINTDATA_QPIT false /* print number of QPSolver iteration in every outer step */
-#define DEBUG_ALGORITHM_PRINTDATA_GAMMA false /* print values of Gamma during main cycle */
-#define DEBUG_ALGORITHM_PRINTDATA_THETA false /* print values of Theta during main cycle */
+
 
 int main( int argc, char *argv[] )
 {
+	Initialize(argc,argv); // TODO: load parameters of problem from console input
+
 	Timer timer_all; /* global timer for whole application */
 	Timer timer_data; /* for generating the problem */
-//	Timer timer_gamma; /* for gamma manipulation */
-//	Timer timer_theta; /* for theta manipulation */
+	Timer timer_model; /* for manipulation with model */
+
 	Timer timer_saveVTK; /* for final export to VTK */
 
 	timer_all.restart();
 	timer_data.restart();
+	timer_model.restart();
 //	timer_gamma.restart();
 //	timer_theta.restart();
 	timer_saveVTK.restart();
@@ -56,137 +49,44 @@ int main( int argc, char *argv[] )
 	 data.generate();
 	timer_data.stop();
 
+	Message_info_time(" - problem generated in: ",timer_data.get_value_last());
+	/* print problem */
+	if(DEBUG_MODE >= 3)	data.print();
+
 	/* prepare model */
 	Model_kmeans model;
-	model.init(2,DEFAULT_T,DEFAULT_K);
+	timer_model.start(); 
+	 model.init(2,DEFAULT_T,DEFAULT_K);
+	timer_model.stop();
 
-
+	Message_info_time(" - model prepared in: ",timer_model.get_value_last());
+	/* print problem */
+	if(DEBUG_MODE >= 3)	model.print();
 
 	/* prepare problem */
 	Problem problem;
 	problem.init();
 	problem.set_data(data); /* set data to problem */
 	problem.set_model(model); /* set model to problem */
-	problem.finalize();
-
-	
-	/* parameters of application */
-	int max_s_steps = ALGORITHM_max_s_steps;
-
-	Initialize(argc,argv); // TODO: load parameters of problem from console input
-
-	/* variables */
-	Gamma gamma = model.get_gamma();
-	Theta theta = model.get_theta();
-	QPSolver qpsolver(&gamma, ALGORITHM_EPSSQUARE);
-
-	int s; /* index of main iterations */
-	Scalar L, L_old, deltaL; /* object function value */
 
 
-	/* generate problem */
-	Message_info_time(" - problem generated in: ",timer_data.get_value_last());
-	
-	/* print problem */
-	if(DEBUG_PRINTDATA){
-		data.print();
-	}	
-
-
-	/* initialize QP solvers */
-	qpsolver.init();
-	if(DEBUG_PRINTDATA){ /* print state of qpsolver */
-		qpsolver.print();
-	}
-
-	
-	/* initialize value of object function */
-	L = std::numeric_limits<Scalar>::max(); // TODO: the computation of L should be done in the different way
-	
-	/* main cycle */
 	Message("- run main cycle:");
-	for(s=0;s < max_s_steps;s++){
-		Message_info_value(" - s = ",s);
-
-		/* --- COMPUTE Theta --- */
-//		timer_theta.start(); /* start timer for solving Theta-problem */
-		 theta.compute(data,gamma);
-//		timer_theta.stop();
-//		Message_info_time("  - theta problem solved in: ",timer_theta.get_value_last());
-
-		if(DEBUG_ALGORITHM_PRINTDATA_THETA || DEBUG_ALGORITHM_PRINTDATA){ /* print theta */
-			theta.print(2);
-		}
-
-		
-		/* --- COMPUTE gamma --- */
-//		timer_gamma.start(); /* start timer for solving gamma-problem */
-		 gamma.compute(&qpsolver,data,theta);
-//		timer_gamma.stop(); 
-//		Message_info_time("  - gamma problem solved in: ",timer_gamma.get_value_last());
-		 
-		if(DEBUG_ALGORITHM_PRINTDATA_GAMMA || DEBUG_ALGORITHM_PRINTDATA){
-			qpsolver.print(2);
-		}
-
-		/* compute stopping criteria */
-		L_old = L;
-		L = qpsolver.get_function_value();
-		deltaL = abs(L - L_old);
-
-		/* print info about cost function */
-		if(DEBUG_ALGORITHM_PRINTDATA_L || DEBUG_ALGORITHM_PRINTDATA){
-//			Message_info_value("  - L_old       = ",L_old);
-			Message_info_value("  - L           = ",L);
-//			Message_info_value("  - |L - L_old| = ",deltaL);
-		}	
-
-		/* end the main cycle if the change of function value is sufficient */
-		if (deltaL < ALGORITHM_deltaL_eps){
-			break;
-		}
-		
-	}
+	 problem.solve(ALGORITHM_max_s_steps,ALGORITHM_deltaL_eps);
 	Message("- main cycle finished");
+
+	if(DEBUG_MODE >= 2)	problem.print();
 
 	/* save the solution to VTK */
 	if(EXPORT_SAVEVTK){
 		Message("- save solution to VTK");
-		timer_saveVTK.start();
-		 save_VTK(data,gamma);
-		timer_saveVTK.stop();
+//		timer_saveVTK.start();
+		problem.saveVTK("output/data.vtk");
+//		timer_saveVTK.stop();
 	}
 
-	theta.finalize();
-	gamma.finalize();
-	data.finalize();
-	qpsolver.finalize();
-
 	/* here ends the application */
+	problem.finalize();
 	timer_all.stop();
-	
-	/* print info about elapsed time and solution */
-	Message_info(      "- final info:");
-	Message_info_time( " - time all: ",timer_all.get_value_sum());
-	Message_info_time( "  - time generate data: ",timer_data.get_value_sum());
-//	Message_info_time( "  - time gamma:         ",timer_gamma.get_value_sum());
-//	Message_info_time( "  - time theta:         ",timer_theta.get_value_sum());
-	Message_info_time( "  - time saveVTK:       ",timer_saveVTK.get_value_sum());
-//	Message_info_time( "  - time other:         ",timer_all.get_value_sum() - (timer_data.get_value_sum() + timer_gamma.get_value_sum() + timer_theta.get_value_sum() +  timer_saveVTK.get_value_sum()));
-
-	Message_info_value(" - number of outer iterations: ",s);
-	Message_info_value(" - |L - L_old| = ",deltaL);
-	Message_info(" - QPSolver:");
-	Message_info_value("  - it =        ", qpsolver.get_it_all());
-	Message_info_value("  - hessmult =  ", qpsolver.get_hessmult_all());
-	Message_info_time( "  - time =      ", qpsolver.get_time_total());
-	Message_info_time( "   - t_project =  ", qpsolver.get_time_projection());
-	Message_info_time( "   - t_matmult =  ", qpsolver.get_time_matmult());
-	Message_info_time( "   - t_dot =      ", qpsolver.get_time_dot());
-	Message_info_time( "   - t_update =   ", qpsolver.get_time_update());
-	Message_info_time( "   - t_stepsize = ", qpsolver.get_time_stepsize());
-	Message_info_time( "   - t_fs =       ", qpsolver.get_time_fs());
-	Message_info_time( "   - t_other =    ", qpsolver.get_time_total() - (qpsolver.get_time_projection() + qpsolver.get_time_matmult() + qpsolver.get_time_dot() + qpsolver.get_time_update() + qpsolver.get_time_stepsize() + qpsolver.get_time_fs()));
 
 	/* say bye */	
 	Message("- end program");

@@ -1,18 +1,14 @@
-#include "savevtk.h"
+#include "inputoutput.h"
 
-void save_VTK(Data data, Gamma gamma) 
+void InputOutput::saveVTK(std::string name_of_file, DataVector<Scalar> data_vec, GammaVector<Scalar> gamma_vec, int dim, int T, int K)
 {
 	int t,k;
-		
-	int K = gamma.get_K();
-	int T = gamma.get_T();
-	int dim = data.get_dim();
 		
 	std::ostringstream oss_name_of_file;
     std::ofstream myfile;
 	
 	/* write to the name of file */
-	oss_name_of_file << EXPORT_SAVEVTK_filename;
+	oss_name_of_file << name_of_file;
 
 	/* open file to write */
 	myfile.open(oss_name_of_file.str().c_str());
@@ -26,8 +22,8 @@ void save_VTK(Data data, Gamma gamma)
 	/* points - coordinates */
 	myfile << "POINTS " << T << " FLOAT\n";
 	for(t=0;t < T;t++){
-		myfile << data.data_vec(t) << " "; /* x */
-		myfile << data.data_vec(T+t) << " "; /* y */
+		myfile << data_vec(t) << " "; /* x */
+		myfile << data_vec(T+t) << " "; /* y */
 		myfile << " 0.0\n"; /* z */
 	}
 	myfile << "\n";
@@ -35,18 +31,18 @@ void save_VTK(Data data, Gamma gamma)
 	/* values in points */
 	myfile << "POINT_DATA " <<  T << "\n";
 	/* prepare vector with idx of max values */
-	GammaVector<int> gamma_max_idx(gamma.get_T());
+	GammaVector<int> gamma_max_idx(T);
 	gamma_max_idx(all) = 0;
 	for(k=0;k<K;k++){
 		/* write gamma_k */
 		myfile << "SCALARS gamma_" << k << " float 1\n";
 		myfile << "LOOKUP_TABLE default\n";
 		for(t=0;t<T;t++){
-			myfile << gamma.gamma_vec(k*T + t) << "\n";
+			myfile << gamma_vec(k*T + t) << "\n";
 
 			/* update maximum */
-			if(gamma.gamma_vec(k*T+t) > gamma.gamma_vec(gamma_max_idx(t)*T+t)){
-				gamma.gamma_vec(k*T+t) = gamma.gamma_vec(gamma_max_idx(t)*T+t);
+			if(gamma_vec(k*T+t) > gamma_vec(gamma_max_idx(t)*T+t)){
+				gamma_vec(k*T+t) = gamma_vec(gamma_max_idx(t)*T+t);
 				gamma_max_idx(t) = k;
 			}
 		}

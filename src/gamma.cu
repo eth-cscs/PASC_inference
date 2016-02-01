@@ -1,18 +1,24 @@
 #include "gamma.h"
 
-void Gamma::init(int T, int K)
+void Gamma::init(int dim, int T, int K)
 {
 	
 	/* set input values */
+	this->dim = dim;
 	this->K = K;
 	this->T = T;
 
 	/* prepare gamma vector */
 	GammaVector<Scalar> new_gamma_vec(this->T*this->K);
 	new_gamma_vec(all) = 0.0;
-
-	
 	this->gamma_vec = new_gamma_vec;
+
+	/* prepare QPSolver */
+	QPSolver new_qpsolver;
+	new_qpsolver.init(this->gamma_vec, this->T, this->K, 100);
+	if(DEBUG_MODE >= 3) new_qpsolver.print();
+
+	this->qpsolver = new_qpsolver;
 
 }
 
@@ -68,14 +74,14 @@ void Gamma::prepare_uniform()
 
 }
 
-void Gamma::compute(QPSolver *qpsolver, Data data, Theta theta)
+void Gamma::compute(DataVector<Scalar> data_vec, Theta theta)
 {
 	/* compute and set new RHS */
-	this->compute_gk(qpsolver->b, data, theta);
-	qpsolver->b *= -1.0;
+	this->compute_gk(this->qpsolver.b, data_vec, theta);
+	this->qpsolver.b *= -1.0;
 	
 	/* --- SOLVE OPTIMIZATION PROBLEM --- */
-	qpsolver->solve();
+	this->qpsolver.solve();
 }
 
 void Gamma::print()
@@ -96,7 +102,7 @@ void Gamma::print(int nmb_of_spaces)
 		oss_spaces << " ";
 	}
 	
-	oss << oss_spaces.str() << "- gamma:";
+	oss << oss_spaces.str() << "--- GAMMA ---";
 	Message_info(oss.str());
 	oss.str("");
 	oss.clear();
@@ -124,16 +130,26 @@ int Gamma::get_K()
 	return this->K;
 }
 
+QPSolver Gamma::get_qpsolver()
+{
+	return this->qpsolver;
+}
 
-void Gamma::compute_gk(GammaVector<Scalar>& g, Data data, Theta theta)
+GammaVector<Scalar> Gamma::get_gamma_vec()
+{
+	return this->gamma_vec;
+}
+
+
+void Gamma::compute_gk(GammaVector<Scalar>& g, DataVector<Scalar> data_vec, Theta theta)
 {
 	int t,n,k;
-	GammaVector<Scalar> temp(data.get_dim());
+	GammaVector<Scalar> temp(this->dim);
 	
 	for(k=0;k<this->K;k++){
 		for(t=0;t<this->T;t++){ // TODO: this could be performed parallely 
-			for(n=0;n<data.get_dim();n++){
-				temp(n) = data.data_vec(n*this->T+t) - theta.theta_vec(k*data.get_dim() + n);
+			for(n=0;n<this->dim;n++){
+				temp(n) = data_vec(n*this->T+t) - theta.theta_vec(k*this->dim + n);
 			} 
 			g(k*this->T + t) = dot(temp,temp);
 		}

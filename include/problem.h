@@ -5,9 +5,16 @@
 #include "data.h"
 #include "model.h"
 
+#include "inputoutput.h"
+
+
 class Problem {
 	protected:
+		int it; /* outer iterations */
+	
 		Timer timer_total; /* from init to finalize */
+		Timer timer_gamma; /* for gamma manipulation */
+		Timer timer_theta; /* for theta manipulation */
 		
 		Data data;
 		Model model;
@@ -18,6 +25,10 @@ class Problem {
 	
 		void set_data(Data new_data);
 		void set_model(Model new_model);
+
+		void solve(int max_s_steps, Scalar deltaL_eps);
+		void print();
+		void saveVTK(std::string name_of_file);
 
 		Data get_data(); // TODO: only for testing
 		Model get_model(); // TODO: only for testing

@@ -1,15 +1,18 @@
 #ifndef QPPROBLEM_H
 #define	QPPROBLEM_H
 
+class QPSolver;
+
 #include "common.h"
-#include "gamma.h"
 
 #include "operations.h"
 #include "projection.h"
 
 class QPSolver {
 	protected:
-		Gamma *gamma;
+		GammaVector<Scalar> x;
+		int T;
+		int K;
 
 		Scalar eps_sqr;
 
@@ -34,8 +37,7 @@ class QPSolver {
 	public:
 		GammaVector<Scalar> b; /* rhs */ // TODO: this should be private
 
-		QPSolver(Gamma *, Scalar);
-		void init();
+		void init(GammaVector<Scalar> x, int T, int K, Scalar eps_sqr);
 		void finalize();
 
 		void solve();

@@ -13,10 +13,11 @@
 #define DEBUG_ALGORITHM_PRINTFS false /* print vector of object functions in every iteration */
 #define DEBUG_ALGORITHM_PRINTCOEFF false /* print computed coefficients in every iteration */
 
-
-/* constructor */
-QPSolver::QPSolver(Gamma *gamma, Scalar eps_sqr){
-	this->gamma = gamma;
+/* prepare data which are constant */
+void QPSolver::init(GammaVector<Scalar> x, int T, int K, Scalar eps_sqr){
+	this->x = x;
+	this->T = T;
+	this->K = K;
 	this->eps_sqr = eps_sqr;
 	
 	this->timer_projection.restart();
@@ -27,20 +28,14 @@ QPSolver::QPSolver(Gamma *gamma, Scalar eps_sqr){
 	this->timer_fs.restart();
 	this->timer_total.restart();
 	
-}
 
-/* prepare data which are constant */
-void QPSolver::init(){
 	/* the time for initialization is the part of total time, it is necessary to add it */
 	this->timer_total.start(); 
-	
-	int T = this->get_T();
-	int K = this->get_K();
 	
 	/* prepare RHS bs, gs, ds */
 
 	/* alloc first vector */
-	DataVector<Scalar> b(K*T);
+	DataVector<Scalar> b(this->K*this->T);
 	/* set initial zero value to all vectors */
 	b(all) = 0.0;
 
@@ -107,19 +102,19 @@ void QPSolver::solve(){
 
 	/* project initial approximation to feasible set */
 	this->timer_projection.start();
-	 get_projection(this->gamma->gamma_vec, this->get_K());
+	 get_projection(this->x, this->get_K());
 	this->timer_projection.stop();
 
 	/* compute gradient, g = A*x-b */
 	this->timer_matmult.start();
-	 get_Ax_laplace(this->g,this->gamma->gamma_vec); 
+	 get_Ax_laplace(this->g,this->x,this->eps_sqr); 
  	 this->hessmult += 1; /* there was muliplication by A */
 	this->timer_matmult.stop();
 	this->g -= this->b;
 	
 	/* compute function value - it has its own timer */
 	this->timer_fs.start();
- 	 fx = this->get_function_value(this->gamma->gamma_vec, true);
+ 	 fx = this->get_function_value(this->x, true);
 	 fs(all) = fx;
 	this->timer_fs.stop();
 
@@ -128,7 +123,7 @@ void QPSolver::solve(){
 	while(this->it < maxit){
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start(); /* this is vector update */
-		 this->d = this->gamma->gamma_vec - alpha_bb*(this->g);
+		 this->d = this->x - alpha_bb*(this->g);
 		this->timer_update.stop();
 
 		/* d = P(d) */
@@ -139,11 +134,11 @@ void QPSolver::solve(){
 		/* d = d - x */
 		/* Ad = A*d */
 		this->timer_update.start();
-		 this->d += -this->gamma->gamma_vec;
+		 this->d += -this->x;
 		this->timer_update.stop();
 
 		this->timer_matmult.start();
-		 get_Ax_laplace(this->Ad,this->d);
+		 get_Ax_laplace(this->Ad,this->d,this->eps_sqr);
 		 this->hessmult += 1; /* there was muliplication by A */
 		this->timer_matmult.stop();
 
@@ -182,13 +177,13 @@ void QPSolver::solve(){
 
 		/* update approximation and gradient */
 		this->timer_update.start();/* this is vector update */
-		 this->gamma->gamma_vec += (this->d)*beta; /* x = x + beta*d */
+		 this->x += (this->d)*beta; /* x = x + beta*d */
 		 this->g += (this->Ad)*beta; /* g = g + beta*Ad */
 		this->timer_update.stop();
 		
 		/* compute new function value using gradient */
 		this->timer_fs.start();
-		 fx = this->get_function_value(this->gamma->gamma_vec, true);
+		 fx = this->get_function_value(this->x, true);
 		
 		 /* update fs */
 		 /* fs(1:end-1) = fs(2:end); */
@@ -266,7 +261,7 @@ void QPSolver::solve(){
 }
 
 Scalar QPSolver::get_function_value(){
-	return this->get_function_value(this->gamma->gamma_vec);
+	return this->get_function_value(this->x);
 }
 
 Scalar QPSolver::get_function_value(GammaVector<Scalar> x){
@@ -286,7 +281,7 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> x, bool use_gradient){
 		GammaVector<Scalar> Ax(this->get_T()*this->get_K());
 		Scalar xAx, xb;
 
-		get_Ax_laplace(Ax,x);
+		get_Ax_laplace(Ax,x,this->eps_sqr);
 		 
 		xAx = get_dot(Ax,x);
 		fx += 0.5*xAx;
@@ -317,7 +312,7 @@ void QPSolver::print(int nmb_of_spaces){
 		oss_spaces << " ";
 	}
 	
-	oss << oss_spaces.str() << "- QP optimization problem";
+	oss << oss_spaces.str() << "-- QP SOLVER --";
 	Message_info(oss.str());
 	oss.str(""); oss.clear();
 
@@ -345,7 +340,7 @@ void QPSolver::print(int nmb_of_spaces){
 	oss.str(""); oss.clear();
 	for(k=0;k<K;k++){
 		oss << oss_spaces.str() << "   x[" << k << "] = ";
-		oss_values << this->gamma->gamma_vec(k*T,(k+1)*T-1);
+		oss_values << this->x(k*T,(k+1)*T-1);
 		Message_info_values(oss.str(),oss_values.str());	
 		oss.str(""); oss.clear();
 		oss_values.str(""); oss_values.clear();
@@ -354,11 +349,11 @@ void QPSolver::print(int nmb_of_spaces){
 }
 
 int QPSolver::get_T(){
-	return this->gamma->get_T();
+	return this->T;
 }
 
 int QPSolver::get_K(){
-	return this->gamma->get_K();
+	return this->K;
 }
 
 int QPSolver::get_it(){

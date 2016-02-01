@@ -22,6 +22,7 @@ class Data {
 		/* GET functions */
 		int get_dim();
 		int get_T();
+		DataVector<Scalar> get_data_vec();
 	
 };
 

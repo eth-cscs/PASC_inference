@@ -22,8 +22,15 @@ class Model {
 
 		void init(int dim, int T, int K); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
+		void print();
+
+		void compute_theta(DataVector<Scalar> data_vec);
+		void compute_gamma(DataVector<Scalar> data_vec);
 
 		/* GET functions */
+		int get_dim();
+		int get_T();
+		int get_K();
 		Gamma get_gamma(); // TODO: temp, just for test
 		Theta get_theta(); // TODO: temp, just for test
 	
