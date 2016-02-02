@@ -20,6 +20,13 @@
 	#define GammaMatrix HostMatrix
 #endif
 
+#ifdef USE_PETSC
+
+
+
+#endif
+
+
 /* we are going to compute in double/float? */
 typedef double Scalar; 
 

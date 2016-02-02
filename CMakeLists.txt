@@ -11,8 +11,12 @@
 project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
+# add cmake functions
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/util/cmake/" ${CMAKE_MODULE_PATH})
+
 #load options from command line
 option(USE_GPU "USE_GPU" ON)
+option(USE_PETSC "USE_PETSC" ON)
 
 #define some colors for fun
 if(NOT WIN32)
@@ -31,7 +35,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # include directories to this project
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # set general g++ flags
 # note: we always need -O3 because minlin_host doesn't compile without it
@@ -83,47 +87,48 @@ set(CUDA_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla ${CMAKE_CXX_FLAGS_${BUILD_TYPE_U
 string(REPLACE "-std=c++11" "" CUDA_CXX_FLAGS ${CUDA_CXX_FLAGS}) # remove C++11 from options
 cuda_include_directories(${MINLIN_INCLUDE})
 
+set(LIBRARY_DEFS "")
+set(DEVICE_DEFS "")
+
 # add USE_GPU flag to all libs and exec files
 if(${USE_GPU})
 	message(STATUS "${Red}The code is compiled to run on GPU${ColourReset}")
-	set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
-		-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
-		-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
-		-DUSE_GPU
-		-DUSE_MINLIN)
-
-	# from source files create shared library
-	CUDA_ADD_LIBRARY(externals_common src/common.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_problem src/problem.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_data src/data.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_model src/model.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_theta src/theta.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_inputoutput src/inputoutput.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_operations src/operations.cu OPTIONS -DUSE_GPU SHARED)
-	CUDA_ADD_LIBRARY(externals_projection src/projection.cu OPTIONS -DUSE_GPU SHARED)
+	set(LIBRARY_DEFS ${LIBRARY_DEFS} -DUSE_GPU)
+	set(DEVICE_DEFS ${DEVICE_DEFS} -USE_GPU)
 
 else(${USE_GPU})
 	message(STATUS "${Red}The code is compiled to run on CPU${ColourReset}")
-	set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
-		-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
-		-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
-		-DUSE_MINLIN)
-
-	# from source files create shared library
-	CUDA_ADD_LIBRARY(externals_common src/common.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_problem src/problem.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_data src/data.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_model src/model.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_theta src/theta.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_inputoutput src/inputoutput.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_operations src/operations.cu SHARED )
-	CUDA_ADD_LIBRARY(externals_projection src/projection.cu SHARED )
-
 endif(${USE_GPU})
+
+if(${USE_PETSC})
+	message(STATUS "${Red}The code is compiled with PETSc${ColourReset}")
+	set(LIBRARY_DEFS ${LIBRARY_DEFS} -DUSE_PETSC)
+	set(DEVICE_DEFS ${DEVICE_DEFS} -USE_PETSC)
+	
+	# PETSc: include
+	find_package(PETSc)
+	include_directories(${PETSC_INCLUDES})
+else(${USE_PETSC})
+	message(STATUS "${Red}The code is compiled without PETSc${ColourReset}")
+endif(${USE_PETSC})
+
+set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
+	-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
+	-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
+	${DEVICE_DEFS}
+	-DUSE_MINLIN)
+
+# from source files create shared library
+CUDA_ADD_LIBRARY(externals_common src/common.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_problem src/problem.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_data src/data.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_model src/model.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_theta src/theta.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_inputoutput src/inputoutput.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_operations src/operations.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(externals_projection src/projection.cu OPTIONS ${LIBRARY_DEFS} SHARED )
 
 
 
@@ -131,10 +136,16 @@ endif(${USE_GPU})
 cuda_add_executable(pascinference_device pascinference.cu
 	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-target_link_libraries(pascinference_device mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas)
+	
+# link external libraries	
+target_link_libraries(pascinference_device mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+
+# set the name of output file
 set_target_properties(pascinference_device PROPERTIES
 	OUTPUT_NAME pascinference
 	)
+	
+	
 target_link_libraries(pascinference_device 
 	externals_common
 	externals_problem
