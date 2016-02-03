@@ -17,6 +17,12 @@
 #include <minlin/modules/threx/threx.h>
 //#include <qpopt/smalbe.h>
 
+/* PetscVector */
+#ifdef USE_PETSC
+	#include "petsc.h"
+	#include "petscvector.h"
+#endif
+
 #include <stdio.h> /* printf in cuda */
 
 /* cuda stuff */

@@ -108,19 +108,16 @@ class PetscVector {
 		}
 
 		/* assignment operator (copy) */
-		PetscVector operator=(const PetscVector &new_vector)
-		{
-			VecCopy(new_vector.inner_vector,inner_vector);
-		}
+		friend void operator=(const PetscVector vec1, const PetscVector vec2);
 	
 		/* vec1 = alpha*vec2 */
 		friend const PetscVector operator*(double alpha, const PetscVector vec2);
 
 		/* vec1 += vec2 */
-		friend const void operator+=(PetscVector vec1, const PetscVector vec2);
+		friend void operator+=(PetscVector vec1, const PetscVector vec2);
 
 		/* vec1 -= vec2 */
-		friend const void operator-=(PetscVector vec1, const PetscVector vec2);
+		friend void operator-=(PetscVector vec1, const PetscVector vec2);
 
 		/* vec1 = vec2 + vec3 */
 		friend const PetscVector operator+(const PetscVector vec2, const PetscVector vec3);
@@ -129,7 +126,7 @@ class PetscVector {
 		friend const PetscVector operator-(const PetscVector vec2, const PetscVector vec3);
 
 		/* dot = dot(vec1,vec2) */
-		friend const double dot(const PetscVector vec1, const PetscVector vec2);
+		friend double dot(const PetscVector vec1, const PetscVector vec2);
 	
 };
 
