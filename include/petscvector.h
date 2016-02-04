@@ -3,106 +3,54 @@
 
 #include <iostream>
 #include <string>
+#include <list>
+
 
 namespace minlin {
 
 namespace threx { // TODO: maybe choose the different namespace for my own Petsc stuff
  
 class PetscVectorWrapperAssign; /* wrapper to allow vector(i) = value */
+class PetscVectorWrapperComb; /* wrapper to allow manipulation with linear combinations of vectors */
+class PetscVectorWrapperCombNode; /* one node of previous wrapper */
 
 /* PETSc Vector */
 class PetscVector {
 		PetscErrorCode ierr; // TODO: I don't know what to do with errors
 		Vec inner_vector;
 	public:
-		/* constructor with given dimension */
+
 		PetscVector(int n);
-
-		/* constructor with given internal Vec */
+		PetscVector(const PetscVector &vec1);
 		PetscVector(Vec new_inner_vector);
+		//~PetscVector();
 
-		/* destructor */
-//		~PetscVector(){
-//			ierr = VecDestroy(&vector);
-//		}
-		
-		/* get PETSC original vector */
-//		Vec get_vector() const { // TODO: temp
-//			return inner_vector;
-//		}
-		
-		/* get size of the vector */
-//		friend int get_size();
-
-		/* after update a variable, it is necessary to call asseble begin */
 		void valuesUpdate();
+		void scale(PetscScalar alpha);
+
+		Vec get_vector() const; // TODO: temp
+		int get_size();
+		double get(int index);
+
+		void set(PetscScalar new_value);
+		void set(int index, PetscScalar new_value);
+
+		PetscVector& operator=(const PetscVector &vec2);
+		PetscVector& operator=(PetscVectorWrapperCombNode wrapper);	
+		PetscVector& operator=(PetscVectorWrapperComb wrapper);	
 		
-		/* set value of the vector, this function is called from overloaded operator */
-//		void set(int index, PetscScalar new_value){
-//			VecSetValue(inner_vector,index,new_value, INSERT_VALUES);
-//			valuesUpdate();
-//		}
+		PetscVectorWrapperAssign operator()(int index);
 
-		/* set all values of the vector, this function is called from overloaded operator */
-//		void set(PetscScalar new_value){
-//			VecSet(inner_vector,new_value);
-//			valuesUpdate();
-//		}
+		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector);
 
-		/* inner_vector = alpha*inner_vector */
-//		void scale(PetscScalar alpha){
-//			VecScale(inner_vector, alpha);
-//			valuesUpdate(); // TODO: has to be called?
-//		}
+		friend void operator*=(PetscVector vec1, double alpha);
+		friend void operator+=(PetscVector vec1, const PetscVector vec2);
+		friend void operator-=(PetscVector vec1, const PetscVector vec2);
+		friend double dot(const PetscVector vec1, const PetscVector vec2);
 
+		friend const PetscVectorWrapperCombNode operator*(double alpha, PetscVector vec);
+		friend const PetscVectorWrapperComb operator+(PetscVector vec1, PetscVector vec2);
 
-		/* stream insertion operator */
-//		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector)		
-//		{
-//			PetscScalar *arr_vector;
-//			PetscInt i,local_size;
-	
-//			VecGetLocalSize(vector.inner_vector,&local_size);
-//			VecGetArray(vector.inner_vector,&arr_vector);
-//			for (i=0; i<local_size; i++){
-//				output << arr_vector[i];
-//				if(i < local_size-1) output << ", ";
-//			}
-//			VecRestoreArray(vector.inner_vector,&arr_vector);
-			
-//			return output;
-//		}
-
-		/* get value with given id of the vector (works only with local id) */
-//		PetscScalar operator ()(int i) const
-//		{
-//			PetscInt ni = 1;
-//			PetscInt ix[1];
-//			PetscScalar y[1];
-			
-//			ix[0] = i;
-//			VecGetValues(inner_vector,ni,ix,y);			
-			
-//			return y[0];
-//		}
-
-		/* set value with given id of the vector (works only with local id), will be defined after PetscVector */
-//		PetscVectorWrapperAssign operator()(int index);
-
-		/* vec1 *= alpha */
-//		friend void operator*=(PetscVector vec1, double alpha);
-
-		/* vec1 = vec2, assignment operator (copy) */
-//		friend void operator=(PetscVector vec1, const PetscVector vec2);
-	
-		/* vec1 = alpha*vec2 */
-//		friend const PetscVector operator*(double alpha, const PetscVector vec2);
-
-		/* vec1 += vec2 */
-//		friend void operator+=(PetscVector vec1, const PetscVector vec2);
-
-		/* vec1 -= vec2 */
-//		friend void operator-=(PetscVector vec1, const PetscVector vec2);
 
 		/* vec1 = vec2 + vec3 */
 //		friend const PetscVector operator+(const PetscVector vec2, const PetscVector vec3);
@@ -110,35 +58,62 @@ class PetscVector {
 		/* vec1 = vec2 - vec3 */
 //		friend const PetscVector operator-(const PetscVector vec2, const PetscVector vec3);
 
-		/* dot = dot(vec1,vec2) */
-//		friend double dot(const PetscVector vec1, const PetscVector vec2);
 	
 };
 
-/* wrapper to allow vector(i) = value */
+/* wrapper to allow manipulation with vector(i) */
 class PetscVectorWrapperAssign
 {
 	PetscVector store; /* in this vector we want to store new value */
 	int index; /* index of new value */
 	
 	public:
-		/* constructor */
-//		PetscVectorWrapperAssign(PetscVector &s, int i): store(s), index(i) {}
-		
-		/* define assigment operator */
-//		PetscVectorWrapperAssign& operator=(PetscScalar const& new_value)
-//		{
-			/* I am not able to access private vector, I pass it to orig class */
-//			store.set(index,new_value);
-//		}
-	
+		PetscVectorWrapperAssign(PetscVector &s, int i): store(s), index(i) {}
+
+		PetscVectorWrapperAssign& operator=(PetscScalar const& new_value);
+		friend std::ostream &operator<<(std::ostream &output, PetscVectorWrapperAssign wrapper);
+
 };
 
-/* return wrapper to be able to overload vector(index) = new_value */ 
-//PetscVectorWrapperAssign PetscVector::operator()(int index)
-//{   
-//	return PetscVectorWrapperAssign(*this, index);
-//}
+/* wrapper to allow linear combinations of vectors */
+class PetscVectorWrapperComb
+{
+	private:
+		std::list<PetscVectorWrapperCombNode> comb_list; /* the list of linear combination nodes */
+		
+	public:
+		PetscVectorWrapperComb();
+		int get_listsize();
+		int get_vectorsize();
+		void append(PetscVectorWrapperCombNode new_node);
+		void get_arrays(PetscScalar *coeffs, Vec *vectors);
+		
+		friend std::ostream &operator<<(std::ostream &output, PetscVectorWrapperComb wrapper);
+		
+};
+
+/* wrapper of one node in the linear combinations */
+class PetscVectorWrapperCombNode
+{
+	private:
+		Vec inner_vector; /* pointer to vector in linear combination */
+		double coeff; /* coefficient in linear combination */
+	
+	public:
+		PetscVectorWrapperCombNode();
+		PetscVectorWrapperCombNode(double new_coeff, Vec new_vector);
+	
+		void set_vector(Vec new_vector);
+		Vec get_vector();
+		int get_size();
+		int get_value(int index);
+		
+		void set_coeff(double new_coeff);
+		double get_coeff();
+
+		friend std::ostream &operator<<(std::ostream &output, PetscVectorWrapperCombNode wrapper);
+
+};
 
 
 
@@ -149,9 +124,7 @@ class PetscVectorWrapperAssign
 
 
 
-
-
-
+/* --------------------- PetscVector ----------------------*/
 
 /* PetscVector constructor with global dimension */
 PetscVector::PetscVector(int n){
@@ -162,37 +135,186 @@ PetscVector::PetscVector(int n){
 	valuesUpdate();
 }
 
+/* PetscVector copy constructor */
+PetscVector::PetscVector(const PetscVector &vec1){
+	inner_vector = vec1.inner_vector;
+//	VecCopy(vec1.inner_vector,inner_vector);
+}
+
+/* PetscVector constructor with inner_vector */
+PetscVector::PetscVector(Vec new_inner_vector){
+	inner_vector = new_inner_vector;
+}
+
 /* after update a variable, it is necessary to call asseble begin */
 void PetscVector::valuesUpdate(){
 	VecAssemblyBegin(inner_vector);
 	VecAssemblyEnd(inner_vector);
 }
 
-
-/* PetscVector constructor with given internal Vec */
-/*PetscVector::PetscVector(Vec new_inner_vector){
-	inner_vector = new_inner_vector;
+/* set all values of the vector, this function is called from overloaded operator */
+void PetscVector::set(PetscScalar new_value){
+	VecSet(inner_vector,new_value);
+	valuesUpdate();
 }
-*/
-/* get the size of the inner vector */
-/*int PetscVector::get_size() const {
+
+/* set value of the vector, this function is called from overloaded operator */
+void PetscVector::set(int index, PetscScalar new_value){
+	VecSetValue(inner_vector,index,new_value, INSERT_VALUES);
+	valuesUpdate();
+}
+
+/* returns inner vector */
+Vec PetscVector::get_vector() const { // TODO: temp
+	return inner_vector;
+}
+
+/* get size of the vector */
+int PetscVector::get_size(){
 	int global_size;
 	VecGetSize(inner_vector,&global_size);
 	return global_size;
-}*/
+}
 
-
-/* vec1 = vec2, assignment operator (copy) */
-/*void PetscVector::operator=(PetscVector vec1, const PetscVector vec2)
+/* get value with given id of the vector (works only with local id), really slow */
+double PetscVector::get(int i)
 {
-	VecCopy(vec2.inner_vector,vec1.inner_vector);
-}*/
+	PetscInt ni = 1;
+	PetscInt ix[1];
+	PetscScalar y[1];
+			
+	ix[0] = i;
+	VecGetValues(inner_vector,ni,ix,y);			
+			
+	return y[0];
+}
+
+/* inner_vector = alpha*inner_vector */
+void PetscVector::scale(PetscScalar alpha){
+	VecScale(inner_vector, alpha);
+	valuesUpdate(); // TODO: has to be called?
+}
+
+
+/* stream insertion << operator */
+std::ostream &operator<<(std::ostream &output, const PetscVector &vector)		
+{
+	PetscScalar *arr_vector;
+	PetscInt i,local_size;
+	
+	output << "[";
+	VecGetLocalSize(vector.inner_vector,&local_size);
+	VecGetArray(vector.inner_vector,&arr_vector);
+	for (i=0; i<local_size; i++){
+		output << arr_vector[i];
+		if(i < local_size-1) output << ",";
+	}
+	VecRestoreArray(vector.inner_vector,&arr_vector);
+	output << "]";
+			
+	return output;
+}
+
+/* vec1 = vec2, assignment operator (set vector) */
+PetscVector& PetscVector::operator=(const PetscVector &vec2){
+	/* check for self-assignment by comparing the address of the implicit object and the parameter */
+	/* vec1 = vec1 */
+    if (this == &vec2)
+        return *this;
+
+	/* else copy the values of inner vectors */
+	VecCopy(vec2.inner_vector,inner_vector);
+	return *this;	
+}
+
+/* vec1 = linear_combination_node, perform simple linear combination */
+PetscVector& PetscVector::operator=(PetscVectorWrapperCombNode wrapper){
+	/* vec1 = alpha*vec1 */
+    if (this->inner_vector == wrapper.get_vector()){
+        this->scale(wrapper.get_coeff());
+        return *this;
+	}
+
+	/* else copy the vector and then scale */
+	VecCopy(wrapper.get_vector(),inner_vector);
+    this->scale(wrapper.get_coeff());
+
+	return *this;	
+}
+
+/* vec1 = linear_combination, perform full linear combination */
+PetscVector& PetscVector::operator=(PetscVectorWrapperComb wrapper){
+	int list_size = wrapper.get_listsize();
+	PetscScalar alphas[list_size];
+	Vec vectors[list_size];
+
+	/* vec1 = 0 */
+	VecSet(inner_vector,0.0);
+
+	/* prepare array with coefficients and vectors */
+	wrapper.get_arrays(alphas,vectors);
+	
+	/* vec1 = vec1 + sum (coeff*vector) */
+	VecMAXPY(inner_vector,list_size,alphas,vectors);
+
+	return *this;	
+}
+
+
+/* return wrapper to be able to overload vector(index) = new_value */ 
+PetscVectorWrapperAssign PetscVector::operator()(int index)
+{   
+	return PetscVectorWrapperAssign(*this, index);
+}
 
 /* vec1 *= alpha */
-/*void PetscVector::operator*=(PetscVector vec1, double alpha)
+void operator*=(PetscVector vec1, double alpha)
 {
 	vec1.scale(alpha);
-}*/
+}
+
+/* vec1 += vec2 */
+void operator+=(PetscVector vec1, const PetscVector vec2)
+{
+	VecAXPY(vec1.inner_vector,1.0, vec2.inner_vector);
+}
+
+/* vec1 -= vec2 */
+void operator-=(PetscVector vec1, const PetscVector vec2)
+{
+	VecAXPY(vec1.inner_vector,-1.0, vec2.inner_vector);
+}
+
+/* dot = dot(vec1,vec2) */
+double dot(const PetscVector vec1, const PetscVector vec2)
+{
+	double dot_value;
+	VecDot(vec1.inner_vector,vec2.inner_vector,&dot_value);
+	return dot_value;
+}
+
+/* new node of linear combination alpha*vec will be created */
+const PetscVectorWrapperCombNode operator*(double alpha, PetscVector vec){
+	return PetscVectorWrapperCombNode(alpha,vec.inner_vector);
+}
+
+/* new linear combination created by vec1 + vec2 */
+const PetscVectorWrapperComb operator+(PetscVector vec1, PetscVector vec2){
+	/* create nodes of linear combination from vectors */
+	PetscVectorWrapperCombNode comb_node1(1.0,vec1.inner_vector);
+	PetscVectorWrapperCombNode comb_node2(1.0,vec2.inner_vector);
+
+	/* create linear combination */
+	PetscVectorWrapperComb comb;
+	
+	/* append nodes */
+	comb.append(comb_node1);
+	comb.append(comb_node2);
+	
+	return comb;
+}
+
+
 
 /* vec1 = alpha*vec2 */
 /*const PetscVector PetscVector::operator*(double alpha, const PetscVector vec2) // TODO: make a wrapper for linear combinations
@@ -203,18 +325,6 @@ void PetscVector::valuesUpdate(){
 	VecScale(new_inner_vector,alpha);
 
 	return PetscVector(new_inner_vector);
-}*/
-
-/* vec1 += vec2 */
-/*const void PetscVector::operator+=(PetscVector vec1, const PetscVector vec2)
-{
-	VecAXPY(vec1.inner_vector,1.0, vec2.inner_vector);
-}*/
-
-/* vec1 -= vec2 */
-/*const void PetscVector::operator-=(PetscVector vec1, const PetscVector vec2)
-{
-	VecAXPY(vec1.inner_vector,-1.0, vec2.inner_vector);
 }*/
 
 /* vec1 = vec2 + vec3 */
@@ -239,13 +349,189 @@ void PetscVector::valuesUpdate(){
 //	return PetscVector(new_inner_vector);
 //}
 
-/* dot = dot(vec1,vec2) */
-//const double PetscVector::dot(const PetscVector vec1, const PetscVector vec2)
-//{
-//	double dot_value;
-//	VecDot(vec1.inner_vector,vec2.inner_vector,&dot_value);
-//	return dot_value;
-//}
+
+
+
+
+/* --------------------- PetscVectorWrapperAssign ----------------------*/
+
+/* define assigment operator */
+PetscVectorWrapperAssign& PetscVectorWrapperAssign::operator=(PetscScalar const& new_value)
+{
+	/* I am not able to access private vector, I pass it to orig class */
+	store.set(index,new_value);
+	return *this;
+}
+
+/* stream insertion << operator */
+std::ostream &operator<<(std::ostream &output, PetscVectorWrapperAssign wrapper)		
+{
+	double value = wrapper.store.get(wrapper.index);
+	output << value;
+	return output;
+}
+
+
+/* --------------------- PetscVectorWrapperComb ----------------------*/
+
+/* default constructor */
+PetscVectorWrapperComb::PetscVectorWrapperComb(){
+}
+
+/* append new node to the list */
+void PetscVectorWrapperComb::append(PetscVectorWrapperCombNode new_node){
+	comb_list.push_back(new_node);
+}
+
+/* get length of the list */
+int PetscVectorWrapperComb::get_listsize(){
+	return comb_list.size();
+}
+
+/* get size of the vectors in the list */
+int PetscVectorWrapperComb::get_vectorsize(){
+	std::list<PetscVectorWrapperCombNode>::iterator list_iter; /* iterator through list */
+	PetscInt vector_size;
+
+	/* get first element and obtain a size of the vector */
+	list_iter = comb_list.begin();
+	vector_size = list_iter->get_size();
+
+	return vector_size;
+}
+
+/* prepare arrays from linear combination list, I assume that arrays are allocated */
+void PetscVectorWrapperComb::get_arrays(PetscScalar *coeffs, Vec *vectors){
+	std::list<PetscVectorWrapperCombNode>::iterator list_iter; /* iterator through list */
+	int list_size = this->get_listsize();
+	int j;
+
+	/* set to the begin of the list */
+	list_iter = comb_list.begin();
+
+	/* go through the list and fill the vectors */
+	for(j=0;j<list_size;j++){
+		coeffs[j] = list_iter->get_coeff();
+		vectors[j] = list_iter->get_vector();
+		
+		if(j < list_size-1){
+			/* this is not the last element */
+			list_iter++;
+		}
+	}
+
+}
+
+
+/* print linear combination */ //TODO: yes, this is really slow, but now I don't care
+std::ostream &operator<<(std::ostream &output, PetscVectorWrapperComb wrapper)
+{
+	PetscInt i,j,vector_size,list_size;
+	std::list<PetscVectorWrapperCombNode>::iterator list_iter; /* iterator through list */
+	
+	output << "[";
+	
+	list_size = wrapper.get_listsize();
+	vector_size = wrapper.get_vectorsize();
+	
+	/* go through components in the vector */
+	for(i=0;i<vector_size;i++){
+		list_iter = wrapper.comb_list.begin();
+		
+		/* for each component go throught the list */
+		for(j=0;j<list_size;j++){
+			output << list_iter->get_coeff() << "*" << list_iter->get_value(i);
+			if(j < list_size-1){ 
+				/* this is not the last node */
+				output << "+";
+				list_iter++;
+			}
+		}
+		
+		if(i < vector_size-1){ 
+			/* this is not the last element */
+			output << ",";
+		}
+	}
+
+	output << "]";
+
+	return output;
+}
+
+
+
+
+/* --------------------- PetscVectorWrapperCombNode ----------------------*/
+
+/* default constructor */ //TODO: temp
+PetscVectorWrapperCombNode::PetscVectorWrapperCombNode(){
+}
+
+/* constructor from vector and coefficient */
+PetscVectorWrapperCombNode::PetscVectorWrapperCombNode(double new_coeff, Vec new_vector){
+	set_vector(new_vector);
+	set_coeff(new_coeff);
+}
+
+/* set vector to the node */
+void PetscVectorWrapperCombNode::set_vector(Vec new_vector){
+	this->inner_vector = new_vector;
+}
+
+/* return vector from this node */
+Vec PetscVectorWrapperCombNode::get_vector(){
+	return this->inner_vector;
+}
+
+/* set new coefficient to this node */
+void PetscVectorWrapperCombNode::set_coeff(double new_coeff){
+	this->coeff = new_coeff;
+}
+
+/* get the coefficient from this node */
+double PetscVectorWrapperCombNode::get_coeff(){
+	return this->coeff;
+}
+
+/* get size of the vector */
+int PetscVectorWrapperCombNode::get_size(){
+	int global_size;
+	VecGetSize(this->inner_vector,&global_size);
+	return global_size;
+}
+
+/* get value from the vector, really slow */
+int PetscVectorWrapperCombNode::get_value(int index){
+	PetscInt ni = 1;
+	PetscInt ix[1];
+	PetscScalar y[1];
+			
+	ix[0] = index;
+	VecGetValues(this->inner_vector,ni,ix,y);			
+			
+	return y[0];
+}
+
+/* stream insertion << operator */
+std::ostream &operator<<(std::ostream &output, PetscVectorWrapperCombNode wrapper)
+{
+	PetscScalar *arr_vector;
+	PetscInt i,local_size;
+	
+	output << "[";
+	VecGetLocalSize(wrapper.inner_vector,&local_size);
+	VecGetArray(wrapper.inner_vector,&arr_vector);
+	for (i=0; i<local_size; i++){
+		output << wrapper.coeff << "*" << arr_vector[i];
+		if(i < local_size-1) output << ", ";
+	}
+	VecRestoreArray(wrapper.inner_vector,&arr_vector);
+	output << "]";
+			
+	return output;
+}
+
 
 } /* end of namespace */
 

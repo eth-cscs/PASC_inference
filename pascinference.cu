@@ -84,7 +84,23 @@ int main( int argc, char *argv[] )
 	Initialize(argc, argv); // TODO: load parameters of problem from console input
 
 	PetscVector vec1(10);
+	vec1.set(1.0); // TODO: vec1(all) = 2
+	
+	vec1(2) = 5.5;
 
+	std::cout << "vec1(2): " << vec1(2) << std::endl;
+	std::cout << "vec1: " << vec1 << std::endl;
+
+	PetscVector vec2(10);
+	vec2 = 5*vec1;
+
+	std::cout << "vec2: " << vec2 << std::endl;
+
+	PetscVector vec3(10);
+//	PetscVectorWrapperComb test;
+	vec3 = vec1 + vec2;
+
+	std::cout << "vec3: " << vec3 << std::endl;
 
 
 if(false){ // TODO: temp
