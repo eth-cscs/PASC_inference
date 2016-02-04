@@ -6,22 +6,29 @@ int DEBUG_MODE = DEFAULT_DEBUG_MODE; /* default debug mode */
 /*!
  * initialize the application
  */ 
-void Initialize(int argc, const char *argv[]){
+void Initialize(int argc, char *argv[]){
 
-  /* initialize random seed: */
-  if(RANDOM_BY_TIME){
-	srand(time(NULL));
-  } else {
-	srand(0);
-  }
+	/* initialize random seed: */
+	if(RANDOM_BY_TIME){
+		srand(time(NULL));
+	} else {
+		srand(0);
+	}
 
-
+  	/* init Petsc */
+  	#ifdef USE_PETSC
+		PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
+	#endif
 }
 
 /*!
  * final call of the application
  */ 
 void Finalize(){
+  	/* finalize Petsc */
+  	#ifdef USE_PETSC
+		PetscFinalize();
+	#endif
 
 }
 

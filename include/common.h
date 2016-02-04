@@ -23,7 +23,6 @@ MINLIN_INIT
 /* PetscVector */
 #ifdef USE_PETSC
 	#include "petsc.h"
-	#include "petscvector.h"
 #endif
 
 #include <stdio.h> /* printf in cuda */
@@ -44,7 +43,7 @@ extern int DEBUG_MODE;
 
 
 /* general utils */
-void Initialize(int, const char**);
+void Initialize(int, char**);
 void Finalize();
 
 void Message(std::string text);

@@ -115,7 +115,7 @@ endif(${USE_PETSC})
 set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
 	-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
 	-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
-	${DEVICE_DEFS}
+	${LIBRARY_DEFS}
 	-DUSE_MINLIN)
 
 # from source files create shared library

@@ -21,7 +21,12 @@ int T = 10; /* default length of generated time serie */
 int K = 3; /* default number of clusters */
 int dim = 2; /* default dimension of the problem */
 
-bool load_from_console(int argc, const char *argv[]){
+/* PetscVector */
+#ifdef USE_PETSC // TODO: add to common.h
+	#include "petscvector.h"
+#endif
+
+bool load_from_console(int argc, char *argv[]){
 	bool return_value = true; /* continue of not? */
 
 	namespace po = boost::program_options;
@@ -67,7 +72,8 @@ bool load_from_console(int argc, const char *argv[]){
 	return return_value;
 }
 
-int main( int argc, const char *argv[] )
+/* --- MAIN FUNCTION ---- */
+int main( int argc, char *argv[] )
 {
 	/* load parameters from console input */
 	if(!load_from_console(argc, argv)){
@@ -77,6 +83,11 @@ int main( int argc, const char *argv[] )
 		
 	Initialize(argc, argv); // TODO: load parameters of problem from console input
 
+	PetscVector vec1(10);
+
+
+
+if(false){ // TODO: temp
 	Timer timer_program; /* global timer for whole application */
 	Timer timer_data; /* for generating the problem */
 	Timer timer_model; /* for manipulation with model */
@@ -136,7 +147,7 @@ int main( int argc, const char *argv[] )
 
 	if(DEBUG_MODE >= 2) Message_info_time("- elapsed time: ",timer_program.get_value_sum());
 	if(DEBUG_MODE >= 3)	problem.print();
-	
+}	
 	Finalize();
 	return 0;
 }

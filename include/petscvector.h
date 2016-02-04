@@ -4,6 +4,10 @@
 #include <iostream>
 #include <string>
 
+namespace minlin {
+
+namespace threx { // TODO: maybe choose the different namespace for my own Petsc stuff
+ 
 class PetscVectorWrapperAssign; /* wrapper to allow vector(i) = value */
 
 /* PETSc Vector */
@@ -31,10 +35,7 @@ class PetscVector {
 //		friend int get_size();
 
 		/* after update a variable, it is necessary to call asseble begin */
-//		void valuesUpdate(){
-//			VecAssemblyBegin(inner_vector);
-//			VecAssemblyEnd(inner_vector);
-//		}
+		void valuesUpdate();
 		
 		/* set value of the vector, this function is called from overloaded operator */
 //		void set(int index, PetscScalar new_value){
@@ -153,13 +154,20 @@ class PetscVectorWrapperAssign
 
 
 /* PetscVector constructor with global dimension */
-/*PetscVector::PetscVector(int n){
+PetscVector::PetscVector(int n){
 	VecCreate(PETSC_COMM_WORLD,&inner_vector);
 	VecSetSizes(inner_vector,PETSC_DECIDE,n);
 	VecSetFromOptions(inner_vector);
 
 	valuesUpdate();
-}*/
+}
+
+/* after update a variable, it is necessary to call asseble begin */
+void PetscVector::valuesUpdate(){
+	VecAssemblyBegin(inner_vector);
+	VecAssemblyEnd(inner_vector);
+}
+
 
 /* PetscVector constructor with given internal Vec */
 /*PetscVector::PetscVector(Vec new_inner_vector){
@@ -239,5 +247,8 @@ class PetscVectorWrapperAssign
 //	return dot_value;
 //}
 
+} /* end of namespace */
+
+} /* end of MinLin namespace */
 
 #endif
