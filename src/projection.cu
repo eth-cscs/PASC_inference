@@ -1,7 +1,7 @@
 #include "projection.h"
 
 
-void get_projection(GammaVector<Scalar> &x, int K){
+void get_projection(GammaVector &x, int K){
 
 	int N = x.size();
 	int T = N/K; /* length of vectors */
@@ -18,7 +18,7 @@ void get_projection(GammaVector<Scalar> &x, int K){
 	
 #else
 	int t,k;
-	Scalar x_sub[K];  /* GammaVector<Scalar> x_sub(K); */
+	Scalar x_sub[K];  /* GammaVector x_sub(K); */
 
 	#pragma omp parallel for private(t)	
 	for(t=0;t<T;t++){

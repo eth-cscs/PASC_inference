@@ -14,7 +14,7 @@
 #define DEBUG_ALGORITHM_PRINTCOEFF false /* print computed coefficients in every iteration */
 
 /* prepare data which are constant */
-void QPSolver::init(GammaVector<Scalar> x, int T, int K, Scalar eps_sqr){
+void QPSolver::init(GammaVector x, int T, int K, Scalar eps_sqr){
 	this->x = x;
 	this->T = T;
 	this->K = K;
@@ -35,7 +35,7 @@ void QPSolver::init(GammaVector<Scalar> x, int T, int K, Scalar eps_sqr){
 	/* prepare RHS bs, gs, ds */
 
 	/* alloc first vector */
-	DataVector<Scalar> b(this->K*this->T);
+	DataVector b(this->K*this->T);
 	/* set initial zero value to all vectors */
 	b(all) = 0.0;
 
@@ -77,7 +77,7 @@ void QPSolver::solve(){
 
 	int K = this->get_K(); /* number of clusters */
 	Scalar fx; /* function value */
-	GammaVector<Scalar> fs(m); /* store function values for generalized A-condition */
+	GammaVector fs(m); /* store function values for generalized A-condition */
 	Scalar fx_max; /* max(fs) */
 	Scalar xi, beta_bar, beta_hat,beta; /* for A-condition */
 	Scalar dd; /* dot(d,d) */
@@ -264,11 +264,11 @@ Scalar QPSolver::get_function_value(){
 	return this->get_function_value(this->x);
 }
 
-Scalar QPSolver::get_function_value(GammaVector<Scalar> x){
+Scalar QPSolver::get_function_value(GammaVector x){
 	return this->get_function_value(x,false);
 }
 
-Scalar QPSolver::get_function_value(GammaVector<Scalar> x, bool use_gradient){
+Scalar QPSolver::get_function_value(GammaVector x, bool use_gradient){
 	Scalar fx = 0.0;
 
 	if(use_gradient){
@@ -278,7 +278,7 @@ Scalar QPSolver::get_function_value(GammaVector<Scalar> x, bool use_gradient){
 		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
 		/* for safety - do not use any allocated vector */
 		
-		GammaVector<Scalar> Ax(this->get_T()*this->get_K());
+		GammaVector Ax(this->get_T()*this->get_K());
 		Scalar xAx, xb;
 
 		get_Ax_laplace(Ax,x,this->eps_sqr);

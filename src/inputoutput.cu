@@ -1,6 +1,6 @@
 #include "inputoutput.h"
 
-void InputOutput::saveVTK(std::string name_of_file, DataVector<Scalar> data_vec, GammaVector<Scalar> gamma_vec, int dim, int T, int K)
+void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVector gamma_vec, int dim, int T, int K)
 {
 	Timer timer_saveVTK; 
 	timer_saveVTK.restart();
@@ -35,7 +35,7 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector<Scalar> data_vec,
 	/* values in points */
 	myfile << "POINT_DATA " <<  T << "\n";
 	/* prepare vector with idx of max values */
-	GammaVector<int> gamma_max_idx(T);
+	HostVector<int> gamma_max_idx(T);
 	gamma_max_idx(all) = 0;
 	for(k=0;k<K;k++){
 		/* write gamma_k */

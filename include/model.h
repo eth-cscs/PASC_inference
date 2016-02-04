@@ -24,8 +24,8 @@ class Model {
 		void finalize(); /* TODO: should be destructor */
 		void print();
 
-		void compute_theta(DataVector<Scalar> data_vec);
-		void compute_gamma(DataVector<Scalar> data_vec);
+		void compute_theta(DataVector data_vec);
+		void compute_gamma(DataVector data_vec);
 
 		/* GET functions */
 		int get_dim();

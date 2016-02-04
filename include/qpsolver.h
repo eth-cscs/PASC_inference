@@ -10,7 +10,7 @@ class QPSolver;
 
 class QPSolver {
 	protected:
-		GammaVector<Scalar> x;
+		GammaVector x;
 		int T;
 		int K;
 
@@ -22,9 +22,9 @@ class QPSolver {
 		int hessmult_all;
 		
 		/* data of QP problem */
-		GammaVector<Scalar> g; /* gradient */
-		GammaVector<Scalar> d; /* projected gradient */
-		GammaVector<Scalar> Ad; /* A*ds */
+		GammaVector g; /* gradient */
+		GammaVector d; /* projected gradient */
+		GammaVector Ad; /* A*ds */
 		
 		Timer timer_projection; /* the sum of time necessary to perform projections */
 		Timer timer_matmult; /* the sum of time necessary to perform matrix multiplication */
@@ -35,15 +35,15 @@ class QPSolver {
 		Timer timer_total; /* total time of SPG algorithm */
 		
 	public:
-		GammaVector<Scalar> b; /* rhs */ // TODO: this should be private
+		GammaVector b; /* rhs */ // TODO: this should be private
 
-		void init(GammaVector<Scalar> x, int T, int K, Scalar eps_sqr);
+		void init(GammaVector x, int T, int K, Scalar eps_sqr);
 		void finalize();
 
 		void solve();
 		Scalar get_function_value();
-		Scalar get_function_value(GammaVector<Scalar> x);
-		Scalar get_function_value(GammaVector<Scalar> x, bool use_gradient);
+		Scalar get_function_value(GammaVector x);
+		Scalar get_function_value(GammaVector x, bool use_gradient);
 
 		void print();
 		void print(int nmb_of_spaces);

@@ -12,121 +12,105 @@ class PetscVector {
 		Vec inner_vector;
 	public:
 		/* constructor with given dimension */
-		PetscVector(int n){
-			ierr = VecCreate(PETSC_COMM_WORLD,&inner_vector);
-			ierr = VecSetSizes(inner_vector,PETSC_DECIDE,n);
-			ierr = VecSetFromOptions(inner_vector);
-
-			valuesUpdate();
-		}
+		PetscVector(int n);
 
 		/* constructor with given internal Vec */
-		PetscVector(Vec new_inner_vector){
-			inner_vector = new_inner_vector;
-		}
-
+		PetscVector(Vec new_inner_vector);
 
 		/* destructor */
-		~PetscVector(){
+//		~PetscVector(){
 //			ierr = VecDestroy(&vector);
-		}
+//		}
 		
 		/* get PETSC original vector */
-		Vec get_vector() const { // TODO: temp
-			return inner_vector;
-		}
+//		Vec get_vector() const { // TODO: temp
+//			return inner_vector;
+//		}
 		
 		/* get size of the vector */
-		int get_size() const {
-			int global_size;
-			VecGetSize(inner_vector,&global_size);
-			return global_size;
-		}
+//		friend int get_size();
 
 		/* after update a variable, it is necessary to call asseble begin */
-		void valuesUpdate(){
-			VecAssemblyBegin(inner_vector);
-			VecAssemblyEnd(inner_vector);
-		}
+//		void valuesUpdate(){
+//			VecAssemblyBegin(inner_vector);
+//			VecAssemblyEnd(inner_vector);
+//		}
 		
 		/* set value of the vector, this function is called from overloaded operator */
-		void set(int index, PetscScalar new_value){
-			VecSetValue(inner_vector,index,new_value, INSERT_VALUES);
-			valuesUpdate();
-		}
+//		void set(int index, PetscScalar new_value){
+//			VecSetValue(inner_vector,index,new_value, INSERT_VALUES);
+//			valuesUpdate();
+//		}
 
 		/* set all values of the vector, this function is called from overloaded operator */
-		void set(PetscScalar new_value){
-			VecSet(inner_vector,new_value);
-			valuesUpdate();
-		}
+//		void set(PetscScalar new_value){
+//			VecSet(inner_vector,new_value);
+//			valuesUpdate();
+//		}
 
 		/* inner_vector = alpha*inner_vector */
-		void scale(PetscScalar alpha){
-			VecScale(inner_vector, alpha);
-			valuesUpdate(); // TODO: has to be called?
-		}
+//		void scale(PetscScalar alpha){
+//			VecScale(inner_vector, alpha);
+//			valuesUpdate(); // TODO: has to be called?
+//		}
 
 
 		/* stream insertion operator */
-		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector)		
-		{
-			PetscScalar *arr_vector;
-			PetscInt i,local_size;
+//		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector)		
+//		{
+//			PetscScalar *arr_vector;
+//			PetscInt i,local_size;
 	
-			VecGetLocalSize(vector.inner_vector,&local_size);
-			VecGetArray(vector.inner_vector,&arr_vector);
-			for (i=0; i<local_size; i++){
-				output << arr_vector[i];
-				if(i < local_size-1) output << ", ";
-			}
-			VecRestoreArray(vector.inner_vector,&arr_vector);
+//			VecGetLocalSize(vector.inner_vector,&local_size);
+//			VecGetArray(vector.inner_vector,&arr_vector);
+//			for (i=0; i<local_size; i++){
+//				output << arr_vector[i];
+//				if(i < local_size-1) output << ", ";
+//			}
+//			VecRestoreArray(vector.inner_vector,&arr_vector);
 			
-			return output;
-		}
+//			return output;
+//		}
 
 		/* get value with given id of the vector (works only with local id) */
-		PetscScalar operator ()(int i) const
-		{
-			PetscInt ni = 1;
-			PetscInt ix[1];
-			PetscScalar y[1];
+//		PetscScalar operator ()(int i) const
+//		{
+//			PetscInt ni = 1;
+//			PetscInt ix[1];
+//			PetscScalar y[1];
 			
-			ix[0] = i;
-			VecGetValues(inner_vector,ni,ix,y);			
+//			ix[0] = i;
+//			VecGetValues(inner_vector,ni,ix,y);			
 			
-			return y[0];
-		}
+//			return y[0];
+//		}
 
 		/* set value with given id of the vector (works only with local id), will be defined after PetscVector */
-		PetscVectorWrapperAssign operator()(int index);
+//		PetscVectorWrapperAssign operator()(int index);
 
 		/* vec1 *= alpha */
-		void operator*=(double alpha)
-		{
-			scale(alpha);
-		}
+//		friend void operator*=(PetscVector vec1, double alpha);
 
-		/* assignment operator (copy) */
-		friend void operator=(const PetscVector vec1, const PetscVector vec2);
+		/* vec1 = vec2, assignment operator (copy) */
+//		friend void operator=(PetscVector vec1, const PetscVector vec2);
 	
 		/* vec1 = alpha*vec2 */
-		friend const PetscVector operator*(double alpha, const PetscVector vec2);
+//		friend const PetscVector operator*(double alpha, const PetscVector vec2);
 
 		/* vec1 += vec2 */
-		friend void operator+=(PetscVector vec1, const PetscVector vec2);
+//		friend void operator+=(PetscVector vec1, const PetscVector vec2);
 
 		/* vec1 -= vec2 */
-		friend void operator-=(PetscVector vec1, const PetscVector vec2);
+//		friend void operator-=(PetscVector vec1, const PetscVector vec2);
 
 		/* vec1 = vec2 + vec3 */
-		friend const PetscVector operator+(const PetscVector vec2, const PetscVector vec3);
+//		friend const PetscVector operator+(const PetscVector vec2, const PetscVector vec3);
 
 		/* vec1 = vec2 - vec3 */
-		friend const PetscVector operator-(const PetscVector vec2, const PetscVector vec3);
+//		friend const PetscVector operator-(const PetscVector vec2, const PetscVector vec3);
 
 		/* dot = dot(vec1,vec2) */
-		friend double dot(const PetscVector vec1, const PetscVector vec2);
+//		friend double dot(const PetscVector vec1, const PetscVector vec2);
 	
 };
 
@@ -138,25 +122,72 @@ class PetscVectorWrapperAssign
 	
 	public:
 		/* constructor */
-		PetscVectorWrapperAssign(PetscVector &s, int i): store(s), index(i) {}
+//		PetscVectorWrapperAssign(PetscVector &s, int i): store(s), index(i) {}
 		
 		/* define assigment operator */
-		PetscVectorWrapperAssign& operator=(PetscScalar const& new_value)
-		{
+//		PetscVectorWrapperAssign& operator=(PetscScalar const& new_value)
+//		{
 			/* I am not able to access private vector, I pass it to orig class */
-			store.set(index,new_value);
-		}
+//			store.set(index,new_value);
+//		}
 	
 };
 
 /* return wrapper to be able to overload vector(index) = new_value */ 
-PetscVectorWrapperAssign PetscVector::operator()(int index)
-{   
-	return PetscVectorWrapperAssign(*this, index);
+//PetscVectorWrapperAssign PetscVector::operator()(int index)
+//{   
+//	return PetscVectorWrapperAssign(*this, index);
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* PetscVector constructor with global dimension */
+/*PetscVector::PetscVector(int n){
+	VecCreate(PETSC_COMM_WORLD,&inner_vector);
+	VecSetSizes(inner_vector,PETSC_DECIDE,n);
+	VecSetFromOptions(inner_vector);
+
+	valuesUpdate();
+}*/
+
+/* PetscVector constructor with given internal Vec */
+/*PetscVector::PetscVector(Vec new_inner_vector){
+	inner_vector = new_inner_vector;
 }
+*/
+/* get the size of the inner vector */
+/*int PetscVector::get_size() const {
+	int global_size;
+	VecGetSize(inner_vector,&global_size);
+	return global_size;
+}*/
+
+
+/* vec1 = vec2, assignment operator (copy) */
+/*void PetscVector::operator=(PetscVector vec1, const PetscVector vec2)
+{
+	VecCopy(vec2.inner_vector,vec1.inner_vector);
+}*/
+
+/* vec1 *= alpha */
+/*void PetscVector::operator*=(PetscVector vec1, double alpha)
+{
+	vec1.scale(alpha);
+}*/
 
 /* vec1 = alpha*vec2 */
-const PetscVector operator*(double alpha, const PetscVector vec2) // TODO: make a wrapper for linear combinations
+/*const PetscVector PetscVector::operator*(double alpha, const PetscVector vec2) // TODO: make a wrapper for linear combinations
 {
 	Vec new_inner_vector;
 	VecDuplicate(vec2.inner_vector,&new_inner_vector);
@@ -164,49 +195,49 @@ const PetscVector operator*(double alpha, const PetscVector vec2) // TODO: make 
 	VecScale(new_inner_vector,alpha);
 
 	return PetscVector(new_inner_vector);
-}
+}*/
 
 /* vec1 += vec2 */
-const void operator+=(PetscVector vec1, const PetscVector vec2)
+/*const void PetscVector::operator+=(PetscVector vec1, const PetscVector vec2)
 {
 	VecAXPY(vec1.inner_vector,1.0, vec2.inner_vector);
-}
+}*/
 
 /* vec1 -= vec2 */
-const void operator-=(PetscVector vec1, const PetscVector vec2)
+/*const void PetscVector::operator-=(PetscVector vec1, const PetscVector vec2)
 {
 	VecAXPY(vec1.inner_vector,-1.0, vec2.inner_vector);
-}
+}*/
 
 /* vec1 = vec2 + vec3 */
-const PetscVector operator+(const PetscVector vec2, const PetscVector vec3) // TODO: make a wrapper for linear combinations
-{
-	Vec new_inner_vector;
-	VecDuplicate(vec2.inner_vector,&new_inner_vector); 
-	VecCopy(vec2.inner_vector,new_inner_vector); /* vec1 = vec2 */
-	VecAXPY(new_inner_vector,1.0, vec3.inner_vector); /* vec1 += vec3 */
+//const PetscVector PetscVector::operator+(const PetscVector vec2, const PetscVector vec3) // TODO: make a wrapper for linear combinations
+//{
+//	Vec new_inner_vector;
+//	VecDuplicate(vec2.inner_vector,&new_inner_vector); 
+//	VecCopy(vec2.inner_vector,new_inner_vector); /* vec1 = vec2 */
+//	VecAXPY(new_inner_vector,1.0, vec3.inner_vector); /* vec1 += vec3 */
 
-	return PetscVector(new_inner_vector);
-}
+//	return PetscVector(new_inner_vector);
+//}
 
 /* vec1 = vec2 - vec3 */
-const PetscVector operator-(const PetscVector vec2, const PetscVector vec3) // TODO: make a wrapper for linear combinations
-{
-	Vec new_inner_vector;
-	VecDuplicate(vec2.inner_vector,&new_inner_vector); 
-	VecCopy(vec2.inner_vector,new_inner_vector); /* vec1 = vec2 */
-	VecAXPY(new_inner_vector,-1.0, vec3.inner_vector); /* vec1 -= vec3 */
+//const PetscVector PetscVector::operator-(const PetscVector vec2, const PetscVector vec3) // TODO: make a wrapper for linear combinations
+//{
+//	Vec new_inner_vector;
+//	VecDuplicate(vec2.inner_vector,&new_inner_vector); 
+//	VecCopy(vec2.inner_vector,new_inner_vector); /* vec1 = vec2 */
+//	VecAXPY(new_inner_vector,-1.0, vec3.inner_vector); /* vec1 -= vec3 */
 
-	return PetscVector(new_inner_vector);
-}
+//	return PetscVector(new_inner_vector);
+//}
 
 /* dot = dot(vec1,vec2) */
-const double dot(const PetscVector vec1, const PetscVector vec2)
-{
-	double dot_value;
-	VecDot(vec1.inner_vector,vec2.inner_vector,&dot_value);
-	return dot_value;
-}
+//const double PetscVector::dot(const PetscVector vec1, const PetscVector vec2)
+//{
+//	double dot_value;
+//	VecDot(vec1.inner_vector,vec2.inner_vector,&dot_value);
+//	return dot_value;
+//}
 
 
 #endif

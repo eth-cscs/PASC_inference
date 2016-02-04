@@ -9,7 +9,7 @@ class Data {
 		int T; /* length of time serie */
 
 	public:
-		DataVector<Scalar> data_vec; /* data vector, TODO: should be private */
+		DataVector data_vec; /* data vector, TODO: should be private */
 
 		void init(int dim, int T); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
@@ -22,7 +22,7 @@ class Data {
 		/* GET functions */
 		int get_dim();
 		int get_T();
-		DataVector<Scalar> get_data_vec();
+		DataVector get_data_vec();
 	
 };
 

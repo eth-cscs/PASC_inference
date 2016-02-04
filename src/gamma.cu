@@ -9,7 +9,7 @@ void Gamma::init(int dim, int T, int K)
 	this->T = T;
 
 	/* prepare gamma vector */
-	GammaVector<Scalar> new_gamma_vec(this->T*this->K);
+	GammaVector new_gamma_vec(this->T*this->K);
 	new_gamma_vec(all) = 0.0;
 	this->gamma_vec = new_gamma_vec;
 
@@ -30,7 +30,7 @@ void Gamma::finalize()
 void Gamma::prepare_random()
 {
 	int k,t;
-	GammaVector<Scalar> gamma_sum(this->T);
+	GammaVector gamma_sum(this->T);
 		
 	/* generate random data to gamma */
 	for(k=0;k<this->K;k++){
@@ -74,7 +74,7 @@ void Gamma::prepare_uniform()
 
 }
 
-void Gamma::compute(DataVector<Scalar> data_vec, Theta theta)
+void Gamma::compute(DataVector data_vec, Theta theta)
 {
 	/* compute and set new RHS */
 	this->compute_gk(this->qpsolver.b, data_vec, theta);
@@ -135,16 +135,16 @@ QPSolver Gamma::get_qpsolver()
 	return this->qpsolver;
 }
 
-GammaVector<Scalar> Gamma::get_gamma_vec()
+GammaVector Gamma::get_gamma_vec()
 {
 	return this->gamma_vec;
 }
 
 
-void Gamma::compute_gk(GammaVector<Scalar>& g, DataVector<Scalar> data_vec, Theta theta)
+void Gamma::compute_gk(GammaVector& g, DataVector data_vec, Theta theta)
 {
 	int t,n,k;
-	GammaVector<Scalar> temp(this->dim);
+	GammaVector temp(this->dim);
 	
 	for(k=0;k<this->K;k++){
 		for(t=0;t<this->T;t++){ // TODO: this could be performed parallely 

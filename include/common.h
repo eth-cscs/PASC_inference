@@ -17,6 +17,9 @@
 #include <minlin/modules/threx/threx.h>
 //#include <qpopt/smalbe.h>
 
+using namespace minlin::threx;
+MINLIN_INIT
+
 /* PetscVector */
 #ifdef USE_PETSC
 	#include "petsc.h"
@@ -34,8 +37,7 @@
 /* include settings */
 #include "settings.h"
 
-using namespace minlin::threx;
-MINLIN_INIT
+
 
 /* global variables */
 extern int DEBUG_MODE;

@@ -4,7 +4,7 @@ void Theta::init(int dim, int K){
 	this->dim = dim;
 	this->K = K;
 
-	ThetaVector<Scalar> D(this->dim*this->K);
+	ThetaVector D(this->dim*this->K);
 	this->theta_vec = D;
 	this->theta_vec(all) = 0.0;
 
@@ -16,7 +16,7 @@ void Theta::finalize()
 }
 	
 
-void Theta::compute(DataVector<Scalar> data_vec, Gamma gamma){
+void Theta::compute(DataVector data_vec, Gamma gamma){
 	Scalar sum_gamma;
 	Scalar gammaTx;
 	int dim = this->dim;

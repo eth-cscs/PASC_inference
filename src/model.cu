@@ -77,12 +77,12 @@ int Model::get_K(){
 	return this->K;
 }
 
-void Model::compute_theta(DataVector<Scalar> data_vec)
+void Model::compute_theta(DataVector data_vec)
 {
 	this->theta.compute(data_vec,this->gamma);
 }
 
-void Model::compute_gamma(DataVector<Scalar> data_vec)
+void Model::compute_gamma(DataVector data_vec)
 {
 	this->gamma.compute(data_vec,this->theta);
 }

@@ -8,7 +8,7 @@ void Data::init(int dim, int T)
 	this->T = T;
 	
 	/* prepare array with data vectors */
-	DataVector<Scalar> new_data_vector(this->dim*this->T);
+	DataVector new_data_vector(this->dim*this->T);
 	new_data_vector(all) = 0.0;
 	this->data_vec = new_data_vector;
 
@@ -30,7 +30,7 @@ int Data::get_T()
 	return this->T;
 }
 
-DataVector<Scalar> Data::get_data_vec()
+DataVector Data::get_data_vec()
 {
 	return this->data_vec;
 }

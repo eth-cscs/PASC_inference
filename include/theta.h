@@ -12,13 +12,13 @@ class Theta {
 		int K; /* number of gamma components */
 
 	public:
-		ThetaVector<Scalar> theta_vec; /* vector with theta */
+		ThetaVector theta_vec; /* vector with theta */
 
 		void init(int dim, int K); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
 		void print();
 		void print(int nmb_of_spaces);
-		void compute(DataVector<Scalar> data_vec, Gamma gamma);
+		void compute(DataVector data_vec, Gamma gamma);
 		
 		
 		/* GET functions */
