@@ -98,9 +98,15 @@ int main( int argc, char *argv[] )
 
 	PetscVector vec3(10);
 //	PetscVectorWrapperComb test;
-	vec3 = vec1 + vec2;
-
+	vec3 = -2*vec1 + 5*vec2;
 	std::cout << "vec3: " << vec3 << std::endl;
+
+
+	PetscVector vec4(10);
+//	PetscVectorWrapperComb test;
+	vec4 = 2*vec1 + vec2 + 0*vec3;
+
+	std::cout << "vec4: " << vec4 << std::endl;
 
 
 if(false){ // TODO: temp

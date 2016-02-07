@@ -48,17 +48,7 @@ class PetscVector {
 		friend void operator-=(PetscVector vec1, const PetscVector vec2);
 		friend double dot(const PetscVector vec1, const PetscVector vec2);
 
-		friend const PetscVectorWrapperCombNode operator*(double alpha, PetscVector vec);
-		friend const PetscVectorWrapperComb operator+(PetscVector vec1, PetscVector vec2);
 
-
-		/* vec1 = vec2 + vec3 */
-//		friend const PetscVector operator+(const PetscVector vec2, const PetscVector vec3);
-
-		/* vec1 = vec2 - vec3 */
-//		friend const PetscVector operator-(const PetscVector vec2, const PetscVector vec3);
-
-	
 };
 
 /* wrapper to allow manipulation with vector(i) */
@@ -83,12 +73,21 @@ class PetscVectorWrapperComb
 		
 	public:
 		PetscVectorWrapperComb();
+		PetscVectorWrapperComb(PetscVectorWrapperCombNode comb_node);
+		PetscVectorWrapperComb(PetscVector vec);
+
 		int get_listsize();
 		int get_vectorsize();
 		void append(PetscVectorWrapperCombNode new_node);
+		void merge(PetscVectorWrapperComb comb);
 		void get_arrays(PetscScalar *coeffs, Vec *vectors);
 		
 		friend std::ostream &operator<<(std::ostream &output, PetscVectorWrapperComb wrapper);
+
+		friend const PetscVectorWrapperComb operator*(double alpha, PetscVectorWrapperComb comb);
+		friend const PetscVectorWrapperComb operator+(PetscVectorWrapperComb comb1, PetscVectorWrapperComb comb2);
+		friend const PetscVectorWrapperComb operator-(PetscVectorWrapperComb comb1, PetscVectorWrapperComb comb2);
+
 		
 };
 
@@ -109,6 +108,7 @@ class PetscVectorWrapperCombNode
 		int get_value(int index);
 		
 		void set_coeff(double new_coeff);
+		void scale(double alpha);
 		double get_coeff();
 
 		friend std::ostream &operator<<(std::ostream &output, PetscVectorWrapperCombNode wrapper);
@@ -293,65 +293,6 @@ double dot(const PetscVector vec1, const PetscVector vec2)
 	return dot_value;
 }
 
-/* new node of linear combination alpha*vec will be created */
-const PetscVectorWrapperCombNode operator*(double alpha, PetscVector vec){
-	return PetscVectorWrapperCombNode(alpha,vec.inner_vector);
-}
-
-/* new linear combination created by vec1 + vec2 */
-const PetscVectorWrapperComb operator+(PetscVector vec1, PetscVector vec2){
-	/* create nodes of linear combination from vectors */
-	PetscVectorWrapperCombNode comb_node1(1.0,vec1.inner_vector);
-	PetscVectorWrapperCombNode comb_node2(1.0,vec2.inner_vector);
-
-	/* create linear combination */
-	PetscVectorWrapperComb comb;
-	
-	/* append nodes */
-	comb.append(comb_node1);
-	comb.append(comb_node2);
-	
-	return comb;
-}
-
-
-
-/* vec1 = alpha*vec2 */
-/*const PetscVector PetscVector::operator*(double alpha, const PetscVector vec2) // TODO: make a wrapper for linear combinations
-{
-	Vec new_inner_vector;
-	VecDuplicate(vec2.inner_vector,&new_inner_vector);
-	VecCopy(vec2.inner_vector,new_inner_vector);
-	VecScale(new_inner_vector,alpha);
-
-	return PetscVector(new_inner_vector);
-}*/
-
-/* vec1 = vec2 + vec3 */
-//const PetscVector PetscVector::operator+(const PetscVector vec2, const PetscVector vec3) // TODO: make a wrapper for linear combinations
-//{
-//	Vec new_inner_vector;
-//	VecDuplicate(vec2.inner_vector,&new_inner_vector); 
-//	VecCopy(vec2.inner_vector,new_inner_vector); /* vec1 = vec2 */
-//	VecAXPY(new_inner_vector,1.0, vec3.inner_vector); /* vec1 += vec3 */
-
-//	return PetscVector(new_inner_vector);
-//}
-
-/* vec1 = vec2 - vec3 */
-//const PetscVector PetscVector::operator-(const PetscVector vec2, const PetscVector vec3) // TODO: make a wrapper for linear combinations
-//{
-//	Vec new_inner_vector;
-//	VecDuplicate(vec2.inner_vector,&new_inner_vector); 
-//	VecCopy(vec2.inner_vector,new_inner_vector); /* vec1 = vec2 */
-//	VecAXPY(new_inner_vector,-1.0, vec3.inner_vector); /* vec1 -= vec3 */
-
-//	return PetscVector(new_inner_vector);
-//}
-
-
-
-
 
 /* --------------------- PetscVectorWrapperAssign ----------------------*/
 
@@ -378,10 +319,32 @@ std::ostream &operator<<(std::ostream &output, PetscVectorWrapperAssign wrapper)
 PetscVectorWrapperComb::PetscVectorWrapperComb(){
 }
 
+/* constructor from node */
+PetscVectorWrapperComb::PetscVectorWrapperComb(PetscVectorWrapperCombNode comb_node){
+	/* append node */
+	this->append(comb_node);
+}
+
+/* constructor from vec */
+PetscVectorWrapperComb::PetscVectorWrapperComb(PetscVector vec){
+	/* create node from vector */
+	PetscVectorWrapperCombNode comb_node(1.0,vec.get_vector());
+
+	/* append node */
+	this->append(comb_node);
+}
+
+
 /* append new node to the list */
 void PetscVectorWrapperComb::append(PetscVectorWrapperCombNode new_node){
 	comb_list.push_back(new_node);
 }
+
+/* append new list to the end of old list (merge) */
+void PetscVectorWrapperComb::merge(PetscVectorWrapperComb comb){
+	comb_list.insert(comb_list.end(), comb.comb_list.begin(), comb.comb_list.end());
+}
+
 
 /* get length of the list */
 int PetscVectorWrapperComb::get_listsize(){
@@ -459,6 +422,45 @@ std::ostream &operator<<(std::ostream &output, PetscVectorWrapperComb wrapper)
 	return output;
 }
 
+/* all nodes in linear combination will be scaled */
+const PetscVectorWrapperComb operator*(double alpha, PetscVectorWrapperComb comb){
+	/* scale nodes in the list */
+	std::list<PetscVectorWrapperCombNode>::iterator list_iter; /* iterator through list */
+	int list_size = comb.get_listsize();
+	int j;
+
+	/* set to the begin of the list */
+	list_iter = comb.comb_list.begin();
+
+	/* go through the list and fill the vectors */
+	for(j=0;j<list_size;j++){
+		list_iter->scale(alpha);
+		
+		if(j < list_size-1){
+			/* this is not the last element */
+			list_iter++;
+		}
+	}
+	
+	return comb;
+}
+
+/* new linear combination created by comb + comb */
+const PetscVectorWrapperComb operator+(PetscVectorWrapperComb comb1, PetscVectorWrapperComb comb2){
+	/* append second linear combination to the first */
+	comb1.merge(comb2);
+	
+	return comb1;
+}
+
+/* new linear combination created by comb + comb */
+const PetscVectorWrapperComb operator-(PetscVectorWrapperComb comb1, PetscVectorWrapperComb comb2){
+	/* append second linear combination to the first */
+	comb1.merge(-1.0*comb2);
+	
+	return comb1;
+}
+
 
 
 
@@ -487,6 +489,11 @@ Vec PetscVectorWrapperCombNode::get_vector(){
 /* set new coefficient to this node */
 void PetscVectorWrapperCombNode::set_coeff(double new_coeff){
 	this->coeff = new_coeff;
+}
+
+/* node was multiplied by scalar */
+void PetscVectorWrapperCombNode::scale(double alpha){
+	this->coeff *= alpha;
 }
 
 /* get the coefficient from this node */
