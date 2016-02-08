@@ -21,11 +21,7 @@ int T = 10; /* default length of generated time serie */
 int K = 3; /* default number of clusters */
 int dim = 2; /* default dimension of the problem */
 
-/* PetscVector */
-#ifdef USE_PETSC // TODO: add to common.h
-	#include "petscvector.h"
-#endif
-
+/* load options from console arguments */
 bool load_from_console(int argc, char *argv[]){
 	bool return_value = true; /* continue of not? */
 
@@ -79,37 +75,9 @@ int main( int argc, char *argv[] )
 	if(!load_from_console(argc, argv)){
 		return 0;
 	}
-	
 		
 	Initialize(argc, argv); // TODO: load parameters of problem from console input
 
-	PetscVector vec1(10);
-	vec1.set(1.0); // TODO: vec1(all) = 2
-	
-	vec1(2) = 5.5;
-
-	std::cout << "vec1(2): " << vec1(2) << std::endl;
-	std::cout << "vec1: " << vec1 << std::endl;
-
-	PetscVector vec2(10);
-	vec2 = 5*vec1;
-
-	std::cout << "vec2: " << vec2 << std::endl;
-
-	PetscVector vec3(10);
-//	PetscVectorWrapperComb test;
-	vec3 = -2*vec1 + 5*vec2;
-	std::cout << "vec3: " << vec3 << std::endl;
-
-
-	PetscVector vec4(10);
-//	PetscVectorWrapperComb test;
-	vec4 = 2*vec1 + vec2 + 0*vec3;
-
-	std::cout << "vec4: " << vec4 << std::endl;
-
-
-if(false){ // TODO: temp
 	Timer timer_program; /* global timer for whole application */
 	Timer timer_data; /* for generating the problem */
 	Timer timer_model; /* for manipulation with model */
@@ -169,7 +137,7 @@ if(false){ // TODO: temp
 
 	if(DEBUG_MODE >= 2) Message_info_time("- elapsed time: ",timer_program.get_value_sum());
 	if(DEBUG_MODE >= 3)	problem.print();
-}	
+
 	Finalize();
 	return 0;
 }

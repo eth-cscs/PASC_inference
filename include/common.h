@@ -23,6 +23,7 @@ MINLIN_INIT
 /* PetscVector */
 #ifdef USE_PETSC
 	#include "petsc.h"
+	#include "petscvector.h"
 #endif
 
 #include <stdio.h> /* printf in cuda */
