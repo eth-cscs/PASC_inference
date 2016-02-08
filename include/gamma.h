@@ -33,10 +33,8 @@ class Gamma {
 		/* GET functions */
 		int get_T();
 		int get_K();
+		int get_function_value();
 		GammaVector get_gamma_vec();
-
-		// TODO: temp
-		QPSolver get_qpsolver();
 
 		// TODO: this should be somewhere else, Model?
 		void compute_gk(GammaVector& g, DataVector data_vec, Theta theta);

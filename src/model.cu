@@ -97,4 +97,10 @@ Theta Model::get_theta()
 	return this->theta;
 }
 
+/* compute L */
+double Model::get_function_value()
+{
+	// TODO: this value should be recomputed using both of Theta and Gamma, since now I assume that b in qpsolver is computed from actual Theta
+	return this->gamma.get_function_value();
+}
 

@@ -35,12 +35,10 @@ void Problem::finalize()
 void Problem::solve(int max_s_steps, Scalar deltaL_eps)
 {
 	/* variables */
-	QPSolver qpsolver = this->model.get_gamma().get_qpsolver();
-
-	Scalar L, L_old, deltaL; /* object function value */
+	double L, L_old, deltaL; /* object function value */
 
 	/* initialize value of object function */
-	L = std::numeric_limits<Scalar>::max(); // TODO: the computation of L should be done in the different way
+	L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
 	
 	/* main cycle */
 	for(this->it=0;this->it < max_s_steps;this->it++){
@@ -64,7 +62,7 @@ void Problem::solve(int max_s_steps, Scalar deltaL_eps)
 
 		/* compute stopping criteria */
 		L_old = L;
-		L = qpsolver.get_function_value(this->model.get_gamma().gamma_vec);
+		L = model.get_function_value();
 		deltaL = abs(L - L_old);
 
 		/* print info about cost function */
@@ -80,9 +78,6 @@ void Problem::solve(int max_s_steps, Scalar deltaL_eps)
 		}
 		
 	}
-
-	qpsolver.finalize();
-
 
 }
 

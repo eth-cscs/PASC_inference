@@ -120,8 +120,6 @@ int main( int argc, char *argv[] )
 	 problem.solve(ALGORITHM_max_s_steps,ALGORITHM_deltaL_eps);
 	Message("- main cycle finished");
 
-	if(DEBUG_MODE >= 2)	problem.print();
-
 	/* save the solution to VTK */
 	if(EXPORT_SAVEVTK){
 		Message("- save solution to VTK");

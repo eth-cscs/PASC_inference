@@ -28,6 +28,7 @@ class Model {
 		void compute_gamma(DataVector data_vec);
 
 		/* GET functions */
+		double get_function_value();
 		int get_dim();
 		int get_T();
 		int get_K();

@@ -24,7 +24,7 @@ void Gamma::init(int dim, int T, int K)
 
 void Gamma::finalize()
 {
-
+	this->qpsolver.finalize();
 }
 
 void Gamma::prepare_random()
@@ -130,11 +130,12 @@ int Gamma::get_K()
 	return this->K;
 }
 
-QPSolver Gamma::get_qpsolver()
+int Gamma::get_function_value()
 {
-	return this->qpsolver;
+	return this->qpsolver.get_function_value(gamma_vec,false);
 }
 
+// TODO: temp
 GammaVector Gamma::get_gamma_vec()
 {
 	return this->gamma_vec;
