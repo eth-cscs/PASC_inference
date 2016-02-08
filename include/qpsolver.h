@@ -10,7 +10,6 @@ class QPSolver;
 
 class QPSolver {
 	protected:
-		GammaVector x;
 		int T;
 		int K;
 
@@ -37,11 +36,10 @@ class QPSolver {
 	public:
 		GammaVector b; /* rhs */ // TODO: this should be private
 
-		void init(GammaVector x, int T, int K, Scalar eps_sqr);
+		void init(int T, int K, Scalar eps_sqr);
 		void finalize();
 
-		void solve();
-		Scalar get_function_value();
+		void solve(GammaVector &x);
 		Scalar get_function_value(GammaVector x);
 		Scalar get_function_value(GammaVector x, bool use_gradient);
 

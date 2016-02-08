@@ -17,7 +17,8 @@ void Initialize(int argc, char *argv[]){
 
   	/* init Petsc */
   	#ifdef USE_PETSC
-		PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
+//		PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
+		PetscInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
 	#endif
 }
 

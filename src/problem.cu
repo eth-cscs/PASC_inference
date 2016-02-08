@@ -64,14 +64,14 @@ void Problem::solve(int max_s_steps, Scalar deltaL_eps)
 
 		/* compute stopping criteria */
 		L_old = L;
-		L = qpsolver.get_function_value();
+		L = qpsolver.get_function_value(this->model.get_gamma().gamma_vec);
 		deltaL = abs(L - L_old);
 
 		/* print info about cost function */
 		if(DEBUG_MODE >= 2){
-//			Message_info_value("  - L_old       = ",L_old);
+			Message_info_value("  - L_old       = ",L_old);
 			Message_info_value("  - L           = ",L);
-//			Message_info_value("  - |L - L_old| = ",deltaL);
+			Message_info_value("  - |L - L_old| = ",deltaL);
 		}	
 
 		/* end the main cycle if the change of function value is sufficient */

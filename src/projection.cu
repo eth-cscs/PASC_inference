@@ -1,7 +1,7 @@
 #include "projection.h"
 
 
-void get_projection(GammaVector &x, int K){
+void get_projection(GammaVector & x, int K){
 
 	int N = x.size();
 	int T = N/K; /* length of vectors */

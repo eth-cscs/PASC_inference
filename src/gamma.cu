@@ -15,7 +15,7 @@ void Gamma::init(int dim, int T, int K)
 
 	/* prepare QPSolver */
 	QPSolver new_qpsolver;
-	new_qpsolver.init(this->gamma_vec, this->T, this->K, 100);
+	new_qpsolver.init(this->T, this->K, 10);
 	if(DEBUG_MODE >= 3) new_qpsolver.print();
 
 	this->qpsolver = new_qpsolver;
@@ -81,7 +81,7 @@ void Gamma::compute(DataVector data_vec, Theta theta)
 	this->qpsolver.b *= -1.0;
 	
 	/* --- SOLVE OPTIMIZATION PROBLEM --- */
-	this->qpsolver.solve();
+	this->qpsolver.solve(this->gamma_vec);
 }
 
 void Gamma::print()

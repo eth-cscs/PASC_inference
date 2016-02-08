@@ -4,7 +4,7 @@
 #define ALGORITHM_SPGQP_m 30
 #define ALGORITHM_SPGQP_gamma 0.9
 #define ALGORITHM_SPGQP_sigma2 1.0
-#define ALGORITHM_SPGQP_eps 0.0001
+#define ALGORITHM_SPGQP_eps 0.00001
 #define ALGORITHM_SPGQP_maxit 10000
 #define ALGORITHM_SPGQP_lambdaest 4.0
 #define DEBUG_ALGORITHM_BASIC false /* basic information about used algorithm and parameters */
@@ -14,12 +14,11 @@
 #define DEBUG_ALGORITHM_PRINTCOEFF false /* print computed coefficients in every iteration */
 
 /* prepare data which are constant */
-void QPSolver::init(GammaVector x, int T, int K, Scalar eps_sqr){
-	this->x = x;
+void QPSolver::init(int T, int K, Scalar eps_sqr){
 	this->T = T;
 	this->K = K;
 	this->eps_sqr = eps_sqr;
-	
+
 	this->timer_projection.restart();
 	this->timer_matmult.restart();
 	this->timer_dot.restart();
@@ -59,9 +58,8 @@ void QPSolver::finalize(){
 	this->timer_total.stop();
 }
 
-void QPSolver::solve(){
+void QPSolver::solve(GammaVector &x){
 	this->timer_total.start(); /* stop this timer in the end of solution */
-
 
 	/* algorithm parameters */
 	int m = ALGORITHM_SPGQP_m;
@@ -84,6 +82,7 @@ void QPSolver::solve(){
 	Scalar gd; /* dot(g,d) */
 	Scalar dAd; /* dot(Ad,d) */
 	Scalar alpha_bb; /* BB step-size */
+
 	
 	/* initial step-size */
 	alpha_bb = alphainit;
@@ -102,28 +101,27 @@ void QPSolver::solve(){
 
 	/* project initial approximation to feasible set */
 	this->timer_projection.start();
-	 get_projection(this->x, this->get_K());
+	 get_projection(x, this->get_K());
 	this->timer_projection.stop();
 
 	/* compute gradient, g = A*x-b */
 	this->timer_matmult.start();
-	 get_Ax_laplace(this->g,this->x,this->eps_sqr); 
+	 get_Ax_laplace(this->g,x,K,this->eps_sqr); 
  	 this->hessmult += 1; /* there was muliplication by A */
 	this->timer_matmult.stop();
 	this->g -= this->b;
-	
-	/* compute function value - it has its own timer */
+
+	/* compute function value */
 	this->timer_fs.start();
- 	 fx = this->get_function_value(this->x, true);
+ 	 fx = this->get_function_value(x,true);
 	 fs(all) = fx;
 	this->timer_fs.stop();
 
-	
 	/* main cycle */
 	while(this->it < maxit){
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start(); /* this is vector update */
-		 this->d = this->x - alpha_bb*(this->g);
+		 this->d = x - alpha_bb*(this->g);
 		this->timer_update.stop();
 
 		/* d = P(d) */
@@ -132,14 +130,14 @@ void QPSolver::solve(){
 		this->timer_projection.stop();
 		
 		/* d = d - x */
-		/* Ad = A*d */
 		this->timer_update.start();
-		 this->d += -this->x;
+		 this->d += -x;
 		this->timer_update.stop();
 
+		/* Ad = A*d */
 		this->timer_matmult.start();
-		 get_Ax_laplace(this->Ad,this->d,this->eps_sqr);
-		 this->hessmult += 1; /* there was muliplication by A */
+		 get_Ax_laplace(this->Ad,this->d,K,this->eps_sqr);
+		 this->hessmult += 1; /* there was multiplication by A */
 		this->timer_matmult.stop();
 
 		/* dd = dot(d,d) */
@@ -177,13 +175,13 @@ void QPSolver::solve(){
 
 		/* update approximation and gradient */
 		this->timer_update.start();/* this is vector update */
-		 this->x += (this->d)*beta; /* x = x + beta*d */
+		 x += (this->d)*beta; /* x = x + beta*d */
 		 this->g += (this->Ad)*beta; /* g = g + beta*Ad */
 		this->timer_update.stop();
 		
 		/* compute new function value using gradient */
 		this->timer_fs.start();
-		 fx = this->get_function_value(this->x, true);
+		 fx = this->get_function_value(x,true);
 		
 		 /* update fs */
 		 /* fs(1:end-1) = fs(2:end); */
@@ -206,9 +204,7 @@ void QPSolver::solve(){
 			std::cout << "\033[33mit = \033[0m" << this->it << std::endl;
 		}
 
-		if(DEBUG_ALGORITHM_PRINTF){
-			std::cout << "\033[36m fx = \033[0m" << fx << std::endl;
-		}
+//			std::cout << "\033[36m fx = \033[0m" << fx << std::endl;
 
 		if(DEBUG_ALGORITHM_PRINTFS){
 			std::cout << "\033[36m fs = \033[0m" << fs << std::endl;
@@ -233,6 +229,8 @@ void QPSolver::solve(){
 		
 		/* increase iteration counter */
 		this->it += 1;
+
+
 	} /* main cycle end */
 
 	this->it_all += this->it;
@@ -260,20 +258,16 @@ void QPSolver::solve(){
 
 }
 
-Scalar QPSolver::get_function_value(){
-	return this->get_function_value(this->x);
-}
-
 Scalar QPSolver::get_function_value(GammaVector x){
 	return this->get_function_value(x,false);
 }
 
 Scalar QPSolver::get_function_value(GammaVector x, bool use_gradient){
-	Scalar fx = 0.0;
+	Scalar fx = std::numeric_limits<Scalar>::max();
 
 	if(use_gradient){
 		/* use computed gradient in this->gs to compute function value */
-		fx = 0.5*get_dot(this->g-this->b,x);
+		fx = 0.5*get_dot(this->g - this->b,x);
 	} else {
 		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
 		/* for safety - do not use any allocated vector */
@@ -281,14 +275,16 @@ Scalar QPSolver::get_function_value(GammaVector x, bool use_gradient){
 		GammaVector Ax(this->get_T()*this->get_K());
 		Scalar xAx, xb;
 
-		get_Ax_laplace(Ax,x,this->eps_sqr);
+		get_Ax_laplace(Ax,x,this->get_K(),this->eps_sqr);
 		 
 		xAx = get_dot(Ax,x);
-		fx += 0.5*xAx;
+		fx = 0.5*xAx;
 		 
 		xb = get_dot(x,this->b);
 		fx -= xb;
+		
 	}	
+
 
 	return fx;	
 }
@@ -330,17 +326,6 @@ void QPSolver::print(int nmb_of_spaces){
 	for(k=0;k<K;k++){
 		oss << oss_spaces.str() << "   b[" << k << "] = ";
 		oss_values << this->b(k*T,(k+1)*T-1);
-		Message_info_values(oss.str(),oss_values.str());	
-		oss.str(""); oss.clear();
-		oss_values.str(""); oss_values.clear();
-	}
-
-	oss << oss_spaces.str() << " - vector of unknowns x:";
-	Message_info(oss.str());
-	oss.str(""); oss.clear();
-	for(k=0;k<K;k++){
-		oss << oss_spaces.str() << "   x[" << k << "] = ";
-		oss_values << this->x(k*T,(k+1)*T-1);
 		Message_info_values(oss.str(),oss_values.str());	
 		oss.str(""); oss.clear();
 		oss_values.str(""); oss_values.clear();
