@@ -21,9 +21,10 @@ class PetscVector {
 		/* subvector stuff */
 		IS subvector_is; /* is NULL if we work with whole vector */
 		Vec inner_vector_orig; /* from which vector we created a subvector? to be able to restore */
-		
+
 	public:
 
+		PetscVector();
 		PetscVector(int n);
 		PetscVector(const PetscVector &vec1);
 		PetscVector(Vec new_inner_vector);
@@ -37,27 +38,44 @@ class PetscVector {
 		void scale(PetscScalar alpha);
 
 		Vec get_vector() const; // TODO: temp, direct access to inner vector should be forbidden
-		int get_size();
+		int size();
 		double get(int index);
 
 		void set(PetscScalar new_value);
 		void set(int index, PetscScalar new_value);
 
+		/* assignment */
 		PetscVector& operator=(const PetscVector &vec2);
 		PetscVector& operator=(PetscVectorWrapperCombNode combnode);	
 		PetscVector& operator=(PetscVectorWrapperComb comb);	
 		PetscVector& operator=(double scalar_value);	
 		
+		/* subvector */
 		PetscVector operator()(int index);
 		PetscVector operator()(int index_begin,int index_end);
 
 		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector);
 
 		friend void operator*=(PetscVector vec1, double alpha);
-		friend void operator+=(PetscVector vec1, PetscVectorWrapperComb comb);
-		friend void operator-=(PetscVector vec1, PetscVectorWrapperComb comb);
-		friend double dot(const PetscVector vec1, const PetscVector vec2); // TODO: with PetscVectorWrapperComb comb
+		friend void operator+=(PetscVector vec1, const PetscVectorWrapperComb comb);
+		friend void operator-=(PetscVector vec1, const PetscVectorWrapperComb comb);
 
+		friend bool operator==(PetscVector vec1, double alpha);
+		friend bool operator==(PetscVector vec1, PetscVector vec2);
+
+		friend bool operator>(PetscVector vec1, PetscVector vec2);
+
+
+		friend double dot(const PetscVector vec1, const PetscVector vec2); // TODO: with PetscVectorWrapperComb comb
+		friend double max(const PetscVector vec1); // TODO: with PetscVectorWrapperComb comb
+		friend double sum(const PetscVector vec1); // TODO: with PetscVectorWrapperComb comb
+		friend const PetscVector operator/(PetscVector vec1, PetscVector vec2);
+		
+
+		/* define operator PetscVector(all), it is a mixture of petscvector and minlin  */
+		PetscVector operator()(minlin::detail::all_type add_in){
+			return *this;
+		}
 
 };
 
@@ -75,6 +93,7 @@ class PetscVectorWrapperComb
 
 		int get_listsize();
 		int get_vectorsize();
+		Vec get_first_vector();
 		void append(PetscVectorWrapperCombNode new_node);
 		void merge(PetscVectorWrapperComb comb);
 		void get_arrays(PetscScalar *coeffs, Vec *vectors);
@@ -123,6 +142,14 @@ class PetscVectorWrapperCombNode
 
 /* --------------------- PetscVector ----------------------*/
 
+/* PetscVector default constructor */
+PetscVector::PetscVector(){
+	inner_vector = PETSC_NULL;
+	inner_vector_orig = PETSC_NULL; 
+	subvector_is = PETSC_NULL;
+}
+
+
 /* PetscVector constructor with global dimension */
 PetscVector::PetscVector(int n){
 	inner_vector_orig = PETSC_NULL; 
@@ -137,13 +164,24 @@ PetscVector::PetscVector(int n){
 
 /* PetscVector copy constructor */
 PetscVector::PetscVector(const PetscVector &vec1){
+	inner_vector_orig = PETSC_NULL; 
+	subvector_is = PETSC_NULL;
+
 	inner_vector = vec1.inner_vector;
+/*	is_subvector = vec1.is_subvector;
+	subvector_is = vec1.subvector_is;
+	inner_vector_orig = vec1.inner_vector_orig;
+*/
+
 //	VecCopy(vec1.inner_vector,inner_vector);
 }
 
 /* PetscVector constructor with inner_vector */
 PetscVector::PetscVector(Vec new_inner_vector){
 	inner_vector = new_inner_vector;
+
+	subvector_is = PETSC_NULL;
+	inner_vector_orig = PETSC_NULL;	
 }
 
 /* PetscVector constructor with given IS = create subvector */
@@ -163,7 +201,7 @@ PetscVector::PetscVector(Vec old_inner_vector, IS new_subvector_is){
 PetscVector::~PetscVector(){
 
 	/* if this was a subvector, then restore values */
-	if(subvector_is != PETSC_NULL){
+	if(subvector_is){
 		/* restore subvector */
 		VecRestoreSubVector(inner_vector_orig, subvector_is, &inner_vector);
 	}
@@ -194,7 +232,7 @@ Vec PetscVector::get_vector() const { // TODO: temp
 }
 
 /* get size of the vector */
-int PetscVector::get_size(){
+int PetscVector::size(){
 	int global_size;
 	VecGetSize(inner_vector,&global_size);
 	return global_size;
@@ -243,8 +281,14 @@ std::ostream &operator<<(std::ostream &output, const PetscVector &vector)
 PetscVector& PetscVector::operator=(const PetscVector &vec2){
 	/* check for self-assignment by comparing the address of the implicit object and the parameter */
 	/* vec1 = vec1 */
-    if (this == &vec2)
+    if (this == &vec2){
         return *this;
+	}
+
+	/* vec1 is not initialized yet */
+	if (!inner_vector){
+		VecDuplicate(vec2.inner_vector,&inner_vector);
+	}
 
 	/* else copy the values of inner vectors */
 	VecCopy(vec2.inner_vector,inner_vector);
@@ -259,6 +303,11 @@ PetscVector& PetscVector::operator=(PetscVectorWrapperCombNode combnode){
         return *this;
 	}
 
+	/* vec1 is not initialized yet */
+	if (!inner_vector){
+		VecDuplicate(combnode.get_vector(),&inner_vector);
+	}
+
 	/* else copy the vector values and then scale */
 	VecCopy(combnode.get_vector(),inner_vector);
     this->scale(combnode.get_coeff());
@@ -268,6 +317,11 @@ PetscVector& PetscVector::operator=(PetscVectorWrapperCombNode combnode){
 
 /* vec1 = linear_combination, perform full linear combination */
 PetscVector& PetscVector::operator=(PetscVectorWrapperComb comb){
+
+	/* vec1 is not initialized yet */
+	if (!inner_vector){
+		VecDuplicate(comb.get_first_vector(),&inner_vector);
+	}
 
 	/* vec1 = 0, we will perform MAXPY (y += lin_comb) */
 	VecSet(inner_vector,0.0);
@@ -333,12 +387,73 @@ void operator-=(PetscVector vec1, PetscVectorWrapperComb comb)
 	vec1 += (-1.0)*comb;
 }
 
+/* vec1 == scalar */
+bool operator==(PetscVector vec1, double alpha){
+	bool return_value = false; // TODO: works only with vector of size 1, otherwise compare only first value
+	double vector_value = vec1.get(0);
+	
+	if(vector_value == alpha){
+		return_value = true;
+	}	
+	
+	return return_value;
+}
+
+/* vec1 == vec2 */
+bool operator==(PetscVector vec1, PetscVector vec2){
+	PetscBool return_value;
+
+	VecEqual(vec1.inner_vector,vec2.inner_vector,&return_value);
+	
+	return (bool)return_value;
+}
+
+/* vec1 > vec2 */
+bool operator>(PetscVector vec1, PetscVector vec2){
+	bool return_value = false; // TODO: works only with vector of size 1, otherwise compare only first value
+	
+	double vec1_value = vec1.get(0);
+	double vec2_value = vec2.get(0);
+	
+	if(vec1_value > vec2_value){
+		return_value = true;
+	}	
+	
+	return return_value;
+
+}
+
+
 /* dot = dot(vec1,vec2) */
 double dot(const PetscVector vec1, const PetscVector vec2)
 {
 	double dot_value;
 	VecDot(vec1.inner_vector,vec2.inner_vector,&dot_value);
 	return dot_value;
+}
+
+/* max = max(vec1) */
+double max(const PetscVector vec1)
+{
+	double max_value;
+	VecMax(vec1.inner_vector,NULL, &max_value);
+	return max_value;
+}
+
+/* sum = sum(vec1) */
+double sum(const PetscVector vec1)
+{
+	double sum_value;
+	VecSum(vec1.inner_vector,&sum_value);
+	return sum_value;
+}
+
+/* vec3 = vec1./vec2 */
+const PetscVector operator/(PetscVector vec1, PetscVector vec2)
+{
+	VecPointwiseDivide(vec1.inner_vector,vec1.inner_vector,vec2.inner_vector);
+	vec1.valuesUpdate();
+	return vec1;
 }
 
 
@@ -398,6 +513,18 @@ int PetscVectorWrapperComb::get_vectorsize(){
 	vector_size = list_iter->get_size();
 
 	return vector_size;
+}
+
+/* get frist vector from the list */
+Vec PetscVectorWrapperComb::get_first_vector(){
+	std::list<PetscVectorWrapperCombNode>::iterator list_iter; /* iterator through list */
+	Vec vector;
+
+	/* get first element and obtain a size of the vector */
+	list_iter = comb_list.begin();
+	vector = list_iter->get_vector();
+
+	return vector;
 }
 
 /* prepare arrays from linear combination list, I assume that arrays are allocated */

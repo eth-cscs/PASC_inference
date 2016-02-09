@@ -10,21 +10,26 @@ typedef double Scalar;
 /* define HostVector/DeviceVector for each data type */
 #ifdef USE_GPU
 	/* compute using CUDA on Device */
-	#define DataVector DeviceVector<Scalar>
+/*	#define DataVector DeviceVector<Scalar>
 	#define ThetaVector DeviceVector<Scalar>
 	#define GammaVector DeviceVector<Scalar>
 	#define GammaMatrix DeviceMatrix<Scalar>
-
+*/
 #else
 	/* compute without CUDA on Host */
-	#define DataVector HostVector<Scalar>
+/*	#define DataVector HostVector<Scalar>
 	#define ThetaVector HostVector<Scalar>
 	#define GammaVector HostVector<Scalar>
 	#define GammaMatrix HostMatrix<Scalar>
+*/
 #endif
 
 #ifdef USE_PETSC
-
+	/* compute with Petsc */
+	#define DataVector PetscVector
+	#define ThetaVector PetscVector
+	#define GammaVector PetscVector
+	#define GammaMatrix PetscVector
 
 
 #endif

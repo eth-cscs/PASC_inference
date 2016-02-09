@@ -69,7 +69,7 @@ void Theta::print(int nmb_of_spaces)
 		end_idx = (k+1)*this->dim-1;
 		
 		oss << oss_spaces.str() << " - Theta_" << k << " = ";
-		oss_values << this->theta_vec(range(start_idx,end_idx));
+		oss_values << this->theta_vec(start_idx,end_idx);
 		Message_info_values(oss.str(),oss_values.str());
 
 		oss.str("");

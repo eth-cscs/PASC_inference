@@ -1,12 +1,12 @@
 #include "projection.h"
 
+/* -------- DeviceVector ---------- */
 
-void get_projection(GammaVector & x, int K){
+void get_projection(DeviceVector<Scalar> & x, int K){
 
 	int N = x.size();
 	int T = N/K; /* length of vectors */
 
-#ifdef USE_GPU
 	/* call projection using kernel */
 	Scalar *xp = x.pointer();
 	
@@ -16,30 +16,9 @@ void get_projection(GammaVector & x, int K){
 	/* synchronize kernels, if there is an error with cuda, then it will appear here */ 
 	gpuErrchk( cudaDeviceSynchronize() );	
 	
-#else
-	int t,k;
-	Scalar x_sub[K];  /* GammaVector x_sub(K); */
 
-	#pragma omp parallel for private(t)	
-	for(t=0;t<T;t++){
-		/* cut x_sub from x */
-		for(k=0;k<K;k++){
-			x_sub[k] = x(k*T+t);
-		}
-		
-		/* compute subprojection */
-		get_projection_sub(x_sub, K);
-
-		/* add x_sub back to x */
-		for(k=0;k<K;k++){
-			x(k*T+t) = x_sub[k];
-		}
-	}
-#endif
 }
 
-
-#ifdef USE_GPU
 
 __device__
 void device_sort_bubble(Scalar *x, int n){
@@ -147,7 +126,35 @@ void kernel_get_projection_sub(Scalar *x, int T, const int K){
 
 
 
-#else
+
+
+/* -------- HostVector ---------- */
+
+void get_projection(HostVector<Scalar> & x, int K){
+
+	int N = x.size();
+	int T = N/K; /* length of vectors */
+
+	int t,k;
+	Scalar x_sub[K];  /* GammaVector x_sub(K); */
+
+	#pragma omp parallel for private(t)	
+	for(t=0;t<T;t++){
+		/* cut x_sub from x */
+		for(k=0;k<K;k++){
+			x_sub[k] = x(k*T+t);
+		}
+		
+		/* compute subprojection */
+		get_projection_sub(x_sub, K);
+
+		/* add x_sub back to x */
+		for(k=0;k<K;k++){
+			x(k*T+t) = x_sub[k];
+		}
+	}
+}
+
 
 /* project x_sub to feasible set defined by equality and inequality constraints
  * sum(x_sub) = 1
@@ -243,4 +250,17 @@ void sort_bubble(Scalar *x, int n){
     }
 }
 
-#endif
+
+/* -------- PetscVector ---------- */
+
+bool petsc_projection_initialized = false; /* the initialization of projection was performed or not */
+
+
+void get_projection(PetscVector & x, int K){
+	/* initialization - how much I will compute? */
+	if(!petsc_projection_initialized){
+		std::cout << "*********** initialization of projection ***************" << std::endl;
+		petsc_projection_initialized = true;
+	}
+
+}

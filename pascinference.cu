@@ -92,8 +92,12 @@ int main( int argc, char *argv[] )
 	
 	/* prepare data */
 	Data_kmeans data;
+	
 	data.init(dim,T); // TODO: make it more funny using input K
+
+
 	timer_data.start(); 
+	 if(DEBUG_MODE >= 3) Message_info(" - generate data");
 	 data.generate();
 	timer_data.stop();
 

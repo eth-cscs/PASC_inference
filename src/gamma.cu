@@ -155,5 +155,6 @@ void Gamma::compute_gk(GammaVector& g, DataVector data_vec, Theta theta)
 			g(k*this->T + t) = dot(temp,temp);
 		}
 	}
+	
 }
 

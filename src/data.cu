@@ -2,6 +2,7 @@
 
 void Data::init(int dim, int T)
 {
+	if(DEBUG_MODE >= 3) Message_info(" - init data");
 
 	/* set input values */
 	this->dim = dim;
@@ -10,12 +11,14 @@ void Data::init(int dim, int T)
 	/* prepare array with data vectors */
 	DataVector new_data_vector(this->dim*this->T);
 	new_data_vector(all) = 0.0;
+
 	this->data_vec = new_data_vector;
 
 }
 
 void Data::finalize()
 {
+	if(DEBUG_MODE >= 3) Message_info(" - finalize data");
 
 }
 
@@ -59,6 +62,8 @@ void Data::print()
  * 
 **/
 void Data::generate(){
+	if(DEBUG_MODE >= 3) Message_info(" - generate data");
+
 	// TODO: here implement implicit random data generator, for example put random numbers everywhere
 }
 
@@ -79,6 +84,8 @@ void Data::generate(){
 
 /* ------------ KMEANS ------------- */
 void Data_kmeans::generate(){
+	if(DEBUG_MODE >= 3) Message_info(" - generate Kmeans data");
+
 	int t;
 	int T = this->T;
 	Scalar random_value1, random_value2; 

@@ -119,6 +119,8 @@ void QPSolver::solve(GammaVector &x){
 
 	/* main cycle */
 	while(this->it < maxit){
+	Message("test 3");
+
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start(); /* this is vector update */
 		 this->d = x - alpha_bb*(this->g);
@@ -128,10 +130,13 @@ void QPSolver::solve(GammaVector &x){
 		this->timer_projection.start();
 		 get_projection(this->d, K);
 		this->timer_projection.stop();
+
+
+	Message("test 4");
 		
 		/* d = d - x */
 		this->timer_update.start();
-		 this->d += -x;
+		 this->d -= x;
 		this->timer_update.stop();
 
 		/* Ad = A*d */
@@ -148,6 +153,9 @@ void QPSolver::solve(GammaVector &x){
 		 dAd = get_dot(this->Ad,this->d);
 		 gd = get_dot(this->g,this->d);
 		this->timer_dot.stop();
+
+
+	Message("test 4");
 		
 		/* stopping criteria */
 		if(dd < eps){
@@ -173,10 +181,13 @@ void QPSolver::solve(GammaVector &x){
 		 }
 		this->timer_stepsize.stop();
 
+	Message("test 5");
+
+
 		/* update approximation and gradient */
 		this->timer_update.start();/* this is vector update */
-		 x += (this->d)*beta; /* x = x + beta*d */
-		 this->g += (this->Ad)*beta; /* g = g + beta*Ad */
+		 x += beta*(this->d); /* x = x + beta*d */
+		 this->g += beta*(this->Ad); /* g = g + beta*Ad */
 		this->timer_update.stop();
 		
 		/* compute new function value using gradient */
@@ -193,11 +204,17 @@ void QPSolver::solve(GammaVector &x){
 			fs(m-1) = fx;
 		 }
 		this->timer_fs.stop();
+
+	Message("test 6");
+
 		
 		/* update BB step-size */
 		this->timer_stepsize.start(); /* step-size timer */
 		 alpha_bb = dd/dAd;
 		this->timer_stepsize.stop();
+
+	Message("test 7");
+
 		
 		/* print progress of algorithm */
 		if(DEBUG_ALGORITHM_PRINTF || DEBUG_ALGORITHM_PRINTFS || DEBUG_ALGORITHM_PRINTCOEFF){
@@ -267,7 +284,10 @@ Scalar QPSolver::get_function_value(GammaVector x, bool use_gradient){
 
 	if(use_gradient){
 		/* use computed gradient in this->gs to compute function value */
-		fx = 0.5*get_dot(this->g - this->b,x);
+		GammaVector temp;
+		temp = this->g;
+		temp -= this->b;
+		fx = 0.5*get_dot(temp,x);
 	} else {
 		/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
 		/* for safety - do not use any allocated vector */
