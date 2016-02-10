@@ -113,11 +113,6 @@ void QPSolver::solve(GammaVector &x){
 	 fs.init(fx);	
 	this->timer_fs.stop();
 
-	std::cout << "BEFORE MAIN CYCLE" << std::endl;
-	std::cout << " b = " << this->b << std::endl;
-	std::cout << " x = " << x << std::endl;
-	std::cout << " g = " << this->g << std::endl;
-
 	/* main cycle */
 	while(this->it < maxit){
 
@@ -126,31 +121,21 @@ void QPSolver::solve(GammaVector &x){
 		 this->d = x - alpha_bb*(this->g);
 		this->timer_update.stop();
 
-	std::cout << "IT " << this->it << std::endl;
-	std::cout << " d = " << this->d << std::endl;
-
-
 		/* d = P(d) */
 		this->timer_projection.start();
 		 get_projection(this->d, K);
 		this->timer_projection.stop();
-
-	std::cout << " Pd = " << this->d << std::endl;
 
 		/* d = d - x */
 		this->timer_update.start();
 		 this->d -= x;
 		this->timer_update.stop();
 
-	std::cout << " d = " << this->d << std::endl;
-
 		/* Ad = A*d */
 		this->timer_matmult.start();
 		 get_Ax_laplace(this->Ad,this->d,K,this->eps_sqr);
 		 this->hessmult += 1; /* there was multiplication by A */
 		this->timer_matmult.stop();
-
-	std::cout << " Ad = " << this->Ad << std::endl;
 
 		/* dd = dot(d,d) */
 		/* dAd = dot(Ad,d) */
@@ -160,11 +145,6 @@ void QPSolver::solve(GammaVector &x){
 		 dAd = get_dot(this->Ad,this->d);
 		 gd = get_dot(this->g,this->d);
 		this->timer_dot.stop();
-
-	std::cout << " dd = " << dd << std::endl;
-	std::cout << " dAd = " << dAd << std::endl;
-	std::cout << " gd = " << gd << std::endl;
-
 
 		/* stopping criteria */
 		if(dd < eps){

@@ -284,10 +284,6 @@ void get_projection(PetscVector & x, int K){
 		std::cout << "my ownership: [" << petsc_projection_Townership_low << ", " << petsc_projection_Townership_high << "]" << std::endl;
 	}
 
-
-	std::cout << "this is the projection" << std::endl;
-	std::cout << "before:" << x << std::endl;
-
 	int t;
 	PetscVector x_sub;
 	Scalar *x_sub_arr;
@@ -298,8 +294,6 @@ void get_projection(PetscVector & x, int K){
 
 		/* get the subvector from global vector */
 		x_sub = x(petsc_projection_is);
-
-	std::cout << std::endl << "x_sub before: " << x_sub << std::endl;
 
 		/* get the array */
 		x_sub.get_array(&x_sub_arr);
@@ -321,11 +315,9 @@ void get_projection(PetscVector & x, int K){
 		/* restore the array */
 		x_sub.restore_array(&x_sub_arr);
 
-	std::cout << "x_sub after: " << x_sub << std::endl << std::endl;
+		x(petsc_projection_is) = x_sub;
 
 	}
-
-	std::cout << "after:" << x << std::endl;
 
 }
 
