@@ -14,7 +14,7 @@ lukas.pospisil@usi.ch
 #include <boost/program_options.hpp>
 
 #define ALGORITHM_deltaL_eps 0.0001 /*stopping criteria of outer main loop */
-#define ALGORITHM_max_s_steps 100 /* max number of outer steps */
+#define ALGORITHM_max_s_steps 1 /* max number of outer steps */
 #define ALGORITHM_EPSSQUARE 10.0 /* default FEM regularization parameter */
 
 int T = 10; /* default length of generated time serie */

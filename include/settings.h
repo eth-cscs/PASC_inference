@@ -31,6 +31,13 @@ typedef double Scalar;
 	#define GammaVector PetscVector
 	#define GammaMatrix PetscVector
 
+#else
+
+	/* compute without CUDA on Host */
+	#define DataVector HostVector<Scalar>
+	#define ThetaVector HostVector<Scalar>
+	#define GammaVector HostVector<Scalar>
+	#define GammaMatrix HostMatrix<Scalar>
 
 #endif
 

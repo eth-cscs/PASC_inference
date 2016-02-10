@@ -7,6 +7,24 @@ class QPSolver;
 
 #include "operations.h"
 #include "projection.h"
+#include <list>
+
+/* for manipulation with fs - function values for generalized Armijo condition */
+class QPSolver_fs {
+	private:
+		int m; /* the length of list */
+		std::list<Scalar> fs_list; /* the list with function values */
+		
+	public: 
+		QPSolver_fs(int new_m);
+		void init(Scalar fx);
+		Scalar get_max();		
+		int get_size();
+		void update(Scalar new_fx);
+		
+		friend std::ostream &operator<<(std::ostream &output, QPSolver_fs fs);
+	
+};
 
 class QPSolver {
 	protected:

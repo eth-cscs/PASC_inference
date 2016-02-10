@@ -40,6 +40,10 @@ class PetscVector {
 		Vec get_vector() const; // TODO: temp, direct access to inner vector should be forbidden
 		int size();
 		double get(int index);
+		void get_ownership(int *low, int *high);
+
+		void get_array(double **arr);
+		void restore_array(double **arr);
 
 		void set(PetscScalar new_value);
 		void set(int index, PetscScalar new_value);
@@ -53,6 +57,7 @@ class PetscVector {
 		/* subvector */
 		PetscVector operator()(int index);
 		PetscVector operator()(int index_begin,int index_end);
+		PetscVector operator()(IS new_subvector_is);
 
 		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector);
 
@@ -251,6 +256,18 @@ double PetscVector::get(int i)
 	return y[0];
 }
 
+void PetscVector::get_array(double **arr){
+	VecGetArray(inner_vector,arr);
+}
+
+void PetscVector::restore_array(double **arr){
+	VecRestoreArray(inner_vector,arr);
+}
+
+void PetscVector::get_ownership(int *low, int *high){
+	VecGetOwnershipRange(inner_vector, low, high);
+}
+
 /* inner_vector = alpha*inner_vector */
 void PetscVector::scale(PetscScalar alpha){
 	VecScale(inner_vector, alpha);
@@ -360,6 +377,14 @@ PetscVector PetscVector::operator()(int index_begin, int index_end)
 	
 	return PetscVector(inner_vector, new_subvector_is);
 }
+
+/* return subvector based on provided index set */ 
+PetscVector PetscVector::operator()(IS new_subvector_is)
+{   
+	return PetscVector(inner_vector, new_subvector_is);
+}
+
+
 
 /* vec1 *= alpha */
 void operator*=(PetscVector vec1, double alpha)

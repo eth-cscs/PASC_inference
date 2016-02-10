@@ -7,11 +7,6 @@
 #define ALGORITHM_SPGQP_eps 0.00001
 #define ALGORITHM_SPGQP_maxit 10000
 #define ALGORITHM_SPGQP_lambdaest 4.0
-#define DEBUG_ALGORITHM_BASIC false /* basic information about used algorithm and parameters */
-#define DEBUG_ALGORITHM_SAYHELLO false /* information about used algorithm and parameters */
-#define DEBUG_ALGORITHM_PRINTF false /* print object function value in every iteration */
-#define DEBUG_ALGORITHM_PRINTFS false /* print vector of object functions in every iteration */
-#define DEBUG_ALGORITHM_PRINTCOEFF false /* print computed coefficients in every iteration */
 
 /* prepare data which are constant */
 void QPSolver::init(int T, int K, Scalar eps_sqr){
@@ -75,9 +70,9 @@ void QPSolver::solve(GammaVector &x){
 
 	int K = this->get_K(); /* number of clusters */
 	Scalar fx; /* function value */
-	GammaVector fs(m); /* store function values for generalized A-condition */
+	QPSolver_fs fs(m); /* store function values for generalized Armijo condition */
 	Scalar fx_max; /* max(fs) */
-	Scalar xi, beta_bar, beta_hat,beta; /* for A-condition */
+	Scalar xi, beta_bar, beta_hat,beta; /* for Armijo condition */
 	Scalar dd; /* dot(d,d) */
 	Scalar gd; /* dot(g,d) */
 	Scalar dAd; /* dot(Ad,d) */
@@ -88,15 +83,15 @@ void QPSolver::solve(GammaVector &x){
 	alpha_bb = alphainit;
 
 	/* print basic informations about algorithm */
-	if(DEBUG_ALGORITHM_SAYHELLO){
-		Message_info("- SPGQP BEGIN -------------------------------------------------------------");
-		Message_info_main("- parameters:");
-		Message_info_value(" - m = \t\t\t",m);
-		Message_info_value(" - gamma = \t\t",gamma);
-		Message_info_value(" - sigma2 = \t\t",sigma2);
-		Message_info_value(" - alpha_init = \t",alphainit);
-		Message_info_value(" - eps = \t\t",eps);
-		Message_info_value(" - maxit = \t\t",maxit);
+	if(DEBUG_MODE >= 4){
+		Message_info("-- SPGQP BEGIN -------------------------------------------------------------");
+		Message_info_main(" - parameters:");
+		Message_info_value("  - m = \t\t\t",m);
+		Message_info_value("  - gamma = \t\t",gamma);
+		Message_info_value("  - sigma2 = \t\t",sigma2);
+		Message_info_value("  - alpha_init = \t",alphainit);
+		Message_info_value("  - eps = \t\t",eps);
+		Message_info_value("  - maxit = \t\t",maxit);
 	}
 
 	/* project initial approximation to feasible set */
@@ -114,36 +109,48 @@ void QPSolver::solve(GammaVector &x){
 	/* compute function value */
 	this->timer_fs.start();
  	 fx = this->get_function_value(x,true);
-	 fs(all) = fx;
+	 /* initialize fs */
+	 fs.init(fx);	
 	this->timer_fs.stop();
+
+	std::cout << "BEFORE MAIN CYCLE" << std::endl;
+	std::cout << " b = " << this->b << std::endl;
+	std::cout << " x = " << x << std::endl;
+	std::cout << " g = " << this->g << std::endl;
 
 	/* main cycle */
 	while(this->it < maxit){
-	Message("test 3");
 
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start(); /* this is vector update */
 		 this->d = x - alpha_bb*(this->g);
 		this->timer_update.stop();
 
+	std::cout << "IT " << this->it << std::endl;
+	std::cout << " d = " << this->d << std::endl;
+
+
 		/* d = P(d) */
 		this->timer_projection.start();
 		 get_projection(this->d, K);
 		this->timer_projection.stop();
 
+	std::cout << " Pd = " << this->d << std::endl;
 
-	Message("test 4");
-		
 		/* d = d - x */
 		this->timer_update.start();
 		 this->d -= x;
 		this->timer_update.stop();
+
+	std::cout << " d = " << this->d << std::endl;
 
 		/* Ad = A*d */
 		this->timer_matmult.start();
 		 get_Ax_laplace(this->Ad,this->d,K,this->eps_sqr);
 		 this->hessmult += 1; /* there was multiplication by A */
 		this->timer_matmult.stop();
+
+	std::cout << " Ad = " << this->Ad << std::endl;
 
 		/* dd = dot(d,d) */
 		/* dAd = dot(Ad,d) */
@@ -154,9 +161,11 @@ void QPSolver::solve(GammaVector &x){
 		 gd = get_dot(this->g,this->d);
 		this->timer_dot.stop();
 
+	std::cout << " dd = " << dd << std::endl;
+	std::cout << " dAd = " << dAd << std::endl;
+	std::cout << " gd = " << gd << std::endl;
 
-	Message("test 4");
-		
+
 		/* stopping criteria */
 		if(dd < eps){
 			break;
@@ -164,7 +173,7 @@ void QPSolver::solve(GammaVector &x){
 		
 		/* fx_max = max(fs) */
 		this->timer_fs.start(); /* manipulation with fs */
-		 fx_max = max(fs);	
+		 fx_max = fs.get_max();	
 		this->timer_fs.stop();
 		
 		/* compute step-size from A-condition */
@@ -181,66 +190,42 @@ void QPSolver::solve(GammaVector &x){
 		 }
 		this->timer_stepsize.stop();
 
-	Message("test 5");
-
-
 		/* update approximation and gradient */
 		this->timer_update.start();/* this is vector update */
 		 x += beta*(this->d); /* x = x + beta*d */
 		 this->g += beta*(this->Ad); /* g = g + beta*Ad */
 		this->timer_update.stop();
 		
-		/* compute new function value using gradient */
+		/* compute new function value using gradient and update fs list */
 		this->timer_fs.start();
 		 fx = this->get_function_value(x,true);
-		
-		 /* update fs */
-		 /* fs(1:end-1) = fs(2:end); */
-		 /* fs(end) = f;	*/
-		 if(m == 1){
-			fs(0) = fx;
-		 } else {
-			fs(0,m-2) = fs(1,m-1);
-			fs(m-1) = fx;
-		 }
+		 fs.update(fx);
 		this->timer_fs.stop();
 
-	Message("test 6");
-
-		
 		/* update BB step-size */
 		this->timer_stepsize.start(); /* step-size timer */
 		 alpha_bb = dd/dAd;
 		this->timer_stepsize.stop();
 
-	Message("test 7");
-
-		
 		/* print progress of algorithm */
-		if(DEBUG_ALGORITHM_PRINTF || DEBUG_ALGORITHM_PRINTFS || DEBUG_ALGORITHM_PRINTCOEFF){
-			std::cout << "\033[33mit = \033[0m" << this->it << std::endl;
+		if(DEBUG_MODE >= 3){
+			std::cout << "\033[33m   it = \033[0m" << this->it;
+			std::cout << ", \t\033[36mfx = \033[0m" << fx;
+			std::cout << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
-//			std::cout << "\033[36m fx = \033[0m" << fx << std::endl;
-
-		if(DEBUG_ALGORITHM_PRINTFS){
-			std::cout << "\033[36m fs = \033[0m" << fs << std::endl;
-		}
-		
-		if(DEBUG_ALGORITHM_PRINTCOEFF){
-			std::cout << "\033[36m dd = \033[0m" << dd << ",";
+		if(DEBUG_MODE >= 4){
+			std::cout << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			std::cout << "\033[36m dAd = \033[0m" << dAd << ",";
 			std::cout << "\033[36m gd = \033[0m" << gd << std::endl;
 			
-			std::cout << "\033[36m fx = \033[0m" << fx << ",";
+			std::cout << "\033[36m    fx = \033[0m" << fx << ",";
 			std::cout << "\033[36m fx_max = \033[0m" << fx_max << ",";
 			std::cout << "\033[36m xi = \033[0m" << xi << std::endl;
 			
-			std::cout << "\033[36m beta_bar = \033[0m" << beta_bar << ",";
+			std::cout << "\033[36m    beta_bar = \033[0m" << beta_bar << ",";
 			std::cout << "\033[36m beta_hat = \033[0m" << beta_hat << ",";
 			std::cout << "\033[36m beta = \033[0m" << beta << std::endl;
-			
-			std::cout << "\033[36m alpha_bb = \033[0m" << alpha_bb << std::endl;
 			
 		}
 		
@@ -255,19 +240,8 @@ void QPSolver::solve(GammaVector &x){
 
 	this->timer_total.stop();
 
-	/* say goodbye */
-	if(DEBUG_ALGORITHM_SAYHELLO){
-		Message_info_main("\n- final info:");
-		Message_info_time(" - time: \t\t",this->timer_total.get_value_last());
-		Message_info_value(" - it: \t\t\t",this->it);
-		Message_info_value(" - hessmult: \t\t",this->hessmult);
-		Message_info_value(" - final fx = \t\t",fx);
-		Message_info("- SPGQP END ---------------------------------------------------------------");
-	}
-
 	/* very short info */
-	if(DEBUG_ALGORITHM_BASIC){
-		Message_info("  - SPGQP algorithm");
+	if(DEBUG_MODE >= 3){
 		Message_info_value("   - it    = ",this->it);
 		Message_info_time("   - time  = ",this->timer_total.get_value_last());
 
@@ -407,3 +381,58 @@ double QPSolver::get_time_fs(){
 	return this->timer_fs.get_value_sum();
 }
 
+
+/* ---------- QPSolver_fs -------------- */
+
+/* constructor */
+QPSolver_fs::QPSolver_fs(int new_m){
+	this->m = new_m;
+	
+}
+
+/* init the list with function values using one initial fx */
+void QPSolver_fs::init(Scalar fx){
+	this->fs_list.resize(this->m, fx);
+}
+
+/* get the size of the list */
+int QPSolver_fs::get_size(){
+	return this->m;
+}
+
+/* get the value of max value in the list */
+Scalar QPSolver_fs::get_max(){
+	std::list<Scalar>::iterator it;
+	it = std::max_element(this->fs_list.begin(), this->fs_list.end());
+	return *it;
+}
+
+/* update the list by new value - pop the first and push the new value (FIFO) */
+void QPSolver_fs::update(Scalar new_fx){
+	this->fs_list.pop_back();
+	this->fs_list.push_front(new_fx);
+}
+
+/* print the content of the list */
+std::ostream &operator<<(std::ostream &output, QPSolver_fs fs)		
+{
+	int j, list_size;
+	std::list<Scalar>::iterator it; /* iterator through list */
+
+	it = fs.fs_list.begin();
+	list_size = fs.fs_list.size(); /* = m? */
+	
+	output << "[ ";
+	/* for each component go throught the list */
+	for(j=0;j<list_size;j++){
+		output << *it;
+		if(j < list_size-1){ 
+				/* this is not the last node */
+				output << ", ";
+				it++;
+		}
+	}
+	output << " ]";
+			
+	return output;
+}
