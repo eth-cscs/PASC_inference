@@ -15,6 +15,9 @@ module load cray-mpich
 # nvcc doesn't work with gcc 4.9, so we load 4.8.2
 module swap gcc/4.8.2
 
+# we need the petsc module (we use $PETSC_DIR)
+module load cray-petsc
+
 # we need the intel module for mkl (we use $MKLROOT)
 module load intel
 
