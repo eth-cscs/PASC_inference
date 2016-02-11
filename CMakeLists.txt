@@ -106,7 +106,15 @@ if(${USE_PETSC})
 	set(DEVICE_DEFS ${DEVICE_DEFS} -USE_PETSC)
 	
 	# PETSc: include
-	find_package(PETSc)
+	if(NOT DEFINED ENV{PETSC_DIR})
+		message(STATUS "${Red}PETSC_DIR is not specified, trying to run find_package(PETSc)${ColourReset}")
+		find_package(PETSc)
+	endif()
+
+	message(STATUS "${Yellow}PETSC_DIR = ${PETSC_DIR}${ColourReset}")
+	message(STATUS "${Yellow}PETSC_ARCH = ${PETSC_ARCH}${ColourReset}")
+	message(STATUS "${Yellow}PETSC_INCLUDES = ${PETSC_INCLUDES}${ColourReset}")
+
 	include_directories(${PETSC_INCLUDES})
 else(${USE_PETSC})
 	message(STATUS "${Red}The code is compiled without PETSc${ColourReset}")
