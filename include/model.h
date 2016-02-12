@@ -23,6 +23,7 @@ class Model {
 		void init(int dim, int T, int K); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
 		void print();
+		void print_timers();
 
 		void compute_theta(DataVector data_vec);
 		void compute_gamma(DataVector data_vec);

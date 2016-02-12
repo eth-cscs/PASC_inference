@@ -5,6 +5,7 @@
 #include <string>
 #include <list>
 
+extern int DEBUG_MODE;
 
 namespace minlin {
 
@@ -45,25 +46,25 @@ class PetscVector {
 		void get_array(double **arr);
 		void restore_array(double **arr);
 
-		void set(PetscScalar new_value);
-		void set(int index, PetscScalar new_value);
+		void set(double new_value);
+		void set(int index, double new_value);
 
 		/* assignment */
-		PetscVector& operator=(const PetscVector &vec2);
-		PetscVector& operator=(PetscVectorWrapperCombNode combnode);	
-		PetscVector& operator=(PetscVectorWrapperComb comb);	
-		PetscVector& operator=(double scalar_value);	
+		PetscVector operator=(const PetscVector vec2);
+		PetscVector operator=(PetscVectorWrapperCombNode combnode);	
+		PetscVector operator=(PetscVectorWrapperComb comb);	
+		PetscVector operator=(double scalar_value);	
 		
 		/* subvector */
 		PetscVector operator()(int index);
 		PetscVector operator()(int index_begin,int index_end);
-		PetscVector operator()(IS new_subvector_is);
+		PetscVector operator()(const IS new_subvector_is);
 
 		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector);
 
-		friend void operator*=(PetscVector vec1, double alpha);
-		friend void operator+=(PetscVector vec1, const PetscVectorWrapperComb comb);
-		friend void operator-=(PetscVector vec1, const PetscVectorWrapperComb comb);
+		friend void operator*=(PetscVector &vec1, double alpha);
+		friend void operator+=(PetscVector &vec1, const PetscVectorWrapperComb comb);
+		friend void operator-=(PetscVector &vec1, const PetscVectorWrapperComb comb);
 
 		friend bool operator==(PetscVector vec1, double alpha);
 		friend bool operator==(PetscVector vec1, PetscVector vec2);
@@ -78,8 +79,16 @@ class PetscVector {
 		
 
 		/* define operator PetscVector(all), it is a mixture of petscvector and minlin  */
-		PetscVector operator()(minlin::detail::all_type add_in){
-			return *this;
+		PetscVector operator()(minlin::detail::all_type add_in) {
+			if(DEBUG_MODE >= 100){
+				std::cout << "operator vec(all)" << std::endl;
+			}
+
+			/* create new indexset */
+			IS new_subvector_is; // TODO: this is quite stupid
+			ISCreateStride(PETSC_COMM_WORLD, this->size(), 0,1, &new_subvector_is);
+	
+			return PetscVector(inner_vector, new_subvector_is);
 		}
 
 };
@@ -149,6 +158,8 @@ class PetscVectorWrapperCombNode
 
 /* PetscVector default constructor */
 PetscVector::PetscVector(){
+	if(DEBUG_MODE >= 100) std::cout << "empty constructor" << std::endl;
+
 	inner_vector = PETSC_NULL;
 	inner_vector_orig = PETSC_NULL; 
 	subvector_is = PETSC_NULL;
@@ -157,6 +168,8 @@ PetscVector::PetscVector(){
 
 /* PetscVector constructor with global dimension */
 PetscVector::PetscVector(int n){
+	if(DEBUG_MODE >= 100) std::cout << "constructor PetscVector(int)" << std::endl;
+
 	inner_vector_orig = PETSC_NULL; 
 	subvector_is = PETSC_NULL;
 
@@ -169,11 +182,29 @@ PetscVector::PetscVector(int n){
 
 /* PetscVector copy constructor */
 PetscVector::PetscVector(const PetscVector &vec1){
-	inner_vector_orig = PETSC_NULL; 
-	subvector_is = PETSC_NULL;
+	if(DEBUG_MODE >= 100) std::cout << "constructor PetscVector(&vec)" << std::endl;
 
-	inner_vector = vec1.inner_vector;
-/*	is_subvector = vec1.is_subvector;
+	/* inner_vec */
+	VecDuplicate(vec1.inner_vector,&inner_vector);
+	VecCopy(vec1.inner_vector,inner_vector);
+
+	/* orig_vec */
+	if(vec1.subvector_is){
+		if(DEBUG_MODE >= 100) std::cout << " - copy also subvector_is" << std::endl;
+		
+		ISDuplicate(vec1.subvector_is,&subvector_is);
+		ISCopy(vec1.subvector_is,subvector_is);
+
+		VecDuplicate(vec1.inner_vector_orig,&inner_vector_orig);
+		VecCopy(vec1.inner_vector_orig,inner_vector_orig);
+
+	} else {
+		inner_vector_orig = PETSC_NULL; 
+		subvector_is = PETSC_NULL;
+	}
+	
+/*	inner_vector = vec1.inner_vector;
+	is_subvector = vec1.is_subvector;
 	subvector_is = vec1.subvector_is;
 	inner_vector_orig = vec1.inner_vector_orig;
 */
@@ -183,6 +214,8 @@ PetscVector::PetscVector(const PetscVector &vec1){
 
 /* PetscVector constructor with inner_vector */
 PetscVector::PetscVector(Vec new_inner_vector){
+	if(DEBUG_MODE >= 100) std::cout << "constructor PetscVector(inner_vector)" << std::endl;
+
 	inner_vector = new_inner_vector;
 
 	subvector_is = PETSC_NULL;
@@ -191,10 +224,17 @@ PetscVector::PetscVector(Vec new_inner_vector){
 
 /* PetscVector constructor with given IS = create subvector */
 PetscVector::PetscVector(Vec old_inner_vector, IS new_subvector_is){
+	if(DEBUG_MODE >= 100) std::cout << "constructor PetscVector(inner_vec, IS)" << std::endl;
+
 	/* store old inner vector - will be used in the destructor to return subvector */
 	inner_vector_orig = old_inner_vector; 
-	subvector_is = new_subvector_is;
-	
+
+	/* copy IS */
+	ISDuplicate(new_subvector_is, &subvector_is);
+	ISCopy(new_subvector_is, subvector_is);
+
+	if(DEBUG_MODE >= 100) std::cout << " - get subvector from original vector" << std::endl;
+
 	/* get subvector, restore it in destructor */
 	VecGetSubVector(inner_vector_orig, subvector_is, &inner_vector);
 	
@@ -207,10 +247,29 @@ PetscVector::~PetscVector(){
 
 	/* if this was a subvector, then restore values */
 	if(subvector_is){
+
 		/* restore subvector */
+		if(DEBUG_MODE >= 100) std::cout << "restore subvector" << std::endl;
+
 		VecRestoreSubVector(inner_vector_orig, subvector_is, &inner_vector);
+//		inner_vector_orig = PETSC_NULL; 
+
+		if(DEBUG_MODE >= 100) std::cout << "destroy index set" << std::endl;
+
+		ISDestroy(&subvector_is);
+		subvector_is = PETSC_NULL;
+		inner_vector = PETSC_NULL;
+		
+	} else {
+
+		/* if there was any inner vector, then destroy it */
+		if(inner_vector){
+			if(DEBUG_MODE >= 100) std::cout << "destroy inner vector" << std::endl;
+		
+			VecDestroy(&inner_vector);
+		}
 	}
-	
+
 }
 
 /* after update a variable, it is necessary to call asseble begin & end */
@@ -220,14 +279,18 @@ void PetscVector::valuesUpdate(){
 }
 
 /* set all values of the vector, this function is called from overloaded operator */
-void PetscVector::set(PetscScalar new_value){
-	VecSet(inner_vector,new_value);
+void PetscVector::set(double new_value){
+	if(DEBUG_MODE >= 100) std::cout << "void set(double)" << std::endl;
+
+	VecSet(this->inner_vector,new_value);
 	valuesUpdate();
 }
 
 /* set one specific value of the vector, this function is called from overloaded operator */
-void PetscVector::set(int index, PetscScalar new_value){
-	VecSetValue(inner_vector,index,new_value, INSERT_VALUES);
+void PetscVector::set(int index, double new_value){
+	if(DEBUG_MODE >= 100) std::cout << "void set(int,double)" << std::endl;
+
+	VecSetValue(this->inner_vector,index,new_value, INSERT_VALUES);
 	valuesUpdate();
 }
 
@@ -295,37 +358,53 @@ std::ostream &operator<<(std::ostream &output, const PetscVector &vector)
 }
 
 /* vec1 = vec2, assignment operator (set vector) */
-PetscVector& PetscVector::operator=(const PetscVector &vec2){
+PetscVector PetscVector::operator=(const PetscVector vec2){
+	if(DEBUG_MODE >= 100) std::cout << "operator (vec = vec)" << std::endl;
+
 	/* check for self-assignment by comparing the address of the implicit object and the parameter */
 	/* vec1 = vec1 */
     if (this == &vec2){
+		if(DEBUG_MODE >= 100) std::cout << " - self assignment" << std::endl;		
         return *this;
 	}
 
 	/* vec1 is not initialized yet */
 	if (!inner_vector){
-		VecDuplicate(vec2.inner_vector,&inner_vector);
+		if(DEBUG_MODE >= 100) std::cout << " - creating new vector" << std::endl;		
+		VecDuplicate(vec2.inner_vector,&(this->inner_vector));
+		this->valuesUpdate(); // TODO: has to be called?
 	}
 
 	/* else copy the values of inner vectors */
+	if(DEBUG_MODE >= 100) std::cout << " - copy values" << std::endl;		
 	VecCopy(vec2.inner_vector,inner_vector);
+	this->valuesUpdate(); // TODO: has to be called?
+	
 	return *this;	
 }
 
 /* vec1 = linear_combination_node, perform simple linear combination */
-PetscVector& PetscVector::operator=(PetscVectorWrapperCombNode combnode){
+PetscVector PetscVector::operator=(PetscVectorWrapperCombNode combnode){
+	if(DEBUG_MODE >= 100) std::cout << "operator (vec = combnode)" << std::endl;
+
 	/* vec1 = alpha*vec1 => simple scale */
     if (this->inner_vector == combnode.get_vector()){
+		if(DEBUG_MODE >= 100) std::cout << " - scale values" << std::endl;		
+
         this->scale(combnode.get_coeff());
         return *this;
 	}
 
 	/* vec1 is not initialized yet */
 	if (!inner_vector){
+		if(DEBUG_MODE >= 100) std::cout << " - duplicate vector" << std::endl;		
+
 		VecDuplicate(combnode.get_vector(),&inner_vector);
 	}
 
 	/* else copy the vector values and then scale */
+	if(DEBUG_MODE >= 100) std::cout << " - copy values" << std::endl;		
+
 	VecCopy(combnode.get_vector(),inner_vector);
     this->scale(combnode.get_coeff());
 
@@ -333,10 +412,15 @@ PetscVector& PetscVector::operator=(PetscVectorWrapperCombNode combnode){
 }
 
 /* vec1 = linear_combination, perform full linear combination */
-PetscVector& PetscVector::operator=(PetscVectorWrapperComb comb){
+PetscVector PetscVector::operator=(PetscVectorWrapperComb comb){
+	if(DEBUG_MODE >= 100){
+		std::cout << "operator (vec = comb)" << std::endl;
+	}
 
 	/* vec1 is not initialized yet */
 	if (!inner_vector){
+		if(DEBUG_MODE >= 100) std::cout << " - duplicate vector" << std::endl;		
+
 		VecDuplicate(comb.get_first_vector(),&inner_vector);
 	}
 
@@ -350,7 +434,11 @@ PetscVector& PetscVector::operator=(PetscVectorWrapperComb comb){
 }
 
 /* vec1 = scalar_value <=> vec1(all) = scalar_value, assignment operator */
-PetscVector& PetscVector::operator=(double scalar_value){
+PetscVector PetscVector::operator=(double scalar_value){
+	if(DEBUG_MODE >= 100){
+		std::cout << "operator (vec = scalar)" << std::endl;
+	}
+
 	this->set(scalar_value);
 	return *this;	
 }
@@ -358,6 +446,8 @@ PetscVector& PetscVector::operator=(double scalar_value){
 /* return subvector to be able to overload vector(index) = new_value */ 
 PetscVector PetscVector::operator()(int index)
 {   
+	if(DEBUG_MODE >= 100) std::cout << "operator vec(int)" << std::endl;
+	
 	/* create new indexset */
 	IS new_subvector_is;
 	PetscInt idxs[1];
@@ -365,12 +455,16 @@ PetscVector PetscVector::operator()(int index)
 	
 	ISCreateGeneral(PETSC_COMM_WORLD, 1, idxs, PETSC_COPY_VALUES, &new_subvector_is);
 	
-	return PetscVector(inner_vector, new_subvector_is);
+	return PetscVector(this->inner_vector, new_subvector_is);
 }
 
 /* return subvector vector(index_begin:index_end), i.e. components with indexes: [index_begin, index_begin+1, ..., index_end] */ 
 PetscVector PetscVector::operator()(int index_begin, int index_end)
 {   
+	if(DEBUG_MODE >= 100){
+		std::cout << "operator vec(int,int)" << std::endl;
+	}
+
 	/* create new indexset */
 	IS new_subvector_is;
 	ISCreateStride(PETSC_COMM_WORLD, index_end-index_begin+1, index_begin,1, &new_subvector_is);
@@ -379,36 +473,58 @@ PetscVector PetscVector::operator()(int index_begin, int index_end)
 }
 
 /* return subvector based on provided index set */ 
-PetscVector PetscVector::operator()(IS new_subvector_is)
+PetscVector PetscVector::operator()(const IS new_subvector_is)
 {   
+	if(DEBUG_MODE >= 100) std::cout << "operator vec(IS)" << std::endl;
+	
 	return PetscVector(inner_vector, new_subvector_is);
 }
 
 
 
 /* vec1 *= alpha */
-void operator*=(PetscVector vec1, double alpha)
+void operator*=(PetscVector &vec1, double alpha)
 {
+	if(DEBUG_MODE >= 100) std::cout << "operator vec *= scalar" << std::endl;
+	
 	vec1.scale(alpha);
 }
 
 /* vec1 += comb */
-void operator+=(PetscVector vec1, PetscVectorWrapperComb comb)
+void operator+=(PetscVector &vec1, PetscVectorWrapperComb comb)
 {
+	if(DEBUG_MODE >= 100){
+		std::cout << "operator vec += comb" << std::endl;
+	}
+	
 	int list_size = comb.get_listsize();
 	PetscScalar alphas[list_size];
 	Vec vectors[list_size];
 
 	/* get array with coefficients and vectors */
 	comb.get_arrays(alphas,vectors);
-	
+
+
+	std::cout << "maxpy_vector_control before:" << std::endl;
+	VecView(vec1.inner_vector,PETSC_VIEWER_STDOUT_SELF);
+
 	/* vec1 = vec1 + sum (coeff*vector) */
 	VecMAXPY(vec1.inner_vector,list_size,alphas,vectors);
+	vec1.valuesUpdate();
+
+	std::cout << "maxpy_vector_control after:" << std::endl;
+	VecView(vec1.inner_vector,PETSC_VIEWER_STDOUT_SELF);
+
+	
 }
 
 /* vec1 -= comb */
-void operator-=(PetscVector vec1, PetscVectorWrapperComb comb)
+void operator-=(PetscVector &vec1, PetscVectorWrapperComb comb)
 {
+	if(DEBUG_MODE >= 100){
+		std::cout << "operator vec -= comb" << std::endl;
+	}
+	
 	vec1 += (-1.0)*comb;
 }
 

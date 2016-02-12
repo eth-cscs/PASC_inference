@@ -62,6 +62,7 @@ class QPSolver {
 		Scalar get_function_value(GammaVector x, bool use_gradient);
 
 		void print();
+		void print_timers();
 		void print(int nmb_of_spaces);
 
 		int get_T();

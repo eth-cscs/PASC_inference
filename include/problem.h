@@ -13,8 +13,6 @@ class Problem {
 		int it; /* outer iterations */
 	
 		Timer timer_total; /* from init to finalize */
-		Timer timer_gamma; /* for gamma manipulation */
-		Timer timer_theta; /* for theta manipulation */
 		
 		Data data;
 		Model model;
@@ -28,6 +26,7 @@ class Problem {
 
 		void solve(int max_s_steps, Scalar deltaL_eps);
 		void print();
+		void print_timers();
 		void saveVTK(std::string name_of_file);
 
 		Data get_data(); // TODO: only for testing

@@ -17,6 +17,7 @@ class Theta {
 		void init(int dim, int K); /* TODO: should be constructor */
 		void finalize(); /* TODO: should be destructor */
 		void print();
+		void print_timers();
 		void print(int nmb_of_spaces);
 		void compute(DataVector data_vec, Gamma gamma);
 		

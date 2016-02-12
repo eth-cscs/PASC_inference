@@ -23,6 +23,7 @@ class Gamma {
 		void finalize(); /* TODO: should be destructor */
 
 		void print();
+		void print_timers();
 		void print(int nmb_of_spaces);
 
 		void prepare_random();

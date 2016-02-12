@@ -23,8 +23,8 @@ void Model::init(int dim, int T, int K)
 
 	this->gamma = new_gamma;
 
-	if(DEBUG_MODE >= 2) Message_info_time(" - gamma generated in: ",this->timer_gamma.get_value_last());
-	if(DEBUG_MODE >= 3) this->gamma.print();
+	if(DEBUG_MODE >= 3) Message_info_time(" - gamma generated in: ",this->timer_gamma.get_value_last());
+	if(DEBUG_MODE >= 10) this->gamma.print();
 
 	/* initialize theta */
 	Theta new_theta;
@@ -34,8 +34,8 @@ void Model::init(int dim, int T, int K)
 
 	this->theta = new_theta;
 	
-	if(DEBUG_MODE >= 2) Message_info_time(" - theta prepared in: ",this->timer_theta.get_value_last());
-	if(DEBUG_MODE >= 3) theta.print();
+	if(DEBUG_MODE >= 3) Message_info_time(" - theta prepared in: ",this->timer_theta.get_value_last());
+	if(DEBUG_MODE >= 10) theta.print();
 	
 	
 }
@@ -57,11 +57,27 @@ void Model::finalize()
 */ 
 void Model::print() 
 {
-	
+
 	Message_info("-- MODEL ---");
 	Message_info_value("- dim: ",this->dim);
 	Message_info_value("- T:   ",this->T);
 	Message_info_value("- K:   ",this->K);
+
+}
+
+/**
+ * print the values of inner timers
+ * 
+*/ 
+void Model::print_timers() 
+{
+	Message_info(" - model:");
+	
+	Message_info_time( "  - total time gamma: ",this->timer_gamma.get_value_sum());
+	this->gamma.print_timers();
+	
+	Message_info_time( "  - total time theta: ",this->timer_theta.get_value_sum());
+	this->theta.print_timers();
 
 }
 
@@ -79,12 +95,25 @@ int Model::get_K(){
 
 void Model::compute_theta(DataVector data_vec)
 {
-	this->theta.compute(data_vec,this->gamma);
+	this->timer_theta.start();
+	 this->theta.compute(data_vec,this->gamma);
+	this->timer_theta.stop();
+
+	if(DEBUG_MODE >= 3) Message_info_time("  - theta problem solved in: ",this->timer_theta.get_value_last());
+	if(DEBUG_MODE >= 10) this->theta.print();
+
 }
 
 void Model::compute_gamma(DataVector data_vec)
 {
-	this->gamma.compute(data_vec,this->theta);
+	this->timer_gamma.start();
+	 this->gamma.compute(data_vec,this->theta);
+	this->timer_gamma.stop();
+
+	if(DEBUG_MODE >= 3) Message_info_time("  - gamma problem solved in: ",this->timer_gamma.get_value_last());
+	if(DEBUG_MODE >= 10) this->gamma.print();
+
+
 }
 
 Gamma Model::get_gamma()

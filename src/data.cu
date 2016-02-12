@@ -8,10 +8,10 @@ void Data::init(int dim, int T)
 	this->dim = dim;
 	this->T = T;
 	
-	/* prepare array with data vectors */
+	/* prepare data vector */
 	DataVector new_data_vector(this->dim*this->T);
-	new_data_vector(all) = 0.0;
-
+	new_data_vector(all) = 5.0;
+	
 	this->data_vec = new_data_vector;
 
 }
@@ -103,6 +103,13 @@ void Data_kmeans::generate(){
 			this->get_problem_value3(&random_value1, &random_value2);
 		}
 		
+		if(DEBUG_MODE >= 10){
+			std::cout << "  - t = " << t << std::endl;
+			std::cout << "   - random_value_1 = " << random_value1 << std::endl;
+			std::cout << "   - random_value_2 = " << random_value2 << std::endl;
+			std::cout << std::endl;
+		}
+
 		this->data_vec(t) = random_value1;
 		this->data_vec(T+t) = random_value2;
 	}

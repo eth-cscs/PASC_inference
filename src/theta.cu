@@ -45,6 +45,11 @@ void Theta::print()
 	this->print(0);
 }
 
+void Theta::print_timers()
+{
+	
+}
+
 void Theta::print(int nmb_of_spaces)
 {
 	int k,i; /* iterator */

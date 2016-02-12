@@ -83,7 +83,7 @@ void QPSolver::solve(GammaVector &x){
 	alpha_bb = alphainit;
 
 	/* print basic informations about algorithm */
-	if(DEBUG_MODE >= 4){
+	if(DEBUG_MODE >= 5){
 		Message_info("-- SPGQP BEGIN -------------------------------------------------------------");
 		Message_info_main(" - parameters:");
 		Message_info_value("  - m = \t\t\t",m);
@@ -187,14 +187,23 @@ void QPSolver::solve(GammaVector &x){
 		 alpha_bb = dd/dAd;
 		this->timer_stepsize.stop();
 
+		/* print data */
+		if(DEBUG_MODE >= 10){
+			std::cout << "x: " << x << std::endl;
+			std::cout << "d: " << d << std::endl;
+			std::cout << "g: " << g << std::endl;
+			std::cout << "Ad: " << Ad << std::endl;
+			
+		}
+
 		/* print progress of algorithm */
-		if(DEBUG_MODE >= 3){
+		if(DEBUG_MODE >= 4){
 			std::cout << "\033[33m   it = \033[0m" << this->it;
 			std::cout << ", \t\033[36mfx = \033[0m" << fx;
 			std::cout << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
-		if(DEBUG_MODE >= 4){
+		if(DEBUG_MODE >= 5){
 			std::cout << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			std::cout << "\033[36m dAd = \033[0m" << dAd << ",";
 			std::cout << "\033[36m gd = \033[0m" << gd << std::endl;
@@ -261,6 +270,20 @@ Scalar QPSolver::get_function_value(GammaVector x, bool use_gradient){
 
 
 	return fx;	
+}
+
+void QPSolver::print_timers(){
+	Message_info("   - QPSolver:");
+	Message_info_value("    - it =        ", get_it_all());
+	Message_info_value("    - hessmult =  ", get_hessmult_all());
+	Message_info_time( "    - time =      ", get_time_total());
+	Message_info_time( "     - t_project =  ", get_time_projection());
+	Message_info_time( "     - t_matmult =  ", get_time_matmult());
+	Message_info_time( "     - t_dot =      ", get_time_dot());
+	Message_info_time( "     - t_update =   ", get_time_update());
+	Message_info_time( "     - t_stepsize = ", get_time_stepsize());
+	Message_info_time( "     - t_fs =       ", get_time_fs());
+	Message_info_time( "     - t_other =    ", get_time_total() - (get_time_projection() + get_time_matmult() + get_time_dot() + get_time_update() + get_time_stepsize() + get_time_fs()));
 }
 
 

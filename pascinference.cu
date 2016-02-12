@@ -14,7 +14,7 @@ lukas.pospisil@usi.ch
 #include <boost/program_options.hpp>
 
 #define ALGORITHM_deltaL_eps 0.0001 /*stopping criteria of outer main loop */
-#define ALGORITHM_max_s_steps 100 /* max number of outer steps */
+#define ALGORITHM_max_s_steps 1 /* max number of outer steps */
 #define ALGORITHM_EPSSQUARE 10.0 /* default FEM regularization parameter */
 
 int T = 10; /* default length of generated time serie */
@@ -95,14 +95,13 @@ int main( int argc, char *argv[] )
 	
 	data.init(dim,T); // TODO: make it more funny using input K
 
-
-	timer_data.start(); 
-	 if(DEBUG_MODE >= 3) Message_info(" - generate data");
+	if(DEBUG_MODE >= 1) Message_info(" - generate data");
+	timer_data.start(); // TODO: this timer should be elsewhere
 	 data.generate();
 	timer_data.stop();
 
-	if(DEBUG_MODE >= 2) Message_info_time(" - problem generated in: ",timer_data.get_value_last());
-	if(DEBUG_MODE >= 3)	data.print();
+	if(DEBUG_MODE >= 3) Message_info_time(" - problem generated in: ",timer_data.get_value_last());
+	if(DEBUG_MODE >= 10)	data.print();
 
 	/* prepare model */
 	Model_kmeans model;
@@ -110,8 +109,8 @@ int main( int argc, char *argv[] )
 	 model.init(dim,T,K);
 	timer_model.stop();
 
-	if(DEBUG_MODE >= 2) Message_info_time(" - model prepared in: ",timer_model.get_value_last());
-	if(DEBUG_MODE >= 3)	model.print();
+	if(DEBUG_MODE >= 3) Message_info_time(" - model prepared in: ",timer_model.get_value_last());
+	if(DEBUG_MODE >= 10)	model.print();
 
 	/* prepare problem */
 	Problem problem;
@@ -119,14 +118,18 @@ int main( int argc, char *argv[] )
 	problem.set_data(data); /* set data to problem */
 	problem.set_model(model); /* set model to problem */
 
+	return 0;
 
-	Message("- run main cycle:");
+
+	if(DEBUG_MODE >= 1) Message("- run main cycle:");
 	 problem.solve(ALGORITHM_max_s_steps,ALGORITHM_deltaL_eps);
-	Message("- main cycle finished");
+	if(DEBUG_MODE >= 1) Message("- main cycle finished");
+
+	return 0;
 
 	/* save the solution to VTK */
 	if(EXPORT_SAVEVTK){
-		Message("- save solution to VTK");
+		if(DEBUG_MODE >= 1) Message("- save solution to VTK");
 		problem.saveVTK("output/data.vtk");
 	}
 
@@ -134,11 +137,13 @@ int main( int argc, char *argv[] )
 	problem.finalize();
 	timer_program.stop();
 
+	/* print final info about problem */
+	if(DEBUG_MODE >= 3) problem.print_timers();
+	if(DEBUG_MODE >= 10) problem.print();
+
 	/* say bye */	
 	Message("- end program");
-
-	if(DEBUG_MODE >= 2) Message_info_time("- elapsed time: ",timer_program.get_value_sum());
-	if(DEBUG_MODE >= 3)	problem.print();
+	if(DEBUG_MODE >= 1) Message_info_time("- elapsed time: ",timer_program.get_value_sum());
 
 	Finalize();
 	return 0;

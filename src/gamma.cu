@@ -16,7 +16,7 @@ void Gamma::init(int dim, int T, int K)
 	/* prepare QPSolver */
 	QPSolver new_qpsolver;
 	new_qpsolver.init(this->T, this->K, 10);
-	if(DEBUG_MODE >= 3) new_qpsolver.print();
+	if(DEBUG_MODE >= 10) new_qpsolver.print();
 
 	this->qpsolver = new_qpsolver;
 
@@ -39,12 +39,20 @@ void Gamma::prepare_random()
 		}
 	}
 	
+	if(DEBUG_MODE >= 10) std::cout << "  - generated preliminary gamma = " << this->gamma_vec << std::endl;
+	
 	/* normalize gamma */
 	/* at first sum the vectors */
 	gamma_sum = this->gamma_vec(0,T-1);
+	if(DEBUG_MODE >= 10) std::cout << "  - gamma_sum_0 = " << gamma_sum << std::endl;
+
 	for(k=1;k<this->K;k++){
-		gamma_sum += this->gamma_vec(k*T,(k+1)*T-1);
+		gamma_sum = gamma_sum + this->gamma_vec(k*T,(k+1)*T-1);
+
+		if(DEBUG_MODE >= 10) std::cout << "  - gamma_sum_" << k << " = " << gamma_sum << std::endl;
 	}
+
+	if(DEBUG_MODE >= 10) std::cout << "  - gamma_sum = " << gamma_sum << std::endl;
 
 	/* now divide the gamma by gamma_sum value */
 	for(k=0;k<this->K;k++){
@@ -62,6 +70,8 @@ void Gamma::prepare_random()
 		}	
 	}
 
+	if(DEBUG_MODE >= 10) std::cout << "  - generated gamma = " << this->gamma_vec << std::endl;
+
 }
 
 void Gamma::prepare_uniform()
@@ -77,8 +87,15 @@ void Gamma::prepare_uniform()
 void Gamma::compute(DataVector data_vec, Theta theta)
 {
 	/* compute and set new RHS */
-	this->compute_gk(this->qpsolver.b, data_vec, theta);
+	Timer rhs_timer; // TODO: this timer should be elsewhere... btw. whole compute_gk function should be elsewhere
+	rhs_timer.restart();
+	rhs_timer.start();
+	if(DEBUG_MODE >= 3) Message_info("   - preparing RHS");
+		this->compute_gk(this->qpsolver.b, data_vec, theta);
 	this->qpsolver.b *= -1.0;
+	rhs_timer.stop();
+	if(DEBUG_MODE >= 3) Message_info_time("   - RHS prepared in ", rhs_timer.get_value_sum());
+
 	
 	/* --- SOLVE OPTIMIZATION PROBLEM --- */
 	this->qpsolver.solve(this->gamma_vec);
@@ -87,6 +104,14 @@ void Gamma::compute(DataVector data_vec, Theta theta)
 void Gamma::print()
 {
 	this->print(0);
+}
+
+void Gamma::print_timers()
+{
+	Message_info("  - gamma:");
+
+	this->qpsolver.print_timers();
+
 }
 
 void Gamma::print(int nmb_of_spaces)
