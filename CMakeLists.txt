@@ -106,16 +106,20 @@ if(${USE_PETSC})
 	set(DEVICE_DEFS ${DEVICE_DEFS} -USE_PETSC)
 	
 	# PETSc: include
-	if(NOT DEFINED ENV{PETSC_DIR})
-		message(STATUS "${Red}PETSC_DIR is not specified, trying to run find_package(PETSc)${ColourReset}")
+	if(NOT DEFINED ENV{PETSC_INCLUDES})
+		message(STATUS "${Red}PETSC_INCLUDES is not specified, trying to run find_package(PETSc)${ColourReset}")
 		find_package(PETSc)
 
-		message(STATUS "${Yellow}PETSC_DIR = ${PETSC_DIR} ${ColourReset}")
-		message(STATUS "${Yellow}PETSC_ARCH = ${PETSC_DIR} ${ColourReset}")
-		message(STATUS "${Yellow}PETSC_INCLUDES = " ${PETSC_INCLUDES} "${ColourReset}")
+		message(STATUS "${Yellow}PETSC_INCLUDES = ${PETSC_INCLUDES} ${ColourReset}")
+
 	endif()
 
+	message(STATUS "${Yellow}PETSC_DIR = $ENV{PETSC_DIR} ${ColourReset}")
+	message(STATUS "${Yellow}PETSC_ARCH = $ENV{PETSC_DIR} ${ColourReset}")
+
 	include_directories(${PETSC_INCLUDES})
+	include_directories(${CMAKE_SOURCE_DIR}/include/petscvector)
+
 else(${USE_PETSC})
 	message(STATUS "${Red}The code is compiled without PETSc${ColourReset}")
 endif(${USE_PETSC})

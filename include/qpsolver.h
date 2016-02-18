@@ -58,8 +58,8 @@ class QPSolver {
 		void finalize();
 
 		void solve(GammaVector &x);
-		Scalar get_function_value(GammaVector x);
-		Scalar get_function_value(GammaVector x, bool use_gradient);
+		Scalar get_function_value(GammaVector &x);
+		Scalar get_function_value(GammaVector &x, bool use_gradient);
 
 		void print();
 		void print_timers();

@@ -82,11 +82,11 @@ void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar 
 #ifdef USE_PETSC
 
 	/* return the dot product */
-	void get_dot(Scalar *xx, PetscVector x, PetscVector y){
+	void get_dot(Scalar *xx, PetscVector &x, PetscVector &y){
 		*xx = dot(x,y); /* Petsc operation */
 	}
 
-	Scalar get_dot(PetscVector x, PetscVector y){
+	Scalar get_dot(PetscVector &x, PetscVector &y){
 		Scalar xx;
 
 		get_dot(&xx, x, y);
@@ -94,12 +94,12 @@ void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar 
 		return xx;
 	}
 
-	void get_Ax_laplace(PetscVector &Ax, PetscVector x, int K){
+	void get_Ax_laplace(PetscVector &Ax, PetscVector &x, int K){
 		get_Ax_laplace(Ax,x,K,1.0);
 	}
 
 	/* return matrix-vector multiplication - Petsc operations */
-	void get_Ax_laplace(PetscVector& Ax, PetscVector x, int K, Scalar alpha){
+	void get_Ax_laplace(PetscVector& Ax, PetscVector &x, int K, Scalar alpha){
 		int N = x.size();
 		int T = N/(double)K;
 		int k;

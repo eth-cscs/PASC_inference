@@ -14,7 +14,7 @@ lukas.pospisil@usi.ch
 #include <boost/program_options.hpp>
 
 #define ALGORITHM_deltaL_eps 0.0001 /*stopping criteria of outer main loop */
-#define ALGORITHM_max_s_steps 1 /* max number of outer steps */
+#define ALGORITHM_max_s_steps 1000 /* max number of outer steps */
 #define ALGORITHM_EPSSQUARE 10.0 /* default FEM regularization parameter */
 
 int T = 10; /* default length of generated time serie */
@@ -118,14 +118,9 @@ int main( int argc, char *argv[] )
 	problem.set_data(data); /* set data to problem */
 	problem.set_model(model); /* set model to problem */
 
-	return 0;
-
-
 	if(DEBUG_MODE >= 1) Message("- run main cycle:");
 	 problem.solve(ALGORITHM_max_s_steps,ALGORITHM_deltaL_eps);
 	if(DEBUG_MODE >= 1) Message("- main cycle finished");
-
-	return 0;
 
 	/* save the solution to VTK */
 	if(EXPORT_SAVEVTK){

@@ -44,10 +44,10 @@ void Problem::solve(int max_s_steps, Scalar deltaL_eps)
 		if(DEBUG_MODE >= 2) Message_info_value(" - it = ",this->it);
 
 		/* --- COMPUTE Theta --- */
-		this->model.compute_theta(this->data.get_data_vec());
+//		this->model.compute_theta(this->data.get_data_vec());
 		
 		/* --- COMPUTE gamma --- */
-		this->model.compute_gamma(this->data.get_data_vec());
+//		this->model.compute_gamma(this->data.get_data_vec());
 
 		/* compute stopping criteria */
 		L_old = L;
@@ -71,12 +71,12 @@ void Problem::solve(int max_s_steps, Scalar deltaL_eps)
 }
 
 
-void Problem::set_data(Data new_data)
+void Problem::set_data(Data &new_data)
 {
 	this->data = new_data;
 }
 
-void Problem::set_model(Model new_model)
+void Problem::set_model(Model &new_model)
 {
 	this->model = new_model;
 }

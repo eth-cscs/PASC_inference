@@ -39,25 +39,23 @@ void Gamma::prepare_random()
 		}
 	}
 	
-	if(DEBUG_MODE >= 10) std::cout << "  - generated preliminary gamma = " << this->gamma_vec << std::endl;
-	
 	/* normalize gamma */
 	/* at first sum the vectors */
 	gamma_sum = this->gamma_vec(0,T-1);
-	if(DEBUG_MODE >= 10) std::cout << "  - gamma_sum_0 = " << gamma_sum << std::endl;
+	if(DEBUG_MODE >= 11) std::cout << "  - gamma_sum_0 = " << gamma_sum << std::endl;
 
 	for(k=1;k<this->K;k++){
 		gamma_sum = gamma_sum + this->gamma_vec(k*T,(k+1)*T-1);
 
-		if(DEBUG_MODE >= 10) std::cout << "  - gamma_sum_" << k << " = " << gamma_sum << std::endl;
+		if(DEBUG_MODE >= 11) std::cout << "  - gamma_sum_" << k << " = " << gamma_sum << std::endl;
 	}
 
-	if(DEBUG_MODE >= 10) std::cout << "  - gamma_sum = " << gamma_sum << std::endl;
+	if(DEBUG_MODE >= 11) std::cout << "  - gamma_sum = " << gamma_sum << std::endl;
 
 	/* now divide the gamma by gamma_sum value */
 	for(k=0;k<this->K;k++){
 		for(t=0;t<this->T;t++){ // TODO: could be performed fully parallel
-			if(gamma_sum(t) == 0){
+			if(gamma_sum(t) == 0.0){
 				/* maybe we generated only zeros */
 				if(k == 0){
 					this->gamma_vec(k*T+t) = 1.0;
@@ -65,7 +63,7 @@ void Gamma::prepare_random()
 					this->gamma_vec(k*T+t) = 0.0;
 				}	
 			} else {
-				this->gamma_vec(k*T+t) = this->gamma_vec(k*T+t)/gamma_sum(t);
+				this->gamma_vec(k*T+t) /= gamma_sum(t);
 			}
 		}	
 	}
@@ -155,7 +153,7 @@ int Gamma::get_K()
 	return this->K;
 }
 
-int Gamma::get_function_value()
+Scalar Gamma::get_function_value()
 {
 	return this->qpsolver.get_function_value(gamma_vec,false);
 }

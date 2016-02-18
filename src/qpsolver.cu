@@ -238,11 +238,13 @@ void QPSolver::solve(GammaVector &x){
 
 }
 
-Scalar QPSolver::get_function_value(GammaVector x){
+Scalar QPSolver::get_function_value(GammaVector &x){
 	return this->get_function_value(x,false);
 }
 
-Scalar QPSolver::get_function_value(GammaVector x, bool use_gradient){
+Scalar QPSolver::get_function_value(GammaVector &x, bool use_gradient){
+	if(DEBUG_MODE >= 11) std::cout << "(Gamma)FUNCTION: get_function_value" << std::endl;
+	
 	Scalar fx = std::numeric_limits<Scalar>::max();
 
 	if(use_gradient){

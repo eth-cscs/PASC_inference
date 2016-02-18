@@ -21,8 +21,8 @@ class Problem {
 		void init();
 		void finalize();
 	
-		void set_data(Data new_data);
-		void set_model(Model new_model);
+		void set_data(Data &new_data);
+		void set_model(Model &new_model);
 
 		void solve(int max_s_steps, Scalar deltaL_eps);
 		void print();

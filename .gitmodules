@@ -1,3 +1,6 @@
 [submodule "minlin"]
 	path = minlin
 	url = https://github.com/lukaspospisil/minlin.git
+[submodule "util/minlin"]
+	path = util/minlin
+	url = https://github.com/lukaspospisil/minlin.git

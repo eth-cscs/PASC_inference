@@ -19,10 +19,10 @@ void get_Ax_laplace(HostVector<Scalar> &Ax, HostVector<Scalar> x, int K, Scalar 
 
 /* PetscVector */
 #ifdef USE_PETSC
-	Scalar get_dot(PetscVector x, PetscVector y);
-	void get_dot(Scalar *xx, PetscVector x, PetscVector y);
-	void get_Ax_laplace(PetscVector &Ax, PetscVector x, int K); 
-	void get_Ax_laplace(PetscVector &Ax, PetscVector x, int K, Scalar alpha); 
+	Scalar get_dot(PetscVector &x, PetscVector &y);
+	void get_dot(Scalar *xx, PetscVector &x, PetscVector &y);
+	void get_Ax_laplace(PetscVector &Ax, PetscVector &x, int K); 
+	void get_Ax_laplace(PetscVector &Ax, PetscVector &x, int K, Scalar alpha); 
 #endif
 
 

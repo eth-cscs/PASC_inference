@@ -34,7 +34,7 @@ class Gamma {
 		/* GET functions */
 		int get_T();
 		int get_K();
-		int get_function_value();
+		Scalar get_function_value();
 		GammaVector get_gamma_vec();
 
 		// TODO: this should be somewhere else, Model?
