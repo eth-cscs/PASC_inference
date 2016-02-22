@@ -1,13 +1,17 @@
 #ifndef QPPROBLEM_H
 #define	QPPROBLEM_H
 
-class QPSolver;
+namespace pascinference {
+	class QPSolver;
+}
 
 #include "common.h"
 
 #include "operations.h"
 #include "projection.h"
 #include <list>
+
+namespace pascinference {
 
 /* for manipulation with fs - function values for generalized Armijo condition */
 class QPSolver_fs {
@@ -82,6 +86,6 @@ class QPSolver {
 
 };
 
-
+} /* end of namespace */
 
 #endif

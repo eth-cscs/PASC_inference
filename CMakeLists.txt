@@ -135,16 +135,7 @@ set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
 	-DUSE_MINLIN)
 
 # from source files create shared library
-CUDA_ADD_LIBRARY(externals_common src/common.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_problem src/problem.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_data src/data.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_model src/model.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_gamma src/gamma.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_theta src/theta.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_inputoutput src/inputoutput.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_qpsolver src/qpsolver.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_operations src/operations.cu OPTIONS ${LIBRARY_DEFS} SHARED )
-CUDA_ADD_LIBRARY(externals_projection src/projection.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+CUDA_ADD_LIBRARY(libpascinference src/libpascinference.cu OPTIONS ${LIBRARY_DEFS} SHARED )
 
 
 
@@ -161,18 +152,9 @@ set_target_properties(pascinference_device PROPERTIES
 	OUTPUT_NAME pascinference
 	)
 	
-	
+# link external libraries	
 target_link_libraries(pascinference_device 
-	externals_common
-	externals_problem
-	externals_data
-	externals_model
-	externals_gamma
-	externals_theta
-	externals_inputoutput
-	externals_qpsolver
-	externals_operations
-	externals_projection
+	libpascinference
 )
 	
 # make output directory, here the results will be stored

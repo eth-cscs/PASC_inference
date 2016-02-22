@@ -1,4 +1,5 @@
-#include "data.h"
+
+namespace pascinference {
 
 void Data::init(int dim, int T)
 {
@@ -10,7 +11,7 @@ void Data::init(int dim, int T)
 	
 	/* prepare data vector */
 	DataVector new_data_vector(this->dim*this->T);
-	new_data_vector(all) = 5.0;
+	new_data_vector(petscvector::all) = 5.0;
 	
 	this->data_vec = new_data_vector;
 
@@ -171,3 +172,7 @@ void Data_kmeans::my_mvnrnd_D2(Scalar *mu, Scalar *covariance, Scalar *value1, S
 	*value1 = L[0]*r1n + L[1]*r2n + mu[0];
 	*value2 = L[2]*r1n + L[3]*r2n + mu[1];
 }
+
+
+} /* end of namespace */
+

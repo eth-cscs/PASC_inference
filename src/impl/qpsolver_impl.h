@@ -1,4 +1,3 @@
-#include "qpsolver.h"
 
 /* SPGQP SETTINGS */
 #define ALGORITHM_SPGQP_m 30
@@ -7,6 +6,8 @@
 #define ALGORITHM_SPGQP_eps 0.00001
 #define ALGORITHM_SPGQP_maxit 10000
 #define ALGORITHM_SPGQP_lambdaest 4.0
+
+namespace pascinference {
 
 /* prepare data which are constant */
 void QPSolver::init(int T, int K, Scalar eps_sqr){
@@ -31,7 +32,7 @@ void QPSolver::init(int T, int K, Scalar eps_sqr){
 	/* alloc first vector */
 	DataVector b(this->K*this->T);
 	/* set initial zero value to all vectors */
-	b(all) = 0.0;
+	b(petscvector::all) = 0.0;
 
 	this->b = b;
 	this->g = b;
@@ -441,3 +442,8 @@ std::ostream &operator<<(std::ostream &output, QPSolver_fs fs)
 			
 	return output;
 }
+
+
+} /* end of namespace */
+
+

@@ -1,13 +1,14 @@
-#include "operations.h"
 
-/* ----------------- HostVector ------------------- */
+namespace pascinference {
+
+/* ----------------- minlin::threx::HostVector ------------------- */
 
 /* return the dot product */
-void get_dot(Scalar *xx, HostVector<Scalar> x, HostVector<Scalar> y){
+void get_dot(Scalar *xx, minlin::threx::HostVector<Scalar> x, minlin::threx::HostVector<Scalar> y){
 	*xx = dot(x,y); /* Minlin operation */
 }
 
-Scalar get_dot(HostVector<Scalar> x, HostVector<Scalar> y){
+Scalar get_dot(minlin::threx::HostVector<Scalar> x, minlin::threx::HostVector<Scalar> y){
 	Scalar xx;
 
 	get_dot(&xx, x, y);
@@ -15,12 +16,12 @@ Scalar get_dot(HostVector<Scalar> x, HostVector<Scalar> y){
 	return xx;
 }
 
-void get_Ax_laplace(HostVector<Scalar> &Ax, HostVector<Scalar> x, int K){
+void get_Ax_laplace(minlin::threx::HostVector<Scalar> &Ax, minlin::threx::HostVector<Scalar> x, int K){
 	get_Ax_laplace(Ax,x,K,1.0);
 }
 
 /* return matrix-vector multiplication - MinLin operations */
-void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar alpha){
+void get_Ax_laplace(minlin::threx::HostVector<Scalar>& Ax, minlin::threx::HostVector<Scalar> x, int K, Scalar alpha){
 	int N = x.size();
 	int T = N/(double)K;
 	int k;
@@ -37,16 +38,16 @@ void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar 
 }
 
 
-/* ----------------- DeviceVector ------------------- */
+/* ----------------- minlin::threx::DeviceVector ------------------- */
 
 #ifdef USE_GPU
 
 	/* return the dot product */
-	void get_dot(Scalar *xx, DeviceVector<Scalar> x, DeviceVector<Scalar> y){
+	void get_dot(Scalar *xx, minlin::threx::DeviceVector<Scalar> x, minlin::threx::DeviceVector<Scalar> y){
 		*xx = dot(x,y); /* Minlin operation */
 	}
 
-	Scalar get_dot(DeviceVector<Scalar> x, DeviceVector<Scalar> y){
+	Scalar get_dot(minlin::threx::DeviceVector<Scalar> x, minlin::threx::DeviceVector<Scalar> y){
 		Scalar xx;
 
 		get_dot(&xx, x, y);
@@ -54,12 +55,12 @@ void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar 
 		return xx;
 	}
 
-	void get_Ax_laplace(DeviceVector<Scalar> &Ax, DeviceVector<Scalar> x, int K){
+	void get_Ax_laplace(minlin::threx::DeviceVector<Scalar> &Ax, minlin::threx::DeviceVector<Scalar> x, int K){
 		get_Ax_laplace(Ax,x,K,1.0);
 	}
 
 	/* return matrix-vector multiplication - MinLin operations */
-	void get_Ax_laplace(DeviceVector<Scalar>& Ax, DeviceVector<Scalar> x, int K, Scalar alpha){
+	void get_Ax_laplace(minlin::threx::DeviceVector<Scalar>& Ax, minlin::threx::DeviceVector<Scalar> x, int K, Scalar alpha){
 		int N = x.size();
 		int T = N/(double)K;
 		int k;
@@ -77,16 +78,16 @@ void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar 
 
 #endif
 
-/* ----------------- PetscVector ------------------- */
+/* ----------------- petscvector::PetscVector ------------------- */
 
 #ifdef USE_PETSC
 
 	/* return the dot product */
-	void get_dot(Scalar *xx, PetscVector &x, PetscVector &y){
+	void get_dot(Scalar *xx, petscvector::PetscVector &x, petscvector::PetscVector &y){
 		*xx = dot(x,y); /* Petsc operation */
 	}
 
-	Scalar get_dot(PetscVector &x, PetscVector &y){
+	Scalar get_dot(petscvector::PetscVector &x, petscvector::PetscVector &y){
 		Scalar xx;
 
 		get_dot(&xx, x, y);
@@ -94,12 +95,12 @@ void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar 
 		return xx;
 	}
 
-	void get_Ax_laplace(PetscVector &Ax, PetscVector &x, int K){
+	void get_Ax_laplace(petscvector::PetscVector &Ax, petscvector::PetscVector &x, int K){
 		get_Ax_laplace(Ax,x,K,1.0);
 	}
 
 	/* return matrix-vector multiplication - Petsc operations */
-	void get_Ax_laplace(PetscVector& Ax, PetscVector &x, int K, Scalar alpha){
+	void get_Ax_laplace(petscvector::PetscVector& Ax, petscvector::PetscVector &x, int K, Scalar alpha){
 		int N = x.size();
 		int T = N/(double)K;
 		int k;
@@ -117,4 +118,4 @@ void get_Ax_laplace(HostVector<Scalar>& Ax, HostVector<Scalar> x, int K, Scalar 
 
 #endif
 
-
+} /* end of namespace */

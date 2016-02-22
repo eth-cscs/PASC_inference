@@ -1,0 +1,25 @@
+/*******************************************************************************
+PASC INFERENCE library
+Lukas Pospisil, Illia Horenko, Patrick Gagliardini, Will Sawyer
+USI Lugano, 2016
+lukas.pospisil@usi.ch
+
+*******************************************************************************/
+
+#ifndef PASCINFERENCE_H
+#define	PASCINFERENCE_H
+
+#include "common.h"
+#include "data.h"
+#include "gamma.h"
+#include "inputoutput.h"
+#include "model.h"
+#include "operations.h"
+#include "problem.h"
+#include "projection.h"
+#include "qpsolver.h"
+#include "theta.h"
+
+#endif
+
+

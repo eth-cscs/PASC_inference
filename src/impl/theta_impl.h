@@ -1,4 +1,5 @@
-#include "theta.h"
+
+namespace pascinference {
 
 void Theta::init(int dim, int K){
 	this->dim = dim;
@@ -6,7 +7,7 @@ void Theta::init(int dim, int K){
 
 	ThetaVector D(this->dim*this->K);
 	this->theta_vec = D;
-	this->theta_vec(all) = 0.0;
+	this->theta_vec(petscvector::all) = 0.0; // TODO: deal with all
 
 }
 
@@ -84,3 +85,5 @@ void Theta::print(int nmb_of_spaces)
 	}
 	
 }
+
+} /* end of namespace */

@@ -7,6 +7,7 @@
 
 #include "inputoutput.h"
 
+namespace pascinference {
 
 class Problem {
 	protected:
@@ -33,6 +34,9 @@ class Problem {
 		Model get_model(); // TODO: only for testing
 
 };
+
+} /* end of namespace */
+
 
 
 #endif

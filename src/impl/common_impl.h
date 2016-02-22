@@ -1,9 +1,6 @@
-#include "common.h"
 
-/* global variables */
-int DEBUG_MODE = DEFAULT_DEBUG_MODE; /* default debug mode */
-bool PETSC_INITIALIZED = false; /* was petsc initialized or not ? */
-
+namespace pascinference {
+	
 /*!
  * initialize the application
  */ 
@@ -20,7 +17,7 @@ void Initialize(int argc, char *argv[]){
   	#ifdef USE_PETSC
 //		PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
 		PetscInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
-		PETSC_INITIALIZED = true;
+		petscvector::PETSC_INITIALIZED = true;
 	
 	#endif
 }
@@ -32,7 +29,7 @@ void Finalize(){
   	/* finalize Petsc */
   	#ifdef USE_PETSC
 		PetscFinalize();
-		PETSC_INITIALIZED = false;
+		petscvector::PETSC_INITIALIZED = false;
 	
 	#endif
 
@@ -143,3 +140,7 @@ double Timer::get_value_last(){
 bool Timer::status(){
 	return this->run_or_not;
 }
+
+
+
+} /* end of namespace */

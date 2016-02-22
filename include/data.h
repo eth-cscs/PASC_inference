@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+namespace pascinference {
+
 class Data {
 	protected:
 		int dim; /* number of data components */
@@ -38,6 +40,8 @@ class Data_kmeans : public Data {
 	
 };
 
+
+} /* end of namespace */
 
 
 #endif

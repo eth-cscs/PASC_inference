@@ -1,4 +1,5 @@
-#include "inputoutput.h"
+
+namespace pascinference {
 
 void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVector gamma_vec, int dim, int T, int K)
 {
@@ -45,10 +46,10 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVe
 
 	GammaVector gamma_max(T);
 	GammaVector  temp;
-	gamma_max(all) = 0.0;
-	HostVector<int> gamma_max_idx(T);
+	gamma_max(petscvector::all) = 0.0; // TODO: deal with all
+	minlin::threx::HostVector<int> gamma_max_idx(T); // TODO: use general host vecotr
 	
-	gamma_max_idx(all) = 0;
+	gamma_max_idx(all) = 0; // TODO: deal with all
 	for(k=0;k<K;k++){
 		/* write gamma_k */
 		myfile << "SCALARS gamma_" << k << " float 1\n";
@@ -87,3 +88,6 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVe
 	
 
 }
+
+
+} /* end of namespace */

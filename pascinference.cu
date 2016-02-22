@@ -6,10 +6,7 @@ lukas.pospisil@usi.ch
 
 *******************************************************************************/
 
-#include "common.h"
-#include "problem.h"
-#include "data.h"
-#include "model.h"
+#include "pascinference.h"
 
 #include <boost/program_options.hpp>
 
@@ -20,6 +17,8 @@ lukas.pospisil@usi.ch
 int T = 10; /* default length of generated time serie */
 int K = 3; /* default number of clusters */
 int dim = 2; /* default dimension of the problem */
+
+using namespace pascinference;
 
 /* load options from console arguments */
 bool load_from_console(int argc, char *argv[]){

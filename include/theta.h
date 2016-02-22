@@ -1,11 +1,16 @@
 #ifndef THETA_H
 #define	THETA_H
 
-class Theta;
+namespace pascinference {
+	class Theta;
+	class Gamma;
+}
 
 #include "common.h"
 #include "data.h"
 #include "gamma.h"
+
+namespace pascinference {
 
 class Theta {
 		int dim; /* number of data components = n */
@@ -28,5 +33,9 @@ class Theta {
 
 	
 };
+
+} /* end of namespace */
+
+
 
 #endif

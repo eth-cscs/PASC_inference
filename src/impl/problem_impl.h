@@ -1,4 +1,5 @@
-#include "problem.h"
+
+namespace pascinference {
 
 /** 
  * init the problem 
@@ -123,4 +124,5 @@ Model Problem::get_model()
 }
 
 
+} /* end of namespace */
 

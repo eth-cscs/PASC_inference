@@ -1,9 +1,9 @@
-#include "projection.h"
 
+namespace pascinference {
 
-/* -------- HostVector ---------- */
+/* -------- minlin::threx::HostVector ---------- */
 
-void get_projection(HostVector<Scalar> & x, int K){
+void get_projection(minlin::threx::HostVector<Scalar> & x, int K){
 
 	int N = x.size();
 	int T = N/K; /* length of vectors */
@@ -124,10 +124,10 @@ void sort_bubble(Scalar *x, int n){
 }
 
 
-/* -------- DeviceVector ---------- */
+/* -------- minlin::threx::DeviceVector ---------- */
 #ifdef USE_GPU
 
-void get_projection(DeviceVector<Scalar> & x, int K){
+void get_projection(minlin::threx::DeviceVector<Scalar> & x, int K){
 
 	int N = x.size();
 	int T = N/K; /* length of vectors */
@@ -250,14 +250,14 @@ void kernel_get_projection_sub(Scalar *x, int T, const int K){
 
 #endif
 
-/* -------- PetscVector ---------- */
+/* -------- petscvector::PetscVector ---------- */
 #ifdef USE_PETSC
 
 bool petsc_projection_init = false; /* if the initialization of projection was not performed, then = false */
 IS petsc_projection_is; 
 int petsc_projection_Townership_low, petsc_projection_Townership_high;
 
-void get_projection(PetscVector & x, int K){
+void get_projection(petscvector::PetscVector & x, int K){
 	
 	int T = x.size()/(double)K; /* length of time-series */
 
@@ -270,7 +270,7 @@ void get_projection(PetscVector & x, int K){
 		petsc_projection_init = true;
 		
 		/* try to make a global vector of length T and then get the indexes of begin and end of local portion */
-		PetscVector TVector(T);
+		petscvector::PetscVector TVector(T);
 
 		/* get the ownership range - now I know how much I will calculate from the time-series */
 		TVector.get_ownership(&petsc_projection_Townership_low,&petsc_projection_Townership_high);
@@ -285,7 +285,7 @@ void get_projection(PetscVector & x, int K){
 	}
 
 	int t;
-	PetscVector x_sub;
+	petscvector::PetscVector x_sub;
 	Scalar *x_sub_arr;
 	/* go throught local portion of time-serie and perform the projection */
 	for(t = petsc_projection_Townership_low; t < petsc_projection_Townership_high; t++){
@@ -320,5 +320,8 @@ void get_projection(PetscVector & x, int K){
 	}
 
 }
+
+
+} /* end of namespace */
 
 #endif

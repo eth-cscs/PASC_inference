@@ -1,13 +1,17 @@
 #ifndef GAMMA_H
 #define	GAMMA_H
 
-class Gamma;
-class QPSolver;
+namespace pascinference {
+	class Gamma;
+	class QPSolver;
+}
 
 #include "common.h"
 #include "data.h"
 #include "theta.h"
 #include "qpsolver.h"
+
+namespace pascinference {
 
 class Gamma {
 		int dim;
@@ -41,6 +45,8 @@ class Gamma {
 		void compute_gk(GammaVector& g, DataVector data_vec, Theta theta);
 	
 };
+
+} /* end of namespace */
 
 #endif
 

@@ -26,18 +26,18 @@ typedef double Scalar;
 
 #ifdef USE_PETSC
 	/* compute with Petsc */
-	#define DataVector PetscVector
-	#define ThetaVector PetscVector
-	#define GammaVector PetscVector
-	#define GammaMatrix PetscVector
+	#define DataVector petscvector::PetscVector
+	#define ThetaVector petscvector::PetscVector
+	#define GammaVector petscvector::PetscVector
+	#define GammaMatrix petscvector::PetscVector
 
 #else
 
 	/* compute without CUDA on Host */
-	#define DataVector HostVector<Scalar>
-	#define ThetaVector HostVector<Scalar>
-	#define GammaVector HostVector<Scalar>
-	#define GammaMatrix HostMatrix<Scalar>
+	#define DataVector minlin::threx::HostVector<Scalar>
+	#define ThetaVector minlin::threx::HostVector<Scalar>
+	#define GammaVector minlin::threx::HostVector<Scalar>
+	#define GammaMatrix minlin::threx::HostMatrix<Scalar>
 
 #endif
 

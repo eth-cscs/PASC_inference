@@ -1,4 +1,5 @@
-#include "gamma.h"
+
+namespace pascinference {
 
 void Gamma::init(int dim, int T, int K)
 {
@@ -10,7 +11,7 @@ void Gamma::init(int dim, int T, int K)
 
 	/* prepare gamma vector */
 	GammaVector new_gamma_vec(this->T*this->K);
-	new_gamma_vec(all) = 0.0;
+	new_gamma_vec(petscvector::all) = 0.0; // TODO: deal with all
 	this->gamma_vec = new_gamma_vec;
 
 	/* prepare QPSolver */
@@ -78,7 +79,7 @@ void Gamma::prepare_uniform()
 	
 	/* generate gamma = 1/K for all T */
 	value = 1.0/(Scalar)this->K;
-	this->gamma_vec(all) = value;
+	this->gamma_vec(petscvector::all) = value; // TODO: deal with all
 
 }
 
@@ -181,3 +182,4 @@ void Gamma::compute_gk(GammaVector& g, DataVector data_vec, Theta theta)
 	
 }
 
+} /* end of namespace */

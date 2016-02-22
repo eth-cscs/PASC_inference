@@ -1,7 +1,7 @@
-/*! This class should include all common functions and includes */
 
 #ifndef PASC_COMMON_H
 #define	PASC_COMMON_H
+
 
 /* include common c++ header files */
 #define _USE_MATH_DEFINES
@@ -17,19 +17,26 @@
 #include <minlin/modules/threx/threx.h>
 //#include <qpopt/smalbe.h>
 
-using namespace minlin::threx;
-MINLIN_INIT
+namespace minlin {
+	namespace threx {
+		MINLIN_INIT // TODO: if USE_MINLIN
+	}
+}
 
 /* PetscVector */
 #ifdef USE_PETSC
 	#include "petsc.h"
 	#include "petscvector.h"
-	
+
+//	namespace pascinference {	
+//		extern int DEBUG_MODE_PETSCVECTOR;
+//		extern bool PETSC_INITIALIZED;
+//	}
 #endif
 
 #include <stdio.h> /* printf in cuda */
 
-/* cuda stuff */
+/* cuda stuff */ // TODO: if USE_GPU
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <device_launch_parameters.h>
@@ -38,11 +45,11 @@ MINLIN_INIT
 /* include settings */
 #include "settings.h"
 
-
+/* we are using namespace pascinference */
+namespace pascinference {
 
 /* global variables */
-extern int DEBUG_MODE;
-
+int DEBUG_MODE;
 
 /* general utils */
 void Initialize(int, char**);
@@ -88,7 +95,7 @@ class Timer {
 };
 
 
-/* cuda error check */
+/* cuda error check */ // TODO: if USE_GPU
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
 {
@@ -97,6 +104,8 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
       fprintf(stderr,"\n\x1B[31mCUDA error:\x1B[0m %s %s \x1B[33m%d\x1B[0m\n\n", cudaGetErrorString(code), file, line);
       if (abort) exit(code);
    }
+}
+
 }
 
 #endif

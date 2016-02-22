@@ -5,6 +5,9 @@
 #include "gamma.h"
 #include "theta.h"
 
+
+namespace pascinference {
+
 class Model {
 	protected:
 		int dim; /* number of data components */
@@ -45,6 +48,9 @@ class Model_kmeans : public Model {
 
 	
 };
+
+} /* end of namespace */
+
 
 
 #endif

@@ -1,5 +1,6 @@
-#include "model.h"
 
+namespace pascinference {
+	
 /** 
  * init the model
  *
@@ -133,3 +134,4 @@ double Model::get_function_value()
 	return this->gamma.get_function_value();
 }
 
+} /* end of namespace */
