@@ -6,11 +6,9 @@
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE; 
 
-
-namespace minlin {
-
-namespace threx { // TODO: maybe choose the different namespace for my own stuff
-
+namespace pascinference {
+	
+	
 /* class for manipulation with A*x as one object, will be defined later */
 template<class VectorType> class GeneralMatrixRHS;
 
@@ -72,6 +70,5 @@ class GeneralMatrixRHS{
 
 } /* end of namespace */
 
-} /* end of MinLin namespace */
 
 #endif

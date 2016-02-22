@@ -2,17 +2,7 @@
 #ifndef PASC_COMMON_H
 #define	PASC_COMMON_H
 
-
-/* include common c++ header files */
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <stack>
-#include <limits>
-
-/* include MINLIN */
+/* include MINLIN */ //TODO: if USE_MINLIN
 #include <minlin/minlin.h>
 #include <minlin/modules/threx/threx.h>
 //#include <qpopt/smalbe.h>

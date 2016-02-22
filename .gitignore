@@ -28,4 +28,4 @@
 *.app
 
 build
-build2
+tests/build
