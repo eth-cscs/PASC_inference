@@ -15,8 +15,10 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/util/cmake/" ${CMAKE_MODULE_PATH})
 
 #load options from command line
-option(USE_GPU "USE_GPU" ON)
 option(USE_PETSC "USE_PETSC" ON)
+option(USE_PETSC "USE_MINLIN" ON)
+option(USE_GPU "USE_GPU" ON)
+
 
 #define some colors for fun
 if(NOT WIN32)
@@ -55,7 +57,7 @@ link_directories($ENV{MKLROOT}/lib/intel64)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 # MINLIN: define variables for include directories
-set(MINLIN_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/minlin/include)
+set(MINLIN_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/util/minlin/include)
 message(STATUS "${Yellow}MINLIN_INCLUDE = ${MINLIN_INCLUDE}${ColourReset}")
 set(MINLIN_HOST_DEFS
 	THRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_OMP
@@ -96,9 +98,9 @@ if(${USE_GPU})
 	set(LIBRARY_DEFS ${LIBRARY_DEFS} -DUSE_GPU)
 	set(DEVICE_DEFS ${DEVICE_DEFS} -USE_GPU)
 
-else(${USE_GPU})
+else()
 	message(STATUS "${Red}The code is compiled to run on CPU${ColourReset}")
-endif(${USE_GPU})
+endif()
 
 if(${USE_PETSC})
 	message(STATUS "${Red}The code is compiled with PETSc${ColourReset}")
@@ -118,7 +120,9 @@ if(${USE_PETSC})
 	message(STATUS "${Yellow}PETSC_ARCH = $ENV{PETSC_DIR} ${ColourReset}")
 
 	include_directories(${PETSC_INCLUDES})
-	include_directories(${CMAKE_SOURCE_DIR}/include/petscvector)
+	
+	#include petscvector
+	include_directories(${CMAKE_SOURCE_DIR}/util/petscvector/include)
 
 else(${USE_PETSC})
 	message(STATUS "${Red}The code is compiled without PETSc${ColourReset}")

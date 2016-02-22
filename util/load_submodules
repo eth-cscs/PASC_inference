@@ -9,7 +9,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
     # add MINLIN
-	git submodule add https://github.com/bcumming/minlin.git
+	git submodule add --force https://github.com/bcumming/minlin.git util/minlin
 fi
 
 read -p "Would you like to download PetscVector? " -n 1 -r
@@ -17,7 +17,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
     # add PetscVector
-	git submodule add https://github.com/lukaspospisil/petscvector.git
+	git submodule add --force https://github.com/lukaspospisil/petscvector.git util/petscvector
 fi
 
 
