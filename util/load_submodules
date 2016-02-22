@@ -1,0 +1,23 @@
+#!/bin/bash
+# Script for loading submodules using interactive bash code
+#
+
+echo "We are ready to download submodules from GitHub!";
+
+read -p "Would you like to download MINLIN? " -n 1 -r
+echo  
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    # add MINLIN
+	git submodule add https://github.com/bcumming/minlin.git
+fi
+
+read -p "Would you like to download PetscVector? " -n 1 -r
+echo  
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    # add PetscVector
+	git submodule add https://github.com/lukaspospisil/petscvector.git
+fi
+
+
