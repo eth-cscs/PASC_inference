@@ -7,13 +7,16 @@
 extern int DEBUG_MODE; 
 
 namespace pascinference {
-	
+
+/* there will be a class with vectors... later */
+template<class VectorBase> class Vector;
 	
 /* class for manipulation with A*x as one object, will be defined later */
-template<class VectorType> class GeneralMatrixRHS;
+template<class VectorBase> class GeneralMatrixRHS;
+//template<class VectorBase, typename enable_if<!is_base_of<A, VectorBase>::value>::type* = nullptr> class GeneralMatrixRHS;
 
 /* class for manipulation with general matrix */
-template<class VectorType>
+template<class VectorBase>
 class GeneralMatrix {
 	protected:
 		// TODO: timers & other general funny stuff 
@@ -21,43 +24,44 @@ class GeneralMatrix {
 	public:
 
 		virtual void print(std::ostream &output) const {}; /* print matrix */
-		virtual void matmult(VectorType &y, const VectorType &x) const {}; /* y = A*x */
+		virtual void matmult(VectorBase &y, const VectorBase &x) const {}; /* y = A*x */
 
-		template<class VectorType2>
-		friend std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorType2> &matrix); /* cannot be virtual, therefore it call virtual print() */
+		template<class VectorBase2>
+		friend std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorBase2> &matrix); /* cannot be virtual, therefore it call virtual print() */
 
 };
 
 /* print general matrix, call virtual print() */
-template<class VectorType>
-std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorType> &matrix){
+template<class VectorBase>
+std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorBase> &matrix){
 	if(DEBUG_MODE >= 100) std::cout << "(GeneralMatrixRHS)OPERATOR: <<" << std::endl;
 	matrix.print(output);
 	return output;
 }
 
 /* operator A*x (creates RHS to be proceeded into overloaded operator Vector = RHS */
-template<class VectorType>
-GeneralMatrixRHS<VectorType> operator*(const GeneralMatrix<VectorType> &matrix, const VectorType &x){
+template<class VectorBase>
+GeneralMatrixRHS<VectorBase> operator*(const GeneralMatrix<VectorBase> &matrix, const Vector<VectorBase> &x){
 	if(DEBUG_MODE >= 100) std::cout << "(GeneralMatrixRHS)OPERATOR: *" << std::endl;
-	return GeneralMatrixRHS<VectorType>(&matrix,&x);	
+	return GeneralMatrixRHS<VectorBase>(&matrix,&x);	
 }
 
 
 /* right hand-side vector of y=Ax - will be provided into overloaded operator  Vector = RHS */
-template<class VectorType>
+template<class VectorBase>
 class GeneralMatrixRHS{
 	private:
-		const GeneralMatrix<VectorType> *matrix; /* pointer to general matrix */
-		const VectorType *x; /* pointer to vector */
+		const GeneralMatrix<VectorBase> *matrix; /* pointer to general matrix */
+		const Vector<VectorBase> *x; /* pointer to vector */
 	public:
+
 		/* constructor: create RHS from given pointers to matrix & vector */
-		GeneralMatrixRHS(const GeneralMatrix<VectorType> *newmatrix, const VectorType *newx){
+		GeneralMatrixRHS(const GeneralMatrix<VectorBase> *newmatrix, const Vector<VectorBase> *newx){
 			matrix = newmatrix;
 			x = newx;
 		}	
 
-		void matmult(VectorType &y){ /* call multiplication function from matrix class to perform y = A*x */
+		void matmult(Vector<VectorBase> &y){ /* call multiplication function from matrix class to perform y = A*x */
 			if(DEBUG_MODE >= 100) std::cout << "(GeneralMatrixRHS)FUNCTION: matmult" << std::endl;
 			
 			(*matrix).matmult(y, *x); /* call virtual function (of Matrix) for multiplication */

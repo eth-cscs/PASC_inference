@@ -6,6 +6,11 @@
 
 using namespace pascinference;
 
+/* set what is what ( which type of vector to use where) */
+typedef petscvector::PetscVector Global;
+typedef minlin::threx::HostVector<double> Host;
+typedef minlin::threx::DeviceVector<double> Device;
+
 
 int main( int argc, char *argv[] )
 {
@@ -15,18 +20,34 @@ int main( int argc, char *argv[] )
 	/* say hello */	
 	Message("- start program");
 
-	int N = 10;
-	GlobalVector vg(N);
-	HostVector vh(N);
+	int N = 5;
+	Vector<Global> vg(N);
+	Vector<Host> vh(N);
+
+	vg(0) = 1.0;
+	vg(1) = 2.0;
+	vg(2) = 3.0;
+	vg(3) = 4.0;
+	vg(4) = 5.0;
+
+//	vg(all) = 3.3;
 
 	std::cout << "v_global: " << vg << std::endl;
-	std::cout << "v_host: " << vh << std::endl;
+	std::cout << "v_host:   " << vh << std::endl;
 	
-	LaplaceFullMatrix<GlobalVector> Ag(vg);
-	LaplaceFullMatrix<HostVector> Ah(vh);
+	LaplaceFullMatrix<Global> Ag(vg);
+	LaplaceFullMatrix<Host> Ah(vh);
 
 	std::cout << "A_global: " << Ag << std::endl;
 	std::cout << "A_host: " << Ah << std::endl;
+
+	Vector<Global> Avg(N);
+	Vector<Host> Avh(N);
+	Avg = Ag*vg; 
+	Avh = Ah*vh; 
+
+	std::cout << "Av_global: " << Avg << std::endl;
+	std::cout << "Av_host: " << Avh << std::endl;
 
 
 	/* say bye */	
