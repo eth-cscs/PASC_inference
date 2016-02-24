@@ -29,8 +29,9 @@ int main( int argc, char *argv[] )
 	vg(2) = 3.0;
 	vg(3) = 4.0;
 	vg(4) = 5.0;
-
-//	vg(all) = 3.3;
+	
+	vg(gall) = 3.3;
+	vh(gall) = 2.3;
 
 	std::cout << "v_global: " << vg << std::endl;
 	std::cout << "v_host:   " << vh << std::endl;

@@ -47,9 +47,9 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVe
 	GammaVector gamma_max(T);
 	GammaVector  temp;
 	gamma_max(petscvector::all) = 0.0; // TODO: deal with all
-	minlin::threx::HostVector<int> gamma_max_idx(T); // TODO: use general host vecotr
+	GammaVector gamma_max_idx(T); // TODO: use general host vecotr
 	
-	gamma_max_idx(all) = 0; // TODO: deal with all
+	gamma_max_idx(gall) = 0; // TODO: deal with all
 	for(k=0;k<K;k++){
 		/* write gamma_k */
 		myfile << "SCALARS gamma_" << k << " float 1\n";
