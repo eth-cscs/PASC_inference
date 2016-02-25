@@ -33,7 +33,7 @@ class MatlabMatrix: public GeneralMatrix<VectorType> {
 		
 	
 	public:
-		MatlabMatrix(const VectorType &x); /* constructor */
+		MatlabMatrix(const VectorType &x, std::string filename); /* constructor */
 		~MatlabMatrix(); /* destructor - destroy inner matrix */
 
 		void print(std::ostream &output) const; /* print matrix */
@@ -47,25 +47,29 @@ class MatlabMatrix: public GeneralMatrix<VectorType> {
 
 /* Petsc: constructor from given right PetscVector */
 template<>
-MatlabMatrix<PetscVector>::MatlabMatrix(const PetscVector &x){
+MatlabMatrix<PetscVector>::MatlabMatrix(const PetscVector &x, std::string filename){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) std::cout << "(MatlabMatrix)CONSTRUCTOR: from filename" << std::endl;
-
-	int N, n;
+	if(DEBUG_MODE >= 100){
+		std::cout << "(MatlabMatrix)CONSTRUCTOR: from filename" << std::endl;
+		std::cout << " - read matrix in petsc format from: " << filename << std::endl;
+	}
 
 	/* get informations from given vector */
+	int N, n;
+
 	N = x.size();
 	n = x.local_size();
 
-	if(DEBUG_MODE >= 100) std::cout << " - read matrix in petsc format" << std::endl;
+	/* prepare matrix */
+	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
+	TRY( MatSetSizes(A_petsc,n,n,N,N) );
+	TRY( MatSetFromOptions(A_petsc) ); 
 
 	/* prepare viewer to load from file */
 	PetscViewer mviewer;
-	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRY( PetscViewerSetType(mviewer,PETSCVIEWERMATLAB) );
-	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "mymatrix.mat", FILE_MODE_READ, &mviewer) );
+	TRY( PetscViewerCreate(PETSC_COMM_SELF, &mviewer) );
+	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD , filename.c_str(), FILE_MODE_READ, &mviewer) );
 	
-//	TRY( PetscViewerMatlabOpen(PETSC_COMM_WORLD, "mymatrix.mat", FILE_MODE_READ, &mviewer) );
 	/* load matrix from viewer */
 	TRY( MatLoad(A_petsc, mviewer) );
 
@@ -112,10 +116,59 @@ void MatlabMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) co
 
 
 /* -------------------------------- MINLIN HOST -------------------------*/
-// TODO: find a way how to load matlab matrix without Petsc
+template<>
+MatlabMatrix<MinlinHostVector>::MatlabMatrix(const MinlinHostVector &x, std::string filename){
+	if(DEBUG_MODE >= 100){
+		std::cout << "(MatlabMatrix)CONSTRUCTOR: from filename" << std::endl;
+		std::cout << " - read matrix in petsc format from: " << filename << std::endl;
+	}
+
+	/* get informations from given vector */
+	int N = x.size();
+
+	/* prepare matrix */
+	MinlinHostMatrix A_new(N,N);
+
+	/* set initial value */
+	A_new(all) = 0.0;
+
+	/* open file */
+
+	
+	/* set new matrix */	
+	A_minlinhost = A_new;
+}
+
+/* Petsc: destructor - destroy the matrix */
+template<>
+MatlabMatrix<MinlinHostVector>::~MatlabMatrix(){
+	/* init Petsc Vector */
+	if(DEBUG_MODE >= 100) std::cout << "(MatlabMatrix)DESTRUCTOR" << std::endl;
+
+	// TODO: destroy minlin matrix
+}
+
+/* print matrix */
+template<>
+void MatlabMatrix<MinlinHostVector>::print(std::ostream &output) const {
+	if(DEBUG_MODE >= 100) std::cout << "(MatlabMatrix)OPERATOR: << print" << std::endl;
+
+	output << A_minlinhost << std::endl;
+}
+
+/* Petsc: matrix-vector multiplication */
+template<>
+void MatlabMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
+	if(DEBUG_MODE >= 100) std::cout << "(MatlabMatrix)FUNCTION: matmult" << std::endl;
+
+	y = A_minlinhost*x;	
+		
+}
+
+
 
 /* -------------------------------- MINLIN DEVICE -------------------------*/
-// TODO: find a way how to load matlab matrix without Petsc
+// TODO: same as for host
 
 
 

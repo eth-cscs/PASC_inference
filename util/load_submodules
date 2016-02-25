@@ -4,20 +4,22 @@
 
 echo "We are ready to download submodules from GitHub!";
 
-read -p "Would you like to download MINLIN? " -n 1 -r
-echo  
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-    # add MINLIN
-	git submodule add --force https://github.com/bcumming/minlin.git util/minlin
-fi
+git submodule update --init --recursive
 
-read -p "Would you like to download PetscVector? " -n 1 -r
-echo  
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
+#read -p "Would you like to download MINLIN? " -n 1 -r
+#echo  
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
+    # add MINLIN
+#	git submodule add --force https://github.com/bcumming/minlin.git util/minlin
+#fi
+
+#read -p "Would you like to download PetscVector? " -n 1 -r
+#echo  
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
     # add PetscVector
-	git submodule add --force https://github.com/lukaspospisil/petscvector.git util/petscvector
-fi
+#	git submodule add --force https://github.com/lukaspospisil/petscvector.git util/petscvector
+#fi
 
 

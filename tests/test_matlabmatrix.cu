@@ -19,7 +19,7 @@ int main( int argc, char *argv[] )
 	/* say hello */	
 	Message("- start program");
 
-	int N = 5;
+	int N = 4;
 	Vector<Global> vg(N);
 	Vector<Host> vh(N);
 
@@ -27,7 +27,6 @@ int main( int argc, char *argv[] )
 	vg(1) = 2.0;
 	vg(2) = 3.0;
 	vg(3) = 4.0;
-	vg(4) = 5.0;
 	
 	vg(gall) = 3.3;
 	vh(gall) = 2.3;
@@ -35,22 +34,22 @@ int main( int argc, char *argv[] )
 	std::cout << "v_global: " << vg << std::endl;
 	std::cout << "v_host:   " << vh << std::endl;
 	
+	MatlabMatrix<Global> Ag(vg,"mymatrix.mat");
+
 	pascinference::DEBUG_MODE = 100;
-	MatlabMatrix<Global> Ag(vg);
+	MatlabMatrix<Host> Ah(vh,"mymatrix.mat");
 	pascinference::DEBUG_MODE = 0;
 
-//	MatlabMatrix<Host> Ah(vh);
-
 //	std::cout << "A_global: " << Ag << std::endl;
-//	std::cout << "A_host: " << Ah << std::endl;
+	std::cout << "A_host: " << Ah << std::endl;
 
 	Vector<Global> Avg(N);
-//	Vector<Host> Avh(N);
+	Vector<Host> Avh(N);
 //	Avg = Ag*vg; 
-//	Avh = Ah*vh; 
+	Avh = Ah*vh; 
 
-	std::cout << "Av_global: " << Avg << std::endl;
-//	std::cout << "Av_host: " << Avh << std::endl;
+//	std::cout << "Av_global: " << Avg << std::endl;
+	std::cout << "Av_host: " << Avh << std::endl;
 
 
 	/* say bye */	
