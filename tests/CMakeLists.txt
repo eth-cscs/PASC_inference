@@ -134,12 +134,13 @@ set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
 # from source files create shared library
 CUDA_ADD_LIBRARY(libpascinference ../src/libpascinference.cu OPTIONS ${LIBRARY_DEFS} SHARED )
 
+
+# -------------------- TEST ALGEBRA ------------------
+
 # add main executable file
 cuda_add_executable(test_algebra test_algebra.cu
 	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-
-# -------------------- TEST ALGEBRA ------------------
 	
 # link external libraries	
 target_link_libraries(test_algebra libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
@@ -149,3 +150,17 @@ set_target_properties(test_algebra PROPERTIES
 	OUTPUT_NAME test_algebra
 	)
 
+# -------------------- TEST GIVEN MATRIX ------------------
+	
+# add main executable file
+cuda_add_executable(test_matlabmatrix test_matlabmatrix.cu
+	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+	
+# link external libraries	
+target_link_libraries(test_matlabmatrix libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+
+# set the name of output file
+set_target_properties(test_matlabmatrix PROPERTIES
+	OUTPUT_NAME test_matlabmatrix
+	)

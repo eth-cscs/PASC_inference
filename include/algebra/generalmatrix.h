@@ -13,7 +13,6 @@ template<class VectorBase> class Vector;
 	
 /* class for manipulation with A*x as one object, will be defined later */
 template<class VectorBase> class GeneralMatrixRHS;
-//template<class VectorBase, typename enable_if<!is_base_of<A, VectorBase>::value>::type* = nullptr> class GeneralMatrixRHS;
 
 /* class for manipulation with general matrix */
 template<class VectorBase>

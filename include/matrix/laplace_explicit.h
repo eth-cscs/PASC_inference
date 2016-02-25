@@ -1,5 +1,5 @@
-#ifndef LAPLACEFULLMATRIX_H
-#define	LAPLACEFULLMATRIX_H
+#ifndef LAPLACEEXPLICITMATRIX_H
+#define	LAPLACEEXPLICITMATRIX_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -22,7 +22,7 @@ namespace pascinference {
 
 /* laplace matrix */ 
 template<class VectorType>
-class LaplaceFullMatrix: public GeneralMatrix<VectorType> {
+class LaplaceExplicitMatrix: public GeneralMatrix<VectorType> {
 	private:
 		/* Petsc stuff */ // TODO: if USE_PETSC
 		PetscMatrix A_petsc;
@@ -33,8 +33,8 @@ class LaplaceFullMatrix: public GeneralMatrix<VectorType> {
 		
 	
 	public:
-		LaplaceFullMatrix(const VectorType &x); /* constructor from vector */
-		~LaplaceFullMatrix(); /* destructor - destroy inner matrix */
+		LaplaceExplicitMatrix(const VectorType &x); /* constructor from vector */
+		~LaplaceExplicitMatrix(); /* destructor - destroy inner matrix */
 
 		void print(std::ostream &output) const; /* print matrix */
 		void matmult(VectorType &y, const VectorType &x) const; /* y = A*x */
@@ -47,9 +47,9 @@ class LaplaceFullMatrix: public GeneralMatrix<VectorType> {
 
 /* Petsc: constructor from given right PetscVector */
 template<>
-LaplaceFullMatrix<PetscVector>::LaplaceFullMatrix(const PetscVector &x){
+LaplaceExplicitMatrix<PetscVector>::LaplaceExplicitMatrix(const PetscVector &x){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) std::cout << "(LAPLACEFULL)CONSTRUCTOR: from PetscVector" << std::endl;
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)CONSTRUCTOR: from PetscVector" << std::endl;
 
 	int N, n;
 
@@ -115,9 +115,9 @@ LaplaceFullMatrix<PetscVector>::LaplaceFullMatrix(const PetscVector &x){
 
 /* Petsc: destructor - destroy the matrix */
 template<>
-LaplaceFullMatrix<PetscVector>::~LaplaceFullMatrix(){
+LaplaceExplicitMatrix<PetscVector>::~LaplaceExplicitMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) std::cout << "(LAPLACEFULL)DECONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
 		TRY( MatDestroy(&A_petsc) );
@@ -126,9 +126,9 @@ LaplaceFullMatrix<PetscVector>::~LaplaceFullMatrix(){
 
 /* print matrix */
 template<>
-void LaplaceFullMatrix<PetscVector>::print(std::ostream &output) const		
+void LaplaceExplicitMatrix<PetscVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) std::cout << "(LAPLACEFULL)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 
 	output << "Laplace matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
 	output << "----------------------------------------------------------" << std::endl;
@@ -140,8 +140,8 @@ void LaplaceFullMatrix<PetscVector>::print(std::ostream &output) const
 
 /* Petsc: matrix-vector multiplication */
 template<>
-void LaplaceFullMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
-	if(DEBUG_MODE >= 100) std::cout << "(LaplaceFullMatrix)FUNCTION: matmult" << std::endl;
+void LaplaceExplicitMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	// TODO: maybe y is not initialized, who knows
 	
@@ -154,9 +154,9 @@ void LaplaceFullMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &
 
 /* MinLinHost: constructor from given right HostVector<double> */
 template<>
-LaplaceFullMatrix<MinlinHostVector>::LaplaceFullMatrix(const MinlinHostVector &x){
+LaplaceExplicitMatrix<MinlinHostVector>::LaplaceExplicitMatrix(const MinlinHostVector &x){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) std::cout << "(LAPLACEFULL)CONSTRUCTOR: from MinLin host" << std::endl;
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)CONSTRUCTOR: from MinLin host" << std::endl;
 
 	int N = x.size();
 
@@ -212,25 +212,25 @@ LaplaceFullMatrix<MinlinHostVector>::LaplaceFullMatrix(const MinlinHostVector &x
 
 /* MinLinHost: destructor - destroy the matrix */
 template<>
-LaplaceFullMatrix<MinlinHostVector>::~LaplaceFullMatrix(){
+LaplaceExplicitMatrix<MinlinHostVector>::~LaplaceExplicitMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) std::cout << "(LAPLACEFULL)DECONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: how to destroy minlin matrix?
 }
 
 /* MinLinHost: print matrix */
 template<>
-void LaplaceFullMatrix<MinlinHostVector>::print(std::ostream &output) const		
+void LaplaceExplicitMatrix<MinlinHostVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) std::cout << "(LAPLACEFULL)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlinhost << std::endl;
 }
 
 /* MinLinHost: matrix-vector multiplication */
 template<>
-void LaplaceFullMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
-	if(DEBUG_MODE >= 100) std::cout << "(LaplaceFullMatrix)FUNCTION: matmult" << std::endl;
+void LaplaceExplicitMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
+	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlinhost*x;	
 

@@ -1,8 +1,7 @@
 #include "pascinference.h"
 
 
-#include "matrix/laplace_explicit.h"
-
+#include "matrix/matlab.h"
 
 using namespace pascinference;
 
@@ -36,19 +35,22 @@ int main( int argc, char *argv[] )
 	std::cout << "v_global: " << vg << std::endl;
 	std::cout << "v_host:   " << vh << std::endl;
 	
-	LaplaceExplicitMatrix<Global> Ag(vg);
-	LaplaceExplicitMatrix<Host> Ah(vh);
+	pascinference::DEBUG_MODE = 100;
+	MatlabMatrix<Global> Ag(vg);
+	pascinference::DEBUG_MODE = 0;
 
-	std::cout << "A_global: " << Ag << std::endl;
-	std::cout << "A_host: " << Ah << std::endl;
+//	MatlabMatrix<Host> Ah(vh);
+
+//	std::cout << "A_global: " << Ag << std::endl;
+//	std::cout << "A_host: " << Ah << std::endl;
 
 	Vector<Global> Avg(N);
-	Vector<Host> Avh(N);
-	Avg = Ag*vg; 
-	Avh = Ah*vh; 
+//	Vector<Host> Avh(N);
+//	Avg = Ag*vg; 
+//	Avh = Ah*vh; 
 
 	std::cout << "Av_global: " << Avg << std::endl;
-	std::cout << "Av_host: " << Avh << std::endl;
+//	std::cout << "Av_host: " << Avh << std::endl;
 
 
 	/* say bye */	

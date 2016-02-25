@@ -21,6 +21,7 @@ namespace pascinference {
 
 	} gall; /* sorry for gall, but minlin is using global all and I don't know how to retype it. */ // TODO: deal with all
 
+
 	/* general vector class - take original class and add multiplication with GeneralMatrix */
 	template<class VectorBase>
 	class Vector : public VectorBase {
