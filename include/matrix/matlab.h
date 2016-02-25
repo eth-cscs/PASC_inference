@@ -5,6 +5,7 @@
 extern int DEBUG_MODE;
 
 #include <iostream>
+#include <iostream>
 #include "algebra/generalmatrix.h" /* parent GeneralMatrix class */
 
 typedef petscvector::PetscVector PetscVector;
@@ -133,7 +134,56 @@ MatlabMatrix<MinlinHostVector>::MatlabMatrix(const MinlinHostVector &x, std::str
 	A_new(all) = 0.0;
 
 	/* open file */
+	std::ifstream myfile(filename.c_str(), std::ios::in | std::ios::binary);
 
+	/* petsc binary file content: (http://www.mcs.anl.gov/petsc/petsc-dev/docs/manualpages/Mat/MatLoad.html)
+	 * int    MAT_FILE_CLASSID
+	 * int    number of rows
+	 * int    number of columns
+	 * int    total number of nonzeros
+     * int    *number nonzeros in each row
+     * int    *column indices of all nonzeros (starting index is zero)
+     * PetscScalar *values of all nonzeros
+	 */ 
+
+	/* variables for reading the file */
+//	char buffer[sizeof(int32_t)];
+	
+	int32_t mat_file_classid[4];
+//	int nmb_of_rows;
+/*	int nmb_of_cols;
+	int nmb_of_nz;
+*/
+
+	/* set reader to the begining of the file */
+//	myfile.seekg(0, std::ios::beg);
+	
+	myfile.clear();
+	
+	/* read MAT_FILE_CLASSID */
+	myfile.read((char*)&mat_file_classid, sizeof(mat_file_classid)); /* read block of memory */ 
+	
+	std::cout<< "sizeof(mat_file_class_id): " << sizeof(mat_file_classid) << std::endl;
+	std::cout<< "content0: " << (int)mat_file_classid[0] << std::endl;
+	std::cout<< "content1: " << (int)mat_file_classid[1] << std::endl;
+	std::cout<< "content2: " << (int)mat_file_classid[2] << std::endl;
+	std::cout<< "content3: " << (int)mat_file_classid[3] << std::endl;
+	
+//	myfile.seekg(sizeof(mat_file_classid),std::ios::cur); /* change location of reader */
+
+	/* read nmb_of_rows */
+//	myfile.read(memblock_int, sizeof(int)); /* read block of memory */
+//	nmb_of_rows = atoi(memblock_int); /* convert to int */
+//	myfile.seekg(sizeof(int),std::ios::cur); /* change location of reader */
+
+
+//	std::cout << "MAT_FILE_CLASSID: " << mat_file_classid << std::endl;
+//	std::cout << "nmb of rows:      " << nmb_of_rows << std::endl;
+
+	/* close file */
+    myfile.close();
+	
+//	std::cout<< "kurveliak: " << sizeof(int) << ", picus: " << memblock_int << ", kokotar: " << atoi(memblock_int) << std::endl;
 	
 	/* set new matrix */	
 	A_minlinhost = A_new;
