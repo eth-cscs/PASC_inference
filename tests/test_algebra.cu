@@ -11,12 +11,15 @@ typedef petscvector::PetscVector Global;
 typedef minlin::threx::HostVector<double> Host;
 typedef minlin::threx::DeviceVector<double> Device;
 
+extern bool petscvector::PETSC_INITIALIZED;
+
 
 int main( int argc, char *argv[] )
 {
 		
 	Initialize(argc, argv); // TODO: load parameters from console input
-
+	petscvector::PETSC_INITIALIZED = true;
+	
 	/* say hello */	
 	Message("- start program");
 
@@ -53,7 +56,10 @@ int main( int argc, char *argv[] )
 
 	/* say bye */	
 	Message("- end program");
+	
+	petscvector::PETSC_INITIALIZED = false;
 	Finalize();
+
 	return 0;
 }
 

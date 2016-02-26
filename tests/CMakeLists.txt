@@ -153,14 +153,14 @@ set_target_properties(test_algebra PROPERTIES
 # -------------------- TEST GIVEN MATRIX ------------------
 	
 # add main executable file
-cuda_add_executable(test_matlabmatrix test_matlabmatrix.cu
+cuda_add_executable(test_filecrsmatrix test_filecrsmatrix.cu
 	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 	
 # link external libraries	
-target_link_libraries(test_matlabmatrix libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+target_link_libraries(test_filecrsmatrix libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
 
 # set the name of output file
-set_target_properties(test_matlabmatrix PROPERTIES
-	OUTPUT_NAME test_matlabmatrix
+set_target_properties(test_filecrsmatrix PROPERTIES
+	OUTPUT_NAME test_filecrsmatrix
 	)
