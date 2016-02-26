@@ -164,3 +164,19 @@ target_link_libraries(test_filecrsmatrix libpascinference mkl_core mkl_gnu_threa
 set_target_properties(test_filecrsmatrix PROPERTIES
 	OUTPUT_NAME test_filecrsmatrix
 	)
+
+# -------------------- TEST CG ------------------
+	
+# add main executable file
+cuda_add_executable(test_cg test_cg.cu
+	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+	
+# link external libraries	
+target_link_libraries(test_cg libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+
+# set the name of output file
+set_target_properties(test_cg PROPERTIES
+	OUTPUT_NAME test_cg
+)
+
