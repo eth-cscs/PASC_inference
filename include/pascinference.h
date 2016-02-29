@@ -22,7 +22,7 @@ lukas.pospisil@usi.ch
 
 /* include pascinference stuff */
 #include "common.h"
-#include "algebra/algebra.h"
+#include "algebra.h"
 #include "data.h"
 #include "gamma.h"
 #include "inputoutput.h"

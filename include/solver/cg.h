@@ -11,7 +11,7 @@ lukas.pospisil@vsb.cz
 #define	SOLVERCG_H
 
 #include <iostream>
-#include "algebra/algebra.h"
+#include "algebra.h"
 
 namespace pascinference {
 

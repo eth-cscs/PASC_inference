@@ -5,8 +5,8 @@
 */
 
 #include "common.h"
-#include "algebra/generalmatrix.h"
-#include "algebra/generalvector.h"
+#include "generalmatrix.h"
+#include "generalvector.h"
 
 
 	
