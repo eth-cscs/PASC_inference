@@ -29,14 +29,14 @@ int main( int argc, char *argv[] )
 	#if test_global == 1
 		std::cout << "-------------------- TEST GLOBAL --------------------" << std::endl;
 
-		Vector<Global> vg(N);
+		GeneralVector<Global> vg(N);
 		vg(gall) = 3.3;
 		std::cout << "v_global: " << vg << std::endl;
 
 		FileCRSMatrix<Global> Ag(vg,"three.bin");
 
 		std::cout << "A_global: " << Ag << std::endl;
-		Vector<Global> Avg(N);
+		GeneralVector<Global> Avg(N);
 
 		Avg = Ag*vg; 
 		std::cout << "Av_global: " << Avg << std::endl;
@@ -47,14 +47,14 @@ int main( int argc, char *argv[] )
 	#if test_host == 1
 		std::cout << "-------------------- TEST HOST  --------------------" << std::endl;
 
-		Vector<Host> vh(N);
+		GeneralVector<Host> vh(N);
 		vh(gall) = 3.3;
 		std::cout << "v_host:  " << vh << std::endl;
 
 		FileCRSMatrix<Host> Ah(vh,"three.bin");
 
 		std::cout << "A_host:  " << Ah << std::endl;
-		Vector<Host> Avh(N);
+		GeneralVector<Host> Avh(N);
 
 		Avh = Ah*vh; 
 		std::cout << "Av_host: " << Avh << std::endl;
@@ -65,14 +65,14 @@ int main( int argc, char *argv[] )
 	#if test_device == 1
 		std::cout << "-------------------- TEST DEVICe --------------------" << std::endl;
 
-		Vector<Device> vd(N);
+		GeneralVector<Device> vd(N);
 		vd(gall) = 3.3;
 		std::cout << "v_device:  " << vd << std::endl;
 
 		FileCRSMatrix<Device> Ad(vd,"three.bin");
 
 		std::cout << "A_device:  " << Ad << std::endl;
-		Vector<Device> Avd(N);
+		GeneralVector<Device> Avd(N);
 
 		Avd = Ad*vd; 
 		std::cout << "Av_device: " << Avd << std::endl;

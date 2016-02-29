@@ -12,6 +12,15 @@ cmake_minimum_required(VERSION 2.8)
 # add cmake functions
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../util/cmake/" ${CMAKE_MODULE_PATH})
 
+
+#decide which test to compile
+option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
+option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
+option(TEST_CG "TEST_CG" OFF)
+option(TEST_PROBLEM "TEST_PROBLEM" ON)
+
+
+
 #load options from command line
 option(USE_PETSC "USE_PETSC" ON)
 option(USE_PETSC "USE_MINLIN" ON)
@@ -135,48 +144,76 @@ set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
 CUDA_ADD_LIBRARY(libpascinference ../src/libpascinference.cu OPTIONS ${LIBRARY_DEFS} SHARED )
 
 
+
 # -------------------- TEST ALGEBRA ------------------
 
-# add main executable file
-cuda_add_executable(test_algebra test_algebra.cu
-	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
-	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+if(${TEST_ALGEBRA})
+	# add main executable file
+	cuda_add_executable(test_algebra test_algebra.cu
+		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 	
-# link external libraries	
-target_link_libraries(test_algebra libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+	# link external libraries	
+	target_link_libraries(test_algebra libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
 
-# set the name of output file
-set_target_properties(test_algebra PROPERTIES
-	OUTPUT_NAME test_algebra
-	)
+	# set the name of output file
+	set_target_properties(test_algebra PROPERTIES
+		OUTPUT_NAME test_algebra
+		)
+endif()
+
 
 # -------------------- TEST GIVEN MATRIX ------------------
-	
-# add main executable file
-cuda_add_executable(test_filecrsmatrix test_filecrsmatrix.cu
-	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
-	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-	
-# link external libraries	
-target_link_libraries(test_filecrsmatrix libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
 
-# set the name of output file
-set_target_properties(test_filecrsmatrix PROPERTIES
-	OUTPUT_NAME test_filecrsmatrix
-	)
+if(${TEST_GIVENMATRIX})
+	# add main executable file
+	cuda_add_executable(test_filecrsmatrix test_filecrsmatrix.cu
+		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+	
+	# link external libraries	
+	target_link_libraries(test_filecrsmatrix libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+
+	# set the name of output file
+	set_target_properties(test_filecrsmatrix PROPERTIES
+		OUTPUT_NAME test_filecrsmatrix
+		)
+endif()
 
 # -------------------- TEST CG ------------------
 	
-# add main executable file
-cuda_add_executable(test_cg test_cg.cu
-	OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
-	DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+if(${TEST_CG})
+	# add main executable file
+	cuda_add_executable(test_cg test_cg.cu
+		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 	
-# link external libraries	
-target_link_libraries(test_cg libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+	# link external libraries	
+	target_link_libraries(test_cg libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
 
-# set the name of output file
-set_target_properties(test_cg PROPERTIES
-	OUTPUT_NAME test_cg
-)
+	# set the name of output file
+	set_target_properties(test_cg PROPERTIES
+		OUTPUT_NAME test_cg
+	)
+endif()
+
+# -------------------- TEST PROBLEM ------------------
+
+if(${TEST_PROBLEM})
+	# add main executable file
+	cuda_add_executable(test_problem test_problem.cu
+		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
+	# link external libraries	
+	target_link_libraries(test_problem libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+
+	# set the name of output file
+	set_target_properties(test_problem PROPERTIES
+		OUTPUT_NAME test_problem
+	)
+endif()
+
+
+
 

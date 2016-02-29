@@ -1,6 +1,7 @@
 #include "pascinference.h"
-#include "solver/cg.h"
+
 #include "matrix/laplace_explicit.h"
+#include "problem/qpproblem.h"
 
 
 using namespace pascinference;
@@ -15,6 +16,7 @@ extern bool petscvector::PETSC_INITIALIZED;
 
 int main( int argc, char *argv[] )
 {
+	int N = 5; /* dimension of the problem */	
 		
 	Initialize(argc, argv); // TODO: load parameters from console input
 	petscvector::PETSC_INITIALIZED = true;
@@ -22,10 +24,6 @@ int main( int argc, char *argv[] )
 	/* say hello */	
 	Message("- start program");
 
-	/* dimension of the problem */
-	int N = 1000;
-
-/* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare solution vector */
 	GeneralVector<Global> x_global(N);
 	x_global(gall) = 0.0;
@@ -41,12 +39,17 @@ int main( int argc, char *argv[] )
 	/* prepare matrix */	
 	LaplaceExplicitMatrix<Global> A_global(x_global);
 
-	/* solve problem */
-	x_global = cg(A_global, b_global, x0_global);
+	/* prepare problem and fill it */
+	QPProblem<Global> myqp;
 	
+	std::cout << myqp << std::endl;
+		
+	myqp.set_x(x_global);
+	myqp.set_x0(x0_global);
+	myqp.set_b(b_global);
+	myqp.set_A(A_global);
 	
-	/* print solution */
-	std::cout << "x_global: " << x_global << std::endl;
+	std::cout << myqp << std::endl;
 
 
 

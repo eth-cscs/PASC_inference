@@ -48,7 +48,6 @@ class LaplaceExplicitMatrix: public GeneralMatrix<VectorType> {
 /* Petsc: constructor from given right PetscVector */
 template<>
 LaplaceExplicitMatrix<PetscVector>::LaplaceExplicitMatrix(const PetscVector &x){
-	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)CONSTRUCTOR: from PetscVector" << std::endl;
 
 	int N, n;
@@ -116,7 +115,6 @@ LaplaceExplicitMatrix<PetscVector>::LaplaceExplicitMatrix(const PetscVector &x){
 /* Petsc: destructor - destroy the matrix */
 template<>
 LaplaceExplicitMatrix<PetscVector>::~LaplaceExplicitMatrix(){
-	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100) std::cout << "(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */

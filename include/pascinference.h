@@ -23,15 +23,23 @@ lukas.pospisil@usi.ch
 /* include pascinference stuff */
 #include "common.h"
 #include "algebra.h"
-#include "data.h"
-#include "gamma.h"
-#include "inputoutput.h"
-#include "model.h"
-#include "operations.h"
-#include "problem.h"
+
+#include "generalproblem.h"
+#include "generaldata.h"
+
+
+
+/*
 #include "projection.h"
 #include "qpsolver.h"
 #include "theta.h"
+
+#include "model.h"
+#include "operations.h"
+#include "inputoutput.h"
+#include "data.h"
+#include "gamma.h"
+*/
 
 #endif
 

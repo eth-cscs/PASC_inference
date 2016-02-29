@@ -24,8 +24,8 @@ int main( int argc, char *argv[] )
 	Message("- start program");
 
 	int N = 5;
-	Vector<Global> vg(N);
-	Vector<Host> vh(N);
+	GeneralVector<Global> vg(N);
+	GeneralVector<Host> vh(N);
 
 	vg(0) = 1.0;
 	vg(1) = 2.0;
@@ -45,8 +45,8 @@ int main( int argc, char *argv[] )
 	std::cout << "A_global: " << Ag << std::endl;
 	std::cout << "A_host: " << Ah << std::endl;
 
-	Vector<Global> Avg(N);
-	Vector<Host> Avh(N);
+	GeneralVector<Global> Avg(N);
+	GeneralVector<Host> Avh(N);
 	Avg = Ag*vg; 
 	Avh = Ah*vh; 
 

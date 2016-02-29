@@ -1,7 +1,6 @@
 #ifndef GENERALVECTOR_H
 #define	GENERALVECTOR_H
 
-
 namespace pascinference {
 
 	/* deal with all */
@@ -24,15 +23,15 @@ namespace pascinference {
 
 	/* general vector class - take original class and add multiplication with GeneralMatrix */
 	template<class VectorBase>
-	class Vector : public VectorBase {
+	class GeneralVector : public VectorBase {
 
 		public:
 			/* constructors */
-			Vector(): VectorBase() {}
-			template<class ArgType> Vector(ArgType arg): VectorBase(arg) {}
+			GeneralVector(): VectorBase() {}
+			template<class ArgType> GeneralVector(ArgType arg): VectorBase(arg) {}
 			
 			/* matrix-vector multiplication with General matrix */
-			Vector<VectorBase> &operator=(GeneralMatrixRHS<VectorBase> rhs){
+			GeneralVector<VectorBase> &operator=(GeneralMatrixRHS<VectorBase> rhs){
 				rhs.matmult(*this);
 				return *this;
 			}

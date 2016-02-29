@@ -5,6 +5,7 @@
 extern int DEBUG_MODE;
 
 #include <iostream>
+#include <fstream>
 #include "algebra.h" /* parent GeneralMatrix class */
 
 typedef petscvector::PetscVector PetscVector;
