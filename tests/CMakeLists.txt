@@ -16,8 +16,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../util/cmake/" ${CMAKE_MODULE_PATH})
 #decide which test to compile
 option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
 option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
-option(TEST_CG "TEST_CG" OFF)
-option(TEST_PROBLEM "TEST_PROBLEM" ON)
+option(TEST_QPSOLVER "TEST_QPSOLVER" ON)
+option(TEST_PROBLEM "TEST_PROBLEM" OFF)
 
 
 
@@ -182,18 +182,18 @@ endif()
 
 # -------------------- TEST CG ------------------
 	
-if(${TEST_CG})
+if(${TEST_QPSOLVER})
 	# add main executable file
-	cuda_add_executable(test_cg test_cg.cu
+	cuda_add_executable(test_qpsolver test_qpsolver.cu
 		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 	
 	# link external libraries	
-	target_link_libraries(test_cg libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+	target_link_libraries(test_qpsolver libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
 
 	# set the name of output file
-	set_target_properties(test_cg PROPERTIES
-		OUTPUT_NAME test_cg
+	set_target_properties(test_qpsolver PROPERTIES
+		OUTPUT_NAME test_qpsolver
 	)
 endif()
 

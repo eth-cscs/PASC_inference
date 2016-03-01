@@ -4,6 +4,7 @@
 #include "common.h"
 #include "generaldata.h"
 #include "generalsolver.h"
+#include "generalresult.h"
 
 namespace pascinference {
 
@@ -12,8 +13,9 @@ class GeneralProblem {
 		bool solved; /* is the problem solved ot not? */
 		Timer timer_total; /* from init to finalize */
 		
-		GeneralData *data;
-		GeneralSolver *solver;
+		const GeneralData *data;
+		const GeneralSolver *solver;
+		const GeneralResult *result;
 		
 	public:
 		GeneralProblem() {};

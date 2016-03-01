@@ -24,8 +24,9 @@ lukas.pospisil@usi.ch
 #include "common.h"
 #include "algebra.h"
 
-#include "generalproblem.h"
 #include "generaldata.h"
+#include "generalresult.h"
+#include "generalsolver.h"
 
 
 

@@ -1,0 +1,72 @@
+#ifndef QPRESULT_H
+#define	QPRESULT_H
+
+/* for debugging, if >= 100, then print info about ach called function */
+extern int DEBUG_MODE;
+
+#include <iostream>
+#include "generalresult.h"
+#include "algebra.h"
+
+namespace pascinference {
+
+/* QPResult */ 
+template<class VectorBase>
+class QPResult: public GeneralResult {
+	public:
+		QPResult();
+		~QPResult();
+
+		void print(std::ostream &output) const;
+
+		/* variables */
+		GeneralVector<VectorBase> *x; /* solution */
+
+
+};
+
+} // end of namespace
+
+/* ------------- implementation ----------- */
+//TODO: move to impls
+
+namespace pascinference {
+
+/* constructor */
+template<class VectorBase>
+QPResult<VectorBase>::QPResult(){
+	if(DEBUG_MODE >= 100) std::cout << "(QPResult)CONSTRUCTOR" << std::endl;
+
+	/* set initial content */
+	this->x = NULL;
+
+}
+
+/* destructor */
+template<class VectorBase>
+QPResult<VectorBase>::~QPResult(){
+	if(DEBUG_MODE >= 100) std::cout << "(QPResult)DESTRUCTOR" << std::endl;
+	
+}
+
+
+/* print info about problem */
+template<class VectorBase>
+void QPResult<VectorBase>::print(std::ostream &output) const {
+	output << " QPResult" << std::endl;
+	
+	/* give information about presence of the data */
+	output << "  - x:     ";
+	if(this->x){
+		output << "YES" << std::endl;
+	} else {
+		output << "NO" << std::endl;
+	}
+		
+}
+
+
+
+} /* end namespace */
+
+#endif

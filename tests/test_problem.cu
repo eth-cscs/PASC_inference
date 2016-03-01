@@ -12,6 +12,7 @@ typedef minlin::threx::HostVector<double> Host;
 typedef minlin::threx::DeviceVector<double> Device;
 
 extern bool petscvector::PETSC_INITIALIZED;
+extern int pascinference::DEBUG_MODE;
 
 
 int main( int argc, char *argv[] )
@@ -42,8 +43,11 @@ int main( int argc, char *argv[] )
 	/* prepare problem and fill it */
 	QPProblem<Global> myqp;
 	
+	
+//pascinference::DEBUG_MODE = 100;	
+
 	std::cout << myqp << std::endl;
-		
+
 	myqp.set_x(x_global);
 	myqp.set_x0(x0_global);
 	myqp.set_b(b_global);
@@ -51,6 +55,7 @@ int main( int argc, char *argv[] )
 	
 	std::cout << myqp << std::endl;
 
+//pascinference::DEBUG_MODE = 0;	
 
 
 
