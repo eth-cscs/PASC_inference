@@ -1,5 +1,5 @@
 #include "pascinference.h"
-#include "matrix/laplace_explicit.h"
+#include "matrix/laplace_explicit_regular.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 #include "result/qpresult.h"
@@ -7,8 +7,9 @@
 using namespace pascinference;
 
 /* set what is what ( which type of vector to use where) */
-//typedef petscvector::PetscVector Global;
-typedef minlin::threx::HostVector<double> Global;
+typedef petscvector::PetscVector Global;
+typedef minlin::threx::HostVector<double> Host;
+typedef minlin::threx::DeviceVector<double> Device;
 
 extern bool petscvector::PETSC_INITIALIZED;
 extern int pascinference::DEBUG_MODE;
@@ -35,7 +36,7 @@ int main( int argc, char *argv[] )
 	GeneralVector<Global> b(N); /* linear term */
 	b(gall) = 1.0;
 	
-	LaplaceExplicitMatrix<Global> A(b); /* hessian matrix */
+	LaplaceExplicitRegularMatrix<Global> A(b); /* hessian matrix */
 
 	/* add A,b,x0 to data */
 	QPData<Global> data;
