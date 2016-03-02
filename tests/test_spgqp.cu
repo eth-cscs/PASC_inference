@@ -10,8 +10,8 @@
 using namespace pascinference;
 
 /* set what is what ( which type of vector to use where) */
-//typedef petscvector::PetscVector Global;
-typedef minlin::threx::HostVector<double> Global;
+typedef petscvector::PetscVector Global;
+//typedef minlin::threx::HostVector<double> Global;
 
 extern bool petscvector::PETSC_INITIALIZED;
 extern int pascinference::DEBUG_MODE;
@@ -40,7 +40,7 @@ int main( int argc, char *argv[] )
 	
 	LaplaceExplicitMatrix<Global> A(b); /* hessian matrix */
 
-	SimplexFeasibleSet<Global> feasibleset; /* feasible set */
+	SimplexFeasibleSet<Global> feasibleset(5,2); /* feasible set */
 
 	/* add A,b,x0, to data */
 	QPData<Global> data;
