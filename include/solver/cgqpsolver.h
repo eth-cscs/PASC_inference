@@ -16,21 +16,23 @@ namespace pascinference {
 
 /* settings */
 class CGQPSolverSetting : public QPSolverSetting {
-	protected:
-		int maxit;
-		double eps;
-		
 	public:
 		CGQPSolverSetting() {
 			maxit = CGQPSOLVER_DEFAULT_MAXIT;
 			eps = CGQPSOLVER_DEFAULT_EPS;
+			debug_mode = DEBUG_MODE;
 		};
 		~CGQPSolverSetting() {};
+
+		int maxit;
+		double eps;
+		int debug_mode;
 
 		virtual void print(std::ostream &output) const {
 			output << "  CGQPSolverSettings:" << std::endl;
 			output << "   - maxit: " << maxit << std::endl;
 			output << "   - eps: " << eps << std::endl;
+			output << "   - debug_mode: " << debug_mode << std::endl;
 
 		};
 		
@@ -146,55 +148,64 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::solve() {
 	if(DEBUG_MODE >= 100) std::cout << "(CGQPSolver)FUNCTION: solve" << std::endl;
 
+	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
+	typedef GeneralVector<VectorBase> (&pVector);
+	typedef GeneralMatrix<VectorBase> (&pMatrix);
+
 	/* pointers to data */
-	GeneralMatrix<VectorBase> *A = data->A;
-	GeneralVector<VectorBase> *b = data->b;
-	GeneralVector<VectorBase> *x0 = data->x0;
+	pMatrix A = *(data->A);
+	pVector b = *(data->b);
+	pVector x0 = *(data->x0);
 
-	/* pointers to result */
-	GeneralVector<VectorBase> *x = result->x;
+	/* pointer to result */
+	pVector x = *(result->x);
 
-	(*x) = (*x0); /* set approximation as initial */
+	/* auxiliary vectors */
+	pVector g = *(this->g); /* gradient */
+	pVector p = *(this->p); /* A-conjugate vector */
+	pVector Ap = *(this->Ap); /* A*p */
 
-	/* CG method */
-	GeneralVector<VectorBase> g(*b); /* gradient */
-	GeneralVector<VectorBase> p(*b); /* A-conjugate vector */
-	GeneralVector<VectorBase> Ap(*b); /* A*p */
+	x = x0; /* set approximation as initial */
 
 	int it = 0; /* iteration counter */
 	int hess_mult = 0; /* number of hessian multiplications */
 	double normg, alpha, beta, pAp, gg, gg_old;
 	
-	g = (*A)*(*x); hess_mult += 1; g -= (*b); /* compute gradient */
-	p = g; /* initial conjugate gradient */
+	g = A*x; hess_mult += 1; g -= b; /* compute gradient */
+	p = g; /* initial conjugate direction */
 
 	gg = dot(g,g);
 	normg = std::sqrt(gg);
 
-	while(normg > 0.001 && it < 10000){
+	while(normg > this->setting.eps && it < this->setting.maxit){
 		/* compute new approximation */
 
-		Ap = (*A)*p; hess_mult += 1;
-			
-		pAp = dot(Ap,p);
-		alpha = gg/pAp; /* compute step-size */
-		(*x) -= alpha*p; /* set new approximation */
+		Ap = A*p; hess_mult += 1;
 
-		/* compute gradient recursively */
+		/* compute step-size */			
+		pAp = dot(Ap,p);
+		alpha = gg/pAp;
+
+		/* set new approximation, x = x - alpha*p */
+		x -= alpha*p; 
+
+		/* compute gradient recursively, g = g - alpha*Ap */
 		g -= alpha*Ap; 
 		gg_old = gg;
 		gg = dot(g,g);
 		normg = std::sqrt(gg);
 			
-		/* compute new A-orthogonal vector */
+		/* compute new A-orthogonal vector, p = g + beta*p */
 		beta = gg/gg_old;
 		p *= beta;
 		p += g;
 		
-		std::cout << "it " << it << ": ||g|| = " << normg << std::endl;
+		if(this->setting.debug_mode >= 10){
+			std::cout << "it " << it << ": ||g|| = " << normg << std::endl;
+		}
 
-		if(DEBUG_MODE >= 10){
-			std::cout << "x = " << *x << std::endl;
+		if(this->setting.debug_mode >= 100){
+			std::cout << "x = " << x << std::endl;
 			std::cout << "g = " << g << std::endl;
 			std::cout << "p = " << p << std::endl;
 			std::cout << "Ap = " << Ap << std::endl;
@@ -214,11 +225,12 @@ void CGQPSolver<VectorBase>::solve() {
 	}
 		
 	/* print output */
-	std::cout << "------------------------" << std::endl;
-	std::cout << " it_cg = " << it << std::endl;
-	std::cout << " norm_g = " << normg << std::endl;
-	std::cout << " hess_mult = " << hess_mult << std::endl;
-
+	if(this->setting.debug_mode >= 10){
+		std::cout << "------------------------" << std::endl;
+		std::cout << " it_cg = " << it << std::endl;
+		std::cout << " norm_g = " << normg << std::endl;
+		std::cout << " hess_mult = " << hess_mult << std::endl;
+	}
 
 	
 }

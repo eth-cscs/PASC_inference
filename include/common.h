@@ -2,6 +2,14 @@
 #ifndef PASC_COMMON_H
 #define	PASC_COMMON_H
 
+/* general default values */
+#define DEFAULT_DEBUG_MODE 0
+
+#define RANDOM_BY_TIME false /* if false, then random generator is initialized subject to time, else generated random data are always the same */
+#define EXPORT_SAVEVTK true /* export results to VTK */
+#define EXPORT_SAVEVTK_filename "output/data.vtk" /* name of file to export VTK */
+
+
 /* include MINLIN */ //TODO: if USE_MINLIN
 #include <minlin/minlin.h>
 #include <minlin/modules/threx/threx.h>
@@ -31,9 +39,6 @@ namespace minlin {
 #include <cuda_runtime_api.h>
 #include <device_launch_parameters.h>
 #include <device_functions.h>
-
-/* include settings */
-#include "settings.h"
 
 /* we are using namespace pascinference */
 namespace pascinference {

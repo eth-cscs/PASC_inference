@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 		vg(gall) = 3.3;
 		std::cout << "v_global: " << vg << std::endl;
 
-		FileCRSMatrix<Global> Ag(vg,"three.bin");
+		FileCRSMatrix<Global> Ag(vg,"../three.bin");
 
 		std::cout << "A_global: " << Ag << std::endl;
 		GeneralVector<Global> Avg(N);
@@ -51,7 +51,7 @@ int main( int argc, char *argv[] )
 		vh(gall) = 3.3;
 		std::cout << "v_host:  " << vh << std::endl;
 
-		FileCRSMatrix<Host> Ah(vh,"three.bin");
+		FileCRSMatrix<Host> Ah(vh,"../three.bin");
 
 		std::cout << "A_host:  " << Ah << std::endl;
 		GeneralVector<Host> Avh(N);
@@ -69,7 +69,7 @@ int main( int argc, char *argv[] )
 		vd(gall) = 3.3;
 		std::cout << "v_device:  " << vd << std::endl;
 
-		FileCRSMatrix<Device> Ad(vd,"three.bin");
+		FileCRSMatrix<Device> Ad(vd,"../three.bin");
 
 		std::cout << "A_device:  " << Ad << std::endl;
 		GeneralVector<Device> Avd(N);

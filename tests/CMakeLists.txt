@@ -16,8 +16,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../util/cmake/" ${CMAKE_MODULE_PATH})
 #decide which test to compile
 option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
 option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
-option(TEST_QPSOLVER "TEST_QPSOLVER" ON)
-option(TEST_PROBLEM "TEST_PROBLEM" OFF)
+option(TEST_CG "TEST_CG" ON)
+option(TEST_SPGQP "TEST_SPGQP" ON)
 
 
 
@@ -182,38 +182,34 @@ endif()
 
 # -------------------- TEST CG ------------------
 	
-if(${TEST_QPSOLVER})
+if(${TEST_CG})
 	# add main executable file
-	cuda_add_executable(test_qpsolver test_qpsolver.cu
+	cuda_add_executable(test_cg test_cg.cu
 		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 	
 	# link external libraries	
-	target_link_libraries(test_qpsolver libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+	target_link_libraries(test_cg libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
 
 	# set the name of output file
-	set_target_properties(test_qpsolver PROPERTIES
-		OUTPUT_NAME test_qpsolver
+	set_target_properties(test_cg PROPERTIES
+		OUTPUT_NAME test_cg
 	)
 endif()
 
-# -------------------- TEST PROBLEM ------------------
-
-if(${TEST_PROBLEM})
+# -------------------- TEST SPGQP ------------------
+	
+if(${TEST_CG})
 	# add main executable file
-	cuda_add_executable(test_problem test_problem.cu
+	cuda_add_executable(test_spgqp test_spgqp.cu
 		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-
+	
 	# link external libraries	
-	target_link_libraries(test_problem libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+	target_link_libraries(test_spgqp libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
 
 	# set the name of output file
-	set_target_properties(test_problem PROPERTIES
-		OUTPUT_NAME test_problem
+	set_target_properties(test_spgqp PROPERTIES
+		OUTPUT_NAME test_spgqp
 	)
 endif()
-
-
-
-
