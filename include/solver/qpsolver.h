@@ -21,7 +21,7 @@ class QPSolverSetting : public GeneralSolverSetting {
 	protected:
 		int maxit;
 		double eps;
-		
+
 	public:
 		QPSolverSetting() {
 			maxit = QPSOLVER_DEFAULT_MAXIT;
@@ -46,7 +46,8 @@ class QPSolver: public GeneralSolver {
 	protected:
 		const QPData<VectorBase> *data; /* data on which the solver operates */
 		const QPResult<VectorBase> *result; /* here solver stores results */
-		
+
+		GeneralSolver *child_solver; /* child of this solver, which actually solve the problem */
 	public:
 		QPSolverSetting setting;
 
@@ -68,6 +69,7 @@ class QPSolver: public GeneralSolver {
 //TODO: move to impls
 
 #include "solver/cgqpsolver.h"
+#include "solver/spgqpsolver.h"
 
 namespace pascinference {
 
@@ -78,19 +80,24 @@ QPSolver<VectorBase>::QPSolver(){
 	
 	data = NULL;
 	result = NULL;
+	child_solver = NULL; /* in this time, we don't know how to solve the problem */
 }
 
 template<class VectorBase>
 QPSolver<VectorBase>::QPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result){
 	data = &new_data;
 	result = &new_result;
+
+	child_solver = NULL; /* in this time, we don't know how to solve the problem */
 }
 
 /* destructor */
 template<class VectorBase>
 QPSolver<VectorBase>::~QPSolver(){
 	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)DESTRUCTOR" << std::endl;
-	
+
+	/* destroy child solver */
+	free(child_solver);
 }
 
 
@@ -103,7 +110,11 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 	
 	/* print settings */
 	output << setting;
-		
+	
+	/* if child solver is specified, then print also info about it */	
+	if(child_solver){
+		child_solver->print(output);
+	}	
 }
 
 /* solve the problem */
@@ -111,32 +122,39 @@ template<class VectorBase>
 void QPSolver<VectorBase>::solve(SolverType solvertype) {
 	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)FUNCTION: solve" << std::endl;
 
-	GeneralSolver *solver = NULL;
+	/* the child solver wasn't specified yet */
+	if(!child_solver){
+		/* which specific solver we can use to solve the problem? */
+		if(solvertype == SOLVER_AUTO){
+			//TODO: here write sophisticated auto decision tree
+		} 
 
-	/* which specific solver we can use to solve the problem? */
-	if(solvertype == SOLVER_AUTO){
-		//TODO: here write sophisticated auto decision tree
-	} 
-
-	/* prepare CG solver */
-	if(solvertype == SOLVER_CG){
-		/* create new instance of CG Solver */
-		solver = new CGQPSolver<VectorBase>(*data,*result);
+		/* prepare CG solver */
+		if(solvertype == SOLVER_CG){
+			/* create new instance of CG Solver */
+			child_solver = new CGQPSolver<VectorBase>(*data,*result);
 		
-		/* copy settings */
-		
-	}
-	
-	if(!solver){
-		/* solver was not initialized - there is not a suitable solver */
-		//TODO: give error
-		std::cout << "something goes wrong with solvers !!!" << std::endl;
-	} else {
-		/* solve the problem using specific solver */
-		solver->solve();
+			/* copy settings */
+//			child_solver->setting.maxit = setting.maxit;
+//			child_solver->setting.eps = setting.eps;
+//			child_solver->setting.debug_mode = DEBUG_MODE;
+		}
 
-		/* destroy solver */
+		/* prepare SPGQP solver */
+		if(solvertype == SOLVER_SPGQP){
+			/* create new instance of CG Solver */
+			child_solver = new SPGQPSolver<VectorBase>(*data,*result);
+		
+			/* copy settings */
+//			child_solver->setting.maxit = setting.maxit;
+//			child_solver->setting.eps = setting.eps;
+		
+		}
 	}
+	/* now the child_solver should be specified and prepared */
+
+	/* call solve function to child solver */
+	child_solver->solve();
 	
 }
 

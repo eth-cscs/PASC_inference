@@ -1,8 +1,11 @@
 #include "pascinference.h"
-#include "matrix/laplace_explicit.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 #include "result/qpresult.h"
+
+#include "matrix/laplace_explicit.h"
+#include "feasibleset/simplexfeasibleset.h"
+
 
 using namespace pascinference;
 
@@ -37,19 +40,23 @@ int main( int argc, char *argv[] )
 	
 	LaplaceExplicitMatrix<Global> A(b); /* hessian matrix */
 
-	/* add A,b,x0 to data */
+	SimplexFeasibleSet<Global> feasibleset; /* feasible set */
+
+	/* add A,b,x0, to data */
 	QPData<Global> data;
 	data.A = &A;
 	data.b = &b;
 	data.x0 = &x0;
+	data.feasibleset = &feasibleset;
 
 	/* add x to results */
 	QPResult<Global> result;
 	result.x = &x;
 
+
 	QPSolver<Global> myqp(data,result);
 
-	myqp.solve(SOLVER_CG);
+	myqp.solve(SOLVER_SPGQP);
 
 	std::cout << *(result.x) << std::endl;
 

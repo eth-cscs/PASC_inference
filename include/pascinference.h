@@ -27,6 +27,7 @@ lukas.pospisil@usi.ch
 #include "generaldata.h"
 #include "generalresult.h"
 #include "generalsolver.h"
+#include "generalfeasibleset.h"
 
 
 

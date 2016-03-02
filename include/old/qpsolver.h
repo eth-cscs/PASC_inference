@@ -54,7 +54,7 @@ class QPSolver {
 		Timer timer_stepsize; /* total time of step-size computation */
 		Timer timer_fs; /* total time of manipulation with fs vector during iterations */
 		Timer timer_total; /* total time of SPG algorithm */
-		
+
 	public:
 		GammaVector b; /* rhs */ // TODO: this should be private
 

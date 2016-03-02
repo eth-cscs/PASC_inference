@@ -16,7 +16,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../util/cmake/" ${CMAKE_MODULE_PATH})
 #decide which test to compile
 option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
 option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
-option(TEST_CG "TEST_CG" ON)
+option(TEST_CG "TEST_CG" OFF)
 option(TEST_SPGQP "TEST_SPGQP" ON)
 
 
@@ -199,7 +199,7 @@ endif()
 
 # -------------------- TEST SPGQP ------------------
 	
-if(${TEST_CG})
+if(${TEST_SPGQP})
 	# add main executable file
 	cuda_add_executable(test_spgqp test_spgqp.cu
 		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""

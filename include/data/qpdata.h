@@ -6,6 +6,7 @@ extern int DEBUG_MODE;
 
 #include <iostream>
 #include "generaldata.h"
+#include "generalfeasibleset.h"
 #include "algebra.h"
 
 namespace pascinference {
@@ -24,6 +25,7 @@ class QPData: public GeneralData {
 		GeneralVector<VectorBase> *b; /* RHS vector, linear term */
 		GeneralVector<VectorBase> *x0; /* initial approximation */
 		
+		GeneralFeasibleSet<VectorBase> *feasibleset; /* feasible set */
 
 };
 
