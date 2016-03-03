@@ -16,9 +16,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../util/cmake/" ${CMAKE_MODULE_PATH})
 #decide which test to compile
 option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
 option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
-option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" ON)
+option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" OFF)
 option(TEST_CG "TEST_CG" OFF)
-option(TEST_SPGQP "TEST_SPGQP" ON)
+option(TEST_SPGQP "TEST_SPGQP" OFF)
+option(TEST_KMEANS "TEST_KMEANS" ON)
 
 
 
@@ -228,5 +229,22 @@ if(${TEST_SPGQP})
 	# set the name of output file
 	set_target_properties(test_spgqp PROPERTIES
 		OUTPUT_NAME test_spgqp
+	)
+endif()
+
+
+# -------------------- TEST KMEANS ------------------
+if(${TEST_KMEANS})
+	# add main executable file
+	cuda_add_executable(test_kmeans test_kmeans.cu
+		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+	
+	# link external libraries	
+	target_link_libraries(test_kmeans libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+
+	# set the name of output file
+	set_target_properties(test_kmeans PROPERTIES
+		OUTPUT_NAME test_kmeans
 	)
 endif()
