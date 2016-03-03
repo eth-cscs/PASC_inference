@@ -16,6 +16,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../util/cmake/" ${CMAKE_MODULE_PATH})
 #decide which test to compile
 option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
 option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
+option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" ON)
 option(TEST_CG "TEST_CG" OFF)
 option(TEST_SPGQP "TEST_SPGQP" ON)
 
@@ -146,7 +147,6 @@ CUDA_ADD_LIBRARY(libpascinference ../src/libpascinference.cu OPTIONS ${LIBRARY_D
 
 
 # -------------------- TEST ALGEBRA ------------------
-
 if(${TEST_ALGEBRA})
 	# add main executable file
 	cuda_add_executable(test_algebra test_algebra.cu
@@ -164,7 +164,6 @@ endif()
 
 
 # -------------------- TEST GIVEN MATRIX ------------------
-
 if(${TEST_GIVENMATRIX})
 	# add main executable file
 	cuda_add_executable(test_filecrsmatrix test_filecrsmatrix.cu
@@ -180,8 +179,26 @@ if(${TEST_GIVENMATRIX})
 		)
 endif()
 
-# -------------------- TEST CG ------------------
+
+# -------------------- TEST LAPLACE MATRIX ------------------
+if(${TEST_LAPLACEMATRIX})
+	# add main executable file
+	cuda_add_executable(test_laplacematrix test_laplacematrix.cu
+		OPTIONS "${MINLIN_DEVICE_DEFS} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+		DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 	
+	# link external libraries	
+	target_link_libraries(test_laplacematrix libpascinference mkl_core mkl_gnu_thread mkl_rt boost_program_options cublas ${PETSC_LIBRARIES})
+
+	# set the name of output file
+	set_target_properties(test_laplacematrix PROPERTIES
+		OUTPUT_NAME test_laplacematrix
+		)
+endif()
+
+
+
+# -------------------- TEST CG ------------------
 if(${TEST_CG})
 	# add main executable file
 	cuda_add_executable(test_cg test_cg.cu
@@ -197,8 +214,8 @@ if(${TEST_CG})
 	)
 endif()
 
+
 # -------------------- TEST SPGQP ------------------
-	
 if(${TEST_SPGQP})
 	# add main executable file
 	cuda_add_executable(test_spgqp test_spgqp.cu

@@ -3,7 +3,7 @@
 #include "data/qpdata.h"
 #include "result/qpresult.h"
 
-#include "matrix/laplace_explicit.h"
+#include "matrix/blockdiaglaplace_explicit.h"
 #include "feasibleset/simplexfeasibleset.h"
 
 
@@ -27,7 +27,9 @@ int main( int argc, char *argv[] )
 	Message("- start program");
 
 	/* dimension of the problem */
-	int N = 10;
+	int T = 5; /* length of time-series (size of the block) */
+	int K = 2; /* number of clusters (block) */
+	int N = K*T; /* global size */
 
 /* ----------- SOLUTION IN PETSC -----------*/
 	GeneralVector<Global> x(N); /* solution */
@@ -38,9 +40,9 @@ int main( int argc, char *argv[] )
 	GeneralVector<Global> b(N); /* linear term */
 	b(gall) = 1.0;
 	
-	LaplaceExplicitMatrix<Global> A(b); /* hessian matrix */
+	BlockDiagLaplaceExplicitMatrix<Global> A(b,K); /* hessian matrix */
 
-	SimplexFeasibleSet<Global> feasibleset(5,2); /* feasible set */
+	SimplexFeasibleSet<Global> feasibleset(T,K); /* feasible set */
 
 	/* add A,b,x0, to data */
 	QPData<Global> data;
