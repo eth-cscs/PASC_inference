@@ -90,6 +90,10 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		GeneralVector<VectorBase> *g; /* gradient */
 		GeneralVector<VectorBase> *d; /* projected gradient */
 		GeneralVector<VectorBase> *Ad; /* A*d */
+		GeneralVector<VectorBase> *temp; /* general temp vector */
+
+		/* compute function values from g,x */
+		double get_function_value();
 	
 	public:
 		SPGQPSolverSetting setting;
@@ -98,9 +102,9 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		SPGQPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result); 
 		~SPGQPSolver();
 
-
 		void solve();
 		void solve(SolverType type){};
+		double get_function_value(GeneralVector<VectorBase> *x);
 
 		void print(std::ostream &output) const;
 
@@ -128,6 +132,8 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	g = NULL;
 	d = NULL;
 	Ad = NULL;
+	temp = NULL;
+
 }
 
 template<class VectorBase>
@@ -158,6 +164,7 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	g = new GeneralVector<VectorBase>(*pattern);
 	d = new GeneralVector<VectorBase>(*pattern);
 	Ad = new GeneralVector<VectorBase>(*pattern);	
+	temp = new GeneralVector<VectorBase>(*pattern);	
 	
 }
 
@@ -167,6 +174,7 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 	free(g);
 	free(d);
 	free(Ad);
+	free(temp);
 	
 }
 
@@ -190,43 +198,203 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
-//	typedef GeneralMatrix<VectorBase> (&pMatrix);
+	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
 	/* pointers to data */
-//	pMatrix A = *(data->A);
-//	pVector b = *(data->b);
-//	pVector x0 = *(data->x0);
+	pMatrix A = *(data->A);
+	pVector b = *(data->b);
+	pVector x0 = *(data->x0);
 
 	/* pointer to result */
 	pVector x = *(result->x);
 
 	/* auxiliary vectors */
-//	pVector g = *(this->g); /* gradient */
-//	pVector d = *(this->d); /* A-conjugate vector */
-//	pVector Ad = *(this->Ad); /* A*p */
+	pVector g = *(this->g); /* gradient */
+	pVector d = *(this->d); /* A-conjugate vector */
+	pVector Ad = *(this->Ad); /* A*p */
 
-//	x = x0; /* set approximation as initial */
+	int it = 0; /* number of iterations */
+	int hessmult = 0; /* number of hessian multiplications */
 
-	std::cout << "I am solving the problem, it will be fun!" << std::endl;
-
-//	int it = 0; /* number of iterations */
-//	int hessmult = 0; /* number of hessian multiplications */
-
-//	double fx; /* function value */
-//	SPGQPSolver_fs fs(setting.m); /* store function values for generalized Armijo condition */
-//	double fx_max; /* max(fs) */
-//	double xi, beta_bar, beta_hat, beta; /* for Armijo condition */
-//	double dd; /* dot(d,d) */
-//	double gd; /* dot(g,d) */
-//	double dAd; /* dot(Ad,d) */
-//	double alpha_bb; /* BB step-size */
+	double fx; /* function value */
+	SPGQPSolver_fs fs(setting.m); /* store function values for generalized Armijo condition */
+	double fx_max; /* max(fs) */
+	double xi, beta_bar, beta_hat, beta; /* for Armijo condition */
+	double dd; /* dot(d,d) */
+	double gd; /* dot(g,d) */
+	double dAd; /* dot(Ad,d) */
+	double alpha_bb; /* BB step-size */
 
 	/* initial step-size */
-//	alpha_bb = setting.alphainit;
-	
-	data->feasibleset->project(x);
+	alpha_bb = setting.alphainit;
+
+	x = x0; /* set approximation as initial */
+	data->feasibleset->project(x); /* project initial approximation to feasible set */
+
+	/* compute gradient, g = A*x-b */
+	g = A*x; 
+	hessmult += 1; /* there was muliplication by A */
+	g -= b;
+
+	/* compute function value */
+ 	fx = get_function_value();
+	/* initialize fs */
+	fs.init(fx);	
+
+	/* main cycle */
+	while(it < setting.maxit){
+
+		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
+		d = x - alpha_bb*g;
+
+		/* d = P(d) */
+		data->feasibleset->project(d);
+
+		/* d = d - x */
+		d -= x;
+
+		/* Ad = A*d */
+		Ad = A*d;
+		hessmult += 1; /* there was multiplication by A */
+
+		/* dd = dot(d,d) */
+		/* dAd = dot(Ad,d) */
+		/* gd = dot(g,d) */
+		dd = dot(d,d);
+		dAd = dot(Ad,d);
+		gd = dot(g,d);
+
+		/* stopping criteria */
+		if(dd < setting.eps){
+			break;
+		}
+		
+		/* fx_max = max(fs) */
+		fx_max = fs.get_max();	
+		
+		/* compute step-size from A-condition */
+		xi = (fx_max - fx)/dAd;
+		beta_bar = -gd/dAd;
+		beta_hat = setting.gamma*beta_bar + std::sqrt(setting.gamma*setting.gamma*beta_bar*beta_bar + 2*xi);
+
+		/* beta = min(sigma2,beta_hat) */
+		if(beta_hat < setting.sigma2){
+			beta = beta_hat;
+		} else {
+			beta = setting.sigma2;
+		}
+
+		/* update approximation and gradient */
+		x += beta*d; /* x = x + beta*d */
+		g += beta*Ad; /* g = g + beta*Ad */
+		
+		/* compute new function value using gradient and update fs list */
+		fx = get_function_value();
+		fs.update(fx);
+
+		/* update BB step-size */
+		alpha_bb = dd/dAd;
+
+		/* print data */
+		if(DEBUG_MODE >= 10){
+			std::cout << "x: " << x << std::endl;
+			std::cout << "d: " << d << std::endl;
+			std::cout << "g: " << g << std::endl;
+			std::cout << "Ad: " << Ad << std::endl;
+			
+		}
+
+		/* print progress of algorithm */
+		if(DEBUG_MODE >= 4){
+			std::cout << "\033[33m   it = \033[0m" << it;
+			std::cout << ", \t\033[36mfx = \033[0m" << fx;
+			std::cout << ", \t\033[36mdd = \033[0m" << dd << std::endl;
+		}
+
+		if(DEBUG_MODE >= 5){
+			std::cout << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
+			std::cout << "\033[36m dAd = \033[0m" << dAd << ",";
+			std::cout << "\033[36m gd = \033[0m" << gd << std::endl;
+			
+			std::cout << "\033[36m    fx = \033[0m" << fx << ",";
+			std::cout << "\033[36m fx_max = \033[0m" << fx_max << ",";
+			std::cout << "\033[36m xi = \033[0m" << xi << std::endl;
+			
+			std::cout << "\033[36m    beta_bar = \033[0m" << beta_bar << ",";
+			std::cout << "\033[36m beta_hat = \033[0m" << beta_hat << ",";
+			std::cout << "\033[36m beta = \033[0m" << beta << std::endl;
+			
+		}
+		
+		/* increase iteration counter */
+		it += 1;
+
+
+	} /* main cycle end */
+
+	/* very short info */
+	if(DEBUG_MODE >= 3){
+		Message_info_value("   - it    = ",it);
+//		Message_info_time("   - time  = ",this->timer_total.get_value_last());
+
+	}
 
 	
+}
+
+/* compute function value in given approximation */
+template<class VectorBase>
+double SPGQPSolver<VectorBase>::get_function_value(GeneralVector<VectorBase> *px){
+	if(DEBUG_MODE >= 11) std::cout << "(SPGQPSolver)FUNCTION: get_function_value(x)" << std::endl;
+	
+	double fx = std::numeric_limits<double>::max();
+
+	/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
+
+	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
+	typedef GeneralVector<VectorBase> (&pVector);
+	typedef GeneralMatrix<VectorBase> (&pMatrix);
+
+	/* pointers to data */
+	pMatrix A = *(data->A);
+	pVector b = *(data->b);
+	pVector x = *px;
+	pVector Ax = *(this->temp);
+		
+	double xAx, xb;
+
+	Ax = A*x;
+		 
+	xAx = dot(Ax,x);
+	fx = 0.5*xAx;
+		 
+	xb = dot(x,b);
+	fx -= xb;
+
+	return fx;
+}
+
+/* compute function value using inner *x and already computed *g */
+template<class VectorBase>
+double SPGQPSolver<VectorBase>::get_function_value(){
+	if(DEBUG_MODE >= 11) std::cout << "(SPGQPSolver)FUNCTION: get_function_value()" << std::endl;
+	
+	double fx = std::numeric_limits<double>::max();
+
+	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
+	typedef GeneralVector<VectorBase> (&pVector);
+
+	/* pointers to data */
+	pVector g = *(this->g);
+	pVector x = *(result->x);
+	pVector b = *(data->b);
+	pVector temp = *(this->temp);
+
+	/* use computed gradient in this->g to compute function value */
+	temp = g - b;
+	fx = 0.5*dot(temp,x);
+
+	return fx;	
 }
 
 

@@ -53,11 +53,15 @@ int main( int argc, char *argv[] )
 	QPResult<Global> result;
 	result.x = &x;
 
-
+	/* prepare solver */
 	QPSolver<Global> myqp(data,result);
 
+	/* solve the problem */
+	pascinference::DEBUG_MODE = 10;
 	myqp.solve(SOLVER_SPGQP);
+	pascinference::DEBUG_MODE = 0;
 
+	/* print results */
 	std::cout << *(result.x) << std::endl;
 
 	/* say bye */	
