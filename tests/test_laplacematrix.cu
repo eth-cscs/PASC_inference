@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
 		vg(gall) = 3.3;
 		std::cout << "v_global: " << vg << std::endl;
 
-		BlockDiagLaplaceExplicitMatrix<Global> Ag(vg,K);
+		BlockDiagLaplaceExplicitMatrix<Global> Ag(vg,K, 5.5);
 		
 		std::cout << "A_global: " << Ag << std::endl;
 		GeneralVector<Global> Avg(vg);
