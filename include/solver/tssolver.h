@@ -31,7 +31,7 @@ class TSSolverSetting : public GeneralSolverSetting {
 		~TSSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
-			output << "  TSSolverSettings:" << std::endl;
+			output << " TSSolverSettings:" << std::endl;
 			output << "   - maxit: " << maxit << std::endl;
 			output << "   - eps: " << eps << std::endl;
 
@@ -77,6 +77,7 @@ class TSSolver: public GeneralSolver {
 		};
 
 		virtual void print(std::ostream &output) const;
+		std::string get_name() const;
 
 
 };
@@ -128,7 +129,7 @@ template<class VectorBase>
 void TSSolver<VectorBase>::print(std::ostream &output) const {
 	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)FUNCTION: print" << std::endl;
 
-	output << " Time-Series Solver" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* print settings */
 	output << setting;
@@ -136,19 +137,24 @@ void TSSolver<VectorBase>::print(std::ostream &output) const {
 	/* if child solvers are specified, then print also info about it */	
 	output << " Gamma Solver" << std::endl;
 	if(gamma_solver){
-		gamma_solver->print(output);
+		output << gamma_solver << std::endl;
 	} else {
 		output << "  - not set" << std::endl;
 	}	
 
 	output << " Theta Solver" << std::endl;
 	if(theta_solver){
-		theta_solver->print(output);
+		output << theta_solver << std::endl;
 	} else {
 		output << "  - not set" << std::endl;
 	}	
 
 
+}
+
+template<class VectorBase>
+std::string TSSolver<VectorBase>::get_name() const {
+	return "Time-Series Solver";
 }
 
 /* solve the problem */

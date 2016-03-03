@@ -24,6 +24,7 @@ class TSModel: public GeneralModel {
 		~TSModel();
 
 		virtual void print(std::ostream &output) const;
+		virtual std::string get_name() const;
 
 		virtual int get_datavectorlength();
 		virtual int get_gammavectorlength();
@@ -72,16 +73,22 @@ TSModel<VectorBase>::~TSModel(){
 }
 
 
-/* print info about problem */
+/* print info about model */
 template<class VectorBase>
 void TSModel<VectorBase>::print(std::ostream &output) const {
-	output << " TSModel" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output << "  - T:    " << this->T << std::endl;
 	output << "  - K:    " << this->K << std::endl;
 	output << "  - dim:  " << this->dim << std::endl;
 		
+}
+
+/* get name of the model */
+template<class VectorBase>
+std::string TSModel<VectorBase>::get_name() const {
+	return "General Time-Series Model";	
 }
 
 /* get the appropriate length of datavector */

@@ -18,9 +18,7 @@ class GeneralSolverSetting : public GeneralSetting {
 		GeneralSolverSetting() {};
 		~GeneralSolverSetting() {};
 
-		virtual void print(std::ostream &output) const {
-
-		};
+		virtual void print(std::ostream &output) const {};
 	
 };
 
@@ -42,7 +40,8 @@ class GeneralSolver {
 		};
 		~GeneralSolver() {};
 
-		virtual void print(std::ostream &output) const {};
+		virtual void print(std::ostream &output) const;
+		virtual std::string get_name() const;
 
 		virtual void solve() { this->solve(SOLVER_AUTO); };
 		virtual void solve(SolverType solvertype) {};
@@ -57,6 +56,15 @@ std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver){
 	solver.print(output);
 	return output;
 }
+
+void GeneralSolver::print(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+}
+
+std::string GeneralSolver::get_name() const {
+	return "GeneralSolver";
+}
+
 
 
 

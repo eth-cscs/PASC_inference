@@ -28,6 +28,7 @@ class TSResult: public GeneralResult {
 		~TSResult();
 
 		void print(std::ostream &output) const;
+		std::string get_name() const;
 
 		int get_T() const;
 		int get_dim() const;
@@ -110,12 +111,13 @@ TSResult<VectorBase>::~TSResult(){
 /* print info about problem */
 template<class VectorBase>
 void TSResult<VectorBase>::print(std::ostream &output) const {
-	output << " TSResult" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << "  - T:          " << this->get_T() << std::endl;
-	output << "  - dim:        " << this->get_dim() << std::endl;
-	output << "  - K:          " << this->get_K() << std::endl;
+	output << "  - T:           " << this->get_T() << std::endl;
+	output << "  - dim:         " << this->get_dim() << std::endl;
+	output << "  - K:           " << this->get_K() << std::endl;
+	output << "  - model:       " << this->tsmodel->get_name() << std::endl;
 	output << "  - gammavector: ";
 	if(this->gammavector){
 		output << "YES (size: " << this->gammavector->size() << ")" << std::endl;
@@ -128,9 +130,13 @@ void TSResult<VectorBase>::print(std::ostream &output) const {
 	} else {
 		output << "NO" << std::endl;
 	}
-
-		
 }
+
+template<class VectorBase>
+std::string TSResult<VectorBase>::get_name() const {
+	return "Time-series Result";
+}
+
 
 
 /* ---------- GET functions --------- */

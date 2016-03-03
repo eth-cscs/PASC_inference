@@ -12,7 +12,8 @@ class GeneralResult {
 		GeneralResult() {};
 		~GeneralResult() {};
 
-		virtual void print(std::ostream &output) const {};
+		virtual void print(std::ostream &output) const;
+		virtual std::string get_name() const;
 
 		friend std::ostream &operator<<(std::ostream &output, const GeneralResult &result); /* cannot be virtual, therefore it call virtual print() */
 	
@@ -25,6 +26,13 @@ std::ostream &operator<<(std::ostream &output, const GeneralResult &result){
 	return output;
 }
 
+void GeneralResult::print(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+}
+
+std::string GeneralResult::get_name() const {
+	return "GeneralResult";
+}
 
 
 

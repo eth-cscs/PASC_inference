@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
 	/* dimension of the problem */
 	int dim = 2; /* data dimension */
 	int T = 5; /* length of time-series (size of the block) */
-	int K = 2; /* number of clusters (block) */
+	int K = 3; /* number of clusters (block) */
 
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
@@ -45,6 +45,9 @@ int main( int argc, char *argv[] )
 	TSResult<Global> myresult(mymodel);
 	std::cout << myresult << std::endl;
 
+	/* prepare time-series solver */
+	TSSolver<Global> mysolver(mydata,myresult);
+	std::cout << mysolver << std::endl;
 
 	/* say bye */	
 	Message("- end program");

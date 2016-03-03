@@ -24,6 +24,7 @@ class KmeansH1Model: public TSModel<VectorBase> {
 		~KmeansH1Model();
 
 		void print(std::ostream &output) const;
+		std::string get_name() const;
 
 		int get_datavectorlength();
 		int get_gammavectorlength();
@@ -65,13 +66,19 @@ KmeansH1Model<VectorBase>::~KmeansH1Model(){
 /* print info about problem */
 template<class VectorBase>
 void KmeansH1Model<VectorBase>::print(std::ostream &output) const {
-	output << " KmeansH1Model" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output << "  - T:    " << this->T << std::endl;
 	output << "  - K:    " << this->K << std::endl;
 	output << "  - dim:  " << this->dim << std::endl;
 		
+}
+
+/* get name of the model */
+template<class VectorBase>
+std::string KmeansH1Model<VectorBase>::get_name() const {
+	return "KMEANS-H1 Time-Series Model";	
 }
 
 /* get the appropriate length of datavector */

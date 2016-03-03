@@ -59,7 +59,7 @@ class QPSolver: public GeneralSolver {
 		virtual void solve() { this->solve(SOLVER_AUTO); };
 
 		virtual void print(std::ostream &output) const;
-
+		virtual std::string get_name() const;
 
 };
 
@@ -106,7 +106,7 @@ template<class VectorBase>
 void QPSolver<VectorBase>::print(std::ostream &output) const {
 	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)FUNCTION: print" << std::endl;
 
-	output << " QPSolver" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* print settings */
 	output << setting;
@@ -115,6 +115,11 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 	if(child_solver){
 		child_solver->print(output);
 	}	
+}
+
+template<class VectorBase>
+std::string QPSolver<VectorBase>::get_name() const {
+	return "General QP Solver";
 }
 
 /* solve the problem */

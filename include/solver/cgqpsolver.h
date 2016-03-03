@@ -65,6 +65,7 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		void solve(SolverType type){};
 
 		void print(std::ostream &output) const;
+		std::string get_name() const;
 
 
 };
@@ -136,12 +137,18 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::print(std::ostream &output) const {
 	if(DEBUG_MODE >= 100) std::cout << "(CGQPSolver)FUNCTION: print" << std::endl;
 
-	output << " CGQPSolver" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* print settings */
 	output << setting;
 		
 }
+
+template<class VectorBase>
+std::string CGQPSolver<VectorBase>::get_name() const {
+	return "Conjugate Gradient method for QP";
+}
+
 
 /* solve the problem */
 template<class VectorBase>

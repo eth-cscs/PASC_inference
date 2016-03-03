@@ -107,7 +107,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		double get_function_value(GeneralVector<VectorBase> *x);
 
 		void print(std::ostream &output) const;
-
+		std::string get_name() const;
 
 };
 
@@ -184,11 +184,16 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::print(std::ostream &output) const {
 	if(DEBUG_MODE >= 100) std::cout << "(SPGQPSolver)FUNCTION: print" << std::endl;
 
-	output << " SPGQPSolver" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* print settings */
 	output << setting;
 		
+}
+
+template<class VectorBase>
+std::string SPGQPSolver<VectorBase>::get_name() const {
+	return "Spectral Projected Gradient method for QP";
 }
 
 /* solve the problem */

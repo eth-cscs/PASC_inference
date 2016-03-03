@@ -52,6 +52,10 @@ int main( int argc, char *argv[] )
 
 	myqp.solve(SOLVER_CG);
 
+	/* print some funny info */
+	std::cout << data << std::endl;
+	std::cout << result << std::endl;
+	std::cout << myqp << std::endl;
 	std::cout << *(result.x) << std::endl;
 
 	/* say bye */	

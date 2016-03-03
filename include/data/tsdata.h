@@ -28,6 +28,7 @@ class TSData: public GeneralData {
 		~TSData();
 
 		void print(std::ostream &output) const;
+		std::string get_name() const;
 
 		int get_T() const;
 		int get_dim() const;
@@ -97,11 +98,12 @@ TSData<VectorBase>::~TSData(){
 /* print info about problem */
 template<class VectorBase>
 void TSData<VectorBase>::print(std::ostream &output) const {
-	output << " TSData" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output << "  - T:          " << this->get_T() << std::endl;
 	output << "  - dim:        " << this->get_dim() << std::endl;
+	output << "  - model:      " << this->tsmodel->get_name() << std::endl;
 	output << "  - datavector: ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -111,6 +113,10 @@ void TSData<VectorBase>::print(std::ostream &output) const {
 		
 }
 
+template<class VectorBase>
+std::string TSData<VectorBase>::get_name() const {
+	return "Time-series Data";
+}
 
 /* ---------- GET functions --------- */
 template<class VectorBase>

@@ -18,6 +18,7 @@ class QPResult: public GeneralResult {
 		~QPResult();
 
 		void print(std::ostream &output) const;
+		std::string get_name() const;
 
 		/* variables */
 		GeneralVector<VectorBase> *x; /* solution */
@@ -53,16 +54,21 @@ QPResult<VectorBase>::~QPResult(){
 /* print info about problem */
 template<class VectorBase>
 void QPResult<VectorBase>::print(std::ostream &output) const {
-	output << " QPResult" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output << "  - x:     ";
 	if(this->x){
-		output << "YES" << std::endl;
+		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
 		
+}
+
+template<class VectorBase>
+std::string QPResult<VectorBase>::get_name() const {
+	return "QP Result";
 }
 
 
