@@ -25,7 +25,7 @@ option(TEST_KMEANS "TEST_KMEANS" ON)
 
 #load options from command line
 option(USE_PETSC "USE_PETSC" ON)
-option(USE_PETSC "USE_MINLIN" ON)
+option(USE_MINLIN "USE_MINLIN" ON)
 option(USE_GPU "USE_GPU" ON)
 
 #define some colors for fun
