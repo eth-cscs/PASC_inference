@@ -1,0 +1,6 @@
+rm html/*
+doxygen util/doxygen/config.dox
+#cd html
+#git add .
+#git commit -m 'doxygen generated'
+#git push --set-upstream origin gh-pages_temp

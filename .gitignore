@@ -27,5 +27,6 @@
 *.out
 *.app
 
+html
 build
 tests/build
