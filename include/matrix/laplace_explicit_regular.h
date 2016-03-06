@@ -21,8 +21,8 @@ typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 namespace pascinference {
 
 /* laplace matrix */ 
-template<class VectorType>
-class LaplaceExplicitRegularMatrix: public GeneralMatrix<VectorType> {
+template<class VectorBase>
+class LaplaceExplicitRegularMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		/* Petsc stuff */ // TODO: if USE_PETSC
 		PetscMatrix A_petsc;
@@ -33,11 +33,11 @@ class LaplaceExplicitRegularMatrix: public GeneralMatrix<VectorType> {
 		
 	
 	public:
-		LaplaceExplicitRegularMatrix(const VectorType &x); /* constructor from vector */
+		LaplaceExplicitRegularMatrix(const VectorBase &x); /* constructor from vector */
 		~LaplaceExplicitRegularMatrix(); /* destructor - destroy inner matrix */
 
 		void print(std::ostream &output) const; /* print matrix */
-		void matmult(VectorType &y, const VectorType &x) const; /* y = A*x */
+		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
 };
 

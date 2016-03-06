@@ -22,8 +22,8 @@ typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 namespace pascinference {
 
 /* matlab matrix */ 
-template<class VectorType>
-class FileCRSMatrix: public GeneralMatrix<VectorType> {
+template<class VectorBase>
+class FileCRSMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		/* Petsc stuff */ // TODO: if USE_PETSC
 		PetscMatrix A_petsc;
@@ -43,11 +43,11 @@ class FileCRSMatrix: public GeneralMatrix<VectorType> {
  		int read_filesize(std::ifstream &myfile);
  		
 	public:
-		FileCRSMatrix(const VectorType &x, std::string filename); /* constructor */
+		FileCRSMatrix(const VectorBase &x, std::string filename); /* constructor */
 		~FileCRSMatrix(); /* destructor - destroy inner matrix */
 
 		void print(std::ostream &output) const; /* print matrix */
-		void matmult(VectorType &y, const VectorType &x) const; /* y = A*x */
+		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
 };
 
@@ -243,9 +243,9 @@ void FileCRSMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const Min
 
 
 /* -------------------------------- GENERAL FUNCTIONS ---------------------*/
-template<class VectorType>
+template<class VectorBase>
 template<class MatrixType>
-void FileCRSMatrix<VectorType>::write_aij(std::ifstream &myfile, MatrixType &A){
+void FileCRSMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &A){
 
 	/* petsc binary file content: (http://www.mcs.anl.gov/petsc/petsc-dev/docs/manualpages/Mat/MatLoad.html)
 	 * int    MAT_FILE_CLASSID
@@ -309,16 +309,16 @@ void FileCRSMatrix<VectorType>::write_aij(std::ifstream &myfile, MatrixType &A){
 
 }
 
-template<class VectorType>
-int FileCRSMatrix<VectorType>::read_int_from_file(std::ifstream &myfile) {
+template<class VectorBase>
+int FileCRSMatrix<VectorBase>::read_int_from_file(std::ifstream &myfile) {
 	int value;
 	myfile.read((char *)&value, sizeof(int)); /* read block of memory */
 	value = __builtin_bswap32(value);
 	return value;
 }
 
-template<class VectorType>
-double FileCRSMatrix<VectorType>::read_double_from_file(std::ifstream &myfile) {
+template<class VectorBase>
+double FileCRSMatrix<VectorBase>::read_double_from_file(std::ifstream &myfile) {
 	long int int_value;
 	myfile.read((char *)&int_value, sizeof(long int)); /* read block of memory */
 
@@ -327,8 +327,8 @@ double FileCRSMatrix<VectorType>::read_double_from_file(std::ifstream &myfile) {
 	return *((double*)&int_value); 
 }
 
-template<class VectorType>
-int *FileCRSMatrix<VectorType>::read_int_array_from_file(std::ifstream &myfile, const int size) {
+template<class VectorBase>
+int *FileCRSMatrix<VectorBase>::read_int_array_from_file(std::ifstream &myfile, const int size) {
 	int *return_array = new int[size];
 	int i;
 	for(i = 0; i < size; i++){
@@ -338,8 +338,8 @@ int *FileCRSMatrix<VectorType>::read_int_array_from_file(std::ifstream &myfile, 
 	return return_array; /* deal with MATLAB 'ieee-be' */
 }
 
-template<class VectorType>
-double *FileCRSMatrix<VectorType>::read_double_array_from_file(std::ifstream &myfile, const int size) {
+template<class VectorBase>
+double *FileCRSMatrix<VectorBase>::read_double_array_from_file(std::ifstream &myfile, const int size) {
 	double *return_array = new double[size];
 	int i;
 	for(i = 0; i < size; i++){
@@ -349,8 +349,8 @@ double *FileCRSMatrix<VectorType>::read_double_array_from_file(std::ifstream &my
 	return return_array; /* deal with MATLAB 'ieee-be' */
 }
 
-template<class VectorType>
-int FileCRSMatrix<VectorType>::read_filesize(std::ifstream &myfile) {
+template<class VectorBase>
+int FileCRSMatrix<VectorBase>::read_filesize(std::ifstream &myfile) {
 	std::streampos begin,end;
 
 	/* get begin */

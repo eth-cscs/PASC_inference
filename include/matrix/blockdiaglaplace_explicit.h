@@ -21,8 +21,8 @@ typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 namespace pascinference {
 
 /* laplace matrix */ 
-template<class VectorType>
-class BlockDiagLaplaceExplicitMatrix: public GeneralMatrix<VectorType> {
+template<class VectorBase>
+class BlockDiagLaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		/* Petsc stuff */ // TODO: if USE_PETSC
 		PetscMatrix A_petsc;
@@ -35,12 +35,12 @@ class BlockDiagLaplaceExplicitMatrix: public GeneralMatrix<VectorType> {
 		double alpha; /* scale of whole matrix alpha*A */
 	
 	public:
-		BlockDiagLaplaceExplicitMatrix(const VectorType &x, int K, double alpha = 1.0); /* constructor from vector and number of blocks */
+		BlockDiagLaplaceExplicitMatrix(const VectorBase &x, int K, double alpha = 1.0); /* constructor from vector and number of blocks */
 
 		~BlockDiagLaplaceExplicitMatrix(); /* destructor - destroy inner matrix */
 
 		void print(std::ostream &output) const; /* print matrix */
-		void matmult(VectorType &y, const VectorType &x) const; /* y = A*x */
+		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
 };
 
