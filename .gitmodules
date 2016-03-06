@@ -1,6 +1,0 @@
-[submodule "util/minlin"]
-	path = util/minlin
-	url = https://github.com/bcumming/minlin.git
-[submodule "util/petscvector"]
-	path = util/petscvector
-	url = https://github.com/lukaspospisil/petscvector.git
