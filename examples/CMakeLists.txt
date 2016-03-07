@@ -25,6 +25,7 @@ set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}/../")
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake/" ${CMAKE_MODULE_PATH})
 
 include(common) # include common
+include(load_cuda) # CUDA
 include(load_gpu) # GPU
 include(load_petsc) # PETSC
 include(load_petscvector) # PetscVector
@@ -37,7 +38,7 @@ include(printsetting)
 
 
 # add example executable files
-pascadd_executable("test_algebra.cpp" "test_algebra")
+pascadd_executable("test_algebra.cu" "test_algebra")
 
 
 

@@ -4,58 +4,78 @@
 using namespace pascinference;
 
 /* set what is what ( which type of vector to use where) */
-typedef petscvector::PetscVector Global;
-typedef minlin::threx::HostVector<double> Host;
-typedef minlin::threx::DeviceVector<double> Device;
+#ifdef USE_PETSCVECTOR
+	typedef petscvector::PetscVector Global;
+	extern bool petscvector::PETSC_INITIALIZED;
+#endif
 
-extern bool petscvector::PETSC_INITIALIZED;
+#ifdef USE_MINLIN
+	typedef minlin::threx::HostVector<double> Host;
+	typedef minlin::threx::DeviceVector<double> Device;
+#endif
 
 
 int main( int argc, char *argv[] )
 {
 		
-	Initialize(argc, argv); // TODO: load parameters from console input
-	petscvector::PETSC_INITIALIZED = true;
-	
 	/* say hello */	
 	Message("- start program");
 
 	int N = 5;
-	GeneralVector<Global> vg(N);
-	GeneralVector<Host> vh(N);
 
-	vg(0) = 1.0;
-	vg(1) = 2.0;
-	vg(2) = 3.0;
-	vg(3) = 4.0;
-	vg(4) = 5.0;
+	#ifdef USE_PETSCVECTOR
+		Message("------------- PETSC TEST --------------");
+		Initialize(argc, argv);
+		petscvector::PETSC_INITIALIZED = true;
+
+		GeneralVector<Global> vg(N);
+		vg(gall) = 3.3;
+		std::cout << "v_global: " << vg << std::endl;
 	
-	vg(gall) = 3.3;
-	vh(gall) = 2.3;
+		LaplaceExplicitMatrix<Global> Ag(vg);
+		std::cout << "A_global: " << Ag << std::endl;
 
-	std::cout << "v_global: " << vg << std::endl;
-	std::cout << "v_host:   " << vh << std::endl;
+		GeneralVector<Global> Avg(N);
+		Avg = Ag*vg; 
+		std::cout << "Av_global: " << Avg << std::endl;
+
+		petscvector::PETSC_INITIALIZED = false;
+		Finalize();
+
+	#endif
+
+	#ifdef USE_MINLIN
+		Message("------------- MINLIN Host TEST --------------");
+		GeneralVector<Host> vh(N);
+		vh(gall) = 3.3;
+		std::cout << "v_host: " << vh << std::endl;
 	
-	LaplaceExplicitMatrix<Global> Ag(vg);
-	LaplaceExplicitMatrix<Host> Ah(vh);
+		LaplaceExplicitMatrix<Host> Ah(vh);
+		std::cout << "A_host: " << Ah << std::endl;
 
-	std::cout << "A_global: " << Ag << std::endl;
-	std::cout << "A_host: " << Ah << std::endl;
+		GeneralVector<Host> Avh(N);
+		Avh = Ah*vh; 
+		std::cout << "Av_host: " << Avh << std::endl;
+	#endif
 
-	GeneralVector<Global> Avg(N);
-	GeneralVector<Host> Avh(N);
-	Avg = Ag*vg; 
-	Avh = Ah*vh; 
+	#ifdef USE_MINLIN
+		Message("------------- MINLIN Device TEST --------------");
+		GeneralVector<Device> vd(N);
+		vd(gall) = 3.3;
+		std::cout << "v_device: " << vd << std::endl;
+	
+		LaplaceExplicitMatrix<Device> Ad(vd);
+		std::cout << "A_device: " << Ad << std::endl;
 
-	std::cout << "Av_global: " << Avg << std::endl;
-	std::cout << "Av_host: " << Avh << std::endl;
+		GeneralVector<Device> Avd(N);
+		Avd = Ad*vd; 
+		std::cout << "Av_device: " << Avd << std::endl;
+	#endif
 
 
 	/* say bye */	
 	Message("- end program");
 	
-	petscvector::PETSC_INITIALIZED = false;
-	Finalize();
 
 	return 0;
 }

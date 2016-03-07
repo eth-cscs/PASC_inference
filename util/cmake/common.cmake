@@ -50,8 +50,8 @@ macro(PASCADD_EXECUTABLE filename outname)
 	
 	if(${FILE_EXT} MATCHES ".cu")
 		# --- compile with CUDA ---
-		if(NOT ${USE_GPU})
-			message(FATAL_ERROR "${Red}Cannot compile .cu file without USE_GPU=ON!${ColourReset}")
+		if(NOT ${USE_CUDA})
+			message(FATAL_ERROR "${Red}Cannot compile .cu file without USE_CUDA=ON!${ColourReset}")
 		endif()
 		
 		# add executable file
@@ -60,7 +60,7 @@ macro(PASCADD_EXECUTABLE filename outname)
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 	
 		# link external libraries	
-#		target_link_libraries(${outname} ${LIBRARIES_DEF})
+		target_link_libraries(${outname} ${LIBRARIES_DEF})
 #		target_link_libraries(${outname} "${CMAKE_CURRENT_BINARY_DIR}/pascinference")
 
 		# set the name of output file

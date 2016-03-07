@@ -23,6 +23,9 @@ printinfo(" - LIBRARIES_DEF\t\t" "${LIBRARIES_DEF}")
 
 
 # cuda
+printsetting_cuda()
+
+# gpu
 printsetting_gpu()
 
 # Petsc
