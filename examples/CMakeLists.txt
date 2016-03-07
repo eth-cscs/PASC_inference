@@ -10,11 +10,11 @@ project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
 #decide which example to compile
-option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
-option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
-option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" OFF)
-option(TEST_CG "TEST_CG" OFF)
-option(TEST_SPGQP "TEST_SPGQP" OFF)
+option(TEST_ALGEBRA "TEST_ALGEBRA" ON)
+option(TEST_CG "TEST_CG" ON)
+option(TEST_FILECRSMATRIX "TEST_FILECRSMATRIX" ON)
+option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" ON)
+option(TEST_SPGQP "TEST_SPGQP" ON)
 option(TEST_KMEANS "TEST_KMEANS" ON)
 
 
@@ -38,8 +38,29 @@ include(printsetting)
 
 
 # add example executable files
-pascadd_executable("test_algebra.cu" "test_algebra")
+if(${TEST_ALGEBRA})
+	pascadd_executable("test_algebra.cu" "test_algebra")
+endif()
 
+if(${TEST_FILECRSMATRIX})
+	pascadd_executable("test_filecrsmatrix.cu" "test_filecrsmatrix")
+endif()
+
+if(${TEST_LAPLACEMATRIX})
+	pascadd_executable("test_laplacematrix.cu" "test_laplacematrix")
+endif()
+
+if(${TEST_CG})
+	pascadd_executable("test_cg.cu" "test_cg")
+endif()
+
+if(${TEST_SPGQP})
+	pascadd_executable("test_spgqp.cu" "test_spgqp")
+endif()
+
+if(${TEST_KMEANS})
+	pascadd_executable("test_kmeans.cu" "test_kmeans")
+endif()
 
 
 

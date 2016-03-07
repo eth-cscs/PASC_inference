@@ -8,10 +8,14 @@ extern int DEBUG_MODE;
 #include "generalfeasibleset.h"
 #include "algebra.h"
 
-typedef petscvector::PetscVector GlobalPetscVector;
-typedef minlin::threx::HostVector<double> HostMinLinVector;
-typedef minlin::threx::DeviceVector<double> DeviceMinLinVector;
+#ifdef USE_PETSCVECTOR
+	typedef petscvector::PetscVector GlobalPetscVector;
+#endif
 
+#ifdef USE_MINLIN
+	typedef minlin::threx::HostVector<double> HostMinLinVector;
+	typedef minlin::threx::DeviceVector<double> DeviceMinLinVector;
+#endif
 
 namespace pascinference {
 
@@ -29,10 +33,10 @@ class SimplexFeasibleSet: public GeneralFeasibleSet<VectorBase> {
 		void sort_bubble(double *x, int n);
 		void get_projection_sub(double *x_sub, int n);
 		
-		#ifdef USE_PETSC
-		bool petsc_projection_init; /* if the initialization of projection was not performed, then = false */
-		IS petsc_projection_is; 
-		int petsc_projection_Townership_low, petsc_projection_Townership_high;
+		#ifdef USE_PETSCVECTOR
+			bool petsc_projection_init; /* if the initialization of projection was not performed, then = false */
+			IS petsc_projection_is; 
+			int petsc_projection_Townership_low, petsc_projection_Townership_high;
 		#endif
 
 	public:
@@ -95,6 +99,7 @@ void SimplexFeasibleSet<VectorBase>::print(std::ostream &output) const {
 
 
 /* -------- minlin::threx::HostVector ---------- */
+#ifdef USE_MINLIN
 template<>
 void SimplexFeasibleSet<HostMinLinVector>::project(GeneralVector<HostMinLinVector> &x) {
 	if(DEBUG_MODE >= 100) std::cout << "(SimplexFeasibleSet)FUNCTION: project HostMinLinVector" << std::endl;
@@ -117,6 +122,7 @@ void SimplexFeasibleSet<HostMinLinVector>::project(GeneralVector<HostMinLinVecto
 		}
 	}
 }
+#endif
 
 /* project x_sub to feasible set defined by equality and inequality constraints
  * sum(x_sub) = 1
@@ -218,7 +224,6 @@ void SimplexFeasibleSet<VectorBase>::sort_bubble(double *x, int n){
 
 /* -------- minlin::threx::DeviceVector ---------- */
 #ifdef USE_GPU
-
 template<>
 void SimplexFeasibleSet<DeviceMinLinVector>::project(GeneralVector<DeviceMinLinVector> &x) {
 
@@ -233,6 +238,7 @@ void SimplexFeasibleSet<DeviceMinLinVector>::project(GeneralVector<DeviceMinLinV
 	
 
 }
+
 
 __device__
 void SimplexFeasibleSet_device_sort_bubble(double *x, int n){
@@ -341,8 +347,7 @@ void SimplexFeasibleSet_kernel_get_projection_sub(double *x, int T, int K){
 
 
 /* -------- petscvector::PetscVector ---------- */
-#ifdef USE_PETSC
-
+#ifdef USE_PETSCVECTOR
 template<>
 void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVector> &x) {
 
@@ -406,7 +411,6 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 	}
 
 }
-
 #endif
 
 

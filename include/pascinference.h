@@ -20,7 +20,6 @@ lukas.pospisil@usi.ch
 #include <limits>
 
 
-
 /* include pascinference stuff */
 #include "common.h"
 #include "algebra.h"

@@ -7,16 +7,18 @@ extern int DEBUG_MODE;
 #include <iostream>
 #include "algebra.h" /* parent GeneralMatrix class */
 
-typedef petscvector::PetscVector PetscVector;
-typedef Mat PetscMatrix;
+#ifdef USE_PETSCVECTOR
+	typedef petscvector::PetscVector PetscVector;
+	typedef Mat PetscMatrix;
+#endif
 
-typedef minlin::threx::HostMatrix<double> MinlinHostMatrix;
-typedef minlin::threx::HostVector<double> MinlinHostVector;
+#ifdef USE_MINLIN
+	typedef minlin::threx::HostMatrix<double> MinlinHostMatrix;
+	typedef minlin::threx::HostVector<double> MinlinHostVector;
 
-typedef minlin::threx::DeviceMatrix<double> MinlinDeviceMatrix;
-typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
-
-
+	typedef minlin::threx::DeviceMatrix<double> MinlinDeviceMatrix;
+	typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
+#endif
 
 namespace pascinference {
 
@@ -24,12 +26,16 @@ namespace pascinference {
 template<class VectorBase>
 class BlockDiagLaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		/* Petsc stuff */ // TODO: if USE_PETSC
-		PetscMatrix A_petsc;
+		#ifdef USE_PETSCVECTOR
+			/* Petsc stuff */ 
+			PetscMatrix A_petsc;
+		#endif
 
-		/* MINLIN stuff */ // TODO: if USE_MINLIN
-		MinlinHostMatrix A_minlinhost;
-		MinlinDeviceMatrix A_minlindevice;
+		#ifdef USE_MINLIN
+			/* MINLIN stuff */ 
+			MinlinHostMatrix A_minlinhost;
+			MinlinDeviceMatrix A_minlindevice;
+		#endif
 		
 		int K; /* number of block */
 		double alpha; /* scale of whole matrix alpha*A */
@@ -47,6 +53,8 @@ class BlockDiagLaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 
 
 /* -------------------------------- PETSC VECTOR -------------------------*/
+
+#ifdef USE_PETSCVECTOR
 
 /* Petsc: constructor from given right PetscVector */
 template<>
@@ -158,9 +166,11 @@ void BlockDiagLaplaceExplicitMatrix<PetscVector>::matmult(PetscVector &y, const 
 	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) ); // TODO: I dont want to use get_vector :( friend in GlobalVector?
 }
 
-
+#endif
 
 /* -------------------------------- MINLIN HOST -------------------------*/
+
+#ifdef USE_MINLIN
 
 /* MinLinHost: constructor from given right HostVector<double> */
 template<>
@@ -251,8 +261,11 @@ void BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::matmult(MinlinHostVector 
 
 }
 
+#endif
 
 /* -------------------------------- MINLIN DEVICE -------------------------*/
+
+#ifdef USE_MINLIN
 
 /* MinLinDevice: constructor from given right DeviceVector<double> */
 template<>
@@ -343,7 +356,7 @@ void BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVec
 
 }
 
-
+#endif
 
 } /* end of namespace */
 

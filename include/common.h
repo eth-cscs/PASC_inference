@@ -22,16 +22,18 @@
 	}
 #endif
 
-/* PetscVector */
+/* Petsc */
 #ifdef USE_PETSC
 	#include "petsc.h"
-	#include "petscvector.h"
-
 #endif
 
+/* PetscVector */
+#ifdef USE_PETSCVECTOR
+	#include "petscvector.h"
+#endif
 
 /* cuda stuff */
-#ifdef USE_GPU
+#ifdef USE_CUDA
 	#include <stdio.h> /* printf in cuda */
 
 	#include <cuda.h>

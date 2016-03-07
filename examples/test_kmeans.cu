@@ -7,12 +7,15 @@
 #include "matrix/blockdiaglaplace_explicit.h"
 #include "feasibleset/simplexfeasibleset.h"
 
-
+#ifndef USE_PETSCVECTOR
+ #error This example is for PETSCVECTOR 
+#endif
+ 
 using namespace pascinference;
 
 /* set what is what ( which type of vector to use where) */
 typedef petscvector::PetscVector Global;
-typedef minlin::threx::HostVector<double> Host;
+//typedef minlin::threx::HostVector<double> Host;
 
 extern bool petscvector::PETSC_INITIALIZED;
 extern int pascinference::DEBUG_MODE;

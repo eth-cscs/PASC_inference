@@ -19,7 +19,7 @@ if(${COMPILE_PASCINFERENCE})
 				COMPILE_FLAGS ${FLAGS_DEF_D})		
 	endif()
 
-	find_library(PASCINFERENCE_LIB_LOCATION "libpascinference" "${CMAKE_CURRENT_BINARY_DIR}")
+	set(PASCINFERENCE_LIB_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/liblibpascinference.so")
 
 else()
 	# find PascInference library

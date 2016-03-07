@@ -5,6 +5,9 @@
 extern int DEBUG_MODE;
 
 #include <iostream>
+#include <list>
+#include <algorithm>
+
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 #include "result/qpresult.h"

@@ -8,15 +8,18 @@ extern int DEBUG_MODE;
 #include <fstream>
 #include "algebra.h" /* parent GeneralMatrix class */
 
-typedef petscvector::PetscVector PetscVector;
-typedef Mat PetscMatrix;
+#ifdef USE_PETSCVECTOR
+	typedef petscvector::PetscVector PetscVector;
+	typedef Mat PetscMatrix;
+#endif
 
-typedef minlin::threx::HostMatrix<double> MinlinHostMatrix;
-typedef minlin::threx::HostVector<double> MinlinHostVector;
+#ifdef USE_MINLIN
+	typedef minlin::threx::HostMatrix<double> MinlinHostMatrix;
+	typedef minlin::threx::HostVector<double> MinlinHostVector;
 
-typedef minlin::threx::DeviceMatrix<double> MinlinDeviceMatrix;
-typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
-
+	typedef minlin::threx::DeviceMatrix<double> MinlinDeviceMatrix;
+	typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
+#endif
 
 
 namespace pascinference {
@@ -25,12 +28,16 @@ namespace pascinference {
 template<class VectorBase>
 class FileCRSMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		/* Petsc stuff */ // TODO: if USE_PETSC
-		PetscMatrix A_petsc;
+		#ifdef USE_PETSCVECTOR
+			/* Petsc stuff */
+			PetscMatrix A_petsc;
+		#endif
 
-		/* MINLIN stuff */ // TODO: if USE_MINLIN
-		MinlinHostMatrix A_minlinhost;
-		MinlinDeviceMatrix A_minlindevice;
+		#ifdef USE_MINLIN
+			/* MINLIN stuff */
+			MinlinHostMatrix A_minlinhost;
+			MinlinDeviceMatrix A_minlindevice;
+		#endif
 		
 		template<class MatrixType>
 		void write_aij(std::ifstream &myfile, MatrixType &matrix); /* write to given matrix using A(i,j) */
@@ -54,6 +61,8 @@ class FileCRSMatrix: public GeneralMatrix<VectorBase> {
 
 
 /* -------------------------------- PETSC VECTOR -------------------------*/
+
+#ifdef USE_PETSCVECTOR
 
 /* Petsc: constructor from given right PetscVector */
 template<>
@@ -123,9 +132,12 @@ void FileCRSMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) c
 	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) ); // TODO: I dont want to use get_vector :( friend in PetscVector? and in MinLin?
 }
 
-
+#endif
 
 /* -------------------------------- MINLIN HOST -------------------------*/
+
+#ifdef USE_MINLIN
+
 template<>
 FileCRSMatrix<MinlinHostVector>::FileCRSMatrix(const MinlinHostVector &x, std::string filename){
 	if(DEBUG_MODE >= 100){
@@ -181,9 +193,12 @@ void FileCRSMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinH
 		
 }
 
-
+#endif
 
 /* -------------------------------- MINLIN DEVICE -------------------------*/
+
+#ifdef USE_MINLIN
+
 template<>
 FileCRSMatrix<MinlinDeviceVector>::FileCRSMatrix(const MinlinDeviceVector &x, std::string filename){
 	if(DEBUG_MODE >= 100){
@@ -239,7 +254,7 @@ void FileCRSMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const Min
 		
 }
 
-
+#endif
 
 
 /* -------------------------------- GENERAL FUNCTIONS ---------------------*/

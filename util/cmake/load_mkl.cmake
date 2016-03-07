@@ -1,5 +1,5 @@
-# set variables (options) for whole cmake
-option(USE_MKL "USE_MKL" OFF)
+# set variables (options) for mkl
+option(USE_MKL "USE_MKL" ON)
 
 if(${USE_MKL})
 	message(STATUS "${Blue}loading MKL library${ColourReset}")
@@ -15,7 +15,7 @@ if(${USE_MKL})
 
 	# append to flags definitions
 	set(FLAGS_DEF "-USE_MKL ${FLAGS_DEF}")
-	set(FLAGS_DEF_D "-DUSE_MKL ${FLAGS_DEF_CUDA}")
+	set(FLAGS_DEF_D "-DUSE_MKL ${FLAGS_DEF_D}")
 	set(LIBRARIES_DEF "mkl_core;mkl_gnu_thread;mkl_rt;${LIBRARIES_DEF}")
 
 endif()
