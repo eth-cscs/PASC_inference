@@ -30,3 +30,4 @@
 html
 build
 tests/build
+doxygen_sqlite3.db
