@@ -7,15 +7,18 @@ extern int DEBUG_MODE;
 #include <iostream>
 #include "algebra.h" /* parent GeneralMatrix class */
 
+#ifdef USE_PETSCVECTOR
 typedef petscvector::PetscVector PetscVector;
 typedef Mat PetscMatrix;
+#endif
 
+#ifdef USE_MINLIN
 typedef minlin::threx::HostMatrix<double> MinlinHostMatrix;
 typedef minlin::threx::HostVector<double> MinlinHostVector;
 
 typedef minlin::threx::DeviceMatrix<double> MinlinDeviceMatrix;
 typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
-
+#endif
 
 
 namespace pascinference {
@@ -24,13 +27,16 @@ namespace pascinference {
 template<class VectorBase>
 class LaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		/* Petsc stuff */ // TODO: if USE_PETSC
+		#ifdef USE_PETSC
+		/* Petsc stuff */
 		PetscMatrix A_petsc;
+		#endif
 
-		/* MINLIN stuff */ // TODO: if USE_MINLIN
+		#ifdef USE_MINLIN
+		/* MINLIN stuff */ 
 		MinlinHostMatrix A_minlinhost;
 		MinlinDeviceMatrix A_minlindevice;
-		
+		#endif
 	
 	public:
 		LaplaceExplicitMatrix(const VectorBase &x); /* constructor from vector */
@@ -44,6 +50,8 @@ class LaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 
 
 /* -------------------------------- PETSC VECTOR -------------------------*/
+
+#ifdef USE_PETSC
 
 /* Petsc: constructor from given right PetscVector */
 template<>
@@ -140,8 +148,11 @@ void LaplaceExplicitMatrix<PetscVector>::matmult(PetscVector &y, const PetscVect
 }
 
 
+#endif /* ifdef USE_PETSC */
 
 /* -------------------------------- MINLIN HOST -------------------------*/
+
+#ifdef USE_MINLIN
 
 /* MinLinHost: constructor from given right HostVector<double> */
 template<>
@@ -220,8 +231,11 @@ void LaplaceExplicitMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const
 
 }
 
+#endif /* ifdef USE_MINLIN */
 
 /* -------------------------------- MINLIN DEVICE -------------------------*/
+
+#ifdef USE_MINLIN
 
 /* MinLinDevice: constructor from given right DeviceVector<double> */
 template<>
@@ -300,7 +314,7 @@ void LaplaceExplicitMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, c
 
 }
 
-
+#endif /* ifdef USE_MINLIN */ 
 
 } /* end of namespace */
 

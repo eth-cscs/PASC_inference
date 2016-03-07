@@ -16,6 +16,12 @@ printinfo(" - linker flags\t\t" "${CMAKE_EXE_LINKER_FLAGS}")
 printinfo(" - make\t\t\t" "${CMAKE_MAKE_PROGRAM}")
 printinfo(" - shared linker flags\t\t" "${CMAKE_SHARED_LINKER_FLAGS}")
 
+printinfo("Flags" "")
+printinfo(" - FLAGS_DEF\t\t\t" "${FLAGS_DEF}")
+printinfo(" - FLAGS_DEF_D\t\t\t" "${FLAGS_DEF_D}")
+printinfo(" - LIBRARIES_DEF\t\t" "${LIBRARIES_DEF}")
+
+
 # cuda
 printsetting_gpu()
 

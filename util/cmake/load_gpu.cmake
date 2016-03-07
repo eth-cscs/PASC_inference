@@ -11,8 +11,9 @@ if(${USE_GPU})
 	set(CUDA_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla ${CMAKE_CXX_FLAGS_${BUILD_TYPE_UPPER}}") # add flags specific to build type
 	string(REPLACE "-std=c++11" "" CUDA_CXX_FLAGS ${CUDA_CXX_FLAGS}) # remove C++11 from options
 
-	set(LIBRARY_DEFS ${LIBRARY_DEFS} -DUSE_GPU)
-	set(DEVICE_DEFS ${DEVICE_DEFS} -USE_GPU)
+	set(FLAGS_DEF "-USE_GPU ${FLAGS_DEF}")
+	set(FLAGS_DEF_D "-DUSE_GPU ${FLAGS_DEF_D}")
+	set(LIBRARIES_DEF "boost_program_options cublas ${LIBRARIES_DEF}")
 
 endif()
 

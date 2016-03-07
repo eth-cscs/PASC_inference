@@ -9,6 +9,15 @@
 project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
+#decide which example to compile
+option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
+option(TEST_GIVENMATRIX "TEST_GIVENMATRIX" OFF)
+option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" OFF)
+option(TEST_CG "TEST_CG" OFF)
+option(TEST_SPGQP "TEST_SPGQP" OFF)
+option(TEST_KMEANS "TEST_KMEANS" ON)
+
+
 # set the root to the library
 set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}/../")
 
@@ -27,9 +36,8 @@ include(load_pascinference) # PascInference
 include(printsetting)
 
 
-
-
-
+# add example executable files
+pascadd_executable("test_algebra.cpp" "test_algebra")
 
 
 

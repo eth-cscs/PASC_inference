@@ -6,7 +6,7 @@ if(${USE_MINLIN})
 
 	#we have to use Petsc to use PetscVector
 	if(NOT ${USE_MKL})
-		message(FATAL_ERROR "${Red}Sorry, you cannot use MinLin without MKL!${ColourReset}")
+		message(FATAL_ERROR "${Red}Sorry, you cannot use MinLin without MKL! (use -DUSE_MKL=ON)${ColourReset}")
 	endif()
 
 	# note: we always need -O3 because minlin_host doesn't compile without it
@@ -14,17 +14,11 @@ if(${USE_MINLIN})
 
 	# MINLIN: define variables for include directories
 	set(MINLIN_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../util/minlin/include)
-	set(MINLIN_HOST_DEFS
-		THRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_OMP
-		THRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
-		__host__=\ 
-		__device__=\ 
-		USE_MINLIN)
-	set(MINLIN_DEVICE_DEFS # we use -D here because this isn't added automatically
-		-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP
-		-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA
-		-DUSE_GPU
-		-DUSE_MINLIN)
+
+	#control existence
+	if(NOT EXISTS "${MINLIN_INCLUDE}/minlin/minlin.h")
+		message(FATAL_ERROR "${Red}MinLin library cannot be found in ${MINLIN_INCLUDE}${ColourReset}")
+	endif()	
 
 	include_directories(${MINLIN_INCLUDE})
 
@@ -32,6 +26,18 @@ if(${USE_MINLIN})
 		cuda_include_directories(${MINLIN_INCLUDE})
 	else()
 		include_directories(${MINLIN_INCLUDE})
+	endif()
+
+	# append to flags definitions
+	set(FLAGS_DEF "-USE_MINLIN ${FLAGS_DEF}")
+	set(FLAGS_DEF_D "-DUSE_MINLIN ${FLAG_DEFS_D}")
+
+	if(${USE_GPU})
+		set(FLAGS_DEF "THRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP THRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA ${FLAGS_DEF}")
+		set(FLAGS_DEF_D "-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP -DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_CUDA ${FLAGS_DEF_D}")
+	else()
+		set(FLAGS_DEF "THRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_OMP THRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP __host__=\ __device__=\ ${FLAGS_DEF}")
+		set(FLAGS_DEF_D "-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_OMP -DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP -D__host__=\ -D__device__=\ ${FLAGS_DEF_D}")
 	endif()
 
 endif()

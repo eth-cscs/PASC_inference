@@ -12,13 +12,22 @@ if(${COMPILE_PASCINFERENCE})
 
 	# from source files create shared library
 	if(${USE_GPU})
-		CUDA_ADD_LIBRARY(libpascinference ${PASCINFERENCE_SRC}/libpascinference.cu OPTIONS ${LIBRARY_DEFS} SHARED )
+		CUDA_ADD_LIBRARY(libpascinference ${PASCINFERENCE_SRC}/libpascinference.cu OPTIONS ${FLAGS_DEF_D} SHARED )
 	else()
-		add_library(libpascinference SHARED "${PASCINFERENCE_SRC}/libpascinference.cpp") # ${LIBRARY_DEFS}" )
+		add_library(libpascinference SHARED "${PASCINFERENCE_SRC}/libpascinference.cpp")
+		set_source_files_properties("${PASCINFERENCE_SRC}/libpascinference.cpp"
+				COMPILE_FLAGS ${FLAGS_DEF_D})		
 	endif()
+
+	find_library(PASCINFERENCE_LIB_LOCATION "libpascinference" "${CMAKE_CURRENT_BINARY_DIR}")
+
+else()
+	# find PascInference library
+	find_library(PASCINFERENCE_LIB_LOCATION "libpascinference")
 	
 endif()
 
+set(LIBRARIES_DEF ${PASCINFERENCE_LIB_LOCATION} "${LIBRARIES_DEF}")
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_PASCINFERENCE)
@@ -30,6 +39,7 @@ macro(PRINTSETTING_PASCINFERENCE)
 	endif()
 	
 	printinfo(" - PASCINFERENCE_ROOT\t\t" "${PASCINFERENCE_ROOT}")
+	printinfo(" - library\t\t\t" "${PASCINFERENCE_LIB_LOCATION}")
 	printinfo(" - include\t\t\t" "${PASCINFERENCE_INCLUDE}")
 	printinfo(" - src\t\t\t\t" "${PASCINFERENCE_SRC}")
 

@@ -7,7 +7,7 @@ if(${USE_PETSCVECTOR})
 	
 	#we have to use Petsc to use PetscVector
 	if(NOT ${USE_PETSC})
-		message(FATAL_ERROR "${Red}Sorry, you cannot use PetscVector without Petsc!${ColourReset}")
+		message(FATAL_ERROR "${Red}Sorry, you cannot use PetscVector without Petsc! (use -DUSE_PETSC=ON)${ColourReset}")
 	endif()
 	
 	#control existence
@@ -17,6 +17,10 @@ if(${USE_PETSCVECTOR})
 	
 	#include petscvector
 	include_directories(${PETSCVECTOR_INCLUDE})
+
+	# append to flags definitions
+	set(FLAGS_DEF "-USE_PETSCVECTOR ${FLAGS_DEF}")
+	set(FLAGS_DEF_D "-DUSE_PETSCVECTOR ${FLAGS_DEF_D}")
 
 endif()
 

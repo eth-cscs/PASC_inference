@@ -1,8 +1,5 @@
 #include "pascinference.h"
-
-
 #include "matrix/laplace_explicit.h"
-
 
 using namespace pascinference;
 
