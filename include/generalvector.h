@@ -5,18 +5,22 @@ namespace pascinference {
 
 	/* deal with all */
 	class General_all_type {
-		typedef minlin::detail::all_type *minlin_all_type;
 
 		public:
-			/* convert to PetscVector all */
-			operator petscvector::petscvector_all_type() const {  // TODO: if USE_PETSCVECTOR
-				return petscvector::all;
-			}
+			#ifdef USE_PETSCVECTOR
+				/* convert to PetscVector all */
+				operator petscvector::petscvector_all_type() const { 
+					return petscvector::all;
+				}
+			#endif
 
-			operator minlin_all_type() const {  // TODO: if USE_MINLIN
-				return minlin::all;
-			}
-
+			#ifdef USE_MINLIN
+				typedef minlin::detail::all_type *minlin_all_type;
+				/* convert to minlin all */ 
+				operator minlin_all_type() const {
+					return minlin::all;
+				}
+			#endif
 
 	} gall; /* sorry for gall, but minlin is using global all and I don't know how to retype it. */ // TODO: deal with all
 

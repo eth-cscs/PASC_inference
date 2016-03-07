@@ -10,35 +10,35 @@
 #define EXPORT_SAVEVTK_filename "output/data.vtk" /* name of file to export VTK */
 
 
-/* include MINLIN */ //TODO: if USE_MINLIN
-#include <minlin/minlin.h>
-#include <minlin/modules/threx/threx.h>
-//#include <qpopt/smalbe.h>
+/* include MINLIN */ 
+#ifdef USE_MINLIN
+	#include <minlin/minlin.h>
+	#include <minlin/modules/threx/threx.h>
 
-namespace minlin {
-	namespace threx {
-		MINLIN_INIT // TODO: if USE_MINLIN
+	namespace minlin {
+		namespace threx {
+			MINLIN_INIT
+		}
 	}
-}
+#endif
 
 /* PetscVector */
 #ifdef USE_PETSC
 	#include "petsc.h"
 	#include "petscvector.h"
 
-//	namespace pascinference {	
-//		extern int DEBUG_MODE_PETSCVECTOR;
-//		extern bool PETSC_INITIALIZED;
-//	}
 #endif
 
-#include <stdio.h> /* printf in cuda */
 
-/* cuda stuff */ // TODO: if USE_GPU
-#include <cuda.h>
-#include <cuda_runtime_api.h>
-#include <device_launch_parameters.h>
-#include <device_functions.h>
+/* cuda stuff */
+#ifdef USE_GPU
+	#include <stdio.h> /* printf in cuda */
+
+	#include <cuda.h>
+	#include <cuda_runtime_api.h>
+	#include <device_launch_parameters.h>
+	#include <device_functions.h>
+#endif
 
 /* we are using namespace pascinference */
 namespace pascinference {
@@ -90,8 +90,8 @@ class Timer {
 };
 
 
-/* cuda error check */ 
 #ifdef USE_GPU
+	/* cuda error check */ 
 	#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 	inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
 	{
