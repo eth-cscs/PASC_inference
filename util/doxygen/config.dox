@@ -51,7 +51,7 @@ PROJECT_BRIEF          = "Statistical methods for causality inference on HPC"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = "util/doxygen/image/logo.png"
+PROJECT_LOGO           = "util/doxygen/image_include/logo.png"
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -846,7 +846,7 @@ EXAMPLE_RECURSIVE      = YES
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = util/doxygen/image
+IMAGE_PATH             = util/doxygen/image_include
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -1069,7 +1069,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = util/doxygen/html/header.html
+HTML_HEADER            = util/doxygen/html_include/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1079,7 +1079,7 @@ HTML_HEADER            = util/doxygen/html/header.html
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            = util/doxygen/html/footer.html
+HTML_FOOTER            = util/doxygen/html_include/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
@@ -1104,7 +1104,8 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = util/doxygen/html/my.css util/doxygen/html/mytabs.css
+HTML_EXTRA_STYLESHEET  = util/doxygen/html_include/my.css \
+						 util/doxygen/html_include/mytabs.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1114,7 +1115,8 @@ HTML_EXTRA_STYLESHEET  = util/doxygen/html/my.css util/doxygen/html/mytabs.css
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       = util/doxygen/image/titlearea.png util/doxygen/image/tab1_back.png
+HTML_EXTRA_FILES       = util/doxygen/image_include/titlearea.png \
+						 util/doxygen/image_include/tab1_back.png
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to

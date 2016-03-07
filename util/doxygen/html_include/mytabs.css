@@ -1,0 +1,81 @@
+.tabs, .tabs2, .tabs3 {
+	height: 40px;
+	width: 100%;
+    margin: 0px;
+    z-index: 101; 
+    font-size: 18px;
+    font-family: Tahoma, Arial,sans-serif;
+
+	border-width: 0px;
+}
+
+.tabs {
+    background-image: url('tab1_back.png');
+    background-repeat: repeat-x;
+
+}
+
+.tabs2 {
+    font-size: 15px;
+	height: 40px;
+
+	background-color: rgb(210,210,210);
+
+}
+.tabs3 {
+    font-size: 12px;
+
+	background-color: rgb(230,230,230);
+}
+
+.tablist {
+    margin: 0;
+    padding: 0;
+    display: table;
+}
+
+.tablist li {
+    float: left;
+    display: table-cell;
+	height: 26px;
+	margin: 7px;
+	margin-right: 10px;
+
+    font-family: Tahoma, Arial,sans-serif;
+	
+}
+
+.tablist a {
+    display: block;
+    padding: 0 20px;
+    font-weight: bold;
+    color: rgb(120,120,120);
+    text-decoration: none;
+    outline: none;
+}
+
+.tabs3 .tablist a {
+    padding: 0 10px;
+}
+
+.tablist a:hover {
+    color: rgb(255,255,255);
+    text-decoration: none;
+}
+
+.tablist li.current {
+	background-color: rgb(120,120,120);
+	color: rgb(255,255,255);
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	border-width: 0px;
+}
+
+.tablist li.current a {
+    color: rgb(255,255,255);
+}
+
+.tablist li.current a:hover {
+    color: rgb(255,255,255);
+}
