@@ -9,10 +9,10 @@
 project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
-# add cmake functions
+# set the root to the library
 set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}/../")
 
-# add cmake functions
+# include cmake functions
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake/" ${CMAKE_MODULE_PATH})
 
 include(common) # include common
@@ -22,7 +22,6 @@ include(load_petscvector) # PetscVector
 include(load_mkl) # MKL
 include(load_minlin) # MinLin
 include(load_pascinference) # PascInference
-
 
 # print information about settings
 include(printsetting)
