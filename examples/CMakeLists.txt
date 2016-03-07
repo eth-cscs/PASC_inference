@@ -1,5 +1,5 @@
 #*******************************************************************************
-# PASC INFERENCE library
+# PASC INFERENCE library examples
 # Lukas Pospisil, Illia Horenko, Patrick Gagliardini, Will Sawyer
 # USI Lugano, 2016
 # lukas.pospisil@usi.ch
