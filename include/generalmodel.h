@@ -1,5 +1,14 @@
-#ifndef PASCGENERALMODEL_H
-#define	PASCGENERALMODEL_H
+/** @file generalmodel.h
+ *  @brief class for manipulation with models
+ *
+ *  Defines the parent class for manipulation with models - additional information for solving the problem.
+ *  All specific model implementations should be defined as inherited classes from this class.
+ *
+ *  @author Lukas Pospisil
+ */
+
+#ifndef PASC_GENERALMODEL_H
+#define	PASC_GENERALMODEL_H
 
 #include "common.h"
 

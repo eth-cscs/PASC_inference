@@ -1,3 +1,12 @@
+/** @file generalsolver.h
+ *  @brief class for manipulation with solver
+ *
+ *  Defines the parent class for manipulation with solvers - setting data, algorithm for solving the problem, return results, etc.
+ *  All specific solvers implementations should be defined as inherited classes from this class.
+ *
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASCGENERALSOLVER_H
 #define	PASCGENERALSOLVER_H
 

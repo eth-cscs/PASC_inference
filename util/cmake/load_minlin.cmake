@@ -21,6 +21,7 @@ if(${USE_MINLIN})
 	endif()	
 
 	if(${USE_CUDA})
+		include_directories(${MINLIN_INCLUDE})
 		cuda_include_directories(${MINLIN_INCLUDE})
 	else()
 		include_directories(${MINLIN_INCLUDE})

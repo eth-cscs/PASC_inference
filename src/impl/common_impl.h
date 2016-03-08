@@ -1,9 +1,6 @@
 
 namespace pascinference {
 	
-/*!
- * initialize the application
- */ 
 void Initialize(int argc, char *argv[]){
 
 	/* initialize random seed: */
@@ -22,9 +19,6 @@ void Initialize(int argc, char *argv[]){
 	#endif
 }
 
-/*!
- * final call of the application
- */ 
 void Finalize(){
   	/* finalize Petsc */
   	#ifdef USE_PETSC
@@ -35,16 +29,10 @@ void Finalize(){
 
 }
 
-/*!
- * print green message
- */
 void Message(std::string text){
 	std::cout << "\033[32m" << text << "\033[0m" << std::endl;
 }  
 
-/*!
- * print info message
- */
 void Message_info_main(std::string text){
 	std::cout << "\033[33m" << text << "\033[0m" << std::endl;
 }  
@@ -53,9 +41,6 @@ void Message_info(std::string text){
 	std::cout << "\033[36m" << text << "\033[0m" << std::endl;
 }  
 
-/*!
- * print info message with values and/or one value
- */
 void Message_info_values(std::string text, std::string values){
 	std::cout << "\033[36m" << text << "\033[0m" << values << std::endl;
 }  

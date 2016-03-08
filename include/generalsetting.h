@@ -1,5 +1,14 @@
-#ifndef PASCGENERALSETTING_H
-#define	PASCGENERALSETTING_H
+/** @file generalsetting.h
+ *  @brief general solver settings
+ *
+ *  Defines the parent class for manipulation with settings of the solver - i.e. number of iterations, precision, etc.
+ *  All specific solvers implementations should contain a setting class defined as inherited classes from this class.
+ *
+ *  @author Lukas Pospisil
+ */
+
+#ifndef PASC_GENERALSETTING_H
+#define	PASC_GENERALSETTING_H
 
 #include "common.h"
 

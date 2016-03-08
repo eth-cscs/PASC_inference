@@ -1,9 +1,19 @@
-#ifndef PASCGENERALDATA_H
-#define	PASCGENERALDATA_H
+/** @file generaldata.h
+ *  @brief class for manipulation with data
+ *
+ *  Defines the parent class for manipulation with data.
+ *  All specific data implementations should be defined as inherited classes from this class.
+ *
+ *  @author Lukas Pospisil
+ */
+
+#ifndef PASC_GENERALDATA_H
+#define	PASC_GENERALDATA_H
 
 #include "common.h"
 
 namespace pascinference {
+
 
 class GeneralData {
 	protected:

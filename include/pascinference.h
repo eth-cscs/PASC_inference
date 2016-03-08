@@ -1,10 +1,10 @@
-/*******************************************************************************
-PASC INFERENCE library
-Lukas Pospisil, Illia Horenko, Patrick Gagliardini, Will Sawyer
-USI Lugano, 2016
-lukas.pospisil@usi.ch
-
-*******************************************************************************/
+/** @file pascinference.h
+ *  @brief main header file
+ *
+ *  Include this header file to work with PASC_INFERENCE library.
+ *
+ *  @author Lukas Pospisil
+ */
 
 #ifndef PASCINFERENCE_H
 #define	PASCINFERENCE_H
@@ -20,6 +20,39 @@ lukas.pospisil@usi.ch
 #include <limits>
 
 
+/* include MINLIN */ 
+#ifdef USE_MINLIN
+	#include <minlin/minlin.h>
+	#include <minlin/modules/threx/threx.h>
+
+	namespace minlin {
+		namespace threx {
+			MINLIN_INIT
+		}
+	}
+#endif
+
+/* include Petsc */
+#ifdef USE_PETSC
+	#include "petsc.h"
+#endif
+
+/* PetscVector */
+#ifdef USE_PETSCVECTOR
+	#include "petscvector.h"
+#endif
+
+/* cuda stuff */
+#ifdef USE_CUDA
+	#include <stdio.h> /* printf in cuda */
+
+	#include <cuda.h>
+	#include <cuda_runtime_api.h>
+	#include <device_launch_parameters.h>
+	#include <device_functions.h>
+#endif
+
+
 /* include pascinference stuff */
 #include "common.h"
 #include "algebra.h"
@@ -28,20 +61,6 @@ lukas.pospisil@usi.ch
 #include "generalresult.h"
 #include "generalsolver.h"
 #include "generalfeasibleset.h"
-
-
-
-/*
-#include "projection.h"
-#include "qpsolver.h"
-#include "theta.h"
-
-#include "model.h"
-#include "operations.h"
-#include "inputoutput.h"
-#include "data.h"
-#include "gamma.h"
-*/
 
 /* Doxygen main page follows */
 
@@ -55,9 +74,6 @@ lukas.pospisil@usi.ch
  *
  * 
  */
-
-
-
 
 #endif
 

@@ -1,3 +1,12 @@
+/** @file test_algebra.cpp
+ *  @brief test matrix-vector multiplication
+ *
+ *  Create laplace explicit matrix and vector. Multiply these objects on different architectures.
+ *
+ *  @author Lukas Pospisil
+ */
+
+
 #include "pascinference.h"
 #include "matrix/laplace_explicit.h"
 
@@ -6,11 +15,11 @@ using namespace pascinference;
 /* set what is what ( which type of vector to use where) */
 #ifdef USE_PETSCVECTOR
 	typedef petscvector::PetscVector Global;
-	extern bool petscvector::PETSC_INITIALIZED;
 #endif
 
 #ifdef USE_MINLIN
 	typedef minlin::threx::HostVector<double> Host;
+	typedef minlin::threx::DeviceVector<double> Device;
 #endif
 
 
@@ -19,13 +28,12 @@ int main( int argc, char *argv[] )
 		
 	/* say hello */	
 	Message("- start program");
+	Initialize(argc, argv);
 
 	int N = 5;
 
 	/* ------------- PETSC TEST -------------- */
 	#ifdef USE_PETSCVECTOR
-		Initialize(argc, argv);
-		petscvector::PETSC_INITIALIZED = true;
 
 		GeneralVector<Global> vg(N);
 		vg(gall) = 3.3;
@@ -39,7 +47,6 @@ int main( int argc, char *argv[] )
 		std::cout << "Av_global: " << Avg << std::endl;
 
 		petscvector::PETSC_INITIALIZED = false;
-		Finalize();
 
 	#endif
 
@@ -55,12 +62,25 @@ int main( int argc, char *argv[] )
 		GeneralVector<Host> Avh(N);
 		Avh = Ah*vh; 
 		std::cout << "Av_host: " << Avh << std::endl;
+
+
+		GeneralVector<Device> vd(N);
+		vd(gall) = 3.3;
+		std::cout << "v_device: " << vd << std::endl;
+	
+		LaplaceExplicitMatrix<Device> Ad(vd);
+		std::cout << "A_device: " << Ad << std::endl;
+
+		GeneralVector<Device> Avd(N);
+		Avd = Ad*vd; 
+		std::cout << "Av_device: " << Avd << std::endl;
+
 	#endif
 
 
 	/* say bye */	
 	Message("- end program");
-	
+	Finalize();
 
 	return 0;
 }

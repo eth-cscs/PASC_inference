@@ -1,5 +1,14 @@
-#ifndef PASCGENERALRESULT_H
-#define	PASCGENERALRESULT_H
+/** @file generalresult.h
+ *  @brief class for manipulation with results
+ *
+ *  Defines the parent class for manipulation with results - store the content and postprocess.
+ *  All specific result implementations should be defined as inherited classes from this class.
+ *
+ *  @author Lukas Pospisil
+ */
+
+#ifndef PASC_GENERALRESULT_H
+#define	PASC_GENERALRESULT_H
 
 #include "common.h"
 

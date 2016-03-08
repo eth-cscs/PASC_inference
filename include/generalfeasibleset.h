@@ -1,5 +1,14 @@
-#ifndef PASCGENERALPROJECTION_H
-#define	PASCGENERALPROJECTION_H
+/** @file generalfeasibleset.h
+ *  @brief class for manipulation with feasible set
+ *
+ *  Defines the parent class for manipulation with feasible set - definition of the feasible set and projection.
+ *  All specific feasible set implementations should be defined as inherited classes from this class.
+ *
+ *  @author Lukas Pospisil
+ */
+
+#ifndef PASC_GENERALFEASIBLESET_H
+#define	PASC_GENERALFEASIBLESET_H
 
 #include "common.h"
 #include "algebra.h"

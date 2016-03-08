@@ -1105,7 +1105,7 @@ HTML_STYLESHEET        =
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_EXTRA_STYLESHEET  = util/doxygen/html_include/my.css \
-						 util/doxygen/html_include/mytabs.css
+						 util/doxygen/html_include/mytabs.css 
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1115,7 +1115,8 @@ HTML_EXTRA_STYLESHEET  = util/doxygen/html_include/my.css \
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       = util/doxygen/image_include/titlearea.png \
+HTML_EXTRA_FILES       = util/doxygen/html_include/dynsections.js \
+						 util/doxygen/image_include/titlearea.png \
 						 util/doxygen/image_include/tab1_back.png
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
@@ -1175,7 +1176,7 @@ HTML_DYNAMIC_SECTIONS  = YES
 # Minimum value: 0, maximum value: 9999, default value: 100.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_INDEX_NUM_ENTRIES = 100
+HTML_INDEX_NUM_ENTRIES = 1000
 
 # If the GENERATE_DOCSET tag is set to YES, additional index files will be
 # generated that can be used as input for Apple's Xcode 3 integrated development

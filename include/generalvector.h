@@ -1,5 +1,14 @@
-#ifndef GENERALVECTOR_H
-#define	GENERALVECTOR_H
+/** @file generalvector.h
+ *  @brief class for manipulation with vectors
+ *
+ *  Defines the parent class for manipulation with vectors.
+ *  The class is inherited from other third-party implementations, i.e. MinLin or PetscVector.
+ *
+ *  @author Lukas Pospisil
+ */
+ 
+#ifndef PASC_GENERALVECTOR_H
+#define	PASC_GENERALVECTOR_H
 
 namespace pascinference {
 
