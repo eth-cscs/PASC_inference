@@ -11,6 +11,9 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
+/* maybe TSModel is not defined yet. */
+template<class VectorBase> class TSModel;
+
 /* QPResult */ 
 template<class VectorBase>
 class TSResult: public GeneralResult {
@@ -34,7 +37,9 @@ class TSResult: public GeneralResult {
 		int get_dim() const;
 		int get_K() const;
 
+		TSModel<VectorBase> *get_model() const;
 
+		GeneralVector<VectorBase> *get_gammavector() const;
 };
 
 } // end of namespace
@@ -50,7 +55,7 @@ TSResult<VectorBase>::TSResult(){
 	if(DEBUG_MODE >= 100) std::cout << "(QPResult)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
-	this->model = NULL;
+	this->tsmodel = NULL;
 
 	this->gammavector = NULL;
 	this->thetavector = NULL;
@@ -165,6 +170,16 @@ int TSResult<VectorBase>::get_K() const{
 	} else {
 		return 0;
 	}
+}
+
+template<class VectorBase>
+TSModel<VectorBase> *TSResult<VectorBase>::get_model() const{
+	return this->tsmodel;
+}
+
+template<class VectorBase>
+GeneralVector<VectorBase> *TSResult<VectorBase>::get_gammavector() const{
+	return this->gammavector;
 }
 
 

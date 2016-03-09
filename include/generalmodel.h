@@ -1,7 +1,7 @@
 /** @file generalmodel.h
  *  @brief class for manipulation with models
  *
- *  Defines the parent class for manipulation with models - additional information for solving the problem.
+ *  Header file which defines the parent class for manipulation with models - additional information for solving the problem.
  *  All specific model implementations should be defined as inherited classes from this class.
  *
  *  @author Lukas Pospisil
@@ -14,6 +14,13 @@
 
 namespace pascinference {
 
+/** \class GeneralModel
+ *  \brief General class for manipulation with models.
+ *
+ *  Parent class for manipulation with models - additional information for solving the problem.
+ *  All specific model implementations should be defined as inherited classes from this class.
+ *	
+*/
 class GeneralModel {
 	protected:
 
@@ -24,7 +31,7 @@ class GeneralModel {
 		virtual void print(std::ostream &output) const;
 		virtual std::string get_name() const;
 
-		friend std::ostream &operator<<(std::ostream &output, const GeneralModel &data); /* cannot be virtual, therefore it call virtual print() */
+		friend std::ostream &operator<<(std::ostream &output, const GeneralModel &model); /* cannot be virtual, therefore it call virtual print() */
 	
 };
 

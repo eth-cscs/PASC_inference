@@ -1,22 +1,48 @@
-#ifndef TSMODEL_H
-#define	TSMODEL_H
+/** @file tsmodel.h
+ *  @brief class for manipulation with time-series models
+ *
+ *  Header file which defines the parent class for manipulation with time-series models - additional information for solving the time-series problem.
+ *  All specific model for time-series problem implementations should be defined as inherited classes from this class.
+ *
+ *  @author Lukas Pospisil
+ */
+ 
+#ifndef PASC_TSMODEL_H
+#define	PASC_TSMODEL_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
 
 #include <iostream>
-#include "generalmodel.h"
 #include "algebra.h"
+#include "generalmodel.h"
+
+#include "generalsolver.h"
+#include "generaldata.h"
+#include "generalresult.h"
+
+#include "data/tsdata.h"
+#include "result/tsresult.h"
 
 namespace pascinference {
 
-/* Time-series MODEL */ 
+/* Maybe these classes are not defined yet */ 
+template<class VectorBase> class TSData;
+template<class VectorBase> class TSResult;
+
+/** \class TSModel
+ *  \brief General class for manipulation with time-series models.
+ *
+ *  Parent class for manipulation with time-series models - additional information for solving the time-series problem by TSSolver.
+ *  All specific time-series model implementations should be defined as inherited classes from this class.
+ *	
+*/
 template<class VectorBase>
 class TSModel: public GeneralModel {
 	protected:
-		int T; /* length of time-series */
-		int K; /* number of clusters */
-		int dim; /* number of components in each time-step */
+		int T; /**< length of time-series */
+		int K; /**< number of clusters */
+		int dim; /**< number of components in each time-step */
 
 	public:
 		TSModel();
@@ -34,6 +60,41 @@ class TSModel: public GeneralModel {
 		int get_K() const;
 		int get_dim() const;
 		
+		/** @brief alloc memory for gamma solver
+		 *  
+		 *  Allocate memory for all data and results of gamma problem.
+		 * 
+		 */ 
+		virtual void initialize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+				*gammasolver = NULL;
+		};
+
+		/** @brief alloc memory for Theta solver
+		 *  
+		 *  Allocate memory for all data and results of Theta problem.
+		 * 
+		 */ 
+		virtual void initialize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+				*thetasolver = NULL;
+		};
+
+		/** @brief free memory of gamma solver
+		 *  
+		 *  Deallocate memory for all data and results of gamma problem.
+		 * 
+		 */ 
+		virtual void finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+		};
+
+		/** @brief free memory of Theta solver
+		 *  
+		 *  Deallocate memory for all data and results of Theta problem.
+		 * 
+		 */ 
+		virtual void finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+		};
+
+
 };
 
 } // end of namespace

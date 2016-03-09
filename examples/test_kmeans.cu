@@ -1,14 +1,19 @@
+/** @file test_kmeans.cu
+ *  @brief test the kmeans problem solver
+ *
+ *  Generate random problem and solve it.
+ *
+ *  @author Lukas Pospisil
+ */
+
 #include "pascinference.h"
 #include "solver/tssolver.h"
 #include "data/tsdata.h"
 #include "result/tsresult.h"
 #include "model/kmeansh1.h"
 
-#include "matrix/blockdiaglaplace_explicit.h"
-#include "feasibleset/simplexfeasibleset.h"
-
 #ifndef USE_PETSCVECTOR
- #error This example is for PETSCVECTOR 
+ #error 'This example is for PETSCVECTOR'
 #endif
  
 using namespace pascinference;
@@ -17,7 +22,6 @@ using namespace pascinference;
 typedef petscvector::PetscVector Global;
 //typedef minlin::threx::HostVector<double> Host;
 
-extern bool petscvector::PETSC_INITIALIZED;
 extern int pascinference::DEBUG_MODE;
 
 
@@ -25,7 +29,6 @@ int main( int argc, char *argv[] )
 {
 		
 	Initialize(argc, argv); // TODO: load parameters from console input
-	petscvector::PETSC_INITIALIZED = true;
 	
 	/* say hello */	
 	Message("- start program");
@@ -38,24 +41,24 @@ int main( int argc, char *argv[] )
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
 	KmeansH1Model<Global> mymodel(T, dim, K);
-	std::cout << mymodel << std::endl;
 
 	/* prepare time-series data */
 	TSData<Global> mydata(mymodel);
-	std::cout << mydata << std::endl;
 
 	/* prepare time-series results */
 	TSResult<Global> myresult(mymodel);
-	std::cout << myresult << std::endl;
 
 	/* prepare time-series solver */
 	TSSolver<Global> mysolver(mydata,myresult);
 	std::cout << mysolver << std::endl;
 
+	/* solve the problem */
+	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
+	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
+
 	/* say bye */	
 	Message("- end program");
 	
-	petscvector::PETSC_INITIALIZED = false;
 	Finalize();
 
 	return 0;

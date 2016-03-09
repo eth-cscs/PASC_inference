@@ -1,5 +1,5 @@
-#ifndef TSSOLVER_H
-#define	TSSOLVER_H
+#ifndef PASC_TSSOLVER_H
+#define	PASC_TSSOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -10,6 +10,7 @@ extern int DEBUG_MODE;
 
 #include "data/tsdata.h"
 #include "result/tsresult.h"
+#include "model/tsmodel.h"
 
 #define TSSOLVER_DEFAULT_MAXIT 1000;
 #define TSSOLVER_DEFAULT_EPS 0.0001;
@@ -47,24 +48,21 @@ class TSSolver: public GeneralSolver {
 		const TSData<VectorBase> *data; /* data on which the solver operates */
 		const TSResult<VectorBase> *result; /* here solver stores results */
 
-		GeneralSolver *gamma_solver; /* to solve inner gamma problem */
-		GeneralData 	*gamma_data; /* data for gamma problem */
-		GeneralResult *gamma_result; /* result for gamma problem */
-		
-		GeneralSolver *theta_solver; /* to solve inner theta problem */
-		GeneralData 	*theta_data; /* data for theta problem */
-		GeneralResult *theta_result; /* result for theta problem */
+		GeneralSolver *gammasolver; /* to solve inner gamma problem */
+		GeneralSolver *thetasolver; /* to solve inner theta problem */
 
+		TSModel<VectorBase> *model; /* pointer to used time-series model */
 
 	public:
 		TSSolverSetting setting;
 
 		TSSolver();
 		TSSolver(const TSData<VectorBase> &new_data, const TSResult<VectorBase> &new_result); 
+		//TODO: write constructor with given gammasolver and theta solver
 		~TSSolver();
 
 		/* with given gamma and theta solvertype */
-		void solve(SolverType gamma_solvertype, SolverType theta_solvertype);
+		void solve(SolverType gammasolvertype, SolverType thetasolvertype);
 		
 		/* with one solvertype */
 		virtual void solve(SolverType solvertype) {
@@ -96,20 +94,22 @@ TSSolver<VectorBase>::TSSolver(){
 	
 	data = NULL;
 	result = NULL;
-	gamma_solver = NULL; /* in this time, we don't know how to solve the problem */
-	theta_solver = NULL; /* in this time, we don't know how to solve the problem */
-
+	model = NULL;
+	gammasolver = NULL; /* in this time, we don't know how to solve the problem */
+	thetasolver = NULL; /* in this time, we don't know how to solve the problem */
+	
 }
 
 template<class VectorBase>
 TSSolver<VectorBase>::TSSolver(const TSData<VectorBase> &new_data, const TSResult<VectorBase> &new_result){
 	data = &new_data;
 	result = &new_result;
+	model = data->get_model(); // TODO: compare data->get_model() and result->get_model(), these should be the same
 
-	gamma_solver = NULL; /* in this time, we don't know how to solve the problem */
-	theta_solver = NULL; /* in this time, we don't know how to solve the problem */
-
-
+	/* we can initialize solvers - based on model */
+	model->initialize_gammasolver(&gammasolver, data, result);	
+	model->initialize_thetasolver(&thetasolver, data, result);	
+	
 }
 
 /* destructor */
@@ -117,17 +117,21 @@ template<class VectorBase>
 TSSolver<VectorBase>::~TSSolver(){
 	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)DESTRUCTOR" << std::endl;
 
-	/* destroy child solvers */
-	free(gamma_solver);
-	free(theta_solver);
-
+	/* destroy child solvers - based on model*/
+	if(gammasolver){
+		model->finalize_gammasolver(&gammasolver, data, result);	
+	}
+	if(thetasolver){
+		model->finalize_thetasolver(&thetasolver, data, result);	
+	}
+	
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void TSSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)FUNCTION: print" << std::endl;
+	if(DEBUG_MODE >= 100) std::cout << this->get_name() << std::endl;
 
 	output << this->get_name() << std::endl;
 	
@@ -136,18 +140,18 @@ void TSSolver<VectorBase>::print(std::ostream &output) const {
 	
 	/* if child solvers are specified, then print also info about it */	
 	output << " Gamma Solver" << std::endl;
-	if(gamma_solver){
-		output << gamma_solver << std::endl;
+	if(gammasolver){
+		output << *gammasolver << std::endl;
 	} else {
-		output << "  - not set" << std::endl;
-	}	
+		output << " - not set" << std::endl;
+	}
 
 	output << " Theta Solver" << std::endl;
-	if(theta_solver){
-		output << theta_solver << std::endl;
+	if(thetasolver){
+		output << *thetasolver << std::endl;
 	} else {
-		output << "  - not set" << std::endl;
-	}	
+		output << " - not set" << std::endl;
+	}
 
 
 }
@@ -159,32 +163,59 @@ std::string TSSolver<VectorBase>::get_name() const {
 
 /* solve the problem */
 template<class VectorBase>
-void TSSolver<VectorBase>::solve(SolverType gamma_solvertype, SolverType theta_solvertype) {
+void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasolvertype) {
 	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)FUNCTION: solve" << std::endl;
 
-	/* the gamma solver wasn't specified yet */
-	if(!gamma_solvertype){
-		/* which specific solver we can use to solve the problem? */
-		if(gamma_solvertype == SOLVER_AUTO){
-			// TODO: here write sofisticated decision tree - maybe based on MODEL?
-		} 
-
-		/* prepare QP solver */
-		if(gamma_solvertype == SOLVER_QP){
-			/* create new instance of QP Solver to solve gamma problem */
-			
-			
-//			gamma_solver = new QPSolver<VectorBase>(*data,*result);
-		
-			/* copy settings */
-			//TODO
-		}
-
+	/* the gamma or theta solver wasn't specified yet */
+	if(!gammasolver || !thetasolver){
+		// TODO: give error - actually, gamma and theta solvers are created during constructor with data and results - now we don't have data, there is nothing to solve
 	}
-	/* now the child_solver should be specified and prepared */
 
-	/* call solve function to child solver */
-//	child_solver->solve();
+	/* which specific solver we can use to solve the problem? */
+	if(gammasolvertype == SOLVER_AUTO){
+			// TODO: here write sofisticated decision tree - maybe based on MODEL?
+	} 
+	if(thetasolvertype == SOLVER_AUTO){
+			// TODO: here write sofisticated decision tree - maybe based on MODEL?
+	} 
+
+	/* now the gammasolver and thetasolver should be specified and prepared */
+
+	/* variables */
+	double L, L_old, deltaL; /* object function value */
+
+	/* initialize value of object function */
+	L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
+	
+	int it; 
+	
+	/* main cycle */
+	for(it=0;it < 1;it++){
+		Message_info_value(" - it = ",it);
+
+		/* --- COMPUTE Theta --- */
+//		this->model.compute_theta(this->data.get_data_vec());
+		
+		/* --- COMPUTE gamma --- */
+//		this->model.compute_gamma(this->data.get_data_vec());
+
+		/* compute stopping criteria */
+		L_old = L;
+//		L = model.get_function_value();
+		deltaL = abs(L - L_old);
+
+		/* print info about cost function */
+		Message_info_value("  - L_old       = ",L_old);
+		Message_info_value("  - L           = ",L);
+		Message_info_value("  - |L - L_old| = ",deltaL);
+
+		/* end the main cycle if the change of function value is sufficient */
+		if (deltaL < 0.0001){
+			break;
+		}
+		
+	}
+
 	
 }
 

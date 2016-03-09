@@ -44,6 +44,7 @@ class SimplexFeasibleSet: public GeneralFeasibleSet<VectorBase> {
 		~SimplexFeasibleSet();
 
 		void print(std::ostream &output) const;
+		virtual std::string get_name() const;
 
 		/* variables */
 		int T; 
@@ -89,13 +90,19 @@ SimplexFeasibleSet<VectorBase>::~SimplexFeasibleSet(){
 /* print info about feasible set */
 template<class VectorBase>
 void SimplexFeasibleSet<VectorBase>::print(std::ostream &output) const {
-	output << " SimplexFeasibleSet" << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output << "  - T:     " << T << std::endl;
 	output << "  - K:     " << K << std::endl;
 		
 }
+
+template<class VectorBase>
+std::string SimplexFeasibleSet<VectorBase>::get_name() const {
+	return "Simplex FeasibleSet";
+}
+
 
 
 /* -------- minlin::threx::HostVector ---------- */

@@ -25,7 +25,8 @@ class GeneralFeasibleSet {
 		GeneralFeasibleSet() {};
 		~GeneralFeasibleSet() {};
 
-		virtual void print(std::ostream &output) const {};
+		virtual void print(std::ostream &output) const;
+		virtual std::string get_name() const;
 
 		virtual void project(GeneralVector<VectorBase> &x) {
 			//TODO: give error, the projection is not defined for this type of feasible set
@@ -43,6 +44,17 @@ std::ostream &operator<<(std::ostream &output, const GeneralFeasibleSet<VectorBa
 	feasibleset.print(output);
 	return output;
 }
+
+template<class VectorBase>
+void GeneralFeasibleSet<VectorBase>::print(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+}
+
+template<class VectorBase>
+std::string GeneralFeasibleSet<VectorBase>::get_name() const {
+	return "GeneralFeasibleSet";
+}
+
 
 } /* end of namespace */
 

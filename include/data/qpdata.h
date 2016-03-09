@@ -46,6 +46,7 @@ QPData<VectorBase>::QPData(){
 	this->A = NULL;
 	this->b = NULL;
 	this->x0 = NULL;
+	this->feasibleset = NULL;
 
 }
 
@@ -63,21 +64,27 @@ void QPData<VectorBase>::print(std::ostream &output) const {
 	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << "  - A:     ";
+	output << "  - A:            ";
 	if(this->A){
 		output << "YES" << std::endl; // TODO: get matrix name 
 	} else {
 		output << "NO" << std::endl;
 	}
-	output << "  - b:     ";
+	output << "  - b:            ";
 	if(this->b){
 		output << "YES (size: " << this->b->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
-	output << "  - x0:    ";
+	output << "  - x0:           ";
 	if(this->x0){
 		output << "YES (size: " << this->x0->size() << ")" << std::endl;
+	} else {
+		output << "NO" << std::endl;
+	}
+	output << "  - feasible_set: ";
+	if(this->feasibleset){
+		output << "YES (" << this->feasibleset->get_name() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}

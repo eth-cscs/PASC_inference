@@ -110,6 +110,12 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 	
 	/* print settings */
 	output << setting;
+
+	/* print data */
+	output << *data;
+
+	/* print result */
+	output << *result;
 	
 	/* if child solver is specified, then print also info about it */	
 	if(child_solver){

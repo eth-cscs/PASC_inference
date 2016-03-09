@@ -33,6 +33,7 @@ class TSData: public GeneralData {
 		int get_T() const;
 		int get_dim() const;
 		
+		TSModel<VectorBase> *get_model() const;
 };
 
 } // end of namespace
@@ -137,6 +138,10 @@ int TSData<VectorBase>::get_dim() const{
 	}
 }
 
+template<class VectorBase>
+TSModel<VectorBase> *TSData<VectorBase>::get_model() const{
+	return this->tsmodel;
+}
 
 } /* end namespace */
 
