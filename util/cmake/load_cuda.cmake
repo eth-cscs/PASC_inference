@@ -1,4 +1,3 @@
-# set variables (options) for whole cmake
 option(USE_CUDA "USE_CUDA" ON)
 
 if(${USE_CUDA})

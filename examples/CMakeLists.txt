@@ -59,7 +59,14 @@ if(${TEST_SPGQP})
 endif()
 
 if(${TEST_KMEANS})
-	pascadd_executable("test_kmeans.cu" "test_kmeans")
+	# this is KMEANS test
+	if(${USE_CUDA})
+		# if we know how to compile .cu, then include .cu
+		pascadd_executable("test_kmeans.cu" "test_kmeans")
+	else()
+		# otherwise compile as .cpp
+		pascadd_executable("test_kmeans.cpp" "test_kmeans")
+	endif()
 endif()
 
 

@@ -1,6 +1,7 @@
 # define general functions and variables used in other scripts
 
 # set default build type
+
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif()
@@ -15,7 +16,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
 
 # define some colors for funny cmake messages
-if(NOT WIN32)
+option(CMAKE_USE_COLOR "CMAKE_USE_COLOR" ON)
+if(NOT WIN32 AND ${CMAKE_USE_COLOR})
   string(ASCII 27 Esc)
   set(ColourReset "${Esc}[m")
   set(ColourBold  "${Esc}[1m")
