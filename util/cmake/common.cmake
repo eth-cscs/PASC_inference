@@ -45,12 +45,13 @@ endmacro()
 macro(PASCADD_EXECUTABLE filename outname)
 	# choose compiler subject to file extension
 	get_filename_component(FILE_EXT ${filename} EXT)
-	message(STATUS "${Yellow}adding executable file with extension ${Green}${FILE_EXT}${ColourReset}")
 
 	#remove leading whitespaces
 #	string(STRIP ${LIBRARIES_DEF} LIBRARIES_DEF)
 	
 	if(${FILE_EXT} MATCHES ".cu")
+		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (CUDA)${ColourReset}")
+
 		# --- compile with CUDA ---
 		if(NOT ${USE_CUDA})
 			message(FATAL_ERROR "${Red}Cannot compile .cu file without USE_CUDA=ON!${ColourReset}")
@@ -72,6 +73,8 @@ macro(PASCADD_EXECUTABLE filename outname)
 	endif()	
 
 	if(${FILE_EXT} MATCHES ".cpp")
+		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (C++)${ColourReset}")
+
 		# compile with g++
 
 		# add executable file
