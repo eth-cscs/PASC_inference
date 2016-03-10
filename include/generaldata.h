@@ -1,7 +1,7 @@
 /** @file generaldata.h
  *  @brief class for manipulation with data
  *
- *  Defines the parent class for manipulation with data.
+ *  Defines the parent class for manipulation with data (input and output).
  *  All specific data implementations should be defined as inherited classes from this class.
  *
  *  @author Lukas Pospisil
