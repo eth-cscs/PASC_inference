@@ -17,6 +17,8 @@ option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" OFF)
 option(TEST_SPGQP "TEST_SPGQP" OFF)
 option(TEST_KMEANS "TEST_KMEANS" ON)
 
+# include additional example headers
+include_directories("include")
 
 # set the root to the library
 set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}/../")

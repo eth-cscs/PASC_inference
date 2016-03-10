@@ -13,6 +13,9 @@ extern int DEBUG_MODE;
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
+#include "solver/diagsolver.h"
+#include "data/diagdata.h"
+
 #include "data/tsdata.h"
 
 namespace pascinference {
@@ -22,7 +25,7 @@ template<class VectorBase>
 class KmeansH1Model: public TSModel<VectorBase> {
 	protected:
 		QPData<VectorBase> *gammadata;
-		QPData<VectorBase> *thetadata;
+		DiagData<VectorBase> *thetadata;
 
 	public:
 		KmeansH1Model(int T, int dim, int K);
@@ -40,7 +43,13 @@ class KmeansH1Model: public TSModel<VectorBase> {
 		
 		void finalize_gammasolver(GeneralSolver **gamma_solver, const TSData<VectorBase> *tsdata);
 		void finalize_thetasolver(GeneralSolver **theta_solver, const TSData<VectorBase> *tsdata);
-		
+
+		void update_gammasolver(GeneralSolver *gamma_solver, const TSData<VectorBase> *tsdata);
+		void update_thetasolver(GeneralSolver *theta_solver, const TSData<VectorBase> *tsdata);
+	
+		void generate_data(TSData<VectorBase> *tsdata);
+
+
 };
 
 } // end of namespace
@@ -130,15 +139,15 @@ void KmeansH1Model<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolv
 /* prepare theta solver */
 template<class VectorBase>
 void KmeansH1Model<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
-	/* in this case, theta problem is QP with empty feasible set */
-	// TODO: write this funny function
+	/* in this case, theta problem is system with diagonal matrix */
 	
 	/* create data */
-	thetadata = new QPData<VectorBase>();
+	thetadata = new DiagData<VectorBase>();
+	thetadata->set_a(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
+	thetadata->set_b(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
 
 	/* create solver */
-	*thetasolver = NULL;
-//	*thetasolver = new QPSolver<VectorBase>(*gammadata);
+	*thetasolver = new DiagSolver<VectorBase>(*thetadata);
 	
 }
 
@@ -161,15 +170,30 @@ void KmeansH1Model<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver
 /* destroy theta solver */
 template<class VectorBase>
 void KmeansH1Model<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
-	/* in this case, theta problem is QP with empty feasible set */
 	
 	/* destroy data */
+	free(thetadata->get_a());
+	free(thetadata->get_b());
 	free(thetadata);
 
 	/* destroy solver */
-//	free(*thetasolver);
+	free(*thetasolver);
+
+}
+
+/* update gamma solver */
+template<class VectorBase>
+void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
+	/* update gamma_solver data - prepare new linear term */
 
 	
+}
+
+/* update theta solver */
+template<class VectorBase>
+void KmeansH1Model<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+	/* update theta solver - prepare new matrix vector and right-hand side vector */	
+
 }
 
 

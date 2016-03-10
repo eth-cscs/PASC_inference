@@ -39,7 +39,8 @@ class TSData: public GeneralData {
 		int get_T() const;
 		int get_dim() const;
 		int get_K() const;
-		
+
+		/* GET functions */
 		TSModel<VectorBase> *get_model() const;
 		GeneralVector<VectorBase> *get_datavector() const;
 		GeneralVector<VectorBase> *get_gammavector() const;
@@ -179,6 +180,8 @@ template<class VectorBase>
 std::string TSData<VectorBase>::get_name() const {
 	return "Time-series Data";
 }
+
+
 
 /* ---------- GET functions --------- */
 template<class VectorBase>

@@ -11,6 +11,8 @@
 #include "data/tsdata.h"
 #include "model/kmeansh1.h"
 
+#include "kmeans2D.h"
+
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
 #endif
@@ -34,15 +36,29 @@ int main( int argc, char *argv[] )
 
 	/* dimension of the problem */
 	int dim = 2; /* data dimension */
-	int T = 5; /* length of time-series (size of the block) */
-	int K = 3; /* number of clusters (block) */
+	int T = 10; /* length of time-series */
+	int K = 3; /* number of clusters */
 
+	/* parameters of the model */
+	double muK1[2] = {0.25, 0};
+	double muK2[2] = {0.0, -0.5};
+	double muK3[2] = {0.0, 0.5};
+	double *mu[3] = {muK1,muK2,muK3};
+
+	double covarianceK1[4] = {0.001, 0.0, 0.0, 0.1};
+	double covarianceK2[4] = {0.005, 0.0, 0.0, 0.05};
+	double covarianceK3[4] = {0.005, 0.0, 0.0, 0.05};
+	double *covariance[3] = {covarianceK1,covarianceK2,covarianceK3};
+	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
 	KmeansH1Model<Global> mymodel(T, dim, K);
 
 	/* prepare time-series data */
 	TSData<Global> mydata(mymodel);
+
+	/* generate some values to data */
+	example::KMeans2D<Global>::generate(T,K,mu,covariance,mydata.get_datavector());
 
 	/* prepare time-series solver */
 	TSSolver<Global> mysolver(mydata);
@@ -51,6 +67,9 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
 	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
+
+	/* save results into VTK file */
+	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 
 	/* say bye */	
 	Message("- end program");
