@@ -1,5 +1,5 @@
-#ifndef QPSOLVER_H
-#define	QPSOLVER_H
+#ifndef PASC_QPSOLVER_H
+#define	PASC_QPSOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -9,7 +9,6 @@ extern int DEBUG_MODE;
 #include "algebra.h"
 
 #include "data/qpdata.h"
-#include "result/qpresult.h"
 
 #define QPSOLVER_DEFAULT_MAXIT 1000;
 #define QPSOLVER_DEFAULT_EPS 0.0001;
@@ -45,14 +44,13 @@ template<class VectorBase>
 class QPSolver: public GeneralSolver {
 	protected:
 		const QPData<VectorBase> *data; /* data on which the solver operates */
-		const QPResult<VectorBase> *result; /* here solver stores results */
 
 		GeneralSolver *child_solver; /* child of this solver, which actually solve the problem */
 	public:
 		QPSolverSetting setting;
 
 		QPSolver();
-		QPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result); 
+		QPSolver(const QPData<VectorBase> &new_data); 
 		~QPSolver();
 
 		virtual void solve(SolverType solvertype);
@@ -79,14 +77,12 @@ QPSolver<VectorBase>::QPSolver(){
 	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)CONSTRUCTOR" << std::endl;
 	
 	data = NULL;
-	result = NULL;
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
 }
 
 template<class VectorBase>
-QPSolver<VectorBase>::QPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result){
+QPSolver<VectorBase>::QPSolver(const QPData<VectorBase> &new_data){
 	data = &new_data;
-	result = &new_result;
 
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
 }
@@ -113,9 +109,6 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 
 	/* print data */
 	output << *data;
-
-	/* print result */
-	output << *result;
 	
 	/* if child solver is specified, then print also info about it */	
 	if(child_solver){
@@ -143,7 +136,7 @@ void QPSolver<VectorBase>::solve(SolverType solvertype) {
 		/* prepare CG solver */
 		if(solvertype == SOLVER_CG){
 			/* create new instance of CG Solver */
-			child_solver = new CGQPSolver<VectorBase>(*data,*result);
+			child_solver = new CGQPSolver<VectorBase>(*data);
 		
 			/* copy settings */
 //			child_solver->setting.maxit = setting.maxit;
@@ -154,7 +147,7 @@ void QPSolver<VectorBase>::solve(SolverType solvertype) {
 		/* prepare SPGQP solver */
 		if(solvertype == SOLVER_SPGQP){
 			/* create new instance of CG Solver */
-			child_solver = new SPGQPSolver<VectorBase>(*data,*result);
+			child_solver = new SPGQPSolver<VectorBase>(*data);
 		
 			/* copy settings */
 //			child_solver->setting.maxit = setting.maxit;

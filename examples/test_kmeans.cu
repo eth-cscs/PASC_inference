@@ -9,7 +9,6 @@
 #include "pascinference.h"
 #include "solver/tssolver.h"
 #include "data/tsdata.h"
-#include "result/tsresult.h"
 #include "model/kmeansh1.h"
 
 #ifndef USE_PETSCVECTOR
@@ -45,11 +44,8 @@ int main( int argc, char *argv[] )
 	/* prepare time-series data */
 	TSData<Global> mydata(mymodel);
 
-	/* prepare time-series results */
-	TSResult<Global> myresult(mymodel);
-
 	/* prepare time-series solver */
-	TSSolver<Global> mysolver(mydata,myresult);
+	TSSolver<Global> mysolver(mydata);
 	std::cout << mysolver << std::endl;
 
 	/* solve the problem */

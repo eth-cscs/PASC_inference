@@ -2,7 +2,6 @@
 #include "matrix/laplace_explicit_regular.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
-#include "result/qpresult.h"
 
 using namespace pascinference;
 
@@ -49,21 +48,17 @@ int main( int argc, char *argv[] )
 
 	/* add A,b,x0 to data */
 	QPData<Global> data;
-	data.A = &A;
-	data.b = &b;
-	data.x0 = &x0;
+	data.set_A(&A);
+	data.set_b(&b);
+	data.set_x0(&x0);
+	data.set_x(&x);
 
-	/* add x to results */
-	QPResult<Global> result;
-	result.x = &x;
-
-	QPSolver<Global> myqp(data,result);
+	QPSolver<Global> myqp(data);
 
 	myqp.solve(SOLVER_CG);
 
 	/* print some funny info */
 	std::cout << data << std::endl;
-	std::cout << result << std::endl;
 	std::cout << myqp << std::endl;
 	std::cout << x << std::endl;
 
@@ -79,7 +74,7 @@ int main( int argc, char *argv[] )
 	GeneralVector<Host> xh(N); /* solution */
 
 	GeneralVector<Host> x0h(N); /* initial approximation */
-	xh(gall) = 0.0;
+	x0h(gall) = 0.0;
 
 	GeneralVector<Host> bh(N); /* linear term */
 	bh(gall) = 1.0;
@@ -88,21 +83,17 @@ int main( int argc, char *argv[] )
 
 	/* add A,b,x0 to data */
 	QPData<Host> datah;
-	datah.A = &Ah;
-	datah.b = &bh;
-	datah.x0 = &x0h;
+	datah.set_A(&Ah);
+	datah.set_b(&bh);
+	datah.set_x0(&x0h);
+	datah.set_x(&xh);
 
-	/* add x to results */
-	QPResult<Host> resulth;
-	resulth.x = &xh;
-
-	QPSolver<Host> myqph(datah,resulth);
+	QPSolver<Host> myqph(datah);
 
 	myqph.solve(SOLVER_CG);
 
 	/* print some funny info */
 	std::cout << datah << std::endl;
-	std::cout << resulth << std::endl;
 	std::cout << myqph << std::endl;
 	std::cout << xh << std::endl;
 

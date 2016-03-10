@@ -1,5 +1,5 @@
-#ifndef SPGQPSOLVER_H
-#define	SPGQPSOLVER_H
+#ifndef PASC_SPGQPSOLVER_H
+#define	PASC_SPGQPSOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -10,7 +10,6 @@ extern int DEBUG_MODE;
 
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
-#include "result/qpresult.h"
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000;
 #define SPGQPSOLVER_DEFAULT_EPS 0.0001;
@@ -85,7 +84,6 @@ template<class VectorBase>
 class SPGQPSolver: public QPSolver<VectorBase> {
 	protected:
 		const QPData<VectorBase> *data; /* data on which the solver operates */
-		const QPResult<VectorBase> *result; /* here solver stores results */
 	
 		/* temporary vectors used during the solution process */
 		void allocate_temp_vectors();
@@ -102,7 +100,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		SPGQPSolverSetting setting;
 
 		SPGQPSolver();
-		SPGQPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result); 
+		SPGQPSolver(const QPData<VectorBase> &new_data); 
 		~SPGQPSolver();
 
 		void solve();
@@ -129,7 +127,6 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	if(DEBUG_MODE >= 100) std::cout << "(SPGQPSolver)CONSTRUCTOR" << std::endl;
 
 	data = NULL;
-	result = NULL;
 	
 	/* temp vectors */
 	g = NULL;
@@ -140,9 +137,8 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 }
 
 template<class VectorBase>
-SPGQPSolver<VectorBase>::SPGQPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result){
+SPGQPSolver<VectorBase>::SPGQPSolver(const QPData<VectorBase> &new_data){
 	data = &new_data;
-	result = &new_result;
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
@@ -162,7 +158,7 @@ SPGQPSolver<VectorBase>::~SPGQPSolver(){
 /* prepare temp_vectors */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
-	GeneralVector<VectorBase> *pattern = data->b; /* I will allocate temp vectors subject to linear term */
+	GeneralVector<VectorBase> *pattern = data->get_b(); /* I will allocate temp vectors subject to linear term */
 
 	g = new GeneralVector<VectorBase>(*pattern);
 	d = new GeneralVector<VectorBase>(*pattern);
@@ -209,12 +205,12 @@ void SPGQPSolver<VectorBase>::solve() {
 	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
 	/* pointers to data */
-	pMatrix A = *(data->A);
-	pVector b = *(data->b);
-	pVector x0 = *(data->x0);
+	pMatrix A = *(data->get_A());
+	pVector b = *(data->get_b());
+	pVector x0 = *(data->get_x0());
 
-	/* pointer to result */
-	pVector x = *(result->x);
+	/* pointer to solution */
+	pVector x = *(data->get_x());
 
 	/* auxiliary vectors */
 	pVector g = *(this->g); /* gradient */
@@ -237,7 +233,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	alpha_bb = setting.alphainit;
 
 	x = x0; /* set approximation as initial */
-	data->feasibleset->project(x); /* project initial approximation to feasible set */
+	data->get_feasibleset()->project(x); /* project initial approximation to feasible set */
 
 	/* compute gradient, g = A*x-b */
 	g = A*x; 
@@ -256,7 +252,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		d = x - alpha_bb*g;
 
 		/* d = P(d) */
-		data->feasibleset->project(d);
+		data->get_feasibleset()->project(d);
 
 		/* d = d - x */
 		d -= x;
@@ -364,8 +360,8 @@ double SPGQPSolver<VectorBase>::get_function_value(GeneralVector<VectorBase> *px
 	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
 	/* pointers to data */
-	pMatrix A = *(data->A);
-	pVector b = *(data->b);
+	pMatrix A = *(data->get_A());
+	pVector b = *(data->get_b());
 	pVector x = *px;
 	pVector Ax = *(this->temp);
 		
@@ -394,8 +390,8 @@ double SPGQPSolver<VectorBase>::get_function_value(){
 
 	/* pointers to data */
 	pVector g = *(this->g);
-	pVector x = *(result->x);
-	pVector b = *(data->b);
+	pVector x = *(data->get_x());
+	pVector b = *(data->get_b());
 	pVector temp = *(this->temp);
 
 	/* use computed gradient in this->g to compute function value */

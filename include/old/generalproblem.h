@@ -4,7 +4,6 @@
 #include "common.h"
 #include "generaldata.h"
 #include "generalsolver.h"
-#include "generalresult.h"
 
 namespace pascinference {
 

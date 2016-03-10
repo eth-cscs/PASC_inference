@@ -1,7 +1,7 @@
 /** @file generalsolver.h
  *  @brief class for manipulation with solver
  *
- *  Defines the parent class for manipulation with solvers - setting data, algorithm for solving the problem, return results, etc.
+ *  Defines the parent class for manipulation with solvers - setting data, algorithm for solving the problem, return solution, etc.
  *  All specific solvers implementations should be defined as inherited classes from this class.
  *
  *  @author Lukas Pospisil
@@ -15,7 +15,6 @@
 #include "solver/list.h"
 #include "generalsetting.h"
 #include "generaldata.h"
-#include "generalresult.h"
 
 namespace pascinference {
 
@@ -35,17 +34,14 @@ class GeneralSolverSetting : public GeneralSetting {
 class GeneralSolver {
 	protected:
 		const GeneralData *data; /* pointer to data on which the solver operates */
-		const GeneralResult *result; /* here the solver stores the results */
 	public:
 		GeneralSolverSetting setting; // TODO: private?
 
 		GeneralSolver() {
 			data = NULL;
-			result = NULL;
 		};
-		GeneralSolver(const GeneralData &new_data, const GeneralResult &new_result) {
+		GeneralSolver(const GeneralData &new_data) {
 			data = &new_data;
-			result = &new_result;
 		};
 		~GeneralSolver() {};
 

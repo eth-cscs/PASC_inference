@@ -58,7 +58,6 @@
 #include "algebra.h"
 
 #include "generaldata.h"
-#include "generalresult.h"
 #include "generalsolver.h"
 #include "generalfeasibleset.h"
 

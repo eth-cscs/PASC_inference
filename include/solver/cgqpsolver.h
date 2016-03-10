@@ -1,5 +1,5 @@
-#ifndef CGQPSOLVER_H
-#define	CGQPSOLVER_H
+#ifndef PASC_CGQPSOLVER_H
+#define	PASC_CGQPSOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -7,7 +7,6 @@ extern int DEBUG_MODE;
 #include <iostream>
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
-#include "result/qpresult.h"
 
 #define CGQPSOLVER_DEFAULT_MAXIT 1000;
 #define CGQPSOLVER_DEFAULT_EPS 0.0001;
@@ -44,7 +43,6 @@ template<class VectorBase>
 class CGQPSolver: public QPSolver<VectorBase> {
 	protected:
 		const QPData<VectorBase> *data; /* data on which the solver operates */
-		const QPResult<VectorBase> *result; /* here solver stores results */
 	
 		/* temporary vectors used during the solution process */
 		void allocate_temp_vectors();
@@ -57,7 +55,7 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		CGQPSolverSetting setting;
 
 		CGQPSolver();
-		CGQPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result); 
+		CGQPSolver(const QPData<VectorBase> &new_data); 
 		~CGQPSolver();
 
 
@@ -83,7 +81,6 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 	if(DEBUG_MODE >= 100) std::cout << "(CGQPSolver)CONSTRUCTOR" << std::endl;
 
 	data = NULL;
-	result = NULL;
 	
 	/* temp vectors */
 	g = NULL;
@@ -92,9 +89,8 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 }
 
 template<class VectorBase>
-CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_data, const QPResult<VectorBase> &new_result){
+CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_data){
 	data = &new_data;
-	result = &new_result;
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
@@ -114,7 +110,7 @@ CGQPSolver<VectorBase>::~CGQPSolver(){
 /* prepare temp_vectors */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::allocate_temp_vectors(){
-	GeneralVector<VectorBase> *pattern = data->b; /* I will allocate temp vectors subject to linear term */
+	GeneralVector<VectorBase> *pattern = data->get_b(); /* I will allocate temp vectors subject to linear term */
 
 	g = new GeneralVector<VectorBase>(*pattern);
 	p = new GeneralVector<VectorBase>(*pattern);
@@ -160,12 +156,12 @@ void CGQPSolver<VectorBase>::solve() {
 	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
 	/* pointers to data */
-	pMatrix A = *(data->A);
-	pVector b = *(data->b);
-	pVector x0 = *(data->x0);
+	pMatrix A = *(data->get_A());
+	pVector b = *(data->get_b());
+	pVector x0 = *(data->get_x0());
 
-	/* pointer to result */
-	pVector x = *(result->x);
+	/* pointer to solution */
+	pVector x = *(data->get_x());
 
 	/* auxiliary vectors */
 	pVector g = *(this->g); /* gradient */

@@ -9,7 +9,6 @@ extern int DEBUG_MODE;
 #include "algebra.h"
 
 #include "data/tsdata.h"
-#include "result/tsresult.h"
 #include "model/tsmodel.h"
 
 #define TSSOLVER_DEFAULT_MAXIT 1000;
@@ -46,7 +45,6 @@ template<class VectorBase>
 class TSSolver: public GeneralSolver {
 	protected:
 		const TSData<VectorBase> *data; /* data on which the solver operates */
-		const TSResult<VectorBase> *result; /* here solver stores results */
 
 		GeneralSolver *gammasolver; /* to solve inner gamma problem */
 		GeneralSolver *thetasolver; /* to solve inner theta problem */
@@ -57,7 +55,7 @@ class TSSolver: public GeneralSolver {
 		TSSolverSetting setting;
 
 		TSSolver();
-		TSSolver(const TSData<VectorBase> &new_data, const TSResult<VectorBase> &new_result); 
+		TSSolver(const TSData<VectorBase> &new_data); 
 		//TODO: write constructor with given gammasolver and theta solver
 		~TSSolver();
 
@@ -93,7 +91,6 @@ TSSolver<VectorBase>::TSSolver(){
 	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)CONSTRUCTOR" << std::endl;
 	
 	data = NULL;
-	result = NULL;
 	model = NULL;
 	gammasolver = NULL; /* in this time, we don't know how to solve the problem */
 	thetasolver = NULL; /* in this time, we don't know how to solve the problem */
@@ -101,14 +98,13 @@ TSSolver<VectorBase>::TSSolver(){
 }
 
 template<class VectorBase>
-TSSolver<VectorBase>::TSSolver(const TSData<VectorBase> &new_data, const TSResult<VectorBase> &new_result){
+TSSolver<VectorBase>::TSSolver(const TSData<VectorBase> &new_data){
 	data = &new_data;
-	result = &new_result;
-	model = data->get_model(); // TODO: compare data->get_model() and result->get_model(), these should be the same
+	model = data->get_model(); 
 
 	/* we can initialize solvers - based on model */
-	model->initialize_gammasolver(&gammasolver, data, result);	
-	model->initialize_thetasolver(&thetasolver, data, result);	
+	model->initialize_gammasolver(&gammasolver, data);	
+	model->initialize_thetasolver(&thetasolver, data);	
 	
 }
 
@@ -119,10 +115,10 @@ TSSolver<VectorBase>::~TSSolver(){
 
 	/* destroy child solvers - based on model*/
 	if(gammasolver){
-		model->finalize_gammasolver(&gammasolver, data, result);	
+		model->finalize_gammasolver(&gammasolver, data);	
 	}
 	if(thetasolver){
-		model->finalize_thetasolver(&thetasolver, data, result);	
+		model->finalize_thetasolver(&thetasolver, data);	
 	}
 	
 }
@@ -168,7 +164,7 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 
 	/* the gamma or theta solver wasn't specified yet */
 	if(!gammasolver || !thetasolver){
-		// TODO: give error - actually, gamma and theta solvers are created during constructor with data and results - now we don't have data, there is nothing to solve
+		// TODO: give error - actually, gamma and theta solvers are created during constructor with data - now we don't have data, there is nothing to solve
 	}
 
 	/* which specific solver we can use to solve the problem? */

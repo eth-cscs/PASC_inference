@@ -1,10 +1,9 @@
 #include "pascinference.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
-#include "result/qpresult.h"
 
 #include "matrix/blockdiaglaplace_explicit.h"
-#include "feasibleset/simplexfeasibleset.h"
+#include "feasibleset/simplex.h"
 
 
 using namespace pascinference;
@@ -46,25 +45,22 @@ int main( int argc, char *argv[] )
 
 	/* add A,b,x0, to data */
 	QPData<Global> data;
-	data.A = &A;
-	data.b = &b;
-	data.x0 = &x0;
-	data.feasibleset = &feasibleset;
-
-	/* add x to results */
-	QPResult<Global> result;
-	result.x = &x;
+	data.set_A(&A);
+	data.set_b(&b);
+	data.set_x0(&x0);
+	data.set_feasibleset(&feasibleset);
+	data.set_x(&x);
 
 	/* prepare solver */
-	QPSolver<Global> myqp(data,result);
+	QPSolver<Global> myqp(data);
 
 	/* solve the problem */
 	pascinference::DEBUG_MODE = 10;
 	myqp.solve(SOLVER_SPGQP);
 	pascinference::DEBUG_MODE = 0;
 
-	/* print results */
-	std::cout << *(result.x) << std::endl;
+	/* print solution */
+	std::cout << *(data.get_x()) << std::endl;
 
 	/* say bye */	
 	Message("- end program");

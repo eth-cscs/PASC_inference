@@ -105,12 +105,11 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel){
 	/* set initial content */
 	this->tsmodel = &tsmodel;
 
-	/* prepare new datavector */
+	/* prepare new datavectors */
 	int datavector_length = this->tsmodel->get_datavectorlength();
 	this->datavector = new GeneralVector<VectorBase>(datavector_length);
 	destroy_datavector = true;
 	
-	/* prepare new result vectors */
 	int gammavector_length = this->tsmodel->get_gammavectorlength();
 	this->gammavector = new GeneralVector<VectorBase>(gammavector_length);
 	destroy_gammavector = true;

@@ -13,7 +13,7 @@
 #define DEFAULT_DEBUG_MODE 0
 
 #define RANDOM_BY_TIME false /* if false, then random generator is initialized subject to time, else generated random data are always the same */
-#define EXPORT_SAVEVTK true /* export results to VTK */
+#define EXPORT_SAVEVTK true /* export solution to VTK */
 #define EXPORT_SAVEVTK_filename "output/data.vtk" /* name of file to export VTK */
 
 

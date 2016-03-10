@@ -16,19 +16,15 @@ extern int DEBUG_MODE;
 #include <iostream>
 #include "algebra.h"
 #include "generalmodel.h"
-
 #include "generalsolver.h"
 #include "generaldata.h"
-#include "generalresult.h"
 
 #include "data/tsdata.h"
-#include "result/tsresult.h"
 
 namespace pascinference {
 
 /* Maybe these classes are not defined yet */ 
 template<class VectorBase> class TSData;
-template<class VectorBase> class TSResult;
 
 /** \class TSModel
  *  \brief General class for manipulation with time-series models.
@@ -62,36 +58,36 @@ class TSModel: public GeneralModel {
 		
 		/** @brief alloc memory for gamma solver
 		 *  
-		 *  Allocate memory for all data and results of gamma problem.
+		 *  Allocate memory for all data of gamma problem.
 		 * 
 		 */ 
-		virtual void initialize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+		virtual void initialize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
 				*gammasolver = NULL;
 		};
 
 		/** @brief alloc memory for Theta solver
 		 *  
-		 *  Allocate memory for all data and results of Theta problem.
+		 *  Allocate memory for all data of Theta problem.
 		 * 
 		 */ 
-		virtual void initialize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+		virtual void initialize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 				*thetasolver = NULL;
 		};
 
 		/** @brief free memory of gamma solver
 		 *  
-		 *  Deallocate memory for all data and results of gamma problem.
+		 *  Deallocate memory for all data of gamma problem.
 		 * 
 		 */ 
-		virtual void finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+		virtual void finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
 		};
 
 		/** @brief free memory of Theta solver
 		 *  
-		 *  Deallocate memory for all data and results of Theta problem.
+		 *  Deallocate memory for all data of Theta problem.
 		 * 
 		 */ 
-		virtual void finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata, const TSResult<VectorBase> *tsresult){
+		virtual void finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 		};
 
 

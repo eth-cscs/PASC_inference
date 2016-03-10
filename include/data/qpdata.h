@@ -20,8 +20,8 @@ class QPData: public GeneralData {
 		GeneralVector<VectorBase> *b; /* RHS vector, linear term */
 		GeneralVector<VectorBase> *x0; /* initial approximation */
 		GeneralVector<VectorBase> *x; /* solution */
-
 		GeneralFeasibleSet<VectorBase> *feasibleset; /* feasible set */
+
 	public:
 		QPData();
 		~QPData();
@@ -30,19 +30,19 @@ class QPData: public GeneralData {
 		std::string get_name() const;
 
 		/* set and get functions */
-		void set_A(GeneralMatrix<VectorBase> *A) const;
+		void set_A(GeneralMatrix<VectorBase> *A);
 		GeneralMatrix<VectorBase> *get_A() const;
 
-		void set_b(GeneralVector<VectorBase> *b) const;
+		void set_b(GeneralVector<VectorBase> *b);
 		GeneralVector<VectorBase> *get_b() const;
 
-		void set_x0(GeneralVector<VectorBase> *x0) const;
+		void set_x0(GeneralVector<VectorBase> *x0);
 		GeneralVector<VectorBase> *get_x0() const;
 
-		void set_x(GeneralVector<VectorBase> *x) const;
+		void set_x(GeneralVector<VectorBase> *x);
 		GeneralVector<VectorBase> *get_x() const;
 
-		void set_feasibleset(GeneralFeasibleSet<VectorBase> *x0) const;
+		void set_feasibleset(GeneralFeasibleSet<VectorBase> *x0);
 		GeneralFeasibleSet<VectorBase> *get_feasibleset() const;
 
 
@@ -101,7 +101,7 @@ void QPData<VectorBase>::print(std::ostream &output) const {
 	} else {
 		output << "NO" << std::endl;
 	}
-	output << "  - x:           ";
+	output << "  - x:            ";
 	if(this->x0){
 		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
@@ -123,8 +123,8 @@ std::string QPData<VectorBase>::get_name() const {
 
 /* ----- SET and GET functions --- */
 template<class VectorBase>
-void QPData<VectorBase>::set_A(GeneralMatrix<VectorBase> *A) const{
-	this->A = A;
+void QPData<VectorBase>::set_A(GeneralMatrix<VectorBase> *newA){
+	this->A = newA;
 }
 
 template<class VectorBase>
@@ -133,7 +133,7 @@ GeneralMatrix<VectorBase> *QPData<VectorBase>::get_A() const{
 }
 
 template<class VectorBase>
-void QPData<VectorBase>::set_b(GeneralVector<VectorBase> *b) const{
+void QPData<VectorBase>::set_b(GeneralVector<VectorBase> *b){
 	this->b = b;
 }
 
@@ -143,7 +143,7 @@ GeneralVector<VectorBase> *QPData<VectorBase>::get_b() const{
 }
 
 template<class VectorBase>
-void QPData<VectorBase>::set_x0(GeneralVector<VectorBase> *x0) const{
+void QPData<VectorBase>::set_x0(GeneralVector<VectorBase> *x0){
 	this->x0 = x0;
 }
 
@@ -153,7 +153,7 @@ GeneralVector<VectorBase> *QPData<VectorBase>::get_x0() const{
 }
 
 template<class VectorBase>
-void QPData<VectorBase>::set_x(GeneralVector<VectorBase> *x) const{
+void QPData<VectorBase>::set_x(GeneralVector<VectorBase> *x){
 	this->x = x;
 }
 
@@ -163,7 +163,7 @@ GeneralVector<VectorBase> *QPData<VectorBase>::get_x() const{
 }
 
 template<class VectorBase>
-void QPData<VectorBase>::set_feasibleset(GeneralFeasibleSet<VectorBase> *feasibleset) const{
+void QPData<VectorBase>::set_feasibleset(GeneralFeasibleSet<VectorBase> *feasibleset){
 	this->feasibleset = feasibleset;
 }
 
