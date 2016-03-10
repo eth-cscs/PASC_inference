@@ -1,0 +1,5 @@
+<map id="pascinference::GeneralSolver" name="pascinference::GeneralSolver">
+<area shape="rect" id="node2" href="$classpascinference_1_1GeneralData.html" title="{pascinference::GeneralData\n||+ GeneralData()\l+ ~GeneralData()\l+ print()\l+ get_name()\l}" alt="" coords="5,161,189,283"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n||+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="214,161,407,283"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l}" alt="" coords="212,5,409,112"/>
+</map>

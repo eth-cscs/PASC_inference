@@ -1,0 +1,7 @@
+<map id="pascinference::TSSolver&lt; VectorBase &gt;" name="pascinference::TSSolver&lt; VectorBase &gt;">
+<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolver.html" title="{pascinference::GeneralSolver\n||+ GeneralSolver()\l+ GeneralSolver()\l+ ~GeneralSolver()\l+ print()\l+ get_name()\l+ solve()\l+ solve()\l}" alt="" coords="5,345,199,511"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1GeneralData.html" title="{pascinference::GeneralData\n||+ GeneralData()\l+ ~GeneralData()\l+ print()\l+ get_name()\l}" alt="" coords="10,161,194,283"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n||+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="224,161,417,283"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1TSSolverSetting.html" title="{pascinference::TSSolverSetting\n|# maxit\l# eps\l|+ TSSolverSetting()\l+ ~TSSolverSetting()\l+ print()\l}" alt="" coords="223,367,429,489"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l}" alt="" coords="222,5,419,112"/>
+</map>

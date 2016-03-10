@@ -1,0 +1,25 @@
+<map id="include/generaldata.h" name="include/generaldata.h">
+<area shape="rect" id="node2" href="$diagdata_8h.html" title="include/data/diagdata.h" alt="" coords="2055,155,2211,181"/>
+<area shape="rect" id="node7" href="$qpdata_8h.html" title="include/data/qpdata.h" alt="" coords="393,80,540,107"/>
+<area shape="rect" id="node13" href="$tsdata_8h.html" title="include/data/tsdata.h" alt="" coords="1889,155,2031,181"/>
+<area shape="rect" id="node14" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="1773,229,1936,256"/>
+<area shape="rect" id="node16" href="$generalsolver_8h.html" title="class for manipulation with solver " alt="" coords="1659,155,1813,181"/>
+<area shape="rect" id="node17" href="$pascinference_8h.html" title="main header file " alt="" coords="1218,229,1377,256"/>
+<area shape="rect" id="node3" href="$kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="2070,304,2247,331"/>
+<area shape="rect" id="node6" href="$diagsolver_8h.html" title="include/solver/diagsolver.h" alt="" coords="2011,229,2187,256"/>
+<area shape="rect" id="node4" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="1877,379,2051,405"/>
+<area shape="rect" id="node5" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="1873,453,2055,480"/>
+<area shape="rect" id="node8" href="$test__cg_8cu.html" title="examples/test_cg.cu" alt="" coords="217,304,359,331"/>
+<area shape="rect" id="node9" href="$test__spgqp_8cu.html" title="examples/test_spgqp.cu" alt="" coords="383,304,547,331"/>
+<area shape="rect" id="node10" href="$cgqpsolver_8h.html" title="include/solver/cgqpsolver.h" alt="" coords="377,155,557,181"/>
+<area shape="rect" id="node11" href="$qpsolver_8h.html" title="include/solver/qpsolver.h" alt="" coords="382,229,549,256"/>
+<area shape="rect" id="node12" href="$spgqpsolver_8h.html" title="include/solver/spgqpsolver.h" alt="" coords="5,304,192,331"/>
+<area shape="rect" id="node15" href="$tssolver_8h.html" title="include/solver/tssolver.h" alt="" coords="1883,304,2045,331"/>
+<area shape="rect" id="node18" href="$kmeans2D_8h.html" title="examples/include/kmeans2D.h" alt="" coords="1657,304,1858,331"/>
+<area shape="rect" id="node19" href="$test__algebra_8cpp.html" title="test matrix&#45;vector multiplication " alt="" coords="1208,304,1387,331"/>
+<area shape="rect" id="node20" href="$test__algebra_8cu.html" title="examples/test_algebra.cu" alt="" coords="1411,304,1581,331"/>
+<area shape="rect" id="node21" href="$test__filecrsmatrix_8cu.html" title="examples/test_filecrsmatrix.cu" alt="" coords="752,304,952,331"/>
+<area shape="rect" id="node22" href="$test__laplacematrix_8cu.html" title="examples/test_laplacematrix.cu" alt="" coords="977,304,1183,331"/>
+<area shape="rect" id="node23" href="$libpascinference_8cu.html" title="src/libpascinference.cu" alt="" coords="571,304,727,331"/>
+<area shape="rect" id="node24" href="$libpascinference_8cpp.html" title="src/libpascinference.cpp" alt="" coords="568,379,731,405"/>
+</map>

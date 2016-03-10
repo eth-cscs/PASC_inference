@@ -1,0 +1,8 @@
+<map id="pascinference::GeneralSolverSetting" name="pascinference::GeneralSolverSetting">
+<area shape="rect" id="node3" href="$classpascinference_1_1DiagSolverSetting.html" title="{pascinference::DiagSolver\lSetting\n|# maxit\l# eps\l|+ DiagSolverSetting()\l+ ~DiagSolverSetting()\l+ print()\l}" alt="" coords="5,329,180,465"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1QPSolverSetting.html" title="{pascinference::QPSolverSetting\n|# maxit\l# eps\l|+ QPSolverSetting()\l+ ~QPSolverSetting()\l+ print()\l}" alt="" coords="205,337,413,458"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1TSSolverSetting.html" title="{pascinference::TSSolverSetting\n|# maxit\l# eps\l|+ TSSolverSetting()\l+ ~TSSolverSetting()\l+ print()\l}" alt="" coords="437,337,644,458"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l}" alt="" coords="210,5,407,112"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1CGQPSolverSetting.html" title="{pascinference::CGQPSolver\lSetting\n|+ maxit\l+ eps\l+ debug_mode\l|+ CGQPSolverSetting()\l+ ~CGQPSolverSetting()\l+ print()\l}" alt="" coords="109,543,295,693"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1SPGQPSolverSetting.html" title="{pascinference::SPGQPSolver\lSetting\n|+ maxit\l+ eps\l+ debug_mode\l+ m\l+ gamma\l+ sigma2\l+ alphainit\l|+ SPGQPSolverSetting()\l+ ~SPGQPSolverSetting()\l+ print()\l}" alt="" coords="319,513,514,723"/>
+</map>

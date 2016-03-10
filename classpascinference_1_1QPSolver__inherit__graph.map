@@ -1,0 +1,5 @@
+<map id="pascinference::QPSolver&lt; VectorBase &gt;" name="pascinference::QPSolver&lt; VectorBase &gt;">
+<area shape="rect" id="node3" href="$classpascinference_1_1CGQPSolver.html" title="{pascinference::CGQPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# g\l# p\l# Ap\l|+ CGQPSolver()\l+ CGQPSolver()\l+ ~CGQPSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l# allocate_temp_vectors()\l# free_temp_vectors()\l}" alt="" coords="5,513,192,781"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1SPGQPSolver.html" title="{pascinference::SPGQPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# g\l# d\l# Ad\l# temp\l|+ SPGQPSolver()\l+ SPGQPSolver()\l+ ~SPGQPSolver()\l+ solve()\l+ solve()\l+ get_function_value()\l+ print()\l+ get_name()\l# allocate_temp_vectors()\l# free_temp_vectors()\l# get_function_value()\l}" alt="" coords="216,491,411,803"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolver.html" title="{pascinference::GeneralSolver\n|+ setting\l# data\l|+ GeneralSolver()\l+ GeneralSolver()\l+ ~GeneralSolver()\l+ print()\l+ get_name()\l+ solve()\l+ solve()\l}" alt="" coords="109,5,302,185"/>
+</map>

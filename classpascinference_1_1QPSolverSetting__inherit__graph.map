@@ -1,0 +1,6 @@
+<map id="pascinference::QPSolverSetting" name="pascinference::QPSolverSetting">
+<area shape="rect" id="node4" href="$classpascinference_1_1CGQPSolverSetting.html" title="{pascinference::CGQPSolver\lSetting\n|+ maxit\l+ eps\l+ debug_mode\l|+ CGQPSolverSetting()\l+ ~CGQPSolverSetting()\l+ print()\l}" alt="" coords="5,528,192,679"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1SPGQPSolverSetting.html" title="{pascinference::SPGQPSolver\lSetting\n|+ maxit\l+ eps\l+ debug_mode\l+ m\l+ gamma\l+ sigma2\l+ alphainit\l|+ SPGQPSolverSetting()\l+ ~SPGQPSolverSetting()\l+ print()\l}" alt="" coords="216,499,411,708"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n||+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="109,160,302,281"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l}" alt="" coords="107,5,304,112"/>
+</map>

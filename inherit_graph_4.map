@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classpascinference_1_1GeneralMatrix.html" title="pascinference::GeneralMatrix\l\&lt; VectorBase \&gt;" alt="" coords="5,118,197,159"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1BlockDiagLaplaceExplicitMatrix.html" title="pascinference::BlockDiag\lLaplaceExplicitMatrix\l\&lt; VectorBase \&gt;" alt="" coords="259,5,430,61"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1FileCRSMatrix.html" title="pascinference::FileCRSMatrix\l\&lt; VectorBase \&gt;" alt="" coords="246,85,443,126"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1LaplaceExplicitMatrix.html" title="pascinference::LaplaceExplicit\lMatrix\&lt; VectorBase \&gt;" alt="" coords="245,150,444,191"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1LaplaceExplicitRegularMatrix.html" title="pascinference::LaplaceExplicit\lRegularMatrix\&lt; VectorBase \&gt;" alt="" coords="245,215,444,257"/>
+</map>

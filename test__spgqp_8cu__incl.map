@@ -1,0 +1,18 @@
+<map id="examples/test_spgqp.cu" name="examples/test_spgqp.cu">
+<area shape="rect" id="node2" href="$pascinference_8h.html" title="main header file " alt="" coords="398,229,513,256"/>
+<area shape="rect" id="node18" href="$qpsolver_8h.html" title="solver/qpsolver.h" alt="" coords="1172,80,1293,107"/>
+<area shape="rect" id="node19" href="$qpdata_8h.html" title="data/qpdata.h" alt="" coords="1053,229,1154,256"/>
+<area shape="rect" id="node24" href="$blockdiaglaplace__explicit_8h.html" title="matrix/blockdiaglaplace\l_explicit.h" alt="" coords="1543,304,1701,345"/>
+<area shape="rect" id="node25" href="$simplex_8h.html" title="feasibleset/simplex.h" alt="" coords="883,229,1028,256"/>
+<area shape="rect" id="node9" href="$common_8h.html" title="commonly used stuff " alt="" coords="587,468,670,495"/>
+<area shape="rect" id="node10" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="923,393,998,420"/>
+<area shape="rect" id="node13" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="748,393,848,420"/>
+<area shape="rect" id="node14" href="$generalsolver_8h.html" title="class for manipulation with solver " alt="" coords="525,311,636,338"/>
+<area shape="rect" id="node17" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="813,311,951,338"/>
+<area shape="rect" id="node11" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="767,468,877,495"/>
+<area shape="rect" id="node12" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="901,468,1012,495"/>
+<area shape="rect" id="node15" href="$list_8h.html" title="solver/list.h" alt="" coords="635,393,724,420"/>
+<area shape="rect" id="node16" href="$generalsetting_8h.html" title="general solver settings " alt="" coords="495,393,610,420"/>
+<area shape="rect" id="node20" href="$cgqpsolver_8h.html" title="solver/cgqpsolver.h" alt="" coords="1165,155,1300,181"/>
+<area shape="rect" id="node21" href="$spgqpsolver_8h.html" title="solver/spgqpsolver.h" alt="" coords="1324,155,1467,181"/>
+</map>

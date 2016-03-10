@@ -1,0 +1,5 @@
+<map id="pascinference::GeneralData" name="pascinference::GeneralData">
+<area shape="rect" id="node2" href="$classpascinference_1_1DiagData.html" title="solve a.*x=b " alt="" coords="5,226,172,479"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1QPData.html" title="{pascinference::QPData\l\&lt; VectorBase \&gt;\n|&#45; A\l&#45; b\l&#45; x0\l&#45; x\l&#45; feasibleset\l|+ QPData()\l+ ~QPData()\l+ print()\l+ get_name()\l+ set_A()\l+ get_A()\l+ set_b()\l+ get_b()\l+ set_x0()\l+ get_x0()\l+ set_x()\l+ get_x()\l+ set_feasibleset()\l+ get_feasibleset()\l}" alt="" coords="196,182,355,523"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1TSData.html" title="{pascinference::TSData\l\&lt; VectorBase \&gt;\n|# tsmodel\l# datavector\l# destroy_datavector\l# gammavector\l# destroy_thetavector\l# thetavector\l# destroy_gammavector\l|+ TSData()\l+ TSData()\l+ TSData()\l+ ~TSData()\l+ print()\l+ get_name()\l+ get_T()\l+ get_dim()\l+ get_K()\l+ get_model()\l+ get_datavector()\l+ get_gammavector()\l+ get_thetavector()\l}" alt="" coords="379,175,542,531"/>
+</map>

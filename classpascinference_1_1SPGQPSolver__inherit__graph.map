@@ -1,0 +1,4 @@
+<map id="pascinference::SPGQPSolver&lt; VectorBase &gt;" name="pascinference::SPGQPSolver&lt; VectorBase &gt;">
+<area shape="rect" id="node2" href="$classpascinference_1_1QPSolver.html" title="{pascinference::QPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# child_solver\l|+ QPSolver()\l+ QPSolver()\l+ ~QPSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l}" alt="" coords="19,233,186,443"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSolver.html" title="{pascinference::GeneralSolver\n|+ setting\l# data\l|+ GeneralSolver()\l+ GeneralSolver()\l+ ~GeneralSolver()\l+ print()\l+ get_name()\l+ solve()\l+ solve()\l}" alt="" coords="6,5,199,185"/>
+</map>

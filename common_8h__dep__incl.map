@@ -1,0 +1,35 @@
+<map id="include/common.h" name="include/common.h">
+<area shape="rect" id="node2" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="879,80,999,107"/>
+<area shape="rect" id="node18" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1277,155,1459,181"/>
+<area shape="rect" id="node19" href="$pascinference_8h.html" title="main header file " alt="" coords="1550,237,1709,263"/>
+<area shape="rect" id="node27" href="$generalsolver_8h.html" title="class for manipulation with solver " alt="" coords="531,155,685,181"/>
+<area shape="rect" id="node32" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="417,80,562,107"/>
+<area shape="rect" id="node33" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="131,80,285,107"/>
+<area shape="rect" id="node34" href="$generalsetting_8h.html" title="general solver settings " alt="" coords="586,80,745,107"/>
+<area shape="rect" id="node3" href="$diagdata_8h.html" title="include/data/diagdata.h" alt="" coords="350,155,506,181"/>
+<area shape="rect" id="node4" href="$kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="438,483,615,509"/>
+<area shape="rect" id="node7" href="$diagsolver_8h.html" title="include/solver/diagsolver.h" alt="" coords="513,237,689,263"/>
+<area shape="rect" id="node8" href="$qpdata_8h.html" title="include/data/qpdata.h" alt="" coords="865,237,1012,263"/>
+<area shape="rect" id="node12" href="$qpsolver_8h.html" title="include/solver/qpsolver.h" alt="" coords="726,401,893,427"/>
+<area shape="rect" id="node14" href="$tsdata_8h.html" title="include/data/tsdata.h" alt="" coords="183,155,326,181"/>
+<area shape="rect" id="node15" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="5,237,168,263"/>
+<area shape="rect" id="node16" href="$tssolver_8h.html" title="include/solver/tssolver.h" alt="" coords="175,319,337,345"/>
+<area shape="rect" id="node17" href="$simplex_8h.html" title="include/feasibleset\l/simplex.h" alt="" coords="1115,393,1245,435"/>
+<area shape="rect" id="node28" href="$blockdiaglaplace__explicit_8h.html" title="include/matrix/blockdiaglaplace\l_explicit.h" alt="" coords="2337,229,2540,271"/>
+<area shape="rect" id="node29" href="$filecrs_8h.html" title="include/matrix/filecrs.h" alt="" coords="1483,155,1637,181"/>
+<area shape="rect" id="node30" href="$laplace__explicit_8h.html" title="include/matrix/laplace\l_explicit.h" alt="" coords="1186,229,1334,271"/>
+<area shape="rect" id="node31" href="$laplace__explicit__regular_8h.html" title="include/matrix/laplace\l_explicit_regular.h" alt="" coords="1906,393,2054,435"/>
+<area shape="rect" id="node5" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="439,557,614,584"/>
+<area shape="rect" id="node6" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="435,632,618,659"/>
+<area shape="rect" id="node9" href="$test__cg_8cu.html" title="examples/test_cg.cu" alt="" coords="973,483,1115,509"/>
+<area shape="rect" id="node10" href="$test__spgqp_8cu.html" title="examples/test_spgqp.cu" alt="" coords="1139,483,1303,509"/>
+<area shape="rect" id="node11" href="$cgqpsolver_8h.html" title="include/solver/cgqpsolver.h" alt="" coords="767,319,947,345"/>
+<area shape="rect" id="node13" href="$spgqpsolver_8h.html" title="include/solver/spgqpsolver.h" alt="" coords="711,483,897,509"/>
+<area shape="rect" id="node20" href="$kmeans2D_8h.html" title="examples/include/kmeans2D.h" alt="" coords="2565,401,2766,427"/>
+<area shape="rect" id="node21" href="$test__algebra_8cpp.html" title="test matrix&#45;vector multiplication " alt="" coords="1369,319,1548,345"/>
+<area shape="rect" id="node22" href="$test__algebra_8cu.html" title="examples/test_algebra.cu" alt="" coords="1175,319,1345,345"/>
+<area shape="rect" id="node23" href="$test__filecrsmatrix_8cu.html" title="examples/test_filecrsmatrix.cu" alt="" coords="1956,319,2156,345"/>
+<area shape="rect" id="node24" href="$test__laplacematrix_8cu.html" title="examples/test_laplacematrix.cu" alt="" coords="2181,319,2387,345"/>
+<area shape="rect" id="node25" href="$libpascinference_8cu.html" title="src/libpascinference.cu" alt="" coords="1623,319,1779,345"/>
+<area shape="rect" id="node26" href="$libpascinference_8cpp.html" title="src/libpascinference.cpp" alt="" coords="1617,401,1780,427"/>
+</map>

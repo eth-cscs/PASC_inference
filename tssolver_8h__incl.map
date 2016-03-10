@@ -1,0 +1,13 @@
+<map id="include/solver/tssolver.h" name="include/solver/tssolver.h">
+<area shape="rect" id="node3" href="$generalsolver_8h.html" title="class for manipulation with solver " alt="" coords="333,229,443,256"/>
+<area shape="rect" id="node5" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="573,304,648,331"/>
+<area shape="rect" id="node11" href="$tsdata_8h.html" title="data/tsdata.h" alt="" coords="204,80,303,107"/>
+<area shape="rect" id="node12" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="194,155,313,181"/>
+<area shape="rect" id="node4" href="$common_8h.html" title="commonly used stuff " alt="" coords="241,379,324,405"/>
+<area shape="rect" id="node8" href="$list_8h.html" title="solver/list.h" alt="" coords="321,304,410,331"/>
+<area shape="rect" id="node9" href="$generalsetting_8h.html" title="general solver settings " alt="" coords="435,304,549,331"/>
+<area shape="rect" id="node10" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="94,304,194,331"/>
+<area shape="rect" id="node6" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="537,379,647,405"/>
+<area shape="rect" id="node7" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="402,379,513,405"/>
+<area shape="rect" id="node13" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="198,229,309,256"/>
+</map>
