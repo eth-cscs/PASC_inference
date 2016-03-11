@@ -35,13 +35,13 @@ class DiagSolverSetting : public GeneralSolverSetting {
 template<class VectorBase>
 class DiagSolver: public GeneralSolver {
 	protected:
-		const DiagData<VectorBase> *data; /* data on which the solver operates */
+		DiagData<VectorBase> *diagdata; /* data on which the solver operates */
 
 	public:
 		DiagSolverSetting setting;
 
 		DiagSolver();
-		DiagSolver(const DiagData<VectorBase> &new_data); 
+		DiagSolver(DiagData<VectorBase> &new_diagdata); 
 		~DiagSolver();
 
 		virtual void solve(SolverType solvertype);
@@ -49,6 +49,8 @@ class DiagSolver: public GeneralSolver {
 
 		virtual void print(std::ostream &output) const;
 		virtual std::string get_name() const;
+
+		virtual DiagData<VectorBase> *get_data() const;
 
 };
 
@@ -64,12 +66,12 @@ template<class VectorBase>
 DiagSolver<VectorBase>::DiagSolver(){
 	if(DEBUG_MODE >= 100) std::cout << "(DiagSolver)CONSTRUCTOR" << std::endl;
 	
-	data = NULL;
+	diagdata = NULL;
 }
 
 template<class VectorBase>
-DiagSolver<VectorBase>::DiagSolver(const DiagData<VectorBase> &new_data){
-	data = &new_data;
+DiagSolver<VectorBase>::DiagSolver(DiagData<VectorBase> &new_diagdata){
+	diagdata = &new_diagdata;
 }
 
 /* destructor */
@@ -90,7 +92,7 @@ void DiagSolver<VectorBase>::print(std::ostream &output) const {
 	output << setting;
 
 	/* print data */
-	output << *data;
+	output << *diagdata;
 	
 }
 
@@ -99,22 +101,71 @@ std::string DiagSolver<VectorBase>::get_name() const {
 	return "Diagonal Solver";
 }
 
-/* solve the problem */
 template<class VectorBase>
-void DiagSolver<VectorBase>::solve(SolverType solvertype) {
+DiagData<VectorBase> *DiagSolver<VectorBase>::get_data() const {
+	return diagdata;
+}
+
+/* ---------- PETSCVECTOR ------------ */
+#ifdef USE_PETSCVECTOR
+typedef petscvector::PetscVector PetscVector;
+
+/* Petsc: constructor from given right PetscVector */
+template<>
+void DiagSolver<PetscVector>::solve(SolverType solvertype) {
 	if(DEBUG_MODE >= 100) std::cout << "(DiagSolver)FUNCTION: solve" << std::endl;
 
-	typedef GeneralVector<VectorBase> (&pVector);
+	TRY( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );
 
-	/* pointers to data */
-	pVector a = *(data->get_a());
-	pVector b = *(data->get_b());
-	pVector x = *(data->get_x());
-	
-	x = a/b;
+	diagdata->get_x()->valuesUpdate();
 	
 }
 
+#endif
+
+/* --------------- MINLIN ----------------- */
+#ifdef USE_MINLIN
+
+typedef minlin::threx::HostVector<double> MinlinHostVector;
+typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
+
+template<>
+void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
+	if(DEBUG_MODE >= 100) std::cout << "(DiagSolver)FUNCTION: solve" << std::endl;
+
+	typedef GeneralVector<MinlinHostVector> (&pVector);
+
+	/* pointers to data */
+	pVector a = *(diagdata->get_a());
+	pVector b = *(diagdata->get_b());
+	pVector x = *(diagdata->get_x());
+	
+	int i;
+	for(i=0;i<x.size();i++){
+		x(i) = b(i)/a(i);
+	}
+	
+}
+
+template<>
+void DiagSolver<MinlinDeviceVector>::solve(SolverType solvertype) {
+	if(DEBUG_MODE >= 100) std::cout << "(DiagSolver)FUNCTION: solve" << std::endl;
+
+	typedef GeneralVector<MinlinDeviceVector> (&pVector);
+
+	/* pointers to data */
+	pVector a = *(diagdata->get_a());
+	pVector b = *(diagdata->get_b());
+	pVector x = *(diagdata->get_x());
+	
+	int i;
+	for(i=0;i<x.size();i++){
+		x(i) = b(i)/a(i);
+	}
+	
+}
+
+#endif
 
 } /* end namespace */
 

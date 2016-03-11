@@ -11,8 +11,7 @@ void Theta::init(int dim, int K){
 
 }
 
-void Theta::finalize()
-{
+void Theta::finalize(){
 
 }
 	

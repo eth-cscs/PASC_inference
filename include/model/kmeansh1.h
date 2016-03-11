@@ -27,8 +27,9 @@ class KmeansH1Model: public TSModel<VectorBase> {
 		QPData<VectorBase> *gammadata;
 		DiagData<VectorBase> *thetadata;
 
+		double penalty;
 	public:
-		KmeansH1Model(int T, int dim, int K);
+		KmeansH1Model(int T, int dim, int K, double penalty);
 		~KmeansH1Model();
 
 		void print(std::ostream &output) const;
@@ -49,6 +50,7 @@ class KmeansH1Model: public TSModel<VectorBase> {
 	
 		void generate_data(TSData<VectorBase> *tsdata);
 
+		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata);
 
 };
 
@@ -61,7 +63,7 @@ namespace pascinference {
 
 /* constructor */
 template<class VectorBase>
-KmeansH1Model<VectorBase>::KmeansH1Model(int newT, int newdim, int newK) {
+KmeansH1Model<VectorBase>::KmeansH1Model(int newT, int newdim, int newK, double penalty) {
 	if(DEBUG_MODE >= 100) std::cout << "(KmeansH1Model)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
@@ -69,6 +71,7 @@ KmeansH1Model<VectorBase>::KmeansH1Model(int newT, int newdim, int newK) {
 	this->K = newK;
 	this->dim = newdim;
 
+	this->penalty = penalty;
 }
 
 /* destructor */
@@ -90,6 +93,7 @@ void KmeansH1Model<VectorBase>::print(std::ostream &output) const {
 	output << "  - T:    " << this->T << std::endl;
 	output << "  - K:    " << this->K << std::endl;
 	output << "  - dim:  " << this->dim << std::endl;
+	output << "  - penalty:  " << this->penalty << std::endl;
 		
 }
 
@@ -128,12 +132,18 @@ void KmeansH1Model<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolv
 	gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<VectorBase>(*gammadata->get_x0())); /* create new linear term of QP problem */
-	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<VectorBase>(*gammadata->get_x0(),this->K)); /* create new blockdiagonal matrix */
+	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<VectorBase>(*gammadata->get_x0(),this->K, this->penalty)); /* create new blockdiagonal matrix */
 	gammadata->set_feasibleset(new SimplexFeasibleSet<VectorBase>(this->T,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
 	*gammasolver = new QPSolver<VectorBase>(*gammadata);
 	
+	/* generate random data to gamma */
+	gammadata->get_x0()->set_random();
+
+	/* project random values to feasible set */
+	gammadata->get_feasibleset()->project(*gammadata->get_x0());
+
 }
 
 /* prepare theta solver */
@@ -145,6 +155,7 @@ void KmeansH1Model<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolv
 	thetadata = new DiagData<VectorBase>();
 	thetadata->set_a(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
 	thetadata->set_b(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
+	thetadata->set_x(tsdata->get_thetavector());
 
 	/* create solver */
 	*thetasolver = new DiagSolver<VectorBase>(*thetadata);
@@ -186,16 +197,71 @@ template<class VectorBase>
 void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
 	/* update gamma_solver data - prepare new linear term */
 
+	typedef GeneralVector<VectorBase> (&pVector);
+
+	/* pointers to data */
+	pVector theta = *(tsdata->get_thetavector());
+	pVector data = *(tsdata->get_datavector());
+	pVector b = *(gammadata->get_b());
+
+	int K = this->K;
+	int T = this->T;
+	int dim = this->dim;
 	
+	int t,n,k;
+	double dot_sum, value;
+	
+	for(k=0;k<K;k++){
+		for(t=0;t<T;t++){ // TODO: this could be performed parallely 
+			dot_sum = 0.0;
+			for(n=0;n<dim;n++){
+				value = data.get(n*T+t) - theta.get(k*dim + n);
+				dot_sum += value*value;
+			} 
+			b(k*T + t) = dot_sum;
+		}
+	}	
 }
 
 /* update theta solver */
 template<class VectorBase>
 void KmeansH1Model<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	/* update theta solver - prepare new matrix vector and right-hand side vector */	
+	
+	typedef GeneralVector<VectorBase> (&pVector);
+
+	/* pointers to data */
+	pVector gamma = *(tsdata->get_gammavector());
+	pVector data = *(tsdata->get_datavector());
+	pVector a = *(thetadata->get_a());
+	pVector b = *(thetadata->get_b());
+	
+	int K = this->K;
+	int T = this->T;
+	int dim = this->dim;
+	
+	int k,i;
+	double sum_gammak;
+	for(k=0;k<K;k++){
+
+		/* compute sum of gamma[k] */
+		sum_gammak = sum(gamma(k*T,(k+1)*T-1));
+
+		for(i=0;i<this->dim;i++){
+			a(k*dim+i) = sum_gammak;
+			b(k*dim+i) = dot(gamma(k*T,(k+1)*T-1),data(i*T,(i+1)*T-1));
+		}
+	}
+
 
 }
 
+template<class VectorBase>
+double KmeansH1Model<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+	
+	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
+	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
+}
 
 
 } /* end namespace */

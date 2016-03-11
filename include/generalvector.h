@@ -49,8 +49,76 @@ namespace pascinference {
 				return *this;
 			}
 
+			/* fill with random values */
+			void set_random();
+
 	};
 
 }
+
+// TODO: move to impl
+namespace pascinference {
+
+/* ------- PETSCVECTOR ------- */	
+#ifdef USE_PETSCVECTOR
+typedef petscvector::PetscVector PetscVector;
+
+template<>
+void GeneralVector<PetscVector>::set_random() { 
+	PetscRandom rnd;
+	PetscScalar *arr, value;
+	PetscInt local_size;
+	Vec vec = this->get_vector();
+	
+	/* prepare random generator */
+	TRY( PetscRandomCreate(PETSC_COMM_WORLD,&rnd));
+	TRY( PetscRandomSetFromOptions(rnd) );
+		
+	TRY( VecGetLocalSize(vec,&local_size) );
+	TRY( VecGetArray(this->get_vector(),&arr) );
+
+	int i;
+	for (i=0; i<local_size; i++){
+		TRY( PetscRandomGetValue(rnd,&value));
+		arr[i] = value;
+	}
+
+	TRY( VecRestoreArray(this->get_vector(),&arr) );
+	
+	this->valuesUpdate();
+	
+	/* destroy generator */
+    TRY( PetscRandomDestroy(&rnd) );
+}
+
+#endif
+
+/* ------- MINLIN ------- */	
+#ifdef USE_MINLIN
+typedef minlin::threx::HostVector<double> MinlinHostVector;
+typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
+
+template<>
+void GeneralVector<MinlinHostVector>::set_random() { 
+	int i;
+	for(i=0;i<this->size();i++){
+		(*this)(i) = std::rand()/(double)(RAND_MAX); /* generate random value */
+	}	
+}
+
+template<>
+void GeneralVector<MinlinDeviceVector>::set_random() { 
+	int i;
+	for(i=0;i<this->size();i++){ // TODO: fill on Host and then transfer to device
+		(*this)(i) = std::rand()/(double)(RAND_MAX); /* generate random value */
+	}	
+}
+
+
+#endif
+
+
+
+} /* end of namespace petscvector */
 
 #endif

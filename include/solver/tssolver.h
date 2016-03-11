@@ -2,7 +2,6 @@
 #define	PASC_TSSOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
 
 #include <iostream>
 #include "generalsolver.h"
@@ -11,29 +10,35 @@ extern int DEBUG_MODE;
 #include "data/tsdata.h"
 #include "model/tsmodel.h"
 
+
+//temp
+#include "solver/qpsolver.h"
+#include "solver/diagsolver.h"
+
+
 #define TSSOLVER_DEFAULT_MAXIT 1000;
-#define TSSOLVER_DEFAULT_EPS 0.0001;
+#define TSSOLVER_DEFAULT_EPS 0.001;
+#define TSSOLVER_DEFAULT_DEBUG_MODE 0;
 
 namespace pascinference {
 
 /* settings */
 class TSSolverSetting : public GeneralSolverSetting {
 	protected:
-		int maxit;
-		double eps;
 
 	public:
 		TSSolverSetting() {
-			maxit = TSSOLVER_DEFAULT_MAXIT;
-			eps = TSSOLVER_DEFAULT_EPS;
-			
+			this->maxit = TSSOLVER_DEFAULT_MAXIT;
+			this->eps = TSSOLVER_DEFAULT_EPS;
+			this->debug_mode = TSSOLVER_DEFAULT_DEBUG_MODE;
 		};
 		~TSSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
 			output << " TSSolverSettings:" << std::endl;
-			output << "   - maxit: " << maxit << std::endl;
-			output << "   - eps: " << eps << std::endl;
+			output << "   - debug mode: " << this->debug_mode << std::endl;
+			output << "   - maxit: " << this->maxit << std::endl;
+			output << "   - eps: " << this->eps << std::endl;
 
 		};
 		
@@ -44,7 +49,7 @@ class TSSolverSetting : public GeneralSolverSetting {
 template<class VectorBase>
 class TSSolver: public GeneralSolver {
 	protected:
-		const TSData<VectorBase> *data; /* data on which the solver operates */
+		TSData<VectorBase> *tsdata; /* tsdata on which the solver operates */
 
 		GeneralSolver *gammasolver; /* to solve inner gamma problem */
 		GeneralSolver *thetasolver; /* to solve inner theta problem */
@@ -55,7 +60,7 @@ class TSSolver: public GeneralSolver {
 		TSSolverSetting setting;
 
 		TSSolver();
-		TSSolver(const TSData<VectorBase> &new_data); 
+		TSSolver(TSData<VectorBase> &new_tsdata); 
 		//TODO: write constructor with given gammasolver and theta solver
 		~TSSolver();
 
@@ -75,7 +80,7 @@ class TSSolver: public GeneralSolver {
 		virtual void print(std::ostream &output) const;
 		std::string get_name() const;
 
-
+		TSData<VectorBase> *get_data() const;
 };
 
 } // end of namespace
@@ -88,9 +93,9 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 TSSolver<VectorBase>::TSSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)CONSTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) std::cout << "(TSSolver)CONSTRUCTOR" << std::endl;
 	
-	data = NULL;
+	tsdata = NULL;
 	model = NULL;
 	gammasolver = NULL; /* in this time, we don't know how to solve the problem */
 	thetasolver = NULL; /* in this time, we don't know how to solve the problem */
@@ -98,27 +103,27 @@ TSSolver<VectorBase>::TSSolver(){
 }
 
 template<class VectorBase>
-TSSolver<VectorBase>::TSSolver(const TSData<VectorBase> &new_data){
-	data = &new_data;
-	model = data->get_model(); 
+TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata){
+	tsdata = &new_tsdata;
+	model = tsdata->get_model(); 
 
 	/* we can initialize solvers - based on model */
-	model->initialize_gammasolver(&gammasolver, data);	
-	model->initialize_thetasolver(&thetasolver, data);	
+	model->initialize_gammasolver(&gammasolver, tsdata);	
+	model->initialize_thetasolver(&thetasolver, tsdata);	
 	
 }
 
 /* destructor */
 template<class VectorBase>
 TSSolver<VectorBase>::~TSSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)DESTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) std::cout << "(TSSolver)DESTRUCTOR" << std::endl;
 
-	/* destroy child solvers - based on model*/
+	/* destroy child solvers - based on model */
 	if(gammasolver){
-		model->finalize_gammasolver(&gammasolver, data);	
+		model->finalize_gammasolver(&gammasolver, tsdata);	
 	}
 	if(thetasolver){
-		model->finalize_thetasolver(&thetasolver, data);	
+		model->finalize_thetasolver(&thetasolver, tsdata);	
 	}
 	
 }
@@ -127,7 +132,7 @@ TSSolver<VectorBase>::~TSSolver(){
 /* print info about problem */
 template<class VectorBase>
 void TSSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) std::cout << this->get_name() << std::endl;
+	if(setting.debug_mode >= 100) std::cout << this->get_name() << std::endl;
 
 	output << this->get_name() << std::endl;
 	
@@ -160,11 +165,11 @@ std::string TSSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasolvertype) {
-	if(DEBUG_MODE >= 100) std::cout << "(TSSolver)FUNCTION: solve" << std::endl;
+	if(setting.debug_mode >= 100) std::cout << "(TSSolver)FUNCTION: solve" << std::endl;
 
 	/* the gamma or theta solver wasn't specified yet */
 	if(!gammasolver || !thetasolver){
-		// TODO: give error - actually, gamma and theta solvers are created during constructor with data - now we don't have data, there is nothing to solve
+		// TODO: give error - actually, gamma and theta solvers are created during constructor with tsdata - now we don't have tsdata, there is nothing to solve
 	}
 
 	/* which specific solver we can use to solve the problem? */
@@ -184,20 +189,31 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 	L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
 	
 	int it; 
-	
+
 	/* main cycle */
-	for(it=0;it < 1;it++){
+	for(it=0;it < setting.maxit;it++){
 		Message_info_value(" - it = ",it);
 
 		/* --- COMPUTE Theta --- */
-//		this->model.compute_theta(this->data.get_data_vec());
-		
+		model->update_thetasolver(thetasolver, tsdata);
+		thetasolver->solve(thetasolvertype);
+
+		if(setting.debug_mode >= 10){
+			thetasolver->printstatus(std::cout);
+		}
+
 		/* --- COMPUTE gamma --- */
-//		this->model.compute_gamma(this->data.get_data_vec());
+		model->update_gammasolver(gammasolver, tsdata);
+		gammasolver->solve(gammasolvertype);
+
+		if(setting.debug_mode >= 10){
+			gammasolver->printstatus(std::cout);
+		}
+
 
 		/* compute stopping criteria */
 		L_old = L;
-//		L = model.get_function_value();
+		L = model->get_L(gammasolver,thetasolver,tsdata);
 		deltaL = abs(L - L_old);
 
 		/* print info about cost function */
@@ -206,7 +222,7 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		Message_info_value("  - |L - L_old| = ",deltaL);
 
 		/* end the main cycle if the change of function value is sufficient */
-		if (deltaL < 0.0001){
+		if (deltaL < setting.eps){
 			break;
 		}
 		
@@ -214,6 +230,12 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 
 	
 }
+
+template<class VectorBase>
+TSData<VectorBase> *TSSolver<VectorBase>::get_data() const {
+	return tsdata;
+}
+
 
 
 } /* end namespace */

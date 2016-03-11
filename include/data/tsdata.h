@@ -34,6 +34,7 @@ class TSData: public GeneralData {
 		~TSData();
 
 		void print(std::ostream &output) const;
+		void printcontent(std::ostream &output) const;
 		std::string get_name() const;
 
 		int get_T() const;
@@ -144,7 +145,7 @@ TSData<VectorBase>::~TSData(){
 }
 
 
-/* print info about problem */
+/* print info about data */
 template<class VectorBase>
 void TSData<VectorBase>::print(std::ostream &output) const {
 	output << this->get_name() << std::endl;
@@ -171,6 +172,33 @@ void TSData<VectorBase>::print(std::ostream &output) const {
 		output << "YES (size: " << this->thetavector->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
+	}
+	
+}
+
+/* print content of all data */
+template<class VectorBase>
+void TSData<VectorBase>::printcontent(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+	
+	/* give information about presence of the data */
+	output << "- datavector: ";
+	if(this->datavector){
+		output << *this->datavector << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "- gammavector: ";
+	if(this->gammavector){
+		output << *this->gammavector << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "- thetavector: ";
+	if(this->thetavector){
+		output << *this->thetavector << std::endl;
+	} else {
+		output << "---" << std::endl;
 	}
 
 		

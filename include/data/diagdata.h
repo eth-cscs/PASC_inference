@@ -29,6 +29,7 @@ class DiagData: public GeneralData {
 		~DiagData();
 
 		void print(std::ostream &output) const;
+		void printcontent(std::ostream &output) const;
 		std::string get_name() const;
 
 		/* set and get functions */
@@ -95,6 +96,31 @@ void DiagData<VectorBase>::print(std::ostream &output) const {
 		output << "NO" << std::endl;
 	}
 		
+}
+
+template<class VectorBase>
+void DiagData<VectorBase>::printcontent(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+	
+	/* give information about presence of the data */
+	output << "  - a:            ";
+	if(this->a){
+		output << *(this->a) << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "  - b:            ";
+	if(this->b){
+		output << *(this->b) << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "  - x:            ";
+	if(this->x){
+		output << *(this->x) << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
 }
 
 template<class VectorBase>

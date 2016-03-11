@@ -21,31 +21,36 @@ namespace pascinference {
 /* setting class */
 class GeneralSolverSetting : public GeneralSetting {
 	protected:
-	
+		
 	public:
+		int debug_mode; /**< print info about the progress */
+		int maxit; /**< max number of iterations */
+		double eps; /**< precision */
+
+
 		GeneralSolverSetting() {};
 		~GeneralSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {};
-	
 };
 
 /* solver class */
 class GeneralSolver {
 	protected:
-		const GeneralData *data; /* pointer to data on which the solver operates */
+		GeneralData *data; /* pointer to data on which the solver operates */
 	public:
 		GeneralSolverSetting setting; // TODO: private?
 
 		GeneralSolver() {
 			data = NULL;
 		};
-		GeneralSolver(const GeneralData &new_data) {
+		GeneralSolver(GeneralData &new_data) {
 			data = &new_data;
 		};
 		~GeneralSolver() {};
 
 		virtual void print(std::ostream &output) const;
+		virtual void printstatus(std::ostream &output) const;
 		virtual std::string get_name() const;
 
 		virtual void solve() { this->solve(SOLVER_AUTO); };
@@ -53,12 +58,13 @@ class GeneralSolver {
 
 		friend std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver); /* cannot be virtual, therefore it call virtual print() */
 	
+		GeneralData *get_data() const;
 };
 
 /* general print, call virtual print() */
 std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver){
 	if(DEBUG_MODE >= 100) std::cout << "(GeneralSolver)OPERATOR: <<" << std::endl;
-	solver.print(output);
+	output << solver.get_name();
 	return output;
 }
 
@@ -66,10 +72,17 @@ void GeneralSolver::print(std::ostream &output) const {
 	output << this->get_name() << std::endl;
 }
 
+void GeneralSolver::printstatus(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+}
+
 std::string GeneralSolver::get_name() const {
 	return "GeneralSolver";
 }
 
+GeneralData *GeneralSolver::get_data() const{
+	return this->data;
+}
 
 
 

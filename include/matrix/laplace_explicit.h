@@ -51,7 +51,7 @@ class LaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 
 /* -------------------------------- PETSC VECTOR -------------------------*/
 
-#ifdef USE_PETSC
+#ifdef USE_PETSCVECTOR
 
 /* Petsc: constructor from given right PetscVector */
 template<>

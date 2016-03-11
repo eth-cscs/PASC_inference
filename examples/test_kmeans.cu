@@ -36,7 +36,7 @@ int main( int argc, char *argv[] )
 
 	/* dimension of the problem */
 	int dim = 2; /* data dimension */
-	int T = 10; /* length of time-series */
+	int T = 200; /* length of time-series */
 	int K = 3; /* number of clusters */
 
 	/* parameters of the model */
@@ -50,9 +50,11 @@ int main( int argc, char *argv[] )
 	double covarianceK3[4] = {0.005, 0.0, 0.0, 0.05};
 	double *covariance[3] = {covarianceK1,covarianceK2,covarianceK3};
 	
+	double penalty = 0.5;
+	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
-	KmeansH1Model<Global> mymodel(T, dim, K);
+	KmeansH1Model<Global> mymodel(T, dim, K, penalty);
 
 	/* prepare time-series data */
 	TSData<Global> mydata(mymodel);
@@ -62,11 +64,16 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series solver */
 	TSSolver<Global> mysolver(mydata);
-	std::cout << mysolver << std::endl;
+
+	mysolver.setting.maxit = 50;
+	mysolver.setting.debug_mode = 10;
 
 	/* solve the problem */
 	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
 	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
+
+	/* print Theta */
+	std::cout << "Theta: " << *(mysolver.get_data()->get_thetavector()) << std::endl;
 
 	/* save results into VTK file */
 	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());

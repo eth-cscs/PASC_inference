@@ -27,6 +27,7 @@ class QPData: public GeneralData {
 		~QPData();
 
 		void print(std::ostream &output) const;
+		void printcontent(std::ostream &output) const;
 		std::string get_name() const;
 
 		/* set and get functions */
@@ -112,6 +113,44 @@ void QPData<VectorBase>::print(std::ostream &output) const {
 		output << "YES (" << this->feasibleset->get_name() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
+	}
+		
+}
+
+template<class VectorBase>
+void QPData<VectorBase>::printcontent(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+	
+	/* give information about presence of the data */
+	output << "  - A:            ";
+	if(this->A){
+		output << *(this->A) << std::endl; 
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "  - b:            ";
+	if(this->b){
+		output << *(this->b) << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "  - x0:           ";
+	if(this->x0){
+		output << *(this->x0) << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "  - x:            ";
+	if(this->x0){
+		output << *(this->x) << std::endl;
+	} else {
+		output << "---" << std::endl;
+	}
+	output << "  - feasible_set: ";
+	if(this->feasibleset){
+		output << *(this->feasibleset) << std::endl;
+	} else {
+		output << "---" << std::endl;
 	}
 		
 }

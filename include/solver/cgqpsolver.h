@@ -17,21 +17,17 @@ namespace pascinference {
 class CGQPSolverSetting : public QPSolverSetting {
 	public:
 		CGQPSolverSetting() {
-			maxit = CGQPSOLVER_DEFAULT_MAXIT;
-			eps = CGQPSOLVER_DEFAULT_EPS;
-			debug_mode = DEBUG_MODE;
+			this->maxit = CGQPSOLVER_DEFAULT_MAXIT;
+			this->eps = CGQPSOLVER_DEFAULT_EPS;
+			this->debug_mode = DEBUG_MODE;
 		};
 		~CGQPSolverSetting() {};
 
-		int maxit;
-		double eps;
-		int debug_mode;
-
 		virtual void print(std::ostream &output) const {
 			output << "  CGQPSolverSettings:" << std::endl;
-			output << "   - maxit: " << maxit << std::endl;
-			output << "   - eps: " << eps << std::endl;
-			output << "   - debug_mode: " << debug_mode << std::endl;
+			output << "   - maxit: " << this->maxit << std::endl;
+			output << "   - eps: " << this->eps << std::endl;
+			output << "   - debug_mode: " << this->debug_mode << std::endl;
 
 		};
 		
@@ -86,6 +82,8 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 	g = NULL;
 	p = NULL;
 	Ap = NULL;
+	
+	this->fx = std::numeric_limits<double>::max();
 }
 
 template<class VectorBase>
@@ -94,7 +92,8 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_data){
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
-	
+
+	this->fx = std::numeric_limits<double>::max();
 }
 
 

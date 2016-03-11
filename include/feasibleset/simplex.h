@@ -417,6 +417,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		//TODO: deal with x_sub
 	}
 
+	x.valuesUpdate();
 }
 #endif
 

@@ -90,7 +90,28 @@ class TSModel: public GeneralModel {
 		virtual void finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 		};
 
+		/** @brief update data values of gamma solver
+		 *  
+		 *  Update data values of gamma solver, prepare it to the solving.
+		 * 
+		 */ 
+		virtual void update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
+		};
 
+		/** @brief update data values of Theta solver
+		 *  
+		 *  Update data values of Theta solver, prepare it to the solving.
+		 * 
+		 */ 
+		virtual void update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+		};
+
+		/** @brief get the value of object function L(gamma,Theta,data)
+		 *  
+		 */ 
+		virtual double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+			return std::numeric_limits<double>::max();
+		};
 };
 
 } // end of namespace

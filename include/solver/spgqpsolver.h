@@ -24,9 +24,6 @@ namespace pascinference {
 /* settings */
 class SPGQPSolverSetting : public QPSolverSetting {
 	public:
-		int maxit; /* max number of iterations */
-		double eps; /* precision */
-		int debug_mode; /* print info about the progress */
 		int m; /* size of fs */
 		double gamma; 
 		double sigma2;
@@ -83,7 +80,7 @@ class SPGQPSolver_fs {
 template<class VectorBase>
 class SPGQPSolver: public QPSolver<VectorBase> {
 	protected:
-		const QPData<VectorBase> *data; /* data on which the solver operates */
+		QPData<VectorBase> *qpdata; /* data on which the solver operates */
 	
 		/* temporary vectors used during the solution process */
 		void allocate_temp_vectors();
@@ -93,21 +90,21 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		GeneralVector<VectorBase> *Ad; /* A*d */
 		GeneralVector<VectorBase> *temp; /* general temp vector */
 
-		/* compute function values from g,x */
-		double get_function_value();
-	
 	public:
 		SPGQPSolverSetting setting;
 
 		SPGQPSolver();
-		SPGQPSolver(const QPData<VectorBase> &new_data); 
+		SPGQPSolver(QPData<VectorBase> &new_qpdata); 
 		~SPGQPSolver();
 
 		void solve();
 		void solve(SolverType type){};
-		double get_function_value(GeneralVector<VectorBase> *x);
+		double get_fx() const;
+		int get_it() const;
 
 		void print(std::ostream &output) const;
+		virtual void printstatus(std::ostream &output) const;		
+
 		std::string get_name() const;
 
 };
@@ -124,9 +121,9 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 SPGQPSolver<VectorBase>::SPGQPSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(SPGQPSolver)CONSTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)CONSTRUCTOR" << std::endl;
 
-	data = NULL;
+	qpdata = NULL;
 	
 	/* temp vectors */
 	g = NULL;
@@ -134,22 +131,24 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	Ad = NULL;
 	temp = NULL;
 
+	this->fx = std::numeric_limits<double>::max();
 }
 
 template<class VectorBase>
-SPGQPSolver<VectorBase>::SPGQPSolver(const QPData<VectorBase> &new_data){
-	data = &new_data;
+SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
+	qpdata = &new_qpdata;
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
-	
+
+	this->fx = std::numeric_limits<double>::max();
 }
 
 
 /* destructor */
 template<class VectorBase>
 SPGQPSolver<VectorBase>::~SPGQPSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(SPGQPSolver)DESTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)DESTRUCTOR" << std::endl;
 
 	/* free temp vectors */
 	free_temp_vectors();
@@ -158,7 +157,7 @@ SPGQPSolver<VectorBase>::~SPGQPSolver(){
 /* prepare temp_vectors */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
-	GeneralVector<VectorBase> *pattern = data->get_b(); /* I will allocate temp vectors subject to linear term */
+	GeneralVector<VectorBase> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
 
 	g = new GeneralVector<VectorBase>(*pattern);
 	d = new GeneralVector<VectorBase>(*pattern);
@@ -181,13 +180,23 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 /* print info about problem */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) std::cout << "(SPGQPSolver)FUNCTION: print" << std::endl;
+	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: print" << std::endl;
 
 	output << this->get_name() << std::endl;
 	
 	/* print settings */
 	output << setting;
 		
+}
+
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
+	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+
+	output << this->get_name() << std::endl;
+	output << " - it =     " << this->it << std::endl;
+	output << " - fx =     " << this->fx << std::endl;	
+
 }
 
 template<class VectorBase>
@@ -198,19 +207,19 @@ std::string SPGQPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::solve() {
-	if(DEBUG_MODE >= 100) std::cout << "(SPGQPSolver)FUNCTION: solve" << std::endl;
+	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: solve" << std::endl;
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
 	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
-	/* pointers to data */
-	pMatrix A = *(data->get_A());
-	pVector b = *(data->get_b());
-	pVector x0 = *(data->get_x0());
+	/* pointers to qpdata */
+	pMatrix A = *(qpdata->get_A());
+	pVector b = *(qpdata->get_b());
+	pVector x0 = *(qpdata->get_x0());
 
 	/* pointer to solution */
-	pVector x = *(data->get_x());
+	pVector x = *(qpdata->get_x());
 
 	/* auxiliary vectors */
 	pVector g = *(this->g); /* gradient */
@@ -218,6 +227,8 @@ void SPGQPSolver<VectorBase>::solve() {
 	pVector Ad = *(this->Ad); /* A*p */
 
 	int it = 0; /* number of iterations */
+	this->it = it;
+
 	int hessmult = 0; /* number of hessian multiplications */
 
 	double fx; /* function value */
@@ -233,7 +244,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	alpha_bb = setting.alphainit;
 
 	x = x0; /* set approximation as initial */
-	data->get_feasibleset()->project(x); /* project initial approximation to feasible set */
+	qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
 
 	/* compute gradient, g = A*x-b */
 	g = A*x; 
@@ -241,7 +252,9 @@ void SPGQPSolver<VectorBase>::solve() {
 	g -= b;
 
 	/* compute function value */
- 	fx = get_function_value();
+ 	fx = get_fx();
+	this->fx = fx;
+	
 	/* initialize fs */
 	fs.init(fx);	
 
@@ -252,7 +265,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		d = x - alpha_bb*g;
 
 		/* d = P(d) */
-		data->get_feasibleset()->project(d);
+		qpdata->get_feasibleset()->project(d);
 
 		/* d = d - x */
 		d -= x;
@@ -293,14 +306,14 @@ void SPGQPSolver<VectorBase>::solve() {
 		g += beta*Ad; /* g = g + beta*Ad */
 		
 		/* compute new function value using gradient and update fs list */
-		fx = get_function_value();
+		fx = get_fx();
 		fs.update(fx);
 
 		/* update BB step-size */
 		alpha_bb = dd/dAd;
 
-		/* print data */
-		if(DEBUG_MODE >= 10){
+		/* print qpdata */
+		if(setting.debug_mode >= 10){
 			std::cout << "x: " << x << std::endl;
 			std::cout << "d: " << d << std::endl;
 			std::cout << "g: " << g << std::endl;
@@ -309,13 +322,13 @@ void SPGQPSolver<VectorBase>::solve() {
 		}
 
 		/* print progress of algorithm */
-		if(DEBUG_MODE >= 4){
+		if(setting.debug_mode >= 3){
 			std::cout << "\033[33m   it = \033[0m" << it;
 			std::cout << ", \t\033[36mfx = \033[0m" << fx;
 			std::cout << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
-		if(DEBUG_MODE >= 5){
+		if(setting.debug_mode >= 5){
 			std::cout << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			std::cout << "\033[36m dAd = \033[0m" << dAd << ",";
 			std::cout << "\033[36m gd = \033[0m" << gd << std::endl;
@@ -333,11 +346,13 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* increase iteration counter */
 		it += 1;
 
+		this->it = it;
+		this->fx = fx;
 
 	} /* main cycle end */
 
 	/* very short info */
-	if(DEBUG_MODE >= 3){
+	if(setting.debug_mode >= 3){
 		Message_info_value("   - it    = ",it);
 //		Message_info_time("   - time  = ",this->timer_total.get_value_last());
 
@@ -346,52 +361,20 @@ void SPGQPSolver<VectorBase>::solve() {
 	
 }
 
-/* compute function value in given approximation */
-template<class VectorBase>
-double SPGQPSolver<VectorBase>::get_function_value(GeneralVector<VectorBase> *px){
-	if(DEBUG_MODE >= 11) std::cout << "(SPGQPSolver)FUNCTION: get_function_value(x)" << std::endl;
-	
-	double fx = std::numeric_limits<double>::max();
-
-	/* we have nothing - compute fx using full formula fx = 0.5*dot(A*x,x) - dot(b,x) */
-
-	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
-	typedef GeneralVector<VectorBase> (&pVector);
-	typedef GeneralMatrix<VectorBase> (&pMatrix);
-
-	/* pointers to data */
-	pMatrix A = *(data->get_A());
-	pVector b = *(data->get_b());
-	pVector x = *px;
-	pVector Ax = *(this->temp);
-		
-	double xAx, xb;
-
-	Ax = A*x;
-		 
-	xAx = dot(Ax,x);
-	fx = 0.5*xAx;
-		 
-	xb = dot(x,b);
-	fx -= xb;
-
-	return fx;
-}
-
 /* compute function value using inner *x and already computed *g */
 template<class VectorBase>
-double SPGQPSolver<VectorBase>::get_function_value(){
-	if(DEBUG_MODE >= 11) std::cout << "(SPGQPSolver)FUNCTION: get_function_value()" << std::endl;
+double SPGQPSolver<VectorBase>::get_fx() const {
+	if(setting.debug_mode >= 11) std::cout << "(SPGQPSolver)FUNCTION: get_fx()" << std::endl;
 	
 	double fx = std::numeric_limits<double>::max();
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
 
-	/* pointers to data */
+	/* pointers to qpdata */
 	pVector g = *(this->g);
-	pVector x = *(data->get_x());
-	pVector b = *(data->get_b());
+	pVector x = *(qpdata->get_x());
+	pVector b = *(qpdata->get_b());
 	pVector temp = *(this->temp);
 
 	/* use computed gradient in this->g to compute function value */
@@ -401,7 +384,10 @@ double SPGQPSolver<VectorBase>::get_function_value(){
 	return fx;	
 }
 
-
+template<class VectorBase>
+int SPGQPSolver<VectorBase>::get_it() const {
+	return this->it;
+}
 
 /* ---------- SPGQPSolver_fs -------------- */
 

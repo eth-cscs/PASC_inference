@@ -23,6 +23,7 @@ class GeneralData {
 		~GeneralData() {};
 
 		virtual void print(std::ostream &output) const;
+		virtual void printcontent(std::ostream &output) const;
 		virtual std::string get_name() const;
 
 		friend std::ostream &operator<<(std::ostream &output, const GeneralData &data); /* cannot be virtual, therefore it call virtual print() */
@@ -37,6 +38,10 @@ std::ostream &operator<<(std::ostream &output, const GeneralData &data){
 }
 
 void GeneralData::print(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+}
+
+void GeneralData::printcontent(std::ostream &output) const {
 	output << this->get_name() << std::endl;
 }
 
