@@ -16,6 +16,8 @@
 #define EXPORT_SAVEVTK true /* export solution to VTK */
 #define EXPORT_SAVEVTK_filename "output/data.vtk" /* name of file to export VTK */
 
+#include "sys/types.h"
+#include "sys/sysinfo.h"
 
 /* we are using namespace pascinference */
 namespace pascinference {
@@ -163,6 +165,57 @@ class Timer {
 		bool status();
 };
 
+
+class MemoryCheck {
+	public:
+		static long long get_virtual_all() {
+			struct sysinfo memInfo;
+			sysinfo (&memInfo);
+			long long totalVirtualMem = memInfo.totalram;
+			totalVirtualMem += memInfo.totalswap;
+			totalVirtualMem *= memInfo.mem_unit;
+			
+			return totalVirtualMem;
+		}
+
+		static long long get_virtual_used() {
+			struct sysinfo memInfo;
+			sysinfo (&memInfo);
+		    long long virtualMemUsed = memInfo.totalram - memInfo.freeram;
+
+			virtualMemUsed += memInfo.totalswap - memInfo.freeswap;
+			virtualMemUsed *= memInfo.mem_unit;
+			
+			return virtualMemUsed;
+		}
+
+		static double get_virtual(){
+			struct sysinfo memInfo;
+			sysinfo (&memInfo);
+			
+			return 100*((memInfo.totalram - memInfo.freeram) + (memInfo.totalram - memInfo.freeram))/(double)(memInfo.totalram + memInfo.totalram);
+		}
+
+		static long long get_physical() {
+			struct sysinfo memInfo;
+			sysinfo (&memInfo);
+			long long totalPhysMem = memInfo.totalram;
+			totalPhysMem *= memInfo.mem_unit;
+			
+			return totalPhysMem;
+		}
+
+		static void test_temp(int idx) {
+			//std::cout << "TEST_" << idx << ": \033[31m" << get_virtual() << "\033[0m%" << std::endl;
+		}
+		
+		
+    //Add other values in next statement to avoid int overflow on right hand side...
+
+
+	
+	
+};
 
 #ifdef USE_GPU
 	/* cuda error check */ 

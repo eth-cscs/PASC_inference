@@ -89,7 +89,7 @@ namespace pascinference {
 	
 			/* generate random data */
 			for(k=0;k<K;k++){ /* go through clusters */ 
-				for(t=k*clusterT;t < min((k+1)*clusterT,T);t++){ /* go through part of time serie corresponding to this cluster */
+				for(t=k*clusterT;t < std::min((k+1)*clusterT,T);t++){ /* go through part of time serie corresponding to this cluster */
 					my_mvnrnd_D2(mu[k], covariance[k], &random_value1, &random_value2);
 		
 					data(t) = random_value1;

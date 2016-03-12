@@ -128,6 +128,7 @@ void SimplexFeasibleSet<HostMinLinVector>::project(GeneralVector<HostMinLinVecto
 			x(k*T+t) = x_sub[k];
 		}
 	}
+
 }
 #endif
 
@@ -373,7 +374,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		TVector.get_ownership(&(this->petsc_projection_Townership_low), &(this->petsc_projection_Townership_high));
 
 		/* destroy testing vector - it is useless now */
-//		~TVector();
+//		delete &TVector;
 
 	}
 
@@ -382,18 +383,22 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 	}
 
 	int t;
-	GlobalPetscVector x_sub;
+	Vec x_sub;
 	double *x_sub_arr;
+	
+	Vec x_vec = x.get_vector();
+
 	/* go throught local portion of time-serie and perform the projection */
 	for(t = this->petsc_projection_Townership_low; t < this->petsc_projection_Townership_high; t++){
+
 		/* prepare index set [low, low + T, ... , low + (K-1)*T ] */
 		ISCreateStride(PETSC_COMM_SELF, this->K, this->petsc_projection_Townership_low + t, this->T, &(this->petsc_projection_is));
 
 		/* get the subvector from global vector */
-		x_sub = x(petsc_projection_is);
+		TRY( VecGetSubVector(x_vec,petsc_projection_is, &x_sub) );
 
 		/* get the array */
-		x_sub.get_array(&x_sub_arr);
+		TRY( VecGetArray(x_sub, &x_sub_arr) );
 
 		/* perform the projection on this subvector */
 		get_projection_sub(x_sub_arr, this->K);
@@ -410,14 +415,16 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		}
 
 		/* restore the array */
-		x_sub.restore_array(&x_sub_arr);
+		TRY( VecRestoreArray(x_sub, &x_sub_arr) );
 
-		x(petsc_projection_is) = x_sub;
+		TRY( VecRestoreSubVector(x_vec,petsc_projection_is, &x_sub) );
 
 		//TODO: deal with x_sub
+		TRY( ISDestroy(&petsc_projection_is) );
 	}
 
 	x.valuesUpdate();
+	
 }
 #endif
 

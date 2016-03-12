@@ -28,7 +28,7 @@ extern int pascinference::DEBUG_MODE;
 
 int main( int argc, char *argv[] )
 {
-		
+	
 	Initialize(argc, argv); // TODO: load parameters from console input
 	
 	/* say hello */	
@@ -36,7 +36,7 @@ int main( int argc, char *argv[] )
 
 	/* dimension of the problem */
 	int dim = 2; /* data dimension */
-	int T = 200; /* length of time-series */
+	int T = 10; /* length of time-series */
 	int K = 3; /* number of clusters */
 
 	/* parameters of the model */
@@ -50,7 +50,7 @@ int main( int argc, char *argv[] )
 	double covarianceK3[4] = {0.005, 0.0, 0.0, 0.05};
 	double *covariance[3] = {covarianceK1,covarianceK2,covarianceK3};
 	
-	double penalty = 0.5;
+	double penalty = 50;
 	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
@@ -71,9 +71,6 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
 	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
-
-	/* print Theta */
-	std::cout << "Theta: " << *(mysolver.get_data()->get_thetavector()) << std::endl;
 
 	/* save results into VTK file */
 	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());

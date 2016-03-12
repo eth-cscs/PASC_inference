@@ -202,6 +202,10 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 			thetasolver->printstatus(std::cout);
 		}
 
+		/* print Theta */
+		std::cout << "Theta: " << *(tsdata->get_thetavector()) << std::endl;
+
+
 		/* --- COMPUTE gamma --- */
 		model->update_gammasolver(gammasolver, tsdata);
 		gammasolver->solve(gammasolvertype);
@@ -214,7 +218,7 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		/* compute stopping criteria */
 		L_old = L;
 		L = model->get_L(gammasolver,thetasolver,tsdata);
-		deltaL = abs(L - L_old);
+		deltaL = std::abs(L - L_old);
 
 		/* print info about cost function */
 		Message_info_value("  - L_old       = ",L_old);

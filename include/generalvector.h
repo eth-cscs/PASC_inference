@@ -71,24 +71,20 @@ void GeneralVector<PetscVector>::set_random() {
 	Vec vec = this->get_vector();
 	
 	/* prepare random generator */
-	TRY( PetscRandomCreate(PETSC_COMM_WORLD,&rnd));
+	TRY( PetscRandomCreate(PETSC_COMM_WORLD,&rnd) );
+	TRY( PetscRandomSetType(rnd,PETSCRAND) );
 	TRY( PetscRandomSetFromOptions(rnd) );
-		
-	TRY( VecGetLocalSize(vec,&local_size) );
-	TRY( VecGetArray(this->get_vector(),&arr) );
 
-	int i;
-	for (i=0; i<local_size; i++){
-		TRY( PetscRandomGetValue(rnd,&value));
-		arr[i] = value;
-	}
+	TRY( PetscRandomSetSeed(rnd,13) );
 
-	TRY( VecRestoreArray(this->get_vector(),&arr) );
-	
+	/* generate random data to gamma */
+	TRY( VecSetRandom(vec, rnd) );
+
+	/* destroy the random generator */
+	TRY( PetscRandomDestroy(&rnd) );
+
 	this->valuesUpdate();
-	
-	/* destroy generator */
-    TRY( PetscRandomDestroy(&rnd) );
+
 }
 
 #endif

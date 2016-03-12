@@ -17,7 +17,7 @@ extern int DEBUG_MODE;
 #define SPGQPSOLVER_DEFAULT_M 10;
 #define SPGQPSOLVER_DEFAULT_GAMMA 0.9;
 #define SPGQPSOLVER_DEFAULT_SIGMA2 1.0;
-#define SPGQPSOLVER_DEFAULT_ALPHAINIT 1.0;
+#define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0;
 
 namespace pascinference {
 
@@ -194,8 +194,10 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output << this->get_name() << std::endl;
-	output << " - it =     " << this->it << std::endl;
-	output << " - fx =     " << this->fx << std::endl;	
+	output << " - it:          " << this->it << std::endl;
+	output << " - fx:          " << this->fx << std::endl;	
+	output << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+
 
 }
 
@@ -208,6 +210,8 @@ std::string SPGQPSolver<VectorBase>::get_name() const {
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::solve() {
 	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: solve" << std::endl;
+
+MemoryCheck::test_temp(1);
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
@@ -258,14 +262,21 @@ void SPGQPSolver<VectorBase>::solve() {
 	/* initialize fs */
 	fs.init(fx);	
 
+MemoryCheck::test_temp(2);
+
+
 	/* main cycle */
 	while(it < setting.maxit){
 
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		d = x - alpha_bb*g;
 
+MemoryCheck::test_temp(3);
+
 		/* d = P(d) */
 		qpdata->get_feasibleset()->project(d);
+
+MemoryCheck::test_temp(4);
 
 		/* d = d - x */
 		d -= x;
@@ -285,6 +296,8 @@ void SPGQPSolver<VectorBase>::solve() {
 		if(dd < setting.eps){
 			break;
 		}
+
+MemoryCheck::test_temp(5);
 		
 		/* fx_max = max(fs) */
 		fx_max = fs.get_max();	
@@ -293,6 +306,8 @@ void SPGQPSolver<VectorBase>::solve() {
 		xi = (fx_max - fx)/dAd;
 		beta_bar = -gd/dAd;
 		beta_hat = setting.gamma*beta_bar + std::sqrt(setting.gamma*setting.gamma*beta_bar*beta_bar + 2*xi);
+
+MemoryCheck::test_temp(6);
 
 		/* beta = min(sigma2,beta_hat) */
 		if(beta_hat < setting.sigma2){
@@ -304,6 +319,8 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* update approximation and gradient */
 		x += beta*d; /* x = x + beta*d */
 		g += beta*Ad; /* g = g + beta*Ad */
+
+MemoryCheck::test_temp(7);
 		
 		/* compute new function value using gradient and update fs list */
 		fx = get_fx();
@@ -350,6 +367,8 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->fx = fx;
 
 	} /* main cycle end */
+
+MemoryCheck::test_temp(8);
 
 	/* very short info */
 	if(setting.debug_mode >= 3){

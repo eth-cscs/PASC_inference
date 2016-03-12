@@ -1,5 +1,5 @@
-#ifndef KMEANSH1MODEL_H
-#define	KMEANSH1MODEL_H
+#ifndef PASC_KMEANSH1MODEL_H
+#define	PASC_KMEANSH1MODEL_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -139,10 +139,34 @@ void KmeansH1Model<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolv
 	*gammasolver = new QPSolver<VectorBase>(*gammadata);
 	
 	/* generate random data to gamma */
-	gammadata->get_x0()->set_random();
-
+//	gammadata->get_x0()->set_random();
+	int clusterT = ceil((double)this->T/(double)this->K);
+	
+	/* generate random data */
+	int k,t;
+	for(k=0;k<this->K;k++){ /* go through clusters */ 
+		for(t=k*clusterT;t < std::min((k+1)*clusterT,this->T);t++){ /* go through part of time serie corresponding to this cluster */
+		
+			if(k==0){
+				(*(tsdata->get_gammavector()))(t) = 1.0;
+			}
+			if(k==1){
+				(*(tsdata->get_gammavector()))(t+this->T) = 1.0;
+			}
+			if(k==2){
+				(*(tsdata->get_gammavector()))(t+2*this->T) = 1.0;
+			}
+			
+		}
+	}
+	
+	
 	/* project random values to feasible set */
 	gammadata->get_feasibleset()->project(*gammadata->get_x0());
+
+	std::cout << *(gammadata->get_x0()) << std::endl;
+
+
 
 }
 
@@ -192,7 +216,7 @@ void KmeansH1Model<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver
 
 }
 
-/* update gamma solver */
+/* update gamma solver */ //TODO: inplement for each type
 template<class VectorBase>
 void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
 	/* update gamma_solver data - prepare new linear term */
@@ -217,8 +241,9 @@ void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, c
 			for(n=0;n<dim;n++){
 				value = data.get(n*T+t) - theta.get(k*dim + n);
 				dot_sum += value*value;
-			} 
-			b(k*T + t) = dot_sum;
+			}
+			b.set(k*T + t, dot_sum);
+//			b(k*T + t) = dot_sum;
 		}
 	}	
 }
@@ -241,18 +266,29 @@ void KmeansH1Model<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, c
 	int dim = this->dim;
 	
 	int k,i;
-	double sum_gammak;
+	double sum_gammak, gTd;
 	for(k=0;k<K;k++){
 
 		/* compute sum of gamma[k] */
 		sum_gammak = sum(gamma(k*T,(k+1)*T-1));
+		
+		/* "a" has to be non-zero */
+		if(sum_gammak == 0.0){
+			sum_gammak = 1.0;
+		}
+
+//		std::cout << "gamma_" << k << ":" << gamma(k*T,(k+1)*T-1) << std::endl;
 
 		for(i=0;i<this->dim;i++){
-			a(k*dim+i) = sum_gammak;
-			b(k*dim+i) = dot(gamma(k*T,(k+1)*T-1),data(i*T,(i+1)*T-1));
+//			std::cout << "data_" << i << ":" << data(i*T,(i+1)*T-1) << std::endl;
+
+			
+			gTd = dot(gamma(k*T,(k+1)*T-1),data(i*T,(i+1)*T-1));
+
+			a.set(k*dim+i, sum_gammak);
+			b.set(k*dim+i, gTd);
 		}
 	}
-
 
 }
 
