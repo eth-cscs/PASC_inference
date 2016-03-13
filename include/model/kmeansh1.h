@@ -139,34 +139,10 @@ void KmeansH1Model<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolv
 	*gammasolver = new QPSolver<VectorBase>(*gammadata);
 	
 	/* generate random data to gamma */
-//	gammadata->get_x0()->set_random();
-	int clusterT = ceil((double)this->T/(double)this->K);
-	
-	/* generate random data */
-	int k,t;
-	for(k=0;k<this->K;k++){ /* go through clusters */ 
-		for(t=k*clusterT;t < std::min((k+1)*clusterT,this->T);t++){ /* go through part of time serie corresponding to this cluster */
-		
-			if(k==0){
-				(*(tsdata->get_gammavector()))(t) = 1.0;
-			}
-			if(k==1){
-				(*(tsdata->get_gammavector()))(t+this->T) = 1.0;
-			}
-			if(k==2){
-				(*(tsdata->get_gammavector()))(t+2*this->T) = 1.0;
-			}
-			
-		}
-	}
-	
-	
+	gammadata->get_x0()->set_random();
+
 	/* project random values to feasible set */
 	gammadata->get_feasibleset()->project(*gammadata->get_x0());
-
-	std::cout << *(gammadata->get_x0()) << std::endl;
-
-
 
 }
 
@@ -216,12 +192,25 @@ void KmeansH1Model<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver
 
 }
 
-/* update gamma solver */ //TODO: inplement for each type
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
+double KmeansH1Model<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+	
+	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
+	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
+}
+
+
+/* ---------------------- PETSCVECTOR ----------------------- */
+#ifdef USE_PETSCVECTOR
+
+typedef petscvector::PetscVector GlobalPetscVector;
+
+/* update gamma solver */ //TODO: inplement for each type
+template<>
+void KmeansH1Model<GlobalPetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<GlobalPetscVector> *tsdata){
 	/* update gamma_solver data - prepare new linear term */
 
-	typedef GeneralVector<VectorBase> (&pVector);
+	typedef GeneralVector<GlobalPetscVector> (&pVector);
 
 	/* pointers to data */
 	pVector theta = *(tsdata->get_thetavector());
@@ -232,28 +221,45 @@ void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, c
 	int T = this->T;
 	int dim = this->dim;
 	
-	int t,n,k;
-	double dot_sum, value;
+	int t,k;
 	
-	for(k=0;k<K;k++){
-		for(t=0;t<T;t++){ // TODO: this could be performed parallely 
-			dot_sum = 0.0;
-			for(n=0;n<dim;n++){
-				value = data.get(n*T+t) - theta.get(k*dim + n);
-				dot_sum += value*value;
-			}
-			b.set(k*T + t, dot_sum);
-//			b(k*T + t) = dot_sum;
+	Vec data_n;
+	Vec theta_n;
+	IS isdata_n, istheta_n;
+	
+	double temp_dot1,temp_dot2,temp_dot3;
+	
+	for(t=0;t<T;t++){
+		TRY( ISCreateStride(PETSC_COMM_SELF, dim, t, T, &isdata_n));
+		TRY( VecGetSubVector(data.get_vector(),isdata_n, &data_n) );
+
+		for(k=0;k<K;k++){
+			TRY( ISCreateStride(PETSC_COMM_SELF, dim, k*dim, 1, &istheta_n));
+			TRY( VecGetSubVector(theta.get_vector(),istheta_n, &theta_n) );
+
+			/* dot(data_n - theta_n,data_n - theta_n) */
+			TRY( VecDot(data_n,data_n,&temp_dot1) );
+			TRY( VecDot(data_n,theta_n,&temp_dot2) );
+			TRY( VecDot(theta_n,theta_n,&temp_dot3) );
+
+			b.set(k*T + t, -temp_dot1 + 2*temp_dot2 - temp_dot3);
+
+			TRY( VecRestoreSubVector(theta.get_vector(),istheta_n, &theta_n) );
+			TRY( ISDestroy(&istheta_n) );
 		}
+		
+		TRY( VecRestoreSubVector(data.get_vector(),isdata_n, &data_n) );
+		TRY( ISDestroy(&isdata_n) );
+		
 	}	
 }
 
 /* update theta solver */
-template<class VectorBase>
-void KmeansH1Model<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+template<>
+void KmeansH1Model<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<GlobalPetscVector> *tsdata){
 	/* update theta solver - prepare new matrix vector and right-hand side vector */	
 	
-	typedef GeneralVector<VectorBase> (&pVector);
+	typedef GeneralVector<GlobalPetscVector> (&pVector);
 
 	/* pointers to data */
 	pVector gamma = *(tsdata->get_gammavector());
@@ -267,38 +273,46 @@ void KmeansH1Model<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, c
 	
 	int k,i;
 	double sum_gammak, gTd;
+
+	IS is, is2; 
+	Vec temp1, temp2;
+
 	for(k=0;k<K;k++){
 
+		TRY( ISCreateStride(PETSC_COMM_SELF, T, k*T, 1, &is));
+		TRY( VecGetSubVector(gamma.get_vector(),is, &temp1) );
+
 		/* compute sum of gamma[k] */
-		sum_gammak = sum(gamma(k*T,(k+1)*T-1));
+		TRY( VecSum(temp1, &sum_gammak) );
 		
 		/* "a" has to be non-zero */
 		if(sum_gammak == 0.0){
 			sum_gammak = 1.0;
 		}
 
-//		std::cout << "gamma_" << k << ":" << gamma(k*T,(k+1)*T-1) << std::endl;
-
 		for(i=0;i<this->dim;i++){
-//			std::cout << "data_" << i << ":" << data(i*T,(i+1)*T-1) << std::endl;
 
-			
-			gTd = dot(gamma(k*T,(k+1)*T-1),data(i*T,(i+1)*T-1));
+			TRY( ISCreateStride(PETSC_COMM_SELF, T, i*T, 1, &is2));
+			TRY( VecGetSubVector(data.get_vector(),is2, &temp2) );
+
+			TRY( VecDot(temp1, temp2, &gTd) );
 
 			a.set(k*dim+i, sum_gammak);
 			b.set(k*dim+i, gTd);
+
+			TRY( VecRestoreSubVector(data.get_vector(),is2, &temp2) );
+			TRY( ISDestroy(&is2) );
+
 		}
+
+		TRY( VecRestoreSubVector(gamma.get_vector(),is, &temp1) );
+		TRY( ISDestroy(&is) );
+
 	}
 
 }
 
-template<class VectorBase>
-double KmeansH1Model<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
-	
-	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
-	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
-}
-
+#endif
 
 } /* end namespace */
 

@@ -36,7 +36,7 @@ int main( int argc, char *argv[] )
 
 	/* dimension of the problem */
 	int dim = 2; /* data dimension */
-	int T = 10; /* length of time-series */
+	int T = 1000; /* length of time-series */
 	int K = 3; /* number of clusters */
 
 	/* parameters of the model */
@@ -50,7 +50,7 @@ int main( int argc, char *argv[] )
 	double covarianceK3[4] = {0.005, 0.0, 0.0, 0.05};
 	double *covariance[3] = {covarianceK1,covarianceK2,covarianceK3};
 	
-	double penalty = 50;
+	double penalty = 10;
 	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
