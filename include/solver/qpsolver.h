@@ -49,6 +49,7 @@ class QPSolver: public GeneralSolver {
 		
 		double fx; /**< function value in actual iteration */
 		int it; /**< actual iteration */
+		int hessmult; /**< number of Hessian multiplication */
 		
 	public:
 		QPSolverSetting setting;
@@ -62,6 +63,7 @@ class QPSolver: public GeneralSolver {
 
 		virtual void print(std::ostream &output) const;
 		virtual void printstatus(std::ostream &output) const;
+		virtual void printtimer(std::ostream &output) const;
 		virtual std::string get_name() const;
 
 		virtual QPData<VectorBase> *get_data() const;
@@ -133,6 +135,12 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 template<class VectorBase>
 void QPSolver<VectorBase>::printstatus(std::ostream &output) const {
 	child_solver->printstatus(output); // TODO: check existence	
+}
+
+/* print timer */
+template<class VectorBase>
+void QPSolver<VectorBase>::printtimer(std::ostream &output) const {
+	child_solver->printtimer(output); // TODO: check existence	
 }
 
 template<class VectorBase>

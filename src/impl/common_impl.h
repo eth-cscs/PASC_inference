@@ -114,15 +114,15 @@ void Timer::stop(){
 	this->time_start = std::numeric_limits<double>::max();
 }
 
-double Timer::get_value_sum(){
+double Timer::get_value_sum() const {
 	return this->time_sum;
 }
 
-double Timer::get_value_last(){
+double Timer::get_value_last() const {
 	return this->time_last;
 }
 
-bool Timer::status(){
+bool Timer::status() const {
 	return this->run_or_not;
 }
 

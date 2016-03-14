@@ -51,6 +51,7 @@ class GeneralSolver {
 
 		virtual void print(std::ostream &output) const;
 		virtual void printstatus(std::ostream &output) const;
+		virtual void printtimer(std::ostream &output) const;
 		virtual std::string get_name() const;
 
 		virtual void solve() { this->solve(SOLVER_AUTO); };
@@ -73,6 +74,10 @@ void GeneralSolver::print(std::ostream &output) const {
 }
 
 void GeneralSolver::printstatus(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+}
+
+void GeneralSolver::printtimer(std::ostream &output) const {
 	output << this->get_name() << std::endl;
 }
 

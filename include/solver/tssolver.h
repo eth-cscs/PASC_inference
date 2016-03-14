@@ -56,6 +56,8 @@ class TSSolver: public GeneralSolver {
 
 		TSModel<VectorBase> *model; /* pointer to used time-series model */
 
+		int it; /**< actual iteration */
+
 	public:
 		TSSolverSetting setting;
 
@@ -77,7 +79,9 @@ class TSSolver: public GeneralSolver {
 			this->solve(SOLVER_AUTO); 
 		};
 
-		virtual void print(std::ostream &output) const;
+		void print(std::ostream &output) const;
+		void printstatus(std::ostream &output) const;
+		void printtimer(std::ostream &output) const;
 		std::string get_name() const;
 
 		TSData<VectorBase> *get_data() const;
@@ -158,6 +162,38 @@ void TSSolver<VectorBase>::print(std::ostream &output) const {
 }
 
 template<class VectorBase>
+void TSSolver<VectorBase>::printstatus(std::ostream &output) const {
+	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+
+	output << this->get_name() << std::endl;
+	output << " - it:          " << this->it << std::endl;
+	output << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+}
+
+template<class VectorBase>
+void TSSolver<VectorBase>::printtimer(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+	output << " - it =        " << this->it << std::endl;
+	output << " - timers" << std::endl;
+
+	output << " Gamma Solver" << std::endl;
+	if(gammasolver){
+		gammasolver->printtimer(output);
+	} else {
+		output << " - not set" << std::endl;
+	}
+
+	output << " Theta Solver" << std::endl;
+	if(thetasolver){
+		thetasolver->printtimer(output);
+	} else {
+		output << " - not set" << std::endl;
+	}
+	
+}
+
+
+template<class VectorBase>
 std::string TSSolver<VectorBase>::get_name() const {
 	return "Time-Series Solver";
 }
@@ -232,6 +268,7 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		
 	}
 
+	this->it = it;
 	
 }
 

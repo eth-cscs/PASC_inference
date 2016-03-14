@@ -15,10 +15,6 @@ namespace pascinference {
 
 /* settings */
 class DiagSolverSetting : public GeneralSolverSetting {
-	protected:
-		int maxit;
-		double eps;
-
 	public:
 		DiagSolverSetting() {
 		};
@@ -35,6 +31,9 @@ class DiagSolverSetting : public GeneralSolverSetting {
 template<class VectorBase>
 class DiagSolver: public GeneralSolver {
 	protected:
+		Timer timer_solve; /* total solution time of SPG algorithm */
+		Timer timer_dot; /* the sum of time necessary to compute dot_products */
+
 		DiagData<VectorBase> *diagdata; /* data on which the solver operates */
 
 	public:
@@ -44,13 +43,15 @@ class DiagSolver: public GeneralSolver {
 		DiagSolver(DiagData<VectorBase> &new_diagdata); 
 		~DiagSolver();
 
-		virtual void solve(SolverType solvertype);
-		virtual void solve() { this->solve(SOLVER_AUTO); };
+		void solve(SolverType solvertype);
+		void solve() { this->solve(SOLVER_AUTO); };
 
-		virtual void print(std::ostream &output) const;
-		virtual std::string get_name() const;
+		void print(std::ostream &output) const;
+		void printstatus(std::ostream &output) const;		
+		void printtimer(std::ostream &output) const;
+		std::string get_name() const;
 
-		virtual DiagData<VectorBase> *get_data() const;
+		DiagData<VectorBase> *get_data() const;
 
 };
 
@@ -96,6 +97,24 @@ void DiagSolver<VectorBase>::print(std::ostream &output) const {
 	
 }
 
+
+template<class VectorBase>
+void DiagSolver<VectorBase>::printstatus(std::ostream &output) const {
+	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+
+	output << this->get_name() << std::endl;
+	output << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+}
+
+template<class VectorBase>
+void DiagSolver<VectorBase>::printtimer(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+	output << "    - timers" << std::endl;
+	output << "     - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
+	output << "     - t_dot =    " << this->timer_dot.get_value_sum() << std::endl;
+
+}
+
 template<class VectorBase>
 std::string DiagSolver<VectorBase>::get_name() const {
 	return "Diagonal Solver";
@@ -115,10 +134,16 @@ template<>
 void DiagSolver<PetscVector>::solve(SolverType solvertype) {
 	if(DEBUG_MODE >= 100) std::cout << "(DiagSolver)FUNCTION: solve" << std::endl;
 
-	TRY( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );
+	this->timer_solve.start(); 
+
+	this->timer_dot.start(); 
+	 TRY( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );
+	this->timer_dot.stop(); 
 
 	diagdata->get_x()->valuesUpdate();
 	
+	this->timer_solve.stop(); 
+
 }
 
 #endif
@@ -133,6 +158,8 @@ template<>
 void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
 	if(DEBUG_MODE >= 100) std::cout << "(DiagSolver)FUNCTION: solve" << std::endl;
 
+	this->timer_solve.start(); 
+
 	typedef GeneralVector<MinlinHostVector> (&pVector);
 
 	/* pointers to data */
@@ -140,16 +167,21 @@ void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
 	pVector b = *(diagdata->get_b());
 	pVector x = *(diagdata->get_x());
 	
-	int i;
-	for(i=0;i<x.size();i++){
+	this->timer_dot.start(); 
+	 int i;
+	 for(i=0;i<x.size();i++){
 		x(i) = b(i)/a(i);
-	}
+	 }
+	this->timer_dot.stop(); 
 	
+	this->timer_solve.stop(); 
 }
 
 template<>
 void DiagSolver<MinlinDeviceVector>::solve(SolverType solvertype) {
 	if(DEBUG_MODE >= 100) std::cout << "(DiagSolver)FUNCTION: solve" << std::endl;
+
+	this->timer_solve.start(); 
 
 	typedef GeneralVector<MinlinDeviceVector> (&pVector);
 
@@ -158,11 +190,14 @@ void DiagSolver<MinlinDeviceVector>::solve(SolverType solvertype) {
 	pVector b = *(diagdata->get_b());
 	pVector x = *(diagdata->get_x());
 	
-	int i;
-	for(i=0;i<x.size();i++){
+	this->timer_dot.start(); 
+	 int i;
+	 for(i=0;i<x.size();i++){
 		x(i) = b(i)/a(i);
-	}
-	
+	 }
+	this->timer_dot.stop(); 
+
+	this->timer_solve.stop(); 
 }
 
 #endif

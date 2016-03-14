@@ -199,6 +199,76 @@ double KmeansH1Model<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolve
 	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
 }
 
+/* ---------------------- GENERAL ----------------------- */
+template<class VectorBase>
+void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
+	/* update gamma_solver data - prepare new linear term */
+
+	typedef GeneralVector<VectorBase> (&pVector);
+
+	/* pointers to data */
+	pVector theta = *(tsdata->get_thetavector());
+	pVector data = *(tsdata->get_datavector());
+	pVector b = *(gammadata->get_b());
+
+	int K = this->K;
+	int T = this->T;
+	int dim = this->dim;
+	
+	int t,n,k;
+	double dot_sum, value;
+	
+	for(k=0;k<K;k++){
+		for(t=0;t<T;t++){
+			dot_sum = 0.0;
+			for(n=0;n<dim;n++){
+				value = data.get(n*T+t) - theta.get(k*dim + n);
+				dot_sum += value*value;
+			}
+			b(k*T + t) = -dot_sum;
+		}
+	}	
+}
+
+/* update theta solver */
+template<class VectorBase>
+void KmeansH1Model<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+	/* update theta solver - prepare new matrix vector and right-hand side vector */	
+	
+	typedef GeneralVector<VectorBase> (&pVector);
+
+	/* pointers to data */
+	pVector gamma = *(tsdata->get_gammavector());
+	pVector data = *(tsdata->get_datavector());
+	pVector a = *(thetadata->get_a());
+	pVector b = *(thetadata->get_b());
+	
+	int K = this->K;
+	int T = this->T;
+	int dim = this->dim;
+	
+	int k,i;
+	double sum_gammak, gTd;
+	for(k=0;k<K;k++){
+
+		/* compute sum of gamma[k] */
+		sum_gammak = sum(gamma(k*T,(k+1)*T-1));
+		
+		/* "a" has to be non-zero */
+		if(sum_gammak == 0.0){
+			sum_gammak = 1.0;
+		}
+
+		for(i=0;i<this->dim;i++){
+			
+			gTd = dot(gamma(k*T,(k+1)*T-1),data(i*T,(i+1)*T-1));
+
+			a(k*dim+i) = sum_gammak;
+			b(k*dim+i) = gTd;
+		}
+	}
+
+}
 
 /* ---------------------- PETSCVECTOR ----------------------- */
 #ifdef USE_PETSCVECTOR
@@ -313,6 +383,9 @@ void KmeansH1Model<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetaso
 }
 
 #endif
+
+
+
 
 } /* end namespace */
 

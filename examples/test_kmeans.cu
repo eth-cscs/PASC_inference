@@ -36,7 +36,7 @@ int main( int argc, char *argv[] )
 
 	/* dimension of the problem */
 	int dim = 2; /* data dimension */
-	int T = 1000; /* length of time-series */
+	int T = 200; /* length of time-series */
 	int K = 3; /* number of clusters */
 
 	/* parameters of the model */
@@ -74,6 +74,8 @@ int main( int argc, char *argv[] )
 
 	/* save results into VTK file */
 	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
+
+	mysolver.printtimer(std::cout);
 
 	/* say bye */	
 	Message("- end program");

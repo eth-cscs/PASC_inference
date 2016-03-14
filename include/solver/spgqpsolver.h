@@ -63,7 +63,7 @@ class SPGQPSolver_fs {
 	private:
 		int m; /* the length of list */
 		std::list<double> fs_list; /* the list with function values */
-		
+
 	public: 
 		SPGQPSolver_fs(int new_m);
 		void init(double fx);
@@ -79,7 +79,15 @@ class SPGQPSolver_fs {
 /* SPGQPSolver */ 
 template<class VectorBase>
 class SPGQPSolver: public QPSolver<VectorBase> {
-	protected:
+	private:
+		Timer timer_solve; /* total solution time of SPG algorithm */
+		Timer timer_projection; /* the sum of time necessary to perform projections */
+		Timer timer_matmult; /* the sum of time necessary to perform matrix multiplication */
+		Timer timer_dot; /* the sum of time necessary to compute dot_products */
+		Timer timer_update; /* total time of vector updates */
+		Timer timer_stepsize; /* total time of step-size computation */
+		Timer timer_fs; /* total time of manipulation with fs vector during iterations */
+
 		QPData<VectorBase> *qpdata; /* data on which the solver operates */
 	
 		/* temporary vectors used during the solution process */
@@ -103,7 +111,8 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		int get_it() const;
 
 		void print(std::ostream &output) const;
-		virtual void printstatus(std::ostream &output) const;		
+		void printstatus(std::ostream &output) const;		
+		void printtimer(std::ostream &output) const;
 
 		std::string get_name() const;
 
@@ -131,7 +140,20 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	Ad = NULL;
 	temp = NULL;
 
+	this->it = 0;
+	this->hessmult = 0;
+	
 	this->fx = std::numeric_limits<double>::max();
+	
+	/* prepare timers */
+	this->timer_projection.restart();
+	this->timer_matmult.restart();
+	this->timer_dot.restart();
+	this->timer_update.restart();
+	this->timer_stepsize.restart();
+	this->timer_fs.restart();
+	this->timer_solve.restart();	
+	
 }
 
 template<class VectorBase>
@@ -141,7 +163,20 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 	/* allocate temp vectors */
 	allocate_temp_vectors();
 
+	this->it = 0;
+	this->hessmult = 0;
+
 	this->fx = std::numeric_limits<double>::max();
+
+	/* prepare timers */
+	this->timer_projection.restart();
+	this->timer_matmult.restart();
+	this->timer_dot.restart();
+	this->timer_update.restart();
+	this->timer_stepsize.restart();
+	this->timer_fs.restart();
+	this->timer_solve.restart();	
+
 }
 
 
@@ -197,9 +232,24 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 	output << " - it:          " << this->it << std::endl;
 	output << " - fx:          " << this->fx << std::endl;	
 	output << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
-
-
 }
+
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::printtimer(std::ostream &output) const {
+	output << this->get_name() << std::endl;
+	output << "    - it =        " << this->it << std::endl;
+	output << "    - hessmult =  " << this->hessmult << std::endl;
+	output << "    - timers" << std::endl;
+	output << "     - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
+	output << "     - t_project =  " << this->timer_projection.get_value_sum() << std::endl;
+	output << "     - t_matmult =  " << this->timer_matmult.get_value_sum() << std::endl;
+	output << "     - t_dot =      " << this->timer_dot.get_value_sum() << std::endl;
+	output << "     - t_update =   " << this->timer_update.get_value_sum() << std::endl;
+	output << "     - t_stepsize = " << this->timer_stepsize.get_value_sum() << std::endl;
+	output << "     - t_fs =       " << this->timer_fs.get_value_sum() << std::endl;
+//	output << "     - t_other =    ", this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
+}
+
 
 template<class VectorBase>
 std::string SPGQPSolver<VectorBase>::get_name() const {
@@ -211,7 +261,7 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::solve() {
 	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: solve" << std::endl;
 
-MemoryCheck::test_temp(1);
+	this->timer_solve.start(); /* stop this timer in the end of solution */
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
@@ -231,8 +281,6 @@ MemoryCheck::test_temp(1);
 	pVector Ad = *(this->Ad); /* A*p */
 
 	int it = 0; /* number of iterations */
-	this->it = it;
-
 	int hessmult = 0; /* number of hessian multiplications */
 
 	double fx; /* function value */
@@ -248,86 +296,98 @@ MemoryCheck::test_temp(1);
 	alpha_bb = setting.alphainit;
 
 	x = x0; /* set approximation as initial */
-	qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
+
+	this->timer_projection.start();
+	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
+	this->timer_projection.stop();
 
 	/* compute gradient, g = A*x-b */
-	g = A*x; 
-	hessmult += 1; /* there was muliplication by A */
+	this->timer_matmult.start();
+	 g = A*x;
+	 hessmult += 1; /* there was muliplication by A */
+	this->timer_matmult.stop();
 	g -= b;
 
-	/* compute function value */
- 	fx = get_fx();
-	this->fx = fx;
-	
 	/* initialize fs */
-	fs.init(fx);	
-
-MemoryCheck::test_temp(2);
-
+	this->timer_fs.start();
+	 fx = get_fx();
+	 this->fx = fx;
+	 fs.init(fx);	
+	this->timer_fs.stop();
 
 	/* main cycle */
 	while(it < setting.maxit){
 
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
-		d = x - alpha_bb*g;
-
-MemoryCheck::test_temp(3);
+		this->timer_update.start();
+		 d = x - alpha_bb*g;
+		this->timer_update.stop();
 
 		/* d = P(d) */
-		qpdata->get_feasibleset()->project(d);
-
-MemoryCheck::test_temp(4);
+		this->timer_projection.start();
+		 qpdata->get_feasibleset()->project(d);
+		this->timer_projection.stop();
 
 		/* d = d - x */
-		d -= x;
+		this->timer_update.start();
+		 d -= x;
+		this->timer_update.stop();
 
 		/* Ad = A*d */
-		Ad = A*d;
-		hessmult += 1; /* there was multiplication by A */
+		this->timer_matmult.start();
+		 Ad = A*d;
+		 hessmult += 1;
+		this->timer_matmult.stop();
 
 		/* dd = dot(d,d) */
 		/* dAd = dot(Ad,d) */
 		/* gd = dot(g,d) */
-		dd = dot(d,d);
-		dAd = dot(Ad,d);
-		gd = dot(g,d);
+		this->timer_dot.start();
+		 dd = dot(d,d);
+		 dAd = dot(Ad,d);
+		 gd = dot(g,d);
+		this->timer_dot.stop();
 
 		/* stopping criteria */
 		if(dd < setting.eps){
 			break;
 		}
 
-MemoryCheck::test_temp(5);
-		
 		/* fx_max = max(fs) */
-		fx_max = fs.get_max();	
+		this->timer_fs.start();
+		 fx_max = fs.get_max();	
+		this->timer_fs.stop();
 		
 		/* compute step-size from A-condition */
-		xi = (fx_max - fx)/dAd;
-		beta_bar = -gd/dAd;
-		beta_hat = setting.gamma*beta_bar + std::sqrt(setting.gamma*setting.gamma*beta_bar*beta_bar + 2*xi);
+		this->timer_stepsize.start();
+		 xi = (fx_max - fx)/dAd;
+		 beta_bar = -gd/dAd;
+		 beta_hat = setting.gamma*beta_bar + std::sqrt(setting.gamma*setting.gamma*beta_bar*beta_bar + 2*xi);
 
-MemoryCheck::test_temp(6);
-
-		/* beta = min(sigma2,beta_hat) */
-		if(beta_hat < setting.sigma2){
+		 /* beta = min(sigma2,beta_hat) */
+		 if(beta_hat < setting.sigma2){
 			beta = beta_hat;
-		} else {
+		 } else {
 			beta = setting.sigma2;
-		}
+		 }
+		this->timer_stepsize.stop();
 
 		/* update approximation and gradient */
-		x += beta*d; /* x = x + beta*d */
-		g += beta*Ad; /* g = g + beta*Ad */
+		this->timer_update.start();
+		 x += beta*d; /* x = x + beta*d */
+		 g += beta*Ad; /* g = g + beta*Ad */
+		this->timer_update.stop();
 
-MemoryCheck::test_temp(7);
-		
 		/* compute new function value using gradient and update fs list */
-		fx = get_fx();
-		fs.update(fx);
+		this->timer_fs.start();
+		 fx = get_fx();
+		 fs.update(fx);
+		this->timer_fs.stop();
 
 		/* update BB step-size */
-		alpha_bb = dd/dAd;
+		this->timer_stepsize.start();
+		 alpha_bb = dd/dAd;
+		this->timer_stepsize.stop();
 
 		/* print qpdata */
 		if(setting.debug_mode >= 10){
@@ -362,18 +422,17 @@ MemoryCheck::test_temp(7);
 		
 		/* increase iteration counter */
 		it += 1;
-
-		this->it = it;
-		this->fx = fx;
-
 	} /* main cycle end */
 
-MemoryCheck::test_temp(8);
+	this->it += it;
+	this->hessmult += hessmult;
+	this->fx = fx;
+	this->timer_solve.stop();
 
 	/* very short info */
 	if(setting.debug_mode >= 3){
 		Message_info_value("   - it    = ",it);
-//		Message_info_time("   - time  = ",this->timer_total.get_value_last());
+		Message_info_time("   - time  = ",this->timer_solve.get_value_last());
 
 	}
 

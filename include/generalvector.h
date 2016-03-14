@@ -66,8 +66,6 @@ typedef petscvector::PetscVector PetscVector;
 template<>
 void GeneralVector<PetscVector>::set_random() { 
 	PetscRandom rnd;
-	PetscScalar *arr, value;
-	PetscInt local_size;
 	Vec vec = this->get_vector();
 	
 	/* prepare random generator */

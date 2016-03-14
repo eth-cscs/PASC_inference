@@ -146,14 +146,14 @@ class Timer {
 		*  Return the sum of ellapsed time between all start() and stop() calls.
 		* 
 		*/
-		double get_value_sum();
+		double get_value_sum() const;
 
 		/** @brief get last elapsed time
 		* 
 		*  Return the last ellapsed time between start() and stop(). 
 		* 
 		*/
-		double get_value_last();
+		double get_value_last() const;
 
 		/** @brief get the status
 		* 
@@ -162,12 +162,20 @@ class Timer {
 		* false if the timer is not running.
 		*
 		*/
-		bool status();
+		bool status() const;
 };
 
-
+/** @class MemoryCheck
+ *  @brief get memory state
+ * 
+ *  Several utils for memory management. Could be used to conrol the memory.
+ * 
+ */ 
 class MemoryCheck {
 	public:
+		/** @brief get the size of virtual memory
+		 * 
+		 */ 
 		static long long get_virtual_all() {
 			struct sysinfo memInfo;
 			sysinfo (&memInfo);
@@ -178,6 +186,9 @@ class MemoryCheck {
 			return totalVirtualMem;
 		}
 
+		/** @brief get the size of used virtual memory
+		 * 
+		 */ 
 		static long long get_virtual_used() {
 			struct sysinfo memInfo;
 			sysinfo (&memInfo);
@@ -189,6 +200,9 @@ class MemoryCheck {
 			return virtualMemUsed;
 		}
 
+		/** @brief get the percentage usege of virtual memory
+		 * 
+		 */ 
 		static double get_virtual(){
 			struct sysinfo memInfo;
 			sysinfo (&memInfo);
@@ -196,6 +210,9 @@ class MemoryCheck {
 			return 100*((memInfo.totalram - memInfo.freeram) + (memInfo.totalram - memInfo.freeram))/(double)(memInfo.totalram + memInfo.totalram);
 		}
 
+		/** @brief get the size of physical memory
+		 * 
+		 */ 
 		static long long get_physical() {
 			struct sysinfo memInfo;
 			sysinfo (&memInfo);
@@ -204,16 +221,6 @@ class MemoryCheck {
 			
 			return totalPhysMem;
 		}
-
-		static void test_temp(int idx) {
-			//std::cout << "TEST_" << idx << ": \033[31m" << get_virtual() << "\033[0m%" << std::endl;
-		}
-		
-		
-    //Add other values in next statement to avoid int overflow on right hand side...
-
-
-	
 	
 };
 
