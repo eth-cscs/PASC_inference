@@ -140,19 +140,21 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	Ad = NULL;
 	temp = NULL;
 
-	this->it = 0;
-	this->hessmult = 0;
+	this->it_sum = 0;
+	this->hessmult_sum = 0;
+	this->it_last = 0;
+	this->hessmult_last = 0;
 	
 	this->fx = std::numeric_limits<double>::max();
 	
 	/* prepare timers */
+	this->timer_solve.restart();	
 	this->timer_projection.restart();
 	this->timer_matmult.restart();
 	this->timer_dot.restart();
 	this->timer_update.restart();
 	this->timer_stepsize.restart();
 	this->timer_fs.restart();
-	this->timer_solve.restart();	
 	
 }
 
@@ -163,8 +165,10 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 	/* allocate temp vectors */
 	allocate_temp_vectors();
 
-	this->it = 0;
-	this->hessmult = 0;
+	this->it_sum = 0;
+	this->hessmult_sum = 0;
+	this->it_last = 0;
+	this->hessmult_last = 0;
 
 	this->fx = std::numeric_limits<double>::max();
 
@@ -229,7 +233,8 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output << this->get_name() << std::endl;
-	output << " - it:          " << this->it << std::endl;
+	output << " - it:          " << this->it_last << std::endl;
+	output << " - hess mult:   " << this->hessmult_last << std::endl;
 	output << " - fx:          " << this->fx << std::endl;	
 	output << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 }
@@ -237,17 +242,17 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::printtimer(std::ostream &output) const {
 	output << this->get_name() << std::endl;
-	output << "    - it =        " << this->it << std::endl;
-	output << "    - hessmult =  " << this->hessmult << std::endl;
-	output << "    - timers" << std::endl;
-	output << "     - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
-	output << "     - t_project =  " << this->timer_projection.get_value_sum() << std::endl;
-	output << "     - t_matmult =  " << this->timer_matmult.get_value_sum() << std::endl;
-	output << "     - t_dot =      " << this->timer_dot.get_value_sum() << std::endl;
-	output << "     - t_update =   " << this->timer_update.get_value_sum() << std::endl;
-	output << "     - t_stepsize = " << this->timer_stepsize.get_value_sum() << std::endl;
-	output << "     - t_fs =       " << this->timer_fs.get_value_sum() << std::endl;
-//	output << "     - t_other =    ", this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
+	output << " - it all =       " << this->it_sum << std::endl;
+	output << " - hessmult all = " << this->hessmult_sum << std::endl;
+	output << " - timers all" << std::endl;
+	output << "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
+	output << "  - t_project =    " << this->timer_projection.get_value_sum() << std::endl;
+	output << "  - t_matmult =    " << this->timer_matmult.get_value_sum() << std::endl;
+	output << "  - t_dot =        " << this->timer_dot.get_value_sum() << std::endl;
+	output << "  - t_update =     " << this->timer_update.get_value_sum() << std::endl;
+	output << "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
+	output << "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
+	output << "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
 }
 
 
@@ -424,8 +429,11 @@ void SPGQPSolver<VectorBase>::solve() {
 		it += 1;
 	} /* main cycle end */
 
-	this->it += it;
-	this->hessmult += hessmult;
+	this->it_sum += it;
+	this->hessmult_sum += hessmult;
+	this->it_last = it;
+	this->hessmult_last = hessmult;
+
 	this->fx = fx;
 	this->timer_solve.stop();
 
@@ -464,7 +472,7 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 
 template<class VectorBase>
 int SPGQPSolver<VectorBase>::get_it() const {
-	return this->it;
+	return this->it_last;
 }
 
 /* ---------- SPGQPSolver_fs -------------- */

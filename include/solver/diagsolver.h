@@ -109,9 +109,9 @@ void DiagSolver<VectorBase>::printstatus(std::ostream &output) const {
 template<class VectorBase>
 void DiagSolver<VectorBase>::printtimer(std::ostream &output) const {
 	output << this->get_name() << std::endl;
-	output << "    - timers" << std::endl;
-	output << "     - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
-	output << "     - t_dot =    " << this->timer_dot.get_value_sum() << std::endl;
+	output << " - timers" << std::endl;
+	output << "  - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
+	output << "  - t_dot =    " << this->timer_dot.get_value_sum() << std::endl;
 
 }
 

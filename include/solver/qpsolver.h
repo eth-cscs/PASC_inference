@@ -48,8 +48,10 @@ class QPSolver: public GeneralSolver {
 		QPSolver *child_solver; /* child of this solver, which actually solve the problem */
 		
 		double fx; /**< function value in actual iteration */
-		int it; /**< actual iteration */
-		int hessmult; /**< number of Hessian multiplication */
+		int it_sum; /**< number of all iterations */
+		int it_last; /**< number of iterations during last solution */
+		int hessmult_sum; /**< number of all Hessian multiplication */
+		int hessmult_last; /**< number of Hessian multiplication */
 		
 	public:
 		QPSolverSetting setting;

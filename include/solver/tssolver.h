@@ -49,14 +49,23 @@ class TSSolverSetting : public GeneralSolverSetting {
 template<class VectorBase>
 class TSSolver: public GeneralSolver {
 	protected:
-		TSData<VectorBase> *tsdata; /* tsdata on which the solver operates */
+		TSData<VectorBase> *tsdata; /**< tsdata on which the solver operates */
 
-		GeneralSolver *gammasolver; /* to solve inner gamma problem */
-		GeneralSolver *thetasolver; /* to solve inner theta problem */
+		GeneralSolver *gammasolver; /**< to solve inner gamma problem */
+		GeneralSolver *thetasolver; /**< to solve inner theta problem */
 
-		TSModel<VectorBase> *model; /* pointer to used time-series model */
+		TSModel<VectorBase> *model; /**< pointer to used time-series model */
 
-		int it; /**< actual iteration */
+		int it_sum; /**< sum of all iterations */
+		int it_last; /**< number of interations in last solution */
+
+		double L; /**< function value */
+
+		Timer timer_solve; /**< total solution time of algorithm */
+		Timer timer_gamma_solve; /**< timer for solving gamma problem */
+		Timer timer_theta_solve; /**< timer for solving theta problem */
+		Timer timer_gamma_update; /**< timer for updating gamma problem */
+		Timer timer_theta_update; /**< timer for updating theta problem */
 
 	public:
 		TSSolverSetting setting;
@@ -103,7 +112,18 @@ TSSolver<VectorBase>::TSSolver(){
 	model = NULL;
 	gammasolver = NULL; /* in this time, we don't know how to solve the problem */
 	thetasolver = NULL; /* in this time, we don't know how to solve the problem */
-	
+
+	this->it_sum = 0;
+	this->it_last = 0;
+
+	this->L = std::numeric_limits<double>::max();
+
+	this->timer_solve.restart();	
+	this->timer_gamma_solve.restart();
+	this->timer_theta_solve.restart();
+	this->timer_gamma_update.restart();
+	this->timer_theta_update.restart();
+
 }
 
 template<class VectorBase>
@@ -115,6 +135,16 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata){
 	model->initialize_gammasolver(&gammasolver, tsdata);	
 	model->initialize_thetasolver(&thetasolver, tsdata);	
 	
+	this->it_sum = 0;
+	this->it_last = 0;
+
+	this->L = std::numeric_limits<double>::max();
+
+	this->timer_solve.restart();	
+	this->timer_gamma_solve.restart();
+	this->timer_theta_solve.restart();
+	this->timer_gamma_update.restart();
+	this->timer_theta_update.restart();
 }
 
 /* destructor */
@@ -166,15 +196,21 @@ void TSSolver<VectorBase>::printstatus(std::ostream &output) const {
 	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output << this->get_name() << std::endl;
-	output << " - it:          " << this->it << std::endl;
+	output << " - it:          " << this->it_last << std::endl;
+	output << " - L:           " << this->L << std::endl;	
 	output << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 }
 
 template<class VectorBase>
 void TSSolver<VectorBase>::printtimer(std::ostream &output) const {
 	output << this->get_name() << std::endl;
-	output << " - it =        " << this->it << std::endl;
+	output << " - it all =          " << this->it_sum << std::endl;
 	output << " - timers" << std::endl;
+	output << "  - t_solve =        " << this->timer_solve.get_value_sum() << std::endl;
+	output << "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << std::endl;
+	output << "  - t_gamma_solve =  "  << this->timer_gamma_solve.get_value_sum() << std::endl;
+	output << "  - t_theta_update = " << this->timer_theta_update.get_value_sum() << std::endl;
+	output << "  - t_theta_solve =  " << this->timer_theta_solve.get_value_sum() << std::endl;
 
 	output << " Gamma Solver" << std::endl;
 	if(gammasolver){
@@ -202,6 +238,8 @@ std::string TSSolver<VectorBase>::get_name() const {
 template<class VectorBase>
 void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasolvertype) {
 	if(setting.debug_mode >= 100) std::cout << "(TSSolver)FUNCTION: solve" << std::endl;
+
+	this->timer_solve.start(); /* stop this timer in the end of solution */
 
 	/* the gamma or theta solver wasn't specified yet */
 	if(!gammasolver || !thetasolver){
@@ -231,20 +269,26 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		Message_info_value(" - it = ",it);
 
 		/* --- COMPUTE Theta --- */
-		model->update_thetasolver(thetasolver, tsdata);
-		thetasolver->solve(thetasolvertype);
+		this->timer_theta_update.start();
+		 model->update_thetasolver(thetasolver, tsdata);
+		this->timer_theta_update.stop();
+
+		this->timer_theta_solve.start();
+		 thetasolver->solve(thetasolvertype);
+		this->timer_theta_solve.stop();
 
 		if(setting.debug_mode >= 10){
 			thetasolver->printstatus(std::cout);
 		}
 
-		/* print Theta */
-		std::cout << "Theta: " << *(tsdata->get_thetavector()) << std::endl;
-
-
 		/* --- COMPUTE gamma --- */
-		model->update_gammasolver(gammasolver, tsdata);
-		gammasolver->solve(gammasolvertype);
+		this->timer_gamma_update.start();
+		 model->update_gammasolver(gammasolver, tsdata);
+		this->timer_gamma_update.stop();
+
+		this->timer_gamma_solve.start();
+		 gammasolver->solve(gammasolvertype);
+		this->timer_gamma_solve.stop();
 
 		if(setting.debug_mode >= 10){
 			gammasolver->printstatus(std::cout);
@@ -268,7 +312,11 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		
 	}
 
-	this->it = it;
+	this->it_sum += it;
+	this->it_last = it;
+	this->L = L;
+
+	this->timer_solve.stop(); /* stop this timer in the end of solution */
 	
 }
 
