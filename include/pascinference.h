@@ -35,6 +35,7 @@
 
 /* include Petsc */
 #ifdef USE_PETSC
+	#include "mpi.h"
 	#include "petsc.h"
 #endif
 

@@ -18,6 +18,7 @@
 
 #include "sys/types.h"
 #include "sys/sysinfo.h"
+#include <iostream>
 
 /* we are using namespace pascinference */
 namespace pascinference {
@@ -223,6 +224,93 @@ class MemoryCheck {
 		}
 	
 };
+
+/** @class ConsoleOutput
+ *  @brief print only on master
+ * 
+ *  Overloaded std::ostream cout function. Print based on rank.
+ * 
+ */ 
+class ConsoleOutput : public std::ostream {
+	private:
+		int rank;
+		bool rankset;
+	public:
+
+		/* set rank of this processor */
+		void set_rank(){
+			rank = 0;
+			if(!rankset){
+				#ifdef USE_PETSCVECTOR
+					/* can be set after initialize of petsc */
+					if(petscvector::PETSC_INITIALIZED){
+						MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+						rankset = true;
+					}	
+				#else
+					rankset = true; /* if it is not with petsc, then this is always master */
+				#endif
+			}
+		}
+
+		ConsoleOutput() : std::ostream(std::cout.rdbuf()) {
+			rankset = false;
+			set_rank();
+		}
+		
+		template <typename T>
+		friend ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v);
+		
+} coutMaster;
+
+template <typename T>
+ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v)
+{
+	myo.set_rank();
+	if(myo.rank == 0){
+		static_cast<std::ostream&>(myo) << v;
+	}
+	return myo;
+}
+
+
+class _offset {
+	private:
+		std::string inner_string; /**< offset string */
+		int size; /**< number of spaces in offset */
+
+		void refill(){
+			inner_string = "";
+			int i;
+			for(i=0;i<size;i++){
+				inner_string += " ";
+			}
+		}
+	public:
+		_offset(){
+			inner_string = ""; /* initial offset */
+		}
+	
+		void push(){
+			size += 2;
+			refill();
+		}
+
+		void pop(){
+			size -= 2;
+			if(size < 0) size = 0;
+			refill();
+		}
+
+		friend std::ostream &operator<<(std::ostream &output, const _offset &offset);
+
+} offset;
+
+std::ostream &operator<<(std::ostream &output, const _offset &offset){
+	output << offset.inner_string;
+	return output;
+}
+
 
 #ifdef USE_GPU
 	/* cuda error check */ 
