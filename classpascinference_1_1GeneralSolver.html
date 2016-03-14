@@ -111,7 +111,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="classpascinference_1_1GeneralSolver__inherit__graph.png" border="0" usemap="#pascinference_1_1GeneralSolver_inherit__map" alt="Inheritance graph"/></div>
 <map name="pascinference_1_1GeneralSolver_inherit__map" id="pascinference_1_1GeneralSolver_inherit__map">
-<area shape="rect" id="node2" href="classpascinference_1_1DiagSolver.html" title="{pascinference::DiagSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l|+ DiagSolver()\l+ DiagSolver()\l+ ~DiagSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l}" alt="" coords="5,263,180,457"/><area shape="rect" id="node3" href="classpascinference_1_1QPSolver.html" title="{pascinference::QPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# child_solver\l|+ QPSolver()\l+ QPSolver()\l+ ~QPSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l}" alt="" coords="204,255,371,465"/><area shape="rect" id="node6" href="classpascinference_1_1TSSolver.html" title="{pascinference::TSSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# gammasolver\l# thetasolver\l# model\l|+ TSSolver()\l+ TSSolver()\l+ ~TSSolver()\l+ solve()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l}" alt="" coords="395,233,561,487"/><area shape="rect" id="node4" href="classpascinference_1_1CGQPSolver.html" title="{pascinference::CGQPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# g\l# p\l# Ap\l|+ CGQPSolver()\l+ CGQPSolver()\l+ ~CGQPSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l# allocate_temp_vectors()\l# free_temp_vectors()\l}" alt="" coords="87,557,274,825"/><area shape="rect" id="node5" href="classpascinference_1_1SPGQPSolver.html" title="{pascinference::SPGQPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# g\l# d\l# Ad\l# temp\l|+ SPGQPSolver()\l+ SPGQPSolver()\l+ ~SPGQPSolver()\l+ solve()\l+ solve()\l+ get_function_value()\l+ print()\l+ get_name()\l# allocate_temp_vectors()\l# free_temp_vectors()\l# get_function_value()\l}" alt="" coords="298,535,493,847"/></map>
+<area shape="rect" id="node2" href="classpascinference_1_1DiagSolver.html" title="{pascinference::DiagSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# diagdata\l|+ DiagSolver()\l+ DiagSolver()\l+ ~DiagSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l+ get_data()\l}" alt="" coords="5,307,180,516"/><area shape="rect" id="node3" href="classpascinference_1_1QPSolver.html" title="{pascinference::QPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# qpdata\l# child_solver\l# fx\l# it\l|+ QPSolver()\l+ QPSolver()\l+ ~QPSolver()\l+ solve()\l+ solve()\l+ print()\l+ printstatus()\l+ get_name()\l+ get_data()\l+ get_fx()\l+ get_it()\l}" alt="" coords="204,263,371,560"/><area shape="rect" id="node6" href="classpascinference_1_1TSSolver.html" title="{pascinference::TSSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# tsdata\l# gammasolver\l# thetasolver\l# model\l|+ TSSolver()\l+ TSSolver()\l+ ~TSSolver()\l+ solve()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l+ get_data()\l}" alt="" coords="395,277,561,545"/><area shape="rect" id="node4" href="classpascinference_1_1CGQPSolver.html" title="{pascinference::CGQPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# g\l# p\l# Ap\l|+ CGQPSolver()\l+ CGQPSolver()\l+ ~CGQPSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l# allocate_temp_vectors()\l# free_temp_vectors()\l}" alt="" coords="87,637,274,905"/><area shape="rect" id="node5" href="classpascinference_1_1SPGQPSolver.html" title="{pascinference::SPGQPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# qpdata\l# g\l# d\l# Ad\l# temp\l|+ SPGQPSolver()\l+ SPGQPSolver()\l+ ~SPGQPSolver()\l+ solve()\l+ solve()\l+ get_fx()\l+ get_it()\l+ print()\l+ printstatus()\l+ get_name()\l# allocate_temp_vectors()\l# free_temp_vectors()\l}" alt="" coords="298,608,493,935"/></map>
 </div>
 <div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-1-trigger" src="closed.png" alt="+"/> Collaboration diagram for pascinference::GeneralSolver:</div>
@@ -120,25 +120,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-1-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="classpascinference_1_1GeneralSolver__coll__graph.png" border="0" usemap="#pascinference_1_1GeneralSolver_coll__map" alt="Collaboration graph"/></div>
 <map name="pascinference_1_1GeneralSolver_coll__map" id="pascinference_1_1GeneralSolver_coll__map">
-<area shape="rect" id="node2" href="classpascinference_1_1GeneralData.html" title="{pascinference::GeneralData\n||+ GeneralData()\l+ ~GeneralData()\l+ print()\l+ get_name()\l}" alt="" coords="5,161,189,283"/><area shape="rect" id="node3" href="classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n||+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="214,161,407,283"/><area shape="rect" id="node4" href="classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l}" alt="" coords="212,5,409,112"/></map>
+<area shape="rect" id="node2" href="classpascinference_1_1GeneralData.html" title="{pascinference::GeneralData\n||+ GeneralData()\l+ ~GeneralData()\l+ print()\l+ printcontent()\l+ get_name()\l}" alt="" coords="5,169,189,305"/><area shape="rect" id="node3" href="classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n|+ debug_mode\l+ maxit\l+ eps\l|+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="214,161,407,312"/><area shape="rect" id="node4" href="classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l}" alt="" coords="212,5,409,112"/></map>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a6d0006d82d4dfbf50e78b6acc1e16e19"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#a6d0006d82d4dfbf50e78b6acc1e16e19">GeneralSolver</a> ()</td></tr>
 <tr class="separator:a6d0006d82d4dfbf50e78b6acc1e16e19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4d1d5bbc8e8476d1f2df7c58f119c9f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#af4d1d5bbc8e8476d1f2df7c58f119c9f">GeneralSolver</a> (const <a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;new_data)</td></tr>
-<tr class="separator:af4d1d5bbc8e8476d1f2df7c58f119c9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c8c3f1a84f529102b7d42a119c6591e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#a4c8c3f1a84f529102b7d42a119c6591e">GeneralSolver</a> (<a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;new_data)</td></tr>
+<tr class="separator:a4c8c3f1a84f529102b7d42a119c6591e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6d4f28de3061e6aeedd988853cca26d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#af6d4f28de3061e6aeedd988853cca26d">~GeneralSolver</a> ()</td></tr>
 <tr class="separator:af6d4f28de3061e6aeedd988853cca26d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa14b29de1773843ab50b763de023007"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#afa14b29de1773843ab50b763de023007">print</a> (std::ostream &amp;output) const </td></tr>
 <tr class="separator:afa14b29de1773843ab50b763de023007"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa00c08f139ea2c379c67926668003ebd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#aa00c08f139ea2c379c67926668003ebd">printstatus</a> (std::ostream &amp;output) const </td></tr>
+<tr class="separator:aa00c08f139ea2c379c67926668003ebd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0af32a44f41efa74111282bf9ab50131"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#a0af32a44f41efa74111282bf9ab50131">get_name</a> () const </td></tr>
 <tr class="separator:a0af32a44f41efa74111282bf9ab50131"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e97ba7a75895b44967032f12f28c36a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#a9e97ba7a75895b44967032f12f28c36a">solve</a> ()</td></tr>
 <tr class="separator:a9e97ba7a75895b44967032f12f28c36a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adddff22c2e79a2f25fc2b99e2f5b58e3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#adddff22c2e79a2f25fc2b99e2f5b58e3">solve</a> (<a class="el" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1">SolverType</a> solvertype)</td></tr>
 <tr class="separator:adddff22c2e79a2f25fc2b99e2f5b58e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37ab91558d7e70c1851274a4a8d7d1f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#a37ab91558d7e70c1851274a4a8d7d1f7">get_data</a> () const </td></tr>
+<tr class="separator:a37ab91558d7e70c1851274a4a8d7d1f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
@@ -147,8 +151,8 @@ Data Fields</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:ab7db7894e790106c972f54c2ee1fe0dd"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#ab7db7894e790106c972f54c2ee1fe0dd">data</a></td></tr>
-<tr class="separator:ab7db7894e790106c972f54c2ee1fe0dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46a42ebf7f8662d69b792608b9c81798"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1GeneralSolver.html#a46a42ebf7f8662d69b792608b9c81798">data</a></td></tr>
+<tr class="separator:a46a42ebf7f8662d69b792608b9c81798"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -179,7 +183,7 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af4d1d5bbc8e8476d1f2df7c58f119c9f"></a>
+<a class="anchor" id="a4c8c3f1a84f529102b7d42a119c6591e"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -189,7 +193,7 @@ Friends</h2></td></tr>
         <tr>
           <td class="memname">pascinference::GeneralSolver::GeneralSolver </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;&#160;</td>
           <td class="paramname"><em>new_data</em></td><td>)</td>
           <td></td>
         </tr>
@@ -227,6 +231,21 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a37ab91558d7e70c1851274a4a8d7d1f7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a> * pascinference::GeneralSolver::get_data </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a0af32a44f41efa74111282bf9ab50131"></a>
 <div class="memitem">
 <div class="memproto">
@@ -248,7 +267,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#af541d2fddfdb352fb9f9ba3f593d87da">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#a46c4ec41f7288c2ec737ee68428cd7f1">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a646578af0836c62cecb5b1b6b4cabf5d">pascinference::QPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#a60d31cc7c9ea7e0bd8ea6f1d0cace62c">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#af541d2fddfdb352fb9f9ba3f593d87da">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#a46c4ec41f7288c2ec737ee68428cd7f1">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a646578af0836c62cecb5b1b6b4cabf5d">pascinference::QPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#a60d31cc7c9ea7e0bd8ea6f1d0cace62c">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
 
 <p><div id="dynsection-2" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-2-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
@@ -257,7 +276,7 @@ Friends</h2></td></tr>
 <div id="dynsection-2-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="classpascinference_1_1GeneralSolver_a0af32a44f41efa74111282bf9ab50131_icgraph.png" border="0" usemap="#classpascinference_1_1GeneralSolver_a0af32a44f41efa74111282bf9ab50131_icgraph" alt=""/></div>
 <map name="classpascinference_1_1GeneralSolver_a0af32a44f41efa74111282bf9ab50131_icgraph" id="classpascinference_1_1GeneralSolver_a0af32a44f41efa74111282bf9ab50131_icgraph">
-<area shape="rect" id="node2" href="classpascinference_1_1GeneralSolver.html#afa14b29de1773843ab50b763de023007" title="pascinference::GeneralSolver\l::print" alt="" coords="247,5,440,47"/><area shape="rect" id="node3" href="namespacepascinference.html#aedffe97246b4ad4f8f33400c7401f836" title="pascinference::operator\&lt;\&lt;" alt="" coords="488,13,663,39"/></map>
+<area shape="rect" id="node2" href="namespacepascinference.html#aedffe97246b4ad4f8f33400c7401f836" title="pascinference::operator\&lt;\&lt;" alt="" coords="256,5,431,32"/><area shape="rect" id="node3" href="classpascinference_1_1GeneralSolver.html#afa14b29de1773843ab50b763de023007" title="pascinference::GeneralSolver\l::print" alt="" coords="247,57,440,98"/><area shape="rect" id="node4" href="classpascinference_1_1GeneralSolver.html#aa00c08f139ea2c379c67926668003ebd" title="pascinference::GeneralSolver\l::printstatus" alt="" coords="247,122,440,163"/></map>
 </div>
 </p>
 
@@ -285,7 +304,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#a2675b1b0de1c85fb3ac84b1d12045339">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#a62d5d0bcedb1ac910d399eca750cb6a2">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a62c7459c6fd0eacc794754464d7d79fb">pascinference::QPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#ac9cd76c49bee5e38aa17134449eaa8f6">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#a2675b1b0de1c85fb3ac84b1d12045339">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#a62d5d0bcedb1ac910d399eca750cb6a2">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a62c7459c6fd0eacc794754464d7d79fb">pascinference::QPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#ac9cd76c49bee5e38aa17134449eaa8f6">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
 
 <p><div id="dynsection-3" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-3-trigger" src="closed.png" alt="+"/> Here is the call graph for this function:</div>
@@ -298,14 +317,40 @@ Friends</h2></td></tr>
 </div>
 </p>
 
+</div>
+</div>
+<a class="anchor" id="aa00c08f139ea2c379c67926668003ebd"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void pascinference::GeneralSolver::printstatus </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>output</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#a5717dcc259091d17da5f1bac911a4e55">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1QPSolver.html#ac7ab5edad8fd5547c64776b9b425ed28">pascinference::QPSolver&lt; VectorBase &gt;</a>.</p>
+
 <p><div id="dynsection-4" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-4-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
+  <img id="dynsection-4-trigger" src="closed.png" alt="+"/> Here is the call graph for this function:</div>
 <div id="dynsection-4-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="classpascinference_1_1GeneralSolver_afa14b29de1773843ab50b763de023007_icgraph.png" border="0" usemap="#classpascinference_1_1GeneralSolver_afa14b29de1773843ab50b763de023007_icgraph" alt=""/></div>
-<map name="classpascinference_1_1GeneralSolver_afa14b29de1773843ab50b763de023007_icgraph" id="classpascinference_1_1GeneralSolver_afa14b29de1773843ab50b763de023007_icgraph">
-<area shape="rect" id="node2" href="namespacepascinference.html#aedffe97246b4ad4f8f33400c7401f836" title="pascinference::operator\&lt;\&lt;" alt="" coords="247,13,421,39"/></map>
+<div class="center"><img src="classpascinference_1_1GeneralSolver_aa00c08f139ea2c379c67926668003ebd_cgraph.png" border="0" usemap="#classpascinference_1_1GeneralSolver_aa00c08f139ea2c379c67926668003ebd_cgraph" alt=""/></div>
+<map name="classpascinference_1_1GeneralSolver_aa00c08f139ea2c379c67926668003ebd_cgraph" id="classpascinference_1_1GeneralSolver_aa00c08f139ea2c379c67926668003ebd_cgraph">
+<area shape="rect" id="node2" href="classpascinference_1_1GeneralSolver.html#a0af32a44f41efa74111282bf9ab50131" title="pascinference::GeneralSolver\l::get_name" alt="" coords="247,5,440,47"/></map>
 </div>
 </p>
 
@@ -332,7 +377,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#a4cae664766884c51985d300c33b9c4a5">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#ab954ff6a5f6bba484ea6d167feeb6478">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a2c1ac6c40c4dd7e1fe666918dcbc4cd1">pascinference::QPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#aeaa70748a7db38ddb2e2d0ef2cfe8272">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#a4cae664766884c51985d300c33b9c4a5">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#ab954ff6a5f6bba484ea6d167feeb6478">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a2c1ac6c40c4dd7e1fe666918dcbc4cd1">pascinference::QPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#aeaa70748a7db38ddb2e2d0ef2cfe8272">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
 
 <p><div id="dynsection-5" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-5-trigger" src="closed.png" alt="+"/> Here is the call graph for this function:</div>
@@ -380,7 +425,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#ae6c853ca4160212f7a7a9e0cf86f6f8c">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#a55e8141a595b05294bc2a0bb599c6810">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a929f16759a567a24c1c2afa126b0cb57">pascinference::QPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#afcfcf254ebd0e60545c0459b485d8d19">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1SPGQPSolver.html#ae6c853ca4160212f7a7a9e0cf86f6f8c">pascinference::SPGQPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1TSSolver.html#a55e8141a595b05294bc2a0bb599c6810">pascinference::TSSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1QPSolver.html#a929f16759a567a24c1c2afa126b0cb57">pascinference::QPSolver&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">pascinference::CGQPSolver&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1DiagSolver.html#a63427d50e5707bb0d70b00dc9dacad31">pascinference::DiagSolver&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -420,7 +465,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="ab7db7894e790106c972f54c2ee1fe0dd"></a>
+<a class="anchor" id="a46a42ebf7f8662d69b792608b9c81798"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -428,7 +473,7 @@ Friends</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a>* pascinference::GeneralSolver::data</td>
+          <td class="memname"><a class="el" href="classpascinference_1_1GeneralData.html">GeneralData</a>* pascinference::GeneralSolver::data</td>
         </tr>
       </table>
   </td>
@@ -459,7 +504,7 @@ Friends</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri Mar 11 2016 00:40:54 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

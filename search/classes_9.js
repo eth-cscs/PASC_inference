@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['timer',['Timer',['../classpascinference_1_1Timer.html',1,'pascinference']]],
-  ['tsdata',['TSData',['../classpascinference_1_1TSData.html',1,'pascinference']]],
-  ['tsmodel',['TSModel',['../classpascinference_1_1TSModel.html',1,'pascinference']]],
-  ['tssolver',['TSSolver',['../classpascinference_1_1TSSolver.html',1,'pascinference']]],
-  ['tssolversetting',['TSSolverSetting',['../classpascinference_1_1TSSolverSetting.html',1,'pascinference']]]
+  ['simplexfeasibleset',['SimplexFeasibleSet',['../classpascinference_1_1SimplexFeasibleSet.html',1,'pascinference']]],
+  ['spgqpsolver',['SPGQPSolver',['../classpascinference_1_1SPGQPSolver.html',1,'pascinference']]],
+  ['spgqpsolver_5ffs',['SPGQPSolver_fs',['../classpascinference_1_1SPGQPSolver__fs.html',1,'pascinference']]],
+  ['spgqpsolversetting',['SPGQPSolverSetting',['../classpascinference_1_1SPGQPSolverSetting.html',1,'pascinference']]],
+  ['stacktimer',['StackTimer',['../classpascinference_1_1StackTimer.html',1,'pascinference']]]
 ];

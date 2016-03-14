@@ -112,42 +112,48 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#ad445b0e8f74ba25e679b811200da2aa2">   23</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralData.html#ad445b0e8f74ba25e679b811200da2aa2">~GeneralData</a>() {};</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">print</a>(std::ostream &amp;output) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keyword">virtual</span> std::string <a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keyword">friend</span> std::ostream &amp;<a class="code" href="classpascinference_1_1GeneralData.html#a7247c9b08590270659a16de95254354c">operator&lt;&lt;</a>(std::ostream &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;data); <span class="comment">/* cannot be virtual, therefore it call virtual print() */</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;};</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">/* general print, call virtual print() */</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a3a15557ca4e076085e096fe207515e36">   33</a></span>&#160;std::ostream &amp;<a class="code" href="namespacepascinference.html#a3a15557ca4e076085e096fe207515e36">operator&lt;&lt;</a>(std::ostream &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;data){</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(GeneralData)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    data.<a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">print</a>(output);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordflow">return</span> output;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;}</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">   39</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">GeneralData::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    output &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;}</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">   43</a></span>&#160;std::string <a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">GeneralData::get_name</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;GeneralData&quot;</span>;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;}</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">printcontent</a>(std::ostream &amp;output) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keyword">virtual</span> std::string <a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <span class="keyword">friend</span> std::ostream &amp;<a class="code" href="classpascinference_1_1GeneralData.html#a7247c9b08590270659a16de95254354c">operator&lt;&lt;</a>(std::ostream &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;data); <span class="comment">/* cannot be virtual, therefore it call virtual print() */</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;};</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">/* general print, call virtual print() */</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a3a15557ca4e076085e096fe207515e36">   34</a></span>&#160;std::ostream &amp;<a class="code" href="namespacepascinference.html#a3a15557ca4e076085e096fe207515e36">operator&lt;&lt;</a>(std::ostream &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;data){</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(GeneralData)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    data.<a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">print</a>(output);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">return</span> output;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;}</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">   40</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">GeneralData::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    output &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">   44</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">GeneralData::printcontent</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    output &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;} <span class="comment">/* end of namespace */</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">   48</a></span>&#160;std::string <a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">GeneralData::get_name</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;GeneralData&quot;</span>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;}</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_a9ef71dbefcb99eb800c08a195f5d4113"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">pascinference::GeneralData::print</a></div><div class="ttdeci">virtual void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> generaldata.h:39</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_a0e3c8233876722b7ec70bf5f60b6a451"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">pascinference::GeneralData::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdef"><b>Definition:</b> generaldata.h:43</div></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;} <span class="comment">/* end of namespace */</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="classpascinference_1_1GeneralData_html_ac757a6a84421189fd8e4e5155bc06082"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">pascinference::GeneralData::printcontent</a></div><div class="ttdeci">virtual void printcontent(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> generaldata.h:44</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralData_html_a9ef71dbefcb99eb800c08a195f5d4113"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">pascinference::GeneralData::print</a></div><div class="ttdeci">virtual void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> generaldata.h:40</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralData_html_a0e3c8233876722b7ec70bf5f60b6a451"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">pascinference::GeneralData::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdef"><b>Definition:</b> generaldata.h:48</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralData_html_ad445b0e8f74ba25e679b811200da2aa2"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#ad445b0e8f74ba25e679b811200da2aa2">pascinference::GeneralData::~GeneralData</a></div><div class="ttdeci">~GeneralData()</div><div class="ttdef"><b>Definition:</b> generaldata.h:23</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_a7247c9b08590270659a16de95254354c"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a7247c9b08590270659a16de95254354c">pascinference::GeneralData::operator&lt;&lt;</a></div><div class="ttdeci">friend std::ostream &amp; operator&lt;&lt;(std::ostream &amp;output, const GeneralData &amp;data)</div><div class="ttdef"><b>Definition:</b> generaldata.h:33</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralData_html_a7247c9b08590270659a16de95254354c"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a7247c9b08590270659a16de95254354c">pascinference::GeneralData::operator&lt;&lt;</a></div><div class="ttdeci">friend std::ostream &amp; operator&lt;&lt;(std::ostream &amp;output, const GeneralData &amp;data)</div><div class="ttdef"><b>Definition:</b> generaldata.h:34</div></div>
 <div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
-<div class="ttc" id="namespacepascinference_html_a3a15557ca4e076085e096fe207515e36"><div class="ttname"><a href="namespacepascinference.html#a3a15557ca4e076085e096fe207515e36">pascinference::operator&lt;&lt;</a></div><div class="ttdeci">std::ostream &amp; operator&lt;&lt;(std::ostream &amp;output, const GeneralData &amp;data)</div><div class="ttdef"><b>Definition:</b> generaldata.h:33</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:24</div></div>
+<div class="ttc" id="namespacepascinference_html_a3a15557ca4e076085e096fe207515e36"><div class="ttname"><a href="namespacepascinference.html#a3a15557ca4e076085e096fe207515e36">pascinference::operator&lt;&lt;</a></div><div class="ttdeci">std::ostream &amp; operator&lt;&lt;(std::ostream &amp;output, const GeneralData &amp;data)</div><div class="ttdef"><b>Definition:</b> generaldata.h:34</div></div>
+<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
 <div class="ttc" id="common_8h_html"><div class="ttname"><a href="common_8h.html">common.h</a></div><div class="ttdoc">commonly used stuff </div></div>
 <div class="ttc" id="classpascinference_1_1GeneralData_html"><div class="ttname"><a href="classpascinference_1_1GeneralData.html">pascinference::GeneralData</a></div><div class="ttdef"><b>Definition:</b> generaldata.h:18</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralData_html_a16102e348d14f97574b2d520ba384f3a"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a16102e348d14f97574b2d520ba384f3a">pascinference::GeneralData::GeneralData</a></div><div class="ttdeci">GeneralData()</div><div class="ttdef"><b>Definition:</b> generaldata.h:22</div></div>
@@ -155,7 +161,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Fri Mar 11 2016 00:40:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

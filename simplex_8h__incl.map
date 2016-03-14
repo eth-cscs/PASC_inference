@@ -1,7 +1,7 @@
 <map id="include/feasibleset/simplex.h" name="include/feasibleset/simplex.h">
-<area shape="rect" id="node3" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="53,95,192,121"/>
-<area shape="rect" id="node5" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="185,169,260,196"/>
-<area shape="rect" id="node4" href="$common_8h.html" title="commonly used stuff " alt="" coords="60,244,143,271"/>
-<area shape="rect" id="node6" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="167,244,278,271"/>
-<area shape="rect" id="node7" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="302,244,413,271"/>
+<area shape="rect" id="node3" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="201,95,340,121"/>
+<area shape="rect" id="node7" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="185,169,260,196"/>
+<area shape="rect" id="node4" href="$common_8h.html" title="commonly used stuff " alt="" coords="303,244,385,271"/>
+<area shape="rect" id="node8" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="33,244,143,271"/>
+<area shape="rect" id="node9" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="167,244,278,271"/>
 </map>

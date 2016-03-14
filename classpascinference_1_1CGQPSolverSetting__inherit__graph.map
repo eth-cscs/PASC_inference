@@ -1,5 +1,5 @@
 <map id="pascinference::CGQPSolverSetting" name="pascinference::CGQPSolverSetting">
-<area shape="rect" id="node2" href="$classpascinference_1_1QPSolverSetting.html" title="{pascinference::QPSolverSetting\n|# maxit\l# eps\l|+ QPSolverSetting()\l+ ~QPSolverSetting()\l+ print()\l}" alt="" coords="5,329,213,451"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n||+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="13,160,206,281"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1QPSolverSetting.html" title="{pascinference::QPSolverSetting\n||+ QPSolverSetting()\l+ ~QPSolverSetting()\l+ print()\l}" alt="" coords="5,359,213,465"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n|+ debug_mode\l+ maxit\l+ eps\l|+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="13,160,206,311"/>
 <area shape="rect" id="node4" href="$classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l}" alt="" coords="11,5,208,112"/>
 </map>

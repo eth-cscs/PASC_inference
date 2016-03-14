@@ -1,4 +1,5 @@
 <map id="pascinference::GeneralSolver::get_name" name="pascinference::GeneralSolver::get_name">
-<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolver.html#afa14b29de1773843ab50b763de023007" title="pascinference::GeneralSolver\l::print" alt="" coords="247,5,440,47"/>
-<area shape="rect" id="node3" href="$namespacepascinference.html#aedffe97246b4ad4f8f33400c7401f836" title="pascinference::operator\&lt;\&lt;" alt="" coords="488,13,663,39"/>
+<area shape="rect" id="node2" href="$namespacepascinference.html#aedffe97246b4ad4f8f33400c7401f836" title="pascinference::operator\&lt;\&lt;" alt="" coords="256,5,431,32"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSolver.html#afa14b29de1773843ab50b763de023007" title="pascinference::GeneralSolver\l::print" alt="" coords="247,57,440,98"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1GeneralSolver.html#aa00c08f139ea2c379c67926668003ebd" title="pascinference::GeneralSolver\l::printstatus" alt="" coords="247,122,440,163"/>
 </map>

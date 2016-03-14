@@ -1,22 +1,22 @@
 <map id="include/generalsolver.h" name="include/generalsolver.h">
-<area shape="rect" id="node2" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="141,80,304,107"/>
-<area shape="rect" id="node7" href="$tssolver_8h.html" title="include/solver/tssolver.h" alt="" coords="5,229,168,256"/>
-<area shape="rect" id="node8" href="$pascinference_8h.html" title="main header file " alt="" coords="1034,155,1193,181"/>
-<area shape="rect" id="node18" href="$diagsolver_8h.html" title="include/solver/diagsolver.h" alt="" coords="328,80,504,107"/>
-<area shape="rect" id="node19" href="$qpsolver_8h.html" title="include/solver/qpsolver.h" alt="" coords="2022,155,2189,181"/>
-<area shape="rect" id="node3" href="$tsdata_8h.html" title="include/data/tsdata.h" alt="" coords="151,155,294,181"/>
-<area shape="rect" id="node6" href="$kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="243,229,421,256"/>
-<area shape="rect" id="node4" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="245,304,419,331"/>
-<area shape="rect" id="node5" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="241,379,423,405"/>
-<area shape="rect" id="node9" href="$kmeans2D_8h.html" title="examples/include/kmeans2D.h" alt="" coords="445,229,646,256"/>
-<area shape="rect" id="node10" href="$test__algebra_8cpp.html" title="test matrix&#45;vector multiplication " alt="" coords="721,229,900,256"/>
-<area shape="rect" id="node11" href="$test__algebra_8cu.html" title="examples/test_algebra.cu" alt="" coords="924,229,1095,256"/>
-<area shape="rect" id="node12" href="$test__cg_8cu.html" title="examples/test_cg.cu" alt="" coords="1942,229,2085,256"/>
-<area shape="rect" id="node13" href="$test__filecrsmatrix_8cu.html" title="examples/test_filecrsmatrix.cu" alt="" coords="1119,229,1319,256"/>
-<area shape="rect" id="node14" href="$test__laplacematrix_8cu.html" title="examples/test_laplacematrix.cu" alt="" coords="1343,229,1550,256"/>
-<area shape="rect" id="node15" href="$test__spgqp_8cu.html" title="examples/test_spgqp.cu" alt="" coords="1754,229,1918,256"/>
-<area shape="rect" id="node16" href="$libpascinference_8cu.html" title="src/libpascinference.cu" alt="" coords="1574,229,1730,256"/>
-<area shape="rect" id="node17" href="$libpascinference_8cpp.html" title="src/libpascinference.cpp" alt="" coords="1571,304,1733,331"/>
-<area shape="rect" id="node20" href="$cgqpsolver_8h.html" title="include/solver/cgqpsolver.h" alt="" coords="2109,229,2289,256"/>
-<area shape="rect" id="node21" href="$spgqpsolver_8h.html" title="include/solver/spgqpsolver.h" alt="" coords="2313,229,2500,256"/>
+<area shape="rect" id="node2" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="105,80,267,107"/>
+<area shape="rect" id="node7" href="$tssolver_8h.html" title="include/solver/tssolver.h" alt="" coords="235,229,398,256"/>
+<area shape="rect" id="node8" href="$pascinference_8h.html" title="main header file " alt="" coords="1012,155,1171,181"/>
+<area shape="rect" id="node18" href="$diagsolver_8h.html" title="include/solver/diagsolver.h" alt="" coords="274,155,450,181"/>
+<area shape="rect" id="node19" href="$qpsolver_8h.html" title="include/solver/qpsolver.h" alt="" coords="1897,155,2064,181"/>
+<area shape="rect" id="node3" href="$tsdata_8h.html" title="include/data/tsdata.h" alt="" coords="5,155,148,181"/>
+<area shape="rect" id="node6" href="$kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="33,229,211,256"/>
+<area shape="rect" id="node4" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="229,304,404,331"/>
+<area shape="rect" id="node5" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="225,379,408,405"/>
+<area shape="rect" id="node9" href="$kmeans2D_8h.html" title="examples/include/kmeans2D.h" alt="" coords="423,229,624,256"/>
+<area shape="rect" id="node10" href="$test__algebra_8cpp.html" title="test matrix&#45;vector multiplication " alt="" coords="699,229,878,256"/>
+<area shape="rect" id="node11" href="$test__algebra_8cu.html" title="examples/test_algebra.cu" alt="" coords="902,229,1073,256"/>
+<area shape="rect" id="node12" href="$test__cg_8cu.html" title="examples/test_cg.cu" alt="" coords="1732,229,1875,256"/>
+<area shape="rect" id="node13" href="$test__filecrsmatrix_8cu.html" title="examples/test_filecrsmatrix.cu" alt="" coords="1097,229,1297,256"/>
+<area shape="rect" id="node14" href="$test__laplacematrix_8cu.html" title="examples/test_laplacematrix.cu" alt="" coords="1321,229,1528,256"/>
+<area shape="rect" id="node15" href="$test__spgqp_8cu.html" title="examples/test_spgqp.cu" alt="" coords="1899,229,2063,256"/>
+<area shape="rect" id="node16" href="$libpascinference_8cu.html" title="src/libpascinference.cu" alt="" coords="1552,229,1708,256"/>
+<area shape="rect" id="node17" href="$libpascinference_8cpp.html" title="src/libpascinference.cpp" alt="" coords="1549,304,1711,331"/>
+<area shape="rect" id="node20" href="$cgqpsolver_8h.html" title="include/solver/cgqpsolver.h" alt="" coords="2087,229,2267,256"/>
+<area shape="rect" id="node21" href="$spgqpsolver_8h.html" title="include/solver/spgqpsolver.h" alt="" coords="2291,229,2478,256"/>
 </map>

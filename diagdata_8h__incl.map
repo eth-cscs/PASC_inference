@@ -1,7 +1,7 @@
 <map id="include/data/diagdata.h" name="include/data/diagdata.h">
-<area shape="rect" id="node3" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="33,80,133,107"/>
-<area shape="rect" id="node5" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="157,80,231,107"/>
-<area shape="rect" id="node4" href="$common_8h.html" title="commonly used stuff " alt="" coords="33,155,115,181"/>
-<area shape="rect" id="node6" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="140,155,251,181"/>
-<area shape="rect" id="node7" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="275,155,385,181"/>
+<area shape="rect" id="node3" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="289,80,389,107"/>
+<area shape="rect" id="node7" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="185,80,260,107"/>
+<area shape="rect" id="node4" href="$common_8h.html" title="commonly used stuff " alt="" coords="303,155,385,181"/>
+<area shape="rect" id="node8" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="33,155,143,181"/>
+<area shape="rect" id="node9" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="167,155,278,181"/>
 </map>

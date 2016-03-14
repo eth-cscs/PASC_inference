@@ -7,11 +7,12 @@
 <area shape="rect" id="node7" href="$classpascinference_1_1QPData.html#a9419cdb48addbacec2a80bf7a194a9f1" title="pascinference::QPData\l::set_feasibleset" alt="" coords="108,303,267,345"/>
 <area shape="rect" id="node8" href="$classpascinference_1_1QPData.html#ada161a92eb39b445efd8d6052d23daba" title="pascinference::QPData\l::set_x" alt="" coords="108,369,267,410"/>
 <area shape="rect" id="node9" href="$classpascinference_1_1QPSolver.html#a929f16759a567a24c1c2afa126b0cb57" title="pascinference::QPSolver\l::solve" alt="" coords="104,434,271,475"/>
-<area shape="rect" id="node15" href="$classpascinference_1_1QPData.html#ac8637adfe39bb74c8b777768421e8ab3" title="pascinference::QPData\l::get_x" alt="" coords="108,499,267,541"/>
-<area shape="rect" id="node16" href="$namespacepascinference.html#a18614c935abea5205bada66a34cc0a7f" title="finalize the library " alt="" coords="109,565,265,592"/>
+<area shape="rect" id="node16" href="$classpascinference_1_1QPData.html#ac8637adfe39bb74c8b777768421e8ab3" title="pascinference::QPData\l::get_x" alt="" coords="108,499,267,541"/>
+<area shape="rect" id="node17" href="$namespacepascinference.html#a18614c935abea5205bada66a34cc0a7f" title="finalize the library " alt="" coords="109,565,265,592"/>
 <area shape="rect" id="node10" href="$classpascinference_1_1SPGQPSolver.html#a4cae664766884c51985d300c33b9c4a5" title="pascinference::SPGQPSolver\l::solve" alt="" coords="319,434,513,475"/>
-<area shape="rect" id="node11" href="$classpascinference_1_1SPGQPSolver__fs.html#a7a741b48cc18a7d980d74eb37753b9bb" title="pascinference::SPGQPSolver\l_fs::init" alt="" coords="561,335,756,377"/>
-<area shape="rect" id="node12" href="$classpascinference_1_1SPGQPSolver__fs.html#aedba83acbb90fa8aad992cc6d789cc88" title="pascinference::SPGQPSolver\l_fs::get_max" alt="" coords="561,401,756,442"/>
-<area shape="rect" id="node13" href="$classpascinference_1_1SPGQPSolver__fs.html#a9c55a86a2cab090121cb02ad64049a16" title="pascinference::SPGQPSolver\l_fs::update" alt="" coords="561,466,756,507"/>
-<area shape="rect" id="node14" href="$namespacepascinference.html#a71b17ce8195f3899c97e0c3b633ddbaf" title="pascinference::Message\l_info_value" alt="" coords="577,531,741,573"/>
+<area shape="rect" id="node11" href="$classpascinference_1_1MemoryCheck.html#aa1ac0e0080d4e16273cb17ef596a2407" title="pascinference::MemoryCheck\l::test_temp" alt="" coords="561,303,757,345"/>
+<area shape="rect" id="node12" href="$classpascinference_1_1SPGQPSolver__fs.html#a7a741b48cc18a7d980d74eb37753b9bb" title="pascinference::SPGQPSolver\l_fs::init" alt="" coords="562,369,757,410"/>
+<area shape="rect" id="node13" href="$classpascinference_1_1SPGQPSolver__fs.html#aedba83acbb90fa8aad992cc6d789cc88" title="pascinference::SPGQPSolver\l_fs::get_max" alt="" coords="562,434,757,475"/>
+<area shape="rect" id="node14" href="$classpascinference_1_1SPGQPSolver__fs.html#a9c55a86a2cab090121cb02ad64049a16" title="pascinference::SPGQPSolver\l_fs::update" alt="" coords="562,499,757,541"/>
+<area shape="rect" id="node15" href="$namespacepascinference.html#a71b17ce8195f3899c97e0c3b633ddbaf" title="pascinference::Message\l_info_value" alt="" coords="577,565,741,606"/>
 </map>

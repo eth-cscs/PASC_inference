@@ -1,9 +1,9 @@
 <map id="include/generalsolver.h" name="include/generalsolver.h">
 <area shape="rect" id="node2" href="$common_8h.html" title="commonly used stuff " alt="" coords="289,155,371,181"/>
-<area shape="rect" id="node3" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="90,80,165,107"/>
-<area shape="rect" id="node7" href="$list_8h.html" title="solver/list.h" alt="" coords="240,80,329,107"/>
-<area shape="rect" id="node8" href="$generalsetting_8h.html" title="general solver settings " alt="" coords="354,80,469,107"/>
-<area shape="rect" id="node9" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="493,80,593,107"/>
-<area shape="rect" id="node4" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="5,155,116,181"/>
-<area shape="rect" id="node6" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="140,155,251,181"/>
+<area shape="rect" id="node5" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="90,80,165,107"/>
+<area shape="rect" id="node9" href="$list_8h.html" title="solver/list.h" alt="" coords="240,80,329,107"/>
+<area shape="rect" id="node10" href="$generalsetting_8h.html" title="general solver settings " alt="" coords="354,80,469,107"/>
+<area shape="rect" id="node11" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="493,80,593,107"/>
+<area shape="rect" id="node6" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="5,155,116,181"/>
+<area shape="rect" id="node8" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="140,155,251,181"/>
 </map>

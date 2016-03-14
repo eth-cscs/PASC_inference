@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['run_5for_5fnot',['run_or_not',['../classpascinference_1_1Timer.html#aae60148d13c69b56a2d6e0813bcf2381',1,'pascinference::Timer']]]
+  ['p',['p',['../classpascinference_1_1CGQPSolver.html#aa73af3c62a80427612561063fedae8b2',1,'pascinference::CGQPSolver']]],
+  ['penalty',['penalty',['../classpascinference_1_1KmeansH1Model.html#ad11b969d3a66535c3bef7a586449b8ee',1,'pascinference::KmeansH1Model']]]
 ];

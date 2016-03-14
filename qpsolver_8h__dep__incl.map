@@ -4,6 +4,7 @@
 <area shape="rect" id="node4" href="$kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="360,80,537,107"/>
 <area shape="rect" id="node7" href="$cgqpsolver_8h.html" title="include/solver/cgqpsolver.h" alt="" coords="561,80,741,107"/>
 <area shape="rect" id="node8" href="$spgqpsolver_8h.html" title="include/solver/spgqpsolver.h" alt="" coords="766,80,953,107"/>
-<area shape="rect" id="node5" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="361,155,536,181"/>
-<area shape="rect" id="node6" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="357,229,540,256"/>
+<area shape="rect" id="node9" href="$tssolver_8h.html" title="include/solver/tssolver.h" alt="" coords="977,80,1139,107"/>
+<area shape="rect" id="node5" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="665,155,840,181"/>
+<area shape="rect" id="node6" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="661,229,844,256"/>
 </map>

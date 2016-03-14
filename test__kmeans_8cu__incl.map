@@ -1,26 +1,26 @@
 <map id="examples/test_kmeans.cu" name="examples/test_kmeans.cu">
-<area shape="rect" id="node2" href="$pascinference_8h.html" title="main header file " alt="" coords="335,304,450,331"/>
-<area shape="rect" id="node18" href="$tssolver_8h.html" title="solver/tssolver.h" alt="" coords="1785,155,1904,181"/>
-<area shape="rect" id="node19" href="$tsdata_8h.html" title="data/tsdata.h" alt="" coords="1923,229,2022,256"/>
-<area shape="rect" id="node22" href="$kmeansh1_8h.html" title="model/kmeansh1.h" alt="" coords="1541,80,1673,107"/>
-<area shape="rect" id="node33" href="$kmeans2D_8h.html" title="kmeans2D.h" alt="" coords="303,229,399,256"/>
-<area shape="rect" id="node9" href="$common_8h.html" title="commonly used stuff " alt="" coords="1501,543,1583,569"/>
-<area shape="rect" id="node10" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="1315,468,1390,495"/>
-<area shape="rect" id="node13" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="1719,468,1819,495"/>
-<area shape="rect" id="node14" href="$generalsolver_8h.html" title="class for manipulation with solver " alt="" coords="1581,386,1692,413"/>
-<area shape="rect" id="node17" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="778,386,917,413"/>
-<area shape="rect" id="node11" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1211,543,1321,569"/>
-<area shape="rect" id="node12" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1345,543,1456,569"/>
-<area shape="rect" id="node15" href="$list_8h.html" title="solver/list.h" alt="" coords="1415,468,1504,495"/>
-<area shape="rect" id="node16" href="$generalsetting_8h.html" title="general solver settings " alt="" coords="1579,468,1694,495"/>
-<area shape="rect" id="node20" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="1912,304,2031,331"/>
-<area shape="rect" id="node21" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="2013,468,2124,495"/>
-<area shape="rect" id="node23" href="$blockdiaglaplace__explicit_8h.html" title="matrix/blockdiaglaplace\l_explicit.h" alt="" coords="1093,379,1252,420"/>
-<area shape="rect" id="node24" href="$simplex_8h.html" title="feasibleset/simplex.h" alt="" coords="797,304,943,331"/>
-<area shape="rect" id="node25" href="$qpsolver_8h.html" title="solver/qpsolver.h" alt="" coords="1260,155,1381,181"/>
-<area shape="rect" id="node26" href="$qpdata_8h.html" title="data/qpdata.h" alt="" coords="1265,304,1366,331"/>
-<area shape="rect" id="node31" href="$diagsolver_8h.html" title="solver/diagsolver.h" alt="" coords="1593,304,1723,331"/>
-<area shape="rect" id="node32" href="$diagdata_8h.html" title="data/diagdata.h" alt="" coords="1768,386,1879,413"/>
-<area shape="rect" id="node27" href="$cgqpsolver_8h.html" title="solver/cgqpsolver.h" alt="" coords="1091,229,1225,256"/>
-<area shape="rect" id="node28" href="$spgqpsolver_8h.html" title="solver/spgqpsolver.h" alt="" coords="1249,229,1392,256"/>
+<area shape="rect" id="node2" href="$pascinference_8h.html" title="main header file " alt="" coords="447,304,561,331"/>
+<area shape="rect" id="node21" href="$tssolver_8h.html" title="solver/tssolver.h" alt="" coords="1101,80,1219,107"/>
+<area shape="rect" id="node22" href="$tsdata_8h.html" title="data/tsdata.h" alt="" coords="1025,229,1124,256"/>
+<area shape="rect" id="node33" href="$kmeansh1_8h.html" title="model/kmeansh1.h" alt="" coords="1470,80,1602,107"/>
+<area shape="rect" id="node36" href="$kmeans2D_8h.html" title="kmeans2D.h" alt="" coords="447,229,543,256"/>
+<area shape="rect" id="node10" href="$common_8h.html" title="commonly used stuff " alt="" coords="715,543,797,569"/>
+<area shape="rect" id="node13" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="1431,468,1505,495"/>
+<area shape="rect" id="node16" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="618,468,718,495"/>
+<area shape="rect" id="node17" href="$generalsolver_8h.html" title="class for manipulation with solver " alt="" coords="861,386,971,413"/>
+<area shape="rect" id="node20" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1639,386,1777,413"/>
+<area shape="rect" id="node14" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1374,543,1485,569"/>
+<area shape="rect" id="node15" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1509,543,1619,569"/>
+<area shape="rect" id="node18" href="$list_8h.html" title="solver/list.h" alt="" coords="933,468,1022,495"/>
+<area shape="rect" id="node19" href="$generalsetting_8h.html" title="general solver settings " alt="" coords="793,468,908,495"/>
+<area shape="rect" id="node23" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="950,304,1069,331"/>
+<area shape="rect" id="node25" href="$qpsolver_8h.html" title="solver/qpsolver.h" alt="" coords="1686,155,1807,181"/>
+<area shape="rect" id="node31" href="$diagsolver_8h.html" title="solver/diagsolver.h" alt="" coords="1351,304,1481,331"/>
+<area shape="rect" id="node24" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="483,468,594,495"/>
+<area shape="rect" id="node26" href="$qpdata_8h.html" title="data/qpdata.h" alt="" coords="1556,304,1657,331"/>
+<area shape="rect" id="node27" href="$cgqpsolver_8h.html" title="solver/cgqpsolver.h" alt="" coords="1894,229,2029,256"/>
+<area shape="rect" id="node28" href="$spgqpsolver_8h.html" title="solver/spgqpsolver.h" alt="" coords="1675,229,1818,256"/>
+<area shape="rect" id="node32" href="$diagdata_8h.html" title="data/diagdata.h" alt="" coords="1453,386,1563,413"/>
+<area shape="rect" id="node34" href="$blockdiaglaplace__explicit_8h.html" title="matrix/blockdiaglaplace\l_explicit.h" alt="" coords="2267,379,2426,420"/>
+<area shape="rect" id="node35" href="$simplex_8h.html" title="feasibleset/simplex.h" alt="" coords="1894,304,2039,331"/>
 </map>

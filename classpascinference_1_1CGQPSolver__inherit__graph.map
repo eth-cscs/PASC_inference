@@ -1,4 +1,4 @@
 <map id="pascinference::CGQPSolver&lt; VectorBase &gt;" name="pascinference::CGQPSolver&lt; VectorBase &gt;">
-<area shape="rect" id="node2" href="$classpascinference_1_1QPSolver.html" title="{pascinference::QPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# data\l# child_solver\l|+ QPSolver()\l+ QPSolver()\l+ ~QPSolver()\l+ solve()\l+ solve()\l+ print()\l+ get_name()\l}" alt="" coords="19,233,185,443"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSolver.html" title="{pascinference::GeneralSolver\n|+ setting\l# data\l|+ GeneralSolver()\l+ GeneralSolver()\l+ ~GeneralSolver()\l+ print()\l+ get_name()\l+ solve()\l+ solve()\l}" alt="" coords="5,5,199,185"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1QPSolver.html" title="{pascinference::QPSolver\l\&lt; VectorBase \&gt;\n|+ setting\l# qpdata\l# child_solver\l# fx\l# it\l|+ QPSolver()\l+ QPSolver()\l+ ~QPSolver()\l+ solve()\l+ solve()\l+ print()\l+ printstatus()\l+ get_name()\l+ get_data()\l+ get_fx()\l+ get_it()\l}" alt="" coords="19,263,185,560"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSolver.html" title="{pascinference::GeneralSolver\n|+ setting\l# data\l|+ GeneralSolver()\l+ GeneralSolver()\l+ ~GeneralSolver()\l+ print()\l+ printstatus()\l+ get_name()\l+ solve()\l+ solve()\l+ get_data()\l}" alt="" coords="5,5,199,215"/>
 </map>

@@ -1,5 +1,6 @@
 <map id="include/solver/diagsolver.h" name="include/solver/diagsolver.h">
-<area shape="rect" id="node2" href="$kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="8,80,185,107"/>
-<area shape="rect" id="node3" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="9,155,184,181"/>
-<area shape="rect" id="node4" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="5,229,188,256"/>
+<area shape="rect" id="node2" href="$kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="5,80,183,107"/>
+<area shape="rect" id="node5" href="$tssolver_8h.html" title="include/solver/tssolver.h" alt="" coords="207,80,370,107"/>
+<area shape="rect" id="node3" href="$test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="104,155,279,181"/>
+<area shape="rect" id="node4" href="$test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="100,229,283,256"/>
 </map>
