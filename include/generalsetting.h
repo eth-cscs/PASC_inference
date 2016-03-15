@@ -22,6 +22,7 @@ class GeneralSetting {
 		~GeneralSetting() {};
 
 		virtual void print(std::ostream &output) const {};
+		virtual std::string get_name() const;
 
 		friend std::ostream &operator<<(std::ostream &output, const GeneralSetting &setting); 
 	
@@ -30,9 +31,13 @@ class GeneralSetting {
 
 /* general print, call virtual print() */
 std::ostream &operator<<(std::ostream &output, const GeneralSetting &setting){
-	if(DEBUG_MODE >= 100) std::cout << "(GeneralSolverSetting)OPERATOR: <<" << std::endl;
-	setting.print(output);
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralSolverSetting)OPERATOR: <<" << std::endl;
+	output << setting.get_name();
 	return output;
+}
+
+std::string GeneralSetting::get_name() const {
+	return "GeneralSetting";
 }
 
 } /* end of namespace */

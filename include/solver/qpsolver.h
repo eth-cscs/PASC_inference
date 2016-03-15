@@ -29,10 +29,14 @@ class QPSolverSetting : public GeneralSolverSetting {
 		~QPSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
-			output << "  QPSolverSettings:" << std::endl;
-			output << "   - maxit: " << this->maxit << std::endl;
-			output << "   - eps: " << this->eps << std::endl;
+			output << offset << this->get_name() << std::endl;
+			output << offset << " - maxit: " << this->maxit << std::endl;
+			output << offset << " - eps:   " << this->eps << std::endl;
 
+		};
+
+		std::string get_name() const {
+			return "General QP SolverSetting";
 		};
 	
 
@@ -87,7 +91,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 QPSolver<VectorBase>::QPSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPSolver)CONSTRUCTOR" << std::endl;
 	
 	qpdata = NULL;
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
@@ -107,7 +111,7 @@ QPSolver<VectorBase>::QPSolver(QPData<VectorBase> &new_qpdata){
 /* destructor */
 template<class VectorBase>
 QPSolver<VectorBase>::~QPSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPSolver)DESTRUCTOR" << std::endl;
 
 	/* destroy child solver */
 	free(child_solver);
@@ -117,32 +121,48 @@ QPSolver<VectorBase>::~QPSolver(){
 /* print info about problem */
 template<class VectorBase>
 void QPSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)FUNCTION: print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPSolver)FUNCTION: print" << std::endl;
 
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 	
 	/* print settings */
-	output << setting;
+	offset.push();
+	setting.print(output);
+	offset.pop();
 
 	/* print data */
-	output << *qpdata;
+	if(qpdata){
+		offset.push();
+		qpdata->print(output);
+		offset.push();
+	}
 	
 	/* if child solver is specified, then print also info about it */	
 	if(child_solver){
+		offset.push();
 		child_solver->print(output);
+		offset.push();
 	}	
 }
 
 /* print status */
 template<class VectorBase>
 void QPSolver<VectorBase>::printstatus(std::ostream &output) const {
-	child_solver->printstatus(output); // TODO: check existence	
+	if(child_solver){
+		child_solver->printstatus(output);
+	} else {
+		output << offset << this->get_name() << std::endl;
+	}
 }
 
 /* print timer */
 template<class VectorBase>
 void QPSolver<VectorBase>::printtimer(std::ostream &output) const {
-	child_solver->printtimer(output); // TODO: check existence	
+	if(child_solver){
+		child_solver->printtimer(output);
+	} else {
+		output << offset << this->get_name() << std::endl;
+	}
 }
 
 template<class VectorBase>
@@ -153,7 +173,7 @@ std::string QPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void QPSolver<VectorBase>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)FUNCTION: solve" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPSolver)FUNCTION: solve" << std::endl;
 
 	/* the child solver wasn't specified yet */
 	if(!child_solver){
@@ -193,14 +213,14 @@ void QPSolver<VectorBase>::solve(SolverType solvertype) {
 
 template<class VectorBase>
 double QPSolver<VectorBase>::get_fx() const {
-	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)FUNCTION: get_fx()" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPSolver)FUNCTION: get_fx()" << std::endl;
 
 	return child_solver->get_fx(); // TODO: control existence
 }
 
 template<class VectorBase>
 int QPSolver<VectorBase>::get_it() const {
-	if(DEBUG_MODE >= 100) std::cout << "(QPSolver)FUNCTION: get_function_value()" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPSolver)FUNCTION: get_function_value()" << std::endl;
 
 	return child_solver->get_it(); // TODO: control existence
 }

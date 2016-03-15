@@ -64,21 +64,21 @@ class GeneralSolver {
 
 /* general print, call virtual print() */
 std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver){
-	if(DEBUG_MODE >= 100) std::cout << "(GeneralSolver)OPERATOR: <<" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralSolver)OPERATOR: <<" << std::endl;
 	output << solver.get_name();
 	return output;
 }
 
 void GeneralSolver::print(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 }
 
 void GeneralSolver::printstatus(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 }
 
 void GeneralSolver::printtimer(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 }
 
 std::string GeneralSolver::get_name() const {

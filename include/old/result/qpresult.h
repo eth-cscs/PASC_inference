@@ -36,7 +36,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 QPResult<VectorBase>::QPResult(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPResult)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPResult)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->x = NULL;
@@ -46,7 +46,7 @@ QPResult<VectorBase>::QPResult(){
 /* destructor */
 template<class VectorBase>
 QPResult<VectorBase>::~QPResult(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPResult)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPResult)DESTRUCTOR" << std::endl;
 	
 }
 

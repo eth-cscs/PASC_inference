@@ -32,7 +32,7 @@ int main( int argc, char *argv[] )
 	Initialize(argc, argv); // TODO: load parameters from console input
 	
 	/* say hello */	
-	Message("- start program");
+	coutMaster << "- start program" << std::endl;
 
 	/* dimension of the problem */
 	int dim = 2; /* data dimension */
@@ -55,9 +55,11 @@ int main( int argc, char *argv[] )
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
 	KmeansH1Model<Global> mymodel(T, dim, K, penalty);
+	coutMaster << "Model: " << mymodel << std::endl;
 
 	/* prepare time-series data */
 	TSData<Global> mydata(mymodel);
+	coutMaster << "Data:  " << mydata << std::endl;
 
 	/* generate some values to data */
 	example::KMeans2D<Global>::generate(T,K,mu,covariance,mydata.get_datavector());
@@ -78,7 +80,7 @@ int main( int argc, char *argv[] )
 	mysolver.printtimer(std::cout);
 
 	/* say bye */	
-	Message("- end program");
+	coutMaster << "- end program" << std::endl;
 	
 	Finalize();
 

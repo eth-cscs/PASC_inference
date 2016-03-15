@@ -34,13 +34,18 @@ class TSSolverSetting : public GeneralSolverSetting {
 		};
 		~TSSolverSetting() {};
 
-		virtual void print(std::ostream &output) const {
-			output << " TSSolverSettings:" << std::endl;
-			output << "   - debug mode: " << this->debug_mode << std::endl;
-			output << "   - maxit: " << this->maxit << std::endl;
-			output << "   - eps: " << this->eps << std::endl;
+		void print(std::ostream &output) const {
+			output << offset << this->get_name() << std::endl;
+			output << offset << " - debug mode: " << this->debug_mode << std::endl;
+			output << offset << " - maxit: " << this->maxit << std::endl;
+			output << offset << " - eps: " << this->eps << std::endl;
 
 		};
+
+		std::string get_name() const {
+			return "Time-Serie Solver Setting";
+		};
+		
 		
 };
 
@@ -106,7 +111,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 TSSolver<VectorBase>::TSSolver(){
-	if(setting.debug_mode >= 100) std::cout << "(TSSolver)CONSTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << offset <<"(TSSolver)CONSTRUCTOR" << std::endl;
 	
 	tsdata = NULL;
 	model = NULL;
@@ -150,7 +155,7 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata){
 /* destructor */
 template<class VectorBase>
 TSSolver<VectorBase>::~TSSolver(){
-	if(setting.debug_mode >= 100) std::cout << "(TSSolver)DESTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << offset <<"(TSSolver)DESTRUCTOR" << std::endl;
 
 	/* destroy child solvers - based on model */
 	if(gammasolver){
@@ -166,62 +171,75 @@ TSSolver<VectorBase>::~TSSolver(){
 /* print info about problem */
 template<class VectorBase>
 void TSSolver<VectorBase>::print(std::ostream &output) const {
-	if(setting.debug_mode >= 100) std::cout << this->get_name() << std::endl;
 
-	output << this->get_name() << std::endl;
-	
-	/* print settings */
-	output << setting;
-	
+	output << offset << this->get_name() << std::endl;
+
+	offset.push();
+	setting.print(output);
+	offset.pop();
+
+	/* print data */
+	if(tsdata){
+		offset.push();
+		tsdata->print(output);
+		offset.pop();
+	}
+
 	/* if child solvers are specified, then print also info about it */	
-	output << " Gamma Solver" << std::endl;
+	output << offset << " Gamma Solver" << std::endl;
 	if(gammasolver){
-		output << *gammasolver << std::endl;
+		offset.push();
+		gammasolver->print(output);
+		offset.pop();
 	} else {
-		output << " - not set" << std::endl;
+		output << offset << " - not set" << std::endl;
 	}
 
-	output << " Theta Solver" << std::endl;
+	output << offset << " Theta Solver" << std::endl;
 	if(thetasolver){
-		output << *thetasolver << std::endl;
+		offset.push();
+		thetasolver->print(output);
+		offset.pop();
 	} else {
-		output << " - not set" << std::endl;
+		output << offset << " - not set" << std::endl;
 	}
-
-
 }
 
 template<class VectorBase>
 void TSSolver<VectorBase>::printstatus(std::ostream &output) const {
-	if(setting.debug_mode >= 100) std::cout << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << offset <<"(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
-	output << this->get_name() << std::endl;
-	output << " - it:          " << this->it_last << std::endl;
-	output << " - L:           " << this->L << std::endl;	
-	output << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	output << offset << this->get_name() << std::endl;
+	output << offset << " - it:          " << this->it_last << std::endl;
+	output << offset << " - L:           " << this->L << std::endl;	
+	output << offset << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 }
 
 template<class VectorBase>
 void TSSolver<VectorBase>::printtimer(std::ostream &output) const {
-	output << this->get_name() << std::endl;
-	output << " - it all =          " << this->it_sum << std::endl;
-	output << " - timers" << std::endl;
-	output << "  - t_solve =        " << this->timer_solve.get_value_sum() << std::endl;
-	output << "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << std::endl;
-	output << "  - t_gamma_solve =  "  << this->timer_gamma_solve.get_value_sum() << std::endl;
-	output << "  - t_theta_update = " << this->timer_theta_update.get_value_sum() << std::endl;
-	output << "  - t_theta_solve =  " << this->timer_theta_solve.get_value_sum() << std::endl;
+	output << offset << this->get_name() << std::endl;
+	output << offset << " - it all =          " << this->it_sum << std::endl;
+	output << offset << " - timers" << std::endl;
+	output << offset << "  - t_solve =        " << this->timer_solve.get_value_sum() << std::endl;
+	output << offset << "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << std::endl;
+	output << offset << "  - t_gamma_solve =  "  << this->timer_gamma_solve.get_value_sum() << std::endl;
+	output << offset << "  - t_theta_update = " << this->timer_theta_update.get_value_sum() << std::endl;
+	output << offset << "  - t_theta_solve =  " << this->timer_theta_solve.get_value_sum() << std::endl;
 
-	output << " Gamma Solver" << std::endl;
+	output << offset << " Gamma Solver" << std::endl;
 	if(gammasolver){
+		offset.push();
 		gammasolver->printtimer(output);
+		offset.pop();
 	} else {
 		output << " - not set" << std::endl;
 	}
 
-	output << " Theta Solver" << std::endl;
+	output << offset << " Theta Solver" << std::endl;
 	if(thetasolver){
+		offset.push();
 		thetasolver->printtimer(output);
+		offset.pop();
 	} else {
 		output << " - not set" << std::endl;
 	}
@@ -237,7 +255,7 @@ std::string TSSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasolvertype) {
-	if(setting.debug_mode >= 100) std::cout << "(TSSolver)FUNCTION: solve" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << offset <<"(TSSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
@@ -265,8 +283,9 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 	int it; 
 
 	/* main cycle */
+	offset.push();
 	for(it=0;it < setting.maxit;it++){
-		Message_info_value(" - it = ",it);
+		coutMaster << offset << "it = " << it << std::endl;
 
 		/* --- COMPUTE Theta --- */
 		this->timer_theta_update.start();
@@ -278,7 +297,9 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		this->timer_theta_solve.stop();
 
 		if(setting.debug_mode >= 10){
-			thetasolver->printstatus(std::cout);
+			offset.push();
+			thetasolver->printstatus(coutMaster);
+			offset.pop();
 		}
 
 		/* --- COMPUTE gamma --- */
@@ -291,7 +312,9 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		this->timer_gamma_solve.stop();
 
 		if(setting.debug_mode >= 10){
-			gammasolver->printstatus(std::cout);
+			offset.push();
+			gammasolver->printstatus(coutMaster);
+			offset.pop();
 		}
 
 
@@ -301,9 +324,9 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		deltaL = std::abs(L - L_old);
 
 		/* print info about cost function */
-		Message_info_value("  - L_old       = ",L_old);
-		Message_info_value("  - L           = ",L);
-		Message_info_value("  - |L - L_old| = ",deltaL);
+		coutMaster << offset << " - L_old       = " << L_old << std::endl;
+		coutMaster << offset << " - L           = " << L << std::endl;
+		coutMaster << offset << " - |L - L_old| = " << deltaL << std::endl;
 
 		/* end the main cycle if the change of function value is sufficient */
 		if (deltaL < setting.eps){
@@ -311,6 +334,7 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		}
 		
 	}
+	offset.pop();
 
 	this->it_sum += it;
 	this->it_last = it;

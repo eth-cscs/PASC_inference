@@ -71,7 +71,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 SimplexFeasibleSet<VectorBase>::SimplexFeasibleSet(int Tnew, int Knew){
-	if(DEBUG_MODE >= 100) std::cout << "(SimplexFeasibleSet)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(SimplexFeasibleSet)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = Tnew;
@@ -83,24 +83,24 @@ SimplexFeasibleSet<VectorBase>::SimplexFeasibleSet(int Tnew, int Knew){
 /* destructor */
 template<class VectorBase>
 SimplexFeasibleSet<VectorBase>::~SimplexFeasibleSet(){
-	if(DEBUG_MODE >= 100) std::cout << "(SimplexFeasibleSet)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(SimplexFeasibleSet)DESTRUCTOR" << std::endl;
 	
 }
 
 /* print info about feasible set */
 template<class VectorBase>
 void SimplexFeasibleSet<VectorBase>::print(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << "  - T:     " << T << std::endl;
-	output << "  - K:     " << K << std::endl;
+	output << offset << " - T:     " << T << std::endl;
+	output << offset << " - K:     " << K << std::endl;
 		
 }
 
 template<class VectorBase>
 std::string SimplexFeasibleSet<VectorBase>::get_name() const {
-	return "Simplex FeasibleSet";
+	return "SimplexFeasibleSet";
 }
 
 
@@ -109,7 +109,7 @@ std::string SimplexFeasibleSet<VectorBase>::get_name() const {
 #ifdef USE_MINLIN
 template<>
 void SimplexFeasibleSet<HostMinLinVector>::project(GeneralVector<HostMinLinVector> &x) {
-	if(DEBUG_MODE >= 100) std::cout << "(SimplexFeasibleSet)FUNCTION: project HostMinLinVector" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(SimplexFeasibleSet)FUNCTION: project HostMinLinVector" << std::endl;
 
 	int t,k;
 	double x_sub[K];  /* GammaVector x_sub(K); */
@@ -361,10 +361,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 
 	/* initialization - how much I will compute? */
 	if(!this->petsc_projection_init){
-		if(DEBUG_MODE >= 100){
-			Message("  - initialization of projection");
-		}
-		
+
 		this->petsc_projection_init = true;
 		
 		/* try to make a global vector of length T and then get the indexes of begin and end of local portion */
@@ -379,7 +376,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 	}
 
 	if(DEBUG_MODE >= 100){
-		std::cout << "     my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
+		coutMaster << offset <<"     my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
 	}
 
 	int t;
@@ -406,12 +403,12 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		/* print the array of subvector */
 		if(DEBUG_MODE >= 100){
 			int i;
-			std::cout << "      xsub_" << t << " = [ ";
+			coutMaster << offset <<"      xsub_" << t << " = [ ";
 			for(i=0;i<this->K;i++){
-				std::cout << x_sub_arr[i];
-				if(i < this->K-1) std::cout << ", ";
+				coutMaster << offset <<x_sub_arr[i];
+				if(i < this->K-1) coutMaster << offset <<", ";
 			}
-			std::cout << " ]" << std::endl;
+			coutMaster << offset <<" ]" << std::endl;
 		}
 
 		/* restore the array */

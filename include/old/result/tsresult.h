@@ -52,7 +52,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 TSResult<VectorBase>::TSResult(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPResult)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPResult)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->tsmodel = NULL;
@@ -66,7 +66,7 @@ TSResult<VectorBase>::TSResult(){
 /* gammavector and thetavector are given */
 template<class VectorBase>
 TSResult<VectorBase>::TSResult(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector){
-	if(DEBUG_MODE >= 100) std::cout << "(TSResult)CONSTRUCTOR model, gammavector, thetavector" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSResult)CONSTRUCTOR model, gammavector, thetavector" << std::endl;
 
 	/* set initial content */
 	this->tsmodel = &tsmodel;
@@ -82,7 +82,7 @@ TSResult<VectorBase>::TSResult(TSModel<VectorBase> &tsmodel, GeneralVector<Vecto
 /* no datavector provided - prepare own data vector */
 template<class VectorBase>
 TSResult<VectorBase>::TSResult(TSModel<VectorBase> &tsmodel){
-	if(DEBUG_MODE >= 100) std::cout << "(TSResult)CONSTRUCTOR model" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSResult)CONSTRUCTOR model" << std::endl;
 
 	/* set initial content */
 	this->tsmodel = &tsmodel;
@@ -102,7 +102,7 @@ TSResult<VectorBase>::TSResult(TSModel<VectorBase> &tsmodel){
 /* destructor */
 template<class VectorBase>
 TSResult<VectorBase>::~TSResult(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPResult)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPResult)DESTRUCTOR" << std::endl;
 	
 	/* if I created a result vectors, then I should also be able to destroy them */
 	if(this->destroy_vectors){

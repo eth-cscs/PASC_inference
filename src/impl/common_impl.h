@@ -29,32 +29,6 @@ void Finalize(){
 
 }
 
-void Message(std::string text){
-	std::cout << "\033[32m" << text << "\033[0m" << std::endl;
-}  
-
-void Message_info_main(std::string text){
-	std::cout << "\033[33m" << text << "\033[0m" << std::endl;
-}  
-
-void Message_info(std::string text){
-	std::cout << "\033[36m" << text << "\033[0m" << std::endl;
-}  
-
-void Message_info_values(std::string text, std::string values){
-	std::cout << "\033[36m" << text << "\033[0m" << values << std::endl;
-}  
-void Message_info_value(std::string text, int value){
-	std::cout << "\033[36m" << text << "\033[0m" << value << std::endl;
-}  
-void Message_info_value(std::string text, double value){
-	std::cout << "\033[36m" << text << "\033[0m" << value << std::endl;
-}  
-void Message_info_time(std::string text, double value){
-	std::cout << "\033[36m" << text << "\033[0m" << value << "s" << std::endl;
-}  
-
-
 
 
 

@@ -43,15 +43,6 @@ void Initialize(int, char**);
  */
 void Finalize();
 
-void Message(std::string text);
-void Message_info(std::string text);
-void Message_info_main(std::string text);
-void Message_info_values(std::string text, std::string values);
-void Message_info_value(std::string text, int value);
-void Message_info_value(std::string text, double value);
-void Message_info_time(std::string text, double value);
-
-
 /* structure for time management (measure computing time) */
 /** \class StackTimer
  *  \brief stack-based time management
@@ -274,7 +265,7 @@ ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v)
 }
 
 
-class _offset {
+class OffsetClass {
 	private:
 		std::string inner_string; /**< offset string */
 		int size; /**< number of spaces in offset */
@@ -287,26 +278,26 @@ class _offset {
 			}
 		}
 	public:
-		_offset(){
+		OffsetClass(){
 			inner_string = ""; /* initial offset */
 		}
 	
 		void push(){
-			size += 2;
+ 			size += 3;
 			refill();
 		}
 
 		void pop(){
-			size -= 2;
+			size -= 3;
 			if(size < 0) size = 0;
 			refill();
 		}
 
-		friend std::ostream &operator<<(std::ostream &output, const _offset &offset);
+		friend std::ostream &operator<<(std::ostream &output, const OffsetClass &offset);
 
 } offset;
 
-std::ostream &operator<<(std::ostream &output, const _offset &offset){
+std::ostream &operator<<(std::ostream &output, const OffsetClass &offset){
 	output << offset.inner_string;
 	return output;
 }

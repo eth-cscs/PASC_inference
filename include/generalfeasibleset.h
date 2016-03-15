@@ -40,14 +40,14 @@ class GeneralFeasibleSet {
 /* general print, call virtual print() */
 template<class VectorBase2>
 std::ostream &operator<<(std::ostream &output, const GeneralFeasibleSet<VectorBase2> &feasibleset){
-	if(DEBUG_MODE >= 100) std::cout << "(GeneralFeasibleSet)OPERATOR: <<" << std::endl;
-	feasibleset.print(output);
+	if(DEBUG_MODE >= 100) coutMaster << offset << "(GeneralFeasibleSet)OPERATOR: <<" << std::endl;
+	output << feasibleset.get_name();
 	return output;
 }
 
 template<class VectorBase>
 void GeneralFeasibleSet<VectorBase>::print(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 }
 
 template<class VectorBase>

@@ -281,7 +281,7 @@ void get_projection(petscvector::PetscVector & x, int K){
 	}
 
 	if(DEBUG_MODE >= 5){
-		std::cout << "     my ownership: [" << petsc_projection_Townership_low << ", " << petsc_projection_Townership_high << "]" << std::endl;
+		coutMaster << offset <<"     my ownership: [" << petsc_projection_Townership_low << ", " << petsc_projection_Townership_high << "]" << std::endl;
 	}
 
 	int t;
@@ -304,12 +304,12 @@ void get_projection(petscvector::PetscVector & x, int K){
 		/* print the array of subvector */
 		if(DEBUG_MODE >= 5){
 			int i;
-			std::cout << "      xsub_" << t << " = [ ";
+			coutMaster << offset <<"      xsub_" << t << " = [ ";
 			for(i=0;i<K;i++){
-				std::cout << x_sub_arr[i];
-				if(i < K-1) std::cout << ", ";
+				coutMaster << offset <<x_sub_arr[i];
+				if(i < K-1) coutMaster << offset <<", ";
 			}
-			std::cout << " ]" << std::endl;
+			coutMaster << offset <<" ]" << std::endl;
 		}
 
 		/* restore the array */

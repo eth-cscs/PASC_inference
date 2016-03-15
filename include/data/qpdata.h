@@ -59,7 +59,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 QPData<VectorBase>::QPData(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPData)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPData)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->A = NULL;
@@ -73,7 +73,7 @@ QPData<VectorBase>::QPData(){
 /* destructor */
 template<class VectorBase>
 QPData<VectorBase>::~QPData(){
-	if(DEBUG_MODE >= 100) std::cout << "(QPData)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(QPData)DESTRUCTOR" << std::endl;
 	
 }
 
@@ -81,83 +81,83 @@ QPData<VectorBase>::~QPData(){
 /* print info about problem */
 template<class VectorBase>
 void QPData<VectorBase>::print(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << "  - A:            ";
+	output << offset << " - A:            ";
 	if(this->A){
 		output << "YES" << std::endl; // TODO: get matrix name 
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - b:            ";
+	output << offset << " - b:            ";
 	if(this->b){
 		output << "YES (size: " << this->b->size() << ")" << std::endl;
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - x0:           ";
+	output << offset << " - x0:           ";
 	if(this->x0){
 		output << "YES (size: " << this->x0->size() << ")" << std::endl;
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - x:            ";
+	output << offset << " - x:            ";
 	if(this->x0){
 		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - feasible_set: ";
+	output << offset << " - feasible_set: ";
 	if(this->feasibleset){
 		output << "YES (" << this->feasibleset->get_name() << ")" << std::endl;
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
 		
 }
 
 template<class VectorBase>
 void QPData<VectorBase>::printcontent(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << "  - A:            ";
+	output << offset << " - A:            ";
 	if(this->A){
 		output << *(this->A) << std::endl; 
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - b:            ";
+	output << offset << " - b:            ";
 	if(this->b){
 		output << *(this->b) << std::endl;
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - x0:           ";
+	output << offset << " - x0:           ";
 	if(this->x0){
 		output << *(this->x0) << std::endl;
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - x:            ";
+	output << offset << " - x:            ";
 	if(this->x0){
 		output << *(this->x) << std::endl;
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - feasible_set: ";
+	output << offset << " - feasible_set: ";
 	if(this->feasibleset){
 		output << *(this->feasibleset) << std::endl;
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
 		
 }
 
 template<class VectorBase>
 std::string QPData<VectorBase>::get_name() const {
-	return "QP Data";
+	return "QPData";
 }
 
 /* ----- SET and GET functions --- */

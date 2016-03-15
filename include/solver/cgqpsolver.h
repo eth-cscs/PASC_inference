@@ -24,11 +24,15 @@ class CGQPSolverSetting : public QPSolverSetting {
 		~CGQPSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
-			output << "  CGQPSolverSettings:" << std::endl;
-			output << "   - maxit: " << this->maxit << std::endl;
-			output << "   - eps: " << this->eps << std::endl;
-			output << "   - debug_mode: " << this->debug_mode << std::endl;
+			output << offset << this->get_name() << std::endl;
+			output << offset << " - maxit:      " << this->maxit << std::endl;
+			output << offset << " - eps:        " << this->eps << std::endl;
+			output << offset << " - debug_mode: " << this->debug_mode << std::endl;
 
+		};
+
+		std::string get_name() const {
+			return "CG SolverSetting";
 		};
 		
 };
@@ -38,7 +42,7 @@ class CGQPSolverSetting : public QPSolverSetting {
 template<class VectorBase>
 class CGQPSolver: public QPSolver<VectorBase> {
 	protected:
-		const QPData<VectorBase> *data; /* data on which the solver operates */
+		const QPData<VectorBase> *qpdata; /* data on which the solver operates */
 	
 		/* temporary vectors used during the solution process */
 		void allocate_temp_vectors();
@@ -51,7 +55,7 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		CGQPSolverSetting setting;
 
 		CGQPSolver();
-		CGQPSolver(const QPData<VectorBase> &new_data); 
+		CGQPSolver(const QPData<VectorBase> &new_qpdata); 
 		~CGQPSolver();
 
 
@@ -74,9 +78,9 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::CGQPSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(CGQPSolver)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)CONSTRUCTOR" << std::endl;
 
-	data = NULL;
+	qpdata = NULL;
 	
 	/* temp vectors */
 	g = NULL;
@@ -87,8 +91,8 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 }
 
 template<class VectorBase>
-CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_data){
-	data = &new_data;
+CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
+	qpdata = &new_qpdata;
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
@@ -100,7 +104,7 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_data){
 /* destructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::~CGQPSolver(){
-	if(DEBUG_MODE >= 100) std::cout << "(CGQPSolver)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)DESTRUCTOR" << std::endl;
 
 	/* free temp vectors */
 	free_temp_vectors();
@@ -109,7 +113,7 @@ CGQPSolver<VectorBase>::~CGQPSolver(){
 /* prepare temp_vectors */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::allocate_temp_vectors(){
-	GeneralVector<VectorBase> *pattern = data->get_b(); /* I will allocate temp vectors subject to linear term */
+	GeneralVector<VectorBase> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
 
 	g = new GeneralVector<VectorBase>(*pattern);
 	p = new GeneralVector<VectorBase>(*pattern);
@@ -130,12 +134,21 @@ void CGQPSolver<VectorBase>::free_temp_vectors(){
 /* print info about problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) std::cout << "(CGQPSolver)FUNCTION: print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)FUNCTION: print" << std::endl;
 
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 	
 	/* print settings */
-	output << setting;
+	offset.push();
+	setting.print(output);
+	offset.pop();
+
+	/* print settings */
+	if(qpdata){
+		offset.push();
+		qpdata->print(output);
+		offset.pop();
+	}
 		
 }
 
@@ -148,19 +161,19 @@ std::string CGQPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::solve() {
-	if(DEBUG_MODE >= 100) std::cout << "(CGQPSolver)FUNCTION: solve" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)FUNCTION: solve" << std::endl;
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
 	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
-	/* pointers to data */
-	pMatrix A = *(data->get_A());
-	pVector b = *(data->get_b());
-	pVector x0 = *(data->get_x0());
+	/* pointers to qpdata */
+	pMatrix A = *(qpdata->get_A());
+	pVector b = *(qpdata->get_b());
+	pVector x0 = *(qpdata->get_x0());
 
 	/* pointer to solution */
-	pVector x = *(data->get_x());
+	pVector x = *(qpdata->get_x());
 
 	/* auxiliary vectors */
 	pVector g = *(this->g); /* gradient */
@@ -203,22 +216,22 @@ void CGQPSolver<VectorBase>::solve() {
 		p += g;
 		
 		if(this->setting.debug_mode >= 10){
-			std::cout << "it " << it << ": ||g|| = " << normg << std::endl;
+			coutMaster << offset <<"it " << it << ": ||g|| = " << normg << std::endl;
 		}
 
 		if(this->setting.debug_mode >= 100){
-			std::cout << "x = " << x << std::endl;
-			std::cout << "g = " << g << std::endl;
-			std::cout << "p = " << p << std::endl;
-			std::cout << "Ap = " << Ap << std::endl;
-			std::cout << "pAp = " << pAp << std::endl;
-			std::cout << "alpha = " << alpha << std::endl;
-			std::cout << "beta = " << beta << std::endl;
-			std::cout << "gg = " << gg << std::endl;
-			std::cout << "gg_old = " << gg_old << std::endl;
-			std::cout << "normg = " << normg << std::endl;
+			coutMaster << offset <<"x = " << x << std::endl;
+			coutMaster << offset <<"g = " << g << std::endl;
+			coutMaster << offset <<"p = " << p << std::endl;
+			coutMaster << offset <<"Ap = " << Ap << std::endl;
+			coutMaster << offset <<"pAp = " << pAp << std::endl;
+			coutMaster << offset <<"alpha = " << alpha << std::endl;
+			coutMaster << offset <<"beta = " << beta << std::endl;
+			coutMaster << offset <<"gg = " << gg << std::endl;
+			coutMaster << offset <<"gg_old = " << gg_old << std::endl;
+			coutMaster << offset <<"normg = " << normg << std::endl;
 
-			std::cout << "------------------------------------" << std::endl;
+			coutMaster << offset <<"------------------------------------" << std::endl;
 		}
 
 				
@@ -228,10 +241,10 @@ void CGQPSolver<VectorBase>::solve() {
 		
 	/* print output */
 	if(this->setting.debug_mode >= 10){
-		std::cout << "------------------------" << std::endl;
-		std::cout << " it_cg = " << it << std::endl;
-		std::cout << " norm_g = " << normg << std::endl;
-		std::cout << " hess_mult = " << hess_mult << std::endl;
+		coutMaster << offset <<"------------------------" << std::endl;
+		coutMaster << offset <<" it_cg = " << it << std::endl;
+		coutMaster << offset <<" norm_g = " << normg << std::endl;
+		coutMaster << offset <<" hess_mult = " << hess_mult << std::endl;
 	}
 
 	

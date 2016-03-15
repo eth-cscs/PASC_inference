@@ -54,7 +54,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 DiagData<VectorBase>::DiagData(){
-	if(DEBUG_MODE >= 100) std::cout << "(DiagData)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagData)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->a = NULL;
@@ -66,7 +66,7 @@ DiagData<VectorBase>::DiagData(){
 /* destructor */
 template<class VectorBase>
 DiagData<VectorBase>::~DiagData(){
-	if(DEBUG_MODE >= 100) std::cout << "(DiagData)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagData)DESTRUCTOR" << std::endl;
 	
 }
 
@@ -74,58 +74,58 @@ DiagData<VectorBase>::~DiagData(){
 /* print info about problem */
 template<class VectorBase>
 void DiagData<VectorBase>::print(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << "  - a:            ";
+	output << offset << " - a:            ";
 	if(this->a){
 		output << "YES (size: " << this->a->size() << ")" << std::endl;
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - b:            ";
+	output << offset << " - b:            ";
 	if(this->b){
 		output << "YES (size: " << this->b->size() << ")" << std::endl;
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - x:            ";
+	output << offset << " - x:            ";
 	if(this->x){
 		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
-		output << "NO" << std::endl;
+		output << "not set" << std::endl;
 	}
 		
 }
 
 template<class VectorBase>
 void DiagData<VectorBase>::printcontent(std::ostream &output) const {
-	output << this->get_name() << std::endl;
+	output << offset << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << "  - a:            ";
+	output << offset << " - a:            ";
 	if(this->a){
 		output << *(this->a) << std::endl;
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - b:            ";
+	output << offset << " - b:            ";
 	if(this->b){
 		output << *(this->b) << std::endl;
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
-	output << "  - x:            ";
+	output << offset << " - x:            ";
 	if(this->x){
 		output << *(this->x) << std::endl;
 	} else {
-		output << "---" << std::endl;
+		output << "not set" << std::endl;
 	}
 }
 
 template<class VectorBase>
 std::string DiagData<VectorBase>::get_name() const {
-	return "Diag Data";
+	return "DiagData";
 }
 
 /* ----- SET and GET functions --- */
