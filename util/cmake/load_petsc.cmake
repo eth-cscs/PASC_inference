@@ -8,13 +8,13 @@ if(${USE_PETSC})
 	set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake/petsc" ${CMAKE_MODULE_PATH})
 	
 	# PETSc: include
-	if(NOT DEFINED ENV{PETSC_DIR} OR NOT DEFINED ENV{PETSC_INCLUDES})
+	if(NOT DEFINED ENV{PETSC_DIR} AND NOT DEFINED ENV{PETSC_INCLUDES})
 		message(STATUS "${Blue}PETSC_INCLUDES is not specified, trying to run find_package(PETSc)${ColourReset}")
 		# magic function from Jed Brown
 		find_package(PETSc)
-	endif()
 
-	include_directories(${PETSC_INCLUDES})
+		include_directories(${PETSC_INCLUDES})
+	endif()
 
 	# append to flags definitions
 	set(FLAGS_DEF "-USE_PETSC ${FLAGS_DEF}")
