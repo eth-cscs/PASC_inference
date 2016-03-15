@@ -62,7 +62,7 @@ std::string LaplaceExplicitMatrix<VectorBase>::get_name() const {
 /* Petsc: constructor from given right PetscVector */
 template<>
 LaplaceExplicitMatrix<PetscVector>::LaplaceExplicitMatrix(const PetscVector &x){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)CONSTRUCTOR: from PetscVector" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)CONSTRUCTOR: from PetscVector" << std::endl;
 
 	int N, n;
 
@@ -122,7 +122,7 @@ LaplaceExplicitMatrix<PetscVector>::LaplaceExplicitMatrix(const PetscVector &x){
 /* Petsc: destructor - destroy the matrix */
 template<>
 LaplaceExplicitMatrix<PetscVector>::~LaplaceExplicitMatrix(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
 		TRY( MatDestroy(&A_petsc) );
@@ -133,7 +133,7 @@ LaplaceExplicitMatrix<PetscVector>::~LaplaceExplicitMatrix(){
 template<>
 void LaplaceExplicitMatrix<PetscVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 
 	output << "Laplace matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
 	output << "----------------------------------------------------------" << std::endl;
@@ -146,7 +146,7 @@ void LaplaceExplicitMatrix<PetscVector>::print(std::ostream &output) const
 /* Petsc: matrix-vector multiplication */
 template<>
 void LaplaceExplicitMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	// TODO: maybe y is not initialized, who knows
 	
@@ -164,7 +164,7 @@ void LaplaceExplicitMatrix<PetscVector>::matmult(PetscVector &y, const PetscVect
 template<>
 LaplaceExplicitMatrix<MinlinHostVector>::LaplaceExplicitMatrix(const MinlinHostVector &x){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)CONSTRUCTOR: from MinLin host" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)CONSTRUCTOR: from MinLin host" << std::endl;
 
 	int N = x.size();
 
@@ -215,7 +215,7 @@ LaplaceExplicitMatrix<MinlinHostVector>::LaplaceExplicitMatrix(const MinlinHostV
 template<>
 LaplaceExplicitMatrix<MinlinHostVector>::~LaplaceExplicitMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: how to destroy minlin matrix?
 }
@@ -224,14 +224,14 @@ LaplaceExplicitMatrix<MinlinHostVector>::~LaplaceExplicitMatrix(){
 template<>
 void LaplaceExplicitMatrix<MinlinHostVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlinhost << std::endl;
 }
 
 /* MinLinHost: matrix-vector multiplication */
 template<>
 void LaplaceExplicitMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlinhost*x;	
 
@@ -247,7 +247,7 @@ void LaplaceExplicitMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const
 template<>
 LaplaceExplicitMatrix<MinlinDeviceVector>::LaplaceExplicitMatrix(const MinlinDeviceVector &x){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)CONSTRUCTOR: from MinLin host" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)CONSTRUCTOR: from MinLin host" << std::endl;
 
 	int N = x.size();
 
@@ -298,7 +298,7 @@ LaplaceExplicitMatrix<MinlinDeviceVector>::LaplaceExplicitMatrix(const MinlinDev
 template<>
 LaplaceExplicitMatrix<MinlinDeviceVector>::~LaplaceExplicitMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: how to destroy minlin matrix?
 }
@@ -307,14 +307,14 @@ LaplaceExplicitMatrix<MinlinDeviceVector>::~LaplaceExplicitMatrix(){
 template<>
 void LaplaceExplicitMatrix<MinlinDeviceVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlindevice << std::endl;
 }
 
 /* MinLinDevice: matrix-vector multiplication */
 template<>
 void LaplaceExplicitMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const MinlinDeviceVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlindevice*x;	
 

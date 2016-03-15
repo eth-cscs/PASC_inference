@@ -179,7 +179,7 @@ namespace pascinference {
 			myfile.close();
 
 			timer_saveVTK.stop();
-			coutMaster << offset << " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+			coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
 
 		}
 		

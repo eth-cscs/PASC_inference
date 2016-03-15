@@ -66,7 +66,7 @@ std::string BlockDiagLaplaceExplicitMatrix<VectorBase>::get_name() const {
 /* Petsc: constructor from given right PetscVector */
 template<>
 BlockDiagLaplaceExplicitMatrix<PetscVector>::BlockDiagLaplaceExplicitMatrix(const PetscVector &x, int newK, double newalpha){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)CONSTRUCTOR: from PetscVector" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)CONSTRUCTOR: from PetscVector" << std::endl;
 
 	int N, n, T;
 
@@ -77,9 +77,9 @@ BlockDiagLaplaceExplicitMatrix<PetscVector>::BlockDiagLaplaceExplicitMatrix(cons
 	n = x.local_size();
 	T = N/(double)K; /* size of each block */
 
-	coutMaster << offset <<"N = " << N << std::endl;
-	coutMaster << offset <<"K = " << K << std::endl;
-	coutMaster << offset <<"T = " << T << std::endl;
+	coutMaster << "N = " << N << std::endl;
+	coutMaster << "K = " << K << std::endl;
+	coutMaster << "T = " << T << std::endl;
 
 	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
 	TRY( MatSetSizes(A_petsc,n,n,N,N) );
@@ -142,7 +142,7 @@ BlockDiagLaplaceExplicitMatrix<PetscVector>::BlockDiagLaplaceExplicitMatrix(cons
 /* Petsc: destructor - destroy the matrix */
 template<>
 BlockDiagLaplaceExplicitMatrix<PetscVector>::~BlockDiagLaplaceExplicitMatrix(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
 		TRY( MatDestroy(&A_petsc) );
@@ -153,7 +153,7 @@ BlockDiagLaplaceExplicitMatrix<PetscVector>::~BlockDiagLaplaceExplicitMatrix(){
 template<>
 void BlockDiagLaplaceExplicitMatrix<PetscVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 
 	output << "Laplace matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
 	output << "----------------------------------------------------------" << std::endl;
@@ -166,7 +166,7 @@ void BlockDiagLaplaceExplicitMatrix<PetscVector>::print(std::ostream &output) co
 /* Petsc: matrix-vector multiplication */
 template<>
 void BlockDiagLaplaceExplicitMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	// TODO: maybe y is not initialized, who knows
 	
@@ -183,7 +183,7 @@ void BlockDiagLaplaceExplicitMatrix<PetscVector>::matmult(PetscVector &y, const 
 template<>
 BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::BlockDiagLaplaceExplicitMatrix(const MinlinHostVector &x, int newK, double newalpha){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)CONSTRUCTOR: from MinLin host" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)CONSTRUCTOR: from MinLin host" << std::endl;
 
 	int N = x.size();
 	alpha = newalpha;
@@ -246,7 +246,7 @@ BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::BlockDiagLaplaceExplicitMatrix
 template<>
 BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::~BlockDiagLaplaceExplicitMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: how to destroy minlin matrix?
 }
@@ -255,14 +255,14 @@ BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::~BlockDiagLaplaceExplicitMatri
 template<>
 void BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlinhost << std::endl;
 }
 
 /* MinLinHost: matrix-vector multiplication */
 template<>
 void BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlinhost*x;	
 
@@ -278,7 +278,7 @@ void BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::matmult(MinlinHostVector 
 template<>
 BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::BlockDiagLaplaceExplicitMatrix(const MinlinDeviceVector &x, int newK, double newalpha){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)CONSTRUCTOR: from MinLinDevice" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)CONSTRUCTOR: from MinLinDevice" << std::endl;
 
 	int N = x.size();
 	alpha = newalpha;
@@ -341,7 +341,7 @@ BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::BlockDiagLaplaceExplicitMatr
 template<>
 BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::~BlockDiagLaplaceExplicitMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: how to destroy minlin matrix?
 }
@@ -350,14 +350,14 @@ BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::~BlockDiagLaplaceExplicitMat
 template<>
 void BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlindevice << std::endl;
 }
 
 /* MinLinDevice: matrix-vector multiplication */
 template<>
 void BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const MinlinDeviceVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(BlockDiagLaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlindevice*x;	
 

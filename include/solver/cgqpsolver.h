@@ -24,10 +24,10 @@ class CGQPSolverSetting : public QPSolverSetting {
 		~CGQPSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
-			output << offset << this->get_name() << std::endl;
-			output << offset << " - maxit:      " << this->maxit << std::endl;
-			output << offset << " - eps:        " << this->eps << std::endl;
-			output << offset << " - debug_mode: " << this->debug_mode << std::endl;
+			output <<  this->get_name() << std::endl;
+			output <<  " - maxit:      " << this->maxit << std::endl;
+			output <<  " - eps:        " << this->eps << std::endl;
+			output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 		};
 
@@ -78,7 +78,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::CGQPSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)CONSTRUCTOR" << std::endl;
 
 	qpdata = NULL;
 	
@@ -104,7 +104,7 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
 /* destructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::~CGQPSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)DESTRUCTOR" << std::endl;
 
 	/* free temp vectors */
 	free_temp_vectors();
@@ -134,20 +134,20 @@ void CGQPSolver<VectorBase>::free_temp_vectors(){
 /* print info about problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)FUNCTION: print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)FUNCTION: print" << std::endl;
 
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	offset.push();
+	coutMaster.push();
 	setting.print(output);
-	offset.pop();
+	coutMaster.pop();
 
 	/* print settings */
 	if(qpdata){
-		offset.push();
+		coutMaster.push();
 		qpdata->print(output);
-		offset.pop();
+		coutMaster.pop();
 	}
 		
 }
@@ -161,7 +161,7 @@ std::string CGQPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::solve() {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(CGQPSolver)FUNCTION: solve" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)FUNCTION: solve" << std::endl;
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
@@ -216,22 +216,22 @@ void CGQPSolver<VectorBase>::solve() {
 		p += g;
 		
 		if(this->setting.debug_mode >= 10){
-			coutMaster << offset <<"it " << it << ": ||g|| = " << normg << std::endl;
+			coutMaster << "it " << it << ": ||g|| = " << normg << std::endl;
 		}
 
 		if(this->setting.debug_mode >= 100){
-			coutMaster << offset <<"x = " << x << std::endl;
-			coutMaster << offset <<"g = " << g << std::endl;
-			coutMaster << offset <<"p = " << p << std::endl;
-			coutMaster << offset <<"Ap = " << Ap << std::endl;
-			coutMaster << offset <<"pAp = " << pAp << std::endl;
-			coutMaster << offset <<"alpha = " << alpha << std::endl;
-			coutMaster << offset <<"beta = " << beta << std::endl;
-			coutMaster << offset <<"gg = " << gg << std::endl;
-			coutMaster << offset <<"gg_old = " << gg_old << std::endl;
-			coutMaster << offset <<"normg = " << normg << std::endl;
+			coutMaster << "x = " << x << std::endl;
+			coutMaster << "g = " << g << std::endl;
+			coutMaster << "p = " << p << std::endl;
+			coutMaster << "Ap = " << Ap << std::endl;
+			coutMaster << "pAp = " << pAp << std::endl;
+			coutMaster << "alpha = " << alpha << std::endl;
+			coutMaster << "beta = " << beta << std::endl;
+			coutMaster << "gg = " << gg << std::endl;
+			coutMaster << "gg_old = " << gg_old << std::endl;
+			coutMaster << "normg = " << normg << std::endl;
 
-			coutMaster << offset <<"------------------------------------" << std::endl;
+			coutMaster << "------------------------------------" << std::endl;
 		}
 
 				
@@ -241,10 +241,10 @@ void CGQPSolver<VectorBase>::solve() {
 		
 	/* print output */
 	if(this->setting.debug_mode >= 10){
-		coutMaster << offset <<"------------------------" << std::endl;
-		coutMaster << offset <<" it_cg = " << it << std::endl;
-		coutMaster << offset <<" norm_g = " << normg << std::endl;
-		coutMaster << offset <<" hess_mult = " << hess_mult << std::endl;
+		coutMaster << "------------------------" << std::endl;
+		coutMaster << " it_cg = " << it << std::endl;
+		coutMaster << " norm_g = " << normg << std::endl;
+		coutMaster << " hess_mult = " << hess_mult << std::endl;
 	}
 
 	

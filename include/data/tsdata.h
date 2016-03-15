@@ -60,7 +60,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 TSData<VectorBase>::TSData(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSData)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->model = NULL;
@@ -79,7 +79,7 @@ TSData<VectorBase>::TSData(){
 /* datavector is given */
 template<class VectorBase>
 TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSData)CONSTRUCTOR model, datavector, gammavector, thetavector" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR model, datavector, gammavector, thetavector" << std::endl;
 
 	/* set initial content */
 	this->tsmodel = &tsmodel;
@@ -102,7 +102,7 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBas
 /* no datavector provided - prepare own data vector */
 template<class VectorBase>
 TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSData)CONSTRUCTOR model" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR model" << std::endl;
 
 	/* set initial content */
 	this->tsmodel = &tsmodel;
@@ -126,7 +126,7 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel){
 /* destructor */
 template<class VectorBase>
 TSData<VectorBase>::~TSData(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSData)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(TSData)DESTRUCTOR" << std::endl;
 	
 	/* if I created a datavector, then I should also be able to destroy it */
 	if(this->destroy_datavector){
@@ -148,26 +148,26 @@ TSData<VectorBase>::~TSData(){
 /* print info about data */
 template<class VectorBase>
 void TSData<VectorBase>::print(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << offset << " - T:          " << this->get_T() << std::endl;
-	output << offset << " - dim:        " << this->get_dim() << std::endl;
-	output << offset << " - K:           " << this->get_K() << std::endl;
-	output << offset << " - model:      " << this->tsmodel->get_name() << std::endl;
-	output << offset << " - datavector: ";
+	output <<  " - T:          " << this->get_T() << std::endl;
+	output <<  " - dim:        " << this->get_dim() << std::endl;
+	output <<  " - K:           " << this->get_K() << std::endl;
+	output <<  " - model:      " << this->tsmodel->get_name() << std::endl;
+	output <<  " - datavector: ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
-	output <<  offset << " - gammavector: ";
+	output <<   " - gammavector: ";
 	if(this->gammavector){
 		output << "YES (size: " << this->gammavector->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
-	output << offset <<  " - thetavector: ";
+	output <<   " - thetavector: ";
 	if(this->thetavector){
 		output << "YES (size: " << this->thetavector->size() << ")" << std::endl;
 	} else {
@@ -179,22 +179,22 @@ void TSData<VectorBase>::print(std::ostream &output) const {
 /* print content of all data */
 template<class VectorBase>
 void TSData<VectorBase>::printcontent(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << offset << " - datavector: ";
+	output <<  " - datavector: ";
 	if(this->datavector){
 		output << *this->datavector << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
-	output << offset << " - gammavector: ";
+	output <<  " - gammavector: ";
 	if(this->gammavector){
 		output << *this->gammavector << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
-	output << offset << " - thetavector: ";
+	output <<  " - thetavector: ";
 	if(this->thetavector){
 		output << *this->thetavector << std::endl;
 	} else {

@@ -31,7 +31,7 @@ class GeneralSetting {
 
 /* general print, call virtual print() */
 std::ostream &operator<<(std::ostream &output, const GeneralSetting &setting){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralSolverSetting)OPERATOR: <<" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(GeneralSolverSetting)OPERATOR: <<" << std::endl;
 	output << setting.get_name();
 	return output;
 }

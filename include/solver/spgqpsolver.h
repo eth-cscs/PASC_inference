@@ -43,15 +43,15 @@ class SPGQPSolverSetting : public QPSolverSetting {
 		~SPGQPSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
-			output << offset << this->get_name() << std::endl;
-			output << offset << " - maxit:      " << maxit << std::endl;
-			output << offset << " - eps:        " << eps << std::endl;
-			output << offset << " - debug_mode: " << debug_mode << std::endl;
+			output <<  this->get_name() << std::endl;
+			output <<  " - maxit:      " << maxit << std::endl;
+			output <<  " - eps:        " << eps << std::endl;
+			output <<  " - debug_mode: " << debug_mode << std::endl;
 
-			output << offset << " - m:          " << m << std::endl;
-			output << offset << " - gamma:      " << gamma << std::endl;
-			output << offset << " - sigma2:     " << sigma2 << std::endl;
-			output << offset << " - alphainit:  " << alphainit << std::endl;
+			output <<  " - m:          " << m << std::endl;
+			output <<  " - gamma:      " << gamma << std::endl;
+			output <<  " - sigma2:     " << sigma2 << std::endl;
+			output <<  " - alphainit:  " << alphainit << std::endl;
 
 		};
 
@@ -134,7 +134,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 SPGQPSolver<VectorBase>::SPGQPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << offset <<"(SPGQPSolver)CONSTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)CONSTRUCTOR" << std::endl;
 
 	qpdata = NULL;
 	
@@ -191,7 +191,7 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 /* destructor */
 template<class VectorBase>
 SPGQPSolver<VectorBase>::~SPGQPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << offset <<"(SPGQPSolver)DESTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)DESTRUCTOR" << std::endl;
 
 	/* free temp vectors */
 	free_temp_vectors();
@@ -223,50 +223,50 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 /* print info about problem */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::print(std::ostream &output) const {
-	if(setting.debug_mode >= 100) coutMaster << offset <<"(SPGQPSolver)FUNCTION: print" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: print" << std::endl;
 
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	offset.push();
+	coutMaster.push();
 	setting.print(output);
-	offset.pop();	
+	coutMaster.pop();	
 	
 	/* print data */
 	if(qpdata){
-		offset.push();
+		coutMaster.push();
 		qpdata->print(output);
-		offset.pop();
+		coutMaster.pop();
 	}
 	
 }
 
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
-	if(setting.debug_mode >= 100) coutMaster << offset <<"(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
-	output << offset << this->get_name() << std::endl;
-	output << offset << " - it:          " << this->it_last << std::endl;
-	output << offset << " - hess mult:   " << this->hessmult_last << std::endl;
-	output << offset << " - fx:          " << this->fx << std::endl;	
-	output << offset << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	output <<  this->get_name() << std::endl;
+	output <<  " - it:          " << this->it_last << std::endl;
+	output <<  " - hess mult:   " << this->hessmult_last << std::endl;
+	output <<  " - fx:          " << this->fx << std::endl;	
+	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
 }
 
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::printtimer(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
-	output << offset << " - it all =       " << this->it_sum << std::endl;
-	output << offset << " - hessmult all = " << this->hessmult_sum << std::endl;
-	output << offset << " - timers all" << std::endl;
-	output << offset << "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
-	output << offset << "  - t_project =    " << this->timer_projection.get_value_sum() << std::endl;
-	output << offset << "  - t_matmult =    " << this->timer_matmult.get_value_sum() << std::endl;
-	output << offset << "  - t_dot =        " << this->timer_dot.get_value_sum() << std::endl;
-	output << offset << "  - t_update =     " << this->timer_update.get_value_sum() << std::endl;
-	output << offset << "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
-	output << offset << "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
-	output << offset << "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
+	output <<  this->get_name() << std::endl;
+	output <<  " - it all =       " << this->it_sum << std::endl;
+	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;
+	output <<  " - timers all" << std::endl;
+	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_project =    " << this->timer_projection.get_value_sum() << std::endl;
+	output <<  "  - t_matmult =    " << this->timer_matmult.get_value_sum() << std::endl;
+	output <<  "  - t_dot =        " << this->timer_dot.get_value_sum() << std::endl;
+	output <<  "  - t_update =     " << this->timer_update.get_value_sum() << std::endl;
+	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
+	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
+	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
 }
 
 
@@ -278,7 +278,7 @@ std::string SPGQPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::solve() {
-	if(setting.debug_mode >= 100) coutMaster << offset <<"(SPGQPSolver)FUNCTION: solve" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
@@ -410,32 +410,32 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* print qpdata */
 		if(setting.debug_mode >= 10){
-			coutMaster << offset <<"x: " << x << std::endl;
-			coutMaster << offset <<"d: " << d << std::endl;
-			coutMaster << offset <<"g: " << g << std::endl;
-			coutMaster << offset <<"Ad: " << Ad << std::endl;
+			coutMaster << "x: " << x << std::endl;
+			coutMaster << "d: " << d << std::endl;
+			coutMaster << "g: " << g << std::endl;
+			coutMaster << "Ad: " << Ad << std::endl;
 			
 		}
 
 		/* print progress of algorithm */
 		if(setting.debug_mode >= 3){
-			coutMaster << offset <<"\033[33m   it = \033[0m" << it;
-			coutMaster << offset <<", \t\033[36mfx = \033[0m" << fx;
-			coutMaster << offset <<", \t\033[36mdd = \033[0m" << dd << std::endl;
+			coutMaster << "\033[33m   it = \033[0m" << it;
+			coutMaster << ", \t\033[36mfx = \033[0m" << fx;
+			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
 		if(setting.debug_mode >= 5){
-			coutMaster << offset <<"\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
-			coutMaster << offset <<"\033[36m dAd = \033[0m" << dAd << ",";
-			coutMaster << offset <<"\033[36m gd = \033[0m" << gd << std::endl;
+			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
+			coutMaster << "\033[36m dAd = \033[0m" << dAd << ",";
+			coutMaster << "\033[36m gd = \033[0m" << gd << std::endl;
 			
-			coutMaster << offset <<"\033[36m    fx = \033[0m" << fx << ",";
-			coutMaster << offset <<"\033[36m fx_max = \033[0m" << fx_max << ",";
-			coutMaster << offset <<"\033[36m xi = \033[0m" << xi << std::endl;
+			coutMaster << "\033[36m    fx = \033[0m" << fx << ",";
+			coutMaster << "\033[36m fx_max = \033[0m" << fx_max << ",";
+			coutMaster << "\033[36m xi = \033[0m" << xi << std::endl;
 			
-			coutMaster << offset <<"\033[36m    beta_bar = \033[0m" << beta_bar << ",";
-			coutMaster << offset <<"\033[36m beta_hat = \033[0m" << beta_hat << ",";
-			coutMaster << offset <<"\033[36m beta = \033[0m" << beta << std::endl;
+			coutMaster << "\033[36m    beta_bar = \033[0m" << beta_bar << ",";
+			coutMaster << "\033[36m beta_hat = \033[0m" << beta_hat << ",";
+			coutMaster << "\033[36m beta = \033[0m" << beta << std::endl;
 			
 		}
 		
@@ -453,8 +453,8 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	/* very short info */
 	if(setting.debug_mode >= 3){
-		coutMaster << offset << " - it    = " << it << std::endl;
-		coutMaster << offset << " - time  = " << this->timer_solve.get_value_last() << std::endl;
+		coutMaster <<  " - it    = " << it << std::endl;
+		coutMaster <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
 
 	}
 
@@ -464,7 +464,7 @@ void SPGQPSolver<VectorBase>::solve() {
 /* compute function value using inner *x and already computed *g */
 template<class VectorBase>
 double SPGQPSolver<VectorBase>::get_fx() const {
-	if(setting.debug_mode >= 11) coutMaster << offset <<"(SPGQPSolver)FUNCTION: get_fx()" << std::endl;
+	if(setting.debug_mode >= 11) coutMaster << "(SPGQPSolver)FUNCTION: get_fx()" << std::endl;
 	
 	double fx = std::numeric_limits<double>::max();
 

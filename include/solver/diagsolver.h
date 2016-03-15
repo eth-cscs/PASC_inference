@@ -21,7 +21,7 @@ class DiagSolverSetting : public GeneralSolverSetting {
 		~DiagSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
-			output << offset << this->get_name() << std::endl;
+			output <<  this->get_name() << std::endl;
 		};
 
 		std::string get_name() const {
@@ -69,7 +69,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 DiagSolver<VectorBase>::DiagSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagSolver)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)CONSTRUCTOR" << std::endl;
 	
 	diagdata = NULL;
 }
@@ -82,27 +82,27 @@ DiagSolver<VectorBase>::DiagSolver(DiagData<VectorBase> &new_diagdata){
 /* destructor */
 template<class VectorBase>
 DiagSolver<VectorBase>::~DiagSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagSolver)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)DESTRUCTOR" << std::endl;
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void DiagSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagSolver)FUNCTION: print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: print" << std::endl;
 
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	offset.push();
+	coutMaster.push();
 	setting.print(output);
-	offset.pop();
+	coutMaster.pop();
 
 	/* print data */
 	if(diagdata){
-		offset.push();
+		coutMaster.push();
 		diagdata->print(output);
-		offset.pop();
+		coutMaster.pop();
 	}
 	
 }
@@ -110,18 +110,18 @@ void DiagSolver<VectorBase>::print(std::ostream &output) const {
 
 template<class VectorBase>
 void DiagSolver<VectorBase>::printstatus(std::ostream &output) const {
-	if(setting.debug_mode >= 100) coutMaster << offset <<"(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
-	output << offset << this->get_name() << std::endl;
-	output << offset << " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	output <<  this->get_name() << std::endl;
+	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 }
 
 template<class VectorBase>
 void DiagSolver<VectorBase>::printtimer(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
-	output << offset << " - timers" << std::endl;
-	output << offset << "  - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
-	output << offset << "  - t_dot =    " << this->timer_dot.get_value_sum() << std::endl;
+	output <<  this->get_name() << std::endl;
+	output <<  " - timers" << std::endl;
+	output <<  "  - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_dot =    " << this->timer_dot.get_value_sum() << std::endl;
 
 }
 
@@ -142,7 +142,7 @@ typedef petscvector::PetscVector PetscVector;
 /* Petsc: constructor from given right PetscVector */
 template<>
 void DiagSolver<PetscVector>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagSolver)FUNCTION: solve" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
 
@@ -166,7 +166,7 @@ typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 
 template<>
 void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagSolver)FUNCTION: solve" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
 
@@ -189,7 +189,7 @@ void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
 
 template<>
 void DiagSolver<MinlinDeviceVector>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagSolver)FUNCTION: solve" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
 

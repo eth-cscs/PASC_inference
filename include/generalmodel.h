@@ -37,13 +37,13 @@ class GeneralModel {
 
 /* general print, call virtual print() */
 std::ostream &operator<<(std::ostream &output, const GeneralModel &model){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralData)OPERATOR: <<" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(GeneralData)OPERATOR: <<" << std::endl;
 	output << model.get_name();
 	return output;
 }
 
 void GeneralModel::print(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 }
 
 std::string GeneralModel::get_name() const {

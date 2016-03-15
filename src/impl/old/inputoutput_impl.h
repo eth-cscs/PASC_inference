@@ -3,7 +3,7 @@ namespace pascinference {
 
 void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVector gamma_vec, int dim, int T, int K)
 {
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - generating VTK" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - generating VTK" << std::endl;
  	
 	Timer timer_saveVTK; 
 	timer_saveVTK.restart();
@@ -18,18 +18,18 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVe
 	oss_name_of_file << name_of_file;
 
 	/* open file to write */
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - open file" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - open file" << std::endl;
 	myfile.open(oss_name_of_file.str().c_str());
 
 	/* write header to file */
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - write header" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - write header" << std::endl;
 	myfile << "# vtk DataFile Version 3.1\n";
 	myfile << "this is my kmeans data with solution\n";
 	myfile << "ASCII\n";
 	myfile << "DATASET UNSTRUCTURED_GRID\n";
 
 	/* points - coordinates */
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - write points - coordinates" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - write points - coordinates" << std::endl;
 	myfile << "POINTS " << T << " FLOAT\n";
 	for(t=0;t < T;t++){
 		myfile << data_vec(t) << " "; /* x */
@@ -39,10 +39,10 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVe
 	myfile << "\n";
 
 	/* values in points */
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - write values in points" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - write values in points" << std::endl;
 	myfile << "POINT_DATA " <<  T << "\n";
 	/* prepare vector with idx of max values */
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - prepare gamma_max_idx" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - prepare gamma_max_idx" << std::endl;
 
 	GammaVector gamma_max(T);
 	GammaVector  temp;
@@ -72,7 +72,7 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVe
 
 
 	/* store gamma values */
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - store gamma values" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - store gamma values" << std::endl;
 	myfile << "SCALARS gamma_max_id float 1\n";
 	myfile << "LOOKUP_TABLE default\n";
 	for(t=0;t<T;t++){
@@ -80,7 +80,7 @@ void InputOutput::saveVTK(std::string name_of_file, DataVector data_vec, GammaVe
 	}
 
 	/* close file */
-	if(DEBUG_MODE >= 11) coutMaster << offset <<" - close file" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << " - close file" << std::endl;
 	myfile.close();
 
 	timer_saveVTK.stop();

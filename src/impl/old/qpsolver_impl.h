@@ -190,32 +190,32 @@ void QPSolver::solve(GammaVector &x){
 
 		/* print data */
 		if(DEBUG_MODE >= 10){
-			coutMaster << offset <<"x: " << x << std::endl;
-			coutMaster << offset <<"d: " << d << std::endl;
-			coutMaster << offset <<"g: " << g << std::endl;
-			coutMaster << offset <<"Ad: " << Ad << std::endl;
+			coutMaster << "x: " << x << std::endl;
+			coutMaster << "d: " << d << std::endl;
+			coutMaster << "g: " << g << std::endl;
+			coutMaster << "Ad: " << Ad << std::endl;
 			
 		}
 
 		/* print progress of algorithm */
 		if(DEBUG_MODE >= 4){
-			coutMaster << offset <<"\033[33m   it = \033[0m" << this->it;
-			coutMaster << offset <<", \t\033[36mfx = \033[0m" << fx;
-			coutMaster << offset <<", \t\033[36mdd = \033[0m" << dd << std::endl;
+			coutMaster << "\033[33m   it = \033[0m" << this->it;
+			coutMaster << ", \t\033[36mfx = \033[0m" << fx;
+			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
 		if(DEBUG_MODE >= 5){
-			coutMaster << offset <<"\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
-			coutMaster << offset <<"\033[36m dAd = \033[0m" << dAd << ",";
-			coutMaster << offset <<"\033[36m gd = \033[0m" << gd << std::endl;
+			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
+			coutMaster << "\033[36m dAd = \033[0m" << dAd << ",";
+			coutMaster << "\033[36m gd = \033[0m" << gd << std::endl;
 			
-			coutMaster << offset <<"\033[36m    fx = \033[0m" << fx << ",";
-			coutMaster << offset <<"\033[36m fx_max = \033[0m" << fx_max << ",";
-			coutMaster << offset <<"\033[36m xi = \033[0m" << xi << std::endl;
+			coutMaster << "\033[36m    fx = \033[0m" << fx << ",";
+			coutMaster << "\033[36m fx_max = \033[0m" << fx_max << ",";
+			coutMaster << "\033[36m xi = \033[0m" << xi << std::endl;
 			
-			coutMaster << offset <<"\033[36m    beta_bar = \033[0m" << beta_bar << ",";
-			coutMaster << offset <<"\033[36m beta_hat = \033[0m" << beta_hat << ",";
-			coutMaster << offset <<"\033[36m beta = \033[0m" << beta << std::endl;
+			coutMaster << "\033[36m    beta_bar = \033[0m" << beta_bar << ",";
+			coutMaster << "\033[36m beta_hat = \033[0m" << beta_hat << ",";
+			coutMaster << "\033[36m beta = \033[0m" << beta << std::endl;
 			
 		}
 		
@@ -244,7 +244,7 @@ Scalar QPSolver::get_function_value(GammaVector &x){
 }
 
 Scalar QPSolver::get_function_value(GammaVector &x, bool use_gradient){
-	if(DEBUG_MODE >= 11) coutMaster << offset <<"(Gamma)FUNCTION: get_function_value" << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << "(Gamma)FUNCTION: get_function_value" << std::endl;
 	
 	Scalar fx = std::numeric_limits<Scalar>::max();
 

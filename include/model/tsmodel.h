@@ -124,7 +124,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 TSModel<VectorBase>::TSModel(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSModel)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(TSModel)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = 0;
@@ -135,7 +135,7 @@ TSModel<VectorBase>::TSModel(){
 
 template<class VectorBase>
 TSModel<VectorBase>::TSModel(int newT, int newdim, int newK){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSModel)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(TSModel)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = newT;
@@ -146,7 +146,7 @@ TSModel<VectorBase>::TSModel(int newT, int newdim, int newK){
 /* destructor */
 template<class VectorBase>
 TSModel<VectorBase>::~TSModel(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(TSModel)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(TSModel)DESTRUCTOR" << std::endl;
 	
 }
 
@@ -154,12 +154,12 @@ TSModel<VectorBase>::~TSModel(){
 /* print info about model */
 template<class VectorBase>
 void TSModel<VectorBase>::print(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << offset << " - T:    " << this->T << std::endl;
-	output << offset << " - K:    " << this->K << std::endl;
-	output << offset << " - dim:  " << this->dim << std::endl;
+	output <<  " - T:    " << this->T << std::endl;
+	output <<  " - K:    " << this->K << std::endl;
+	output <<  " - dim:  " << this->dim << std::endl;
 		
 }
 

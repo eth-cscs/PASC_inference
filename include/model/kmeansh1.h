@@ -64,7 +64,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 KmeansH1Model<VectorBase>::KmeansH1Model(int newT, int newdim, int newK, double penalty) {
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(KmeansH1Model)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(KmeansH1Model)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = newT;
@@ -77,7 +77,7 @@ KmeansH1Model<VectorBase>::KmeansH1Model(int newT, int newdim, int newK, double 
 /* destructor */
 template<class VectorBase>
 KmeansH1Model<VectorBase>::~KmeansH1Model(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(KmeansH1Model)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(KmeansH1Model)DESTRUCTOR" << std::endl;
 	
 	/* destroy auxiliary vectors */
 
@@ -87,13 +87,13 @@ KmeansH1Model<VectorBase>::~KmeansH1Model(){
 /* print info about problem */
 template<class VectorBase>
 void KmeansH1Model<VectorBase>::print(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << offset << " - T:    " << this->T << std::endl;
-	output << offset << " - K:    " << this->K << std::endl;
-	output << offset << " - dim:  " << this->dim << std::endl;
-	output << offset << " - penalty:  " << this->penalty << std::endl;
+	output <<  " - T:    " << this->T << std::endl;
+	output <<  " - K:    " << this->K << std::endl;
+	output <<  " - dim:  " << this->dim << std::endl;
+	output <<  " - penalty:  " << this->penalty << std::endl;
 		
 }
 

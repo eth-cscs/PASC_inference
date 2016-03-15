@@ -44,7 +44,7 @@ class GeneralMatrix {
 /* print general matrix, call virtual print() */
 template<class VectorBase>
 std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorBase> &matrix){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralMatrixRHS)OPERATOR: <<" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(GeneralMatrixRHS)OPERATOR: <<" << std::endl;
 	output << matrix.get_name();
 	return output;
 }
@@ -58,7 +58,7 @@ std::string GeneralMatrix<VectorBase>::get_name() const {
 /* operator A*x (creates RHS to be proceeded into overloaded operator Vector = RHS */
 template<class VectorBase>
 GeneralMatrixRHS<VectorBase> operator*(const GeneralMatrix<VectorBase> &matrix, const GeneralVector<VectorBase> &x){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralMatrixRHS)OPERATOR: *" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(GeneralMatrixRHS)OPERATOR: *" << std::endl;
 	return GeneralMatrixRHS<VectorBase>(&matrix,&x);	
 }
 
@@ -77,7 +77,7 @@ class GeneralMatrixRHS{
 		}	
 
 		void matmult(GeneralVector<VectorBase> &y){ /* call multiplication function from matrix class to perform y = A*x */
-			if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralMatrixRHS)FUNCTION: matmult" << std::endl;
+			if(DEBUG_MODE >= 100) coutMaster << "(GeneralMatrixRHS)FUNCTION: matmult" << std::endl;
 			
 			(*matrix).matmult(y, *x); /* call virtual function (of Matrix) for multiplication */
 		}	

@@ -54,7 +54,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 DiagData<VectorBase>::DiagData(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagData)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagData)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->a = NULL;
@@ -66,7 +66,7 @@ DiagData<VectorBase>::DiagData(){
 /* destructor */
 template<class VectorBase>
 DiagData<VectorBase>::~DiagData(){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(DiagData)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(DiagData)DESTRUCTOR" << std::endl;
 	
 }
 
@@ -74,22 +74,22 @@ DiagData<VectorBase>::~DiagData(){
 /* print info about problem */
 template<class VectorBase>
 void DiagData<VectorBase>::print(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << offset << " - a:            ";
+	output <<  " - a:            ";
 	if(this->a){
 		output << "YES (size: " << this->a->size() << ")" << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
-	output << offset << " - b:            ";
+	output <<  " - b:            ";
 	if(this->b){
 		output << "YES (size: " << this->b->size() << ")" << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
-	output << offset << " - x:            ";
+	output <<  " - x:            ";
 	if(this->x){
 		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
@@ -100,22 +100,22 @@ void DiagData<VectorBase>::print(std::ostream &output) const {
 
 template<class VectorBase>
 void DiagData<VectorBase>::printcontent(std::ostream &output) const {
-	output << offset << this->get_name() << std::endl;
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output << offset << " - a:            ";
+	output <<  " - a:            ";
 	if(this->a){
 		output << *(this->a) << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
-	output << offset << " - b:            ";
+	output <<  " - b:            ";
 	if(this->b){
 		output << *(this->b) << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
-	output << offset << " - x:            ";
+	output <<  " - x:            ";
 	if(this->x){
 		output << *(this->x) << std::endl;
 	} else {

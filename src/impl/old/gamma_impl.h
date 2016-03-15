@@ -43,15 +43,15 @@ void Gamma::prepare_random()
 	/* normalize gamma */
 	/* at first sum the vectors */
 	gamma_sum = this->gamma_vec(0,T-1);
-	if(DEBUG_MODE >= 11) coutMaster << offset <<"  - gamma_sum_0 = " << gamma_sum << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << "  - gamma_sum_0 = " << gamma_sum << std::endl;
 
 	for(k=1;k<this->K;k++){
 		gamma_sum = gamma_sum + this->gamma_vec(k*T,(k+1)*T-1);
 
-		if(DEBUG_MODE >= 11) coutMaster << offset <<"  - gamma_sum_" << k << " = " << gamma_sum << std::endl;
+		if(DEBUG_MODE >= 11) coutMaster << "  - gamma_sum_" << k << " = " << gamma_sum << std::endl;
 	}
 
-	if(DEBUG_MODE >= 11) coutMaster << offset <<"  - gamma_sum = " << gamma_sum << std::endl;
+	if(DEBUG_MODE >= 11) coutMaster << "  - gamma_sum = " << gamma_sum << std::endl;
 
 	/* now divide the gamma by gamma_sum value */
 	for(k=0;k<this->K;k++){
@@ -69,7 +69,7 @@ void Gamma::prepare_random()
 		}	
 	}
 
-	if(DEBUG_MODE >= 10) coutMaster << offset <<"  - generated gamma = " << this->gamma_vec << std::endl;
+	if(DEBUG_MODE >= 10) coutMaster << "  - generated gamma = " << this->gamma_vec << std::endl;
 
 }
 

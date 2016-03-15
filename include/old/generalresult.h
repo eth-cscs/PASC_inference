@@ -30,7 +30,7 @@ class GeneralResult {
 
 /* general print, call virtual print() */
 std::ostream &operator<<(std::ostream &output, const GeneralResult &result){
-	if(DEBUG_MODE >= 100) coutMaster << offset <<"(GeneralResult)OPERATOR: <<" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(GeneralResult)OPERATOR: <<" << std::endl;
 	result.print(output);
 	return output;
 }
