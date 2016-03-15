@@ -77,7 +77,7 @@ int main( int argc, char *argv[] )
 	/* save results into VTK file */
 	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 
-	mysolver.printtimer(std::cout);
+	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
