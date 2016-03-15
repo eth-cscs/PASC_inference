@@ -139,9 +139,7 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 	
 	/* if child solver is specified, then print also info about it */	
 	if(child_solver){
-		offset.push();
 		child_solver->print(output);
-		offset.push();
 	}	
 }
 
