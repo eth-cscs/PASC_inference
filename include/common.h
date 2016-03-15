@@ -220,6 +220,51 @@ class MemoryCheck {
 };
 
 
+class OffsetClass {
+	private:
+		void refill(){
+//			inner_string.clear();
+//			inner_string = "";
+//			int i;
+//			for(i=0;i<size;i++){
+//				inner_string += " ";
+//			}
+		}
+
+//		std::string inner_string; /**< offset string */
+//		int size; /**< number of spaces in offset */
+
+	public:
+		OffsetClass(){
+//			inner_string = ""; /* initial offset */
+		}
+		
+		~OffsetClass(){
+//			inner_string.clear();
+		}
+	
+		void push(){
+// 			size += 3;
+//			refill();
+		}
+
+		void pop(){
+//			size -= 3;
+//			if(size < 0) size = 0;
+//			refill();
+		}
+
+		friend std::ostream &operator<<(std::ostream &output, const OffsetClass &offset);
+
+} offset;
+
+std::ostream &operator<<(std::ostream &output, const OffsetClass &offset){
+//	output << offset.inner_string;
+	output << "aa";
+	output.flush();
+	return output;
+}
+
 /** @class ConsoleOutput
  *  @brief print only on master
  * 
@@ -228,6 +273,35 @@ class MemoryCheck {
  */ 
 class ConsoleOutput : public std::ostream {
 	private:
+		/* Write a stream buffer that prefixes each line with Plop */
+		class ConsoleOutputBuf: public std::stringbuf{
+			private:
+				std::ostream&   output;
+			public:
+				ConsoleOutputBuf(std::ostream& str):output(str){
+					output.flush();
+				}
+
+				~ConsoleOutputBuf(){
+					output.flush();
+					output.clear();
+				}
+
+				// When we sync the stream with the output. 
+				// 1) Output Plop then the buffer
+				// 2) Reset the buffer
+				// 3) flush the actual output stream we are using.
+				virtual int sync ( ){
+					output << "test: " << str();
+					str("");
+					output.flush();
+					output.clear();
+					return 0;
+				}
+		};
+
+		ConsoleOutputBuf buffer;
+
 		int rank;
 		bool rankset;
 	public:
@@ -235,81 +309,48 @@ class ConsoleOutput : public std::ostream {
 		/* set rank of this processor */
 		void set_rank(){
 			rank = 0;
-			if(!rankset){
-				#ifdef USE_PETSCVECTOR
+//			if(!rankset){
+//				#ifdef USE_PETSCVECTOR
 					/* can be set after initialize of petsc */
-					if(petscvector::PETSC_INITIALIZED){
-						TRY(PetscBarrier(NULL));
+//					if(petscvector::PETSC_INITIALIZED){
+//						TRY(PetscBarrier(NULL));
 					
-						MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
+//						MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
 						//rankset = true;
 						
-					}	
-				#else
-					rankset = true; /* if it is not with petsc, then this is always master */
-				#endif
-			}
+//					}	
+//				#else
+//					rankset = true; /* if it is not with petsc, then this is always master */
+//				#endif
+//			}
 		}
 
-		ConsoleOutput() : std::ostream(std::cout.rdbuf()) {
-			rankset = false;
-			set_rank();
+		ConsoleOutput(std::ostream& str) : std::ostream(&buffer), buffer(str) {
+//			rankset = false;
+//			set_rank();
 		}
 		
-		template <typename T>
-		friend ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v);
+//		template <typename T>
+//		friend ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v);
 		
-} coutMaster;
+};
 
-template <typename T>
-ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v)
-{
-	myo.set_rank();
-	if(myo.rank == 0){
-		static_cast<std::ostream&>(myo) << v;
-	} else {
-		static_cast<std::ostream&>(myo).flush();
-	}
-	return myo;
-}
+ConsoleOutput coutMaster(std::cout);
 
 
-class OffsetClass {
-	private:
-		std::string inner_string; /**< offset string */
-		int size; /**< number of spaces in offset */
-
-		void refill(){
-			inner_string = "";
-			int i;
-			for(i=0;i<size;i++){
-				inner_string += " ";
-			}
-		}
-	public:
-		OffsetClass(){
-			inner_string = ""; /* initial offset */
-		}
+//template <typename T>
+//ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v)
+//{
+//	myo.set_rank();
+//	if(myo.rank == 0){
+//		static_cast<std::ostream&>(myo) << v;
+//	};
 	
-		void push(){
- 			size += 3;
-			refill();
-		}
+//	myo.flush();
+//	return myo;
+//}
 
-		void pop(){
-			size -= 3;
-			if(size < 0) size = 0;
-			refill();
-		}
 
-		friend std::ostream &operator<<(std::ostream &output, const OffsetClass &offset);
-
-} offset;
-
-std::ostream &operator<<(std::ostream &output, const OffsetClass &offset){
-	output << offset.inner_string;
-	return output;
-}
 
 
 #ifdef USE_GPU

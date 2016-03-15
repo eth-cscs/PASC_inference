@@ -31,7 +31,11 @@ int main( int argc, char *argv[] )
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
 	
-	/* say hello */	
+//	offset.push();
+//	coutMaster2 << "testtt" << std::endl;
+//	offset.pop();
+	
+	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
 	/* dimension of the problem */
