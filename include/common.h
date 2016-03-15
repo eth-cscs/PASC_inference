@@ -26,6 +26,9 @@ namespace pascinference {
 /* global variables */
 int DEBUG_MODE; /**< the debug mode of the library */
 
+#ifdef USE_PETSCVECTOR
+ extern bool PETSC_INITIALIZED;
+#endif
 
 /** @brief initialize the library
  * 
@@ -216,6 +219,7 @@ class MemoryCheck {
 	
 };
 
+
 /** @class ConsoleOutput
  *  @brief print only on master
  * 
@@ -235,8 +239,11 @@ class ConsoleOutput : public std::ostream {
 				#ifdef USE_PETSCVECTOR
 					/* can be set after initialize of petsc */
 					if(petscvector::PETSC_INITIALIZED){
-						MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-						rankset = true;
+						TRY(PetscBarrier(NULL));
+					
+						MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
+						//rankset = true;
+						
 					}	
 				#else
 					rankset = true; /* if it is not with petsc, then this is always master */
@@ -260,6 +267,8 @@ ConsoleOutput& operator<<(ConsoleOutput& myo, const T& v)
 	myo.set_rank();
 	if(myo.rank == 0){
 		static_cast<std::ostream&>(myo) << v;
+	} else {
+		static_cast<std::ostream&>(myo).flush();
 	}
 	return myo;
 }

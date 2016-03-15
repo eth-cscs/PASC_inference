@@ -1,5 +1,6 @@
 # set variables (options) for whole cmake
 option(USE_PETSC "USE_PETSC" ON)
+option(FIND_PETSC "FIND_PETSC" OFF)
 
 if(${USE_PETSC})
 	message(STATUS "${Blue}loading petsc library${ColourReset}")
@@ -8,7 +9,7 @@ if(${USE_PETSC})
 	set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake/petsc" ${CMAKE_MODULE_PATH})
 	
 	# PETSc: include
-	if(NOT DEFINED ENV{PETSC_DIR} OR NOT DEFINED ENV{PETSC_INCLUDES})
+	if(${FIND_PETSC})
 		message(STATUS "${Blue}PETSC_INCLUDES is not specified, trying to run find_package(PETSc)${ColourReset}")
 		# magic function from Jed Brown
 		find_package(PETSc)
@@ -33,6 +34,7 @@ macro(PRINTSETTING_PETSC)
 		printinfo(" - PETSC_ARCH\t\t\t" "$ENV{PETSC_ARCH}")
 		printinfo(" - PETSC_INCLUDES\t\t" "${PETSC_INCLUDES}")
 		printinfo(" - PETSC_LIBRARIES\t\t" "${PETSC_LIBRARIES}")
+		printinfo(" - FIND_PETSC\t\t\t" "${FIND_PETSC}")
 	else()
 		printinfo_red("USE_PETSC\t\t\t" "NO")
 	endif()
