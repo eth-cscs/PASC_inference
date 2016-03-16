@@ -21,7 +21,7 @@ using namespace pascinference;
 
 /* set what is what ( which type of vector to use where) */
 typedef petscvector::PetscVector Global;
-//typedef minlin::threx::HostVector<double> Host;
+//typedef minlin::threx::HostVector<double> Global;
 
 extern int pascinference::DEBUG_MODE;
 
