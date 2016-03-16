@@ -283,54 +283,59 @@ class ConsoleOutput : public std::ostream {
 			private:
 				std::ostream&   output;
 			public:
+				int rank; /**< rank of this process */
+				bool rankset; /**< the rank was already obtained */
+
 				ConsoleOutputBuf(std::ostream& str):output(str){
 				}
 
 				~ConsoleOutputBuf(){
 				}
 
+				/** @brief set rank of this processor
+				*
+				*/
+				void set_rank(){
+					rank = 0;
+					if(!rankset){
+						#ifdef USE_PETSCVECTOR
+							/* can be set after initialize of petsc */
+							if(petscvector::PETSC_INITIALIZED){
+								TRY(PetscBarrier(NULL));
+						
+								MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
+								rankset = true;
+						
+							}	
+						#else
+							rankset = true; /* if it is not with petsc, then this is always master */
+						#endif
+					}
+				}
+				
 				virtual int sync ( ){
-					output << offset << str();
+					set_rank();
+					if(rank == 0){
+						output << offset << str();
+					}
 					str("");
 					output.flush();
 					return 0;
 				}
+				
 		};
 
 		ConsoleOutputBuf buffer; /**< instance of output buffer */
 
-		int rank; /**< rank of this process */
-		bool rankset; /**< the rank was already obtained */
 	public:
-
-		/** @brief set rank of this processor
-		*
-		*/
-		void set_rank(){
-			rank = 0;
-			if(!rankset){
-				#ifdef USE_PETSCVECTOR
-					/* can be set after initialize of petsc */
-					if(petscvector::PETSC_INITIALIZED){
-						TRY(PetscBarrier(NULL));
-					
-						MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
-						rankset = true;
-						
-					}	
-				#else
-					rankset = true; /* if it is not with petsc, then this is always master */
-				#endif
-			}
-		}
 
 		/** @brief constructor from given output stream
 		*
 		* @param std output stream (for example std::cout)
 		*/
 		ConsoleOutput(std::ostream& str) : std::ostream(&buffer), buffer(str) {
-			rankset = false;
-			set_rank();
+			buffer.rankset = false;
+			buffer.set_rank();
 		}
 
 		/** @brief increase the size of offset
