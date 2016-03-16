@@ -25,10 +25,20 @@ class GeneralModel {
 	protected:
 
 	public:
+		/** @brief default constructor
+		 */ 
 		GeneralModel() {};
+
+		/** @brief default destructor
+		 */ 
 		~GeneralModel() {};
 
+		/** @brief print info about model
+		 */ 
 		virtual void print(std::ostream &output) const;
+
+		/** @brief get the name of model
+		 */ 
 		virtual std::string get_name() const;
 
 		friend std::ostream &operator<<(std::ostream &output, const GeneralModel &model); /* cannot be virtual, therefore it call virtual print() */

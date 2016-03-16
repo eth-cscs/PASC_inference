@@ -219,24 +219,36 @@ class MemoryCheck {
 	
 };
 
-
+/** @class OffsetClass
+ *  @brief output space
+ * 
+ *  For manipulating with the space in the begining of output line.
+ * 
+ */ 
 class OffsetClass {
 	private:
 		int size; /**< number of spaces in offset */
 
 	public:
+		/** @brief constructor
+		* 
+		*  Set initial size of offset to zero equal to zero.
+		*
+		*/
 		OffsetClass() {
 			size = 0;
 		}
 		
-		~OffsetClass(){
-
-		}
-	
+		/** @brief increase the size of offset
+		*
+		*/
 		void push(){
 			size += 3;
 		}
 
+		/** @brief decrease the size of offset
+		*
+		*/
 		void pop(){
 			size -= 3;
 			if(size < 0) size = 0;
@@ -254,8 +266,7 @@ std::ostream &operator<<(std::ostream &output, const OffsetClass &my_offset){
 	return output;
 }
 
-
-OffsetClass offset;
+OffsetClass offset; /**< global instance of output offset */
 
 
 /** @class ConsoleOutput
@@ -286,13 +297,15 @@ class ConsoleOutput : public std::ostream {
 				}
 		};
 
-		ConsoleOutputBuf buffer;
+		ConsoleOutputBuf buffer; /**< instance of output buffer */
 
-		int rank;
-		bool rankset;
+		int rank; /**< rank of this process */
+		bool rankset; /**< the rank was already obtained */
 	public:
 
-		/* set rank of this processor */
+		/** @brief set rank of this processor
+		*
+		*/
 		void set_rank(){
 			rank = 0;
 			if(!rankset){
@@ -311,25 +324,32 @@ class ConsoleOutput : public std::ostream {
 			}
 		}
 
+		/** @brief constructor from given output stream
+		*
+		* @param std output stream (for example std::cout)
+		*/
 		ConsoleOutput(std::ostream& str) : std::ostream(&buffer), buffer(str) {
 			rankset = false;
 			set_rank();
 		}
 
-		~ConsoleOutput() {
-		}
-
+		/** @brief increase the size of offset
+		*
+		*/
 		void push(){
 			offset.push();
 		}
 
+		/** @brief decrease the size of offset
+		*
+		*/
 		void pop(){
 			offset.pop();
 		}
 		
 };
 
-static ConsoleOutput coutMaster(std::cout);
+static ConsoleOutput coutMaster(std::cout); /**< instance of output console stream on master */
 
 #ifdef USE_GPU
 	/* cuda error check */ 

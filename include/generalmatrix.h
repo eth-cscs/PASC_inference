@@ -23,7 +23,15 @@ template<class VectorBase> class GeneralVector;
 /* class for manipulation with A*x as one object, will be defined later */
 template<class VectorBase> class GeneralMatrixRHS;
 
-/* class for manipulation with general matrix */
+
+/** \class GeneralMatrix
+ *  \brief General class for manipulation with matrices.
+ *
+ *  Parent class for manipulation with matrices.
+ *  All specific matrix implementations should be defined as inherited classes from this class.
+ *	
+ *  @todo add timers and other general stuff
+*/
 template<class VectorBase>
 class GeneralMatrix {
 	protected:
@@ -31,13 +39,35 @@ class GeneralMatrix {
 
 	public:
 
-		virtual void print(std::ostream &output) const {}; /* print matrix */
+		/** @brief print the matrix
+		 * 
+		 *  Print the content of matrix.
+		 * 
+		 * @param output where to print
+		 */ 
+		virtual void print(std::ostream &output) const {};
+
+		/** @brief get the type name of matrix
+		 */ 
 		virtual std::string get_name() const;
 
-		virtual void matmult(VectorBase &y, const VectorBase &x) const {}; /* y = A*x */
+		/** @brief perform matrix-vector multiplication
+		 * 
+		 *  Perform matrix-vector multiplication
+		 *  \f[ y = Ax \f]
+		 * 
+		 * @param y output vector
+		 * @param x input vector
+		 */ 
+		virtual void matmult(VectorBase &y, const VectorBase &x) const {};
 
+		/** @brief print name of matrix to stream
+		 * 
+		 * @param output where to print
+		 * @param matrix 
+		 */ 
 		template<class VectorBase2>
-		friend std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorBase2> &matrix); /* cannot be virtual, therefore it call virtual print() */
+		friend std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorBase2> &matrix);
 
 };
 
@@ -62,21 +92,40 @@ GeneralMatrixRHS<VectorBase> operator*(const GeneralMatrix<VectorBase> &matrix, 
 	return GeneralMatrixRHS<VectorBase>(&matrix,&x);	
 }
 
-/* right hand-side vector of y=Ax - will be provided into overloaded operator  Vector = RHS */
+
+/** \class GeneralMatrixRHS
+ *  \brief General class for manipulation with matrices.
+ *
+ *  Right hand-side vector of y=A*x - will be provided into overloaded operator y = RHS
+ *	
+*/
 template<class VectorBase>
 class GeneralMatrixRHS{
 	private:
-		const GeneralMatrix<VectorBase> *matrix; /* pointer to general matrix */
-		const GeneralVector<VectorBase> *x; /* pointer to vector */
+		const GeneralMatrix<VectorBase> *matrix; /**< pointer to general matrix */
+		const GeneralVector<VectorBase> *x; /**< pointer to input vector */
 	public:
 
-		/* constructor: create RHS from given pointers to matrix & vector */
+		/** @brief constructor from matrix and vector
+		 * 
+		 * create RHS from given pointers to matrix & vector, rhs = A*x
+		 * 
+		 * @param newmatrix pointer to input matrix on right side of y=A*x
+		 * @param newx pointer to input vector on right side of y=A*x
+		 */ 
 		GeneralMatrixRHS(const GeneralMatrix<VectorBase> *newmatrix, const GeneralVector<VectorBase> *newx){
 			matrix = newmatrix;
 			x = newx;
 		}	
 
-		void matmult(GeneralVector<VectorBase> &y){ /* call multiplication function from matrix class to perform y = A*x */
+		/** @brief multiplicate and store result
+		 * 
+		 * Call multiplication function from matrix class to perform y = A*x 
+		 * 
+		 * @param y result vector y=A*x
+		 * @param newx pointer to input vector on right side
+		 */ 
+		void matmult(GeneralVector<VectorBase> &y){ 
 			if(DEBUG_MODE >= 100) coutMaster << "(GeneralMatrixRHS)FUNCTION: matmult" << std::endl;
 			
 			(*matrix).matmult(y, *x); /* call virtual function (of Matrix) for multiplication */

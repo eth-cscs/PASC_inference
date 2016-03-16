@@ -14,14 +14,35 @@
 
 namespace pascinference {
 
+/** @class GeneralSetting
+ *  @brief setting of anything
+ * 
+ *  Could be used to store any settings.
+ *  Parent class for manipulation with settings.
+ *  All specific settings implementations should be defined as inherited classes from this class.
+ * 
+ */ 
 class GeneralSetting {
 	protected:
 
 	public:
+		/** @brief default constructor
+		 */
 		GeneralSetting() {};
+
+		/** @brief default destructor
+		 */
 		~GeneralSetting() {};
 
+		/** @brief print settings
+		 * 
+		 * @param output where to print
+		 */
 		virtual void print(std::ostream &output) const {};
+
+		/** @brief return the name of settings
+		 * 
+		 */
 		virtual std::string get_name() const;
 
 		friend std::ostream &operator<<(std::ostream &output, const GeneralSetting &setting); 

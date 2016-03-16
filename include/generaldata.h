@@ -14,18 +14,47 @@
 
 namespace pascinference {
 
-
+/** \class GeneralData
+ *  \brief general class for manipulation with data
+ *
+ *  Parent class for manipulation with data.
+ *  All specific data implementations should be defined as inherited classes from this class.
+ *	
+*/
 class GeneralData {
 	protected:
 
 	public:
+	
+		/** @brief default constructor
+		 */ 
 		GeneralData() {};
+
+		/** @brief default destructor
+		 */ 
 		~GeneralData() {};
 
+		/** @brief print basic information about data
+		 * 
+		 * @param output where to print
+		 */
 		virtual void print(std::ostream &output) const;
+
+		/** @brief print content of data
+		 * 
+		 * Print all values in inner data structures.
+		 * 
+		 * @param output where to print
+		 */
 		virtual void printcontent(std::ostream &output) const;
+
+		/** @brief get the name of data
+		 */ 
 		virtual std::string get_name() const;
 
+		/** @brief append name to input stream
+		 * 
+		 */
 		friend std::ostream &operator<<(std::ostream &output, const GeneralData &data); /* cannot be virtual, therefore it call virtual print() */
 	
 };

@@ -31,10 +31,6 @@ int main( int argc, char *argv[] )
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
 	
-//	coutMaster.push();
-//	coutMaster2 << "testtt" << std::endl;
-//	coutMaster.pop();
-	
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 

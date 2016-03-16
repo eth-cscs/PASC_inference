@@ -12,9 +12,14 @@
 
 namespace pascinference {
 
-	/* deal with all */
+	/** @class General_all_type
+	*  @brief deal with vector(all)
+	* 
+	*  For each vector type define retype operator of our "all".
+	* 
+	*  @todo improve "gall", who to change it to "all"
+	*/ 
 	class General_all_type {
-
 		public:
 			#ifdef USE_PETSCVECTOR
 				/* convert to PetscVector all */
@@ -31,25 +36,46 @@ namespace pascinference {
 				}
 			#endif
 
-	} gall; /* sorry for gall, but minlin is using global all and I don't know how to retype it. */ // TODO: deal with all
+	} gall;
 
 
-	/* general vector class - take original class and add multiplication with GeneralMatrix */
+	/** @class GeneralVector
+	*  @brief general vector class
+	* 
+	*  Extend the operations with original vector type.
+	*  Add operator for multiplication with GeneralMatrix.
+	* 
+	*/ 
 	template<class VectorBase>
 	class GeneralVector : public VectorBase {
 
 		public:
-			/* constructors */
+			/** @brief call original constructors
+			*
+			*/
 			GeneralVector(): VectorBase() {}
+
+			/** @brief call original constructors
+			*
+			*/
 			template<class ArgType> GeneralVector(ArgType arg): VectorBase(arg) {}
 			
-			/* matrix-vector multiplication with General matrix */
+			/** @brief matrix vector multiplication
+			*
+			*  Set the values of vector equal to the values obtained from right hand-side 
+			*  vector A*v.
+			*  \f[ \mathrm{this}~ = \underbrace{Av}_{= \mathrm{rhs}} \f]
+			*  
+			*  @param rhs right hand-size vector from A*v
+			*/
 			GeneralVector<VectorBase> &operator=(GeneralMatrixRHS<VectorBase> rhs){
 				rhs.matmult(*this);
 				return *this;
 			}
 
-			/* fill with random values */
+			/** @brief set random values
+			*
+			*/
 			void set_random();
 
 	};

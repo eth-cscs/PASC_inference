@@ -77,10 +77,6 @@ BlockDiagLaplaceExplicitMatrix<PetscVector>::BlockDiagLaplaceExplicitMatrix(cons
 	n = x.local_size();
 	T = N/(double)K; /* size of each block */
 
-	coutMaster << "N = " << N << std::endl;
-	coutMaster << "K = " << K << std::endl;
-	coutMaster << "T = " << T << std::endl;
-
 	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
 	TRY( MatSetSizes(A_petsc,n,n,N,N) );
 	TRY( MatSetFromOptions(A_petsc) ); 
