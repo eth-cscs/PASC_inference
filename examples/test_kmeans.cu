@@ -54,17 +54,22 @@ int main( int argc, char *argv[] )
 	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
+	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	KmeansH1Model<Global> mymodel(T, dim, K, penalty);
 	coutMaster << "Model: " << mymodel << std::endl;
 
 	/* prepare time-series data */
+	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	TSData<Global> mydata(mymodel);
 	coutMaster << "Data:  " << mydata << std::endl;
 
 	/* generate some values to data */
+	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	example::KMeans2D<Global>::generate(T,K,mu,covariance,mydata.get_datavector());
+	mydata.printcontent(coutMaster);
 
 	/* prepare time-series solver */
+	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<Global> mysolver(mydata);
 
 	mysolver.setting.maxit = 50;
@@ -72,9 +77,11 @@ int main( int argc, char *argv[] )
 
 	/* solve the problem */
 	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
+	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
 
 	/* save results into VTK file */
+	coutMaster << "--- SAVING VTK ---" << std::endl;
 	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 
 	mysolver.printtimer(coutMaster);
