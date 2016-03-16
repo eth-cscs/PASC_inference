@@ -296,7 +296,6 @@ class ConsoleOutput : public std::ostream {
 				*
 				*/
 				void set_rank(){
-					rank = 0;
 					if(!rankset){
 						#ifdef USE_PETSCVECTOR
 							/* can be set after initialize of petsc */
@@ -315,11 +314,19 @@ class ConsoleOutput : public std::ostream {
 				
 				virtual int sync ( ){
 					set_rank();
-					if(rank == 0){
-						output << offset << str();
+					if(this->rank == 0){
+						#ifdef USE_PETSCVECTOR
+							/* write here also a rank of processor */
+							output << "[" << this->rank << "] " << offset << str();
+						#else
+							output << offset << str();
+						#endif
+						str("");
+						output.flush();
+					} else {
+					    str("");
 					}
-					str("");
-					output.flush();
+
 					return 0;
 				}
 				
