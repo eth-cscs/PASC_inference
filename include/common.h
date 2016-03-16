@@ -222,43 +222,38 @@ class MemoryCheck {
 
 class OffsetClass {
 	private:
-		std::string inner_string; /**< offset string */
 		int size; /**< number of spaces in offset */
 
-		void refill(){
-			inner_string.clear();
-			inner_string = "";
-			int i;
-			for(i=0;i<size;i++){
-				inner_string += " ";
-			}
-		}
-
-
 	public:
-		OffsetClass(){
-			inner_string = ""; /* initial offset */
+		OffsetClass() {
+			size = 0;
 		}
 		
 		~OffsetClass(){
-			inner_string.clear();
+
 		}
 	
 		void push(){
 			size += 3;
-			refill();
 		}
 
 		void pop(){
 			size -= 3;
 			if(size < 0) size = 0;
-			refill();
 		}
 
-		std::string get_string(){
-			return inner_string;
-		}
+		friend std::ostream &operator<<(std::ostream &output, const OffsetClass &my_offset);
+
 };
+
+std::ostream &operator<<(std::ostream &output, const OffsetClass &my_offset){
+	int i;
+	for(i=0;i<my_offset.size;i++){
+		output << " ";
+	}
+	return output;
+}
+
 
 OffsetClass offset;
 
@@ -280,8 +275,11 @@ class ConsoleOutput : public std::ostream {
 				ConsoleOutputBuf(std::ostream& str):output(str){
 				}
 
+				~ConsoleOutputBuf(){
+				}
+
 				virtual int sync ( ){
-					output << offset.get_string() << str();
+					output << offset << str();
 					str("");
 					output.flush();
 					return 0;
@@ -316,6 +314,9 @@ class ConsoleOutput : public std::ostream {
 		ConsoleOutput(std::ostream& str) : std::ostream(&buffer), buffer(str) {
 			rankset = false;
 			set_rank();
+		}
+
+		~ConsoleOutput() {
 		}
 
 		void push(){
