@@ -15,15 +15,14 @@ if(${USE_PETSC})
 		find_package(PETSc)
 
 		include_directories(${PETSC_INCLUDES})
+
+		set(CMAKE_CXX_COMPILER "${PETSC_DIR}/${PETSC_ARCH}/bin/mpicxx")
 	endif()
 
 	# append to flags definitions
 	set(FLAGS_DEF "-USE_PETSC ${FLAGS_DEF}")
 	set(FLAGS_DEF_D "-DUSE_PETSC ${FLAGS_DEF_D}")
 	set(LIBRARIES_DEF ${PETSC_LIBRARIES} ${LIBRARIES_DEF})
-#	set(LIBRARIES_DEF ${PETSC_LIBRARIES} ${LIBRARIES_DEF})
-
-	set(CMAKE_CXX_COMPILER "${PETSC_DIR}/${PETSC_ARCH}/bin/mpicxx")
 
 endif()
 
