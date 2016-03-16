@@ -161,7 +161,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">/* constructor */</span></div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00066"></a><span class="lineno"><a class="line" href="classpascinference_1_1KmeansH1Model.html#a7b862800cb73232e169f47038524b70a">   66</a></span>&#160;<a class="code" href="classpascinference_1_1KmeansH1Model.html#a7b862800cb73232e169f47038524b70a">KmeansH1Model&lt;VectorBase&gt;::KmeansH1Model</a>(<span class="keywordtype">int</span> newT, <span class="keywordtype">int</span> newdim, <span class="keywordtype">int</span> newK, <span class="keywordtype">double</span> penalty) {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(KmeansH1Model)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(KmeansH1Model)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="comment">/* set initial content */</span></div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    this-&gt;T = newT;</div>
@@ -174,7 +174,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">/* destructor */</span></div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="classpascinference_1_1KmeansH1Model.html#a41334dcf9a9b7708e658d7a3bec1c2ae">   79</a></span>&#160;<a class="code" href="classpascinference_1_1KmeansH1Model.html#a41334dcf9a9b7708e658d7a3bec1c2ae">KmeansH1Model&lt;VectorBase&gt;::~KmeansH1Model</a>(){</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(KmeansH1Model)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(KmeansH1Model)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    </div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="comment">/* destroy auxiliary vectors */</span></div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
@@ -184,13 +184,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment">/* print info about problem */</span></div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00089"></a><span class="lineno"><a class="line" href="classpascinference_1_1KmeansH1Model.html#aba7b3d7ff627dff83b194519c9df21f1">   89</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1KmeansH1Model.html#aba7b3d7ff627dff83b194519c9df21f1">KmeansH1Model&lt;VectorBase&gt;::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    output &lt;&lt; this-&gt;get_name() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    </div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="comment">/* give information about presence of the data */</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - T:    &quot;</span> &lt;&lt; this-&gt;T &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - K:    &quot;</span> &lt;&lt; this-&gt;K &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - dim:  &quot;</span> &lt;&lt; this-&gt;dim &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - penalty:  &quot;</span> &lt;&lt; this-&gt;penalty &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - T:    &quot;</span> &lt;&lt; this-&gt;T &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - K:    &quot;</span> &lt;&lt; this-&gt;K &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - dim:  &quot;</span> &lt;&lt; this-&gt;dim &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - penalty:  &quot;</span> &lt;&lt; this-&gt;penalty &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        </div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;}</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
@@ -296,129 +296,202 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordflow">return</span> ((<a class="code" href="classpascinference_1_1QPSolver.html">QPSolver&lt;VectorBase&gt;</a> *)gammasolver)-&gt;get_fx();</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;}</div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="comment">/* ---------------------- PETSCVECTOR ----------------------- */</span></div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="preprocessor">#ifdef USE_PETSCVECTOR</span></div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keyword">typedef</span> petscvector::PetscVector GlobalPetscVector;</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="comment">/* update gamma solver */</span> <span class="comment">//TODO: inplement for each type</span></div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1KmeansH1Model.html#a5ab4e18189393822ec530cdbaf29a875">KmeansH1Model&lt;GlobalPetscVector&gt;::update_gammasolver</a>(<a class="code" href="classpascinference_1_1GeneralSolver.html">GeneralSolver</a> *gammasolver, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1TSData.html">TSData&lt;GlobalPetscVector&gt;</a> *tsdata){</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="comment">/* update gamma_solver data - prepare new linear term */</span></div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;GlobalPetscVector&gt;</a> (&amp;pVector);</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <span class="comment">/* pointers to data */</span></div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    pVector theta = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#afb68dba05848d7bfd080019bfbfbf92b">get_thetavector</a>());</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    pVector data = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#a9110070e118fe4280c163390f5c7924d">get_datavector</a>());</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    pVector b = *(gammadata-&gt;get_b());</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordtype">int</span> K = this-&gt;K;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordtype">int</span> T = this-&gt;T;</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keywordtype">int</span> dim = this-&gt;dim;</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    </div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordtype">int</span> t,k;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    </div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    Vec data_n;</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    Vec theta_n;</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    IS isdata_n, istheta_n;</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    </div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keywordtype">double</span> temp_dot1,temp_dot2,temp_dot3;</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    </div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordflow">for</span>(t=0;t&lt;T;t++){</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;        TRY( ISCreateStride(PETSC_COMM_SELF, dim, t, T, &amp;isdata_n));</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;        TRY( VecGetSubVector(data.get_vector(),isdata_n, &amp;data_n) );</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;        <span class="keywordflow">for</span>(k=0;k&lt;K;k++){</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;            TRY( ISCreateStride(PETSC_COMM_SELF, dim, k*dim, 1, &amp;istheta_n));</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;            TRY( VecGetSubVector(theta.get_vector(),istheta_n, &amp;theta_n) );</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="comment">/* ---------------------- GENERAL ----------------------- */</span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00204"></a><span class="lineno"><a class="line" href="classpascinference_1_1KmeansH1Model.html#a5ab4e18189393822ec530cdbaf29a875">  204</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1KmeansH1Model.html#a5ab4e18189393822ec530cdbaf29a875">KmeansH1Model&lt;VectorBase&gt;::update_gammasolver</a>(<a class="code" href="classpascinference_1_1GeneralSolver.html">GeneralSolver</a> *gammasolver, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1TSData.html">TSData&lt;VectorBase&gt;</a> *tsdata){</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="comment">/* update gamma_solver data - prepare new linear term */</span></div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> (&amp;pVector);</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="comment">/* pointers to data */</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    pVector theta = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#afb68dba05848d7bfd080019bfbfbf92b">get_thetavector</a>());</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    pVector data = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#a9110070e118fe4280c163390f5c7924d">get_datavector</a>());</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    pVector b = *(gammadata-&gt;get_b());</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">int</span> K = this-&gt;K;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <span class="keywordtype">int</span> T = this-&gt;T;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <span class="keywordtype">int</span> dim = this-&gt;dim;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    </div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keywordtype">int</span> t,n,k;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="keywordtype">double</span> dot_sum, value;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    </div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordflow">for</span>(k=0;k&lt;K;k++){</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        <span class="keywordflow">for</span>(t=0;t&lt;T;t++){</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;            dot_sum = 0.0;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;            <span class="keywordflow">for</span>(n=0;n&lt;dim;n++){</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;                value = data.get(n*T+t) - theta.get(k*dim + n);</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;                dot_sum += value*value;</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;            }</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;            b(k*T + t) = -dot_sum;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;        }</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    }   </div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;}</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="comment">/* update theta solver */</span></div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00235"></a><span class="lineno"><a class="line" href="classpascinference_1_1KmeansH1Model.html#ad31657a5b8c4423a5c16f747f8094b74">  235</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1KmeansH1Model.html#ad31657a5b8c4423a5c16f747f8094b74">KmeansH1Model&lt;VectorBase&gt;::update_thetasolver</a>(<a class="code" href="classpascinference_1_1GeneralSolver.html">GeneralSolver</a> *thetasolver, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1TSData.html">TSData&lt;VectorBase&gt;</a> *tsdata){</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="comment">/* update theta solver - prepare new matrix vector and right-hand side vector */</span>    </div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    </div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> (&amp;pVector);</div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;            <span class="comment">/* dot(data_n - theta_n,data_n - theta_n) */</span></div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;            TRY( VecDot(data_n,data_n,&amp;temp_dot1) );</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;            TRY( VecDot(data_n,theta_n,&amp;temp_dot2) );</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;            TRY( VecDot(theta_n,theta_n,&amp;temp_dot3) );</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;            b.set(k*T + t, -temp_dot1 + 2*temp_dot2 - temp_dot3);</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;            TRY( VecRestoreSubVector(theta.get_vector(),istheta_n, &amp;theta_n) );</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;            TRY( ISDestroy(&amp;istheta_n) );</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;        }</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;        </div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;        TRY( VecRestoreSubVector(data.get_vector(),isdata_n, &amp;data_n) );</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;        TRY( ISDestroy(&amp;isdata_n) );</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;        </div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    }   </div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;}</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;<span class="comment">/* update theta solver */</span></div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1KmeansH1Model.html#ad31657a5b8c4423a5c16f747f8094b74">KmeansH1Model&lt;GlobalPetscVector&gt;::update_thetasolver</a>(GeneralSolver *thetasolver, <span class="keyword">const</span> TSData&lt;GlobalPetscVector&gt; *tsdata){</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="comment">/* update theta solver - prepare new matrix vector and right-hand side vector */</span>    </div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    </div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <span class="keyword">typedef</span> GeneralVector&lt;GlobalPetscVector&gt; (&amp;pVector);</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="comment">/* pointers to data */</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    pVector gamma = *(tsdata-&gt;get_gammavector());</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    pVector data = *(tsdata-&gt;get_datavector());</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    pVector a = *(thetadata-&gt;get_a());</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    pVector b = *(thetadata-&gt;get_b());</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    </div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keywordtype">int</span> K = this-&gt;K;</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <span class="keywordtype">int</span> T = this-&gt;T;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keywordtype">int</span> dim = this-&gt;dim;</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    </div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="keywordtype">int</span> k,i;</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keywordtype">double</span> sum_gammak, gTd;</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    IS is, is2; </div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    Vec temp1, temp2;</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keywordflow">for</span>(k=0;k&lt;K;k++){</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;        TRY( ISCreateStride(PETSC_COMM_SELF, T, k*T, 1, &amp;is));</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;        TRY( VecGetSubVector(gamma.get_vector(),is, &amp;temp1) );</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="comment">/* pointers to data */</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    pVector gamma = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#a11d12a4adeace1195b037a4c1d705e3e">get_gammavector</a>());</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    pVector data = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#a9110070e118fe4280c163390f5c7924d">get_datavector</a>());</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    pVector a = *(thetadata-&gt;get_a());</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    pVector b = *(thetadata-&gt;get_b());</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    </div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keywordtype">int</span> K = this-&gt;K;</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="keywordtype">int</span> T = this-&gt;T;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keywordtype">int</span> dim = this-&gt;dim;</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    </div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="keywordtype">int</span> k,i;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keywordtype">double</span> sum_gammak, gTd;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keywordflow">for</span>(k=0;k&lt;K;k++){</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;        <span class="comment">/* compute sum of gamma[k] */</span></div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        sum_gammak = sum(gamma(k*T,(k+1)*T-1));</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;        </div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;        <span class="comment">/* &quot;a&quot; has to be non-zero */</span></div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;        <span class="keywordflow">if</span>(sum_gammak == 0.0){</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;            sum_gammak = 1.0;</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;        }</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;        <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;dim;i++){</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;            </div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;            gTd = dot(gamma(k*T,(k+1)*T-1),data(i*T,(i+1)*T-1));</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;            a(k*dim+i) = sum_gammak;</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;            b(k*dim+i) = gTd;</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;        }</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    }</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;}</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;<span class="comment">/* ---------------------- PETSCVECTOR ----------------------- */</span></div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;<span class="preprocessor">#ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;<span class="keyword">typedef</span> petscvector::PetscVector GlobalPetscVector;</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;<span class="comment">/* update gamma solver */</span> <span class="comment">//TODO: inplement for each type</span></div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1KmeansH1Model.html#a5ab4e18189393822ec530cdbaf29a875">KmeansH1Model&lt;GlobalPetscVector&gt;::update_gammasolver</a>(<a class="code" href="classpascinference_1_1GeneralSolver.html">GeneralSolver</a> *gammasolver, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1TSData.html">TSData&lt;GlobalPetscVector&gt;</a> *tsdata){</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="comment">/* update gamma_solver data - prepare new linear term */</span></div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;GlobalPetscVector&gt;</a> (&amp;pVector);</div>
 <div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;        <span class="comment">/* compute sum of gamma[k] */</span></div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;        TRY( VecSum(temp1, &amp;sum_gammak) );</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;        </div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;        <span class="comment">/* &quot;a&quot; has to be non-zero */</span></div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;        <span class="keywordflow">if</span>(sum_gammak == 0.0){</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;            sum_gammak = 1.0;</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;        }</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;        <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;dim;i++){</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;            TRY( ISCreateStride(PETSC_COMM_SELF, T, i*T, 1, &amp;is2));</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;            TRY( VecGetSubVector(data.get_vector(),is2, &amp;temp2) );</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;            TRY( VecDot(temp1, temp2, &amp;gTd) );</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;            a.set(k*dim+i, sum_gammak);</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;            b.set(k*dim+i, gTd);</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;            TRY( VecRestoreSubVector(data.get_vector(),is2, &amp;temp2) );</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;            TRY( ISDestroy(&amp;is2) );</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <span class="comment">/* pointers to data */</span></div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    pVector theta = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#afb68dba05848d7bfd080019bfbfbf92b">get_thetavector</a>());</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    pVector data = *(tsdata-&gt;<a class="code" href="classpascinference_1_1TSData.html#a9110070e118fe4280c163390f5c7924d">get_datavector</a>());</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    pVector b = *(gammadata-&gt;get_b());</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keywordtype">int</span> K = this-&gt;K;</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="keywordtype">int</span> T = this-&gt;T;</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="keywordtype">int</span> dim = this-&gt;dim;</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    </div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="keywordtype">int</span> t,k;</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    </div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    Vec data_n;</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    Vec theta_n;</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    IS isdata_n, istheta_n;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    </div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="keywordtype">double</span> temp_dot1,temp_dot2,temp_dot3;</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    </div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="keywordflow">for</span>(t=0;t&lt;T;t++){</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;        TRY( ISCreateStride(PETSC_COMM_SELF, dim, t, T, &amp;isdata_n));</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;        TRY( VecGetSubVector(data.get_vector(),isdata_n, &amp;data_n) );</div>
 <div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;        }</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;        TRY( VecRestoreSubVector(gamma.get_vector(),is, &amp;temp1) );</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;        TRY( ISDestroy(&amp;is) );</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    }</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;}</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;        <span class="keywordflow">for</span>(k=0;k&lt;K;k++){</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;            TRY( ISCreateStride(PETSC_COMM_SELF, dim, k*dim, 1, &amp;istheta_n));</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;            TRY( VecGetSubVector(theta.get_vector(),istheta_n, &amp;theta_n) );</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;            <span class="comment">/* dot(data_n - theta_n,data_n - theta_n) */</span></div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;            TRY( VecDot(data_n,data_n,&amp;temp_dot1) );</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;            TRY( VecDot(data_n,theta_n,&amp;temp_dot2) );</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;            TRY( VecDot(theta_n,theta_n,&amp;temp_dot3) );</div>
 <div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;            b.set(k*T + t, -temp_dot1 + 2*temp_dot2 - temp_dot3);</div>
 <div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;} <span class="comment">/* end namespace */</span></div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;            TRY( VecRestoreSubVector(theta.get_vector(),istheta_n, &amp;theta_n) );</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;            TRY( ISDestroy(&amp;istheta_n) );</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;        }</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;        </div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;        TRY( VecRestoreSubVector(data.get_vector(),isdata_n, &amp;data_n) );</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;        TRY( ISDestroy(&amp;isdata_n) );</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        </div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;    }   </div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;}</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;<span class="comment">/* update theta solver */</span></div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1KmeansH1Model.html#ad31657a5b8c4423a5c16f747f8094b74">KmeansH1Model&lt;GlobalPetscVector&gt;::update_thetasolver</a>(GeneralSolver *thetasolver, <span class="keyword">const</span> TSData&lt;GlobalPetscVector&gt; *tsdata){</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    <span class="comment">/* update theta solver - prepare new matrix vector and right-hand side vector */</span>    </div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;    </div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="keyword">typedef</span> GeneralVector&lt;GlobalPetscVector&gt; (&amp;pVector);</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="comment">/* pointers to data */</span></div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    pVector gamma = *(tsdata-&gt;get_gammavector());</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    pVector data = *(tsdata-&gt;get_datavector());</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;    pVector a = *(thetadata-&gt;get_a());</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;    pVector b = *(thetadata-&gt;get_b());</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    </div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keywordtype">int</span> K = this-&gt;K;</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    <span class="keywordtype">int</span> T = this-&gt;T;</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    <span class="keywordtype">int</span> dim = this-&gt;dim;</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;    </div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    <span class="keywordtype">int</span> k,i;</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    <span class="keywordtype">double</span> sum_gammak, gTd;</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;    IS is, is2; </div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;    Vec temp1, temp2;</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;    <span class="keywordflow">for</span>(k=0;k&lt;K;k++){</div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;        TRY( ISCreateStride(PETSC_COMM_SELF, T, k*T, 1, &amp;is));</div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;        TRY( VecGetSubVector(gamma.get_vector(),is, &amp;temp1) );</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        <span class="comment">/* compute sum of gamma[k] */</span></div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;        TRY( VecSum(temp1, &amp;sum_gammak) );</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;        </div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;        <span class="comment">/* &quot;a&quot; has to be non-zero */</span></div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;        <span class="keywordflow">if</span>(sum_gammak == 0.0){</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;            sum_gammak = 1.0;</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;        }</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;        <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;dim;i++){</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;</div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;            TRY( ISCreateStride(PETSC_COMM_SELF, T, i*T, 1, &amp;is2));</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;            TRY( VecGetSubVector(data.get_vector(),is2, &amp;temp2) );</div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;            TRY( VecDot(temp1, temp2, &amp;gTd) );</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;            a.set(k*dim+i, sum_gammak);</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;            b.set(k*dim+i, gTd);</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;            TRY( VecRestoreSubVector(data.get_vector(),is2, &amp;temp2) );</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;            TRY( ISDestroy(&amp;is2) );</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;        }</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;</div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;        TRY( VecRestoreSubVector(gamma.get_vector(),is, &amp;temp1) );</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;        TRY( ISDestroy(&amp;is) );</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;</div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;    }</div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;}</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;</div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;</div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;</div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;</div>
+<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;} <span class="comment">/* end namespace */</span></div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;</div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_a98d09439110b67551994e23df9605631"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#a98d09439110b67551994e23df9605631">pascinference::KmeansH1Model::finalize_thetasolver</a></div><div class="ttdeci">void finalize_thetasolver(GeneralSolver **theta_solver, const TSData&lt; VectorBase &gt; *tsdata)</div><div class="ttdoc">free memory of Theta solver </div><div class="ttdef"><b>Definition:</b> kmeansh1.h:183</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_ac1930e957c44a1d1d7cfc1c225273e8a"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#ac1930e957c44a1d1d7cfc1c225273e8a">pascinference::KmeansH1Model::get_datavectorlength</a></div><div class="ttdeci">int get_datavectorlength()</div><div class="ttdef"><b>Definition:</b> kmeansh1.h:108</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html">pascinference::KmeansH1Model</a></div><div class="ttdef"><b>Definition:</b> kmeansh1.h:25</div></div>
-<div class="ttc" id="classpascinference_1_1QPSolver_html"><div class="ttname"><a href="classpascinference_1_1QPSolver.html">pascinference::QPSolver</a></div><div class="ttdef"><b>Definition:</b> qpsolver.h:44</div></div>
-<div class="ttc" id="classpascinference_1_1KmeansH1Model_html_ad31657a5b8c4423a5c16f747f8094b74"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#ad31657a5b8c4423a5c16f747f8094b74">pascinference::KmeansH1Model::update_thetasolver</a></div><div class="ttdeci">void update_thetasolver(GeneralSolver *theta_solver, const TSData&lt; VectorBase &gt; *tsdata)</div><div class="ttdoc">update data values of Theta solver </div></div>
+<div class="ttc" id="classpascinference_1_1QPSolver_html"><div class="ttname"><a href="classpascinference_1_1QPSolver.html">pascinference::QPSolver</a></div><div class="ttdef"><b>Definition:</b> qpsolver.h:48</div></div>
+<div class="ttc" id="classpascinference_1_1KmeansH1Model_html_ad31657a5b8c4423a5c16f747f8094b74"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#ad31657a5b8c4423a5c16f747f8094b74">pascinference::KmeansH1Model::update_thetasolver</a></div><div class="ttdeci">void update_thetasolver(GeneralSolver *theta_solver, const TSData&lt; VectorBase &gt; *tsdata)</div><div class="ttdoc">update data values of Theta solver </div><div class="ttdef"><b>Definition:</b> kmeansh1.h:235</div></div>
 <div class="ttc" id="classpascinference_1_1TSModel_html_a717f9855fc8f43216debd7cb7dba9cb7"><div class="ttname"><a href="classpascinference_1_1TSModel.html#a717f9855fc8f43216debd7cb7dba9cb7">pascinference::TSModel::T</a></div><div class="ttdeci">int T</div><div class="ttdef"><b>Definition:</b> tsmodel.h:39</div></div>
 <div class="ttc" id="classpascinference_1_1DiagSolver_html"><div class="ttname"><a href="classpascinference_1_1DiagSolver.html">pascinference::DiagSolver</a></div><div class="ttdef"><b>Definition:</b> diagsolver.h:36</div></div>
 <div class="ttc" id="qpdata_8h_html"><div class="ttname"><a href="qpdata_8h.html">qpdata.h</a></div></div>
@@ -435,8 +508,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classpascinference_1_1DiagData_html"><div class="ttname"><a href="classpascinference_1_1DiagData.html">pascinference::DiagData</a></div><div class="ttdoc">solve a.*x=b </div><div class="ttdef"><b>Definition:</b> diagdata.h:20</div></div>
 <div class="ttc" id="classpascinference_1_1TSModel_html_a36bc8c39ac962dd24a86f19e1bfe7b81"><div class="ttname"><a href="classpascinference_1_1TSModel.html#a36bc8c39ac962dd24a86f19e1bfe7b81">pascinference::TSModel::K</a></div><div class="ttdeci">int K</div><div class="ttdef"><b>Definition:</b> tsmodel.h:40</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_acd3e9002b2ba8b61b9ad31006bc53c68"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#acd3e9002b2ba8b61b9ad31006bc53c68">pascinference::KmeansH1Model::get_L</a></div><div class="ttdeci">double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData&lt; VectorBase &gt; *tsdata)</div><div class="ttdoc">get the value of object function L(gamma,Theta,data) </div><div class="ttdef"><b>Definition:</b> kmeansh1.h:196</div></div>
-<div class="ttc" id="classpascinference_1_1KmeansH1Model_html_a5ab4e18189393822ec530cdbaf29a875"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#a5ab4e18189393822ec530cdbaf29a875">pascinference::KmeansH1Model::update_gammasolver</a></div><div class="ttdeci">void update_gammasolver(GeneralSolver *gamma_solver, const TSData&lt; VectorBase &gt; *tsdata)</div><div class="ttdoc">update data values of gamma solver </div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
+<div class="ttc" id="classpascinference_1_1KmeansH1Model_html_a5ab4e18189393822ec530cdbaf29a875"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#a5ab4e18189393822ec530cdbaf29a875">pascinference::KmeansH1Model::update_gammasolver</a></div><div class="ttdeci">void update_gammasolver(GeneralSolver *gamma_solver, const TSData&lt; VectorBase &gt; *tsdata)</div><div class="ttdoc">update data values of gamma solver </div><div class="ttdef"><b>Definition:</b> kmeansh1.h:204</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html"><div class="ttname"><a href="classpascinference_1_1QPData.html">pascinference::QPData</a></div><div class="ttdef"><b>Definition:</b> qpdata.h:16</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_a5e561376919d6506e24d55931a4a6e08"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#a5e561376919d6506e24d55931a4a6e08">pascinference::KmeansH1Model::get_thetavectorlength</a></div><div class="ttdeci">int get_thetavectorlength()</div><div class="ttdef"><b>Definition:</b> kmeansh1.h:120</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html">pascinference::SimplexFeasibleSet</a></div><div class="ttdef"><b>Definition:</b> simplex.h:31</div></div>
@@ -455,10 +528,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classpascinference_1_1TSModel_html_a6f74c51aa19ddc5eeaf43ddc4bea479c"><div class="ttname"><a href="classpascinference_1_1TSModel.html#a6f74c51aa19ddc5eeaf43ddc4bea479c">pascinference::TSModel::dim</a></div><div class="ttdeci">int dim</div><div class="ttdef"><b>Definition:</b> tsmodel.h:41</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_a7b862800cb73232e169f47038524b70a"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#a7b862800cb73232e169f47038524b70a">pascinference::KmeansH1Model::KmeansH1Model</a></div><div class="ttdeci">KmeansH1Model(int T, int dim, int K, double penalty)</div><div class="ttdef"><b>Definition:</b> kmeansh1.h:66</div></div>
 <div class="ttc" id="blockdiaglaplace__explicit_8h_html"><div class="ttname"><a href="blockdiaglaplace__explicit_8h.html">blockdiaglaplace_explicit.h</a></div></div>
-<div class="ttc" id="kmeansh1_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="kmeansh1_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
+<div class="ttc" id="kmeansh1_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="kmeansh1_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_afc785488606b987c3111151a1413cab0"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#afc785488606b987c3111151a1413cab0">pascinference::KmeansH1Model::initialize_thetasolver</a></div><div class="ttdeci">void initialize_thetasolver(GeneralSolver **theta_solver, const TSData&lt; VectorBase &gt; *tsdata)</div><div class="ttdoc">alloc memory for Theta solver </div><div class="ttdef"><b>Definition:</b> kmeansh1.h:151</div></div>
+<div class="ttc" id="namespacepascinference_html_ac92cfd92ba9ae30db28ceb7cfb55fdd0"><div class="ttname"><a href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">pascinference::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout)</div></div>
 <div class="ttc" id="classpascinference_1_1TSModel_html"><div class="ttname"><a href="classpascinference_1_1TSModel.html">pascinference::TSModel</a></div><div class="ttdoc">General class for manipulation with time-series models. </div><div class="ttdef"><b>Definition:</b> tsmodel.h:37</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
+<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralSolver_html"><div class="ttname"><a href="classpascinference_1_1GeneralSolver.html">pascinference::GeneralSolver</a></div><div class="ttdef"><b>Definition:</b> generalsolver.h:38</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_aa8ef7b0809cf8583cdd6d09b18626fec"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#aa8ef7b0809cf8583cdd6d09b18626fec">pascinference::KmeansH1Model::get_gammavectorlength</a></div><div class="ttdeci">int get_gammavectorlength()</div><div class="ttdef"><b>Definition:</b> kmeansh1.h:114</div></div>
 <div class="ttc" id="classpascinference_1_1KmeansH1Model_html_a214c5530479f22b6918b916fa508ce9a"><div class="ttname"><a href="classpascinference_1_1KmeansH1Model.html#a214c5530479f22b6918b916fa508ce9a">pascinference::KmeansH1Model::thetadata</a></div><div class="ttdeci">DiagData&lt; VectorBase &gt; * thetadata</div><div class="ttdef"><b>Definition:</b> kmeansh1.h:28</div></div>
@@ -467,7 +541,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

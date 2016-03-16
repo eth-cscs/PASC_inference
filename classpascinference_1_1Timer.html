@@ -127,15 +127,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab091033f7f9c087cdc357bc1f3466252"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1Timer.html#ab091033f7f9c087cdc357bc1f3466252">stop</a> ()</td></tr>
 <tr class="memdesc:ab091033f7f9c087cdc357bc1f3466252"><td class="mdescLeft">&#160;</td><td class="mdescRight">store actual time  <a href="#ab091033f7f9c087cdc357bc1f3466252">More...</a><br /></td></tr>
 <tr class="separator:ab091033f7f9c087cdc357bc1f3466252"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6291bfacc12d084fd301460e7de29762"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1Timer.html#a6291bfacc12d084fd301460e7de29762">get_value_sum</a> ()</td></tr>
-<tr class="memdesc:a6291bfacc12d084fd301460e7de29762"><td class="mdescLeft">&#160;</td><td class="mdescRight">sum of timer calls  <a href="#a6291bfacc12d084fd301460e7de29762">More...</a><br /></td></tr>
-<tr class="separator:a6291bfacc12d084fd301460e7de29762"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a00cb570a39b15d61067fea6d631cc3b5"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1Timer.html#a00cb570a39b15d61067fea6d631cc3b5">get_value_last</a> ()</td></tr>
-<tr class="memdesc:a00cb570a39b15d61067fea6d631cc3b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">get last elapsed time  <a href="#a00cb570a39b15d61067fea6d631cc3b5">More...</a><br /></td></tr>
-<tr class="separator:a00cb570a39b15d61067fea6d631cc3b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae92d62d5225edfb74320399038c7e6c6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1Timer.html#ae92d62d5225edfb74320399038c7e6c6">status</a> ()</td></tr>
-<tr class="memdesc:ae92d62d5225edfb74320399038c7e6c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the status  <a href="#ae92d62d5225edfb74320399038c7e6c6">More...</a><br /></td></tr>
-<tr class="separator:ae92d62d5225edfb74320399038c7e6c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44e04e0987baef82760c57249ebecc0b"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1Timer.html#a44e04e0987baef82760c57249ebecc0b">get_value_sum</a> () const </td></tr>
+<tr class="memdesc:a44e04e0987baef82760c57249ebecc0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">sum of timer calls  <a href="#a44e04e0987baef82760c57249ebecc0b">More...</a><br /></td></tr>
+<tr class="separator:a44e04e0987baef82760c57249ebecc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a146ff60b009c1f86c8cba02697a72aa3"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1Timer.html#a146ff60b009c1f86c8cba02697a72aa3">get_value_last</a> () const </td></tr>
+<tr class="memdesc:a146ff60b009c1f86c8cba02697a72aa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">get last elapsed time  <a href="#a146ff60b009c1f86c8cba02697a72aa3">More...</a><br /></td></tr>
+<tr class="separator:a146ff60b009c1f86c8cba02697a72aa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ad2c527789474d6170fc410ec9fa8e3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1Timer.html#a5ad2c527789474d6170fc410ec9fa8e3">status</a> () const </td></tr>
+<tr class="memdesc:a5ad2c527789474d6170fc410ec9fa8e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the status  <a href="#a5ad2c527789474d6170fc410ec9fa8e3">More...</a><br /></td></tr>
+<tr class="separator:a5ad2c527789474d6170fc410ec9fa8e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -158,7 +158,7 @@ Private Attributes</h2></td></tr>
 <div class="textblock"><p>additive time management </p>
 <p>Class measures the running time of the process. It includes two time values - the total time and the time from the last call. User should use the timer as a sequences of <a class="el" href="classpascinference_1_1Timer.html#aab3bca7b9bf284b7b47a2c71f09e6c85" title="start the timer ">start()</a> and <a class="el" href="classpascinference_1_1Timer.html#ab091033f7f9c087cdc357bc1f3466252" title="store actual time ">stop()</a>. The last call is the time between the last pair, total time is the time between all pairs. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a00cb570a39b15d61067fea6d631cc3b5"></a>
+<a class="anchor" id="a146ff60b009c1f86c8cba02697a72aa3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -166,7 +166,7 @@ Private Attributes</h2></td></tr>
           <td class="memname">double pascinference::Timer::get_value_last </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -176,7 +176,7 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a6291bfacc12d084fd301460e7de29762"></a>
+<a class="anchor" id="a44e04e0987baef82760c57249ebecc0b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -184,7 +184,7 @@ Private Attributes</h2></td></tr>
           <td class="memname">double pascinference::Timer::get_value_sum </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -197,8 +197,8 @@ Private Attributes</h2></td></tr>
 <div id="dynsection-1-summary" class="dynsummary" style="display:block;">
 </div>
 <div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="classpascinference_1_1Timer_a6291bfacc12d084fd301460e7de29762_icgraph.png" border="0" usemap="#classpascinference_1_1Timer_a6291bfacc12d084fd301460e7de29762_icgraph" alt=""/></div>
-<map name="classpascinference_1_1Timer_a6291bfacc12d084fd301460e7de29762_icgraph" id="classpascinference_1_1Timer_a6291bfacc12d084fd301460e7de29762_icgraph">
+<div class="center"><img src="classpascinference_1_1Timer_a44e04e0987baef82760c57249ebecc0b_icgraph.png" border="0" usemap="#classpascinference_1_1Timer_a44e04e0987baef82760c57249ebecc0b_icgraph" alt=""/></div>
+<map name="classpascinference_1_1Timer_a44e04e0987baef82760c57249ebecc0b_icgraph" id="classpascinference_1_1Timer_a44e04e0987baef82760c57249ebecc0b_icgraph">
 <area shape="rect" id="node2" href="classpascinference_1_1example_1_1KMeans2D.html#a147cba5e896b626e08ccb121687d5549" title="save results into VTK file " alt="" coords="197,5,357,47"/><area shape="rect" id="node3" href="test__kmeans_8cu.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="405,13,456,39"/></map>
 </div>
 </p>
@@ -312,7 +312,7 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae92d62d5225edfb74320399038c7e6c6"></a>
+<a class="anchor" id="a5ad2c527789474d6170fc410ec9fa8e3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -320,7 +320,7 @@ Private Attributes</h2></td></tr>
           <td class="memname">bool pascinference::Timer::status </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -461,7 +461,7 @@ Private Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

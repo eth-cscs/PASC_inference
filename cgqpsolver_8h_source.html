@@ -121,262 +121,279 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolverSetting.html#a899f5d145d21d2c5abec38bd5b33f3bb">   24</a></span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolverSetting.html#a899f5d145d21d2c5abec38bd5b33f3bb">~CGQPSolverSetting</a>() {};</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
 <div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolverSetting.html#aa521fb2aa5d779e1c4752c26d7535091">   26</a></span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolverSetting.html#aa521fb2aa5d779e1c4752c26d7535091">print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;            output &lt;&lt; <span class="stringliteral">&quot;  CGQPSolverSettings:&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;            output &lt;&lt; <span class="stringliteral">&quot;   - maxit: &quot;</span> &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralSolverSetting.html#a98dc07aee352b3c39370edc97475cd72">maxit</a> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;            output &lt;&lt; <span class="stringliteral">&quot;   - eps: &quot;</span> &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralSolverSetting.html#a7acdb69bbc0e448167ee713fa7ccdaec">eps</a> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;            output &lt;&lt; <span class="stringliteral">&quot;   - debug_mode: &quot;</span> &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralSolverSetting.html#abc671d47ce98657379b9f1df0ad39034">debug_mode</a> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;            output &lt;&lt;  this-&gt;<a class="code" href="classpascinference_1_1CGQPSolverSetting.html#ae72337ee275662dbddc05be5f98b80e6">get_name</a>() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;            output &lt;&lt;  <span class="stringliteral">&quot; - maxit:      &quot;</span> &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralSolverSetting.html#a98dc07aee352b3c39370edc97475cd72">maxit</a> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;            output &lt;&lt;  <span class="stringliteral">&quot; - eps:        &quot;</span> &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralSolverSetting.html#a7acdb69bbc0e448167ee713fa7ccdaec">eps</a> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;            output &lt;&lt;  <span class="stringliteral">&quot; - debug_mode: &quot;</span> &lt;&lt; this-&gt;<a class="code" href="classpascinference_1_1GeneralSolverSetting.html#abc671d47ce98657379b9f1df0ad39034">debug_mode</a> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        };</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;};</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">/* CGQPSolver */</span> </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html">   39</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpascinference_1_1CGQPSolver.html">CGQPSolver</a>: <span class="keyword">public</span> <a class="code" href="classpascinference_1_1QPSolver.html">QPSolver</a>&lt;VectorBase&gt; {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a192fd83758bcefd40856ef81b58ecd47">   41</a></span>&#160;        <span class="keyword">const</span> <a class="code" href="classpascinference_1_1QPData.html">QPData&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#a192fd83758bcefd40856ef81b58ecd47">data</a>; <span class="comment">/* data on which the solver operates */</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <span class="comment">/* temporary vectors used during the solution process */</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">allocate_temp_vectors</a>();</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">free_temp_vectors</a>();</div>
-<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a8b5876244560f1355d02d8d7beb913fe">   46</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#a8b5876244560f1355d02d8d7beb913fe">g</a>; <span class="comment">/* gradient */</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#aa73af3c62a80427612561063fedae8b2">   47</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#aa73af3c62a80427612561063fedae8b2">p</a>; <span class="comment">/* A-conjugate vector */</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a60c842e8522b9bc3eb892d553357a413">   48</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#a60c842e8522b9bc3eb892d553357a413">Ap</a>; <span class="comment">/* A*p */</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#aba93ac25a0ba83ac5ca848ff34fc5f15">   51</a></span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolverSetting.html">CGQPSolverSetting</a> <a class="code" href="classpascinference_1_1CGQPSolver.html#aba93ac25a0ba83ac5ca848ff34fc5f15">setting</a>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver</a>();</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver</a>(<span class="keyword">const</span> <a class="code" href="classpascinference_1_1QPData.html">QPData&lt;VectorBase&gt;</a> &amp;new_data); </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">~CGQPSolver</a>();</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolverSetting.html#ae72337ee275662dbddc05be5f98b80e6">   34</a></span>&#160;        std::string <a class="code" href="classpascinference_1_1CGQPSolverSetting.html#ae72337ee275662dbddc05be5f98b80e6">get_name</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;            <span class="keywordflow">return</span> <span class="stringliteral">&quot;CG SolverSetting&quot;</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        };</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;};</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">/* CGQPSolver */</span> </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html">   43</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpascinference_1_1CGQPSolver.html">CGQPSolver</a>: <span class="keyword">public</span> <a class="code" href="classpascinference_1_1QPSolver.html">QPSolver</a>&lt;VectorBase&gt; {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a13bbf289788c414611f327217ee6f1b5">   45</a></span>&#160;        <span class="keyword">const</span> <a class="code" href="classpascinference_1_1QPData.html">QPData&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#a13bbf289788c414611f327217ee6f1b5">qpdata</a>; <span class="comment">/* data on which the solver operates */</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="comment">/* temporary vectors used during the solution process */</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">allocate_temp_vectors</a>();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">free_temp_vectors</a>();</div>
+<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a8b5876244560f1355d02d8d7beb913fe">   50</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#a8b5876244560f1355d02d8d7beb913fe">g</a>; <span class="comment">/* gradient */</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#aa73af3c62a80427612561063fedae8b2">   51</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#aa73af3c62a80427612561063fedae8b2">p</a>; <span class="comment">/* A-conjugate vector */</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a60c842e8522b9bc3eb892d553357a413">   52</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *<a class="code" href="classpascinference_1_1CGQPSolver.html#a60c842e8522b9bc3eb892d553357a413">Ap</a>; <span class="comment">/* A*p */</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#aba93ac25a0ba83ac5ca848ff34fc5f15">   55</a></span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolverSetting.html">CGQPSolverSetting</a> <a class="code" href="classpascinference_1_1CGQPSolver.html#aba93ac25a0ba83ac5ca848ff34fc5f15">setting</a>;</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">solve</a>();</div>
-<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">   59</a></span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">solve</a>(<a class="code" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1">SolverType</a> type){};</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver</a>();</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver</a>(<span class="keyword">const</span> <a class="code" href="classpascinference_1_1QPData.html">QPData&lt;VectorBase&gt;</a> &amp;new_qpdata); </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <a class="code" href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">~CGQPSolver</a>();</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">print</a>(std::ostream &amp;output) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        std::string <a class="code" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">get_name</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">solve</a>();</div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">   63</a></span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">solve</a>(<a class="code" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1">SolverType</a> type){};</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;};</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;} <span class="comment">// end of namespace</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">print</a>(std::ostream &amp;output) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        std::string <a class="code" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">get_name</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">/* ------------- implementation ----------- */</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">//TODO: move to impls</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">/* constructor */</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">   76</a></span>&#160;<a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver&lt;VectorBase&gt;::CGQPSolver</a>(){</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    data = NULL;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="comment">/* temp vectors */</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    g = NULL;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    p = NULL;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    Ap = NULL;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    this-&gt;fx = std::numeric_limits&lt;double&gt;::max();</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00090"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#acc5b0936334c49846b281abced842eff">   90</a></span>&#160;<a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver&lt;VectorBase&gt;::CGQPSolver</a>(<span class="keyword">const</span> <a class="code" href="classpascinference_1_1QPData.html">QPData&lt;VectorBase&gt;</a> &amp;new_data){</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    data = &amp;new_data;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    </div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="comment">/* allocate temp vectors */</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    allocate_temp_vectors();</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    this-&gt;fx = std::numeric_limits&lt;double&gt;::max();</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;}</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;};</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;} <span class="comment">// end of namespace</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">/* ------------- implementation ----------- */</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">//TODO: move to impls</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">/* constructor */</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">   80</a></span>&#160;<a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver&lt;VectorBase&gt;::CGQPSolver</a>(){</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    qpdata = NULL;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="comment">/* temp vectors */</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    g = NULL;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    p = NULL;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    Ap = NULL;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    </div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    this-&gt;fx = std::numeric_limits&lt;double&gt;::max();</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;}</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00094"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a39efd464fda6fcce3ef9cdb16c68879a">   94</a></span>&#160;<a class="code" href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">CGQPSolver&lt;VectorBase&gt;::CGQPSolver</a>(<span class="keyword">const</span> <a class="code" href="classpascinference_1_1QPData.html">QPData&lt;VectorBase&gt;</a> &amp;new_qpdata){</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    qpdata = &amp;new_qpdata;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="comment">/* allocate temp vectors */</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    allocate_temp_vectors();</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">/* destructor */</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00102"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">  102</a></span>&#160;<a class="code" href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">CGQPSolver&lt;VectorBase&gt;::~CGQPSolver</a>(){</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="comment">/* free temp vectors */</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    free_temp_vectors();</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;}</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    this-&gt;fx = std::numeric_limits&lt;double&gt;::max();</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;}</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">/* destructor */</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00106"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">  106</a></span>&#160;<a class="code" href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">CGQPSolver&lt;VectorBase&gt;::~CGQPSolver</a>(){</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">/* prepare temp_vectors */</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00111"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">  111</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">CGQPSolver&lt;VectorBase&gt;::allocate_temp_vectors</a>(){</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *pattern = data-&gt;get_b(); <span class="comment">/* I will allocate temp vectors subject to linear term */</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    g = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a>(*pattern);</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    p = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a>(*pattern);</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    Ap = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a>(*pattern);   </div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    </div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="comment">/* destroy temp_vectors */</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00122"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">  122</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">CGQPSolver&lt;VectorBase&gt;::free_temp_vectors</a>(){</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    free(g);</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    free(p);</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    free(Ap);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    </div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;}</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment">/* print info about problem */</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00132"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">  132</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">CGQPSolver&lt;VectorBase&gt;::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)FUNCTION: print&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    output &lt;&lt; this-&gt;get_name() &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    </div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="comment">/* print settings */</span></div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    output &lt;&lt; setting;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;        </div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;}</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00143"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">  143</a></span>&#160;std::string <a class="code" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">CGQPSolver&lt;VectorBase&gt;::get_name</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;Conjugate Gradient method for QP&quot;</span>;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;}</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="comment">/* solve the problem */</span></div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00150"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">  150</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">CGQPSolver&lt;VectorBase&gt;::solve</a>() {</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)FUNCTION: solve&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="comment">/* I don&#39;t want to write (*x) as a vector, therefore I define following pointer types */</span></div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> (&amp;pVector);</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralMatrix.html">GeneralMatrix&lt;VectorBase&gt;</a> (&amp;pMatrix);</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="comment">/* pointers to data */</span></div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    pMatrix A = *(data-&gt;get_A());</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    pVector b = *(data-&gt;get_b());</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    pVector x0 = *(data-&gt;get_x0());</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="comment">/* pointer to solution */</span></div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    pVector x = *(data-&gt;get_x());</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="comment">/* auxiliary vectors */</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    pVector g = *(this-&gt;g); <span class="comment">/* gradient */</span></div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    pVector p = *(this-&gt;p); <span class="comment">/* A-conjugate vector */</span></div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    pVector Ap = *(this-&gt;Ap); <span class="comment">/* A*p */</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="comment">/* free temp vectors */</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    free_temp_vectors();</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;}</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment">/* prepare temp_vectors */</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">  115</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">CGQPSolver&lt;VectorBase&gt;::allocate_temp_vectors</a>(){</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> *pattern = qpdata-&gt;get_b(); <span class="comment">/* I will allocate temp vectors subject to linear term */</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    g = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a>(*pattern);</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    p = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a>(*pattern);</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    Ap = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a>(*pattern);   </div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    </div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;}</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment">/* destroy temp_vectors */</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00126"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">  126</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">CGQPSolver&lt;VectorBase&gt;::free_temp_vectors</a>(){</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    free(g);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    free(p);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    free(Ap);</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    </div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;}</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="comment">/* print info about problem */</span></div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00136"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">  136</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">CGQPSolver&lt;VectorBase&gt;::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)FUNCTION: print&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    </div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="comment">/* print settings */</span></div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a>.<a class="code" href="classpascinference_1_1ConsoleOutput.html#a94c478509aa898b3c46c313b705739de">push</a>();</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    setting.print(output);</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a>.<a class="code" href="classpascinference_1_1ConsoleOutput.html#a4dc5c253b73f6e18aa2976d1d2946867">pop</a>();</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="comment">/* print settings */</span></div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <span class="keywordflow">if</span>(qpdata){</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;        <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a>.<a class="code" href="classpascinference_1_1ConsoleOutput.html#a94c478509aa898b3c46c313b705739de">push</a>();</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        qpdata-&gt;print(output);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;        <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a>.<a class="code" href="classpascinference_1_1ConsoleOutput.html#a4dc5c253b73f6e18aa2976d1d2946867">pop</a>();</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    }</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;        </div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;}</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00156"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">  156</a></span>&#160;std::string <a class="code" href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">CGQPSolver&lt;VectorBase&gt;::get_name</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;Conjugate Gradient method for QP&quot;</span>;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;}</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="comment">/* solve the problem */</span></div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00163"></a><span class="lineno"><a class="line" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">  163</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">CGQPSolver&lt;VectorBase&gt;::solve</a>() {</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(CGQPSolver)FUNCTION: solve&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="comment">/* I don&#39;t want to write (*x) as a vector, therefore I define following pointer types */</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> (&amp;pVector);</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1GeneralMatrix.html">GeneralMatrix&lt;VectorBase&gt;</a> (&amp;pMatrix);</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    x = x0; <span class="comment">/* set approximation as initial */</span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="keywordtype">int</span> it = 0; <span class="comment">/* iteration counter */</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordtype">int</span> hess_mult = 0; <span class="comment">/* number of hessian multiplications */</span></div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">double</span> normg, alpha, beta, pAp, gg, gg_old;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    </div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    g = A*x; hess_mult += 1; g -= b; <span class="comment">/* compute gradient */</span></div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    p = g; <span class="comment">/* initial conjugate direction */</span></div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    gg = dot(g,g);</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    normg = std::sqrt(gg);</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordflow">while</span>(normg &gt; this-&gt;setting.eps &amp;&amp; it &lt; this-&gt;setting.maxit){</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        <span class="comment">/* compute new approximation */</span></div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="comment">/* pointers to qpdata */</span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    pMatrix A = *(qpdata-&gt;get_A());</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    pVector b = *(qpdata-&gt;get_b());</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    pVector x0 = *(qpdata-&gt;get_x0());</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="comment">/* pointer to solution */</span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    pVector x = *(qpdata-&gt;get_x());</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="comment">/* auxiliary vectors */</span></div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    pVector g = *(this-&gt;g); <span class="comment">/* gradient */</span></div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    pVector p = *(this-&gt;p); <span class="comment">/* A-conjugate vector */</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    pVector Ap = *(this-&gt;Ap); <span class="comment">/* A*p */</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    x = x0; <span class="comment">/* set approximation as initial */</span></div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;        Ap = A*p; hess_mult += 1;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;        <span class="comment">/* compute step-size */</span>         </div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        pAp = dot(Ap,p);</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;        alpha = gg/pAp;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;        <span class="comment">/* set new approximation, x = x - alpha*p */</span></div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;        x -= alpha*p; </div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;        <span class="comment">/* compute gradient recursively, g = g - alpha*Ap */</span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;        g -= alpha*Ap; </div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;        gg_old = gg;</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;        gg = dot(g,g);</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;        normg = std::sqrt(gg);</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            </div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        <span class="comment">/* compute new A-orthogonal vector, p = g + beta*p */</span></div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        beta = gg/gg_old;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        p *= beta;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        p += g;</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;        </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;        <span class="keywordflow">if</span>(this-&gt;setting.debug_mode &gt;= 10){</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;it &quot;</span> &lt;&lt; it &lt;&lt; <span class="stringliteral">&quot;: ||g|| = &quot;</span> &lt;&lt; normg &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;        }</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;        <span class="keywordflow">if</span>(this-&gt;setting.debug_mode &gt;= 100){</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;x = &quot;</span> &lt;&lt; x &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;g = &quot;</span> &lt;&lt; g &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;p = &quot;</span> &lt;&lt; p &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;Ap = &quot;</span> &lt;&lt; Ap &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;pAp = &quot;</span> &lt;&lt; pAp &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;alpha = &quot;</span> &lt;&lt; alpha &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;beta = &quot;</span> &lt;&lt; beta &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;gg = &quot;</span> &lt;&lt; gg &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;gg_old = &quot;</span> &lt;&lt; gg_old &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;normg = &quot;</span> &lt;&lt; normg &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;------------------------------------&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        }</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;                </div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;        it += 1;</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    }</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        </div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="comment">/* print output */</span></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keywordflow">if</span>(this-&gt;setting.debug_mode &gt;= 10){</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot;------------------------&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot; it_cg = &quot;</span> &lt;&lt; it &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot; norm_g = &quot;</span> &lt;&lt; normg &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot; hess_mult = &quot;</span> &lt;&lt; hess_mult &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    }</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordtype">int</span> it = 0; <span class="comment">/* iteration counter */</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">int</span> hess_mult = 0; <span class="comment">/* number of hessian multiplications */</span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordtype">double</span> normg, alpha, beta, pAp, gg, gg_old;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    </div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    g = A*x; hess_mult += 1; g -= b; <span class="comment">/* compute gradient */</span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    p = g; <span class="comment">/* initial conjugate direction */</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    gg = dot(g,g);</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    normg = std::sqrt(gg);</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordflow">while</span>(normg &gt; this-&gt;setting.eps &amp;&amp; it &lt; this-&gt;setting.maxit){</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;        <span class="comment">/* compute new approximation */</span></div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;        Ap = A*p; hess_mult += 1;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        <span class="comment">/* compute step-size */</span>         </div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        pAp = dot(Ap,p);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        alpha = gg/pAp;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;        <span class="comment">/* set new approximation, x = x - alpha*p */</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;        x -= alpha*p; </div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;        <span class="comment">/* compute gradient recursively, g = g - alpha*Ap */</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;        g -= alpha*Ap; </div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;        gg_old = gg;</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;        gg = dot(g,g);</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        normg = std::sqrt(gg);</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;            </div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        <span class="comment">/* compute new A-orthogonal vector, p = g + beta*p */</span></div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;        beta = gg/gg_old;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;        p *= beta;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;        p += g;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;        </div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        <span class="keywordflow">if</span>(this-&gt;setting.debug_mode &gt;= 10){</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;it &quot;</span> &lt;&lt; it &lt;&lt; <span class="stringliteral">&quot;: ||g|| = &quot;</span> &lt;&lt; normg &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        }</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        <span class="keywordflow">if</span>(this-&gt;setting.debug_mode &gt;= 100){</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;x = &quot;</span> &lt;&lt; x &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;g = &quot;</span> &lt;&lt; g &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;p = &quot;</span> &lt;&lt; p &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;Ap = &quot;</span> &lt;&lt; Ap &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;pAp = &quot;</span> &lt;&lt; pAp &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;alpha = &quot;</span> &lt;&lt; alpha &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;beta = &quot;</span> &lt;&lt; beta &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;gg = &quot;</span> &lt;&lt; gg &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;gg_old = &quot;</span> &lt;&lt; gg_old &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;normg = &quot;</span> &lt;&lt; normg &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;------------------------------------&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;        }</div>
 <div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    </div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;}</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;                </div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;        it += 1;</div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;} <span class="comment">/* end namespace */</span></div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    }</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        </div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="comment">/* print output */</span></div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordflow">if</span>(this-&gt;setting.debug_mode &gt;= 10){</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;        <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;------------------------&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;        <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot; it_cg = &quot;</span> &lt;&lt; it &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;        <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot; norm_g = &quot;</span> &lt;&lt; normg &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;        <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot; hess_mult = &quot;</span> &lt;&lt; hess_mult &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    }</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    </div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;}</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;} <span class="comment">/* end namespace */</span></div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a13bbf289788c414611f327217ee6f1b5"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a13bbf289788c414611f327217ee6f1b5">pascinference::CGQPSolver::qpdata</a></div><div class="ttdeci">const QPData&lt; VectorBase &gt; * qpdata</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:45</div></div>
 <div class="ttc" id="classpascinference_1_1CGQPSolverSetting_html_a0186d824333a59eb2b0c911eab87eb68"><div class="ttname"><a href="classpascinference_1_1CGQPSolverSetting.html#a0186d824333a59eb2b0c911eab87eb68">pascinference::CGQPSolverSetting::CGQPSolverSetting</a></div><div class="ttdeci">CGQPSolverSetting()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:19</div></div>
-<div class="ttc" id="classpascinference_1_1QPSolver_html"><div class="ttname"><a href="classpascinference_1_1QPSolver.html">pascinference::QPSolver</a></div><div class="ttdef"><b>Definition:</b> qpsolver.h:44</div></div>
+<div class="ttc" id="classpascinference_1_1QPSolver_html"><div class="ttname"><a href="classpascinference_1_1QPSolver.html">pascinference::QPSolver</a></div><div class="ttdef"><b>Definition:</b> qpsolver.h:48</div></div>
 <div class="ttc" id="classpascinference_1_1CGQPSolverSetting_html_aa521fb2aa5d779e1c4752c26d7535091"><div class="ttname"><a href="classpascinference_1_1CGQPSolverSetting.html#aa521fb2aa5d779e1c4752c26d7535091">pascinference::CGQPSolverSetting::print</a></div><div class="ttdeci">virtual void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:26</div></div>
 <div class="ttc" id="namespacepascinference_html_a1f1196968f73f3844edc9527f47366b1"><div class="ttname"><a href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1">pascinference::SolverType</a></div><div class="ttdeci">SolverType</div><div class="ttdef"><b>Definition:</b> list.h:6</div></div>
 <div class="ttc" id="qpdata_8h_html"><div class="ttname"><a href="qpdata_8h.html">qpdata.h</a></div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a69afcedd366c812a844aed41401448ef"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">pascinference::CGQPSolver::solve</a></div><div class="ttdeci">void solve(SolverType type)</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:59</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_aa73af3c62a80427612561063fedae8b2"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#aa73af3c62a80427612561063fedae8b2">pascinference::CGQPSolver::p</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * p</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:47</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a69afcedd366c812a844aed41401448ef"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a69afcedd366c812a844aed41401448ef">pascinference::CGQPSolver::solve</a></div><div class="ttdeci">void solve(SolverType type)</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:63</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_aa73af3c62a80427612561063fedae8b2"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#aa73af3c62a80427612561063fedae8b2">pascinference::CGQPSolver::p</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * p</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:51</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralSolverSetting_html_a98dc07aee352b3c39370edc97475cd72"><div class="ttname"><a href="classpascinference_1_1GeneralSolverSetting.html#a98dc07aee352b3c39370edc97475cd72">pascinference::GeneralSolverSetting::maxit</a></div><div class="ttdeci">int maxit</div><div class="ttdef"><b>Definition:</b> generalsolver.h:27</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_ab2aa310731774b372d7325d3715b4b63"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">pascinference::CGQPSolver::allocate_temp_vectors</a></div><div class="ttdeci">void allocate_temp_vectors()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:111</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_ab2aa310731774b372d7325d3715b4b63"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#ab2aa310731774b372d7325d3715b4b63">pascinference::CGQPSolver::allocate_temp_vectors</a></div><div class="ttdeci">void allocate_temp_vectors()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:115</div></div>
 <div class="ttc" id="classpascinference_1_1CGQPSolverSetting_html_a899f5d145d21d2c5abec38bd5b33f3bb"><div class="ttname"><a href="classpascinference_1_1CGQPSolverSetting.html#a899f5d145d21d2c5abec38bd5b33f3bb">pascinference::CGQPSolverSetting::~CGQPSolverSetting</a></div><div class="ttdeci">~CGQPSolverSetting()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:24</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a60c842e8522b9bc3eb892d553357a413"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a60c842e8522b9bc3eb892d553357a413">pascinference::CGQPSolver::Ap</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * Ap</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:48</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a60c842e8522b9bc3eb892d553357a413"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a60c842e8522b9bc3eb892d553357a413">pascinference::CGQPSolver::Ap</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * Ap</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:52</div></div>
 <div class="ttc" id="cgqpsolver_8h_html_a6ea4e577b5055cead3ec3c6e9a8216e8"><div class="ttname"><a href="cgqpsolver_8h.html#a6ea4e577b5055cead3ec3c6e9a8216e8">CGQPSOLVER_DEFAULT_EPS</a></div><div class="ttdeci">#define CGQPSOLVER_DEFAULT_EPS</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:12</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a59a18e3eef8c883c143a457dad2e8466"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">pascinference::CGQPSolver::print</a></div><div class="ttdeci">void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:132</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_aba93ac25a0ba83ac5ca848ff34fc5f15"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#aba93ac25a0ba83ac5ca848ff34fc5f15">pascinference::CGQPSolver::setting</a></div><div class="ttdeci">CGQPSolverSetting setting</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:51</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a59a18e3eef8c883c143a457dad2e8466"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466">pascinference::CGQPSolver::print</a></div><div class="ttdeci">void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:136</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_aba93ac25a0ba83ac5ca848ff34fc5f15"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#aba93ac25a0ba83ac5ca848ff34fc5f15">pascinference::CGQPSolver::setting</a></div><div class="ttdeci">CGQPSolverSetting setting</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:55</div></div>
 <div class="ttc" id="cgqpsolver_8h_html_ad935159255b432a8fb76b9a617cc3b23"><div class="ttname"><a href="cgqpsolver_8h.html#ad935159255b432a8fb76b9a617cc3b23">CGQPSOLVER_DEFAULT_MAXIT</a></div><div class="ttdeci">#define CGQPSOLVER_DEFAULT_MAXIT</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:11</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolverSetting_html_ae72337ee275662dbddc05be5f98b80e6"><div class="ttname"><a href="classpascinference_1_1CGQPSolverSetting.html#ae72337ee275662dbddc05be5f98b80e6">pascinference::CGQPSolverSetting::get_name</a></div><div class="ttdeci">std::string get_name() const </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:34</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralSolverSetting_html_abc671d47ce98657379b9f1df0ad39034"><div class="ttname"><a href="classpascinference_1_1GeneralSolverSetting.html#abc671d47ce98657379b9f1df0ad39034">pascinference::GeneralSolverSetting::debug_mode</a></div><div class="ttdeci">int debug_mode</div><div class="ttdef"><b>Definition:</b> generalsolver.h:26</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a3399abbb1d10cc1f971b2f2659002bac"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">pascinference::CGQPSolver::solve</a></div><div class="ttdeci">void solve()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:150</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a3399abbb1d10cc1f971b2f2659002bac"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac">pascinference::CGQPSolver::solve</a></div><div class="ttdeci">void solve()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:163</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html"><div class="ttname"><a href="classpascinference_1_1QPData.html">pascinference::QPData</a></div><div class="ttdef"><b>Definition:</b> qpdata.h:16</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a447331cc6f9f749d48c8f07e31c96e51"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">pascinference::CGQPSolver::free_temp_vectors</a></div><div class="ttdeci">void free_temp_vectors()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:122</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a447331cc6f9f749d48c8f07e31c96e51"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a447331cc6f9f749d48c8f07e31c96e51">pascinference::CGQPSolver::free_temp_vectors</a></div><div class="ttdeci">void free_temp_vectors()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:126</div></div>
 <div class="ttc" id="classpascinference_1_1CGQPSolverSetting_html"><div class="ttname"><a href="classpascinference_1_1CGQPSolverSetting.html">pascinference::CGQPSolverSetting</a></div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:17</div></div>
+<div class="ttc" id="classpascinference_1_1ConsoleOutput_html_a94c478509aa898b3c46c313b705739de"><div class="ttname"><a href="classpascinference_1_1ConsoleOutput.html#a94c478509aa898b3c46c313b705739de">pascinference::ConsoleOutput::push</a></div><div class="ttdeci">void push()</div><div class="ttdoc">increase the size of offset </div><div class="ttdef"><b>Definition:</b> common.h:339</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralMatrix_html"><div class="ttname"><a href="classpascinference_1_1GeneralMatrix.html">pascinference::GeneralMatrix</a></div><div class="ttdef"><b>Definition:</b> generalmatrix.h:28</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a1687163abbd8025e1c2089969d11aed4"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">pascinference::CGQPSolver::get_name</a></div><div class="ttdeci">std::string get_name() const </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:143</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a8b5876244560f1355d02d8d7beb913fe"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a8b5876244560f1355d02d8d7beb913fe">pascinference::CGQPSolver::g</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * g</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:46</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html">pascinference::CGQPSolver</a></div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:39</div></div>
-<div class="ttc" id="cgqpsolver_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="cgqpsolver_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a1687163abbd8025e1c2089969d11aed4"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a1687163abbd8025e1c2089969d11aed4">pascinference::CGQPSolver::get_name</a></div><div class="ttdeci">std::string get_name() const </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:156</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a8b5876244560f1355d02d8d7beb913fe"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a8b5876244560f1355d02d8d7beb913fe">pascinference::CGQPSolver::g</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * g</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:50</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html">pascinference::CGQPSolver</a></div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:43</div></div>
+<div class="ttc" id="cgqpsolver_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="cgqpsolver_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralSolverSetting_html_a7acdb69bbc0e448167ee713fa7ccdaec"><div class="ttname"><a href="classpascinference_1_1GeneralSolverSetting.html#a7acdb69bbc0e448167ee713fa7ccdaec">pascinference::GeneralSolverSetting::eps</a></div><div class="ttdeci">double eps</div><div class="ttdef"><b>Definition:</b> generalsolver.h:28</div></div>
 <div class="ttc" id="qpsolver_8h_html"><div class="ttname"><a href="qpsolver_8h.html">qpsolver.h</a></div></div>
+<div class="ttc" id="classpascinference_1_1ConsoleOutput_html_a4dc5c253b73f6e18aa2976d1d2946867"><div class="ttname"><a href="classpascinference_1_1ConsoleOutput.html#a4dc5c253b73f6e18aa2976d1d2946867">pascinference::ConsoleOutput::pop</a></div><div class="ttdeci">void pop()</div><div class="ttdoc">decrease the size of offset </div><div class="ttdef"><b>Definition:</b> common.h:346</div></div>
 <div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
 <div class="ttc" id="classpascinference_1_1QPSolverSetting_html"><div class="ttname"><a href="classpascinference_1_1QPSolverSetting.html">pascinference::QPSolverSetting</a></div><div class="ttdef"><b>Definition:</b> qpsolver.h:20</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a68893cc980057b23d88ef4958d3a7035"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">pascinference::CGQPSolver::CGQPSolver</a></div><div class="ttdeci">CGQPSolver()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:76</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a192fd83758bcefd40856ef81b58ecd47"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a192fd83758bcefd40856ef81b58ecd47">pascinference::CGQPSolver::data</a></div><div class="ttdeci">const QPData&lt; VectorBase &gt; * data</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:41</div></div>
-<div class="ttc" id="classpascinference_1_1CGQPSolver_html_adb9c9a361b504cb4ce2cf73727c23399"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">pascinference::CGQPSolver::~CGQPSolver</a></div><div class="ttdeci">~CGQPSolver()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:102</div></div>
+<div class="ttc" id="namespacepascinference_html_ac92cfd92ba9ae30db28ceb7cfb55fdd0"><div class="ttname"><a href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">pascinference::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout)</div></div>
+<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_a68893cc980057b23d88ef4958d3a7035"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035">pascinference::CGQPSolver::CGQPSolver</a></div><div class="ttdeci">CGQPSolver()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:80</div></div>
+<div class="ttc" id="classpascinference_1_1CGQPSolver_html_adb9c9a361b504cb4ce2cf73727c23399"><div class="ttname"><a href="classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399">pascinference::CGQPSolver::~CGQPSolver</a></div><div class="ttdeci">~CGQPSolver()</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:106</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

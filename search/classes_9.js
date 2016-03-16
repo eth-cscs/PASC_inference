@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['simplexfeasibleset',['SimplexFeasibleSet',['../classpascinference_1_1SimplexFeasibleSet.html',1,'pascinference']]],
-  ['spgqpsolver',['SPGQPSolver',['../classpascinference_1_1SPGQPSolver.html',1,'pascinference']]],
-  ['spgqpsolver_5ffs',['SPGQPSolver_fs',['../classpascinference_1_1SPGQPSolver__fs.html',1,'pascinference']]],
-  ['spgqpsolversetting',['SPGQPSolverSetting',['../classpascinference_1_1SPGQPSolverSetting.html',1,'pascinference']]],
-  ['stacktimer',['StackTimer',['../classpascinference_1_1StackTimer.html',1,'pascinference']]]
+  ['qpdata',['QPData',['../classpascinference_1_1QPData.html',1,'pascinference']]],
+  ['qpsolver',['QPSolver',['../classpascinference_1_1QPSolver.html',1,'pascinference']]],
+  ['qpsolversetting',['QPSolverSetting',['../classpascinference_1_1QPSolverSetting.html',1,'pascinference']]]
 ];

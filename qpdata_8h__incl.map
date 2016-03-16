@@ -1,8 +1,8 @@
 <map id="include/data/qpdata.h" name="include/data/qpdata.h">
-<area shape="rect" id="node3" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="314,155,414,181"/>
-<area shape="rect" id="node7" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="188,80,327,107"/>
-<area shape="rect" id="node8" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="164,155,239,181"/>
-<area shape="rect" id="node4" href="$common_8h.html" title="commonly used stuff " alt="" coords="303,229,385,256"/>
-<area shape="rect" id="node9" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="33,229,143,256"/>
-<area shape="rect" id="node10" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="167,229,278,256"/>
+<area shape="rect" id="node3" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="303,155,403,181"/>
+<area shape="rect" id="node7" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="177,80,315,107"/>
+<area shape="rect" id="node8" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="153,155,227,181"/>
+<area shape="rect" id="node4" href="$common_8h.html" title="commonly used stuff " alt="" coords="291,229,374,256"/>
+<area shape="rect" id="node9" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="21,229,132,256"/>
+<area shape="rect" id="node10" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="156,229,267,256"/>
 </map>

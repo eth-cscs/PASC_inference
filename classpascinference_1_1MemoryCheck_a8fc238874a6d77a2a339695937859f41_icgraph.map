@@ -1,3 +1,5 @@
 <map id="pascinference::MemoryCheck::get_virtual" name="pascinference::MemoryCheck::get_virtual">
-<area shape="rect" id="node2" href="$classpascinference_1_1SPGQPSolver.html#a5717dcc259091d17da5f1bac911a4e55" title="pascinference::SPGQPSolver\l::printstatus" alt="" coords="249,5,444,47"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1DiagSolver.html#a27b83cde262c987a4e507cfa2cdf3109" title="pascinference::DiagSolver\l::printstatus" alt="" coords="259,5,434,47"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1SPGQPSolver.html#a5717dcc259091d17da5f1bac911a4e55" title="pascinference::SPGQPSolver\l::printstatus" alt="" coords="249,71,444,112"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1TSSolver.html#a5b9ca9910ffeb8e82f991db6c7ba7208" title="pascinference::TSSolver\l::printstatus" alt="" coords="264,136,429,177"/>
 </map>

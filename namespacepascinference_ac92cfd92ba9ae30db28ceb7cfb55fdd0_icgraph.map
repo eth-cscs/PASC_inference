@@ -1,0 +1,48 @@
+<map id="pascinference::coutMaster" name="pascinference::coutMaster">
+<area shape="rect" id="node2" href="$classpascinference_1_1example_1_1KMeans2D.html#a147cba5e896b626e08ccb121687d5549" title="save results into VTK file " alt="" coords="255,5,415,47"/>
+<area shape="rect" id="node3" href="$test__kmeans_8cu.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="560,42,611,69"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1DiagData.html#ab49d37f382cf1da5ca07d619671427a4" title="pascinference::DiagData\l::DiagData" alt="" coords="251,123,418,164"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1DiagData.html#a8bbedc7d9199bb07fcdd761976defe1e" title="pascinference::DiagData\l::~DiagData" alt="" coords="251,188,418,229"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1QPData.html#ab9083ec244e63967e3154f60a075be4f" title="pascinference::QPData\l::QPData" alt="" coords="255,253,414,295"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1QPData.html#aa6d53f80a48147fe11e61a99c1ba9659" title="pascinference::QPData\l::~QPData" alt="" coords="255,319,414,360"/>
+<area shape="rect" id="node8" href="$classpascinference_1_1TSData.html#ad739c459d80ecdc84d02ad66a562d998" title="pascinference::TSData\l::TSData" alt="" coords="257,384,413,425"/>
+<area shape="rect" id="node9" href="$classpascinference_1_1TSData.html#aa651daba1dcde50206e75b5e576b0ae5" title="pascinference::TSData\l::~TSData" alt="" coords="257,449,413,491"/>
+<area shape="rect" id="node10" href="$classpascinference_1_1SimplexFeasibleSet.html#a8de16d6b330bca987117d1ee53bba7a3" title="pascinference::SimplexFeasible\lSet::SimplexFeasibleSet" alt="" coords="231,515,438,556"/>
+<area shape="rect" id="node11" href="$classpascinference_1_1SimplexFeasibleSet.html#a86d7d1e965fa267eb5a3bf14ad6e7cf1" title="pascinference::SimplexFeasible\lSet::~SimplexFeasibleSet" alt="" coords="231,580,438,621"/>
+<area shape="rect" id="node12" href="$namespacepascinference.html#a3a15557ca4e076085e096fe207515e36" title="pascinference::operator\&lt;\&lt;" alt="" coords="247,646,422,673"/>
+<area shape="rect" id="node13" href="$namespacepascinference.html#a2bb3f7ccd7120b0dc2b9bb4cd51576a3" title="pascinference::operator*" alt="" coords="253,697,416,723"/>
+<area shape="rect" id="node14" href="$classpascinference_1_1GeneralMatrixRHS.html#a88bc52a5fe92b3f347416e2e281698de" title="pascinference::GeneralMatrix\lRHS::matmult" alt="" coords="239,748,431,789"/>
+<area shape="rect" id="node16" href="$classpascinference_1_1FileCRSMatrix.html#a2a5faa9b39deef3ef88b6d16397c64f6" title="pascinference::FileCRSMatrix\l::write_aij" alt="" coords="236,813,433,855"/>
+<area shape="rect" id="node17" href="$classpascinference_1_1KmeansH1Model.html#a7b862800cb73232e169f47038524b70a" title="pascinference::KmeansH1Model\l::KmeansH1Model" alt="" coords="229,879,440,920"/>
+<area shape="rect" id="node18" href="$classpascinference_1_1KmeansH1Model.html#a41334dcf9a9b7708e658d7a3bec1c2ae" title="pascinference::KmeansH1Model\l::~KmeansH1Model" alt="" coords="229,944,440,985"/>
+<area shape="rect" id="node19" href="$classpascinference_1_1TSModel.html#a4a26fd90dc8cf5fc73a93d727de0d05b" title="pascinference::TSModel\l::TSModel" alt="" coords="253,1009,416,1051"/>
+<area shape="rect" id="node20" href="$classpascinference_1_1TSModel.html#a699e7f731e35b8a0f1063c62ab849f62" title="pascinference::TSModel\l::~TSModel" alt="" coords="253,1075,416,1116"/>
+<area shape="rect" id="node21" href="$classpascinference_1_1CGQPSolver.html#a68893cc980057b23d88ef4958d3a7035" title="pascinference::CGQPSolver\l::CGQPSolver" alt="" coords="241,1140,428,1181"/>
+<area shape="rect" id="node22" href="$classpascinference_1_1CGQPSolver.html#adb9c9a361b504cb4ce2cf73727c23399" title="pascinference::CGQPSolver\l::~CGQPSolver" alt="" coords="241,1205,428,1247"/>
+<area shape="rect" id="node23" href="$classpascinference_1_1CGQPSolver.html#a59a18e3eef8c883c143a457dad2e8466" title="pascinference::CGQPSolver\l::print" alt="" coords="241,1271,428,1312"/>
+<area shape="rect" id="node24" href="$classpascinference_1_1CGQPSolver.html#a3399abbb1d10cc1f971b2f2659002bac" title="pascinference::CGQPSolver\l::solve" alt="" coords="241,1336,428,1377"/>
+<area shape="rect" id="node25" href="$classpascinference_1_1DiagSolver.html#a0b5b8a59affcbf32059aa0d7e35172c8" title="pascinference::DiagSolver\l::DiagSolver" alt="" coords="247,1401,422,1443"/>
+<area shape="rect" id="node26" href="$classpascinference_1_1DiagSolver.html#a3cfef33e4d9836be4677f9004b233fed" title="pascinference::DiagSolver\l::~DiagSolver" alt="" coords="247,1467,422,1508"/>
+<area shape="rect" id="node27" href="$classpascinference_1_1DiagSolver.html#ac9cd76c49bee5e38aa17134449eaa8f6" title="pascinference::DiagSolver\l::print" alt="" coords="247,1532,422,1573"/>
+<area shape="rect" id="node28" href="$classpascinference_1_1DiagSolver.html#a27b83cde262c987a4e507cfa2cdf3109" title="pascinference::DiagSolver\l::printstatus" alt="" coords="247,1597,422,1639"/>
+<area shape="rect" id="node29" href="$classpascinference_1_1QPSolver.html#a38a131a6358c50465c298f1bd7a85593" title="pascinference::QPSolver\l::QPSolver" alt="" coords="251,1663,418,1704"/>
+<area shape="rect" id="node30" href="$classpascinference_1_1QPSolver.html#a8d1752fdf765b30de841ad2eb04f60a8" title="pascinference::QPSolver\l::~QPSolver" alt="" coords="251,1728,418,1769"/>
+<area shape="rect" id="node31" href="$classpascinference_1_1QPSolver.html#a62c7459c6fd0eacc794754464d7d79fb" title="pascinference::QPSolver\l::print" alt="" coords="251,1793,418,1835"/>
+<area shape="rect" id="node32" href="$classpascinference_1_1QPSolver.html#a929f16759a567a24c1c2afa126b0cb57" title="pascinference::QPSolver\l::solve" alt="" coords="502,2077,669,2119"/>
+<area shape="rect" id="node34" href="$classpascinference_1_1QPSolver.html#ae2235013471af232b50d1f2378e70782" title="pascinference::QPSolver\l::get_fx" alt="" coords="251,1911,418,1952"/>
+<area shape="rect" id="node35" href="$classpascinference_1_1QPSolver.html#a349b93350066a00c3db19a3cfed05f9a" title="pascinference::QPSolver\l::get_it" alt="" coords="251,1976,418,2017"/>
+<area shape="rect" id="node36" href="$classpascinference_1_1SPGQPSolver.html#a5e0ffd301e12356381f4dd201ea81225" title="pascinference::SPGQPSolver\l::SPGQPSolver" alt="" coords="237,2041,432,2083"/>
+<area shape="rect" id="node37" href="$classpascinference_1_1SPGQPSolver.html#ad275a729d237fcac76f7a73fb96ef0cf" title="pascinference::SPGQPSolver\l::~SPGQPSolver" alt="" coords="237,2107,432,2148"/>
+<area shape="rect" id="node38" href="$classpascinference_1_1SPGQPSolver.html#a2675b1b0de1c85fb3ac84b1d12045339" title="pascinference::SPGQPSolver\l::print" alt="" coords="237,2172,432,2213"/>
+<area shape="rect" id="node39" href="$classpascinference_1_1SPGQPSolver.html#a5717dcc259091d17da5f1bac911a4e55" title="pascinference::SPGQPSolver\l::printstatus" alt="" coords="237,2237,432,2279"/>
+<area shape="rect" id="node40" href="$classpascinference_1_1SPGQPSolver.html#a4cae664766884c51985d300c33b9c4a5" title="pascinference::SPGQPSolver\l::solve" alt="" coords="237,2303,432,2344"/>
+<area shape="rect" id="node41" href="$classpascinference_1_1SPGQPSolver.html#a609d8e4b2ce96b13313351b7a8c1480b" title="pascinference::SPGQPSolver\l::get_fx" alt="" coords="237,2368,432,2409"/>
+<area shape="rect" id="node42" href="$classpascinference_1_1TSSolver.html#a567318dba3d2ae0ba6f42b9c3d3790bc" title="pascinference::TSSolver\l::TSSolver" alt="" coords="252,2433,417,2475"/>
+<area shape="rect" id="node43" href="$classpascinference_1_1TSSolver.html#af698fe39b55f4fe39af0691cf243c0ae" title="pascinference::TSSolver\l::~TSSolver" alt="" coords="252,2499,417,2540"/>
+<area shape="rect" id="node44" href="$classpascinference_1_1TSSolver.html#a62d5d0bcedb1ac910d399eca750cb6a2" title="pascinference::TSSolver\l::print" alt="" coords="252,2564,417,2605"/>
+<area shape="rect" id="node45" href="$classpascinference_1_1TSSolver.html#a5b9ca9910ffeb8e82f991db6c7ba7208" title="pascinference::TSSolver\l::printstatus" alt="" coords="252,2629,417,2671"/>
+<area shape="rect" id="node46" href="$classpascinference_1_1TSSolver.html#ac73a8390245b06861b4b96a357409fd4" title="pascinference::TSSolver\l::printtimer" alt="" coords="252,2695,417,2736"/>
+<area shape="rect" id="node47" href="$classpascinference_1_1TSSolver.html#afbe97065249795d62793442184346ea1" title="pascinference::TSSolver\l::solve" alt="" coords="252,2760,417,2801"/>
+<area shape="rect" id="node15" href="$classpascinference_1_1GeneralVector.html#a22dcf923cf06a46f9dd5d054daf8362e" title="matrix vector multiplication " alt="" coords="488,748,683,789"/>
+<area shape="rect" id="node33" href="$test__cg_8cu.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="731,2085,781,2111"/>
+</map>

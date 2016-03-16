@@ -1,5 +1,4 @@
 <map id="main" name="main">
-<area shape="rect" id="node2" href="$namespacepascinference.html#aba1ce0c90e409c2baf7c0d9adfcecd00" title="pascinference::Message" alt="" coords="104,5,268,32"/>
-<area shape="rect" id="node3" href="$namespacepascinference.html#a1519b3fa6fb92d8a15489d6c04b8a3f4" title="initialize the library " alt="" coords="107,56,265,83"/>
-<area shape="rect" id="node4" href="$namespacepascinference.html#a18614c935abea5205bada66a34cc0a7f" title="finalize the library " alt="" coords="108,107,264,133"/>
+<area shape="rect" id="node2" href="$namespacepascinference.html#a1519b3fa6fb92d8a15489d6c04b8a3f4" title="initialize the library " alt="" coords="104,5,263,32"/>
+<area shape="rect" id="node3" href="$namespacepascinference.html#a18614c935abea5205bada66a34cc0a7f" title="finalize the library " alt="" coords="105,56,261,83"/>
 </map>

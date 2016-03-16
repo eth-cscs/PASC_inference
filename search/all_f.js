@@ -1,11 +1,14 @@
 var searchData=
 [
-  ['random_5fby_5ftime',['RANDOM_BY_TIME',['../common_8h.html#adfef6b945c9cfd04afa18fe1aa178b35',1,'common.h']]],
-  ['read_5fdouble_5farray_5ffrom_5ffile',['read_double_array_from_file',['../classpascinference_1_1FileCRSMatrix.html#abf9f6c389cd91beddcecc9ca72b042d2',1,'pascinference::FileCRSMatrix']]],
-  ['read_5fdouble_5ffrom_5ffile',['read_double_from_file',['../classpascinference_1_1FileCRSMatrix.html#a9bb8de0e3078dbf014db52795d081ff4',1,'pascinference::FileCRSMatrix']]],
-  ['read_5ffilesize',['read_filesize',['../classpascinference_1_1FileCRSMatrix.html#ab958aa84dcdce2df60e6222d3332dcbf',1,'pascinference::FileCRSMatrix']]],
-  ['read_5fint_5farray_5ffrom_5ffile',['read_int_array_from_file',['../classpascinference_1_1FileCRSMatrix.html#aeea74b0999c2bcf3294bf029b60ec671',1,'pascinference::FileCRSMatrix']]],
-  ['read_5fint_5ffrom_5ffile',['read_int_from_file',['../classpascinference_1_1FileCRSMatrix.html#a5fef71f4d00ff8d34ab7edb1286ef3d8',1,'pascinference::FileCRSMatrix']]],
-  ['restart',['restart',['../classpascinference_1_1Timer.html#a41013fdd5f5e49126a117ef34bfeddd2',1,'pascinference::Timer']]],
-  ['run_5for_5fnot',['run_or_not',['../classpascinference_1_1Timer.html#aae60148d13c69b56a2d6e0813bcf2381',1,'pascinference::Timer']]]
+  ['qpdata',['QPData',['../classpascinference_1_1QPData.html',1,'pascinference']]],
+  ['qpdata',['qpdata',['../classpascinference_1_1CGQPSolver.html#a13bbf289788c414611f327217ee6f1b5',1,'pascinference::CGQPSolver::qpdata()'],['../classpascinference_1_1QPSolver.html#ab5adbfcf75abd61478b7b4e86710e502',1,'pascinference::QPSolver::qpdata()'],['../classpascinference_1_1SPGQPSolver.html#a552e074c9b83ebfa1c19697b78087c23',1,'pascinference::SPGQPSolver::qpdata()'],['../classpascinference_1_1QPData.html#ab9083ec244e63967e3154f60a075be4f',1,'pascinference::QPData::QPData()']]],
+  ['qpdata_2eh',['qpdata.h',['../qpdata_8h.html',1,'']]],
+  ['qpsolver',['QPSolver',['../classpascinference_1_1QPSolver.html',1,'pascinference']]],
+  ['qpsolver',['QPSolver',['../classpascinference_1_1QPSolver.html#a38a131a6358c50465c298f1bd7a85593',1,'pascinference::QPSolver::QPSolver()'],['../classpascinference_1_1QPSolver.html#a0eafcccceef0f791aebcf1a2d5399535',1,'pascinference::QPSolver::QPSolver(QPData&lt; VectorBase &gt; &amp;new_qpdata)']]],
+  ['qpsolver_2eh',['qpsolver.h',['../qpsolver_8h.html',1,'']]],
+  ['qpsolver_5fdefault_5fdebug_5fmode',['QPSOLVER_DEFAULT_DEBUG_MODE',['../qpsolver_8h.html#ac594028f6c0eb81e727c72457251fdd4',1,'qpsolver.h']]],
+  ['qpsolver_5fdefault_5feps',['QPSOLVER_DEFAULT_EPS',['../qpsolver_8h.html#ab9cec809caa1a8f9e9a23facc4deef99',1,'qpsolver.h']]],
+  ['qpsolver_5fdefault_5fmaxit',['QPSOLVER_DEFAULT_MAXIT',['../qpsolver_8h.html#a70f1943b6fc18854acb9bd14de8a01bc',1,'qpsolver.h']]],
+  ['qpsolversetting',['QPSolverSetting',['../classpascinference_1_1QPSolverSetting.html#a1f47d142e03fafbc660ae795e2f6e5c4',1,'pascinference::QPSolverSetting']]],
+  ['qpsolversetting',['QPSolverSetting',['../classpascinference_1_1QPSolverSetting.html',1,'pascinference']]]
 ];

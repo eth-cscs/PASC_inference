@@ -1,3 +1,8 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpascinference_1_1MemoryCheck.html" title="pascinference::MemoryCheck" alt="" coords="5,5,201,32"/>
+<area shape="rect" id="node1" href="$classpascinference_1_1GeneralSolver.html" title="pascinference::GeneralSolver" alt="" coords="5,78,199,105"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1DiagSolver.html" title="pascinference::DiagSolver\l\&lt; VectorBase \&gt;" alt="" coords="247,5,421,47"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1QPSolver.html" title="pascinference::QPSolver\l\&lt; VectorBase \&gt;" alt="" coords="251,71,417,112"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1TSSolver.html" title="pascinference::TSSolver\l\&lt; VectorBase \&gt;" alt="" coords="251,136,417,177"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1CGQPSolver.html" title="pascinference::CGQPSolver\l\&lt; VectorBase \&gt;" alt="" coords="473,39,660,80"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1SPGQPSolver.html" title="pascinference::SPGQPSolver\l\&lt; VectorBase \&gt;" alt="" coords="469,104,664,145"/>
 </map>

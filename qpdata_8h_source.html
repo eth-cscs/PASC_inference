@@ -156,7 +156,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">/* constructor */</span></div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="classpascinference_1_1QPData.html#ab9083ec244e63967e3154f60a075be4f">   61</a></span>&#160;<a class="code" href="classpascinference_1_1QPData.html#ab9083ec244e63967e3154f60a075be4f">QPData&lt;VectorBase&gt;::QPData</a>(){</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(QPData)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(QPData)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="comment">/* set initial content */</span></div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    this-&gt;A = NULL;</div>
@@ -170,7 +170,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">/* destructor */</span></div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00075"></a><span class="lineno"><a class="line" href="classpascinference_1_1QPData.html#aa6d53f80a48147fe11e61a99c1ba9659">   75</a></span>&#160;<a class="code" href="classpascinference_1_1QPData.html#aa6d53f80a48147fe11e61a99c1ba9659">QPData&lt;VectorBase&gt;::~QPData</a>(){</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(QPData)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(QPData)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    </div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;}</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
@@ -178,83 +178,83 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">/* print info about problem */</span></div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00083"></a><span class="lineno"><a class="line" href="classpascinference_1_1QPData.html#a70d8062c1ec1e977ee1f0713a5fd9f93">   83</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1QPData.html#a70d8062c1ec1e977ee1f0713a5fd9f93">QPData&lt;VectorBase&gt;::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    output &lt;&lt; this-&gt;get_name() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    </div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="comment">/* give information about presence of the data */</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - A:            &quot;</span>;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - A:            &quot;</span>;</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordflow">if</span>(this-&gt;A){</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;YES&quot;</span> &lt;&lt; std::endl; <span class="comment">// TODO: get matrix name </span></div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;NO&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    }</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - b:            &quot;</span>;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - b:            &quot;</span>;</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordflow">if</span>(this-&gt;b){</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;YES (size: &quot;</span> &lt;&lt; this-&gt;b-&gt;size() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;NO&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    }</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - x0:           &quot;</span>;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - x0:           &quot;</span>;</div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordflow">if</span>(this-&gt;x0){</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;YES (size: &quot;</span> &lt;&lt; this-&gt;x0-&gt;size() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;NO&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    }</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - x:            &quot;</span>;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - x:            &quot;</span>;</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordflow">if</span>(this-&gt;x0){</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;YES (size: &quot;</span> &lt;&lt; this-&gt;x-&gt;size() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;NO&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    }</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - feasible_set: &quot;</span>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - feasible_set: &quot;</span>;</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordflow">if</span>(this-&gt;feasibleset){</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;YES (&quot;</span> &lt;&lt; this-&gt;feasibleset-&gt;get_name() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;NO&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    }</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        </div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00121"></a><span class="lineno"><a class="line" href="classpascinference_1_1QPData.html#aaef85bc8a5b37fa714d30dd774489523">  121</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1QPData.html#aaef85bc8a5b37fa714d30dd774489523">QPData&lt;VectorBase&gt;::printcontent</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    output &lt;&lt; this-&gt;get_name() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    </div>
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="comment">/* give information about presence of the data */</span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - A:            &quot;</span>;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - A:            &quot;</span>;</div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <span class="keywordflow">if</span>(this-&gt;A){</div>
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        output &lt;&lt; *(this-&gt;A) &lt;&lt; std::endl; </div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;---&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    }</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - b:            &quot;</span>;</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - b:            &quot;</span>;</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordflow">if</span>(this-&gt;b){</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        output &lt;&lt; *(this-&gt;b) &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;---&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    }</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - x0:           &quot;</span>;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - x0:           &quot;</span>;</div>
 <div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="keywordflow">if</span>(this-&gt;x0){</div>
 <div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;        output &lt;&lt; *(this-&gt;x0) &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;---&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    }</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - x:            &quot;</span>;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - x:            &quot;</span>;</div>
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <span class="keywordflow">if</span>(this-&gt;x0){</div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;        output &lt;&lt; *(this-&gt;x) &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;---&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    }</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - feasible_set: &quot;</span>;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - feasible_set: &quot;</span>;</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordflow">if</span>(this-&gt;feasibleset){</div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;        output &lt;&lt; *(this-&gt;feasibleset) &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;---&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;        output &lt;&lt; <span class="stringliteral">&quot;not set&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    }</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        </div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;}</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00159"></a><span class="lineno"><a class="line" href="classpascinference_1_1QPData.html#a506c14ea56ead90743ae307439c0549b">  159</a></span>&#160;std::string <a class="code" href="classpascinference_1_1QPData.html#a506c14ea56ead90743ae307439c0549b">QPData&lt;VectorBase&gt;::get_name</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;QP Data&quot;</span>;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;QPData&quot;</span>;</div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;}</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="comment">/* ----- SET and GET functions --- */</span></div>
@@ -322,8 +322,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classpascinference_1_1QPData_html_a70d8062c1ec1e977ee1f0713a5fd9f93"><div class="ttname"><a href="classpascinference_1_1QPData.html#a70d8062c1ec1e977ee1f0713a5fd9f93">pascinference::QPData::print</a></div><div class="ttdeci">void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> qpdata.h:83</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html_a9419cdb48addbacec2a80bf7a194a9f1"><div class="ttname"><a href="classpascinference_1_1QPData.html#a9419cdb48addbacec2a80bf7a194a9f1">pascinference::QPData::set_feasibleset</a></div><div class="ttdeci">void set_feasibleset(GeneralFeasibleSet&lt; VectorBase &gt; *x0)</div><div class="ttdef"><b>Definition:</b> qpdata.h:205</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html_a352e1b189691b5ac76ed59bba57e0123"><div class="ttname"><a href="classpascinference_1_1QPData.html#a352e1b189691b5ac76ed59bba57e0123">pascinference::QPData::x0</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * x0</div><div class="ttdef"><b>Definition:</b> qpdata.h:21</div></div>
-<div class="ttc" id="qpdata_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="qpdata_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
+<div class="ttc" id="qpdata_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="qpdata_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html"><div class="ttname"><a href="classpascinference_1_1QPData.html">pascinference::QPData</a></div><div class="ttdef"><b>Definition:</b> qpdata.h:16</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html_aff289927faefb34f2906691a1f651c03"><div class="ttname"><a href="classpascinference_1_1QPData.html#aff289927faefb34f2906691a1f651c03">pascinference::QPData::feasibleset</a></div><div class="ttdeci">GeneralFeasibleSet&lt; VectorBase &gt; * feasibleset</div><div class="ttdef"><b>Definition:</b> qpdata.h:23</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html_aba8ab318d11fd86d357827dab3272306"><div class="ttname"><a href="classpascinference_1_1QPData.html#aba8ab318d11fd86d357827dab3272306">pascinference::QPData::get_x0</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * get_x0() const </div><div class="ttdef"><b>Definition:</b> qpdata.h:190</div></div>
@@ -335,7 +335,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="generaldata_8h_html"><div class="ttname"><a href="generaldata_8h.html">generaldata.h</a></div><div class="ttdoc">class for manipulation with data </div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html_aa6d53f80a48147fe11e61a99c1ba9659"><div class="ttname"><a href="classpascinference_1_1QPData.html#aa6d53f80a48147fe11e61a99c1ba9659">pascinference::QPData::~QPData</a></div><div class="ttdeci">~QPData()</div><div class="ttdef"><b>Definition:</b> qpdata.h:75</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html">pascinference::GeneralFeasibleSet</a></div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:20</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
+<div class="ttc" id="namespacepascinference_html_ac92cfd92ba9ae30db28ceb7cfb55fdd0"><div class="ttname"><a href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">pascinference::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout)</div></div>
+<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html_ac8637adfe39bb74c8b777768421e8ab3"><div class="ttname"><a href="classpascinference_1_1QPData.html#ac8637adfe39bb74c8b777768421e8ab3">pascinference::QPData::get_x</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * get_x() const </div><div class="ttdef"><b>Definition:</b> qpdata.h:200</div></div>
 <div class="ttc" id="classpascinference_1_1QPData_html_aaef85bc8a5b37fa714d30dd774489523"><div class="ttname"><a href="classpascinference_1_1QPData.html#aaef85bc8a5b37fa714d30dd774489523">pascinference::QPData::printcontent</a></div><div class="ttdeci">void printcontent(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> qpdata.h:121</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralData_html"><div class="ttname"><a href="classpascinference_1_1GeneralData.html">pascinference::GeneralData</a></div><div class="ttdef"><b>Definition:</b> generaldata.h:18</div></div>
@@ -347,7 +348,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

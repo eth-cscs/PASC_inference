@@ -1,7 +1,7 @@
 <map id="src/libpascinference.cu" name="src/libpascinference.cu">
 <area shape="rect" id="node2" href="$pascinference_8h.html" title="main header file " alt="" coords="501,80,616,107"/>
 <area shape="rect" id="node21" href="$common__impl_8h.html" title="impl/common_impl.h" alt="" coords="641,80,783,107"/>
-<area shape="rect" id="node10" href="$common_8h.html" title="commonly used stuff " alt="" coords="527,304,609,331"/>
+<area shape="rect" id="node10" href="$common_8h.html" title="commonly used stuff " alt="" coords="497,304,580,331"/>
 <area shape="rect" id="node13" href="$algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="227,229,301,256"/>
 <area shape="rect" id="node16" href="$generaldata_8h.html" title="class for manipulation with data " alt="" coords="681,229,781,256"/>
 <area shape="rect" id="node17" href="$generalsolver_8h.html" title="class for manipulation with solver " alt="" coords="457,155,567,181"/>

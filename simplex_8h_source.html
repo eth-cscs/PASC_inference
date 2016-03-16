@@ -168,7 +168,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">/* constructor */</span></div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00073"></a><span class="lineno"><a class="line" href="classpascinference_1_1SimplexFeasibleSet.html#a8de16d6b330bca987117d1ee53bba7a3">   73</a></span>&#160;<a class="code" href="classpascinference_1_1SimplexFeasibleSet.html#a8de16d6b330bca987117d1ee53bba7a3">SimplexFeasibleSet&lt;VectorBase&gt;::SimplexFeasibleSet</a>(<span class="keywordtype">int</span> Tnew, <span class="keywordtype">int</span> Knew){</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(SimplexFeasibleSet)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(SimplexFeasibleSet)CONSTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="comment">/* set initial content */</span></div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    this-&gt;T = Tnew;</div>
@@ -180,24 +180,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">/* destructor */</span></div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00085"></a><span class="lineno"><a class="line" href="classpascinference_1_1SimplexFeasibleSet.html#a86d7d1e965fa267eb5a3bf14ad6e7cf1">   85</a></span>&#160;<a class="code" href="classpascinference_1_1SimplexFeasibleSet.html#a86d7d1e965fa267eb5a3bf14ad6e7cf1">SimplexFeasibleSet&lt;VectorBase&gt;::~SimplexFeasibleSet</a>(){</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(SimplexFeasibleSet)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(SimplexFeasibleSet)DESTRUCTOR&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    </div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">/* print info about feasible set */</span></div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00092"></a><span class="lineno"><a class="line" href="classpascinference_1_1SimplexFeasibleSet.html#ad4b83cc61d445fcf382ffa9020560e1f">   92</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1SimplexFeasibleSet.html#ad4b83cc61d445fcf382ffa9020560e1f">SimplexFeasibleSet&lt;VectorBase&gt;::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    output &lt;&lt; this-&gt;get_name() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    </div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="comment">/* give information about presence of the data */</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - T:     &quot;</span> &lt;&lt; T &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    output &lt;&lt; <span class="stringliteral">&quot;  - K:     &quot;</span> &lt;&lt; K &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - T:     &quot;</span> &lt;&lt; T &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    output &lt;&lt;  <span class="stringliteral">&quot; - K:     &quot;</span> &lt;&lt; K &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        </div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;}</div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00102"></a><span class="lineno"><a class="line" href="classpascinference_1_1SimplexFeasibleSet.html#a44727fa819d3dfe0952e4ffb2fe77977">  102</a></span>&#160;std::string <a class="code" href="classpascinference_1_1SimplexFeasibleSet.html#a44727fa819d3dfe0952e4ffb2fe77977">SimplexFeasibleSet&lt;VectorBase&gt;::get_name</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;Simplex FeasibleSet&quot;</span>;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;SimplexFeasibleSet&quot;</span>;</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;}</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
@@ -206,7 +206,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor">#ifdef USE_MINLIN</span></div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1SimplexFeasibleSet.html#a8ea682d192f7ddf51a7e66932a658765">SimplexFeasibleSet&lt;HostMinLinVector&gt;::project</a>(<a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;HostMinLinVector&gt;</a> &amp;x) {</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(SimplexFeasibleSet)FUNCTION: project HostMinLinVector&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(SimplexFeasibleSet)FUNCTION: project HostMinLinVector&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">int</span> t,k;</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">double</span> x_sub[K];  <span class="comment">/* GammaVector x_sub(K); */</span></div>
@@ -458,101 +458,98 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;</div>
 <div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;    <span class="comment">/* initialization - how much I will compute? */</span></div>
 <div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;    <span class="keywordflow">if</span>(!this-&gt;petsc_projection_init){</div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;        <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100){</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;            <a class="code" href="namespacepascinference.html#aba1ce0c90e409c2baf7c0d9adfcecd00">Message</a>(<span class="stringliteral">&quot;  - initialization of projection&quot;</span>);</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;        }</div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;        </div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;        this-&gt;petsc_projection_init = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;        </div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;        <span class="comment">/* try to make a global vector of length T and then get the indexes of begin and end of local portion */</span></div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;        GlobalPetscVector TVector(T);</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;</div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;        this-&gt;petsc_projection_init = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;        </div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;        <span class="comment">/* try to make a global vector of length T and then get the indexes of begin and end of local portion */</span></div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;        GlobalPetscVector TVector(T);</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;        <span class="comment">/* get the ownership range - now I know how much I will calculate from the time-series */</span></div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;        TVector.get_ownership(&amp;(this-&gt;petsc_projection_Townership_low), &amp;(this-&gt;petsc_projection_Townership_high));</div>
 <div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;</div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;        <span class="comment">/* get the ownership range - now I know how much I will calculate from the time-series */</span></div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;        TVector.get_ownership(&amp;(this-&gt;petsc_projection_Townership_low), &amp;(this-&gt;petsc_projection_Townership_high));</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;        <span class="comment">/* destroy testing vector - it is useless now */</span></div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;<span class="comment">//      delete &amp;TVector;</span></div>
 <div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;</div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;        <span class="comment">/* destroy testing vector - it is useless now */</span></div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;<span class="comment">//      delete &amp;TVector;</span></div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;</div>
-<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;    }</div>
-<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;</div>
-<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100){</div>
-<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot;     my ownership: [&quot;</span> &lt;&lt; this-&gt;petsc_projection_Townership_low &lt;&lt; <span class="stringliteral">&quot;, &quot;</span> &lt;&lt; this-&gt;petsc_projection_Townership_high &lt;&lt; <span class="stringliteral">&quot;]&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;    }</div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;</div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;    <span class="keywordtype">int</span> t;</div>
-<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    Vec x_sub;</div>
-<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;    <span class="keywordtype">double</span> *x_sub_arr;</div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;    </div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;    Vec x_vec = x.get_vector();</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;    }</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;</div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100){</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;        <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;     my ownership: [&quot;</span> &lt;&lt; this-&gt;petsc_projection_Townership_low &lt;&lt; <span class="stringliteral">&quot;, &quot;</span> &lt;&lt; this-&gt;petsc_projection_Townership_high &lt;&lt; <span class="stringliteral">&quot;]&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;    }</div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;</div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;    <span class="keywordtype">int</span> t;</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;    Vec x_sub;</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;    <span class="keywordtype">double</span> *x_sub_arr;</div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;    </div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    Vec x_vec = x.get_vector();</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;</div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;    <span class="comment">/* go throught local portion of time-serie and perform the projection */</span></div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;    <span class="keywordflow">for</span>(t = this-&gt;petsc_projection_Townership_low; t &lt; this-&gt;petsc_projection_Townership_high; t++){</div>
 <div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;</div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;    <span class="comment">/* go throught local portion of time-serie and perform the projection */</span></div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;    <span class="keywordflow">for</span>(t = this-&gt;petsc_projection_Townership_low; t &lt; this-&gt;petsc_projection_Townership_high; t++){</div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;        <span class="comment">/* prepare index set [low, low + T, ... , low + (K-1)*T ] */</span></div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;        ISCreateStride(PETSC_COMM_SELF, this-&gt;K, this-&gt;petsc_projection_Townership_low + t, this-&gt;T, &amp;(this-&gt;petsc_projection_is));</div>
 <div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;</div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;        <span class="comment">/* prepare index set [low, low + T, ... , low + (K-1)*T ] */</span></div>
-<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;        ISCreateStride(PETSC_COMM_SELF, this-&gt;K, this-&gt;petsc_projection_Townership_low + t, this-&gt;T, &amp;(this-&gt;petsc_projection_is));</div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;        <span class="comment">/* get the subvector from global vector */</span></div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;        TRY( VecGetSubVector(x_vec,petsc_projection_is, &amp;x_sub) );</div>
 <div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;        <span class="comment">/* get the subvector from global vector */</span></div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;        TRY( VecGetSubVector(x_vec,petsc_projection_is, &amp;x_sub) );</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;        <span class="comment">/* get the array */</span></div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;        TRY( VecGetArray(x_sub, &amp;x_sub_arr) );</div>
 <div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;</div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;        <span class="comment">/* get the array */</span></div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;        TRY( VecGetArray(x_sub, &amp;x_sub_arr) );</div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;        <span class="comment">/* perform the projection on this subvector */</span></div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;        get_projection_sub(x_sub_arr, this-&gt;K);</div>
 <div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;        <span class="comment">/* perform the projection on this subvector */</span></div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;        get_projection_sub(x_sub_arr, this-&gt;K);</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;        <span class="comment">/* print the array of subvector */</span></div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;        <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100){</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;            <span class="keywordtype">int</span> i;</div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot;      xsub_&quot;</span> &lt;&lt; t &lt;&lt; <span class="stringliteral">&quot; = [ &quot;</span>;</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;            <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;K;i++){</div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;                std::cout &lt;&lt; x_sub_arr[i];</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;                <span class="keywordflow">if</span>(i &lt; this-&gt;K-1) std::cout &lt;&lt; <span class="stringliteral">&quot;, &quot;</span>;</div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;            }</div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;            std::cout &lt;&lt; <span class="stringliteral">&quot; ]&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;        }</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;        <span class="comment">/* print the array of subvector */</span></div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;        <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100){</div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;            <span class="keywordtype">int</span> i;</div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;      xsub_&quot;</span> &lt;&lt; t &lt;&lt; <span class="stringliteral">&quot; = [ &quot;</span>;</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;            <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;K;i++){</div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;                <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; x_sub_arr[i];</div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;                <span class="keywordflow">if</span>(i &lt; this-&gt;K-1) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;, &quot;</span>;</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;            }</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;            <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot; ]&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;        }</div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;        <span class="comment">/* restore the array */</span></div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;        TRY( VecRestoreArray(x_sub, &amp;x_sub_arr) );</div>
 <div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;</div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;        <span class="comment">/* restore the array */</span></div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;        TRY( VecRestoreArray(x_sub, &amp;x_sub_arr) );</div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;        TRY( VecRestoreSubVector(x_vec,petsc_projection_is, &amp;x_sub) );</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;</div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;        <span class="comment">//TODO: deal with x_sub</span></div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;        TRY( ISDestroy(&amp;petsc_projection_is) );</div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;    }</div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;    x.valuesUpdate();</div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;    </div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;}</div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;        TRY( VecRestoreSubVector(x_vec,petsc_projection_is, &amp;x_sub) );</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;</div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;        <span class="comment">//TODO: deal with x_sub</span></div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;        TRY( ISDestroy(&amp;petsc_projection_is) );</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;    }</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;    x.valuesUpdate();</div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;    </div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;}</div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;</div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;</div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;</div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;} <span class="comment">/* end namespace */</span></div>
 <div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;</div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;</div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;} <span class="comment">/* end namespace */</span></div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;</div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_a16365beca135da5a4d18c046eeb72971"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#a16365beca135da5a4d18c046eeb72971">pascinference::SimplexFeasibleSet::sort_bubble</a></div><div class="ttdeci">void sort_bubble(double *x, int n)</div><div class="ttdef"><b>Definition:</b> simplex.h:209</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_a793bc1c2230d6ae8337acb3de2213202"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#a793bc1c2230d6ae8337acb3de2213202">pascinference::SimplexFeasibleSet::T</a></div><div class="ttdeci">int T</div><div class="ttdef"><b>Definition:</b> simplex.h:50</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_a8ea682d192f7ddf51a7e66932a658765"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#a8ea682d192f7ddf51a7e66932a658765">pascinference::SimplexFeasibleSet::project</a></div><div class="ttdeci">void project(GeneralVector&lt; VectorBase &gt; &amp;x)</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_a86d7d1e965fa267eb5a3bf14ad6e7cf1"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#a86d7d1e965fa267eb5a3bf14ad6e7cf1">pascinference::SimplexFeasibleSet::~SimplexFeasibleSet</a></div><div class="ttdeci">~SimplexFeasibleSet()</div><div class="ttdef"><b>Definition:</b> simplex.h:85</div></div>
 <div class="ttc" id="algebra_8h_html"><div class="ttname"><a href="algebra_8h.html">algebra.h</a></div><div class="ttdoc">manipulation with vectors and matrices </div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_a44727fa819d3dfe0952e4ffb2fe77977"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#a44727fa819d3dfe0952e4ffb2fe77977">pascinference::SimplexFeasibleSet::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdef"><b>Definition:</b> simplex.h:102</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html">pascinference::SimplexFeasibleSet</a></div><div class="ttdef"><b>Definition:</b> simplex.h:31</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_aef4453a3d308c409b1f267d750e22f75"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#aef4453a3d308c409b1f267d750e22f75">pascinference::SimplexFeasibleSet::get_projection_sub</a></div><div class="ttdeci">void get_projection_sub(double *x_sub, int n)</div><div class="ttdef"><b>Definition:</b> simplex.h:140</div></div>
-<div class="ttc" id="simplex_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="simplex_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
+<div class="ttc" id="simplex_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="simplex_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
 <div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_a8de16d6b330bca987117d1ee53bba7a3"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#a8de16d6b330bca987117d1ee53bba7a3">pascinference::SimplexFeasibleSet::SimplexFeasibleSet</a></div><div class="ttdeci">SimplexFeasibleSet(int T, int K)</div><div class="ttdef"><b>Definition:</b> simplex.h:73</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html">pascinference::GeneralFeasibleSet</a></div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:20</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
+<div class="ttc" id="namespacepascinference_html_ac92cfd92ba9ae30db28ceb7cfb55fdd0"><div class="ttname"><a href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">pascinference::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout)</div></div>
+<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_adab4e8c4df0d8c289b24646d1fad14ec"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#adab4e8c4df0d8c289b24646d1fad14ec">pascinference::SimplexFeasibleSet::K</a></div><div class="ttdeci">int K</div><div class="ttdef"><b>Definition:</b> simplex.h:51</div></div>
 <div class="ttc" id="classpascinference_1_1SimplexFeasibleSet_html_ad4b83cc61d445fcf382ffa9020560e1f"><div class="ttname"><a href="classpascinference_1_1SimplexFeasibleSet.html#ad4b83cc61d445fcf382ffa9020560e1f">pascinference::SimplexFeasibleSet::print</a></div><div class="ttdeci">void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> simplex.h:92</div></div>
-<div class="ttc" id="namespacepascinference_html_aba1ce0c90e409c2baf7c0d9adfcecd00"><div class="ttname"><a href="namespacepascinference.html#aba1ce0c90e409c2baf7c0d9adfcecd00">pascinference::Message</a></div><div class="ttdeci">void Message(std::string text)</div><div class="ttdef"><b>Definition:</b> common_impl.h:32</div></div>
 <div class="ttc" id="generalfeasibleset_8h_html"><div class="ttname"><a href="generalfeasibleset_8h.html">generalfeasibleset.h</a></div><div class="ttdoc">class for manipulation with feasible set </div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

@@ -1,8 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpascinference_1_1GeneralSolver.html" title="pascinference::GeneralSolver" alt="" coords="5,78,199,105"/>
-<area shape="rect" id="node2" href="$classpascinference_1_1DiagSolver.html" title="pascinference::DiagSolver\l\&lt; VectorBase \&gt;" alt="" coords="247,5,421,47"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1QPSolver.html" title="pascinference::QPSolver\l\&lt; VectorBase \&gt;" alt="" coords="251,71,417,112"/>
-<area shape="rect" id="node6" href="$classpascinference_1_1TSSolver.html" title="pascinference::TSSolver\l\&lt; VectorBase \&gt;" alt="" coords="251,136,417,177"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1CGQPSolver.html" title="pascinference::CGQPSolver\l\&lt; VectorBase \&gt;" alt="" coords="473,39,660,80"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1SPGQPSolver.html" title="pascinference::SPGQPSolver\l\&lt; VectorBase \&gt;" alt="" coords="469,104,664,145"/>
+<area shape="rect" id="node1" href="$classpascinference_1_1GeneralModel.html" title="General class for manipulation with models. " alt="" coords="5,13,196,39"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1TSModel.html" title="General class for manipulation with time&#45;series models. " alt="" coords="244,5,407,47"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1KmeansH1Model.html" title="pascinference::KmeansH1Model\l\&lt; VectorBase \&gt;" alt="" coords="455,5,665,47"/>
 </map>

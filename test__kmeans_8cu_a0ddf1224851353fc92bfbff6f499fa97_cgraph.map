@@ -1,15 +1,14 @@
 <map id="main" name="main">
-<area shape="rect" id="node2" href="$namespacepascinference.html#a1519b3fa6fb92d8a15489d6c04b8a3f4" title="initialize the library " alt="" coords="107,5,265,32"/>
-<area shape="rect" id="node3" href="$namespacepascinference.html#aba1ce0c90e409c2baf7c0d9adfcecd00" title="pascinference::Message" alt="" coords="104,56,268,83"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1example_1_1KMeans2D.html#a45c3d0f3177fe8144e8e065711fe0c2d" title="sample generator " alt="" coords="106,107,266,149"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1TSData.html#a9110070e118fe4280c163390f5c7924d" title="pascinference::TSData\l::get_datavector" alt="" coords="108,173,264,214"/>
-<area shape="rect" id="node6" href="$classpascinference_1_1example_1_1KMeans2D.html#a147cba5e896b626e08ccb121687d5549" title="save results into VTK file " alt="" coords="106,238,266,279"/>
-<area shape="rect" id="node13" href="$classpascinference_1_1TSData.html#a11d12a4adeace1195b037a4c1d705e3e" title="pascinference::TSData\l::get_gammavector" alt="" coords="108,303,264,345"/>
-<area shape="rect" id="node14" href="$namespacepascinference.html#a18614c935abea5205bada66a34cc0a7f" title="finalize the library " alt="" coords="108,369,264,396"/>
-<area shape="rect" id="node7" href="$classpascinference_1_1Timer.html#a41013fdd5f5e49126a117ef34bfeddd2" title="restart the timer " alt="" coords="326,107,470,149"/>
-<area shape="rect" id="node8" href="$classpascinference_1_1Timer.html#aab3bca7b9bf284b7b47a2c71f09e6c85" title="start the timer " alt="" coords="326,173,470,214"/>
-<area shape="rect" id="node10" href="$classpascinference_1_1Timer.html#ab091033f7f9c087cdc357bc1f3466252" title="store actual time " alt="" coords="326,238,470,279"/>
-<area shape="rect" id="node11" href="$namespacepascinference.html#a0a868afed201d4febf3fe89dfe163af7" title="pascinference::Message\l_info_time" alt="" coords="316,303,480,345"/>
-<area shape="rect" id="node12" href="$classpascinference_1_1Timer.html#a6291bfacc12d084fd301460e7de29762" title="sum of timer calls " alt="" coords="326,369,470,410"/>
-<area shape="rect" id="node9" href="$classpascinference_1_1Timer.html#a4cb276aa53a4632831a56d49bdfce7e8" title="get actual time " alt="" coords="528,206,672,247"/>
+<area shape="rect" id="node2" href="$namespacepascinference.html#a1519b3fa6fb92d8a15489d6c04b8a3f4" title="initialize the library " alt="" coords="105,5,263,32"/>
+<area shape="rect" id="node3" href="$namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0" title="pascinference::coutMaster" alt="" coords="312,73,488,100"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1example_1_1KMeans2D.html#a45c3d0f3177fe8144e8e065711fe0c2d" title="sample generator " alt="" coords="104,107,264,149"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1TSData.html#a9110070e118fe4280c163390f5c7924d" title="pascinference::TSData\l::get_datavector" alt="" coords="106,173,262,214"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1example_1_1KMeans2D.html#a147cba5e896b626e08ccb121687d5549" title="save results into VTK file " alt="" coords="104,238,264,279"/>
+<area shape="rect" id="node12" href="$classpascinference_1_1TSData.html#a11d12a4adeace1195b037a4c1d705e3e" title="pascinference::TSData\l::get_gammavector" alt="" coords="106,303,262,345"/>
+<area shape="rect" id="node13" href="$namespacepascinference.html#a18614c935abea5205bada66a34cc0a7f" title="finalize the library " alt="" coords="106,369,262,396"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1Timer.html#a41013fdd5f5e49126a117ef34bfeddd2" title="restart the timer " alt="" coords="328,157,472,198"/>
+<area shape="rect" id="node8" href="$classpascinference_1_1Timer.html#aab3bca7b9bf284b7b47a2c71f09e6c85" title="start the timer " alt="" coords="328,222,472,263"/>
+<area shape="rect" id="node10" href="$classpascinference_1_1Timer.html#ab091033f7f9c087cdc357bc1f3466252" title="store actual time " alt="" coords="328,287,472,329"/>
+<area shape="rect" id="node11" href="$classpascinference_1_1Timer.html#a44e04e0987baef82760c57249ebecc0b" title="sum of timer calls " alt="" coords="328,353,472,394"/>
+<area shape="rect" id="node9" href="$classpascinference_1_1Timer.html#a4cb276aa53a4632831a56d49bdfce7e8" title="get actual time " alt="" coords="536,255,680,297"/>
 </map>

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['run_5for_5fnot',['run_or_not',['../classpascinference_1_1Timer.html#aae60148d13c69b56a2d6e0813bcf2381',1,'pascinference::Timer']]]
+  ['offset',['offset',['../namespacepascinference.html#a50bb51bf80b400c8aa789674ab35db31',1,'pascinference']]],
+  ['output',['output',['../classpascinference_1_1ConsoleOutput_1_1ConsoleOutputBuf.html#ac05fcee10f1a94d07e505d13eb562448',1,'pascinference::ConsoleOutput::ConsoleOutputBuf']]]
 ];

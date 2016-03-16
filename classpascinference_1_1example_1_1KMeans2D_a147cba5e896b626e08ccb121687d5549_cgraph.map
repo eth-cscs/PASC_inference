@@ -1,8 +1,8 @@
 <map id="pascinference::example::KMeans2D::saveVTK" name="pascinference::example::KMeans2D::saveVTK">
-<area shape="rect" id="node2" href="$classpascinference_1_1Timer.html#a41013fdd5f5e49126a117ef34bfeddd2" title="restart the timer " alt="" coords="223,5,367,47"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1Timer.html#aab3bca7b9bf284b7b47a2c71f09e6c85" title="start the timer " alt="" coords="223,71,367,112"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1Timer.html#ab091033f7f9c087cdc357bc1f3466252" title="store actual time " alt="" coords="223,136,367,177"/>
-<area shape="rect" id="node6" href="$namespacepascinference.html#a0a868afed201d4febf3fe89dfe163af7" title="pascinference::Message\l_info_time" alt="" coords="213,201,377,243"/>
-<area shape="rect" id="node7" href="$classpascinference_1_1Timer.html#a6291bfacc12d084fd301460e7de29762" title="sum of timer calls " alt="" coords="223,267,367,308"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1Timer.html#a4cb276aa53a4632831a56d49bdfce7e8" title="get actual time " alt="" coords="425,104,569,145"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1Timer.html#a41013fdd5f5e49126a117ef34bfeddd2" title="restart the timer " alt="" coords="229,5,373,47"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1Timer.html#aab3bca7b9bf284b7b47a2c71f09e6c85" title="start the timer " alt="" coords="229,71,373,112"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1Timer.html#ab091033f7f9c087cdc357bc1f3466252" title="store actual time " alt="" coords="229,136,373,177"/>
+<area shape="rect" id="node6" href="$namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0" title="pascinference::coutMaster" alt="" coords="213,202,389,229"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1Timer.html#a44e04e0987baef82760c57249ebecc0b" title="sum of timer calls " alt="" coords="229,253,373,295"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1Timer.html#a4cb276aa53a4632831a56d49bdfce7e8" title="get actual time " alt="" coords="437,104,581,145"/>
 </map>

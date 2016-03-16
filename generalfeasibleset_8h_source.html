@@ -129,14 +129,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">/* general print, call virtual print() */</span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase2&gt;</div>
 <div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a0b2a21b07766d482942dfa14e2b8dd7d">   42</a></span>&#160;std::ostream &amp;operator&lt;&lt;(std::ostream &amp;output, const GeneralFeasibleSet&lt;VectorBase2&gt; &amp;feasibleset){</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) std::cout &lt;&lt; <span class="stringliteral">&quot;(GeneralFeasibleSet)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    feasibleset.print(output);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt;  <span class="stringliteral">&quot;(GeneralFeasibleSet)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    output &lt;&lt; feasibleset.get_name();</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordflow">return</span> output;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralFeasibleSet.html#a652e50dc25bd4e57f284aa33bd135e9f">   49</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#a652e50dc25bd4e57f284aa33bd135e9f">GeneralFeasibleSet&lt;VectorBase&gt;::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    output &lt;&lt; this-&gt;get_name() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;}</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
@@ -152,18 +152,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_a184d08a5cf98caa47d244f9cd42817cd"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#a184d08a5cf98caa47d244f9cd42817cd">pascinference::GeneralFeasibleSet::project</a></div><div class="ttdeci">virtual void project(GeneralVector&lt; VectorBase &gt; &amp;x)</div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:31</div></div>
 <div class="ttc" id="algebra_8h_html"><div class="ttname"><a href="algebra_8h.html">algebra.h</a></div><div class="ttdoc">manipulation with vectors and matrices </div></div>
 <div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_a652e50dc25bd4e57f284aa33bd135e9f"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#a652e50dc25bd4e57f284aa33bd135e9f">pascinference::GeneralFeasibleSet::print</a></div><div class="ttdeci">virtual void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:49</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
+<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
 <div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_ab6e2d811f9dd23ef07a5a32e9b431dc5"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#ab6e2d811f9dd23ef07a5a32e9b431dc5">pascinference::GeneralFeasibleSet::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:54</div></div>
 <div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html">pascinference::GeneralFeasibleSet</a></div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:20</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:26</div></div>
+<div class="ttc" id="namespacepascinference_html_ac92cfd92ba9ae30db28ceb7cfb55fdd0"><div class="ttname"><a href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">pascinference::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout)</div></div>
+<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
 <div class="ttc" id="common_8h_html"><div class="ttname"><a href="common_8h.html">common.h</a></div><div class="ttdoc">commonly used stuff </div></div>
 <div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_a6c460770818b7408e2bbec12e516a973"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#a6c460770818b7408e2bbec12e516a973">pascinference::GeneralFeasibleSet::GeneralFeasibleSet</a></div><div class="ttdeci">GeneralFeasibleSet()</div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:25</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Mon Mar 14 2016 13:15:35 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>
