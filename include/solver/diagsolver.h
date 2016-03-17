@@ -10,7 +10,7 @@ extern int DEBUG_MODE;
 
 #include "data/diagdata.h"
 
-#define DIAGSOLVER_DEFAULT_DEBUG_MODE 100;
+#define DIAGSOLVER_DEFAULT_DEBUG_MODE 0;
 
 namespace pascinference {
 

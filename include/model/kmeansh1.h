@@ -300,11 +300,11 @@ void KmeansH1Model<GlobalPetscVector>::update_gammasolver(GeneralSolver *gammaso
 	double temp_dot1,temp_dot2,temp_dot3;
 	
 	for(t=0;t<T;t++){
-		TRY( ISCreateStride(PETSC_COMM_SELF, dim, t, T, &isdata_n));
+		TRY( ISCreateStride(PETSC_COMM_WORLD, dim, t, T, &isdata_n));
 		TRY( VecGetSubVector(data.get_vector(),isdata_n, &data_n) );
 
 		for(k=0;k<K;k++){
-			TRY( ISCreateStride(PETSC_COMM_SELF, dim, k*dim, 1, &istheta_n));
+			TRY( ISCreateStride(PETSC_COMM_WORLD, dim, k*dim, 1, &istheta_n));
 			TRY( VecGetSubVector(theta.get_vector(),istheta_n, &theta_n) );
 
 			/* dot(data_n - theta_n,data_n - theta_n) */
@@ -349,7 +349,7 @@ void KmeansH1Model<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetaso
 
 	for(k=0;k<K;k++){
 
-		TRY( ISCreateStride(PETSC_COMM_SELF, T, k*T, 1, &is));
+		TRY( ISCreateStride(PETSC_COMM_WORLD, T, k*T, 1, &is));
 		TRY( VecGetSubVector(gamma.get_vector(),is, &temp1) );
 
 		/* compute sum of gamma[k] */
@@ -362,7 +362,7 @@ void KmeansH1Model<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetaso
 
 		for(i=0;i<this->dim;i++){
 
-			TRY( ISCreateStride(PETSC_COMM_SELF, T, i*T, 1, &is2));
+			TRY( ISCreateStride(PETSC_COMM_WORLD, T, i*T, 1, &is2));
 			TRY( VecGetSubVector(data.get_vector(),is2, &temp2) );
 
 			TRY( VecDot(temp1, temp2, &gTd) );
