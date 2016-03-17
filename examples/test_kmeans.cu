@@ -73,14 +73,12 @@ int main( int argc, char *argv[] )
 	TSSolver<Global> mysolver(mydata);
 
 	mysolver.setting.maxit = 50;
-	mysolver.setting.debug_mode = 10;
+	mysolver.setting.debug_mode = 0;
 
 	/* solve the problem */
 	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-pascinference::DEBUG_MODE = 100;
 	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
-pascinference::DEBUG_MODE = 0;
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;

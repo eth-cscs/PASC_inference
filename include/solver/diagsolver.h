@@ -10,6 +10,7 @@ extern int DEBUG_MODE;
 
 #include "data/diagdata.h"
 
+#define DIAGSOLVER_DEFAULT_DEBUG_MODE 100;
 
 namespace pascinference {
 
@@ -17,11 +18,13 @@ namespace pascinference {
 class DiagSolverSetting : public GeneralSolverSetting {
 	public:
 		DiagSolverSetting() {
+			this->debug_mode = DIAGSOLVER_DEFAULT_DEBUG_MODE;
 		};
 		~DiagSolverSetting() {};
 
 		virtual void print(std::ostream &output) const {
 			output <<  this->get_name() << std::endl;
+			output <<  " - debug_mode: " << this->debug_mode << std::endl;
 		};
 
 		std::string get_name() const {
@@ -69,27 +72,29 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 DiagSolver<VectorBase>::DiagSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)CONSTRUCTOR" << std::endl;
+	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)CONSTRUCTOR" << std::endl;
 	
 	diagdata = NULL;
 }
 
 template<class VectorBase>
 DiagSolver<VectorBase>::DiagSolver(DiagData<VectorBase> &new_diagdata){
+	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)CONSTRUCTOR from data" << std::endl;
+
 	diagdata = &new_diagdata;
 }
 
 /* destructor */
 template<class VectorBase>
 DiagSolver<VectorBase>::~DiagSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)DESTRUCTOR" << std::endl;
+	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)DESTRUCTOR" << std::endl;
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void DiagSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: print" << std::endl;
+	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: print" << std::endl;
 
 	output <<  this->get_name() << std::endl;
 	
@@ -110,7 +115,7 @@ void DiagSolver<VectorBase>::print(std::ostream &output) const {
 
 template<class VectorBase>
 void DiagSolver<VectorBase>::printstatus(std::ostream &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	if(this->setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
@@ -142,7 +147,7 @@ typedef petscvector::PetscVector PetscVector;
 /* Petsc: constructor from given right PetscVector */
 template<>
 void DiagSolver<PetscVector>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
+	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
 
@@ -166,7 +171,7 @@ typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 
 template<>
 void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
+	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
 
@@ -189,7 +194,7 @@ void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
 
 template<>
 void DiagSolver<MinlinDeviceVector>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
+	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
 

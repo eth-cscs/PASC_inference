@@ -91,7 +91,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 QPSolver<VectorBase>::QPSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << "(QPSolver)CONSTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)CONSTRUCTOR" << std::endl;
 	
 	qpdata = NULL;
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
@@ -111,7 +111,7 @@ QPSolver<VectorBase>::QPSolver(QPData<VectorBase> &new_qpdata){
 /* destructor */
 template<class VectorBase>
 QPSolver<VectorBase>::~QPSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << "(QPSolver)DESTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)DESTRUCTOR" << std::endl;
 
 	/* destroy child solver */
 	free(child_solver);
@@ -121,7 +121,7 @@ QPSolver<VectorBase>::~QPSolver(){
 /* print info about problem */
 template<class VectorBase>
 void QPSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(QPSolver)FUNCTION: print" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: print" << std::endl;
 
 	output <<  this->get_name() << std::endl;
 	
@@ -171,7 +171,7 @@ std::string QPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void QPSolver<VectorBase>::solve(SolverType solvertype) {
-	if(DEBUG_MODE >= 100) coutMaster << "(QPSolver)FUNCTION: solve" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: solve" << std::endl;
 
 	/* the child solver wasn't specified yet */
 	if(!child_solver){
@@ -184,24 +184,18 @@ void QPSolver<VectorBase>::solve(SolverType solvertype) {
 		if(solvertype == SOLVER_CG){
 			/* create new instance of CG Solver */
 			child_solver = new CGQPSolver<VectorBase>(*qpdata);
-		
-			/* copy settings */
-//			child_solver->setting.maxit = setting.maxit;
-//			child_solver->setting.eps = setting.eps;
-//			child_solver->setting.debug_mode = DEBUG_MODE;
 		}
 
 		/* prepare SPGQP solver */
 		if(solvertype == SOLVER_SPGQP){
 			/* create new instance of CG Solver */
 			child_solver = new SPGQPSolver<VectorBase>(*qpdata);
-		
-			/* copy settings */
-//			child_solver->setting.maxit = setting.maxit;
-//			child_solver->setting.eps = setting.eps;
-		
 		}
 	}
+
+	/* update settings of child solver */
+	child_solver->setting.debug_mode = setting.debug_mode;
+
 	/* now the child_solver should be specified and prepared */
 
 	/* call solve function to child solver */
@@ -211,14 +205,14 @@ void QPSolver<VectorBase>::solve(SolverType solvertype) {
 
 template<class VectorBase>
 double QPSolver<VectorBase>::get_fx() const {
-	if(DEBUG_MODE >= 100) coutMaster << "(QPSolver)FUNCTION: get_fx()" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_fx()" << std::endl;
 
 	return child_solver->get_fx(); // TODO: control existence
 }
 
 template<class VectorBase>
 int QPSolver<VectorBase>::get_it() const {
-	if(DEBUG_MODE >= 100) coutMaster << "(QPSolver)FUNCTION: get_function_value()" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_function_value()" << std::endl;
 
 	return child_solver->get_it(); // TODO: control existence
 }

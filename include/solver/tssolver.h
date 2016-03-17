@@ -264,13 +264,9 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		// TODO: give error - actually, gamma and theta solvers are created during constructor with tsdata - now we don't have tsdata, there is nothing to solve
 	}
 
-	/* which specific solver we can use to solve the problem? */
-	if(gammasolvertype == SOLVER_AUTO){
-			// TODO: here write sofisticated decision tree - maybe based on MODEL?
-	} 
-	if(thetasolvertype == SOLVER_AUTO){
-			// TODO: here write sofisticated decision tree - maybe based on MODEL?
-	} 
+	/* update settings of child solvers */ //TODO: this is not working at all
+	gammasolver->setting.debug_mode = setting.debug_mode;
+	thetasolver->setting.debug_mode = setting.debug_mode;
 
 	/* now the gammasolver and thetasolver should be specified and prepared */
 

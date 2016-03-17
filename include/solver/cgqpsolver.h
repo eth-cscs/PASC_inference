@@ -10,6 +10,7 @@ extern int DEBUG_MODE;
 
 #define CGQPSOLVER_DEFAULT_MAXIT 1000;
 #define CGQPSOLVER_DEFAULT_EPS 0.0001;
+#define CGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
 namespace pascinference {
 
@@ -19,7 +20,7 @@ class CGQPSolverSetting : public QPSolverSetting {
 		CGQPSolverSetting() {
 			this->maxit = CGQPSOLVER_DEFAULT_MAXIT;
 			this->eps = CGQPSOLVER_DEFAULT_EPS;
-			this->debug_mode = DEBUG_MODE;
+			this->debug_mode = CGQPSOLVER_DEFAULT_DEBUG_MODE;
 		};
 		~CGQPSolverSetting() {};
 
@@ -78,7 +79,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::CGQPSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)CONSTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)CONSTRUCTOR" << std::endl;
 
 	qpdata = NULL;
 	
@@ -104,7 +105,7 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
 /* destructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::~CGQPSolver(){
-	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)DESTRUCTOR" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)DESTRUCTOR" << std::endl;
 
 	/* free temp vectors */
 	free_temp_vectors();
@@ -134,7 +135,7 @@ void CGQPSolver<VectorBase>::free_temp_vectors(){
 /* print info about problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)FUNCTION: print" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: print" << std::endl;
 
 	output <<  this->get_name() << std::endl;
 	
@@ -161,7 +162,7 @@ std::string CGQPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::solve() {
-	if(DEBUG_MODE >= 100) coutMaster << "(CGQPSolver)FUNCTION: solve" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: solve" << std::endl;
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);

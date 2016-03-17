@@ -1,7 +1,6 @@
 #ifndef PASC_SPGQPSOLVER_H
 #define	PASC_SPGQPSOLVER_H
 
-extern int DEBUG_MODE;
 
 #include <iostream>
 #include <list>
@@ -13,6 +12,7 @@ extern int DEBUG_MODE;
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000;
 #define SPGQPSOLVER_DEFAULT_EPS 0.0001;
+#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 100;
 
 #define SPGQPSOLVER_DEFAULT_M 10;
 #define SPGQPSOLVER_DEFAULT_GAMMA 0.9;
@@ -30,9 +30,9 @@ class SPGQPSolverSetting : public QPSolverSetting {
 		double alphainit; /* initial step-size */
 
 		SPGQPSolverSetting() {
-			maxit = SPGQPSOLVER_DEFAULT_MAXIT;
-			eps = SPGQPSOLVER_DEFAULT_EPS;
-			debug_mode = DEBUG_MODE;
+			this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
+			this->eps = SPGQPSOLVER_DEFAULT_EPS;
+			this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
 
 			m = SPGQPSOLVER_DEFAULT_M;
 			gamma = SPGQPSOLVER_DEFAULT_GAMMA;
@@ -44,9 +44,9 @@ class SPGQPSolverSetting : public QPSolverSetting {
 
 		virtual void print(std::ostream &output) const {
 			output <<  this->get_name() << std::endl;
-			output <<  " - maxit:      " << maxit << std::endl;
-			output <<  " - eps:        " << eps << std::endl;
-			output <<  " - debug_mode: " << debug_mode << std::endl;
+			output <<  " - maxit:      " << this->maxit << std::endl;
+			output <<  " - eps:        " << this->eps << std::endl;
+			output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 			output <<  " - m:          " << m << std::endl;
 			output <<  " - gamma:      " << gamma << std::endl;
