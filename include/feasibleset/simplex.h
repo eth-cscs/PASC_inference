@@ -389,8 +389,8 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 
 	}
 
-	if(DEBUG_MODE >= 100 || true){
-		coutAll << "     my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
+	if(DEBUG_MODE >= 100){
+		coutAll << " my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
 	}
 
 	Vec x_sub;
@@ -411,9 +411,9 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		get_projection_sub(x_sub_arr, this->K);
 
 		/* print the array of subvector */
-		if(DEBUG_MODE >= 100 || true){
+		if(DEBUG_MODE >= 100){
 			int j;
-			coutAll << "      xsub_" << this->petsc_projection_Townership_low+i << " = [ ";
+			coutAll << " xsub_" << this->petsc_projection_Townership_low+i << " = [ ";
 			for(j=0;j<this->K;j++){
 				coutAll << x_sub_arr[j];
 				if(j < this->K-1) coutAll << ", ";
@@ -427,7 +427,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		TRY( VecRestoreSubVector(x_vec,petsc_projection_is[i], &x_sub) );
 
 		//TODO: deal with x_sub
-//		TRY( ISDestroy(&petsc_projection_is) );
+
 	}
 
 	x.valuesUpdate();

@@ -78,7 +78,9 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+pascinference::DEBUG_MODE = 100;
 	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
+pascinference::DEBUG_MODE = 0;
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
