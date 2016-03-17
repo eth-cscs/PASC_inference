@@ -315,7 +315,7 @@ class ConsoleOutput : public std::ostream {
 				
 				virtual int sync ( ){
 					set_rank();
-					if(this->rank == print_rank || this->rank == -1){
+					if(this->rank == print_rank || this->print_rank == -1){
 						#ifdef USE_PETSCVECTOR
 							/* write here also a rank of processor */
 							output << "[" << this->rank << "] " << offset << str();

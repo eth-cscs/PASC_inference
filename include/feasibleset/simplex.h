@@ -390,7 +390,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 	}
 
 	if(DEBUG_MODE >= 100 || true){
-		coutMaster << "     my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
+		coutAll << "     my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
 	}
 
 	Vec x_sub;
@@ -413,12 +413,12 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		/* print the array of subvector */
 		if(DEBUG_MODE >= 100 || true){
 			int j;
-			coutMaster << "      xsub_" << i << " = [ ";
+			coutAll << "      xsub_" << i << " = [ ";
 			for(j=0;j<this->K;j++){
-				coutMaster << x_sub_arr[j];
-				if(j < this->K-1) coutMaster << ", ";
+				coutAll << x_sub_arr[j];
+				if(j < this->K-1) coutAll << ", ";
 			}
-			coutMaster << " ]" << std::endl;
+			coutAll << " ]" << std::endl;
 		}
 
 		/* restore the array */
