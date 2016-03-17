@@ -80,7 +80,7 @@ SimplexFeasibleSet<VectorBase>::SimplexFeasibleSet(int Tnew, int Knew){
 	this->petsc_projection_init = false;
 }
 
-/* destructor */
+/* general destructor */
 template<class VectorBase>
 SimplexFeasibleSet<VectorBase>::~SimplexFeasibleSet(){
 	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)DESTRUCTOR" << std::endl;
@@ -413,7 +413,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		/* print the array of subvector */
 		if(DEBUG_MODE >= 100 || true){
 			int j;
-			coutAll << "      xsub_" << i << " = [ ";
+			coutAll << "      xsub_" << this->petsc_projection_Townership_low+i << " = [ ";
 			for(j=0;j<this->K;j++){
 				coutAll << x_sub_arr[j];
 				if(j < this->K-1) coutAll << ", ";
@@ -433,6 +433,27 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 	x.valuesUpdate();
 	
 }
+
+/* petsc specific destructor */
+template<>
+SimplexFeasibleSet<GlobalPetscVector>::~SimplexFeasibleSet(){
+	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)DESTRUCTOR" << std::endl;
+
+	/* destruction of index sets */
+	if(this->petsc_projection_init){
+		int i;
+		for(i =0; i<this->petsc_projection_Townership_high - this->petsc_projection_Townership_low;i++){
+			/* prepare index set [low, low + T, ... , low + (K-1)*T ] */
+			TRY( ISDestroy(&(this->petsc_projection_is[i])) );
+		}
+
+		/* projection was initialized */
+		this->petsc_projection_init = false;
+
+	}
+	
+}
+
 #endif
 
 
