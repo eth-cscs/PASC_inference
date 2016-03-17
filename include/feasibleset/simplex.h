@@ -35,7 +35,7 @@ class SimplexFeasibleSet: public GeneralFeasibleSet<VectorBase> {
 		
 		#ifdef USE_PETSCVECTOR
 			bool petsc_projection_init; /* if the initialization of projection was not performed, then = false */
-			IS petsc_projection_is; 
+			IS *petsc_projection_is; 
 			int petsc_projection_Townership_low, petsc_projection_Townership_high;
 		#endif
 
@@ -359,40 +359,50 @@ void SimplexFeasibleSet_kernel_get_projection_sub(double *x, int T, int K){
 template<>
 void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVector> &x) {
 
+	int i;
+
 	/* initialization - how much I will compute? */
 	if(!this->petsc_projection_init){
-
-		this->petsc_projection_init = true;
 		
+		Vec layout;
+
 		/* try to make a global vector of length T and then get the indexes of begin and end of local portion */
-		GlobalPetscVector TVector(T);
+		TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
+		TRY( VecSetSizes(layout,PETSC_DECIDE,this->T) );
+		TRY( VecSetFromOptions(layout) );
 
 		/* get the ownership range - now I know how much I will calculate from the time-series */
-		TVector.get_ownership(&(this->petsc_projection_Townership_low), &(this->petsc_projection_Townership_high));
+		TRY( VecGetOwnershipRange(layout, &(this->petsc_projection_Townership_low), &(this->petsc_projection_Townership_high)) );
 
 		/* destroy testing vector - it is useless now */
-//		delete &TVector;
+		TRY(VecDestroy(&layout));
+
+		/* create array index set of "my" indeces */
+		TRY( PetscMalloc((this->petsc_projection_Townership_high - this->petsc_projection_Townership_low)*sizeof(IS),&this->petsc_projection_is) );
+		for(i =0; i<this->petsc_projection_Townership_high - this->petsc_projection_Townership_low;i++){
+			/* prepare index set [low, low + T, ... , low + (K-1)*T ] */
+			TRY( ISCreateStride(PETSC_COMM_SELF, this->K, this->petsc_projection_Townership_low + i, this->T, &(this->petsc_projection_is[i])) );
+		}
+
+		/* projection was initialized */
+		this->petsc_projection_init = true;
 
 	}
 
-	if(DEBUG_MODE >= 100){
+	if(DEBUG_MODE >= 100 || true){
 		coutMaster << "     my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
 	}
 
-	int t;
 	Vec x_sub;
 	double *x_sub_arr;
 	
 	Vec x_vec = x.get_vector();
 
 	/* go throught local portion of time-serie and perform the projection */
-	for(t = this->petsc_projection_Townership_low; t < this->petsc_projection_Townership_high; t++){
-
-		/* prepare index set [low, low + T, ... , low + (K-1)*T ] */
-		ISCreateStride(PETSC_COMM_SELF, this->K, this->petsc_projection_Townership_low + t, this->T, &(this->petsc_projection_is));
+	for(i = 0; i < this->petsc_projection_Townership_high - this->petsc_projection_Townership_low; i++){
 
 		/* get the subvector from global vector */
-		TRY( VecGetSubVector(x_vec,petsc_projection_is, &x_sub) );
+		TRY( VecGetSubVector(x_vec,petsc_projection_is[i], &x_sub) );
 
 		/* get the array */
 		TRY( VecGetArray(x_sub, &x_sub_arr) );
@@ -401,12 +411,12 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		get_projection_sub(x_sub_arr, this->K);
 
 		/* print the array of subvector */
-		if(DEBUG_MODE >= 100){
-			int i;
-			coutMaster << "      xsub_" << t << " = [ ";
-			for(i=0;i<this->K;i++){
-				coutMaster << x_sub_arr[i];
-				if(i < this->K-1) coutMaster << ", ";
+		if(DEBUG_MODE >= 100 || true){
+			int j;
+			coutMaster << "      xsub_" << i << " = [ ";
+			for(j=0;j<this->K;j++){
+				coutMaster << x_sub_arr[j];
+				if(j < this->K-1) coutMaster << ", ";
 			}
 			coutMaster << " ]" << std::endl;
 		}
@@ -414,10 +424,10 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 		/* restore the array */
 		TRY( VecRestoreArray(x_sub, &x_sub_arr) );
 
-		TRY( VecRestoreSubVector(x_vec,petsc_projection_is, &x_sub) );
+		TRY( VecRestoreSubVector(x_vec,petsc_projection_is[i], &x_sub) );
 
 		//TODO: deal with x_sub
-		TRY( ISDestroy(&petsc_projection_is) );
+//		TRY( ISDestroy(&petsc_projection_is) );
 	}
 
 	x.valuesUpdate();

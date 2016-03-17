@@ -285,6 +285,7 @@ class ConsoleOutput : public std::ostream {
 			public:
 				int rank; /**< rank of this process */
 				bool rankset; /**< the rank was already obtained */
+				int print_rank; /**< which rank to print, -1 if all **/
 
 				ConsoleOutputBuf(std::ostream& str):output(str){
 				}
@@ -314,7 +315,7 @@ class ConsoleOutput : public std::ostream {
 				
 				virtual int sync ( ){
 					set_rank();
-					if(this->rank == 0){
+					if(this->rank == print_rank || this->rank == -1){
 						#ifdef USE_PETSCVECTOR
 							/* write here also a rank of processor */
 							output << "[" << this->rank << "] " << offset << str();
@@ -336,13 +337,14 @@ class ConsoleOutput : public std::ostream {
 
 	public:
 
-		/** @brief constructor from given output stream
+		/** @brief constructor from given output stream and rank
 		*
 		* @param std output stream (for example std::cout)
 		*/
-		ConsoleOutput(std::ostream& str) : std::ostream(&buffer), buffer(str) {
+		ConsoleOutput(std::ostream& str, int rank = -1) : std::ostream(&buffer), buffer(str) {
 			buffer.rankset = false;
 			buffer.set_rank();
+			buffer.print_rank = rank;
 		}
 
 		/** @brief increase the size of offset
@@ -361,7 +363,8 @@ class ConsoleOutput : public std::ostream {
 		
 };
 
-static ConsoleOutput coutMaster(std::cout); /**< instance of output console stream on master */
+static ConsoleOutput coutMaster(std::cout,0); /**< instance of output console stream on master */
+static ConsoleOutput coutAll(std::cout); /**< instance of output console stream on master */
 
 #ifdef USE_GPU
 	/* cuda error check */ 
