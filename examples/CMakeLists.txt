@@ -15,7 +15,8 @@ option(TEST_CG "TEST_CG" OFF)
 option(TEST_FILECRSMATRIX "TEST_FILECRSMATRIX" OFF)
 option(TEST_LAPLACEMATRIX "TEST_LAPLACEMATRIX" OFF)
 option(TEST_SPGQP "TEST_SPGQP" OFF)
-option(TEST_KMEANS "TEST_KMEANS" ON)
+option(TEST_KMEANS "TEST_KMEANS" OFF)
+option(TEST_VARX "TEST_VARX" ON)
 
 # include additional example headers
 include_directories("include")
@@ -71,14 +72,14 @@ if(${TEST_KMEANS})
 	endif()
 endif()
 
-
-
-
-
-
-
-
-
-
-
+if(${TEST_VARX})
+	# this is VARX test
+	if(${USE_CUDA})
+		# if we know how to compile .cu, then include .cu
+		pascadd_executable("test_varx.cu" "test_varx")
+	else()
+		# otherwise compile as .cpp
+		pascadd_executable("test_varx.cpp" "test_varx")
+	endif()
+endif()
 
