@@ -1,5 +1,5 @@
-#ifndef PASC_KMEANSH1MODEL_H
-#define	PASC_KMEANSH1MODEL_H
+#ifndef PASC_KMEANSH1FEMMODEL_H
+#define	PASC_KMEANSH1FEMMODEL_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -22,15 +22,15 @@ namespace pascinference {
 
 /* KMEANSH1MODEL */ 
 template<class VectorBase>
-class KmeansH1Model: public TSModel<VectorBase> {
+class KmeansH1FEMModel: public TSModel<VectorBase> {
 	protected:
 		QPData<VectorBase> *gammadata;
 		DiagData<VectorBase> *thetadata;
 
 		double penalty;
 	public:
-		KmeansH1Model(int T, int dim, int K, double penalty);
-		~KmeansH1Model();
+		KmeansH1FEMModel(int T, int dim, int K, double penalty);
+		~KmeansH1FEMModel();
 
 		void print(std::ostream &output) const;
 		std::string get_name() const;
@@ -63,8 +63,8 @@ namespace pascinference {
 
 /* constructor */
 template<class VectorBase>
-KmeansH1Model<VectorBase>::KmeansH1Model(int newT, int newdim, int newK, double penalty) {
-	if(DEBUG_MODE >= 100) coutMaster << "(KmeansH1Model)CONSTRUCTOR" << std::endl;
+KmeansH1FEMModel<VectorBase>::KmeansH1FEMModel(int newT, int newdim, int newK, double penalty) {
+	if(DEBUG_MODE >= 100) coutMaster << "(KmeansH1FEMModel)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = newT;
@@ -76,8 +76,8 @@ KmeansH1Model<VectorBase>::KmeansH1Model(int newT, int newdim, int newK, double 
 
 /* destructor */
 template<class VectorBase>
-KmeansH1Model<VectorBase>::~KmeansH1Model(){
-	if(DEBUG_MODE >= 100) coutMaster << "(KmeansH1Model)DESTRUCTOR" << std::endl;
+KmeansH1FEMModel<VectorBase>::~KmeansH1FEMModel(){
+	if(DEBUG_MODE >= 100) coutMaster << "(KmeansH1FEMModel)DESTRUCTOR" << std::endl;
 	
 	/* destroy auxiliary vectors */
 
@@ -86,7 +86,7 @@ KmeansH1Model<VectorBase>::~KmeansH1Model(){
 
 /* print info about problem */
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::print(std::ostream &output) const {
+void KmeansH1FEMModel<VectorBase>::print(std::ostream &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -99,32 +99,32 @@ void KmeansH1Model<VectorBase>::print(std::ostream &output) const {
 
 /* get name of the model */
 template<class VectorBase>
-std::string KmeansH1Model<VectorBase>::get_name() const {
+std::string KmeansH1FEMModel<VectorBase>::get_name() const {
 	return "KMEANS-H1 Time-Series Model";	
 }
 
 /* get the appropriate length of datavector */
 template<class VectorBase>
-int KmeansH1Model<VectorBase>::get_datavectorlength(){
+int KmeansH1FEMModel<VectorBase>::get_datavectorlength(){
 	return this->dim*this->T;
 }
 
 /* get the appropriate length of gammavector */
 template<class VectorBase>
-int KmeansH1Model<VectorBase>::get_gammavectorlength(){
+int KmeansH1FEMModel<VectorBase>::get_gammavectorlength(){
 	return this->K*this->T;
 }
 
 /* get the appropriate length of thetavector */
 template<class VectorBase>
-int KmeansH1Model<VectorBase>::get_thetavectorlength(){
+int KmeansH1FEMModel<VectorBase>::get_thetavectorlength(){
 	return this->K*this->dim;
 }
 
 
 /* prepare gamma solver */
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
+void KmeansH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
 	/* in this case, gamma problem is QP with simplex feasible set */
 	
 	/* create data */
@@ -148,7 +148,7 @@ void KmeansH1Model<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolv
 
 /* prepare theta solver */
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
+void KmeansH1FEMModel<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 	/* in this case, theta problem is system with diagonal matrix */
 	
 	/* create data */
@@ -164,7 +164,7 @@ void KmeansH1Model<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolv
 
 /* destroy gamma solver */
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
+void KmeansH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
 	/* I created this objects, I should destroy them */
 
 	/* destroy data */
@@ -180,7 +180,7 @@ void KmeansH1Model<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver
 
 /* destroy theta solver */
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
+void KmeansH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 	
 	/* destroy data */
 	free(thetadata->get_a());
@@ -193,7 +193,7 @@ void KmeansH1Model<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver
 }
 
 template<class VectorBase>
-double KmeansH1Model<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+double KmeansH1FEMModel<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	
 	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
 	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
@@ -201,7 +201,7 @@ double KmeansH1Model<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolve
 
 /* ---------------------- GENERAL ----------------------- */
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
+void KmeansH1FEMModel<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
 	/* update gamma_solver data - prepare new linear term */
 
 	typedef GeneralVector<VectorBase> (&pVector);
@@ -232,7 +232,7 @@ void KmeansH1Model<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, c
 
 /* update theta solver */
 template<class VectorBase>
-void KmeansH1Model<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+void KmeansH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	/* update theta solver - prepare new matrix vector and right-hand side vector */	
 	
 	typedef GeneralVector<VectorBase> (&pVector);
@@ -277,7 +277,7 @@ typedef petscvector::PetscVector GlobalPetscVector;
 
 /* update gamma solver */ //TODO: inplement for each type
 template<>
-void KmeansH1Model<GlobalPetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<GlobalPetscVector> *tsdata){
+void KmeansH1FEMModel<GlobalPetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<GlobalPetscVector> *tsdata){
 	/* update gamma_solver data - prepare new linear term */
 
 	typedef GeneralVector<GlobalPetscVector> (&pVector);
@@ -326,7 +326,7 @@ void KmeansH1Model<GlobalPetscVector>::update_gammasolver(GeneralSolver *gammaso
 
 /* update theta solver */
 template<>
-void KmeansH1Model<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<GlobalPetscVector> *tsdata){
+void KmeansH1FEMModel<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<GlobalPetscVector> *tsdata){
 	/* update theta solver - prepare new matrix vector and right-hand side vector */	
 	
 	typedef GeneralVector<GlobalPetscVector> (&pVector);

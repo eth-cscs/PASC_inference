@@ -9,7 +9,7 @@
 #include "pascinference.h"
 #include "solver/tssolver.h"
 #include "data/tsdata.h"
-#include "model/kmeansh1.h"
+#include "model/kmeansh1fem.h"
 
 #include "kmeans2D.h"
 
@@ -55,7 +55,7 @@ int main( int argc, char *argv[] )
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	KmeansH1Model<Global> mymodel(T, dim, K, penalty);
+	KmeansH1FEMModel<Global> mymodel(T, dim, K, penalty);
 	coutMaster << "Model: " << mymodel << std::endl;
 
 	/* prepare time-series data */
@@ -66,7 +66,7 @@ int main( int argc, char *argv[] )
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	example::KMeans2D<Global>::generate(T,K,mu,covariance,mydata.get_datavector());
-	mydata.printcontent(coutMaster);
+//	mydata.printcontent(coutMaster);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
