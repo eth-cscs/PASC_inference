@@ -1,5 +1,11 @@
-#ifndef SIMPLEXFEASIBLESET_H
-#define	SIMPLEXFEASIBLESET_H
+/** @file simplex.h
+ *  @brief simplex feasible set
+ *
+ *  @author Lukas Pospisil
+ */
+
+#ifndef PASC_SIMPLEXFEASIBLESET_H
+#define	PASC_SIMPLEXFEASIBLESET_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -27,29 +33,70 @@ namespace pascinference {
  *    x \geq 0
  *  \rbrace
  */  
+/** \class SimplexFeasibleSet
+ *  \brief class for manipulation with simplex set
+ *
+ *  Provides structure for manipulation with simplex feasible set, i.e.
+ * \f[
+ * \Omega = 
+ *  \lbrace x \in \mathbb{R}^{KT}: 
+ *    \sum\limits_{k=0}^{K-1} x_{t+kT} = 1, \forall t = 0,\dots,T-1 
+ *    x \geq 0
+ *  \rbrace
+ *	\f]
+ * 
+*/
 template<class VectorBase>
 class SimplexFeasibleSet: public GeneralFeasibleSet<VectorBase> {
 	private:
+		
+		/** @brief sort array using bubble sort
+		 * 
+		 * @param x array with values
+		 * @param n size of array
+		*/ 		
 		void sort_bubble(double *x, int n);
+
+		/** @brief compute projection to one simplex subset
+		 * 
+		 * @param x_sub values of subvector in array
+		 * @param n size of subvector
+		*/ 		
 		void get_projection_sub(double *x_sub, int n);
 		
 		#ifdef USE_PETSCVECTOR
-			bool petsc_projection_init; /* if the initialization of projection was not performed, then = false */
-			IS *petsc_projection_is; 
+			bool petsc_projection_init; /**< if the initialization of projection was not performed, then = false */
+			IS *petsc_projection_is; /**< array of indexsets with coeficient indexes */
 			int petsc_projection_Townership_low, petsc_projection_Townership_high;
 		#endif
 
 	public:
+		/** @brief default constructor
+		*/ 	
 		SimplexFeasibleSet(int T, int K);
+		
+		/** @brief default destructor
+		 */ 
 		~SimplexFeasibleSet();
 
+		/** @brief print properties of this feasible set
+		 * 
+		 * @param output where to print
+		 */ 
 		void print(std::ostream &output) const;
+
+		/** @brief get name of this feasible set
+		 */
 		virtual std::string get_name() const;
 
 		/* variables */
-		int T; 
-		int K; 
+		int T; /**< number of disjoint simplex subsets */
+		int K; /**< size of each simplex subset */
 		
+		/** @brief compute projection onto feasible set
+		 * 
+		 * @param x point which will be projected
+		 */		
 		void project(GeneralVector<VectorBase> &x);
 
 

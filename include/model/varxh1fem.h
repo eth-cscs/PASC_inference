@@ -42,6 +42,7 @@ class VarxH1FEMModel: public TSModel<VectorBase> {
 		int get_datavectorlength();
 		int get_gammavectorlength();
 		int get_thetavectorlength();
+		int get_ulength();
 		
 		void initialize_gammasolver(GeneralSolver **gamma_solver, const TSData<VectorBase> *tsdata);
 		void initialize_thetasolver(GeneralSolver **theta_solver, const TSData<VectorBase> *tsdata);
@@ -126,6 +127,12 @@ int VarxH1FEMModel<VectorBase>::get_gammavectorlength(){
 /* get the appropriate length of thetavector */
 template<class VectorBase>
 int VarxH1FEMModel<VectorBase>::get_thetavectorlength(){
+	return 0;//this->dim * (2 + this->dim) * this->K;
+}
+
+/* get the appropriate length of u vector */
+template<class VectorBase>
+int VarxH1FEMModel<VectorBase>::get_ulength(){
 	return 0;//this->dim * (2 + this->dim) * this->K;
 }
 

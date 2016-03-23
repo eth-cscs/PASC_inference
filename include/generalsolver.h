@@ -1,9 +1,6 @@
 /** @file generalsolver.h
  *  @brief class for manipulation with solver
  *
- *  Defines the parent class for manipulation with solvers - setting data, algorithm for solving the problem, return solution, etc.
- *  All specific solvers implementations should be defined as inherited classes from this class.
- *
  *  @author Lukas Pospisil
  */
 

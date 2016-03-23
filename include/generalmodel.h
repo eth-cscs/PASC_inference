@@ -1,9 +1,6 @@
 /** @file generalmodel.h
  *  @brief class for manipulation with models
  *
- *  Header file which defines the parent class for manipulation with models - additional information for solving the problem.
- *  All specific model implementations should be defined as inherited classes from this class.
- *
  *  @author Lukas Pospisil
  */
 

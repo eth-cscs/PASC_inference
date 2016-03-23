@@ -1,9 +1,6 @@
 /** @file generalsetting.h
  *  @brief general solver settings
  *
- *  Defines the parent class for manipulation with settings of the solver - i.e. number of iterations, precision, etc.
- *  All specific solvers implementations should contain a setting class defined as inherited classes from this class.
- *
  *  @author Lukas Pospisil
  */
 
@@ -20,6 +17,9 @@ namespace pascinference {
  *  Could be used to store any settings.
  *  Parent class for manipulation with settings.
  *  All specific settings implementations should be defined as inherited classes from this class.
+ * 
+ *  Defines the parent class for manipulation with settings of the solver - i.e. number of iterations, precision, etc.
+ *  All specific solvers implementations should contain a setting class defined as inherited classes from this class.
  * 
  */ 
 class GeneralSetting {

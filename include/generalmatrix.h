@@ -1,9 +1,6 @@
 /** @file generalmatrix.h
  *  @brief class for manipulation with matrices
  *
- *  Defines the parent class for manipulation with matrix - matrix-vector multiplication.
- *  All specific matrix type implementations should be defined as inherited classes from this class.
- *
  *  @author Lukas Pospisil
  */
 

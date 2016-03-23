@@ -95,10 +95,8 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBas
 	this->datavector = &datavector;
 	destroy_datavector = false; /* this datavector is not my */
 
-	if(u){
-		this->u = &u;
-		destroy_thetavector = false;
-	}
+	this->u = NULL;
+	destroy_u = false;
 
 	/* set new gammavector and thetavector */
 	// TODO: control compatibility with this->tsmodel->get_gammavectorlength(), this->tsmodel->get_thetavectorlength();
@@ -127,6 +125,9 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel){
 	if(u_length > 0){
 		this->u = new GeneralVector<VectorBase>(u_length);
 		destroy_u = true;
+	} else {
+		this->u = NULL;
+		destroy_u = false;
 	}
 	
 	int gammavector_length = this->tsmodel->get_gammavectorlength();

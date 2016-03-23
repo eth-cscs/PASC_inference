@@ -1,3 +1,9 @@
+/** @file diagdata.h
+ *  @brief class for manipulation with data for systems of linear equations with diagonal matrix
+ *
+ *  @author Lukas Pospisil
+ */
+ 
 #ifndef PASC_DIAGDATA_H
 #define	PASC_DIAGDATA_H
 
@@ -11,35 +17,89 @@ extern int DEBUG_MODE;
 namespace pascinference {
 
 /** class DiagData
- * @brief solve a.*x=b 
+ * @brief data of diag(a) x = b 
  * 
- * solve the system of linear equations with diagonal matrix
+ * Class for manipulation with data of systems of linear equations with diagonal matrix.
+ *  \f[
+ *  \left[
+ *   \begin{array}{ccc}
+ *    a_1 & & \\
+ *    & \ddots & \\
+ *    & & a_n
+ *   \end{array}
+ *  \right]
+ *  \left[
+ *   \begin{array}{c}
+ *    x_1 \\
+ *    \vdots \\
+ *    x_n
+ *   \end{array}
+ *  \right] =
+ *  \left[
+ *   \begin{array}{c}
+ *    b_1 \\
+ *    \vdots \\
+ *    b_n
+ *   \end{array}
+ *  \f]
  * 
  */ 
 template<class VectorBase>
 class DiagData: public GeneralData {
 	private:
 		/* variables */
-		GeneralVector<VectorBase> *a;
-		GeneralVector<VectorBase> *b;
-		GeneralVector<VectorBase> *x; /* solution */
+		GeneralVector<VectorBase> *a; /**< diagonal of the matrix */
+		GeneralVector<VectorBase> *b; /**< right hand-side vector */
+		GeneralVector<VectorBase> *x; /**< solution vector */
 
 	public:
+	
+		/** @brief default constructor
+		 */ 
 		DiagData();
+		
+		/** @brief default destructor
+		 */ 
 		~DiagData();
 
+		/** @brief print information about data
+		 * 
+		 * @param output where to print
+		 */ 
 		void print(std::ostream &output) const;
+
+		/** @brief print content of included data
+		 * 
+		 * @param output where to print
+		 */ 
 		void printcontent(std::ostream &output) const;
+
+		/** @brief get type of this data
+		 */
 		std::string get_name() const;
 
-		/* set and get functions */
+		/** @brief set diagonal of matrix
+		 */ 
 		void set_a(GeneralVector<VectorBase> *a);
+
+		/** @brief get diagonal of matrix
+		 */ 
 		GeneralVector<VectorBase> *get_a() const;
 
+		/** @brief set right hand-side vector
+		 */ 
 		void set_b(GeneralVector<VectorBase> *b);
+
+		/** @brief get right hand-side vector
+		 */ 
 		GeneralVector<VectorBase> *get_b() const;
 
+		/** @brief set solution vector
+		 */ 
 		void set_x(GeneralVector<VectorBase> *x);
+
+		/** @brief get solution vector
+		 */ 
 		GeneralVector<VectorBase> *get_x() const;
 
 };
