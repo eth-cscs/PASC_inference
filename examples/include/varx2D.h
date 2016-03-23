@@ -4,7 +4,7 @@
 namespace pascinference {
 	namespace example {
 		template<class VectorBase>
-		class Varx1D {
+		class Varx2D {
 			private:
 				/** @brief get random number 1D 
 				* 
@@ -36,7 +36,7 @@ namespace pascinference {
 namespace pascinference {
 	namespace example {
 		template<class VectorBase>
-		void Varx1D<VectorBase>::my_mvnrnd_D1(double mu, double dev, double *value1){
+		void Varx2D<VectorBase>::my_mvnrnd_D1(double mu, double dev, double *value1){
 			double r1; 
 
 			/* Compute normally distributed random number */
@@ -48,7 +48,7 @@ namespace pascinference {
 		}		
 		
 		template<class VectorBase>
-		void Varx1D<VectorBase>::generate(int T, int K, double *mu, double *dev, GeneralVector<VectorBase> *datavector) {
+		void Varx2D<VectorBase>::generate(int T, int K, double *mu, double *dev, GeneralVector<VectorBase> *datavector) {
 			int t;
 			int k;
 			double random_value1; 

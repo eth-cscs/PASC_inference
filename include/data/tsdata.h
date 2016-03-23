@@ -16,21 +16,24 @@ namespace pascinference {
 template<class VectorBase>
 class TSData: public GeneralData {
 	protected:
-		TSModel<VectorBase> *tsmodel; /* pointer to used time-series model on the data */
+		TSModel<VectorBase> *tsmodel; /**< pointer to used time-series model on the data */
 
-		GeneralVector<VectorBase> *datavector; /* vector with data of dimension based on model */
-		bool destroy_datavector; /* destroy datavector in destructor? if I am an owner, then TRUE */ 
+		GeneralVector<VectorBase> *datavector; /**< vector with data of dimension based on model */
+		bool destroy_datavector; /**< destroy datavector in destructor? if I am an owner, then TRUE */ 
 
-		GeneralVector<VectorBase> *gammavector; /* the characteristic functions of clustered models */
+		GeneralVector<VectorBase> *gammavector; /**< the characteristic functions of clustered models */
 		bool destroy_thetavector;
 
-		GeneralVector<VectorBase> *thetavector; /* parameters of models */
+		GeneralVector<VectorBase> *thetavector; /**< parameters of models */
 		bool destroy_gammavector;
+
+		GeneralVector<VectorBase> *u; /**< external influence */
+		bool destroy_u;
 
 	public:
 		TSData();
 		TSData(TSModel<VectorBase> &tsmodel);
-		TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector);
+		TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector, GeneralVector<VectorBase> &u);
 		~TSData();
 
 		void print(std::ostream &output) const;
@@ -68,6 +71,9 @@ TSData<VectorBase>::TSData(){
 	this->datavector = NULL;
 	destroy_datavector = false;
 
+	this->u = NULL;
+	destroy_u = false;
+
 	this->gammavector = NULL;
 	destroy_gammavector = false;
 
@@ -78,8 +84,8 @@ TSData<VectorBase>::TSData(){
 
 /* datavector is given */
 template<class VectorBase>
-TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector){
-	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR model, datavector, gammavector, thetavector" << std::endl;
+TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector, GeneralVector<VectorBase> &u){
+	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR model, datavector, gammavector, thetavector, u" << std::endl;
 
 	/* set initial content */
 	this->tsmodel = &tsmodel;
@@ -88,6 +94,11 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBas
 	// TODO: control compatibility with this->tsmodel->get_datavectorlength();
 	this->datavector = &datavector;
 	destroy_datavector = false; /* this datavector is not my */
+
+	if(u){
+		this->u = &u;
+		destroy_thetavector = false;
+	}
 
 	/* set new gammavector and thetavector */
 	// TODO: control compatibility with this->tsmodel->get_gammavectorlength(), this->tsmodel->get_thetavectorlength();
@@ -111,6 +122,12 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel){
 	int datavector_length = this->tsmodel->get_datavectorlength();
 	this->datavector = new GeneralVector<VectorBase>(datavector_length);
 	destroy_datavector = true;
+
+	int u_length = this->tsmodel->get_ulength();
+	if(u_length > 0){
+		this->u = new GeneralVector<VectorBase>(u_length);
+		destroy_u = true;
+	}
 	
 	int gammavector_length = this->tsmodel->get_gammavectorlength();
 	this->gammavector = new GeneralVector<VectorBase>(gammavector_length);
@@ -141,6 +158,9 @@ TSData<VectorBase>::~TSData(){
 		free(this->thetavector);
 	}
 
+	if(this->destroy_u){
+		free(this->u);
+	}
 
 }
 
@@ -151,13 +171,19 @@ void TSData<VectorBase>::print(std::ostream &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T:          " << this->get_T() << std::endl;
-	output <<  " - dim:        " << this->get_dim() << std::endl;
+	output <<  " - T:           " << this->get_T() << std::endl;
+	output <<  " - dim:         " << this->get_dim() << std::endl;
 	output <<  " - K:           " << this->get_K() << std::endl;
-	output <<  " - model:      " << this->tsmodel->get_name() << std::endl;
-	output <<  " - datavector: ";
+	output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+	output <<  " - datavector:  ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
+	} else {
+		output << "NO" << std::endl;
+	}
+	output <<  " - u:           ";
+	if(this->u){
+		output << "YES (size: " << this->u->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
@@ -181,10 +207,16 @@ template<class VectorBase>
 void TSData<VectorBase>::printcontent(std::ostream &output) const {
 	output <<  this->get_name() << std::endl;
 	
-	/* give information about presence of the data */
+	/* print the content of the data */
 	output <<  " - datavector: ";
 	if(this->datavector){
 		output << *this->datavector << std::endl;
+	} else {
+		output << "not set" << std::endl;
+	}
+	output <<  " - u:          ";
+	if(this->u){
+		output << *this->u << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}

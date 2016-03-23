@@ -49,6 +49,7 @@ class TSModel: public GeneralModel {
 		virtual std::string get_name() const;
 
 		virtual int get_datavectorlength();
+		virtual int get_ulength();
 		virtual int get_gammavectorlength();
 		virtual int get_thetavectorlength();
 
@@ -184,6 +185,12 @@ int TSModel<VectorBase>::get_gammavectorlength(){
 /* get the appropriate length of thetavector */
 template<class VectorBase>
 int TSModel<VectorBase>::get_thetavectorlength(){
+	return 0; 
+}
+
+/* get the appropriate length of u */
+template<class VectorBase>
+int TSModel<VectorBase>::get_ulength(){
 	return 0; 
 }
 
