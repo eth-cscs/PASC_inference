@@ -110,7 +110,7 @@ std::string VarxH1FEMModel<VectorBase>::get_name() const {
 /* get the appropriate length of datavector */
 template<class VectorBase>
 int VarxH1FEMModel<VectorBase>::get_datavectorlength(){
-	return this->dim*this->T;
+	return this->dim*(this->T+this->Q);
 }
 
 /* get the appropriate length of gammavector */
@@ -156,7 +156,7 @@ void VarxH1FEMModel<VectorBase>::initialize_thetasolver(GeneralSolver **thetasol
 	/* in this case, theta problem is system with diagonal matrix */
 	
 	/* create data */
-	thetadata = new DiagData<VectorBase>();
+	thetadata = new QPData<VectorBase>();
 	thetadata->set_a(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
 	thetadata->set_b(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
 	thetadata->set_x(tsdata->get_thetavector());
