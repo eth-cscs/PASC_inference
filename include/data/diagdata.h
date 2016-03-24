@@ -41,6 +41,7 @@ namespace pascinference {
  *    \vdots \\
  *    b_n
  *   \end{array}
+ *  \right]
  *  \f]
  * 
  */ 

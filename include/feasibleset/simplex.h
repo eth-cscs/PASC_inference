@@ -26,23 +26,16 @@ extern int DEBUG_MODE;
 namespace pascinference {
 
 
-/* Simplex Feasible Set */
-/* \Omega = 
- *  \lbrace x \in \mathbb{R}^{KT}: 
- *    \sum\limits_{k=0}^{K-1} x_{t+kT} = 1, \forall t = 0,\dots,T-1 
- *    x \geq 0
- *  \rbrace
- */  
 /** \class SimplexFeasibleSet
  *  \brief class for manipulation with simplex set
  *
  *  Provides structure for manipulation with simplex feasible set, i.e.
  * \f[
  * \Omega = 
- *  \lbrace x \in \mathbb{R}^{KT}: 
- *    \sum\limits_{k=0}^{K-1} x_{t+kT} = 1, \forall t = 0,\dots,T-1 
+ *  \left\lbrace x \in R^{KT}: 
+ *    \forall t = 0,\dots,T-1: \sum\limits_{k=0}^{K-1} x_{t+kT} = 1,  
  *    x \geq 0
- *  \rbrace
+ *  \right\rbrace
  *	\f]
  * 
 */
