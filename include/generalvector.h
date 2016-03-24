@@ -57,8 +57,10 @@ namespace pascinference {
 
 			/** @brief call original constructors
 			*
+			* @todo for general number of arguments
 			*/
 			template<class ArgType> GeneralVector(ArgType arg): VectorBase(arg) {}
+			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2): VectorBase(arg1,arg2) {}
 			
 			/** @brief matrix vector multiplication
 			*
@@ -76,7 +78,7 @@ namespace pascinference {
 			/** @brief set random values
 			*
 			*/
-			void set_random();
+			virtual void set_random();
 
 	};
 

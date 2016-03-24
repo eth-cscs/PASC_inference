@@ -248,7 +248,7 @@ template<>
 void FileCRSMatrix<MinlinDeviceVector>::print(std::ostream &output) const {
 	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
 
-	output << A_minlinhost << std::endl;
+	output << A_minlinhost;
 }
 
 /* Petsc: matrix-vector multiplication */

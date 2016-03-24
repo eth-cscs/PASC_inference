@@ -1,5 +1,5 @@
-#ifndef FILECRSMATRIX_H
-#define	FILECRSMATRIX_H
+#ifndef LOCALDENSEMATRIX_H
+#define	LOCALDENSEMATRIX_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -26,7 +26,7 @@ namespace pascinference {
 
 /* matlab matrix */ 
 template<class VectorBase>
-class FileCRSMatrix: public GeneralMatrix<VectorBase> {
+class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		#ifdef USE_PETSCVECTOR
 			/* Petsc stuff */
@@ -50,8 +50,9 @@ class FileCRSMatrix: public GeneralMatrix<VectorBase> {
  		int read_filesize(std::ifstream &myfile);
  		
 	public:
-		FileCRSMatrix(const VectorBase &x, std::string filename); /* constructor */
-		~FileCRSMatrix(); /* destructor - destroy inner matrix */
+		LocalDenseMatrix(std::string filename); /* constructor from filename */
+		LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols); /* constructor from array values */
+		~LocalDenseMatrix(); /* destructor - destroy inner matrix */
 
 		void print(std::ostream &output) const; /* print matrix */
 		std::string get_name() const;
@@ -61,8 +62,8 @@ class FileCRSMatrix: public GeneralMatrix<VectorBase> {
 };
 
 template<class VectorBase>
-std::string FileCRSMatrix<VectorBase>::get_name() const {
-	return "FileCRSMatrix";
+std::string LocalDenseMatrix<VectorBase>::get_name() const {
+	return "LocalDenseMatrix";
 }
 
 
@@ -70,25 +71,18 @@ std::string FileCRSMatrix<VectorBase>::get_name() const {
 
 #ifdef USE_PETSCVECTOR
 
-/* Petsc: constructor from given right PetscVector */
+/* Petsc: constructor from given filename */
 template<>
-FileCRSMatrix<PetscVector>::FileCRSMatrix(const PetscVector &x, std::string filename){
+LocalDenseMatrix<PetscVector>::LocalDenseMatrix(std::string filename){
 	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename" << std::endl;
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
 		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
 	}
 
-	/* get informations from given vector */
-	int N, n;
-
-	N = x.size();
-	n = x.local_size();
-
 	/* prepare matrix */
-	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
-	TRY( MatSetSizes(A_petsc,n,n,N,N) );
-	TRY( MatSetFromOptions(A_petsc) ); 
+	TRY( MatCreate(PETSC_COMM_SELF,&A_petsc) ); /* this is always local matrix! */
+	TRY( MatSetType(A_petsc, MATSEQDENSE) );
 
 	/* prepare viewer to load from file */
 	PetscViewer mviewer;
@@ -101,13 +95,34 @@ FileCRSMatrix<PetscVector>::FileCRSMatrix(const PetscVector &x, std::string file
 	/* destroy the viewer */
 	TRY( PetscViewerDestroy(&mviewer) );
 	
+	/* assembly matrix */ //TODO: is it necessary?
+	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
+	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
+	
+}
+
+/* Petsc: constructor from given array of values and size */
+template<>
+LocalDenseMatrix<PetscVector>::LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols){
+	/* init Petsc Vector */
+	if(DEBUG_MODE >= 100){
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from values" << std::endl;
+	}
+
+	/* prepare matrix, values in column major order! */
+	TRY( MatCreateSeqDense(PETSC_COMM_SELF, nmb_rows, nmb_cols, values, &A_petsc) );
+
+	/* assembly matrix */ //TODO: is it necessary?
+	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
+	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
+	
 }
 
 /* Petsc: destructor - destroy the matrix */
 template<>
-FileCRSMatrix<PetscVector>::~FileCRSMatrix(){
+LocalDenseMatrix<PetscVector>::~LocalDenseMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
 
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
 		TRY( MatDestroy(&A_petsc) );
@@ -116,11 +131,11 @@ FileCRSMatrix<PetscVector>::~FileCRSMatrix(){
 
 /* print matrix */
 template<>
-void FileCRSMatrix<PetscVector>::print(std::ostream &output) const		
+void LocalDenseMatrix<PetscVector>::print(std::ostream &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
-	output << "FileCRS matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
+	output << "LocalDense matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
 	output << "----------------------------------------------------------" << std::endl;
 	
 	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_WORLD) );
@@ -130,8 +145,8 @@ void FileCRSMatrix<PetscVector>::print(std::ostream &output) const
 
 /* Petsc: matrix-vector multiplication */
 template<>
-void FileCRSMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult" << std::endl;
+void LocalDenseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
 
 	// TODO: maybe y is not initialized, who knows
 	
@@ -145,23 +160,32 @@ void FileCRSMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) c
 #ifdef USE_MINLIN
 
 template<>
-FileCRSMatrix<MinlinHostVector>::FileCRSMatrix(const MinlinHostVector &x, std::string filename){
+LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(std::string filename){
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename" << std::endl;
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
 		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
 	}
 
-	/* get informations from given vector */
-	int N = x.size();
+	/* open file */
+	std::ifstream myfile(filename.c_str(), std::ios::in | std::ios::binary);
+
+	/* load header from file */
+	int mat_file_classid = read_int_from_file(myfile);
+	if( mat_file_classid != 1211216){
+		// TODO: give error, this is not PetscBin file
+	}
+
+	int nmb_of_rows = read_int_from_file(myfile);
+	int nmb_of_cols = read_int_from_file(myfile);
 
 	/* prepare matrix */
-	MinlinHostMatrix A_new(N,N);
+	MinlinHostMatrix A_new(nmb_of_rows,nmb_of_cols);
 
 	/* set initial value */
 	A_new(all) = 0.0;
 
-	/* open file */
-	std::ifstream myfile(filename.c_str(), std::ios::in | std::ios::binary);
+	/* reset reader to the begining of file */
+	myfile.clear();
 
 	/* write as Aij */
 	write_aij(myfile, A_new);
@@ -173,27 +197,49 @@ FileCRSMatrix<MinlinHostVector>::FileCRSMatrix(const MinlinHostVector &x, std::s
 	A_minlinhost = A_new;
 }
 
+/* Petsc: constructor from given array of values and size */
+template<>
+LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols){
+	/* init Petsc Vector */
+	if(DEBUG_MODE >= 100){
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from values" << std::endl;
+	}
+
+	MinlinHostMatrix A_new(nmb_rows,nmb_cols);
+
+	int row,col;
+	for(col=0;col<nmb_cols;col++){
+		for(row=0;row<nmb_rows;row++){
+			A_new(row,col) = values[col*nmb_rows+row];
+		}
+	}
+
+	/* set new matrix */	
+	A_minlinhost = A_new;
+	
+}
+
 /* Petsc: destructor - destroy the matrix */
 template<>
-FileCRSMatrix<MinlinHostVector>::~FileCRSMatrix(){
+LocalDenseMatrix<MinlinHostVector>::~LocalDenseMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: destroy minlin matrix
 }
 
 /* print matrix */
 template<>
-void FileCRSMatrix<MinlinHostVector>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
+void LocalDenseMatrix<MinlinHostVector>::print(std::ostream &output) const {
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
 	output << A_minlinhost << std::endl;
 }
 
 /* Petsc: matrix-vector multiplication */
 template<>
-void FileCRSMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult" << std::endl;
+void LocalDenseMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlinhost*x;	
 		
@@ -206,23 +252,30 @@ void FileCRSMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinH
 #ifdef USE_MINLIN
 
 template<>
-FileCRSMatrix<MinlinDeviceVector>::FileCRSMatrix(const MinlinDeviceVector &x, std::string filename){
+LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(std::string filename){
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename" << std::endl;
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
 		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
 	}
 
-	/* get informations from given vector */
-	int N = x.size();
-
-	/* prepare matrix */
-	MinlinDeviceMatrix A_new(N,N);
-
-	/* set initial value */
-	A_new(all) = 0.0;
 
 	/* open file */
 	std::ifstream myfile(filename.c_str(), std::ios::in | std::ios::binary);
+
+	/* load header from file */
+	int mat_file_classid = read_int_from_file(myfile);
+	if( mat_file_classid != 1211216){
+		// TODO: give error, this is not PetscBin file
+	}
+
+	int nmb_of_rows = read_int_from_file(myfile);
+	int nmb_of_cols = read_int_from_file(myfile);
+
+	/* prepare matrix */
+	MinlinDeviceMatrix A_new(nmb_of_rows,nmb_of_cols);
+
+	/* reset reader to the begining of file */
+	myfile.clear();
 
 	/* write as Aij */
 	write_aij(myfile, A_new);
@@ -236,25 +289,25 @@ FileCRSMatrix<MinlinDeviceVector>::FileCRSMatrix(const MinlinDeviceVector &x, st
 
 /* Petsc: destructor - destroy the matrix */
 template<>
-FileCRSMatrix<MinlinDeviceVector>::~FileCRSMatrix(){
+LocalDenseMatrix<MinlinDeviceVector>::~LocalDenseMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: destroy minlin matrix
 }
 
 /* print matrix */
 template<>
-void FileCRSMatrix<MinlinDeviceVector>::print(std::ostream &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
+void LocalDenseMatrix<MinlinDeviceVector>::print(std::ostream &output) const {
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
-	output << A_minlinhost << std::endl;
+	output << A_minlinhost;
 }
 
 /* Petsc: matrix-vector multiplication */
 template<>
-void FileCRSMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const MinlinDeviceVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult" << std::endl;
+void LocalDenseMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const MinlinDeviceVector &x) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlinhost*x;	
 		
@@ -266,7 +319,7 @@ void FileCRSMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const Min
 /* -------------------------------- GENERAL FUNCTIONS ---------------------*/
 template<class VectorBase>
 template<class MatrixType>
-void FileCRSMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &A){
+void LocalDenseMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &A){
 
 	/* petsc binary file content: (http://www.mcs.anl.gov/petsc/petsc-dev/docs/manualpages/Mat/MatLoad.html)
 	 * int    MAT_FILE_CLASSID
@@ -289,10 +342,6 @@ void FileCRSMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &A){
 	int *nmb_of_row_nz = read_int_array_from_file(myfile,nmb_of_rows);
 	int *col_idx_nz = read_int_array_from_file(myfile,nmb_of_nz);
 	double *values = read_double_array_from_file(myfile,nmb_of_nz);
-
-	if( mat_file_classid != 1211216){
-		// TODO: give error, this is not PetscBin file
-	}
 
 	/* print info */
 	if(DEBUG_MODE >= 100){
@@ -331,7 +380,7 @@ void FileCRSMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &A){
 }
 
 template<class VectorBase>
-int FileCRSMatrix<VectorBase>::read_int_from_file(std::ifstream &myfile) {
+int LocalDenseMatrix<VectorBase>::read_int_from_file(std::ifstream &myfile) {
 	int value;
 	myfile.read((char *)&value, sizeof(int)); /* read block of memory */
 	value = __builtin_bswap32(value);
@@ -339,7 +388,7 @@ int FileCRSMatrix<VectorBase>::read_int_from_file(std::ifstream &myfile) {
 }
 
 template<class VectorBase>
-double FileCRSMatrix<VectorBase>::read_double_from_file(std::ifstream &myfile) {
+double LocalDenseMatrix<VectorBase>::read_double_from_file(std::ifstream &myfile) {
 	long int int_value;
 	myfile.read((char *)&int_value, sizeof(long int)); /* read block of memory */
 
@@ -349,7 +398,7 @@ double FileCRSMatrix<VectorBase>::read_double_from_file(std::ifstream &myfile) {
 }
 
 template<class VectorBase>
-int *FileCRSMatrix<VectorBase>::read_int_array_from_file(std::ifstream &myfile, const int size) {
+int *LocalDenseMatrix<VectorBase>::read_int_array_from_file(std::ifstream &myfile, const int size) {
 	int *return_array = new int[size];
 	int i;
 	for(i = 0; i < size; i++){
@@ -360,7 +409,7 @@ int *FileCRSMatrix<VectorBase>::read_int_array_from_file(std::ifstream &myfile, 
 }
 
 template<class VectorBase>
-double *FileCRSMatrix<VectorBase>::read_double_array_from_file(std::ifstream &myfile, const int size) {
+double *LocalDenseMatrix<VectorBase>::read_double_array_from_file(std::ifstream &myfile, const int size) {
 	double *return_array = new double[size];
 	int i;
 	for(i = 0; i < size; i++){
@@ -371,7 +420,7 @@ double *FileCRSMatrix<VectorBase>::read_double_array_from_file(std::ifstream &my
 }
 
 template<class VectorBase>
-int FileCRSMatrix<VectorBase>::read_filesize(std::ifstream &myfile) {
+int LocalDenseMatrix<VectorBase>::read_filesize(std::ifstream &myfile) {
 	std::streampos begin,end;
 
 	/* get begin */
