@@ -56,8 +56,8 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::Varx2D<Global>::generate(T,xmem,mydata.get_datavector());
-//	mydata.printcontent(coutMaster);
+	example::Varx2D<Global>::generate(T,xmem,mydata.get_datavector(),mydata.get_u());
+	mydata.printcontent(coutMaster);
 
 	/* prepare time-series solver */
 //	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
@@ -72,13 +72,13 @@ int main( int argc, char *argv[] )
 //	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
 
 	/* save results into VTK file */
-//	coutMaster << "--- SAVING VTK ---" << std::endl;
-//	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
-
+	coutMaster << "--- SAVING VTK ---" << std::endl;
+	example::Varx2D<Global>::saveVTK("output.vtk",T+xmem,K,mydata.get_datavector(),mydata.get_gammavector());
+	
 //	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
-//	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program" << std::endl;
 	
 	Finalize();
 

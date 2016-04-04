@@ -133,7 +133,7 @@ int VarxH1FEMModel<VectorBase>::get_thetavectorlength(){
 /* get the appropriate length of u vector */
 template<class VectorBase>
 int VarxH1FEMModel<VectorBase>::get_ulength(){
-	return 0;//this->dim * (2 + this->dim) * this->K;
+	return this->umem*(this->T + this->xmem);
 }
 
 

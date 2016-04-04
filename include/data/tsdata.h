@@ -47,6 +47,7 @@ class TSData: public GeneralData {
 		/* GET functions */
 		TSModel<VectorBase> *get_model() const;
 		GeneralVector<VectorBase> *get_datavector() const;
+		GeneralVector<VectorBase> *get_u() const;
 		GeneralVector<VectorBase> *get_gammavector() const;
 		GeneralVector<VectorBase> *get_thetavector() const;
 
@@ -280,6 +281,11 @@ TSModel<VectorBase> *TSData<VectorBase>::get_model() const{
 template<class VectorBase>
 GeneralVector<VectorBase> *TSData<VectorBase>::get_datavector() const{
 	return this->datavector;
+}
+
+template<class VectorBase>
+GeneralVector<VectorBase> *TSData<VectorBase>::get_u() const{
+	return this->u;
 }
 
 template<class VectorBase>
