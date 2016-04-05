@@ -22,10 +22,10 @@ class TSData: public GeneralData {
 		bool destroy_datavector; /**< destroy datavector in destructor? if I am an owner, then TRUE */ 
 
 		GeneralVector<VectorBase> *gammavector; /**< the characteristic functions of clustered models */
-		bool destroy_thetavector;
+		bool destroy_gammavector;
 
 		GeneralVector<VectorBase> *thetavector; /**< parameters of models */
-		bool destroy_gammavector;
+		bool destroy_thetavector;
 
 		GeneralVector<VectorBase> *u; /**< external influence */
 		bool destroy_u;
