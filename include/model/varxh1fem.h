@@ -8,13 +8,14 @@ extern int DEBUG_MODE;
 #include "algebra.h"
 #include "model/tsmodel.h"
 #include "matrix/blockdiaglaplace_explicit.h"
+#include "matrix/blockdiag.h"
 
 #include "feasibleset/simplex.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#include "solver/diagsolver.h"
-#include "data/diagdata.h"
+#include "vector/localvector.h"
+#include "matrix/localdense.h"
 
 #include "data/tsdata.h"
 
@@ -24,8 +25,8 @@ namespace pascinference {
 template<class VectorBase>
 class VarxH1FEMModel: public TSModel<VectorBase> {
 	protected:
-		QPData<VectorBase> *gammadata;
-		DiagData<VectorBase> *thetadata;
+		QPData<VectorBase> *gammadata; /**< QP with simplex */
+	 	QPData<VectorBase> *thetadata; /**< QP with blockdiag with dim*K blocks, will be solved by multiCG  */
 
 		/* model specific variables */
 		double epssqr; /**< penalty coeficient */
@@ -57,6 +58,9 @@ class VarxH1FEMModel: public TSModel<VectorBase> {
 
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata);
 
+		QPData<VectorBase> *get_gammadata() const;
+		QPData<VectorBase> *get_thetadata() const;
+		
 };
 
 } // end of namespace
@@ -125,9 +129,10 @@ int VarxH1FEMModel<VectorBase>::get_gammavectorlength(){
 }
 
 /* get the appropriate length of thetavector */
+/* dimx * (mu + A + B) * K */
 template<class VectorBase>
 int VarxH1FEMModel<VectorBase>::get_thetavectorlength(){
-	return 0;//this->dim * (2 + this->dim) * this->K;
+	return this->dim * (1 + this->dim*this->xmem + (this->umem + 1)) * this->K;
 }
 
 /* get the appropriate length of u vector */
@@ -156,7 +161,7 @@ void VarxH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasol
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
 
-	/* project random values to feasible set */
+	/* project random values to feasible set to be sure that initial approximation is feasible */
 	gammadata->get_feasibleset()->project(*gammadata->get_x0());
 
 }
@@ -164,13 +169,39 @@ void VarxH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasol
 /* prepare theta solver */
 template<class VectorBase>
 void VarxH1FEMModel<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
-	/* in this case, theta problem is system with diagonal matrix */
+	/* in this case, theta problem is a sequence of unconstrained QP problems */
+
+	/* prepare array with matrices */
+	int nmb_blocks = this->K*this->dim;
+	LocalDenseMatrix<VectorBase> **blocks = new LocalDenseMatrix<VectorBase>*[nmb_blocks];
+
+	int blocksize = 1 + this->dim*this->xmem + (this->umem + 1); /* see get_thetavectorlength() */
+	for(int i=0;i<nmb_blocks;i++){
+		
+	}
+
+	int k,n; /* through clusters, through dimensions */
+	for(k=0;k<this->K;k++){ // TODO: parallel
+		for(n=0;n<this->dim;n++){
+			if(n==0){ 
+				/* if this is a first dimension, then create matrix */
+				blocks[k*this->dim + n] = new LocalDenseMatrix<VectorBase>(blocksize, blocksize);
+			} else {
+				/* else get matrix from first dimension */
+				blocks[k*this->dim + n] = blocks[k*this->dim];
+			}
+		}
+	}
 	
 	/* create data */
-//	thetadata = new QPData<VectorBase>();
-//	thetadata->set_a(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
-//	thetadata->set_b(new GeneralVector<VectorBase>(*tsdata->get_thetavector()));
-//	thetadata->set_x(tsdata->get_thetavector());
+	thetadata = new QPData<VectorBase>();
+	thetadata->set_x0(tsdata->get_thetavector()); /* the initial approximation of QP problem is gammavector */
+	thetadata->set_x(tsdata->get_thetavector()); /* the solution of QP problem is gamma */
+	thetadata->set_b(new GeneralVector<VectorBase>(*thetadata->get_x0())); /* create new linear term of QP problem */
+	thetadata->set_A(new BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>>(nmb_blocks, blocks));
+
+
+	
 
 	/* create solver */
 //	*thetasolver = new DiagSolver<VectorBase>(*thetadata);
@@ -183,13 +214,13 @@ void VarxH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolve
 	/* I created this objects, I should destroy them */
 
 	/* destroy data */
-//	free(gammadata->get_b());
-//	free(gammadata->get_A());
-//	free(gammadata->get_feasibleset());
-//	free(gammadata);
+	free(gammadata->get_b());
+	free(gammadata->get_A());
+	free(gammadata->get_feasibleset());
+	free(gammadata);
 
 	/* destroy solver */
-//	free(*gammasolver);
+	free(*gammasolver);
 	
 }
 
@@ -198,9 +229,27 @@ template<class VectorBase>
 void VarxH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 	
 	/* destroy data */
-//	free(thetadata->get_a());
-//	free(thetadata->get_b());
-//	free(thetadata);
+//	int k,n; /* through clusters, through dimensions */
+//	for(k=0;k<this->K;k++){ // TODO: parallel
+//		for(n=0;n<this->dim;n++){
+//			free(thetadata[k*this->dim + n]);
+
+			/* MATRIX */
+//			if(n==0){ 
+				/* if this is a first dimension, then create matrix */
+//				free(thetadata[k*this->dim]->get_A());
+//			}
+			
+			/* rhs */
+//			free(thetadata[k*this->dim + n]->get_b()); 
+			
+			/* solution */
+//			free(thetadata[k*this->dim + n]->get_x0()); // TODO: make it in a such way, that we will not need any additional storage
+//			free(thetadata[k*this->dim + n]->get_x());  // TODO: make it in a such way, that we will not need any additional storage
+			
+//		}
+		
+//	}
 
 	/* destroy solver */
 //	free(*thetasolver);
@@ -226,6 +275,16 @@ template<class VectorBase>
 void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	/* update theta solver - prepare new matrix vector and right-hand side vector */	
 
+}
+
+template<class VectorBase>
+QPData<VectorBase>* VarxH1FEMModel<VectorBase>::get_gammadata() const {
+	return gammadata;
+}
+
+template<class VectorBase>
+QPData<VectorBase>* VarxH1FEMModel<VectorBase>::get_thetadata() const {
+	return thetadata;
 }
 
 

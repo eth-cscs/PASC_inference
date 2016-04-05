@@ -47,21 +47,25 @@ int main( int argc, char *argv[] )
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	VarxH1FEMModel<Global> mymodel(T, dimx, K, xmem, umem, epssqr);
-	mymodel.print(coutMaster);
+//	mymodel.print(coutMaster);
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	TSData<Global> mydata(mymodel);
-	mydata.print(coutMaster);
+//	mydata.print(coutMaster);
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	example::Varx2D<Global>::generate(T,xmem,mydata.get_datavector(),mydata.get_u());
-	mydata.printcontent(coutMaster);
+//	mydata.printcontent(coutMaster);
 
 	/* prepare time-series solver */
-//	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-//	TSSolver<Global> mysolver(mydata);
+	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	TSSolver<Global> mysolver(mydata);
+
+	mymodel.get_gammadata()->print(coutMaster);
+	mymodel.get_thetadata()->printcontent(coutMaster);
+
 
 //	mysolver.setting.maxit = 50;
 //	mysolver.setting.debug_mode = 0;

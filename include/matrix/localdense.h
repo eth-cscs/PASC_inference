@@ -51,6 +51,7 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
  		
 	public:
 		LocalDenseMatrix(std::string filename); /* constructor from filename */
+		LocalDenseMatrix(int nmb_rows, int nmb_cols); /* constructor with dimension */
 		LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols); /* constructor from array values */
 		~LocalDenseMatrix(); /* destructor - destroy inner matrix */
 
@@ -59,6 +60,7 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
+		void set_value(int row, int col, double value) const;
 };
 
 template<class VectorBase>
@@ -118,6 +120,23 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(double *values, int nmb_rows, in
 	
 }
 
+/* Petsc: constructor from given size */
+template<>
+LocalDenseMatrix<PetscVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
+	/* init Petsc Vector */
+	if(DEBUG_MODE >= 100){
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size" << std::endl;
+	}
+
+	/* prepare matrix, values in column major order! */
+	TRY( MatCreateSeqDense(PETSC_COMM_SELF, nmb_rows, nmb_cols, NULL, &A_petsc) );
+
+	/* assembly matrix */ //TODO: is it necessary?
+	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
+	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
+	
+}
+
 /* Petsc: destructor - destroy the matrix */
 template<>
 LocalDenseMatrix<PetscVector>::~LocalDenseMatrix(){
@@ -152,6 +171,20 @@ void LocalDenseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x
 	
 	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) ); // TODO: I dont want to use get_vector :( friend in PetscVector? and in MinLin?
 }
+
+/* Petsc: set value of matrix */
+template<>
+void LocalDenseMatrix<PetscVector>::set_value(int row, int col, double value) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
+
+	TRY( MatSetValue(A_petsc, row, col, value, INSERT_VALUES) );
+
+	/* assembly matrix */ //TODO: is it necessary?
+	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
+	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
+		
+}
+
 
 #endif
 
@@ -197,7 +230,7 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(std::string filename){
 	A_minlinhost = A_new;
 }
 
-/* Petsc: constructor from given array of values and size */
+/* Minlin: constructor from given array of values and size */
 template<>
 LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols){
 	/* init Petsc Vector */
@@ -219,7 +252,20 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(double *values, int nmb_row
 	
 }
 
-/* Petsc: destructor - destroy the matrix */
+/* MinLin: constructor from given size */
+template<>
+LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
+	/* init Petsc Vector */
+	if(DEBUG_MODE >= 100){
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size" << std::endl;
+	}
+
+	MinlinHostMatrix A_new(nmb_rows,nmb_cols);
+	A_minlinhost = A_new;
+		
+}
+
+/* MinLin: destructor - destroy the matrix */
 template<>
 LocalDenseMatrix<MinlinHostVector>::~LocalDenseMatrix(){
 	/* init Petsc Vector */
@@ -236,12 +282,21 @@ void LocalDenseMatrix<MinlinHostVector>::print(std::ostream &output) const {
 	output << A_minlinhost << std::endl;
 }
 
-/* Petsc: matrix-vector multiplication */
+/* Minlin: matrix-vector multiplication */
 template<>
 void LocalDenseMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
 
 	y = A_minlinhost*x;	
+		
+}
+
+/* MinLin: set value of matrix */
+template<>
+void LocalDenseMatrix<MinlinHostVector>::set_value(int row, int col, double value) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
+
+	A_minlinhost(row,col) = value;	
 		
 }
 
@@ -284,10 +339,23 @@ LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(std::string filename){
     myfile.close();
 	
 	/* set new matrix */	
-	A_minlinhost = A_new;
+	A_minlindevice = A_new;
 }
 
-/* Petsc: destructor - destroy the matrix */
+/* MinLin: constructor from given size */
+template<>
+LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
+	/* init Petsc Vector */
+	if(DEBUG_MODE >= 100){
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size" << std::endl;
+	}
+
+	MinlinDeviceMatrix A_new(nmb_rows,nmb_cols);
+	A_minlindevice = A_new;
+		
+}
+
+/* Minlin: destructor - destroy the matrix */
 template<>
 LocalDenseMatrix<MinlinDeviceVector>::~LocalDenseMatrix(){
 	/* init Petsc Vector */
@@ -301,17 +369,27 @@ template<>
 void LocalDenseMatrix<MinlinDeviceVector>::print(std::ostream &output) const {
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
-	output << A_minlinhost;
+	output << A_minlindevice;
 }
 
-/* Petsc: matrix-vector multiplication */
+/* MinLin: matrix-vector multiplication */
 template<>
 void LocalDenseMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const MinlinDeviceVector &x) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
 
-	y = A_minlinhost*x;	
+	y = A_minlindevice*x;	
 		
 }
+
+/* MinLin: set value of matrix */
+template<>
+void LocalDenseMatrix<MinlinDeviceVector>::set_value(int row, int col, double value) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
+
+	A_minlindevice(row,col) = value;	
+		
+}
+
 
 #endif
 

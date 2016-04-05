@@ -142,7 +142,7 @@ void QPData<VectorBase>::print(std::ostream &output) const {
 	/* give information about presence of the data */
 	output <<  " - A:            ";
 	if(this->A){
-		output << "YES" << std::endl; // TODO: get matrix name 
+		output << "YES (" << this->A->get_name() << ")" << std::endl; // TODO: get matrix name 
 	} else {
 		output << "not set" << std::endl;
 	}
@@ -180,7 +180,7 @@ void QPData<VectorBase>::printcontent(std::ostream &output) const {
 	/* give information about presence of the data */
 	output <<  " - A:            ";
 	if(this->A){
-		output << *(this->A) << std::endl; 
+		this->A->print(output); 
 	} else {
 		output << "not set" << std::endl;
 	}
