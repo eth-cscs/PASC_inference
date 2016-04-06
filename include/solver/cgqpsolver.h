@@ -61,7 +61,6 @@ class CGQPSolver: public QPSolver<VectorBase> {
 
 
 		void solve();
-		void solve(SolverType type){};
 
 		void print(std::ostream &output) const;
 		std::string get_name() const;

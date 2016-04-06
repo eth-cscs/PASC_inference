@@ -159,7 +159,7 @@ void QPData<VectorBase>::print(std::ostream &output) const {
 		output << "not set" << std::endl;
 	}
 	output <<  " - x:            ";
-	if(this->x0){
+	if(this->x){
 		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
 		output << "not set" << std::endl;

@@ -110,7 +110,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		~SPGQPSolver();
 
 		void solve();
-		void solve(SolverType type){};
 		double get_fx() const;
 		int get_it() const;
 

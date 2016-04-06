@@ -29,7 +29,7 @@ class GeneralSolverSetting : public GeneralSetting {
 		int debug_mode; /**< print info about the progress */
 		int maxit; /**< max number of iterations */
 		double eps; /**< precision */
-
+		
 		/** @brief set default setting values
 		 *
 		 */ 
@@ -99,6 +99,12 @@ class GeneralSolver {
 		 */ 
 		virtual void printstatus(std::ostream &output) const;
 
+		/** @brief print content of all solver data
+		 * 
+		 * @param output where to print
+		 */ 
+		virtual void printcontent(std::ostream &output) const;
+
 		/** @brief print timers of solver
 		 * 
 		 *  Print the sum values of inner operation timers.
@@ -113,15 +119,8 @@ class GeneralSolver {
 
 		/** @brief solve the problem
 		 * 
-		 * @todo can be included in solve(solvertype)
 		 */
-		virtual void solve() { this->solve(SOLVER_AUTO); };
-
-		/** @brief solve the problem with given solver type
-		 * 
-		 * @param solvertype the type of solver
-		 */
-		virtual void solve(SolverType solvertype) {};
+		virtual void solve() {};
 
 		friend std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver); /* cannot be virtual, therefore it call virtual print() */
 
@@ -139,15 +138,19 @@ std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver){
 }
 
 void GeneralSolver::print(std::ostream &output) const {
-	output <<  this->get_name() << std::endl;
+	output << this->get_name() << std::endl;
 }
 
 void GeneralSolver::printstatus(std::ostream &output) const {
-	output <<  this->get_name() << std::endl;
+	output << this->get_name() << std::endl;
+}
+
+void GeneralSolver::printcontent(std::ostream &output) const {
+	output << this->get_name() << std::endl;
 }
 
 void GeneralSolver::printtimer(std::ostream &output) const {
-	output <<  this->get_name() << std::endl;
+	output << this->get_name() << std::endl;
 }
 
 std::string GeneralSolver::get_name() const {

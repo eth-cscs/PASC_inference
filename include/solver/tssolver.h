@@ -27,10 +27,16 @@ class TSSolverSetting : public GeneralSolverSetting {
 	protected:
 
 	public:
+		SolverType gammasolvertype;
+		SolverType thetasolvertype;
+
 		TSSolverSetting() {
 			this->maxit = TSSOLVER_DEFAULT_MAXIT;
 			this->eps = TSSOLVER_DEFAULT_EPS;
 			this->debug_mode = TSSOLVER_DEFAULT_DEBUG_MODE;
+
+			this->gammasolvertype = SOLVER_AUTO;
+			this->thetasolvertype = SOLVER_AUTO;
 		};
 		~TSSolverSetting() {};
 
@@ -77,22 +83,10 @@ class TSSolver: public GeneralSolver {
 
 		TSSolver();
 		TSSolver(TSData<VectorBase> &new_tsdata); 
-		//TODO: write constructor with given gammasolver and theta solver
 		~TSSolver();
 
-		/* with given gamma and theta solvertype */
-		void solve(SolverType gammasolvertype, SolverType thetasolvertype);
+		virtual void solve();
 		
-		/* with one solvertype */
-		virtual void solve(SolverType solvertype) {
-			this->solve(solvertype,solvertype); 
-		};
-		
-		/* without given solvertype */
-		virtual void solve() {
-			this->solve(SOLVER_AUTO); 
-		};
-
 		void print(std::ostream &output) const;
 		void printstatus(std::ostream &output) const;
 		void printtimer(std::ostream &output) const;
@@ -254,7 +248,7 @@ std::string TSSolver<VectorBase>::get_name() const {
 
 /* solve the problem */
 template<class VectorBase>
-void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasolvertype) {
+void TSSolver<VectorBase>::solve() {
 	if(setting.debug_mode >= 100) coutMaster << "(TSSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
@@ -262,6 +256,7 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 	/* the gamma or theta solver wasn't specified yet */
 	if(!gammasolver || !thetasolver){
 		// TODO: give error - actually, gamma and theta solvers are created during constructor with tsdata - now we don't have tsdata, there is nothing to solve
+		coutMaster << "Warning: gammasolver of thetasolver is not set yet!" << std::endl;
 	}
 
 	/* update settings of child solvers */ //TODO: this is not working at all
@@ -289,14 +284,29 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		this->timer_theta_update.stop();
 
 		this->timer_theta_solve.start();
-		 thetasolver->solve(thetasolvertype);
+		 thetasolver->solve();
 		this->timer_theta_solve.stop();
 
+		/* print info about theta solver */
 		if(setting.debug_mode >= 10){
+			coutMaster <<  "- thetasolver status:" << std::endl;
 			coutMaster.push();
 			thetasolver->printstatus(coutMaster);
 			coutMaster.pop();
 		}
+		if(setting.debug_mode >= 100){
+			coutMaster <<  "- thetasolver info:" << std::endl;
+			coutMaster.push();
+			thetasolver->print(coutMaster);
+			coutMaster.pop();
+		}
+		if(setting.debug_mode >= 101){
+			coutMaster <<  "- thetasolver content:" << std::endl;
+			coutMaster.push();
+			thetasolver->printcontent(coutMaster);
+			coutMaster.pop();
+		}
+
 
 		/* --- COMPUTE gamma --- */
 		this->timer_gamma_update.start();
@@ -304,15 +314,28 @@ void TSSolver<VectorBase>::solve(SolverType gammasolvertype, SolverType thetasol
 		this->timer_gamma_update.stop();
 
 		this->timer_gamma_solve.start();
-		 gammasolver->solve(gammasolvertype);
+		 gammasolver->solve();
 		this->timer_gamma_solve.stop();
 
+		/* print info about gammasolver */
 		if(setting.debug_mode >= 10){
+			coutMaster <<  "- gammasolver status:" << std::endl;
 			coutMaster.push();
 			gammasolver->printstatus(coutMaster);
 			coutMaster.pop();
 		}
-
+		if(setting.debug_mode >= 100){
+			coutMaster <<  "- gammasolver info:" << std::endl;
+			coutMaster.push();
+			gammasolver->print(coutMaster);
+			coutMaster.pop();
+		}
+		if(setting.debug_mode >= 101){
+			coutMaster <<  "- gammasolver content:" << std::endl;
+			coutMaster.push();
+//			gammasolver->printcontent(coutMaster);
+			coutMaster.pop();
+		}
 
 		/* compute stopping criteria */
 		L_old = L;

@@ -50,8 +50,7 @@ class DiagSolver: public GeneralSolver {
 		DiagSolver(DiagData<VectorBase> &new_diagdata); 
 		~DiagSolver();
 
-		void solve(SolverType solvertype);
-		void solve() { this->solve(SOLVER_AUTO); };
+		void solve();
 
 		void print(std::ostream &output) const;
 		void printstatus(std::ostream &output) const;		
@@ -146,7 +145,7 @@ typedef petscvector::PetscVector PetscVector;
 
 /* Petsc: constructor from given right PetscVector */
 template<>
-void DiagSolver<PetscVector>::solve(SolverType solvertype) {
+void DiagSolver<PetscVector>::solve() {
 	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
@@ -170,7 +169,7 @@ typedef minlin::threx::HostVector<double> MinlinHostVector;
 typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 
 template<>
-void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
+void DiagSolver<MinlinHostVector>::solve() {
 	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 
@@ -193,7 +192,7 @@ void DiagSolver<MinlinHostVector>::solve(SolverType solvertype) {
 }
 
 template<>
-void DiagSolver<MinlinDeviceVector>::solve(SolverType solvertype) {
+void DiagSolver<MinlinDeviceVector>::solve() {
 	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); 

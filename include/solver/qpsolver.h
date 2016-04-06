@@ -21,10 +21,14 @@ class QPSolverSetting : public GeneralSolverSetting {
 	protected:
 
 	public:
+		SolverType child_solvertype;
+	
 		QPSolverSetting() {
 			this->maxit = QPSOLVER_DEFAULT_MAXIT;
 			this->eps = QPSOLVER_DEFAULT_EPS;
 			this->debug_mode = QPSOLVER_DEFAULT_DEBUG_MODE;
+			
+			this->child_solvertype = SOLVER_AUTO;
 		};
 		~QPSolverSetting() {};
 
@@ -64,10 +68,10 @@ class QPSolver: public GeneralSolver {
 		QPSolver(QPData<VectorBase> &new_qpdata); 
 		~QPSolver();
 
-		virtual void solve(SolverType solvertype);
-		virtual void solve() { this->solve(SOLVER_AUTO); };
+		virtual void solve();
 
 		virtual void print(std::ostream &output) const;
+		virtual void printcontent(std::ostream &output) const;
 		virtual void printstatus(std::ostream &output) const;
 		virtual void printtimer(std::ostream &output) const;
 		virtual std::string get_name() const;
@@ -143,6 +147,23 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 	}	
 }
 
+/* print content of solver */
+template<class VectorBase>
+void QPSolver<VectorBase>::printcontent(std::ostream &output) const {
+	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
+
+	output << this->get_name() << std::endl;
+	
+	/* print content of data */
+	if(qpdata){
+		output << "- data:" << std::endl;
+		coutMaster.push();
+		qpdata->printcontent(output);
+		coutMaster.pop();
+	}
+		
+}
+
 /* print status */
 template<class VectorBase>
 void QPSolver<VectorBase>::printstatus(std::ostream &output) const {
@@ -170,24 +191,31 @@ std::string QPSolver<VectorBase>::get_name() const {
 
 /* solve the problem */
 template<class VectorBase>
-void QPSolver<VectorBase>::solve(SolverType solvertype) {
+void QPSolver<VectorBase>::solve() {
 	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: solve" << std::endl;
 
 	/* the child solver wasn't specified yet */
 	if(!child_solver){
 		/* which specific solver we can use to solve the problem? */
-		if(solvertype == SOLVER_AUTO){
-			//TODO: here write sophisticated auto decision tree
+		if(setting.child_solvertype == SOLVER_AUTO){
+			//TODO: here write more sophisticated auto decision tree
+			if(qpdata->get_feasibleset()){
+				/* with constraints */
+				setting.child_solvertype = SOLVER_SPGQP;
+			} else {
+				/* unconstrained */
+				setting.child_solvertype = SOLVER_CG;
+			}
 		} 
 
 		/* prepare CG solver */
-		if(solvertype == SOLVER_CG){
+		if(setting.child_solvertype == SOLVER_CG){
 			/* create new instance of CG Solver */
 			child_solver = new CGQPSolver<VectorBase>(*qpdata);
 		}
 
 		/* prepare SPGQP solver */
-		if(solvertype == SOLVER_SPGQP){
+		if(setting.child_solvertype == SOLVER_SPGQP){
 			/* create new instance of CG Solver */
 			child_solver = new SPGQPSolver<VectorBase>(*qpdata);
 		}

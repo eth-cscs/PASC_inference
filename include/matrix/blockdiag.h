@@ -34,6 +34,10 @@ class BlockDiagMatrix: public GeneralMatrix<VectorBase> {
 		std::string get_name() const;
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
+
+		int get_nmb_blocks() const;
+		MatrixBase **get_blocks() const;
+
 };
 
 template<class VectorBase, class MatrixBase>
@@ -74,7 +78,7 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::print(std::ostream &output) const
 	}
 }
 
-/* Petsc: matrix-vector multiplication */
+/* matrix-vector multiplication */
 template<class VectorBase, class MatrixBase>
 void BlockDiagMatrix<VectorBase,MatrixBase>::matmult(VectorBase &y, const VectorBase &x) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: matmult" << std::endl;
@@ -84,8 +88,22 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::matmult(VectorBase &y, const Vector
 	// TODO: write block matmult
 }
 
+/* get number of blocks */
+template<class VectorBase, class MatrixBase>
+int BlockDiagMatrix<VectorBase,MatrixBase>::get_nmb_blocks() const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_nmb_blocks" << std::endl;
+
+	return this->nmb_blocks;
+}
 
 
+/* get number of blocks */
+template<class VectorBase, class MatrixBase>
+MatrixBase **BlockDiagMatrix<VectorBase,MatrixBase>::get_blocks() const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_blocks" << std::endl;
+
+	return this->blocks;
+}
 
 
 

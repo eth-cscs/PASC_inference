@@ -63,17 +63,18 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<Global> mysolver(mydata);
 
-	mymodel.get_gammadata()->print(coutMaster);
-	mymodel.get_thetadata()->printcontent(coutMaster);
+//	mymodel.get_gammadata()->print(coutMaster);
+//	mymodel.get_thetadata()->print(coutMaster);
 
+	mysolver.setting.maxit = 1;
+	mysolver.setting.debug_mode = 101;
 
-//	mysolver.setting.maxit = 50;
-//	mysolver.setting.debug_mode = 0;
+//	mysolver.setting.gammasolvertype = SOLVER_SPGQP;
+//	mysolver.setting.thetasolvertype = SOLVER_CG;
 
 	/* solve the problem */
-	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */
-//	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-//	mysolver.solve(SOLVER_SPGQP, SOLVER_CG);
+	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	mysolver.solve();
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
