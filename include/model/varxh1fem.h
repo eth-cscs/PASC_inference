@@ -202,7 +202,7 @@ void VarxH1FEMModel<VectorBase>::initialize_thetasolver(GeneralSolver **thetasol
 	thetadata->set_x0(tsdata->get_thetavector()); /* the initial approximation of QP problem is gammavector */
 	thetadata->set_x(tsdata->get_thetavector()); /* the solution of QP problem is gamma */
 	thetadata->set_b(new GeneralVector<VectorBase>(*thetadata->get_x0())); /* create new linear term of QP problem */
-	thetadata->set_A(new BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>>(nmb_blocks, blocks));
+	thetadata->set_A(new BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>>(nmb_blocks, blocks, blocksize));
 
 	/* create solver */
 	*thetasolver = new MultiCGSolver<VectorBase>(*thetadata);
@@ -274,6 +274,8 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 	typedef GeneralVector<VectorBase> (&pVector);
 	pVector X = *(tsdata->get_datavector());
 	pVector U = *(tsdata->get_u());
+	pVector b = *(thetadata->get_b());
+	pVector gamma = *(gammadata->get_x());
 
 	/* get constants of the problem */
 	int K = this->K;
@@ -281,8 +283,12 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 	int dim = this->dim;
 	int xmem = this->xmem;
 	int umem = this->umem;
+	int blocksize = 1 + this->dim*this->xmem + (this->umem + 1); /* see get_thetavectorlength() */
 
-	/* one blocks of the matrix */
+	/* auxiliary vector */
+	VectorBase temp(T);
+
+	/* blocks of the matrix */
 	BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>> *A = dynamic_cast<BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>> *>(thetadata->get_A());
 	LocalDenseMatrix<VectorBase> **blocks = A->get_blocks();
 	LocalDenseMatrix<VectorBase> *block;
@@ -299,7 +305,8 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 		for(i=0; i < 1; i++){
 			/* const column */
 			for(j=0; j < 1; j++){
-				value = T;
+//				value = T;
+				value = sum(gamma(k*T,(k+1)*T-1));
 				block->set_value(i, j, value);
 			}
 
@@ -307,7 +314,8 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 			for(j=0; j < xmem; j++){
 				
 				for(n=0;n<dim;n++){
-					value = sum(X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
+//					value = sum(X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
+					value = dot(X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j), gamma(k*T,(k+1)*T-1));
 					block->set_value(i, 1+j*dim+n, value);
 					block->set_value(1+j*dim+n, i, value);
 				}
@@ -315,9 +323,17 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 
 			/* u columns */
 			for(j=0; j < umem+1; j++){
-				value = sum(U(xmem-j, xmem+T-1-j));
+//				value = sum(U(xmem-j, xmem+T-1-j));
+				value = dot(U(xmem-j, xmem+T-1-j), gamma(k*T,(k+1)*T-1));
 				block->set_value(i, 1+xmem*dim+j, value);
 				block->set_value(1+xmem*dim+j, i, value);
+			}
+
+			/* rhs */
+			for(n=0;n<dim;n++){
+//				value = sum( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+				value = dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) );
+				b(k*blocksize*dim + n*blocksize) = value;
 			}
 
 			
@@ -326,10 +342,13 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 		/* X rows */
 		for(i=0; i < xmem; i++){
 			for(n2=0;n2<dim;n2++){
+				temp = mul(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), gamma(k*T,(k+1)*T-1));
+
 				/* x columns */
 				for(j=0; j < xmem; j++){
 					for(n=0;n<dim;n++){
-						value = dot(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
+//						value = dot(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
+						value = dot(temp, X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
 						block->set_value(1+i*dim+n2, 1+j*dim+n, value);
 						block->set_value(1+j*dim+n, 1+i*dim+n2, value);
 					}
@@ -337,9 +356,15 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 
 				/* u columns */
 				for(j=0; j < umem+1; j++){
-					value = dot(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), U(xmem-j, xmem+T-1-j));
+					value = dot(temp, U(xmem-j, xmem+T-1-j));
 					block->set_value(1+i*dim+n2, 1+xmem*dim+j, value);
 					block->set_value(1+xmem*dim+j, 1+i*dim+n2, value);
+				}
+
+				/* rhs */
+				for(n=0;n<dim;n++){
+					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+					b(1 + k*blocksize*dim + n*blocksize + i*dim + n2) = value;
 				}
 
 			}
@@ -347,12 +372,23 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 
 		/* U rows */
 		for(i=0; i < umem+1; i++){
+			temp = mul( U(xmem-i, xmem+T-1-i), gamma(k*T,(k+1)*T-1));
+
 			/* u columns */
 			for(j=0; j < umem+1; j++){
-				value = dot(U(xmem-i, xmem+T-1-i), U(xmem-j, xmem+T-1-j));
+//				value = dot(U(xmem-i, xmem+T-1-i), U(xmem-j, xmem+T-1-j));				
+				value = dot(temp, U(xmem-j, xmem+T-1-j));
 				block->set_value(1+xmem*dim+i, 1+xmem*dim+j, value);
 				block->set_value(1+xmem*dim+j, 1+xmem*dim+i, value);
 			}
+
+			/* rhs */
+			for(n=0;n<dim;n++){
+//				value = dot( U(xmem-i, xmem+T-1-i), X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+				value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+				b(1+xmem*dim + k*blocksize*dim + n*blocksize + i) = value;
+			}
+
 		}
 
 		

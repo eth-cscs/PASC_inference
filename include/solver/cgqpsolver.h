@@ -63,6 +63,10 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		void solve();
 
 		void print(std::ostream &output) const;
+		void printcontent(std::ostream &output) const;
+		void printstatus(std::ostream &output) const;
+		void printtimer(std::ostream &output) const;
+		
 		std::string get_name() const;
 
 
@@ -87,6 +91,16 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 	p = NULL;
 	Ap = NULL;
 	
+	/* iterations counters */
+	this->it_sum = 0;
+	this->hessmult_sum = 0;
+	this->it_last = 0;
+	this->hessmult_last = 0;	
+	
+	/* timers */
+	
+	
+	/* function value */
 	this->fx = std::numeric_limits<double>::max();
 }
 
@@ -96,6 +110,15 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
+
+	/* iterations counters */
+	this->it_sum = 0;
+	this->hessmult_sum = 0;
+	this->it_last = 0;
+	this->hessmult_last = 0;	
+	
+	/* timers */
+
 
 	this->fx = std::numeric_limits<double>::max();
 }
@@ -152,6 +175,53 @@ void CGQPSolver<VectorBase>::print(std::ostream &output) const {
 		
 }
 
+/* print content of solver */
+template<class VectorBase>
+void CGQPSolver<VectorBase>::printcontent(std::ostream &output) const {
+	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
+
+	output << this->get_name() << std::endl;
+	
+	/* print content of data */
+	if(qpdata){
+		output << "- data:" << std::endl;
+		coutMaster.push();
+		qpdata->printcontent(output);
+		coutMaster.pop();
+	}
+		
+}
+
+template<class VectorBase>
+void CGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
+	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printstatus" << std::endl;
+
+	output <<  this->get_name() << std::endl;
+	output <<  " - it:          " << this->it_last << std::endl;
+	output <<  " - hess mult:   " << this->hessmult_last << std::endl;
+//	output <<  " - fx:          " << this->fx << std::endl;	
+	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+
+}
+
+template<class VectorBase>
+void CGQPSolver<VectorBase>::printtimer(std::ostream &output) const {
+	output <<  this->get_name() << std::endl;
+/*	output <<  " - it all =       " << this->it_sum << std::endl;
+	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;
+	output <<  " - timers all" << std::endl;
+	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_project =    " << this->timer_projection.get_value_sum() << std::endl;
+	output <<  "  - t_matmult =    " << this->timer_matmult.get_value_sum() << std::endl;
+	output <<  "  - t_dot =        " << this->timer_dot.get_value_sum() << std::endl;
+	output <<  "  - t_update =     " << this->timer_update.get_value_sum() << std::endl;
+	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
+	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
+	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
+*/
+}
+
+
 template<class VectorBase>
 std::string CGQPSolver<VectorBase>::get_name() const {
 	return "Conjugate Gradient method for QP";
@@ -183,10 +253,10 @@ void CGQPSolver<VectorBase>::solve() {
 	x = x0; /* set approximation as initial */
 
 	int it = 0; /* iteration counter */
-	int hess_mult = 0; /* number of hessian multiplications */
+	int hessmult = 0; /* number of hessian multiplications */
 	double normg, alpha, beta, pAp, gg, gg_old;
 	
-	g = A*x; hess_mult += 1; g -= b; /* compute gradient */
+	g = A*x; hessmult += 1; g -= b; /* compute gradient */
 	p = g; /* initial conjugate direction */
 
 	gg = dot(g,g);
@@ -195,7 +265,7 @@ void CGQPSolver<VectorBase>::solve() {
 	while(normg > this->setting.eps && it < this->setting.maxit){
 		/* compute new approximation */
 
-		Ap = A*p; hess_mult += 1;
+		Ap = A*p; hessmult += 1;
 
 		/* compute step-size */			
 		pAp = dot(Ap,p);
@@ -244,8 +314,13 @@ void CGQPSolver<VectorBase>::solve() {
 		coutMaster << "------------------------" << std::endl;
 		coutMaster << " it_cg = " << it << std::endl;
 		coutMaster << " norm_g = " << normg << std::endl;
-		coutMaster << " hess_mult = " << hess_mult << std::endl;
+		coutMaster << " hessmult = " << hessmult << std::endl;
 	}
+
+	this->it_sum += it;
+	this->hessmult_sum += hessmult;
+	this->it_last = it;
+	this->hessmult_last = hessmult;
 
 	
 }

@@ -67,7 +67,7 @@ int main( int argc, char *argv[] )
 //	mymodel.get_thetadata()->print(coutMaster);
 
 	mysolver.setting.maxit = 1;
-	mysolver.setting.debug_mode = 101;
+	mysolver.setting.debug_mode = 0;
 
 //	mysolver.setting.gammasolvertype = SOLVER_SPGQP;
 //	mysolver.setting.thetasolvertype = SOLVER_CG;

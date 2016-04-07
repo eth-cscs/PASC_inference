@@ -10,6 +10,7 @@ extern int DEBUG_MODE;
 #include "data/qpdata.h"
 
 #include "matrix/blockdiag.h"
+#include "matrix/localdense.h"
 
 #define MULTICGSOLVER_DEFAULT_MAXIT 1000;
 #define MULTICGSOLVER_DEFAULT_EPS 0.0001;
@@ -147,7 +148,56 @@ void MultiCGSolver<VectorBase>::solve() {
 
 	/* for each block prepare CG solver and solve the problem */
 	CGQPSolver<VectorBase> *cgsolver; /* cg solver for one block */
-	QPData<VectorBase> *cgsolver_data; /* data of inner cg solver */
+	QPData<VectorBase> data_sub; /* data of inner cg solver */
+
+	/* get number of blocks and blocks */
+	BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>> *A = dynamic_cast<BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>> *>(qpdata->get_A());
+	LocalDenseMatrix<VectorBase> **blocks = A->get_blocks();
+	LocalDenseMatrix<VectorBase> *A_sub; 
+	int nmb_blocks = A->get_nmb_blocks();	
+	int blocksize = A->get_blocksize();
+
+	/* get vectors */
+	typedef GeneralVector<VectorBase> (&pVector);
+	pVector b  = *(qpdata->get_b());
+	pVector x  = *(qpdata->get_x());
+	pVector x0 = *(qpdata->get_x0());
+
+	GeneralVector<VectorBase> b_sub(blocksize);
+	GeneralVector<VectorBase> x_sub(blocksize);
+	GeneralVector<VectorBase> x0_sub(blocksize);
+
+	/* through blocks */
+	for(int i=0;i<nmb_blocks;i++){
+		/* get data for subproblem */
+		A_sub = blocks[i];
+		b_sub = 1*b(i*blocksize, (i+1)*blocksize - 1); // TODO: something is wrong with petscvector
+		x_sub = 1*x(i*blocksize, (i+1)*blocksize - 1); // TODO: something is wrong with petscvector
+		x0_sub = 1*x0(i*blocksize, (i+1)*blocksize - 1); // TODO: something is wrong with petscvector
+
+		/* set data of subproblem to ... subproblem data :) */
+		data_sub.set_A(A_sub);
+		data_sub.set_b(&b_sub);
+		data_sub.set_x(&x_sub);
+		data_sub.set_x0(&x0_sub);
+		
+		/* create new instance of solver, during the constructor the new temp vectors are initialized */
+		cgsolver = new CGQPSolver<VectorBase>(data_sub);
+		
+		/* copy settings */
+		
+		/* solve this subproblem */
+		cgsolver->solve();
+
+//		cgsolver->printstatus(coutMaster);
+
+		/* solution back to global vector */
+		x(i*blocksize, (i+1)*blocksize - 1) = x_sub;
+		
+		free(cgsolver);
+
+		// TODO: deal with iteration counters (max?)
+	}
 
 
 	

@@ -114,7 +114,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		int get_it() const;
 
 		void print(std::ostream &output) const;
-		void printstatus(std::ostream &output) const;		
+		void printstatus(std::ostream &output) const;
 		void printtimer(std::ostream &output) const;
 
 		std::string get_name() const;

@@ -330,10 +330,10 @@ void TSSolver<VectorBase>::solve() {
 			gammasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(setting.debug_mode >= 101){
+		if(setting.debug_mode >= 101 || true){
 			coutMaster <<  "- gammasolver content:" << std::endl;
 			coutMaster.push();
-//			gammasolver->printcontent(coutMaster);
+			gammasolver->printcontent(coutMaster);
 			coutMaster.pop();
 		}
 
