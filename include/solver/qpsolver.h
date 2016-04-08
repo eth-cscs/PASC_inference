@@ -138,7 +138,7 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 	if(qpdata){
 		coutMaster.push();
 		qpdata->print(output);
-		coutMaster.push();
+		coutMaster.pop();
 	}
 	
 	/* if child solver is specified, then print also info about it */	

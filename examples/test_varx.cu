@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
 	int xmem = 3; /* coeficient of Var model */
 	int umem = 1; /* coeficient of Var model */
 
-	double epssqr = 10; /* penalty */
+	double epssqr = 0.000001; /* penalty */
 	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
@@ -66,15 +66,14 @@ int main( int argc, char *argv[] )
 //	mymodel.get_gammadata()->print(coutMaster);
 //	mymodel.get_thetadata()->print(coutMaster);
 
-	mysolver.setting.maxit = 1;
-	mysolver.setting.debug_mode = 0;
-
-//	mysolver.setting.gammasolvertype = SOLVER_SPGQP;
-//	mysolver.setting.thetasolvertype = SOLVER_CG;
+	mysolver.setting.maxit = 100;
+	mysolver.setting.debug_mode = 10;
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.solve();
+
+	mydata.printcontent(coutMaster);
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;

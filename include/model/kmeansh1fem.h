@@ -222,7 +222,7 @@ void KmeansH1FEMModel<VectorBase>::update_gammasolver(GeneralSolver *gammasolver
 		for(t=0;t<T;t++){
 			dot_sum = 0.0;
 			for(n=0;n<dim;n++){
-				value = data.get(n*T+t) - theta.get(k*dim + n); //TODO: get in MinLin?
+				value = data(n*T+t) - theta(k*dim + n); //TODO: problem with petscvector (double = subvector)
 				dot_sum += value*value;
 			}
 			b(k*T + t) = -dot_sum;

@@ -263,6 +263,51 @@ template<class VectorBase>
 void VarxH1FEMModel<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, const TSData<VectorBase> *tsdata){
 	/* update gamma_solver data - prepare new linear term */
 
+	typedef GeneralVector<VectorBase> (&pVector);
+
+	pVector M = *(tsdata->get_thetavector()); /* parameters of the model */
+	pVector X = *(tsdata->get_datavector()); /* original data */
+	pVector U = *(tsdata->get_u()); /* external forces */
+	pVector b = *(gammadata->get_b()); /* rhs of QP gamma problem */
+
+	/* get constants of the problem */
+	int K = this->K;
+	int dim = this->dim;
+	int xmem = this->xmem;
+	int umem = this->umem;
+	int blocksize = 1 + this->dim*this->xmem + (this->umem + 1); /* see get_thetavectorlength() */
+
+	int t,n,k,j,n2;
+	int M_idxstart;
+	int Xdimlength = X.size()/(double)dim;
+	int T = Xdimlength - xmem;
+	double dot_sum, value, valuemodel;
+	
+	for(k=0;k<K;k++){
+		for(t=0;t<T;t++){
+			dot_sum = 0.0;
+			for(n=0;n<dim;n++){
+				value = X.get(n*Xdimlength+t); 
+				
+				/* compute model_value */
+				M_idxstart = k*blocksize*dim + n*blocksize;
+				valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
+				for(j=0;j<xmem;j++){ /* add A_j*X(t-j) */
+					for(n2=0;n2<dim;n2++){
+						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j - 1);
+					}
+				}
+				for(j=0;j<umem;j++){ /* add B_j*U(t) */
+					valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j);
+				}
+				
+				value = value - valuemodel; //TODO: get in MinLin?
+				dot_sum += value*value;
+			}
+			b(k*T + t) = -dot_sum;
+		}
+	}	
+
 }
 
 /* update theta solver */
