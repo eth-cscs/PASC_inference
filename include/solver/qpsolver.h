@@ -79,6 +79,7 @@ class QPSolver: public GeneralSolver {
 		virtual QPData<VectorBase> *get_data() const;
 		virtual double get_fx() const;
 		virtual int get_it() const;
+		virtual int get_hessmult() const;
 
 };
 
@@ -240,9 +241,16 @@ double QPSolver<VectorBase>::get_fx() const {
 
 template<class VectorBase>
 int QPSolver<VectorBase>::get_it() const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_function_value()" << std::endl;
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_it()" << std::endl;
 
 	return child_solver->get_it(); // TODO: control existence
+}
+
+template<class VectorBase>
+int QPSolver<VectorBase>::get_hessmult() const {
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_hessmult()" << std::endl;
+
+	return child_solver->get_hessmult(); // TODO: control existence
 }
 
 template<class VectorBase>

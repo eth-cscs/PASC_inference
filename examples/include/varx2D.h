@@ -31,14 +31,16 @@ namespace pascinference {
 				* @param datavector output datavector with random values 
 				* @param u 
 				*/ 
-				static void generate(int T, int xmem, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *u);
+				static void generate(int T, int xmem, double noise_sigma, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *u);
+
+				static void generate(int T, int xmem, double noise_sigma, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *u, GeneralVector<VectorBase> *thetavector_solution, GeneralVector<VectorBase> *gammavector_solution);
 
 				/** @brief save results into VTK file 
 				* 
 				* take results of the problem and save them into VTK file, which could be opened for example in ParaView
 				* 
 				*/
-				static void saveVTK(std::string name_of_file, int T, int K, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
+				static void saveVTK(std::string name_of_file, int T, int xmem, int K, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
 
 
 		};
@@ -73,31 +75,23 @@ namespace pascinference {
 		}		
 		
 		template<class VectorBase>
-		void Varx2D<VectorBase>::generate(int T, int xmem, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *uvector) {
+		void Varx2D<VectorBase>::generate(int T, int xmem, double noise_sigma, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *uvector) {
 			/* parameters of the model */
 			int dimx = 2;
+			int K = 2;
+			int umem = 1;
 			
-			/* mu*/
-			double muK1_array[dimx] = {2.0, 6.0};
-			double muK2_array[dimx] = {5.0, 4.0};
-
-			/* A in column major order */
-			double A_K1Q1_array[dimx*dimx] = {0.03, 0.02, -0.07, 0.07};
-			double A_K1Q2_array[dimx*dimx] = {0.07, 0.01, -0.03, 0.06};
-			double A_K1Q3_array[dimx*dimx] = {-0.4, -0.2, -0.7, -0.8};
-
-			double A_K2Q1_array[dimx*dimx] = {0.03, -0.06, 0.07, 0.04};
-			double A_K2Q2_array[dimx*dimx] = {0.03, 0.01, 0.08, -0.09};
-			double A_K2Q3_array[dimx*dimx] = {0.1, -0.3, -0.2, -0.4};
-
-			/* B */
-			double B_K1Q0_array[dimx*dimx] = {0.4, 0.1};
-			double B_K1Q1_array[dimx*dimx] = {-0.3, 0.6};
-
-			double B_K2Q0_array[dimx*dimx] = {0.4, 0.1};
-			double B_K2Q1_array[dimx*dimx] = {-0.1, 0.2};
-
-			double noise_sigma = 0.0005;
+			/* theta_solution */
+			int theta_size_n = 1 + dimx*xmem + (umem + 1);
+			int theta_size_k = dimx * theta_size_n; 
+			int theta_size = K*theta_size_k; 
+			
+			double theta[theta_size] =
+					{ 2.0,   0.03,-0.07,  0.07,-0.03,  -0.4,-0.7,  0.4,	 -0.3,		/* K=1, n=1:  mu,A1,A2,A3,B1,B2 */
+					  6.0,   0.02, 0.07,  0.01, 0.06,  -0.2,-0.8,  0.1,   0.6, 		/* K=1, n=2 */
+					  5.0,   0.03, 0.07,  0.03, 0.08,   0.1,-0.2,  0.4,  -0.1,		/* K=2, n=1 */
+					  4.0,  -0.06, 0.04,  0.01,-0.09,  -0.3,-0.4,  0.1,   0.2		/* K=2, n=2 */
+					};
 
 			typedef GeneralVector<VectorBase> (&pVector);
 			pVector data = *datavector;
@@ -119,44 +113,43 @@ namespace pascinference {
 			for(int t=0;t < T+xmem;t++){ /* go through whole time series */
 				/* uvector is given, then generate some data also to this vector */
 				u(t) = (-2.0/(double)(T+xmem)) * (t+1);
-
 			}
 
 			int active_cluster; /* number of active cluster */
 			for(int t=xmem;t < T+xmem;t++){ /* go through whole time series */
-				active_cluster = get_active_cluster(t);
+				active_cluster = get_active_cluster(t-xmem);
 
 				/* create time series by recursive formula data(t) = A_Q1*data(t-1) + A_Q2*data(t-2) + A_Q3*data(t-3) + B_Q0*u(t) + B_Q1*u(t-1) + noise; */
 				if(active_cluster == 0){
-					data(t         ) = 	muK1_array[0]
-										+ (A_K1Q1_array[0]*data(t-1)+A_K1Q1_array[2]*data(t-1+datasize))
-										+ (A_K1Q2_array[0]*data(t-2)+A_K1Q2_array[2]*data(t-2+datasize))
-										+ (A_K1Q3_array[0]*data(t-3)+A_K1Q3_array[2]*data(t-3+datasize))
-										+ (B_K1Q0_array[0]*u(t) + B_K1Q1_array[0]*u(t-1))
+					data(t         ) = 	theta[0]
+										+ (theta[1]*data(t-1) + theta[2]*data(t-1+datasize))
+										+ (theta[3]*data(t-2) + theta[4]*data(t-2+datasize))
+										+ (theta[5]*data(t-3) + theta[6]*data(t-3+datasize))
+										+ (theta[7]*u(t) + theta[8]*u(t-1))
 										+ noise_sigma*rand()/(double)(RAND_MAX);
 										
-					data(t+datasize) = 	muK1_array[1]
-										+ (A_K1Q1_array[1]*data(t-1)+A_K1Q1_array[3]*data(t-1+datasize))
-										+ (A_K1Q2_array[1]*data(t-2)+A_K1Q2_array[3]*data(t-2+datasize))
-										+ (A_K1Q3_array[1]*data(t-3)+A_K1Q3_array[3]*data(t-3+datasize))
-										+ (B_K1Q0_array[1]*u(t) + B_K1Q1_array[1]*u(t-1))
+					data(t+datasize) = 	theta[9]
+										+ (theta[10]*data(t-1) + theta[11]*data(t-1+datasize))
+										+ (theta[12]*data(t-2) + theta[13]*data(t-2+datasize))
+										+ (theta[14]*data(t-3) + theta[15]*data(t-3+datasize))
+										+ (theta[16]*u(t) + theta[17]*u(t-1))
 										+ noise_sigma*rand()/(double)(RAND_MAX);
 					
 				}
 			
 				if(active_cluster == 1){
-					data(t         ) = 	muK2_array[0]
-										+ (A_K2Q1_array[0]*data(t-1)+A_K2Q1_array[2]*data(t-1+datasize))
-										+ (A_K2Q2_array[0]*data(t-2)+A_K2Q2_array[2]*data(t-2+datasize))
-										+ (A_K2Q3_array[0]*data(t-3)+A_K2Q3_array[2]*data(t-3+datasize))
-										+ (B_K2Q0_array[0]*u(t) + B_K2Q1_array[0]*u(t-1))
+					data(t         ) = 	theta[18]
+										+ (theta[19]*data(t-1) + theta[20]*data(t-1+datasize))
+										+ (theta[21]*data(t-2) + theta[22]*data(t-2+datasize))
+										+ (theta[23]*data(t-3) + theta[24]*data(t-3+datasize))
+										+ (theta[25]*u(t) + theta[26]*u(t-1))
 										+ noise_sigma*rand()/(double)(RAND_MAX);
 										
-					data(t+datasize) = 	muK1_array[1]
-										+ (A_K2Q1_array[1]*data(t-1)+A_K2Q1_array[3]*data(t-1+datasize))
-										+ (A_K2Q2_array[1]*data(t-2)+A_K2Q2_array[3]*data(t-2+datasize))
-										+ (A_K2Q3_array[1]*data(t-3)+A_K2Q3_array[3]*data(t-3+datasize))
-										+ (B_K2Q0_array[1]*u(t) + B_K2Q1_array[1]*u(t-1))
+					data(t+datasize) = 	theta[27]
+										+ (theta[28]*data(t-1) + theta[29]*data(t-1+datasize))
+										+ (theta[30]*data(t-2) + theta[31]*data(t-2+datasize))
+										+ (theta[32]*data(t-3) + theta[33]*data(t-3+datasize))
+										+ (theta[34]*u(t) + theta[35]*u(t-1))
 										+ noise_sigma*rand()/(double)(RAND_MAX);
 					
 				}
@@ -166,10 +159,46 @@ namespace pascinference {
 	
 		}
 
+		template<class VectorBase>
+		void Varx2D<VectorBase>::generate(int T, int xmem, double noise_sigma, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *uvector, GeneralVector<VectorBase> *thetavector_solution, GeneralVector<VectorBase> *gammavector_solution) {
+			/* generate data using normal way */
+			generate(T, xmem, noise_sigma, datavector, uvector);
+
+			/* fill gamma solution vector */
+			int i, active_cluster;
+			
+			for(i=0;i<T;i++){
+				active_cluster = get_active_cluster(i);
+				if(active_cluster == 0){
+					(*gammavector_solution)(i) = 1.0;
+				}
+				if(active_cluster == 1){
+					(*gammavector_solution)(i+T) = 1.0;
+				}
+			}
+
+			/* fill thetavector */
+			int dimx = 2;
+			int umem = 1;
+			int K = 2;
+			int theta_size_n = 1 + dimx*xmem + (umem + 1);
+			int theta_size_k = dimx * theta_size_n; 
+			int theta_size = K*theta_size_k; 			
+			double theta[theta_size] =
+					{ 2.0,   0.03,-0.07,  0.07,-0.03,  -0.4,-0.7,  0.4,	 -0.3,		/* K=1, n=1:  mu,A1,A2,A3,B1,B2 */
+					  6.0,   0.02, 0.07,  0.01, 0.06,  -0.2,-0.8,  0.1,   0.6, 		/* K=1, n=2 */
+					  5.0,   0.03, 0.07,  0.03, 0.08,   0.1,-0.2,  0.4,  -0.1,		/* K=2, n=1 */
+					  4.0,  -0.06, 0.04,  0.01,-0.09,  -0.3,-0.4,  0.1,   0.2		/* K=2, n=2 */
+					};
+			for(i=0;i<theta_size;i++){
+				(*thetavector_solution)(i) = theta[i];
+			}		
+
+		}
 
 		//TODO: this should be written for every type of vectorbase
 		template<class VectorBase>
-		void Varx2D<VectorBase>::saveVTK(std::string name_of_file, int T, int K, GeneralVector<VectorBase> *datavector_in, GeneralVector<VectorBase> *gammavector_in){
+		void Varx2D<VectorBase>::saveVTK(std::string name_of_file, int T, int xmem, int K, GeneralVector<VectorBase> *datavector_in, GeneralVector<VectorBase> *gammavector_in){
 			Timer timer_saveVTK; 
 			timer_saveVTK.restart();
 			timer_saveVTK.start();
@@ -202,13 +231,50 @@ namespace pascinference {
 			/* points - coordinates */
 			myfile << "POINTS " << T << " FLOAT\n";
 			for(t=0;t < T;t++){
-					myfile << datavector.get(t) << " "; /* x */
-					myfile << datavector.get(T+t) << " "; /* y */
+					myfile << datavector.get(t+xmem) << " "; /* x */
+					myfile << datavector.get(2*xmem+T+t) << " "; /* y */
 					myfile << " 0.0\n"; /* z */
 			}
 			myfile << "\n";
 
-			//TODO: store gamma right here
+			/* values in points */
+			myfile << "POINT_DATA " <<  T << "\n";
+			/* prepare vector with idx of max values */
+
+			GeneralVector<VectorBase> gamma_max(gammavector);
+			double temp;
+			gamma_max(gall) = 0.0;
+			GeneralVector<VectorBase> gamma_max_idx(gammavector); // TODO: use general host vector
+	
+			gamma_max_idx(gall) = 0;
+			int k;
+			for(k=0;k<K;k++){
+				/* write gamma_k */
+				myfile << "SCALARS gamma_" << k << " float 1\n";
+				myfile << "LOOKUP_TABLE default\n";
+				for(t=0;t<T;t++){
+					myfile << gammavector.get(k*T + t) << "\n";
+
+					/* update maximum */
+					if(gammavector(k*T+t) > gamma_max(t)){
+						temp = gammavector.get(k*T+t);
+						gamma_max(t) = temp;
+				
+//						gamma_vec(k*T+t) = gamma_vec(gamma_max_idx(t)*T+t);
+						gamma_max_idx(t) = k;
+					}
+				}
+			}
+
+
+			/* store gamma values */
+			myfile << "SCALARS gamma_max_id float 1\n";
+			myfile << "LOOKUP_TABLE default\n";
+			for(t=0;t<T;t++){
+				myfile << (int)gamma_max_idx.get(t) << "\n";
+			}
+
+
 
 			/* close file */
 			myfile.close();

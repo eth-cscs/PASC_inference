@@ -287,24 +287,24 @@ void VarxH1FEMModel<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, 
 		for(t=0;t<T;t++){
 			dot_sum = 0.0;
 			for(n=0;n<dim;n++){
-				value = X.get(n*Xdimlength+t); 
+				value = X.get(n*Xdimlength+xmem+t); 
 				
 				/* compute model_value */
-				M_idxstart = k*blocksize*dim + n*blocksize;
+				M_idxstart = k*blocksize*this->dim + n*blocksize;
 				valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
 				for(j=0;j<xmem;j++){ /* add A_j*X(t-j) */
 					for(n2=0;n2<dim;n2++){
-						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j - 1);
+						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j - 1 + t);
 					}
 				}
 				for(j=0;j<umem;j++){ /* add B_j*U(t) */
-					valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j);
+					valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
 				}
 				
 				value = value - valuemodel; //TODO: get in MinLin?
 				dot_sum += value*value;
 			}
-			b(k*T + t) = -dot_sum;
+			b(k*T + t) = -(dot_sum);
 		}
 	}	
 

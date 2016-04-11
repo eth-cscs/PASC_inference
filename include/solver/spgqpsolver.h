@@ -11,10 +11,10 @@
 #include "data/qpdata.h"
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000;
-#define SPGQPSOLVER_DEFAULT_EPS 0.0001;
+#define SPGQPSOLVER_DEFAULT_EPS 0.001;
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
-#define SPGQPSOLVER_DEFAULT_M 10;
+#define SPGQPSOLVER_DEFAULT_M 20;
 #define SPGQPSOLVER_DEFAULT_GAMMA 0.9;
 #define SPGQPSOLVER_DEFAULT_SIGMA2 1.0;
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0;
@@ -93,6 +93,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		Timer timer_fs; /* total time of manipulation with fs vector during iterations */
 
 		QPData<VectorBase> *qpdata; /* data on which the solver operates */
+		double gP; /* norm of projected gradient */
 	
 		/* temporary vectors used during the solution process */
 		void allocate_temp_vectors();
@@ -112,6 +113,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		void solve();
 		double get_fx() const;
 		int get_it() const;
+		int get_hessmult() const;
 
 		void print(std::ostream &output) const;
 		void printstatus(std::ostream &output) const;
@@ -149,6 +151,7 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	this->hessmult_last = 0;
 	
 	this->fx = std::numeric_limits<double>::max();
+	this->gP = std::numeric_limits<double>::max();
 	
 	/* prepare timers */
 	this->timer_solve.restart();	
@@ -174,6 +177,7 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 	this->hessmult_last = 0;
 
 	this->fx = std::numeric_limits<double>::max();
+	this->gP = std::numeric_limits<double>::max();
 
 	/* prepare timers */
 	this->timer_projection.restart();
@@ -248,6 +252,7 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 	output <<  " - it:          " << this->it_last << std::endl;
 	output <<  " - hess mult:   " << this->hessmult_last << std::endl;
 	output <<  " - fx:          " << this->fx << std::endl;	
+	output <<  " - norm(gP):    " << this->gP << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
 }
@@ -367,10 +372,11 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_dot.stop();
 
 		/* stopping criteria */
-		if(dd < setting.eps){
+		this->gP = sqrt(dd);
+		if(this->gP < setting.eps){
 			break;
 		}
-
+		
 		/* fx_max = max(fs) */
 		this->timer_fs.start();
 		 fx_max = fs.get_max();	
@@ -420,6 +426,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		if(setting.debug_mode >= 3){
 			coutMaster << "\033[33m   it = \033[0m" << it;
 			coutMaster << ", \t\033[36mfx = \033[0m" << fx;
+			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
@@ -487,6 +494,12 @@ template<class VectorBase>
 int SPGQPSolver<VectorBase>::get_it() const {
 	return this->it_last;
 }
+
+template<class VectorBase>
+int SPGQPSolver<VectorBase>::get_hessmult() const {
+	return this->hessmult_last;
+}
+
 
 /* ---------- SPGQPSolver_fs -------------- */
 

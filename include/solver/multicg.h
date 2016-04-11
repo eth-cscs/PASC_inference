@@ -57,8 +57,12 @@ class MultiCGSolver: public QPSolver<VectorBase> {
 		~MultiCGSolver();
 
 		void solve();
+		double get_fx() const;
+		int get_it() const;
+		int get_hessmult() const;
 
 		void print(std::ostream &output) const;
+		void printstatus(std::ostream &output) const;
 		void printcontent(std::ostream &output) const;
 		std::string get_name() const;
 
@@ -78,14 +82,20 @@ MultiCGSolver<VectorBase>::MultiCGSolver(){
 
 	qpdata = NULL;
 	
-	this->fx = std::numeric_limits<double>::max();
+	this->fx = -1; /* max(norm(g)) */
+	this->it_last = 0; /* max(it_block) */
+	this->hessmult_last = 0; /* max(hessmult_block) */
+
 }
 
 template<class VectorBase>
 MultiCGSolver<VectorBase>::MultiCGSolver(const QPData<VectorBase> &new_qpdata){
 	qpdata = &new_qpdata;
 
-	this->fx = std::numeric_limits<double>::max();
+	this->fx = -1; /* max(norm(g)) */
+	this->it_last = 0; /* max(it_block) */
+	this->hessmult_last = 0; /* max(hessmult_block) */
+
 }
 
 
@@ -116,6 +126,18 @@ void MultiCGSolver<VectorBase>::print(std::ostream &output) const {
 		coutMaster.pop();
 	}
 		
+}
+
+template<class VectorBase>
+void MultiCGSolver<VectorBase>::printstatus(std::ostream &output) const {
+	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: printstatus" << std::endl;
+
+	output <<  this->get_name() << std::endl;
+	output <<  " - max(it):       " << this->it_last << std::endl;
+	output <<  " - max(hessmult): " << this->hessmult_last << std::endl;
+	output <<  " - max(norm(g)):  " << this->fx << std::endl;	
+	output <<  " - used memory:   " << MemoryCheck::get_virtual() << "%" << std::endl;
+
 }
 
 /* print content of solver */
@@ -189,7 +211,10 @@ void MultiCGSolver<VectorBase>::solve() {
 		/* solve this subproblem */
 		cgsolver->solve();
 
-//		cgsolver->printstatus(coutMaster);
+		/* update iteration counter */
+		if(cgsolver->get_fx() > this->fx) this->fx = cgsolver->get_fx();
+		if(cgsolver->get_it() > this->it_last) this->it_last = cgsolver->get_it();
+		if(cgsolver->get_hessmult() > this->hessmult_last) this->hessmult_last = cgsolver->get_hessmult();
 
 		/* solution back to global vector */
 		x(i*blocksize, (i+1)*blocksize - 1) = x_sub;
@@ -201,6 +226,23 @@ void MultiCGSolver<VectorBase>::solve() {
 
 
 	
+}
+
+template<class VectorBase>
+double MultiCGSolver<VectorBase>::get_fx() const {
+	if(setting.debug_mode >= 11) coutMaster << "(MultiCGSolver)FUNCTION: get_fx()" << std::endl;
+	
+	return this->fx;	
+}
+
+template<class VectorBase>
+int MultiCGSolver<VectorBase>::get_it() const {
+	return this->it_last;
+}
+
+template<class VectorBase>
+int MultiCGSolver<VectorBase>::get_hessmult() const {
+	return this->hessmult_last;
 }
 
 

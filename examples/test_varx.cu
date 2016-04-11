@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
 	int xmem = 3; /* coeficient of Var model */
 	int umem = 1; /* coeficient of Var model */
 
-	double epssqr = 0.000001; /* penalty */
+	double epssqr = 10; /* penalty */
 	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
@@ -54,10 +54,14 @@ int main( int argc, char *argv[] )
 	TSData<Global> mydata(mymodel);
 //	mydata.print(coutMaster);
 
+	/* test - for solution of gamma problem */
+//	GeneralVector<Global> gamma_solution = *(mydata.get_gammavector());
+//	GeneralVector<Global> theta_solution = *(mydata.get_thetavector());
+
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::Varx2D<Global>::generate(T,xmem,mydata.get_datavector(),mydata.get_u());
-//	mydata.printcontent(coutMaster);
+	example::Varx2D<Global>::generate(T,xmem,0.00005, mydata.get_datavector(),mydata.get_u());
+//	example::Varx2D<Global>::generate(T,xmem,0.00005, mydata.get_datavector(),mydata.get_u(),&theta_solution,&gamma_solution);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
@@ -65,19 +69,25 @@ int main( int argc, char *argv[] )
 
 //	mymodel.get_gammadata()->print(coutMaster);
 //	mymodel.get_thetadata()->print(coutMaster);
-
-	mysolver.setting.maxit = 100;
-	mysolver.setting.debug_mode = 10;
-
+//	mydata.printcontent(coutMaster);
+	
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	mysolver.setting.maxit = 10;
+	mysolver.setting.debug_mode = 10;
+	
+	/* test: give solution of gamma and see what will happen */
+//	*(mydata.get_gammavector()) = gamma_solution;
+//	*(mydata.get_thetavector()) = theta_solution;
+
 	mysolver.solve();
 
 	mydata.printcontent(coutMaster);
 
+
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	example::Varx2D<Global>::saveVTK("output.vtk",T+xmem,K,mydata.get_datavector(),mydata.get_gammavector());
+	example::Varx2D<Global>::saveVTK("output.vtk",T,xmem,K,mydata.get_datavector(),mydata.get_gammavector());
 	
 //	mysolver.printtimer(coutMaster);
 

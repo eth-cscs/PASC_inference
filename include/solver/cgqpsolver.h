@@ -61,6 +61,9 @@ class CGQPSolver: public QPSolver<VectorBase> {
 
 
 		void solve();
+		double get_fx() const;
+		int get_it() const;
+		int get_hessmult() const;
 
 		void print(std::ostream &output) const;
 		void printcontent(std::ostream &output) const;
@@ -68,6 +71,7 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		void printtimer(std::ostream &output) const;
 		
 		std::string get_name() const;
+
 
 
 };
@@ -199,7 +203,7 @@ void CGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 	output <<  this->get_name() << std::endl;
 	output <<  " - it:          " << this->it_last << std::endl;
 	output <<  " - hess mult:   " << this->hessmult_last << std::endl;
-//	output <<  " - fx:          " << this->fx << std::endl;	
+	output <<  " - fx:          " << this->fx << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
 }
@@ -322,8 +326,27 @@ void CGQPSolver<VectorBase>::solve() {
 	this->it_last = it;
 	this->hessmult_last = hessmult;
 
+	this->fx = normg; /* fx = norm(g) */
 	
 }
+
+template<class VectorBase>
+double CGQPSolver<VectorBase>::get_fx() const {
+	if(setting.debug_mode >= 11) coutMaster << "(CGQPSolver)FUNCTION: get_fx()" << std::endl;
+	
+	return this->fx;	
+}
+
+template<class VectorBase>
+int CGQPSolver<VectorBase>::get_it() const {
+	return this->it_last;
+}
+
+template<class VectorBase>
+int CGQPSolver<VectorBase>::get_hessmult() const {
+	return this->hessmult_last;
+}
+
 
 
 } /* end namespace */

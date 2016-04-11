@@ -325,7 +325,7 @@ void KmeansH1FEMModel<GlobalPetscVector>::update_gammasolver(GeneralSolver *gamm
 }
 
 /* update theta solver */
-template<>
+template<> // TODO: implement for general vector
 void KmeansH1FEMModel<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<GlobalPetscVector> *tsdata){
 	/* update theta solver - prepare new matrix vector and right-hand side vector */	
 	
