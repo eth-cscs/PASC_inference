@@ -173,7 +173,7 @@ void MultiCGSolver<VectorBase>::solve() {
 	QPData<VectorBase> data_sub; /* data of inner cg solver */
 
 	/* get number of blocks and blocks */
-	BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>> *A = dynamic_cast<BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase>> *>(qpdata->get_A());
+	BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase> > *A = dynamic_cast<BlockDiagMatrix<VectorBase,LocalDenseMatrix<VectorBase> > *>(qpdata->get_A());
 	LocalDenseMatrix<VectorBase> **blocks = A->get_blocks();
 	LocalDenseMatrix<VectorBase> *A_sub; 
 	int nmb_blocks = A->get_nmb_blocks();	

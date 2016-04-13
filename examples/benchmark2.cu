@@ -1,7 +1,7 @@
-/** @file test_varx.cu
+/** @file benchmark2.cu
  *  @brief test the varx problem solver
  *
- *  Generate random problem and solve it.
+ *  Generate random kmeans 3D problem and solve it using VarX solver.
  *
  *  @author Lukas Pospisil
  */
@@ -11,7 +11,7 @@
 #include "data/tsdata.h"
 #include "model/varxh1fem.h"
 
-#include "varx2D.h"
+#include "kmeans3D.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
@@ -34,51 +34,49 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
-	/* dimension of the problem */
-	int dimx = 2; /* data dimension */
+	/* parameters of the model */
+	int dimx = 3; /* data dimension */
 	int T = 1000; /* length of time-series */
-	int K = 2; /* number of clusters */
-	int xmem = 3; /* coeficient of Var model */
-	int umem = 2; /* coeficient of Var model */
+	int K = 4; /* number of clusters */
+	int xmem = 0; /* coeficient of Var model - memory of x */
+	int umem = 0; /* coeficient of Var model - memory of u */
 
+	double mu[12] = {0.0, 0.0, 0.0,
+					1.0, 0.0, 0.0,
+					0.0, 1.0, 0.0,
+					0.5, 0.5, 0.2};
+
+	double diag_covariance[12] = {	0.05, 0.05, 0.01,  
+									0.05, 0.05, 0.01,  
+									0.05, 0.05, 0.01,  
+									0.1,  0.25, 0.25};
+	
 	double epssqr = 10; /* penalty */
 	
 /* ----------- SOLUTION IN PETSC -----------*/
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	VarxH1FEMModel<Global> mymodel(T, dimx, K, xmem, umem, epssqr);
-//	mymodel.print(coutMaster);
+	mymodel.print(coutMaster);
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	TSData<Global> mydata(mymodel);
-//	mydata.print(coutMaster);
-
-	/* test - for solution of gamma problem */
-//	GeneralVector<Global> gamma_solution = *(mydata.get_gammavector());
-//	GeneralVector<Global> theta_solution = *(mydata.get_thetavector());
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::Varx2D<Global>::generate(T,xmem,0.00005, mydata.get_datavector(),mydata.get_u());
-//	example::Varx2D<Global>::generate(T,xmem,0.00005, mydata.get_datavector(),mydata.get_u(),&theta_solution,&gamma_solution);
+	example::KMeans3D<Global>::generate(T, 4, mu, diag_covariance, mydata.get_datavector());
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<Global> mysolver(mydata);
 
-//	mymodel.get_gammadata()->print(coutMaster);
-//	mymodel.get_thetadata()->print(coutMaster);
-//	mydata.printcontent(coutMaster);
-	
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.setting.maxit = 10;
 	mysolver.setting.debug_mode = 10;
 	
-	/* test: give solution of gamma and see what will happen */
-//	*(mydata.get_gammavector()) = gamma_solution;
-//	*(mydata.get_thetavector()) = theta_solution;
+	mysolver.print(coutMaster);
 
 	mysolver.solve();
 
@@ -87,7 +85,7 @@ int main( int argc, char *argv[] )
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	example::Varx2D<Global>::saveVTK("output.vtk",T,xmem,K,mydata.get_datavector(),mydata.get_gammavector());
+	example::KMeans3D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 	
 //	mysolver.printtimer(coutMaster);
 

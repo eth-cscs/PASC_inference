@@ -32,12 +32,12 @@ class LocalVector: public GeneralVector<VectorBase> {
 		/** @brief call original constructors
 		*
 		*/
-		LocalVector(): GeneralVector<VectorBase>() {};
+		LocalVector(): GeneralVector<VectorBase>();
 
 		/** @brief call original constructors
 		*
 		*/
-		template<class ArgType> LocalVector(ArgType arg): GeneralVector<VectorBase>(arg) {};
+		template<class ArgType> LocalVector(ArgType arg): GeneralVector<VectorBase>(arg);
 
 		/** @brief call constructor with given array of values and size
 		 * 

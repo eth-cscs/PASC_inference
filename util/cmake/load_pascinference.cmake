@@ -12,8 +12,10 @@ if(${COMPILE_PASCINFERENCE})
 
 	# from source files create shared library
 	if(${USE_GPU})
+		message(STATUS "${Blue}- will be compiled using CUDA compiler${ColourReset}")
 		CUDA_ADD_LIBRARY(libpascinference ${PASCINFERENCE_SRC}/libpascinference.cu OPTIONS ${FLAGS_DEF_D} SHARED )
 	else()
+		message(STATUS "${Blue}- will be compiled using C++ compiler${ColourReset}")
 		add_library(libpascinference SHARED "${PASCINFERENCE_SRC}/libpascinference.cpp")
 		set_source_files_properties("${PASCINFERENCE_SRC}/libpascinference.cpp"
 				COMPILE_FLAGS ${FLAGS_DEF_D})		
