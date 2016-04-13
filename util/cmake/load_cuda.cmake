@@ -12,7 +12,7 @@ if(${USE_CUDA})
 
 	set(FLAGS_DEF "-USE_CUDA ${FLAGS_DEF}")
 	set(FLAGS_DEF_D "-DUSE_CUDA ${FLAGS_DEF_D}")
-	set(LIBRARIES_DEF "boost_program_options;cublas;${LIBRARIES_DEF}")
+	set(LIBRARIES_DEF "${LIBRARIES_DEF}")
 endif()
 
 

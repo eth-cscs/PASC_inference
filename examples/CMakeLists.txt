@@ -18,7 +18,7 @@ option(TEST_SPGQP "TEST_SPGQP" OFF)
 option(TEST_KMEANS "TEST_KMEANS" OFF)
 option(TEST_VARX "TEST_VARX" OFF)
 option(BENCHMARK1 "BENCHMARK1" OFF)
-option(BENCHMARK2 "BENCHMARK2" ON)
+option(BENCHMARK2 "BENCHMARK2" OFF)
 
 # include additional example headers
 include_directories("include")
@@ -34,6 +34,7 @@ include(load_cuda) # CUDA
 include(load_gpu) # GPU
 include(load_petsc) # PETSC
 include(load_petscvector) # PetscVector
+include(load_boost) # BOOST
 include(load_mkl) # MKL
 include(load_minlin) # MinLin
 include(load_pascinference) # PascInference

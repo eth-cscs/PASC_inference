@@ -4,9 +4,14 @@ option(USE_MINLIN "USE_MINLIN" ON)
 if(${USE_MINLIN})
 	message(STATUS "${Yellow}loading minlin library${ColourReset}")
 
-	#we have to use Petsc to use PetscVector
+	#we have to use MKL to use MinLin
 	if(NOT ${USE_MKL})
 		message(FATAL_ERROR "${Red}Sorry, you cannot use MinLin without MKL! (use -DUSE_MKL=ON)${ColourReset}")
+	endif()
+
+	#we have to use boost to use MinLin
+	if({USE_MKL})
+		message(FATAL_ERROR "${Red}Sorry, you cannot use MinLin without BOOST! (use -DUSE_BOOST=ON)${ColourReset}")
 	endif()
 
 	# note: we always need -O3 because minlin_host doesn't compile without it
@@ -46,7 +51,7 @@ endif()
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_MINLIN)
 	if(${USE_MINLIN})
-		printinfo("MINLIN\t\t\t\t" "YES")
+		printinfo_green("MINLIN\t\t\t\t" "YES")
 		printinfo(" - MINLIN_INCLUDES\t\t" "${MINLIN_INCLUDE}")
 	else()
 		printinfo_red("MINLIN\t\t\t\t" "NO")

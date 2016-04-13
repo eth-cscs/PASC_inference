@@ -262,7 +262,7 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols)
 
 	MinlinHostMatrix A_new(nmb_rows,nmb_cols);
 	A_minlinhost = A_new;
-		
+	
 }
 
 /* MinLin: destructor - destroy the matrix */
@@ -296,8 +296,8 @@ template<>
 void LocalDenseMatrix<MinlinHostVector>::set_value(int row, int col, double value) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
 
-	A_minlinhost(row,col) = value;	
-		
+//	this->A_minlinhost(row,col) = value;	
+	//TODO	
 }
 
 #endif
@@ -386,7 +386,7 @@ template<>
 void LocalDenseMatrix<MinlinDeviceVector>::set_value(int row, int col, double value) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
 
-	A_minlindevice(row,col) = value;	
+//	A_minlindevice(row,col) = value;	
 		
 }
 

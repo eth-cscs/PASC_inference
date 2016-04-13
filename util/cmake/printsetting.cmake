@@ -25,6 +25,9 @@ printinfo(" - LIBRARIES_DEF\t\t" "${LIBRARIES_DEF}")
 # cuda
 printsetting_cuda()
 
+# boost
+printsetting_boost()
+
 # gpu
 printsetting_gpu()
 
