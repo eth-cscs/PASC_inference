@@ -75,18 +75,13 @@ int main( int argc, char *argv[] )
 	mysolver.setting.maxit = 10;
 	mysolver.setting.debug_mode = 10;
 	
-	mysolver.print(coutMaster);
-
 	mysolver.solve();
-
-	mydata.printcontent(coutMaster);
-
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
 	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 	
-//	mysolver.printtimer(coutMaster);
+	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

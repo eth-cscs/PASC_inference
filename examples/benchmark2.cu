@@ -49,7 +49,7 @@ int main( int argc, char *argv[] )
 	double diag_covariance[12] = {	0.05, 0.05, 0.01,  
 									0.05, 0.05, 0.01,  
 									0.05, 0.05, 0.01,  
-									0.1,  0.25, 0.25};
+									0.05,  0.05, 0.05};
 	
 	double epssqr = 10; /* penalty */
 	
@@ -80,14 +80,11 @@ int main( int argc, char *argv[] )
 
 	mysolver.solve();
 
-	mydata.printcontent(coutMaster);
-
-
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
 	example::KMeans3D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 	
-//	mysolver.printtimer(coutMaster);
+	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
