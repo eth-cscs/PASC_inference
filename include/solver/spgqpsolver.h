@@ -12,11 +12,12 @@
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000;
 #define SPGQPSOLVER_DEFAULT_EPS 0.001;
-#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
+#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 5;
 
-#define SPGQPSOLVER_DEFAULT_M 20;
-#define SPGQPSOLVER_DEFAULT_GAMMA 0.9;
-#define SPGQPSOLVER_DEFAULT_SIGMA2 1.0;
+#define SPGQPSOLVER_DEFAULT_M 1;
+#define SPGQPSOLVER_DEFAULT_GAMMA 0.3;
+#define SPGQPSOLVER_DEFAULT_SIGMA1 0.01;
+#define SPGQPSOLVER_DEFAULT_SIGMA2 0.99;
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0;
 
 namespace pascinference {
@@ -26,6 +27,7 @@ class SPGQPSolverSetting : public QPSolverSetting {
 	public:
 		int m; /* size of fs */
 		double gamma; 
+		double sigma1;
 		double sigma2;
 		double alphainit; /* initial step-size */
 
@@ -36,6 +38,7 @@ class SPGQPSolverSetting : public QPSolverSetting {
 
 			m = SPGQPSOLVER_DEFAULT_M;
 			gamma = SPGQPSOLVER_DEFAULT_GAMMA;
+			sigma1 = SPGQPSOLVER_DEFAULT_SIGMA1;
 			sigma2 = SPGQPSOLVER_DEFAULT_SIGMA2;
 			alphainit = SPGQPSOLVER_DEFAULT_ALPHAINIT;
 
@@ -50,6 +53,7 @@ class SPGQPSolverSetting : public QPSolverSetting {
 
 			output <<  " - m:          " << m << std::endl;
 			output <<  " - gamma:      " << gamma << std::endl;
+			output <<  " - sigma1:     " << sigma1 << std::endl;
 			output <<  " - sigma2:     " << sigma2 << std::endl;
 			output <<  " - alphainit:  " << alphainit << std::endl;
 
@@ -295,6 +299,10 @@ void SPGQPSolver<VectorBase>::solve() {
 	pVector b = *(qpdata->get_b());
 	pVector x0 = *(qpdata->get_x0());
 
+//	coutMaster << "TEST! A:  " << A << std::endl;
+	coutMaster << "TEST! b:  " << b << std::endl;
+	coutMaster << "TEST! x0: " << x0 << std::endl;
+
 	/* pointer to solution */
 	pVector x = *(qpdata->get_x());
 
@@ -388,7 +396,11 @@ void SPGQPSolver<VectorBase>::solve() {
 		 beta_bar = -gd/dAd;
 		 beta_hat = setting.gamma*beta_bar + std::sqrt(setting.gamma*setting.gamma*beta_bar*beta_bar + 2*xi);
 
-		 /* beta = min(sigma2,beta_hat) */
+		 /* beta = max(sigma1,min(sigma2,beta_hat)) */
+		 if(beta_hat < setting.sigma1){
+			 beta_hat = setting.sigma1;
+		 }
+		 
 		 if(beta_hat < setting.sigma2){
 			beta = beta_hat;
 		 } else {

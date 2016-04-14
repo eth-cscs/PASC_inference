@@ -44,6 +44,8 @@ namespace pascinference {
 
 namespace pascinference {
 	namespace example {
+
+/* GENERAL */
 		template<class VectorBase>
 		void KMeans2D<VectorBase>::my_mvnrnd_D2(double *mu, double *covariance, double *value1, double *value2){
 			double L[4];
@@ -138,8 +140,8 @@ namespace pascinference {
 			/* points - coordinates */
 			myfile << "POINTS " << T << " FLOAT\n";
 			for(t=0;t < T;t++){
-					myfile << datavector.get(t) << " "; /* x */
-					myfile << datavector.get(T+t) << " "; /* y */
+					myfile << datavector(t) << " "; /* x */
+					myfile << datavector(T+t) << " "; /* y */
 					myfile << " 0.0\n"; /* z */
 			}
 			myfile << "\n";
@@ -152,6 +154,124 @@ namespace pascinference {
 			double temp;
 			gamma_max(gall) = 0.0;
 			GeneralVector<VectorBase> gamma_max_idx(gammavector); // TODO: use general host vector
+	
+			gamma_max_idx(gall) = 0;
+			for(k=0;k<K;k++){
+				/* write gamma_k */
+				myfile << "SCALARS gamma_" << k << " float 1\n";
+				myfile << "LOOKUP_TABLE default\n";
+				for(t=0;t<T;t++){
+					myfile << gammavector(k*T + t) << "\n";
+
+					/* update maximum */
+					if(gammavector(k*T+t) > gamma_max(t)){
+						temp = gammavector(k*T+t);
+						gamma_max(t) = temp;
+				
+//						gamma_vec(k*T+t) = gamma_vec(gamma_max_idx(t)*T+t);
+						gamma_max_idx(t) = k;
+					}
+				}
+			}
+
+
+			/* store gamma values */
+			myfile << "SCALARS gamma_max_id float 1\n";
+			myfile << "LOOKUP_TABLE default\n";
+			for(t=0;t<T;t++){
+				myfile << (int)gamma_max_idx(t) << "\n";
+			}
+
+			/* close file */
+			myfile.close();
+
+			timer_saveVTK.stop();
+			coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+
+		}
+
+
+/* ---------------------- PETSCVECTOR ----------------------- */
+#ifdef USE_PETSCVECTOR
+
+typedef petscvector::PetscVector GlobalPetscVector;
+
+		template<>
+		void KMeans2D<GlobalPetscVector>::generate(int T, int K, double *mu, double *covariance, GeneralVector<GlobalPetscVector> *datavector) {
+			int t;
+			int k;
+			int dimx = 2;
+			double random_value1, random_value2; 
+
+			typedef GeneralVector<GlobalPetscVector> (&pVector);
+			pVector data = *datavector;
+
+			int clusterT = ceil((double)T/(double)K);
+	
+			double *muK, *covarianceK;
+	
+			/* generate random data */
+			for(k=0;k<K;k++){ /* go through clusters */ 
+				muK = &mu[k*dimx]; /* get subarray */
+				covarianceK = &covariance[k*dimx*dimx]; /* get subarray */
+				for(t=k*clusterT;t < std::min((k+1)*clusterT,T);t++){ /* go through part of time serie corresponding to this cluster */
+					my_mvnrnd_D2(muK, covarianceK, &random_value1, &random_value2);
+		
+					data(t) = random_value1;
+					data(T+t) = random_value2;
+				}
+			}
+		}
+		
+
+		template<>
+		void KMeans2D<GlobalPetscVector>::saveVTK(std::string name_of_file, int T, int K, GeneralVector<GlobalPetscVector> *datavector_in, GeneralVector<GlobalPetscVector> *gammavector_in){
+			Timer timer_saveVTK; 
+			timer_saveVTK.restart();
+			timer_saveVTK.start();
+
+			/* from input pointers to classical vectors (just simplification of notation) */
+			typedef GeneralVector<GlobalPetscVector> (&pVector);
+			pVector datavector = *datavector_in;
+			pVector gammavector = *gammavector_in;
+	
+			int t,k;
+			
+			/* filename */
+			std::ostringstream oss_name_of_file;
+			
+			/* to manipulate with file */
+			std::ofstream myfile;
+	
+			/* write to the name of file */
+			oss_name_of_file << name_of_file;
+
+			/* open file to write */
+			myfile.open(oss_name_of_file.str().c_str());
+
+			/* write header to file */
+			myfile << "# vtk DataFile Version 3.1\n";
+			myfile << "PASCInference: Kmeans2D solution\n";
+			myfile << "ASCII\n";
+			myfile << "DATASET UNSTRUCTURED_GRID\n";
+
+			/* points - coordinates */
+			myfile << "POINTS " << T << " FLOAT\n";
+			for(t=0;t < T;t++){
+					myfile << datavector.get(t) << " "; /* x */
+					myfile << datavector.get(T+t) << " "; /* y */
+					myfile << " 0.0\n"; /* z */
+			}
+			myfile << "\n";
+
+			/* values in points */
+			myfile << "POINT_DATA " <<  T << "\n";
+			/* prepare vector with idx of max values */
+
+			GeneralVector<GlobalPetscVector> gamma_max(gammavector);
+			double temp;
+			gamma_max(gall) = 0.0;
+			GeneralVector<GlobalPetscVector> gamma_max_idx(gammavector); // TODO: use general host vector
 	
 			gamma_max_idx(gall) = 0;
 			for(k=0;k<K;k++){
@@ -188,7 +308,9 @@ namespace pascinference {
 
 		}
 		
-		
+
+
+#endif		
 		
 	} /* end namespace example */
 	

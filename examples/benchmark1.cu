@@ -21,14 +21,13 @@ using namespace pascinference;
 
 /* set what is what ( which type of vector to use where) */
 typedef petscvector::PetscVector Global;
-//typedef minlin::threx::HostVector<double> Host;
+typedef minlin::threx::HostVector<double> Host;
 
 extern int pascinference::DEBUG_MODE;
 
-
 int main( int argc, char *argv[] )
 {
-	
+
 	Initialize(argc, argv); // TODO: load parameters from console input
 	
 	/* say hello */
@@ -36,7 +35,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int dimx = 2; /* data dimension */
-	int T = 1000; /* length of time-series */
+	int T = 50; /* length of time-series */
 	int K = 3; /* number of clusters */
 	int xmem = 0; /* coeficient of Var model - memory of x */
 	int umem = 0; /* coeficient of Var model - memory of u */
@@ -52,6 +51,10 @@ int main( int argc, char *argv[] )
 	double epssqr = 10; /* penalty */
 	
 /* ----------- SOLUTION IN PETSC -----------*/
+	coutMaster << "-----------------------------------------------------------------" << std::endl;
+	coutMaster << "------------------ SOLUTION IN PETSC ----------------------------" << std::endl;
+	coutMaster << "-----------------------------------------------------------------" << std::endl;
+
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	VarxH1FEMModel<Global> mymodel(T, dimx, K, xmem, umem, epssqr);
@@ -64,24 +67,75 @@ int main( int argc, char *argv[] )
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	example::KMeans2D<Global>::generate(T, K, mu, covariance, mydata.get_datavector());
-	mydata.printcontent(coutMaster);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<Global> mysolver(mydata);
 
+	/* store initial gamma - we will use it for other architectures */
+	GeneralVector<Global> gamma0_global(*(mydata.get_gammavector()));
+	gamma0_global = *(mydata.get_gammavector()); 
+
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-	mysolver.setting.maxit = 10;
+	mysolver.setting.maxit = 1;
 	mysolver.setting.debug_mode = 10;
 	
 	mysolver.solve();
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	example::KMeans2D<Global>::saveVTK("output.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
+	example::KMeans2D<Global>::saveVTK("output_global.vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 	
 	mysolver.printtimer(coutMaster);
+
+
+/* ----------- SOLUTION IN MINLIN -----------*/
+	coutMaster << "-----------------------------------------------------------------" << std::endl;
+	coutMaster << "------------------ SOLUTION IN MINLIN ---------------------------" << std::endl;
+	coutMaster << "-----------------------------------------------------------------" << std::endl;
+
+	/* prepare model */
+	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	VarxH1FEMModel<Host> mymodel2(T, dimx, K, xmem, umem, epssqr);
+	mymodel2.print(coutMaster);
+
+	/* prepare time-series data */
+	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	TSData<Host> mydata2(mymodel2);
+
+	/* generate some values to data */
+	coutMaster << "--- COPY DATA FROM PREVIOUS PROBLEM ---" << std::endl;
+	GeneralVector<Global> *datavector_global = mydata.get_datavector();
+	GeneralVector<Host> *datavector_host = mydata2.get_datavector();
+	for(int i=0;i<datavector_global->size();i++){
+		(*datavector_host)(i) = datavector_global->get(i);
+	}
+
+	/* prepare time-series solver */
+	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	TSSolver<Host> mysolver2(mydata2);
+
+	/* copy initial approximation from petsc solver */
+	coutMaster << "--- SET INITIAL GAMMA FROM PREVIOUS PROBLEM ---" << std::endl;
+	GeneralVector<Host> *gamma0_host = mydata2.get_gammavector();
+	for(int i=0;i<gamma0_host->size();i++){
+		(*gamma0_host)(i) = gamma0_global.get(i);
+	}
+
+	/* solve the problem */
+	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	mysolver2.setting.maxit = mysolver.setting.maxit;
+	mysolver2.setting.debug_mode = mysolver.setting.debug_mode;
+	
+	mysolver2.solve();
+
+	/* save results into VTK file */
+	coutMaster << "--- SAVING VTK ---" << std::endl;
+	example::KMeans2D<Host>::saveVTK("output_host.vtk",T,K,mydata2.get_datavector(),mydata2.get_gammavector());
+	
+	mysolver2.printtimer(coutMaster);
+
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

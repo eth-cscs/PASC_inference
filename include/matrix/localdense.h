@@ -60,7 +60,7 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
-		void set_value(int row, int col, double value) const;
+		void set_value(int row, int col, double value);
 };
 
 template<class VectorBase>
@@ -174,7 +174,7 @@ void LocalDenseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x
 
 /* Petsc: set value of matrix */
 template<>
-void LocalDenseMatrix<PetscVector>::set_value(int row, int col, double value) const { 
+void LocalDenseMatrix<PetscVector>::set_value(int row, int col, double value) { 
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
 
 	TRY( MatSetValue(A_petsc, row, col, value, INSERT_VALUES) );
@@ -293,11 +293,12 @@ void LocalDenseMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const Minl
 
 /* MinLin: set value of matrix */
 template<>
-void LocalDenseMatrix<MinlinHostVector>::set_value(int row, int col, double value) const { 
+void LocalDenseMatrix<MinlinHostVector>::set_value(int row, int col, double value) { 
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
 
-//	this->A_minlinhost(row,col) = value;	
-	//TODO	
+	A_minlinhost(row,col) = value;	
+
+
 }
 
 #endif
@@ -383,10 +384,10 @@ void LocalDenseMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const 
 
 /* MinLin: set value of matrix */
 template<>
-void LocalDenseMatrix<MinlinDeviceVector>::set_value(int row, int col, double value) const { 
+void LocalDenseMatrix<MinlinDeviceVector>::set_value(int row, int col, double value) { 
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
 
-//	A_minlindevice(row,col) = value;	
+	A_minlindevice(row,col) = value;	
 		
 }
 

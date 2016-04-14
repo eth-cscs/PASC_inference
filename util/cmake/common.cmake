@@ -61,6 +61,11 @@ macro(PASCADD_EXECUTABLE filename outname)
 		cuda_add_executable(${outname} ${filename}
 			OPTIONS "${FLAGS_DEF_D} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
+		# add dependency - build pasc library first and then this exec
+		if(${COMPILE_PASCINFERENCE})
+			add_dependencies(${outname} libpascinference)
+		endif()
 	
 		# link external libraries	
 		target_link_libraries(${outname} ${LIBRARIES_DEF})
@@ -79,6 +84,11 @@ macro(PASCADD_EXECUTABLE filename outname)
 
 		# add executable file
 		add_executable(${outname} ${filename})
+
+		# add dependency - build pasc library first and then this exec
+		if(${COMPILE_PASCINFERENCE})
+			add_dependencies(${outname} libpascinference)
+		endif()
 
 		# link external libraries	
 		target_link_libraries(${outname} ${LIBRARIES_DEF})

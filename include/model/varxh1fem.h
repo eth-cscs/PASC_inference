@@ -23,6 +23,7 @@ extern int DEBUG_MODE;
 
 #include "data/tsdata.h"
 
+
 namespace pascinference {
 
 /* KMEANSH1MODEL */ 
@@ -295,21 +296,21 @@ void VarxH1FEMModel<VectorBase>::update_gammasolver(GeneralSolver *gammasolver, 
 		for(t=0;t<T;t++){
 			dot_sum = 0.0;
 			for(n=0;n<dim;n++){
-				value = X.get(n*Xdimlength+xmem+t); 
+				value = X(n*Xdimlength+xmem+t); 
 				
 				/* compute model_value */
 				M_idxstart = k*blocksize*this->dim + n*blocksize;
-				valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
+				valuemodel = M(M_idxstart + 0); /* mu_K,n */
 				for(j=1;j<xmem;j++){ /* add A_j*X(t-j) */
 					for(n2=0;n2<dim;n2++){
-						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j + t);
+						valuemodel += M(M_idxstart + 1 + j*dim + n2)*X(Xdimlength*n2 + xmem - j + t);
 					}
 				}
 				
 				if(umem > 0){
 					/* there is u */
 					for(j=0;j<umem-1;j++){ /* add B_j*U(t) */
-						valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
+						valuemodel += M(M_idxstart + 1 + xmem*dim + j)*U(xmem - j + t);
 					}
 				}
 				
@@ -333,6 +334,8 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 	pVector U = *(tsdata->get_u());
 	pVector b = *(thetadata->get_b());
 	pVector gamma = *(gammadata->get_x());
+
+	coutMaster << "TEST! gamma: " << gamma << std::endl;
 
 	/* get constants of the problem */
 	int K = this->K;
@@ -472,6 +475,213 @@ template<class VectorBase>
 QPData<VectorBase>* VarxH1FEMModel<VectorBase>::get_thetadata() const {
 	return thetadata;
 }
+
+
+/* PETSC SPECIFIC */
+#ifdef USE_PETSCVECTOR
+
+typedef petscvector::PetscVector GlobalPetscVector;
+
+/* ---------------------- GENERAL ----------------------- */
+template<>
+void VarxH1FEMModel<GlobalPetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<GlobalPetscVector> *tsdata){
+	/* update gamma_solver data - prepare new linear term */
+
+	typedef GeneralVector<GlobalPetscVector> (&pVector);
+
+	pVector M = *(tsdata->get_thetavector()); /* parameters of the model */
+	pVector X = *(tsdata->get_datavector()); /* original data */
+	pVector U = *(tsdata->get_u()); /* external forces */
+	pVector b = *(gammadata->get_b()); /* rhs of QP gamma problem */
+
+	/* get constants of the problem */
+	int K = this->K;
+	int dim = this->dim;
+	int xmem = this->xmem;
+	int umem = this->umem;
+	int blocksize = 1 + this->dim*this->xmem + this->umem; /* see get_thetavectorlength() */
+
+	int t,n,k,j,n2;
+	int M_idxstart;
+	int Xdimlength = X.size()/(double)dim;
+	int T = Xdimlength - xmem;
+	double dot_sum, value, valuemodel;
+	
+	for(k=0;k<K;k++){
+		for(t=0;t<T;t++){
+			dot_sum = 0.0;
+			for(n=0;n<dim;n++){
+				value = X.get(n*Xdimlength+xmem+t); 
+				
+				/* compute model_value */
+				M_idxstart = k*blocksize*this->dim + n*blocksize;
+				valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
+				for(j=1;j<xmem;j++){ /* add A_j*X(t-j) */
+					for(n2=0;n2<dim;n2++){
+						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j + t);
+					}
+				}
+				
+				if(umem > 0){
+					/* there is u */
+					for(j=0;j<umem-1;j++){ /* add B_j*U(t) */
+						valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
+					}
+				}
+				
+				value = value - valuemodel; //TODO: get in MinLin?
+				dot_sum += value*value;
+			}
+			b(k*T + t) = -(dot_sum);
+		}
+	}	
+
+}
+
+/* update theta solver */
+template<>
+void VarxH1FEMModel<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<GlobalPetscVector> *tsdata){
+	/* update theta solver - prepare new BlockDiag matrix data and right-hand side vector */	
+
+	/* pointers to data */
+	typedef GeneralVector<GlobalPetscVector> (&pVector);
+	pVector X = *(tsdata->get_datavector());
+	pVector U = *(tsdata->get_u());
+	pVector b = *(thetadata->get_b());
+	pVector gamma = *(gammadata->get_x());
+
+	coutMaster << "TEST! gamma: " << gamma << std::endl;
+
+	/* get constants of the problem */
+	int K = this->K;
+	int T = this->T;
+	int dim = this->dim;
+	int xmem = this->xmem;
+	int umem = this->umem;
+	int blocksize = 1 + this->dim*this->xmem + this->umem; /* see get_thetavectorlength() */
+
+	/* auxiliary vector */
+	GlobalPetscVector temp(T);
+
+	/* blocks of the matrix */
+	BlockDiagMatrix<GlobalPetscVector,LocalDenseMatrix<GlobalPetscVector> > *A = dynamic_cast<BlockDiagMatrix<GlobalPetscVector,LocalDenseMatrix<GlobalPetscVector> > *>(thetadata->get_A());
+	LocalDenseMatrix<GlobalPetscVector> **blocks = A->get_blocks();
+	LocalDenseMatrix<GlobalPetscVector> *block;
+	
+	/* go through clusters and fill matrices */
+	int k,n,n2;
+	int i,j;
+	double value;
+	for(k=0;k<K;k++){
+		/* get actual block */
+		block = blocks[k*dim];
+		
+		/* const row */
+		for(i=0; i < 1; i++){
+			/* const column */
+			for(j=0; j < 1; j++){
+//				value = T;
+				value = sum(gamma(k*T,(k+1)*T-1));
+				block->set_value(i, j, value);
+			}
+
+			/* x columns */
+			for(j=1; j < xmem; j++){
+				
+				for(n=0;n<dim;n++){
+//					value = sum(X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
+//					value = dot(X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j), gamma(k*T,(k+1)*T-1));
+					value = dot(X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j), gamma(k*T,(k+1)*T-1));
+					block->set_value(i, 1+j*dim+n, value);
+					block->set_value(1+j*dim+n, i, value);
+				}
+			}
+
+			/* u columns */
+			if(umem > 0){
+				/* there is u */
+				for(j=0; j < umem+1; j++){	// TODO: is this right?
+//					value = sum(U(xmem-j, xmem+T-1-j));
+//					value = dot(U(xmem-j, xmem+T-1-j), gamma(k*T,(k+1)*T-1));
+					value = dot(U(xmem-j, xmem+T-1-j), gamma(k*T,(k+1)*T-1));
+					block->set_value(i, 1+xmem*dim+j, value);
+					block->set_value(1+xmem*dim+j, i, value);
+				}
+			}
+
+			/* rhs */
+			for(n=0;n<dim;n++){
+//				value = sum( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+				value = dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) );
+				b(k*blocksize*dim + n*blocksize) = value;
+			}
+
+			
+		}
+
+		/* X rows */
+		for(i=1; i < xmem; i++){
+			for(n2=0;n2<dim;n2++){
+//				temp = mul(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), gamma(k*T,(k+1)*T-1));
+				temp = mul(X(xmem + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), gamma(k*T,(k+1)*T-1));
+
+				/* x columns */
+				for(j=1; j < xmem; j++){
+					for(n=0;n<dim;n++){
+//						value = dot(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
+//						value = dot(temp, X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
+						value = dot(temp, X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j));
+						block->set_value(1+i*dim+n2, 1+j*dim+n, value);
+						block->set_value(1+j*dim+n, 1+i*dim+n2, value);
+					}
+				}
+
+				/* u columns */
+				if(umem > 0){
+					for(j=0; j < umem+1; j++){	// TODO: is this right?
+						value = dot(temp, U(xmem-j, xmem+T-1-j));
+						block->set_value(1+i*dim+n2, 1+xmem*dim+j, value);
+						block->set_value(1+xmem*dim+j, 1+i*dim+n2, value);
+					}
+				}
+
+				/* rhs */
+				for(n=0;n<dim;n++){
+					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+					b(1 + k*blocksize*dim + n*blocksize + i*dim + n2) = value;
+				}
+
+			}
+		}
+
+		/* U rows */
+		if(umem > 0){ // TODO: is this right?
+			for(i=0; i < umem+1; i++){
+				temp = mul( U(xmem-i, xmem+T-1-i), gamma(k*T,(k+1)*T-1));
+
+				/* u columns */
+				for(j=0; j < umem+1; j++){
+//					value = dot(U(xmem-i, xmem+T-1-i), U(xmem-j, xmem+T-1-j));				
+					value = dot(temp, U(xmem-j, xmem+T-1-j));
+					block->set_value(1+xmem*dim+i, 1+xmem*dim+j, value);
+					block->set_value(1+xmem*dim+j, 1+xmem*dim+i, value);
+				}
+
+				/* rhs */
+				for(n=0;n<dim;n++){
+//					value = dot( U(xmem-i, xmem+T-1-i), X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+					b(1+xmem*dim + k*blocksize*dim + n*blocksize + i) = value;
+				}
+			}
+		}
+
+		
+	}
+
+}
+
+#endif
 
 
 
