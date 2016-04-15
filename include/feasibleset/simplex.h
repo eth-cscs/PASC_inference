@@ -96,7 +96,7 @@ class SimplexFeasibleSet: public GeneralFeasibleSet<VectorBase> {
 };
 
 /* sorry, __device__ and __global__ functions cannot be members of template class */
-#ifdef USE_GPU
+#ifdef USE_CUDA
 __device__ void SimplexFeasibleSet_device_sort_bubble(double *x, int n);
 __global__ void SimplexFeasibleSet_kernel_get_projection_sub(double *x, int T, int K);
 #endif
@@ -271,7 +271,7 @@ void SimplexFeasibleSet<VectorBase>::sort_bubble(double *x, int n){
 
 
 /* -------- minlin::threx::DeviceVector ---------- */
-#ifdef USE_GPU
+#ifdef USE_CUDA
 template<>
 void SimplexFeasibleSet<DeviceMinLinVector>::project(GeneralVector<DeviceMinLinVector> &x) {
 

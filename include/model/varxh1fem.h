@@ -335,8 +335,6 @@ void VarxH1FEMModel<VectorBase>::update_thetasolver(GeneralSolver *thetasolver, 
 	pVector b = *(thetadata->get_b());
 	pVector gamma = *(gammadata->get_x());
 
-	coutMaster << "TEST! gamma: " << gamma << std::endl;
-
 	/* get constants of the problem */
 	int K = this->K;
 	int T = this->T;
@@ -549,8 +547,6 @@ void VarxH1FEMModel<GlobalPetscVector>::update_thetasolver(GeneralSolver *thetas
 	pVector U = *(tsdata->get_u());
 	pVector b = *(thetadata->get_b());
 	pVector gamma = *(gammadata->get_x());
-
-	coutMaster << "TEST! gamma: " << gamma << std::endl;
 
 	/* get constants of the problem */
 	int K = this->K;

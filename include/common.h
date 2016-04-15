@@ -366,7 +366,7 @@ class ConsoleOutput : public std::ostream {
 static ConsoleOutput coutMaster(std::cout,0); /**< instance of output console stream on master */
 static ConsoleOutput coutAll(std::cout); /**< instance of output console stream on master */
 
-#ifdef USE_GPU
+#ifdef USE_CUDA
 	/* cuda error check */ 
 	#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 	inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)

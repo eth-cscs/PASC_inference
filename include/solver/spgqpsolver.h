@@ -12,10 +12,10 @@
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000;
 #define SPGQPSOLVER_DEFAULT_EPS 0.001;
-#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 5;
+#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
-#define SPGQPSOLVER_DEFAULT_M 1;
-#define SPGQPSOLVER_DEFAULT_GAMMA 0.3;
+#define SPGQPSOLVER_DEFAULT_M 20;
+#define SPGQPSOLVER_DEFAULT_GAMMA 0.9;
 #define SPGQPSOLVER_DEFAULT_SIGMA1 0.01;
 #define SPGQPSOLVER_DEFAULT_SIGMA2 0.99;
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0;
@@ -298,10 +298,6 @@ void SPGQPSolver<VectorBase>::solve() {
 	pMatrix A = *(qpdata->get_A());
 	pVector b = *(qpdata->get_b());
 	pVector x0 = *(qpdata->get_x0());
-
-//	coutMaster << "TEST! A:  " << A << std::endl;
-	coutMaster << "TEST! b:  " << b << std::endl;
-	coutMaster << "TEST! x0: " << x0 << std::endl;
 
 	/* pointer to solution */
 	pVector x = *(qpdata->get_x());
