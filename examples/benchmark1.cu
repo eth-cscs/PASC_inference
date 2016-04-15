@@ -37,7 +37,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int dimx = 2; /* data dimension */
-	int T = 50; /* length of time-series */
+	int T = 1000; /* length of time-series */
 	int K = 3; /* number of clusters */
 	int xmem = 0; /* coeficient of Var model - memory of x */
 	int umem = 0; /* coeficient of Var model - memory of u */
@@ -80,7 +80,7 @@ int main( int argc, char *argv[] )
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-	mysolver.setting.maxit = 1;
+	mysolver.setting.maxit = 100;
 	mysolver.setting.debug_mode = 10;
 	
 	mysolver.solve();
