@@ -9,7 +9,9 @@ extern int DEBUG_MODE;
 #include "model/tsmodel.h"
 
 /* gamma problem */
-#include "matrix/blockdiaglaplace_explicit.h"
+//#include "matrix/blockdiaglaplace_explicit.h"
+#include "matrix/blockdiaglaplace_vector.h"
+
 #include "feasibleset/simplex.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
@@ -164,7 +166,10 @@ void VarxH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasol
 	gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<VectorBase>(*gammadata->get_x0())); /* create new linear term of QP problem */
-	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<VectorBase>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
+
+	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<VectorBase>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
+//	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<VectorBase>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
+
 	gammadata->set_feasibleset(new SimplexFeasibleSet<VectorBase>(this->T,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
