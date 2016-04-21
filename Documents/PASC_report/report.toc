@@ -2,4 +2,6 @@
 \contentsline {section}{\numberline {2}VarX model}{3}{section.2}
 \contentsline {subsection}{\numberline {2.1}Checking equations by example}{4}{subsection.2.1}
 \contentsline {section}{\numberline {3}Non-stationary VarX model}{5}{section.3}
-\contentsline {section}{\numberline {4}K-means model as a patological case of non-stationary VarX model}{6}{section.4}
+\contentsline {subsection}{\numberline {3.1}K-means model as a patological case of non-stationary VarX model}{6}{subsection.3.1}
+\contentsline {section}{\numberline {4}Supplementary material, ideas}{7}{section.4}
+\contentsline {subsection}{\numberline {4.1}Principle of proof by contradiction}{7}{subsection.4.1}

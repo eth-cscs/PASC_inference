@@ -1,0 +1,67 @@
+ Let us consider a VarX model \eqref{eq:varx_stationary}, where the coefficients depend on the time (vary during time)
+ \begin{equation}
+  \label{eq:varx_nonstationary}
+	x_t = \mu(t) + \sum\limits_{q=1}^{\mathrm{xmem}} A_q(t) x_{t-q} + \sum\limits_{p=0}^{\mathrm{umem}} B_p(t) u_{t-p} + \varepsilon_t, \forall t = \mathrm{xmem}, \dots, T-1
+ \end{equation}
+ In this case, we are talking about non-stationary VarX model. Please notice, that the problem is ill-posted, theoretically each $x_t$ could have its own parameters $\mu,A,B$ and
+ obtained results could be biased and consequently useless. Therefore, we rather split the time $t=\mathrm{xmem},\dots,T-1$ into finite number of clusters (denoted by $K \geq 1$)
+ and we will suppose that the part of time-series corresponding to each cluster could be described by one specific stationary VarX model (model with constant, i.e. time-independent, parameters $\mu^k,A^k,B^k, k = 0,\dots,K-1$ in corresponding part of time-series). \newline
+ 
+ The switching between $K$ models is realized by model indicator functions\footnote{please, see (i.e. google) the formal mathematical definition of \emph{indicator function} of general set; I decided to use this terminology, because in the case of modelling, it describes the same indicator property}
+ $\gamma_k(t), k=0,\dots,K-1, t = \mathrm{xmem},\dots,T-1$ defined by
+ \begin{equation}
+  \label{eq:gamma}
+  \gamma^k(t) =
+  \left\lbrace
+   \begin{array}{ll}
+    1 ~~~ & \textrm{if $k$-th cluster-model is active in time $t$,} \\
+    0 ~~~ & \textrm{if $k$-th cluster-model is not active in time $t$.}
+   \end{array}
+  \right.
+ \end{equation} 
+
+ Moreover, we demand that there is only one cluster-model active in each time step $t$. This property could be described by condition
+ \begin{equation}
+  \label{eq:gamma_eq}
+  \forall t = \mathrm{xmem}, \dots, T-1: ~~ \sum\limits_{k=0}^{K-1} \gamma^k (t) = 1,
+ \end{equation}
+ i.e. the sum of indicators functions $\gamma^k$ in each time-step is equal to one. Since these indicator functions are defined by \eqref{eq:gamma}
+ as a functions, which attain $0$ or $1$, the equality condition \eqref{eq:gamma_eq} could be interpreted as follows: there is exactly one cluster-model
+ active in each time-step.
+ 
+ Using clustering and indicator functions, the non-stationary VarX model \eqref{eq:varx_nonstationary} could be written in form (we denote $\gamma^k(t) = \gamma^k_t$)
+ \begin{equation}
+  \label{eq:varx_nonstationary_gamma}
+   \
+	x_t = 
+	\sum\limits_{k=0}^{K-1} 
+	\sum\limits_{t=\mathrm{xmem}}^{T-1} 
+	\left[
+	 \gamma^k_t
+	 \left( \mu^k + \sum\limits_{q=1}^{\mathrm{xmem}} A_q^k x_{t-q} + \sum\limits_{p=0}^{\mathrm{umem}} B_p^k u_{t-p} \right)
+	\right] 
+	+ \varepsilon_t, \forall t = \mathrm{xmem}, \dots, T-1.
+ \end{equation}
+ Please, notice that now the problem is much more complicated; we have to find not only the parameters $\mu^k, A^k,B^k$ of each cluster-model, but also the values of characteristic functions $\gamma^k$.
+
+ Using the similar notations as in stationary case, we are able to define the optimization problem (the problem for minimization of the size of the modelling error, i.e. fitting error) as\footnote{\todo{discuss more deeply}} 
+ \begin{displaymath}
+  \label{eq:eq:varx_nonstationary_matrix_eps}
+  \sum\limits_{k=0}^{K-1} \Vert X - M^k Z \Vert^2 ~~ \rightarrow ~~ \min\limits_{M^0,\dots,M^{K-1}, \gamma^{0}, \dots, \gamma^{K-1}}.
+ \end{displaymath} 
+ Here we denoted $\gamma^k = [\gamma^k_{\mathrm{xmem}}, \dots, \gamma^k_{T-1} ]^T \in \mathbb{R}^m$.
+ 
+ \subsection {K-means model as a patological case of non-stationary VarX model}
+
+ Let us consider a VarX model \eqref{eq:varx_stationary} with $\mathrm{xmem} = 0$ and without external forces term $u_t$
+ \begin{equation}
+  \label{eq:kmeans_stationary}
+  x_t = \mu + \varepsilon_t, \forall t = 0,\dots,T-1.
+ \end{equation}
+ Please notice, that in this case we are trying to approximate whole time-series by a single value. It is not surprise, that this value is the average value of all $x_t$;
+ see the solution of system \eqref{eq:varx_stationary_system}. In this case $Z = [1,\dots,1] \in \mathbb{R}^n$, the matrix $ZZ^T = T$, and the solution is given by
+ \begin{displaymath}
+  M^T = \mu^T = \frac{1}{T} \sum\limits_{t=0}^{T-1} x_t^T.
+ \end{displaymath}
+ Much more interesting is the non-stationary version of the model \eqref{eq:kmeans_stationary}. In this case, we are going to cluster the time-series into the set of clusters,
+ where each cluster is characterized by one mean value. This model is well-known as \emph{K-means}.

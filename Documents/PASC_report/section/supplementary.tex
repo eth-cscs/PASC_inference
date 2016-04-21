@@ -1,0 +1,56 @@
+\subsection{Principle of proof by contradiction}
+
+Let us suppose, that we want to (have to) prove the implication
+\begin{equation}
+ \label{eq:contradiction_implication}
+ v_1 \Rightarrow v_2,
+\end{equation}
+where $v_1, v_2$ are statements\footnote{statement is a meaningful declarative sentence that is either true or false}. Suppose that "standart" direct proof in form
+\begin{displaymath}
+ v_1 \Rightarrow ~~~ 
+ \hat{v}_1 \Rightarrow
+ \dots
+ \Rightarrow \hat{v}_m
+ ~~~ \Rightarrow v_2
+\end{displaymath}
+is not suitable or too complicated. Here $\hat{v}_1, \dots, \hat{v}_m$ denote auxiliary statements presenting the small partial steps during the proof.
+
+At first, let us recall the \emph{Truth table} of the implication and other interesting relationship between statements (i.e. composed statements). 
+In Table \ref{table:statements}, $1$ denotes that the statement is \emph{true}, $0$ denotes \emph{false}, and $v'$ is the negation of statement $v$.
+
+\begin{table}[h]
+%\def\arraystretch{1.3}
+\centering
+\begin{tabular}{C{0.05\linewidth} | C{0.05\linewidth} || C{0.1\linewidth} | C{0.1\linewidth} | C{0.1\linewidth} }
+\hline
+ $v_1$ & $v_2$ & $v_1 \Rightarrow v_2$ & $v_1' \vee v_2$ & $v_1 \wedge v_2'$ \\
+\hline
+ 1 & 1 & 1 & 1 & 0 \\
+ 1 & 0 & 0 & 0 & 1 \\
+ 0 & 1 & 1 & 1 & 0 \\
+ 0 & 0 & 1 & 1 & 0 \\
+\hline
+\end{tabular}
+\caption{Truth of selected composed statements; notice that 3th and 4th columns are equivalent, 5th is the negation of 3th and 4th column}
+\label{table:statements}
+\end{table}
+
+Please, notice that from the table it is clear that statement $v_1 \Rightarrow v_2$ is equivalent to $v_1' \vee v_2$. However, instead of proving this statement (the first one
+or the second one, it does not matter which one, since they are equivalent), we can prove that the negation  of this statement is not true
+\footnote{because if the negation is not true, than the original statement is true}. The negation of implication is given by $v_1 \wedge v_2'$, see Table \ref{table:statements}.
+To see the real relationship between $v_1' \vee v_2$ and $v_1 \wedge v_2'$, please, see also so-called \emph{De-Morgan's laws}.
+
+Therefore, if we want to prove the implication \eqref{eq:contradiction_implication}, then we rather examine $v_1 \wedge v_2'$, i.e. we suppose, that the assumptions of the implication are true and the result in not true in the same time.
+To prove that this statement is not true, it is enought to show that it does not hold in any case, i.e. we state the \emph{contradiction}.
+
+Moreover, if we consider additional quantifiers (like \emph{for all} or \emph{there exists}) and our statements depend on the parameters, 
+then during the negation of original implication statement, we have to perform negation also to all quantifiers.
+For example the negation of
+\begin{displaymath}
+ \forall \alpha: v_1(\alpha) \Rightarrow v_2(\alpha)
+\end{displaymath}
+is given by
+\begin{displaymath}
+ \exists \alpha: v_1(\alpha) \wedge v_2'(\alpha).
+\end{displaymath}
+So, if we prove that this $\alpha$ does not exist, then we are done.

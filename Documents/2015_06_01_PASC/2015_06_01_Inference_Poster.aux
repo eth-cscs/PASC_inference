@@ -1,0 +1,37 @@
+\relax 
+\citation{granger69}
+\citation{brockwell2002}
+\citation{brockwell2002}
+\citation{horenko_pnas_2014}
+\bibdata{ams}
+\bibstyle{apalike}
+\bibcite{brockwell2002}{1}
+\bibcite{granger69}{2}
+\bibcite{horenko_pnas_2014}{3}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Focus of the project}{1}}
+\newlabel{causality}{{1}{1}}
+\@writefile{toc}{\contentsline {paragraph}{\fontsize  {29.86}{37}\selectfont  Milestone questions about the targeted economical data:}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Understanding Causality}{1}}
+\newlabel{causality}{{2}{1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Deterministic Causality (left): $X$ has a causality impact on $Y$ if for any $t$, event $y^t$ is happening if and only if event $x^t$ happened. In real applications a data model is required, but the realm of applicability (right) determines whether the causality inference is driven by the model or by the data .}}{1}}
+\@writefile{toc}{\contentsline {paragraph}{\fontsize  {29.86}{37}\selectfont  Granger Causality:}{1}}
+\newlabel{eq:ARX}{{1}{1}}
+\@writefile{toc}{\contentsline {paragraph}{\fontsize  {29.86}{37}\selectfont  Limitations:}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Probabilistic (Bayesian) Causality}{1}}
+\@writefile{toc}{\contentsline {paragraph}{\fontsize  {29.86}{37}\selectfont  Law of Total Probability:}{1}}
+\newlabel{eq:full_prob}{{2}{1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The simplest statistical causality model (left) is $P[y^t] = {\bf  \Lambda } P[x^t] + \varepsilon $, with $\Lambda \simeq 0$ implying no causality impact of $X$ on $Y$. The law of total probability allows a partition (right): $P[y^t \mathaccentV {hat}05Eu^t] = \Lambda _1(t) P[x_1^t] + \Lambda _2(t) P[x_2^t] + \ldots  + \Lambda _n(t) P[x_n^t]$, with $\Lambda _i \simeq 0$ implying no causality impact of $X_i$ on $Y$.}}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Algorithm: approximation through well-posed lower bound}{1}}
+\newlabel{approx}{{4}{1}}
+\newlabel{eq:loglik}{{3}{1}}
+\newlabel{eq:loglik_lb}{{4}{1}}
+\newlabel{eq:loglik_lb_con00}{{5}{1}}
+\newlabel{eq:loglik_lb_con0}{{6}{1}}
+\newlabel{eq:loglik_lb_con}{{7}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}High Performance Computing Implementation}{1}}
+\newlabel{sec:hpc}{{5}{1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces On left, the run-times of causality inference algorithm in its current sequential Matlab implementation on an Apple MacBook are shown. The magenta line is the optimal fit of the $O(n^2 \qopname  \relax o{log}n)$-function to this sequence of run times. On right (courtesy of O. Kaiser), the run times of several variants of the Quadratic Programming (QP) minimisation problem performed in every annealing step of the causality algorithm illustrate a similar time evolution (note log-linear scale), albeit with different leading coefficients. The dimension of x is length of the time series and should not be confused with the $n$. The magenta Gurobi curve yields a slightly better scaling since this library employs OpenMP multithreading, which may scale better for increasing problem size. }}{1}}
+\newlabel{fig:perf}{{5}{1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Parallel scaling (left) of the FEM-BV framework in simultaneous (i.e., embarrassingly parallel) analysis of 40960 test data sets (courtesy of P. Metzner). Variable K denotes the number of locally-stationary graphs models that were identified to be in common for all of the data sets, C is the persistency (i.e., a maximal allowed number of switches between these local models pro data set). Note that the computational expense increases for the non-stationary case, but the strong scalability also improves. These preliminary results were obtained on the ``Monte Rosa'' Cray XE6 at CSCS. A hierarchy of state-of-the-art libraries (right) contains, e.g., the templated-C++ minimal linear algebra (Minlin) library for dense linear algebra operations on CPUs (OpenMP) and GPUs (cuBLAS), the PERMON (Parallel, Efficient, Robust, Modular, Object-oriented, Numerical) toolbox for constrained optimisation methods, utilising the well-known Portable Extensible Toolkit for Scientific Computation (PETSc) library for non-linear problems, which in turn utilises the ViennaCL linear algebra backend to offload linear algebra computation to accelerators. On the far right, the above-mentioned initial results for the above-mentioned QP problem solved with PERMON indicate that weak scaling can still be approached (here on dual 8-core Intel Sandybridge nodes), in spite of the dependencies which make the problem difficult to formulate for parallel platforms. }}{1}}
+\newlabel{fig:Scaling}{{5}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Acknowledgements}{1}}
