@@ -96,13 +96,15 @@ Moreover
 \end{theorem}
 
 \begin{proof}
-At first, notice that $h \in C^1(\mathbb{R}^{2n})$ is also a convex function and
+At first, notice that $h \in C^1(\mathbb{R}^{2n})$ is also a convex function and (here $\langle g(x),x=\hat{x} \rangle$ denotes function value of $g(x)$ in point $\hat{x}$)
 \begin{equation}
   \label{eq:absvalconstr4}
-  \nabla h(y) = \nabla f(Sy) = S^T \nabla f(Sy) \in \mathbb{R}^{2n}.
+  \langle \nabla h(y), y = \hat{y} \rangle = 
+  \langle \nabla f(Sy), y = \hat{y} \rangle = 
+  \langle S^T \nabla f(x), x = S \hat{y} \rangle.
 \end{equation}
 Since we suppose existence of $\bar{y}$ as a solution of \eqref{eq:absvalconstr1}, then from necessary optimality condition (see \todo{give cite Boyd, Vandenberghe: Convex Optimization, page 139, equation 4.21})
-we get
+we get (here $\langle v,w \rangle$ denotes scalar product of vectors $v,w \in \mathbb{R}^m$)
 \begin{equation}
  \label{eq:absvalconstr5}
   \langle \nabla h(\bar{y}), y - \bar{y} \rangle \geq 0, ~~~ \forall y \in \Omega_y,
@@ -111,7 +113,7 @@ where $\Omega_y \subset \mathbb{R}^{2n}$ is a feasible set of \eqref{eq:absvalco
 in form
 \begin{equation}
  \label{eq:absvalconstr6}
-  \langle \nabla S^T f(S \bar{y}), y - \bar{y} \rangle \geq 0, ~~~ \forall y \in \Omega_y.
+  \langle S^T \nabla f(S \bar{y}), y - \bar{y} \rangle \geq 0, ~~~ \forall y \in \Omega_y.
 \end{equation}
 Let us denote $\bar{x} := S \bar{y}$. Using the definition of scalar product
 \begin{displaymath}
@@ -206,7 +208,7 @@ Therefore, we can state that $y \in \Omega_y$. Moreover, notice that from the fi
 \footnote{notice that we do not need assumption $\alpha^{+},\alpha^{-} \geq 0$}, 
 i.e.
 \begin{equation}
- \label{eq:absvalconstr12}
+ \label{eq:absvalconstr17}
  \left.
  \begin{array}{rcl}
   \alpha & = & \alpha^{+} - \alpha^{-} \\
@@ -220,7 +222,7 @@ Suppose by contradiction that $\alpha^{+} \cdot \alpha^{-} \neq 0$, i.e.
  \label{eq:absvalconstr13}
  \alpha^{+} \neq 0 ~~~~ \textrm{and} ~~~~ \alpha^{-} \neq 0.
 \end{equation}
-Now we get rid of absolute value in system in assumption of \eqref{eq:absvalconstr12}.
+Now we get rid of absolute value in system in assumption of \eqref{eq:absvalconstr17}.
 We examine both of possible situations:
 \begin{itemize}
  \item if $\alpha \geq 0$, then the solution of system
@@ -241,6 +243,6 @@ We examine both of possible situations:
   is given by $\alpha^{+} = 0, \alpha^{-} = -\alpha$, which is a contradition with \eqref{eq:absvalconstr13}.
 \end{itemize}
 
-We proved that the solution of the system \eqref{eq:absvalconstr11} is unique, therefore for each $x \in \Omega_x$ there exist unique $y \in \Omega_y$ and $x = Sy$.
+We proved that the solution of the system \eqref{eq:absvalconstr11} is unique, therefore for each $x \in \Omega_x$ there exists unique $y \in \Omega_y$ and $x = Sy$.
 
 \end{proof}

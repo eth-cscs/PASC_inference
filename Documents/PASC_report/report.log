@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2015.11.10)  22 APR 2016 12:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2015.11.10)  22 APR 2016 14:47
 entering extended mode
 **report.tex
 (report.tex
@@ -537,11 +537,7 @@ Package: amsthm 2015/03/04 v2.20.2
 )
 \c@theorem=\count123
 \c@corollary=\count124
- (report.aux
-
-LaTeX Warning: Label `eq:absvalconstr12' multiply defined.
-
-)
+ (report.aux)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 59.
 LaTeX Font Info:    ... okay on input line 59.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 59.
@@ -558,7 +554,8 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 59.
 LaTeX Font Info:    ... okay on input line 59.
 \AtBeginShipoutBox=\box29
 Package hyperref Info: Link coloring OFF on input line 59.
- ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
@@ -709,18 +706,18 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 65.
 
-Underfull \hbox (badness 10000) in paragraph at lines 139--141
+Underfull \hbox (badness 10000) in paragraph at lines 141--143
 
  []
 
 [8]
-Underfull \hbox (badness 10000) in paragraph at lines 165--167
+Underfull \hbox (badness 10000) in paragraph at lines 167--169
 
  []
 
 [9]
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 226.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 228.
 )
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 76.
  [10]
@@ -734,16 +731,13 @@ Package rerunfilecheck Info: File `report.out' has not changed.
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: There were multiply-defined labels.
-
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 76.
  ) 
 Here is how much of TeX's memory you used:
- 7493 strings out of 493673
- 104443 string characters out of 3141532
- 208608 words of memory out of 3000000
- 10660 multiletter control sequences out of 15000+200000
+ 7494 strings out of 493673
+ 104462 string characters out of 3141532
+ 208627 words of memory out of 3000000
+ 10661 multiletter control sequences out of 15000+200000
  15095 words of font info for 59 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  34i,15n,35p,381b,462s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -769,7 +763,7 @@ public/amsfonts/cm/cmsy8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/pub
 lic/amsfonts/cm/cmti10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/publi
 c/amsfonts/cm/cmti8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/a
 msfonts/symbols/msbm10.pfb>
-Output written on report.pdf (10 pages, 364223 bytes).
+Output written on report.pdf (10 pages, 364646 bytes).
 PDF statistics:
  372 PDF objects out of 1000 (max. 8388607)
  66 named destinations out of 1000 (max. 500000)
