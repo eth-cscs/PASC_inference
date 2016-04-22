@@ -54,3 +54,193 @@ is given by
  \exists \alpha: v_1(\alpha) \wedge v_2'(\alpha).
 \end{displaymath}
 So, if we prove that this $\alpha$ does not exist, then we are done.
+
+
+
+\subsection{Absolute values in constraints}
+
+\begin{theorem}
+Let
+\begin{itemize}
+ \item $f: \mathbb{R}^n \rightarrow \mathbb{R}, f \in C^1(\mathbb{R}^n)$ be a convex function,
+ \item $c \in \mathbb{R}^{+}$ is arbitrary constant,
+ \item $S \in \mathbb{R}^{n,2n}$ is a matrix defined by
+ \begin{displaymath}
+  S := 
+  \left[
+   \begin{array}{ccccccc}
+     1 & -1 & & & & & \\
+      &  & 1 & -1 & & & \\
+      &  & &  & \ddots & & \\
+      &  &  &  & & 1 & -1 
+   \end{array}
+  \right],
+ \end{displaymath}
+ \item $h(y) := f(Sy), h: \mathbb{R}^{2n} \rightarrow \mathbb{R}$.
+\end{itemize}
+Then if there exists a solution of optimization problem
+\begin{equation}
+ \label{eq:absvalconstr1}
+ \bar{y} := \arg \min h(y) ~~~ \textrm{subject to} ~~~ \sum\limits_{i=1}^{2n} y_i \leq c ~~ \textrm{and} ~~ y \geq 0,
+\end{equation}
+then $\bar{x} := S \bar{y}$ is a solution of optimization problem
+\begin{equation}
+ \label{eq:absvalconstr2}
+ \bar{x} = \arg \min f(x) ~~~ \textrm{subject to} ~~~ \Vert x \Vert_1 \leq c.
+\end{equation}
+Moreover
+\begin{equation}
+ \label{eq:absvalconstr3}
+\forall i = 1,\dots,n: \bar{y}_{2i-1} \cdot \bar{y}_{2i} = 0.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+At first, notice that $h \in C^1(\mathbb{R}^{2n})$ is also a convex function and
+\begin{equation}
+  \label{eq:absvalconstr4}
+  \nabla h(y) = \nabla f(Sy) = S^T \nabla f(Sy) \in \mathbb{R}^{2n}.
+\end{equation}
+Since we suppose existence of $\bar{y}$ as a solution of \eqref{eq:absvalconstr1}, then from necessary optimality condition (see \todo{give cite Boyd, Vandenberghe: Convex Optimization, page 139, equation 4.21})
+we get
+\begin{equation}
+ \label{eq:absvalconstr5}
+  \langle \nabla h(\bar{y}), y - \bar{y} \rangle \geq 0, ~~~ \forall y \in \Omega_y,
+\end{equation}
+where $\Omega_y \subset \mathbb{R}^{2n}$ is a feasible set of \eqref{eq:absvalconstr1}. Using \eqref{eq:absvalconstr4}, we can write condition \eqref{eq:absvalconstr5}
+in form
+\begin{equation}
+ \label{eq:absvalconstr6}
+  \langle \nabla S^T f(S \bar{y}), y - \bar{y} \rangle \geq 0, ~~~ \forall y \in \Omega_y.
+\end{equation}
+Let us denote $\bar{x} := S \bar{y}$. Using the definition of scalar product
+\begin{displaymath}
+ \forall v,w \in \mathbb{R}^m: \langle v,w \rangle = v^T w = \sum\limits_{i = 1}^{m} v_i w_i,
+\end{displaymath}
+we can write the left part of \eqref{eq:absvalconstr6} in form
+\begin{equation}
+ \label{eq:absvalconstr7}
+ \langle S^T \nabla f(\bar{x}), y - \bar{y} \rangle
+ = \left( S^T \nabla f(\bar{x}) \right)^T \left( y - \bar{y} \right)
+ = \left( \nabla f(\bar{x}) \right)^T S \left( y - \bar{y} \right)
+ = \langle \nabla f(\bar{x}), Sy - \bar{x} \rangle.
+\end{equation}
+It remains to prove the relationship between $\Omega_x$ (feasible set of \eqref{eq:absvalconstr2}) and $\Omega_y$ (feasible set of \eqref{eq:absvalconstr1}) in form
+\begin{equation}
+ \label{eq:absvalconstr8}
+ \begin{array}{ll}
+  \forall y \in \mathbb{R}^{2n}: & y \in \Omega_y ~~ \Rightarrow ~~ Sy \in \Omega_x, \\
+  \forall x \in \mathbb{R}^{n}: & x \in \Omega_x ~~ \Rightarrow ~~ \exists y \in \Omega_y: Sy = x, 
+ \end{array}
+\end{equation}
+because if \eqref{eq:absvalconstr8} holds, then we are able to write \eqref{eq:absvalconstr6} using \eqref{eq:absvalconstr7} in form
+\begin{displaymath}
+ \forall x \in \Omega_x: \langle \nabla f(\bar{x}), x - \bar{x} \rangle \geq 0,
+\end{displaymath}
+that concludes that $\bar{x} \in \Omega_x$ is solution of \eqref{eq:absvalconstr5}.\newline
+
+\vspace{0.5cm}
+
+\noindent To prove the first statement of \eqref{eq:absvalconstr8}, let us consider $y \in \Omega_y$, i.e. $y \in \mathbb{R}^{2n}$ such that
+\begin{equation}
+ \label{eq:absvalconstr9}
+ \sum\limits_{i = 1}^{2n} y_i \leq c, y \geq 0.
+\end{equation}
+In following, we examine the L1-norm of $x := Sy$
+\begin{equation}
+ \label{eq:absvalconstrst}
+ \Vert x \Vert_1 = \Vert Sy \Vert_1 = \Vert [y_2 - y_1, y_4 - y_3, \dots, y_{2n} - y_{2n-1}]^T \Vert_1 = \sum\limits_{i =1}^n \vert y_{2i} - y_{2i-1} \vert
+\end{equation}
+using auxiliary inequality; please, notice that
+\begin{displaymath}
+ \forall \alpha, \beta \in \mathbb{R}: \vert \alpha - \beta \vert \leq \vert \alpha \vert + \vert \beta \vert,
+\end{displaymath}
+therefore we can estimate \eqref{eq:absvalconstrst}
+\begin{displaymath}
+ \sum\limits_{i = 1}^{n} \vert y_{2i} - y_{2i-1} \vert \leq \sum\limits_{i=1}^n \left( \vert y_{2i} \vert + y_{2i-1} \right) = \sum\limits_{i=1}^{2n} \vert y_i \vert .
+\end{displaymath}
+Since we assume that $y \in \Omega_y$, i.e. \eqref{eq:absvalconstr9}, we can continue with estimation
+\begin{displaymath}
+ \sum\limits_{i=1}^{2n} \vert y_i \vert = \sum\limits_{i=1}^{2n} y_i  \leq c,
+\end{displaymath}
+i.e. $\Vert x \Vert \leq c$ and therefore $x \in \Omega_x$. \newline
+
+\vspace{0.5cm}
+
+\noindent Now we prove the second statement of \eqref{eq:absvalconstr8}. Suppose $x \in \Omega_x$, i.e.
+\begin{equation}
+ \label{eq:absvalconstr12}
+ \Vert x \Vert_1 = \sum\limits_{i=1}^n \vert x_i \vert \leq c.
+\end{equation}
+Please, notice that for any $\alpha \in \mathbb{R}$, there exist $\alpha^{+}, \alpha^{-} \geq 0$ such that
+\begin{equation}
+ \label{eq:absvalconstr10}
+ \begin{array}{rcl}
+  \alpha & = & \alpha^{+} - \alpha^{-}, \\
+  \vert \alpha \vert & = & \alpha^{+} + \alpha^{-},
+ \end{array}
+\end{equation}
+(for instance
+if $\alpha \geq 0$, then we can choose $\alpha^{+}:=\alpha, \alpha^{-}:=0$;
+if $\alpha < 0$, then we can choose $\alpha^{+}:=0, \alpha^{-}:= -\alpha$ )
+\footnote{in fact, in the end of the proof it will be clear that this decomposition is only one possible choice}.
+Using \eqref{eq:absvalconstr10}, we can decompose each component $x_i, i=1,\dots,n$ into
+\begin{equation}
+ \label{eq:absvalconstr11}
+ \begin{array}{rcl}
+  x_i & = & y_{2i-1} - y_{2i}, \\
+  \vert x_i \vert & = & y_{2i-1} + y_{2i},
+ \end{array}
+\end{equation}
+where $y \in \mathbb{R}^{2n}, y \geq 0$ is a new vector.
+We examine the first condition of \eqref{eq:absvalconstr9} using the second equality of \eqref{eq:absvalconstr11} 
+and assumption \eqref{eq:absvalconstr12}
+\begin{displaymath}
+ \sum\limits_{i=1}^{2n} y_i = \sum\limits_{i =1}^{n} y_{2i-1} + y_{2i} = \sum\limits_{i=1}^{n} \vert x_i \vert \leq c.
+\end{displaymath}
+Therefore, we can state that $y \in \Omega_y$. Moreover, notice that from the first equality in \eqref{eq:absvalconstr11}, it holds $x = Sy$.
+
+\vspace{0.5cm}
+
+\noindent To prove \eqref{eq:absvalconstr3}, it is sufficient to show that \eqref{eq:absvalconstr10} gives us $\alpha^{+} \cdot \alpha^{-} = 0$
+\footnote{notice that we do not need assumption $\alpha^{+},\alpha^{-} \geq 0$}, 
+i.e.
+\begin{equation}
+ \label{eq:absvalconstr12}
+ \left.
+ \begin{array}{rcl}
+  \alpha & = & \alpha^{+} - \alpha^{-} \\
+  \vert \alpha \vert & = & \alpha^{+} + \alpha^{-}
+ \end{array}
+ \right\rbrace ~~~ \Rightarrow
+ ~~~ \alpha^{+} \cdot \alpha^{-} = 0.
+\end{equation}
+Suppose by contradiction that $\alpha^{+} \cdot \alpha^{-} \neq 0$, i.e.
+\begin{equation}
+ \label{eq:absvalconstr13}
+ \alpha^{+} \neq 0 ~~~~ \textrm{and} ~~~~ \alpha^{-} \neq 0.
+\end{equation}
+Now we get rid of absolute value in system in assumption of \eqref{eq:absvalconstr12}.
+We examine both of possible situations:
+\begin{itemize}
+ \item if $\alpha \geq 0$, then the solution of system
+  \begin{displaymath}
+   \begin{array}{rcl}
+    \alpha & = & \alpha^{+} - \alpha^{-}, \\
+    \alpha& = & \alpha^{+} + \alpha^{-}, 
+   \end{array}
+  \end{displaymath}
+  is given by $\alpha^{+} = \alpha, \alpha^{-} = 0$, which is a contradition with \eqref{eq:absvalconstr13}.
+ \item if $\alpha < 0$, then the solution of system
+  \begin{displaymath}
+   \begin{array}{rcl}
+    \alpha & = & \alpha^{+} - \alpha^{-}, \\
+    -\alpha& = & \alpha^{+} + \alpha^{-}, 
+   \end{array}
+  \end{displaymath}
+  is given by $\alpha^{+} = 0, \alpha^{-} = -\alpha$, which is a contradition with \eqref{eq:absvalconstr13}.
+\end{itemize}
+
+
+
+\end{proof}

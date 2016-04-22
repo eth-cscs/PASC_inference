@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2015.11.10)  21 APR 2016 11:56
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2015.11.10)  22 APR 2016 11:35
 entering extended mode
 **report.tex
 (report.tex
@@ -523,49 +523,69 @@ Package: arydshln 2016/03/19 v1.72
 \adl@everyvbox=\toks26
 \adl@LTpagetotal=\dimen135
 )
-(report.aux)
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amscls\amsthm.sty"
+Package: amsthm 2015/03/04 v2.20.2
+\thm@style=\toks27
+\thm@bodyfont=\toks28
+\thm@headfont=\toks29
+\thm@notefont=\toks30
+\thm@headpunct=\toks31
+\thm@preskip=\skip50
+\thm@postskip=\skip51
+\thm@headsep=\skip52
+\dth@everypar=\toks32
+)
+\c@theorem=\count123
+\c@corollary=\count124
+ (report.aux
+
+LaTeX Warning: Label `eq:absvalconstr12' multiply defined.
+
+)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
 \AtBeginShipoutBox=\box29
-Package hyperref Info: Link coloring OFF on input line 49.
+Package hyperref Info: Link coloring OFF on input line 59.
  ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
- ("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count123
+\c@section@level=\count125
 )
-LaTeX Info: Redefining \ref on input line 49.
-LaTeX Info: Redefining \pageref on input line 49.
-LaTeX Info: Redefining \nameref on input line 49.
- (report.out) (report.out)
+LaTeX Info: Redefining \ref on input line 59.
+LaTeX Info: Redefining \pageref on input line 59.
+LaTeX Info: Redefining \nameref on input line 59.
+
+(report.out) (report.out)
 \@outlinefile=\write3
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count124
+\scratchcounter=\count126
 \scratchdimen=\dimen136
 \scratchbox=\box30
-\nofMPsegments=\count125
-\nofMParguments=\count126
-\everyMPshowfont=\toks27
-\MPscratchCnt=\count127
+\nofMPsegments=\count127
+\nofMParguments=\count128
+\everyMPshowfont=\toks33
+\MPscratchCnt=\count129
 \MPscratchDim=\dimen137
-\MPnumerator=\count128
-\makeMPintoPDFobject=\count129
-\everyMPtoPDFconversion=\toks28
+\MPnumerator=\count130
+\makeMPintoPDFobject=\count131
+\everyMPtoPDFconversion=\toks34
 )
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -601,16 +621,16 @@ LaTeX Info: Redefining \nameref on input line 49.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Font Info:    Try loading font information for U+msa on input line 50.
+LaTeX Font Info:    Try loading font information for U+msa on input line 60.
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 50.
+LaTeX Font Info:    Try loading font information for U+msb on input line 60.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for U+rsfs on input line 50.
+LaTeX Font Info:    Try loading font information for U+rsfs on input line 60.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\jknappen\ursfs.fd"
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
@@ -630,7 +650,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 5--8
 LaTeX Warning: Citation `matrix_cookbook' on page 4 undefined on input line 54.
 
 
-<figure/varx1.pdf, id=96, 588.1091pt x 88.1729pt>
+<figure/varx1.pdf, id=101, 588.1091pt x 88.1729pt>
 File: figure/varx1.pdf Graphic file (type pdf)
  <use figure/varx1.pdf>
 Package pdftex.def Info: figure/varx1.pdf used on input line 84.
@@ -639,7 +659,7 @@ Package pdftex.def Info: figure/varx1.pdf used on input line 84.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<figure/varx2.pdf, id=97, 658.63976pt x 345.74419pt>
+<figure/varx2.pdf, id=102, 658.63976pt x 345.74419pt>
 File: figure/varx2.pdf Graphic file (type pdf)
  <use figure/varx2.pdf>
 Package pdftex.def Info: figure/varx2.pdf used on input line 91.
@@ -648,7 +668,7 @@ Package pdftex.def Info: figure/varx2.pdf used on input line 91.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<figure/varx3.pdf, id=100, 1799.99123pt x 483.4632pt>
+<figure/varx3.pdf, id=105, 1799.99123pt x 483.4632pt>
 File: figure/varx3.pdf Graphic file (type pdf)
  <use figure/varx3.pdf>
 Package pdftex.def Info: figure/varx3.pdf used on input line 105.
@@ -657,7 +677,7 @@ Package pdftex.def Info: figure/varx3.pdf used on input line 105.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[4] <figure/varx4.pdf, id=116, 630.69336pt x 314.86989pt>
+[4] <figure/varx4.pdf, id=121, 630.69336pt x 314.86989pt>
 File: figure/varx4.pdf Graphic file (type pdf)
 
 <use figure/varx4.pdf>
@@ -680,29 +700,53 @@ s with page group included in a single page
 
 pdfTeX warning: pdflatex (file ./figure/varx4.pdf): PDF inclusion: multiple pdf
 s with page group included in a single page
->]) [6] (section/supplementary.tex)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 66.
- [7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 66.
+>]) [6] (section/supplementary.tex [7]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 65.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\omscmr.fd"
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 65.
+
+Underfull \hbox (badness 10000) in paragraph at lines 139--141
+
+ []
+
+[8]
+Underfull \hbox (badness 10000) in paragraph at lines 165--167
+
+ []
+
+[9]
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 226.
+)
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 76.
+ [10]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 76.
  (report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 66.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 66.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 76.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 76.
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 0BAC82AF2D49462096019838058EC435;497.
+(rerunfilecheck)             Checksum: E0289256A7F2E4B0E330586C379A07EF;577.
 
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 66.
+
+LaTeX Warning: There were multiply-defined labels.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 76.
  ) 
 Here is how much of TeX's memory you used:
- 7360 strings out of 493673
- 102673 string characters out of 3141532
- 206376 words of memory out of 3000000
- 10557 multiletter control sequences out of 15000+200000
- 14397 words of font info for 57 fonts, out of 3000000 for 9000
+ 7493 strings out of 493673
+ 104443 string characters out of 3141532
+ 208608 words of memory out of 3000000
+ 10660 multiletter control sequences out of 15000+200000
+ 15095 words of font info for 59 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 34i,15n,35p,381b,339s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 34i,15n,35p,381b,462s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb>
 <C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C
 :/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/
@@ -719,13 +763,15 @@ KTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files (x86)/MiKTeX
 onts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Program Files (x86)/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fon
 ts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/
-type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/typ
-e1/public/amsfonts/cm/cmti10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1
-/public/amsfonts/cm/cmti8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/pu
-blic/amsfonts/symbols/msbm10.pfb>
-Output written on report.pdf (7 pages, 325355 bytes).
+type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/typ
+e1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/
+public/amsfonts/cm/cmsy8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/pub
+lic/amsfonts/cm/cmti10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/cm/cmti8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/a
+msfonts/symbols/msbm10.pfb>
+Output written on report.pdf (10 pages, 363791 bytes).
 PDF statistics:
- 298 PDF objects out of 1000 (max. 8388607)
- 44 named destinations out of 1000 (max. 500000)
- 77 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 371 PDF objects out of 1000 (max. 8388607)
+ 66 named destinations out of 1000 (max. 500000)
+ 85 words of extra memory for PDF output out of 10000 (max. 10000000)
 
