@@ -130,7 +130,7 @@ It remains to prove the relationship between $\Omega_x$ (feasible set of \eqref{
  \label{eq:absvalconstr8}
  \begin{array}{ll}
   \forall y \in \mathbb{R}^{2n}: & y \in \Omega_y ~~ \Rightarrow ~~ Sy \in \Omega_x, \\
-  \forall x \in \mathbb{R}^{n}: & x \in \Omega_x ~~ \Rightarrow ~~ \exists y \in \Omega_y: Sy = x, 
+  \forall x \in \mathbb{R}^{n}: & x \in \Omega_x ~~ \Rightarrow ~~ \exists ! y \in \Omega_y: Sy = x, 
  \end{array}
 \end{equation}
 because if \eqref{eq:absvalconstr8} holds, then we are able to write \eqref{eq:absvalconstr6} using \eqref{eq:absvalconstr7} in form
@@ -157,13 +157,13 @@ using auxiliary inequality; please, notice that
 \end{displaymath}
 therefore we can estimate \eqref{eq:absvalconstrst}
 \begin{displaymath}
- \sum\limits_{i = 1}^{n} \vert y_{2i} - y_{2i-1} \vert \leq \sum\limits_{i=1}^n \left( \vert y_{2i} \vert + y_{2i-1} \right) = \sum\limits_{i=1}^{2n} \vert y_i \vert .
+ \sum\limits_{i = 1}^{n} \vert y_{2i} - y_{2i-1} \vert \leq \sum\limits_{i=1}^n \left( \vert y_{2i} \vert + \vert y_{2i-1} \vert \right) = \sum\limits_{i=1}^{2n} \vert y_i \vert .
 \end{displaymath}
 Since we assume that $y \in \Omega_y$, i.e. \eqref{eq:absvalconstr9}, we can continue with estimation
 \begin{displaymath}
  \sum\limits_{i=1}^{2n} \vert y_i \vert = \sum\limits_{i=1}^{2n} y_i  \leq c,
 \end{displaymath}
-i.e. $\Vert x \Vert \leq c$ and therefore $x \in \Omega_x$. \newline
+i.e. $\Vert x \Vert_1 \leq c$ and therefore $x \in \Omega_x$. \newline
 
 \vspace{0.5cm}
 
@@ -241,6 +241,6 @@ We examine both of possible situations:
   is given by $\alpha^{+} = 0, \alpha^{-} = -\alpha$, which is a contradition with \eqref{eq:absvalconstr13}.
 \end{itemize}
 
-
+We proved that the solution of the system \eqref{eq:absvalconstr11} is unique, therefore for each $x \in \Omega_x$ there exist unique $y \in \Omega_y$ and $x = Sy$.
 
 \end{proof}
