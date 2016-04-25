@@ -246,3 +246,34 @@ We examine both of possible situations:
 We proved that the solution of the system \eqref{eq:absvalconstr11} is unique, therefore for each $x \in \Omega_x$ there exists unique $y \in \Omega_y$ and $x = Sy$.
 
 \end{proof}
+
+\begin{example}
+Let us consider the basic quadratic programming problem - the projection (Euclidean) onto feasible set. In this case, we will consider a feasible set described by the L1-norm.
+On this simple example, we demonstrate the computation of gradient in equation \eqref{eq:absvalconstr4}.
+For any $p \in \mathbb{R}^2$, we define projection onto set $\Omega$ as a solution of optimization problem
+\begin{displaymath}
+ P_{\Omega} (p) = \arg \min\limits_{x \in \Omega} \Vert x - p \Vert, ~~~ \Omega := \lbrace x \in \mathbb{R}^2: \Vert x \Vert_1 \leq 1 \rbrace
+\end{displaymath}
+(find the point from $\Omega$ which is the nearest to given arbitrary $p$).
+Notice that the problem is equivalent to
+\begin{displaymath}
+ P_{\Omega} (y) = \arg \min\limits_{x \in \Omega} \frac{1}{2}\Vert x - p \Vert^2 = \arg \min\limits_{x \in \Omega} \underbrace{\frac{1}{2} x^T I x - p^T x}_{=: f(x)}
+\end{displaymath}
+with gradient
+\begin{displaymath}
+ \nabla f(x) = x - p.
+\end{displaymath}
+Let us define the function $h: \mathbb{R}^{4n} \rightarrow \mathbb{R}$ by
+\begin{displaymath}
+ h(y) := f(Sy) = \frac{1}{2} (Sy)^T I Sy - p^T Sy = \frac{1}{2} y^T S^T S y - (S^Tp)^T y.
+\end{displaymath}
+The gradient of this function is given by
+\begin{displaymath}
+ \nabla h(y) = S^T S y - S^Tp = S^T ( Sy-p) = S^T \nabla f(Sy).
+\end{displaymath}
+Instead of solving the original problem, we will rather solve
+\begin{displaymath}
+ \hat{y} = \arg \min\limits_{y \in \Omega_y} \frac{1}{2} y^T S^T S y - (S^Tp)^T y, ~~~ \Omega_y := \lbrace y \in \mathbb{R}^4: y_1 + y_2 + y_3 + y_4 \leq c ~ \vee ~ y \geq 0 \rbrace
+\end{displaymath}
+and the solution of original problem will be given by $P(p) = S\hat{y}$. Notice that $S^TS$ is SPS Hessian matrix of $h$, therefore $h$ is convex function (but not strictly convex).
+\end{example}
