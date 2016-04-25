@@ -319,6 +319,7 @@ class ConsoleOutput : public std::ostream {
 						#ifdef USE_PETSCVECTOR
 							/* write here also a rank of processor */
 							output << "[" << this->rank << "] " << offset << str();
+
 						#else
 							output << offset << str();
 						#endif
@@ -327,6 +328,10 @@ class ConsoleOutput : public std::ostream {
 					} else {
 					    str("");
 					}
+
+					#ifdef USE_PETSCVECTOR
+						TRY(PetscBarrier(NULL)); /* barrier after each cout */
+					#endif
 
 					return 0;
 				}
@@ -365,6 +370,73 @@ class ConsoleOutput : public std::ostream {
 
 static ConsoleOutput coutMaster(std::cout,0); /**< instance of output console stream on master */
 static ConsoleOutput coutAll(std::cout); /**< instance of output console stream on master */
+
+template<class MyType>
+void print_array(std::ostream &output, int my_size, MyType *my_array){
+	output << "[";
+	for(int i=0;i<my_size;i++){
+		output << my_array[i];
+		if(i<my_size-1) output << ",";
+	}	
+	output << "]";
+}
+
+template<class MyType>
+MyType sum_array(int my_size, MyType *my_array){
+	MyType sum = 0;
+	for(int i=0;i<my_size;i++){
+		sum += my_array[i];
+	}	
+	return sum;
+}
+
+
+class GlobalManagerClass {
+	private:
+		int rank;
+		int size;
+		bool initialized; /**< the rank and size were already obtained */
+
+		void init(){
+			if(!initialized){
+			#ifdef USE_PETSCVECTOR
+				/* can be set after initialize of petsc */
+				if(petscvector::PETSC_INITIALIZED){
+					TRY(PetscBarrier(NULL));
+						
+					MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
+					MPI_Comm_size(MPI_COMM_WORLD, &this->size);
+
+					initialized = true;
+						
+				}	
+			#else
+				initialized = true; /* if it is not with petsc, then this is always master */
+				this->rank = 0;
+				this->size = 1; /* one processor */
+			#endif
+			}
+		}
+
+	public:
+		GlobalManagerClass(){
+			this->init();
+		}
+
+		int get_rank(){
+			this->init();
+			return this->rank;
+		}
+		
+		int get_size(){
+			this->init();
+			return this->size;
+		}
+};
+
+static GlobalManagerClass GlobalManager; /**< for manipulation with rank and size of MPI */
+
+
 
 #ifdef USE_CUDA
 	/* cuda error check */ 

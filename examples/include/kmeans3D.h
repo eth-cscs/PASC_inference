@@ -4,7 +4,6 @@
 
 namespace pascinference {
 	namespace example {
-		template<class VectorBase>
 		class KMeans3D {
 			private:
 				/** @brief get random number 2D 
@@ -40,6 +39,7 @@ namespace pascinference {
 				* @param covariance array (of length K*dimx) of matrices of size dimx*dimx with covariance matrices for generating data
 				* @param datavector output datavector with random values 
 				*/ 
+				template<class VectorBase>
 				static void generate(int T, int K, double *mu, double *covariance, GeneralVector<VectorBase> *datavector);
 
 				/** @brief save results into VTK file 
@@ -48,7 +48,12 @@ namespace pascinference {
 				* 
 				* 
 				*/
+				template<class VectorBase>
 				static void saveVTK(std::string name_of_file, int T, int K, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
+
+				template<class VectorBase>
+				static void saveVTK(std::string name_of_file, std::string extension, int T, int Knum, int *K, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
+
 
 		};
 		
@@ -57,8 +62,7 @@ namespace pascinference {
 
 namespace pascinference {
 	namespace example {
-		template<class VectorBase>
-		void KMeans3D<VectorBase>::my_mvnrnd_D2(double *mu, double *covariance, double *value1, double *value2){
+		void KMeans3D::my_mvnrnd_D2(double *mu, double *covariance, double *value1, double *value2){
 			double L[4];
 			double r1, r2, r1n, r2n; 
 	
@@ -90,8 +94,7 @@ namespace pascinference {
 
 		}		
 
-		template<class VectorBase>
-		void KMeans3D<VectorBase>::my_mvnrnd_D3(double *mu, double *diag_covariance, double *value1, double *value2, double *value3){
+		void KMeans3D::my_mvnrnd_D3(double *mu, double *diag_covariance, double *value1, double *value2, double *value3){
 			double r1, r2, r3, r4;
 
 			double mu12[2] = {mu[0],mu[1]};
@@ -112,13 +115,13 @@ namespace pascinference {
 		}		
 		
 		template<class VectorBase>
-		void KMeans3D<VectorBase>::generate(int T, int K, double *mu, double *covariance, GeneralVector<VectorBase> *datavector) {
-			int dimx = 3;
+		void KMeans3D::generate(int T, int K, double *mu, double *covariance, GeneralVector<VectorBase> *datavector_in) {
+			int xdim = 3;
 			double random_value1, random_value2, random_value3; 
 			int t, k;
 
 			typedef GeneralVector<VectorBase> (&pVector);
-			pVector data = *datavector;
+			pVector datavector = *datavector_in;
 
 			int clusterT = ceil((double)T/(double)K);
 	
@@ -140,7 +143,7 @@ namespace pascinference {
 		
 		//TODO: this should be written for every type of vectorbase
 		template<class VectorBase>
-		void KMeans3D<VectorBase>::saveVTK(std::string name_of_file, int T, int K, GeneralVector<VectorBase> *datavector_in, GeneralVector<VectorBase> *gammavector_in){
+		void KMeans3D::saveVTK(std::string name_of_file, int T, int K, GeneralVector<VectorBase> *datavector_in, GeneralVector<VectorBase> *gammavector_in){
 			Timer timer_saveVTK; 
 			timer_saveVTK.restart();
 			timer_saveVTK.start();
@@ -222,7 +225,133 @@ namespace pascinference {
 			coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
 
 		}
-		
+
+
+
+		template<>
+		void KMeans3D::saveVTK(std::string name_of_file, std::string extension, int T, int Knum, int *Karr, GeneralVector<PetscVector> *datavector_in, GeneralVector<PetscVector> *gammavector_in){
+			Timer timer_saveVTK; 
+			timer_saveVTK.restart();
+			timer_saveVTK.start();
+
+			/* from input pointers to classical vectors (just simplification of notation) */
+			typedef GeneralVector<PetscVector> (&pVector);
+			pVector datavector = *datavector_in;
+			pVector gammavector = *gammavector_in;
+	
+			int t,k;
+			int my_rank = GlobalManager.get_rank();
+			int K = Karr[my_rank];
+			int Tlocal = datavector.local_size()/3.0; /* xdim = 3 */
+			
+			/* filename */
+			std::ostringstream oss_name_of_file;
+			
+			/* to manipulate with file */
+			std::ofstream myfile;
+	
+			/* write to the name of file */
+			oss_name_of_file << name_of_file << "_" << my_rank << extension;
+
+			/* open file to write */
+			myfile.open(oss_name_of_file.str().c_str());
+
+			/* write header to file */
+			myfile << "# vtk DataFile Version 3.1\n";
+			myfile << "PASCInference: Kmeans2D solution, K=" << K << "\n";
+			myfile << "ASCII\n";
+			myfile << "DATASET UNSTRUCTURED_GRID\n";
+
+			/* points - coordinates */
+			myfile << "POINTS " << T << " FLOAT\n";
+
+			/* sequential part follows, threfore close the file for now */
+			myfile.close();
+
+			/* each processor will write into one folder */ //TODO: this is slow :(
+			std::ostringstream oss_name_of_other_file;
+			std::ofstream otherfile;
+			double *datavector_arr;
+			for(int idproc = 0; idproc < GlobalManager.get_size(); idproc++){
+				if(idproc == GlobalManager.get_rank()){
+					TRY( VecGetArray(datavector.get_vector(),&datavector_arr) )
+
+					
+					/* now I will write into files */
+					for(int idproc2 = 0; idproc2 < GlobalManager.get_size(); idproc2++){
+						oss_name_of_other_file << name_of_file << "_" << idproc2 << extension;
+						otherfile.open(oss_name_of_other_file.str().c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+						
+						for(t=0;t < Tlocal;t++){
+							otherfile << datavector_arr[3*t] << " "; /* x */
+							otherfile << datavector_arr[3*t+1] << " "; /* y */
+							otherfile << datavector_arr[3*T+2] << "\n"; /* z */
+						}
+						
+						otherfile.close();
+						oss_name_of_other_file.str("");
+						oss_name_of_other_file.clear();
+					}
+
+					TRY( VecRestoreArray(datavector.get_vector(),&datavector_arr) )
+				}
+
+				TRY(PetscBarrier(NULL));
+			}
+
+			/* parallel part continues */
+			myfile.open(oss_name_of_file.str().c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+			myfile << "\n";
+
+			/* values in points */
+			myfile << "POINT_DATA " << T << "\n";
+			/* prepare vector with idx of max values */
+
+			/* get local vector of gamma */
+			double *gammavector_arr;
+			TRY( VecGetArray(gammavector.get_vector(),&gammavector_arr) );
+
+			double gamma_max[gammavector.local_size()];
+			int gamma_max_idx[gammavector.local_size()];
+			double temp;
+			/* initialization of arrays */
+			for(t=0;t<T;t++){
+				gamma_max[t] = 0.0;
+				gamma_max_idx[t] = 0;
+			}
+	
+			for(k=0;k<K;k++){
+				/* write gamma_k */
+				myfile << "SCALARS gamma_" << k << " float 1\n";
+				myfile << "LOOKUP_TABLE default\n";
+				for(t=0;t<T;t++){
+					myfile << gammavector_arr[k*T + t] << "\n";
+
+					/* update maximum */
+					if(gammavector_arr[k*T + t] > gamma_max[t]){
+						temp = gammavector_arr[k*T+t];
+						gamma_max[t] = temp;
+						gamma_max_idx[t] = k;
+					}
+				}
+			}
+
+			TRY( VecRestoreArray(gammavector.get_vector(),&gammavector_arr) )
+
+			/* store gamma values */
+			myfile << "SCALARS gamma_max_id float 1\n";
+			myfile << "LOOKUP_TABLE default\n";
+			for(t=0;t<T;t++){
+				myfile << gamma_max_idx[t] << "\n";
+			}
+
+			/* close file */
+			myfile.close();
+
+			timer_saveVTK.stop();
+			coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+
+		}		
 		
 		
 	} /* end namespace example */

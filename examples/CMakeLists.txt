@@ -18,7 +18,8 @@ option(TEST_SPGQP "TEST_SPGQP" OFF)
 option(TEST_KMEANS "TEST_KMEANS" OFF)
 option(TEST_VARX "TEST_VARX" OFF)
 option(BENCHMARK1 "BENCHMARK1" OFF)
-option(BENCHMARK2 "BENCHMARK2" ON)
+option(BENCHMARK2 "BENCHMARK2" OFF)
+option(TSSOLVER_GLOBAL "TSSOLVER_GLOBAL" ON)
 
 # include additional example headers
 include_directories("include")
@@ -108,5 +109,15 @@ if(${BENCHMARK2})
 	endif()
 endif()
 
+if(${TSSOLVER_GLOBAL})
+	# this is VARX global test
+	if(${USE_CUDA})
+		# if we know how to compile .cu, then include .cu
+		pascadd_executable("tssolver_global.cu" "tssolver_global")
+	else()
+		# otherwise compile as .cpp
+		pascadd_executable("tssolver_global.cpp" "tssolver_global")
+	endif()
+endif()
 
 
