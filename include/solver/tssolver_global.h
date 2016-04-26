@@ -132,8 +132,14 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	model = tsdata->get_model(); 
 
 	/* we can initialize solvers - based on model */
+	
+	coutAll << "I am preparing gammasolver" << std::endl;
 	model->initialize_gammasolver(&gammasolver, tsdata);	
-	model->initialize_thetasolver(&thetasolver, tsdata);	
+	gammasolver = NULL; // TODO: temp
+
+	coutAll << "I am preparing thetasolver" << std::endl;
+//	model->initialize_thetasolver(&thetasolver, tsdata);	
+	thetasolver = NULL; // TODO: temp
 	
 	this->it_sum = 0;
 	this->it_last = 0;

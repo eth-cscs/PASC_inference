@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int dimx = 3; /* data dimension */
-	int T = 11; /* length of time-series */
+	int T = 20; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int Solution_K = 4;
@@ -47,8 +47,8 @@ int main( int argc, char *argv[] )
 
 
 	/* model parameters */
-	int Knum = 2;
-	int K[Knum] = {2,3}; /* number of clusters */
+	int Knum = 5;
+	int K[Knum] = {2,3,1,4,5}; /* number of clusters */
 	Knum = GlobalManager.get_size(); // TODO: this is a hotfix for proc < Knum
 
 
@@ -78,10 +78,9 @@ int main( int argc, char *argv[] )
 	example::KMeans3D::generate(T, Solution_K, Solution_mu, Solution_diag_covariance, mydata.get_datavector());
 	mydata.printcontent(coutMaster,coutAll);
 
-
 	/* prepare time-series solver */
-//	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-//	TSSolver<Global> mysolver(mydata);
+	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	TSSolver_Global mysolver(mydata);
 
 	/* solve the problem */
 //	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
@@ -96,7 +95,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- SAVING VTK ---" << std::endl;
 	example::KMeans3D::saveVTK("output",".vtk",T,Knum,K,mydata.get_datavector(),mydata.get_gammavector());
 	
-//	mysolver.printtimer(coutMaster);
+	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

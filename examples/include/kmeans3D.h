@@ -119,26 +119,44 @@ namespace pascinference {
 			int xdim = 3;
 			double random_value1, random_value2, random_value3; 
 			int t, k;
+			int myK;
 
 			typedef GeneralVector<VectorBase> (&pVector);
 			pVector datavector = *datavector_in;
 
 			int clusterT = ceil((double)T/(double)K);
+			int Tlocal = ((double)datavector.local_size())/((double)xdim);
+			int t_begin, t_end; /* ownership */ 
+
+			TRY( VecGetOwnershipRange(datavector.get_vector(), &t_begin, &t_end) );
+			t_begin = ((double)t_begin)/((double)xdim);
+			t_end = ((double)t_end)/((double)xdim);
 	
 			double *muK, *covarianceK;
-	
-			/* generate random data */
-			for(k=0;k<K;k++){ /* go through clusters */ 
-				muK = &mu[k*dimx]; /* get subarray */
-				covarianceK = &covariance[k*dimx]; /* get subarray */
-				for(t=k*clusterT;t < std::min((k+1)*clusterT,T);t++){ /* go through part of time serie corresponding to this cluster */
-					my_mvnrnd_D3(muK, covarianceK, &random_value1, &random_value2, &random_value3);
-		
-					data(t) = random_value1;
-					data(T+t) = random_value2;
-					data(2*T+t) = random_value3;
+			double *datavector_arr;
+									
+			/* generate local random data */
+			TRY( VecGetArray(datavector.get_vector(),&datavector_arr) );
+			for(t=0;t < Tlocal;t++){
+				/* which cluster am I computing? */
+				for(k=0;k<K;k++){
+					if( ((t_begin+t) >= k*clusterT) && ((t_begin+t) < (k+1)*clusterT) ){
+						myK = k;
+					}
 				}
+				
+				muK = &mu[myK*xdim]; /* get subarray */
+				covarianceK = &covariance[myK*xdim]; /* get subarray */
+				
+				my_mvnrnd_D3(muK, covarianceK, &random_value1, &random_value2, &random_value3);
+				
+				datavector_arr[xdim*t] = random_value1;
+				datavector_arr[xdim*t+1] = random_value2;
+				datavector_arr[xdim*t+2] = random_value3;
+				
 			}
+			TRY( VecRestoreArray(datavector.get_vector(),&datavector_arr) );
+
 		}
 		
 		//TODO: this should be written for every type of vectorbase
@@ -265,15 +283,16 @@ namespace pascinference {
 			/* points - coordinates */
 			myfile << "POINTS " << T << " FLOAT\n";
 
-			/* sequential part follows, threfore close the file for now */
+			/* sequential part follows, therefore close the file for now */
 			myfile.close();
-
+			TRY(PetscBarrier(NULL));
+			
 			/* each processor will write into one folder */ //TODO: this is slow :(
 			std::ostringstream oss_name_of_other_file;
 			std::ofstream otherfile;
 			double *datavector_arr;
 			for(int idproc = 0; idproc < GlobalManager.get_size(); idproc++){
-				if(idproc == GlobalManager.get_rank()){
+				if(idproc == my_rank){
 					TRY( VecGetArray(datavector.get_vector(),&datavector_arr) )
 
 					
@@ -285,7 +304,7 @@ namespace pascinference {
 						for(t=0;t < Tlocal;t++){
 							otherfile << datavector_arr[3*t] << " "; /* x */
 							otherfile << datavector_arr[3*t+1] << " "; /* y */
-							otherfile << datavector_arr[3*T+2] << "\n"; /* z */
+							otherfile << datavector_arr[3*t+2] << "\n"; /* z */
 						}
 						
 						otherfile.close();
@@ -345,8 +364,33 @@ namespace pascinference {
 				myfile << gamma_max_idx[t] << "\n";
 			}
 
-			/* close file */
+			/* store proc_id */
+			myfile << "SCALARS proc_id float 1\n";
+			myfile << "LOOKUP_TABLE default\n";
+			/* sequential part follows, therefore close the file for now */
 			myfile.close();
+			TRY(PetscBarrier(NULL));
+			
+			/* each processor will write into one folder his id */ //TODO: this is slow :(
+			for(int idproc = 0; idproc < GlobalManager.get_size(); idproc++){
+				if(idproc == my_rank){
+					/* now I will write into files */
+					for(int idproc2 = 0; idproc2 < GlobalManager.get_size(); idproc2++){
+						oss_name_of_other_file << name_of_file << "_" << idproc2 << extension;
+						otherfile.open(oss_name_of_other_file.str().c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+						
+						for(t=0;t < Tlocal;t++){
+							otherfile << my_rank << "\n"; /* x */
+						}
+						
+						otherfile.close();
+						oss_name_of_other_file.str("");
+						oss_name_of_other_file.clear();
+					}
+				}
+
+				TRY(PetscBarrier(NULL));
+			}
 
 			timer_saveVTK.stop();
 			coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
