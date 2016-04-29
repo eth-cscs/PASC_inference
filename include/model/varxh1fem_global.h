@@ -18,7 +18,7 @@ extern int DEBUG_MODE;
 //#include "matrix/blockdiaglaplace_explicit.h"
 #include "matrix/blockdiaglaplace_vector.h"
 
-#include "feasibleset/simplex.h"
+#include "feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
@@ -200,7 +200,7 @@ void VarxH1FEMModel_Global::print(std::ostream &output_global, std::ostream &out
 
 /* get name of the model */
 std::string VarxH1FEMModel_Global::get_name() const {
-	return "VARX-H1-FEM Time-Series Model";	
+	return "VARX-H1-FEM Global Time-Series Model";	
 }
 
 /* prepare gamma solver */
@@ -209,18 +209,18 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	
 	/* create data */
 	gammadata = new QPData<PetscVector>();
+	
 	gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
 	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
-
-	gammadata->set_feasibleset(new SimplexFeasibleSet<PetscVector>(this->T,this->Klocal)); /* the feasible set of QP is simplex */ 	
+	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->T,this->Klocal)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
 	*gammasolver = new QPSolver<PetscVector>(*gammadata);
-	
+
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
 
@@ -382,138 +382,201 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	/* update theta solver - prepare new BlockDiag matrix data and right-hand side vector */	
 
 	/* pointers to data */
-	typedef GeneralVector<GlobalPetscVector> (&pVector);
-	pVector X = *(tsdata->get_datavector());
-	pVector U = *(tsdata->get_u());
-	pVector b = *(thetadata->get_b());
-	pVector gamma = *(gammadata->get_x());
+	Vec X = tsdata->get_datavector()->get_vector();
+//	Vec U = tsdata->get_u()->get_vector();
+	Vec b_global = thetadata->get_b()->get_vector();
+	Vec gamma_global = gammadata->get_x()->get_vector();
 
+	/* local variables */
+//	Vec b_local;
+	const double *gamma_arr;
+	double *b_arr;
+	
 	/* get constants of the problem */
-	int K = this->Klocal;
+	int Klocal = this->Klocal;
 	int T = this->T;
-	int dim = this->xdim;
-	int xmem = this->xmem;
-	int umem = this->umem;
-	int blocksize = 1 + this->xdim*this->xmem + this->umem; /* see get_thetavectorlength() */
-
-	/* auxiliary vector */
-	GlobalPetscVector temp(T);
+	int xdim = this->xdim;
+//	int xmem = this->xmem;
+//	int umem = this->umem;
+//	int blocksize = 1 + this->xdim*this->xmem + this->umem; /* see get_thetavectorlength() */
 
 	/* blocks of the matrix */
-	BlockDiagMatrix<GlobalPetscVector,LocalDenseMatrix<GlobalPetscVector> > *A = dynamic_cast<BlockDiagMatrix<GlobalPetscVector,LocalDenseMatrix<GlobalPetscVector> > *>(thetadata->get_A());
-	LocalDenseMatrix<GlobalPetscVector> **blocks = A->get_blocks();
-	LocalDenseMatrix<GlobalPetscVector> *block;
+	BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *A = dynamic_cast<BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *>(thetadata->get_A());
+	LocalDenseMatrix<PetscVector> **blocks = A->get_blocks();
+	LocalDenseMatrix<PetscVector> *block;
+
+	/* index set with components of x corresponding to one dimension */
+	IS xn_is;
+	Vec xn_global; /* global vector with values of one dimension */
+	Vec xn_local;  /* scattered xn_global to each processor */
+	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn_local) );
+	const double *xn_local_arr; /* for read */
+
+	VecScatter ctx; /* for scattering xn_global to xn_local */
+
+//	TRY( VecView(X,PETSC_VIEWER_STDOUT_WORLD) );
+//	TRY( VecView(b,PETSC_VIEWER_STDOUT_WORLD) );
+//	TRY( VecView(gamma,PETSC_VIEWER_STDOUT_WORLD) );
 	
 	/* go through clusters and fill matrices */
-	int k,n,n2;
-	int i,j;
+	int k;
+	int n; // n2
+	int t;
 	double value;
-	for(k=0;k<K;k++){
-		/* get actual block */
-		block = blocks[k*dim];
-		
-		/* const row */
-		for(i=0; i < 1; i++){
-			/* const column */
-			for(j=0; j < 1; j++){
-//				value = T;
-				value = sum(gamma(k*T,(k+1)*T-1));
-				block->set_value(i, j, value);
-			}
 
-			/* x columns */
-			for(j=1; j < xmem; j++){
-				
-				for(n=0;n<dim;n++){
-//					value = sum(X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
-//					value = dot(X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j), gamma(k*T,(k+1)*T-1));
-					value = dot(X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j), gamma(k*T,(k+1)*T-1));
-					block->set_value(i, 1+j*dim+n, value);
-					block->set_value(1+j*dim+n, i, value);
-				}
-			}
 
-			/* u columns */
-			if(umem > 0){
-				/* there is u */
-				for(j=0; j < umem+1; j++){	// TODO: is this right?
-//					value = sum(U(xmem-j, xmem+T-1-j));
-//					value = dot(U(xmem-j, xmem+T-1-j), gamma(k*T,(k+1)*T-1));
-					value = dot(U(xmem-j, xmem+T-1-j), gamma(k*T,(k+1)*T-1));
-					block->set_value(i, 1+xmem*dim+j, value);
-					block->set_value(1+xmem*dim+j, i, value);
-				}
-			}
+	TRY( VecGetArrayRead(gamma_global, &gamma_arr) );
+	TRY( VecGetArray(b_global, &b_arr) );
 
-			/* rhs */
-			for(n=0;n<dim;n++){
-//				value = sum( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
-				value = dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) );
-				b(k*blocksize*dim + n*blocksize) = value;
-			}
-
+	/* matrix */
+	for(k=0;k<Klocal;k++){
+		block = blocks[k*xdim];
 			
-		}
+		/* fill matrix */
+		value = sum_subarray(k*T, (k+1)*T-1, gamma_arr);
+		block->set_value(0, 0, value);
+			
+	}	
 
-		/* X rows */
-		for(i=1; i < xmem; i++){
-			for(n2=0;n2<dim;n2++){
-//				temp = mul(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), gamma(k*T,(k+1)*T-1));
-				temp = mul(X(xmem + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), gamma(k*T,(k+1)*T-1));
+	/* rhs */
+	for(n=0;n<xdim;n++){
+		/* get global xn_global */
+		TRY( ISCreateStride(PETSC_COMM_SELF, T, n, xdim, &xn_is) );
+		TRY( VecGetSubVector(X,xn_is,&xn_global) );
+		
+		/* scatter xn_global to xn_local */
+		TRY( VecScatterCreateToAll(xn_global,&ctx,&xn_local) );
+		TRY( VecScatterBegin(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
+		TRY( VecScatterEnd(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
+		TRY( VecScatterDestroy(&ctx) );
 
-				/* x columns */
-				for(j=1; j < xmem; j++){
-					for(n=0;n<dim;n++){
-//						value = dot(X(xmem-1 + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
-//						value = dot(temp, X(xmem-1 + n*(xmem+T) - j, xmem+T-2  + n*(xmem+T) - j));
-						value = dot(temp, X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j));
-						block->set_value(1+i*dim+n2, 1+j*dim+n, value);
-						block->set_value(1+j*dim+n, 1+i*dim+n2, value);
-					}
-				}
-
-				/* u columns */
-				if(umem > 0){
-					for(j=0; j < umem+1; j++){	// TODO: is this right?
-						value = dot(temp, U(xmem-j, xmem+T-1-j));
-						block->set_value(1+i*dim+n2, 1+xmem*dim+j, value);
-						block->set_value(1+xmem*dim+j, 1+i*dim+n2, value);
-					}
-				}
-
-				/* rhs */
-				for(n=0;n<dim;n++){
-					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
-					b(1 + k*blocksize*dim + n*blocksize + i*dim + n2) = value;
-				}
-
+		/* now I have my own seq vector xn_local with x(n,:) */
+		TRY( VecGetArrayRead(xn_local, &xn_local_arr) );
+		
+		for(k=0;k<Klocal;k++){
+			/* RHS - compute dot product dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) ); */
+			value = 0;
+			for(t=0;t<T;t++){
+				value += xn_local_arr[t]*gamma_arr[t];
 			}
-		}
+			b_arr[k*xdim + n] = value;
+		}	
 
-		/* U rows */
-		if(umem > 0){ // TODO: is this right?
-			for(i=0; i < umem+1; i++){
-				temp = mul( U(xmem-i, xmem+T-1-i), gamma(k*T,(k+1)*T-1));
+		TRY( VecGetArrayRead(xn_local, &xn_local_arr) );
 
-				/* u columns */
-				for(j=0; j < umem+1; j++){
-//					value = dot(U(xmem-i, xmem+T-1-i), U(xmem-j, xmem+T-1-j));				
-					value = dot(temp, U(xmem-j, xmem+T-1-j));
-					block->set_value(1+xmem*dim+i, 1+xmem*dim+j, value);
-					block->set_value(1+xmem*dim+j, 1+xmem*dim+i, value);
-				}
-
-				/* rhs */
-				for(n=0;n<dim;n++){
-//					value = dot( U(xmem-i, xmem+T-1-i), X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
-					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
-					b(1+xmem*dim + k*blocksize*dim + n*blocksize + i) = value;
-				}
-			}
-		}
+		/* restore subvector with xn_global */
+		TRY( VecRestoreSubVector(X,xn_is,&xn_global) );
+		TRY( ISDestroy(&xn_is) );
 
 		
 	}
+	TRY( VecRestoreArrayRead(gamma_global, &gamma_arr) );
+	TRY( VecRestoreArray(b_global, &b_arr) );
+
+	TRY( VecDestroy(&xn_local) );
+
+	
+//	for(k=0;k<Klocal;k++){
+		/* get actual block */
+//		block = blocks[k*xdim];
+
+		/* get local gamma corresponding to this cluster */
+
+
+		/* const row */
+//		for(i=0; i < 1; i++){
+			/* const column */
+//			for(j=0; j < 1; j++){
+//				value = sum_subarray(k*T, (k+1)*T-1, gamma_arr);
+//				block->set_value(i, j, value);
+//			}
+
+			/* x columns */
+//			for(j=1; j < xmem; j++){
+				
+//				for(n=0;n<dim;n++){
+//					value = dot(X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j), gamma(k*T,(k+1)*T-1));
+//					block->set_value(i, 1+j*dim+n, value);
+//					block->set_value(1+j*dim+n, i, value);
+//				}
+//			}
+
+			/* u columns */
+//			if(umem > 0){
+				/* there is u */
+//				for(j=0; j < umem+1; j++){	// TODO: is this right?
+//					value = dot(U(xmem-j, xmem+T-1-j), gamma(k*T,(k+1)*T-1));
+//					block->set_value(i, 1+xmem*dim+j, value);
+//					block->set_value(1+xmem*dim+j, i, value);
+//				}
+//			}
+
+			/* rhs */
+//			for(n=0;n<xdim;n++){
+//				value = dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) );
+//				b_arr[k*blocksize*xdim + n*blocksize] = n;
+//			}
+
+			
+//		}
+
+		/* X rows */
+//		for(i=1; i < xmem; i++){
+//			for(n2=0;n2<dim;n2++){
+//				temp = mul(X(xmem + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), gamma(k*T,(k+1)*T-1));
+
+				/* x columns */
+//				for(j=1; j < xmem; j++){
+//					for(n=0;n<dim;n++){
+//						value = dot(temp, X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j));
+//						block->set_value(1+i*dim+n2, 1+j*dim+n, value);
+//						block->set_value(1+j*dim+n, 1+i*dim+n2, value);
+//					}
+//				}
+
+				/* u columns */
+//				if(umem > 0){
+//					for(j=0; j < umem+1; j++){	// TODO: is this right?
+//						value = dot(temp, U(xmem-j, xmem+T-1-j));
+//						block->set_value(1+i*dim+n2, 1+xmem*dim+j, value);
+//						block->set_value(1+xmem*dim+j, 1+i*dim+n2, value);
+//					}
+//				}
+
+				/* rhs */
+//				for(n=0;n<dim;n++){
+//					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+//					b(1 + k*blocksize*dim + n*blocksize + i*dim + n2) = value;
+//				}
+
+//			}
+//		}
+
+		/* U rows */
+//		if(umem > 0){ // TODO: is this right?
+//			for(i=0; i < umem+1; i++){
+//				temp = mul( U(xmem-i, xmem+T-1-i), gamma(k*T,(k+1)*T-1));
+
+				/* u columns */
+//				for(j=0; j < umem+1; j++){
+//					value = dot(temp, U(xmem-j, xmem+T-1-j));
+//					block->set_value(1+xmem*dim+i, 1+xmem*dim+j, value);
+//					block->set_value(1+xmem*dim+j, 1+xmem*dim+i, value);
+//				}
+
+				/* rhs */
+//				for(n=0;n<dim;n++){
+//					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
+//					b(1+xmem*dim + k*blocksize*dim + n*blocksize + i) = value;
+//				}
+//			}
+//		}
+
+		
+//	}
+
+
+
 
 }
 

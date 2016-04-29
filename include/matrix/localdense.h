@@ -56,6 +56,7 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 		~LocalDenseMatrix(); /* destructor - destroy inner matrix */
 
 		void print(std::ostream &output) const; /* print matrix */
+
 		std::string get_name() const;
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
@@ -157,7 +158,7 @@ void LocalDenseMatrix<PetscVector>::print(std::ostream &output) const
 	output << "LocalDense matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
 	output << "----------------------------------------------------------" << std::endl;
 	
-	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_WORLD) );
+	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_SELF) );
 
 	output << "----------------------------------------------------------" << std::endl;
 }

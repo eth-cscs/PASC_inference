@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int dimx = 3; /* data dimension */
-	int T = 20; /* length of time-series */
+	int T = 10; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int Solution_K = 4;
@@ -76,20 +76,18 @@ int main( int argc, char *argv[] )
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	example::KMeans3D::generate(T, Solution_K, Solution_mu, Solution_diag_covariance, mydata.get_datavector());
-	mydata.printcontent(coutMaster,coutAll);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
 	/* solve the problem */
-//	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-//	mysolver.setting.maxit = 10;
-//	mysolver.setting.debug_mode = 10;
-	
-//	mysolver.print(coutMaster);
+	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	mysolver.setting.maxit = 1;
+	mysolver.setting.debug_mode = 0;
+	mysolver.print(coutMaster,coutAll);
 
-//	mysolver.solve();
+	mysolver.solve();
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;

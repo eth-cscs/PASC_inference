@@ -91,6 +91,8 @@ class TSSolver_Global: public GeneralSolver {
 		virtual void solve();
 		
 		void print(std::ostream &output) const;
+		void print(std::ostream &output_global, std::ostream &output_local) const;
+		
 		void printstatus(std::ostream &output) const;
 		void printtimer(std::ostream &output) const;
 		std::string get_name() const;
@@ -132,14 +134,8 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	model = tsdata->get_model(); 
 
 	/* we can initialize solvers - based on model */
-	
-	coutAll << "I am preparing gammasolver" << std::endl;
 	model->initialize_gammasolver(&gammasolver, tsdata);	
-	gammasolver = NULL; // TODO: temp
-
-	coutAll << "I am preparing thetasolver" << std::endl;
-//	model->initialize_thetasolver(&thetasolver, tsdata);	
-	thetasolver = NULL; // TODO: temp
+	model->initialize_thetasolver(&thetasolver, tsdata);	
 	
 	this->it_sum = 0;
 	this->it_last = 0;
@@ -204,6 +200,43 @@ void TSSolver_Global::print(std::ostream &output) const {
 	}
 }
 
+/* print info about problem */
+void TSSolver_Global::print(std::ostream &output_global, std::ostream &output_local) const {
+
+	output_global <<  this->get_name() << std::endl;
+
+	coutMaster.push();
+	setting.print(output_global);
+	coutMaster.pop();
+
+	/* print data */
+	if(tsdata){
+		coutMaster.push();
+		tsdata->print(output_global, output_local);
+		coutMaster.pop();
+	}
+
+	/* if child solvers are specified, then print also info about it */	
+	output_global <<  " Gamma Solver" << std::endl;
+	if(gammasolver){
+		coutMaster.push();
+		gammasolver->print(output_global);
+		coutMaster.pop();
+	} else {
+		output_global <<  " - not set" << std::endl;
+	}
+
+	output_global <<  " Theta Solver" << std::endl;
+	if(thetasolver){
+		coutMaster.push();
+		thetasolver->print(output_global);
+		coutMaster.pop();
+	} else {
+		output_global <<  " - not set" << std::endl;
+	}
+}
+
+
 void TSSolver_Global::printstatus(std::ostream &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
@@ -267,7 +300,8 @@ void TSSolver_Global::solve() {
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
 	/* variables */
-	double L, L_old, deltaL; /* object function value */
+	double L; /* object function value */
+//	double L_old, deltaL;
 
 	/* initialize value of object function */
 	L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
@@ -280,12 +314,17 @@ void TSSolver_Global::solve() {
 		coutMaster <<  "it = " << it << std::endl;
 
 		/* --- COMPUTE Theta --- */
+		coutAll << "------------------------ update theta solver" << std::endl;
 		this->timer_theta_update.start();
 		 model->update_thetasolver(thetasolver, tsdata);
 		this->timer_theta_update.stop();
 
+		/* barrier  - everything has to be synchronized now */
+		TRY(PetscBarrier(NULL));
+
+		coutAll << "------------------------ solve theta problem" << std::endl;
 		this->timer_theta_solve.start();
-		 thetasolver->solve();
+//		 thetasolver->solve();
 		this->timer_theta_solve.stop();
 
 		/* print info about theta solver */
@@ -311,11 +350,11 @@ void TSSolver_Global::solve() {
 
 		/* --- COMPUTE gamma --- */
 		this->timer_gamma_update.start();
-		 model->update_gammasolver(gammasolver, tsdata);
+//		 model->update_gammasolver(gammasolver, tsdata);
 		this->timer_gamma_update.stop();
 
 		this->timer_gamma_solve.start();
-		 gammasolver->solve();
+//		 gammasolver->solve();
 		this->timer_gamma_solve.stop();
 
 		/* print info about gammasolver */
@@ -339,19 +378,19 @@ void TSSolver_Global::solve() {
 		}
 
 		/* compute stopping criteria */
-		L_old = L;
-		L = model->get_L(gammasolver,thetasolver,tsdata);
-		deltaL = std::abs(L - L_old);
+//		L_old = L;
+//		L = model->get_L(gammasolver,thetasolver,tsdata);
+//		deltaL = std::abs(L - L_old);
 
 		/* print info about cost function */
-		coutMaster <<  " - L_old       = " << L_old << std::endl;
-		coutMaster <<  " - L           = " << L << std::endl;
-		coutMaster <<  " - |L - L_old| = " << deltaL << std::endl;
+//		coutMaster <<  " - L_old       = " << L_old << std::endl;
+//		coutMaster <<  " - L           = " << L << std::endl;
+//		coutMaster <<  " - |L - L_old| = " << deltaL << std::endl;
 
 		/* end the main cycle if the change of function value is sufficient */
-		if (deltaL < setting.eps){
-			break;
-		}
+//		if (deltaL < setting.eps){
+//			break;
+//		}
 		
 	}
 	coutMaster.pop();

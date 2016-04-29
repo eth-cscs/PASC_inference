@@ -47,6 +47,8 @@ class TSData_Global: public GeneralData {
 		~TSData_Global();
 
 		void print(std::ostream &output) const;
+		void print(std::ostream &output_global, std::ostream &output_local) const;
+
 		void printcontent(std::ostream &output_global, std::ostream &output_local) const;
 		std::string get_name() const;
 
@@ -220,6 +222,57 @@ void TSData_Global::print(std::ostream &output) const {
 	}
 	
 }
+
+/* print info about data */
+void TSData_Global::print(std::ostream &output_global, std::ostream &output_local) const {
+	output_global <<  this->get_name() << std::endl;
+	
+	/* give information about presence of the data */
+	output_global <<  " - T:           " << this->get_T() << std::endl;
+	output_local  <<  "  - Tlocal:     " << this->tsmodel->get_Tlocal() << std::endl;
+
+	output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
+	output_global <<  " - K:           ";
+	print_array(output_global, this->tsmodel->get_Knum(), this->tsmodel->get_K());
+	output_global << std::endl;
+	output_local  <<  "  - Klocal:     " << this->tsmodel->get_Klocal() << std::endl;
+
+	output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+	
+	output_global <<  " - datavector:  ";
+	if(this->datavector){
+		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->datavector->local_size() << std::endl;
+	} else {
+		output_global << "NO" << std::endl;
+	}
+	
+	output_global <<  " - u:           ";
+	if(this->u){
+		output_global << "YES (size: " << this->u->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->u->local_size() << std::endl;
+	} else {
+		output_global << "NO" << std::endl;
+	}
+	
+	output_global <<   " - gammavector: ";
+	if(this->gammavector){
+		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->gammavector->local_size() << std::endl;
+	} else {
+		output_global << "NO" << std::endl;
+	}
+	
+	output_global <<   " - thetavector: ";
+	if(this->thetavector){
+		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->thetavector->local_size() << std::endl;
+	} else {
+		output_global << "NO" << std::endl;
+	}
+	
+}
+
 
 /* print content of all data */
 void TSData_Global::printcontent(std::ostream &output_global,std::ostream &output_local) const {

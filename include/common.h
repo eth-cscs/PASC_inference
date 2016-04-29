@@ -382,9 +382,18 @@ void print_array(std::ostream &output, int my_size, MyType *my_array){
 }
 
 template<class MyType>
-MyType sum_array(int my_size, MyType *my_array){
+MyType sum_array(int my_size, const MyType *my_array){
 	MyType sum = 0;
 	for(int i=0;i<my_size;i++){
+		sum += my_array[i];
+	}	
+	return sum;
+}
+
+template<class MyType>
+MyType sum_subarray(int start, int end, const MyType *my_array){
+	MyType sum = 0;
+	for(int i=start;i<=end;i++){
 		sum += my_array[i];
 	}	
 	return sum;
