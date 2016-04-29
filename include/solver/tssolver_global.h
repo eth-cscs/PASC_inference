@@ -324,7 +324,7 @@ void TSSolver_Global::solve() {
 
 		coutAll << "------------------------ solve theta problem" << std::endl;
 		this->timer_theta_solve.start();
-//		 thetasolver->solve();
+		 thetasolver->solve();
 		this->timer_theta_solve.stop();
 
 		/* print info about theta solver */

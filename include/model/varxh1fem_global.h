@@ -23,7 +23,7 @@ extern int DEBUG_MODE;
 #include "data/qpdata.h"
 
 /* theta problem */
-#include "solver/multicg.h"
+#include "solver/multicg_global.h"
 #include "matrix/blockdiag.h"
 
 //#include "vector/localvector.h"
@@ -264,7 +264,7 @@ void VarxH1FEMModel_Global::initialize_thetasolver(GeneralSolver **thetasolver, 
 	thetadata->set_A(new BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> >(nmb_blocks, blocks, blocksize));
 
 	/* create solver */
-	*thetasolver = new MultiCGSolver<PetscVector>(*thetadata);
+	*thetasolver = new MultiCGSolver_Global(*thetadata);
 	
 }
 

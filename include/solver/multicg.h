@@ -209,7 +209,7 @@ void MultiCGSolver<VectorBase>::solve() {
 		/* copy settings */
 		
 		/* solve this subproblem */
-		cgsolver->solve();
+//		cgsolver->solve();
 
 		/* update iteration counter */
 		if(cgsolver->get_fx() > this->fx) this->fx = cgsolver->get_fx();
@@ -244,6 +244,101 @@ template<class VectorBase>
 int MultiCGSolver<VectorBase>::get_hessmult() const {
 	return this->hessmult_last;
 }
+
+
+#ifdef USE_PETSCVECTOR
+
+typedef petscvector::PetscVector PetscVector;
+	
+/* solve the problem */
+template<>
+void MultiCGSolver<PetscVector>::solve() {
+	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: solve" << std::endl;
+
+	/* for each block prepare CG solver and solve the problem */
+	CGQPSolver<PetscVector> *cgsolver; /* cg solver for one block */
+	QPData<PetscVector> data_sub; /* data of inner cg solver */
+
+	/* get number of blocks and blocks */
+	BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *A = dynamic_cast<BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *>(qpdata->get_A());
+	LocalDenseMatrix<PetscVector> **blocks = A->get_blocks();
+	LocalDenseMatrix<PetscVector> *A_sub; 
+	int nmb_blocks = A->get_nmb_blocks();	
+	int blocksize = A->get_blocksize();
+
+	/* get vectors (assuming seq) */
+	Vec b  = qpdata->get_b()->get_vector();
+	Vec x  = qpdata->get_x()->get_vector();
+	Vec x0 = qpdata->get_x0()->get_vector();
+
+	Vec b_sub;
+	Vec x_sub;
+	Vec x0_sub;
+
+	IS is_sub;
+
+	GeneralVector<PetscVector> *b_subGV;
+	GeneralVector<PetscVector> *x_subGV;
+	GeneralVector<PetscVector> *x0_subGV;
+
+	/* through blocks */
+	for(int i=0;i<nmb_blocks;i++){
+		/* get data for subproblem */
+		A_sub = blocks[i];
+
+		/* get global xn_global */
+		TRY( ISCreateStride(PETSC_COMM_SELF, blocksize, i*blocksize, 1, &is_sub) );
+		TRY( VecGetSubVector(b,is_sub,&b_sub) );
+		TRY( VecGetSubVector(x,is_sub,&x_sub) );
+		TRY( VecGetSubVector(x0,is_sub,&x0_sub) );
+		
+		/* from petscvectors to general vectors */
+		b_subGV	= new GeneralVector<PetscVector>(b_sub);
+		x_subGV	= new GeneralVector<PetscVector>(x_sub);
+		x0_subGV	= new GeneralVector<PetscVector>(x0_sub);
+	
+		/* set data of subproblem to ... subproblem data :) */
+		data_sub.set_A(A_sub);
+		data_sub.set_b(b_subGV);
+		data_sub.set_x(x_subGV);
+		data_sub.set_x0(x0_subGV);
+		
+		/* create new instance of solver, during the constructor the new temp vectors are initialized */
+		cgsolver = new CGQPSolver<PetscVector>(data_sub);
+		
+		/* copy settings */
+		
+		/* solve this subproblem */
+		cgsolver->solve();
+
+		/* update iteration counter */
+		if(cgsolver->get_fx() > this->fx) this->fx = cgsolver->get_fx();
+		if(cgsolver->get_it() > this->it_last) this->it_last = cgsolver->get_it();
+		if(cgsolver->get_hessmult() > this->hessmult_last) this->hessmult_last = cgsolver->get_hessmult();
+
+		/* solution back to global vector */
+		/* restore subvector with xn_global */
+		TRY( VecRestoreSubVector(b,is_sub,&b_sub) );
+		TRY( VecRestoreSubVector(x,is_sub,&x_sub) );
+		TRY( VecRestoreSubVector(x0,is_sub,&x0_sub) );
+		TRY( ISDestroy(&is_sub) );
+		
+		/* destroy globalvectors */
+		free(b_subGV);
+		free(x_subGV);
+		free(x0_subGV);
+			
+		/* destroy sub solver */	
+		free(cgsolver);
+
+		// TODO: deal with iteration counters (max?)
+	}
+
+
+	
+}
+
+#endif
 
 
 } /* end namespace */
