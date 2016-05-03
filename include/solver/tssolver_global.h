@@ -349,13 +349,13 @@ void TSSolver_Global::solve() {
 
 
 		/* --- COMPUTE gamma --- */
-		coutAll << "------------------------ update gamma solver" << std::endl;
 		this->timer_gamma_update.start();
 		 model->update_gammasolver(gammasolver, tsdata);
 		this->timer_gamma_update.stop();
 
 		this->timer_gamma_solve.start();
-//		 gammasolver->solve();
+		coutAll << "------------------------ run gamma solver" << std::endl;
+		 gammasolver->solve();
 		this->timer_gamma_solve.stop();
 
 		/* print info about gammasolver */

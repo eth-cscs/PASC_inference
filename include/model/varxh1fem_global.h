@@ -19,7 +19,7 @@ extern int DEBUG_MODE;
 #include "matrix/blockdiaglaplace_vector.h"
 
 #include "feasibleset/simplex_local.h"
-#include "solver/qpsolver.h"
+#include "solver/qpsolver_global.h"
 #include "data/qpdata.h"
 
 /* theta problem */
@@ -219,7 +219,7 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->T,this->Klocal)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
-	*gammasolver = new QPSolver<PetscVector>(*gammadata);
+	*gammasolver = new QPSolver_Global(*gammadata);
 
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();

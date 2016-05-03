@@ -27,14 +27,14 @@ extern int DEBUG_MODE;
 namespace pascinference {
 
 /* settings */
-class MultiCGSolver_GlobalSetting_Global : public QPSolverSetting {
+class MultiCGSolver_GlobalSetting : public QPSolverSetting {
 	public:
-		MultiCGSolver_GlobalSetting_Global() {
+		MultiCGSolver_GlobalSetting() {
 			this->maxit = MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT;
 			this->eps = MULTICGSOLVER_GLOBAL_DEFAULT_EPS;
 			this->debug_mode = MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
 		};
-		~MultiCGSolver_GlobalSetting_Global() {};
+		~MultiCGSolver_GlobalSetting() {};
 
 		virtual void print(std::ostream &output) const {
 			output <<  this->get_name() << std::endl;
@@ -57,7 +57,7 @@ class MultiCGSolver_Global: public QPSolver<PetscVector> {
 		const QPData<PetscVector> *qpdata; /* data on which the solver operates, matrix has to be blogdiag */
 	
 	public:
-		MultiCGSolver_GlobalSetting_Global setting;
+		MultiCGSolver_GlobalSetting setting;
 
 		MultiCGSolver_Global();
 		MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata); 
