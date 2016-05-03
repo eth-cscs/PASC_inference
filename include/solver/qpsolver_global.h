@@ -192,6 +192,8 @@ void QPSolver_Global::solve() {
 	data_local.set_b(&b);
 	data_local.set_x(&x);
 	data_local.set_x0(&x0);
+	data_local.set_feasibleset(qpdata->get_feasibleset());
+
 
 	/* create new instance of local solver */
 	solver_local = new QPSolver<PetscVector>(data_local);
@@ -199,7 +201,7 @@ void QPSolver_Global::solve() {
 	/* copy settings */
 		
 	/* solve local problem */
-	solver_local->solve();
+//	solver_local->solve();
 
 	/* restore global vectors */
 	TRY( VecRestoreLocalVector(x_global,x_local) );
