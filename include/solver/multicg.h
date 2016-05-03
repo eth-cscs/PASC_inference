@@ -295,7 +295,7 @@ void MultiCGSolver<PetscVector>::solve() {
 		/* from petscvectors to general vectors */
 		b_subGV	= new GeneralVector<PetscVector>(b_sub);
 		x_subGV	= new GeneralVector<PetscVector>(x_sub);
-		x0_subGV	= new GeneralVector<PetscVector>(x0_sub);
+		x0_subGV = new GeneralVector<PetscVector>(x0_sub);
 	
 		/* set data of subproblem to ... subproblem data :) */
 		data_sub.set_A(A_sub);

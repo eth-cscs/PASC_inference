@@ -327,6 +327,8 @@ void TSSolver_Global::solve() {
 		 thetasolver->solve();
 		this->timer_theta_solve.stop();
 
+		TRY(PetscBarrier(NULL));
+
 		/* print info about theta solver */
 		if(setting.debug_mode >= 10){
 			coutMaster <<  "- thetasolver status:" << std::endl;
