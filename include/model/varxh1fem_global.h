@@ -326,54 +326,143 @@ QPData<PetscVector>* VarxH1FEMModel_Global::get_thetadata() const {
 void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const TSData_Global *tsdata){
 	/* update gamma_solver data - prepare new linear term */
 
+	int x_partseq_length = 3;
+
 	typedef GeneralVector<PetscVector> (&pVector);
 
-	pVector M = *(tsdata->get_thetavector()); /* parameters of the model */
-	pVector X = *(tsdata->get_datavector()); /* original data */
-	pVector U = *(tsdata->get_u()); /* external forces */
-	pVector b = *(gammadata->get_b()); /* rhs of QP gamma problem */
+	/* global data */
+	Vec M_global = tsdata->get_thetavector()->get_vector(); /* parameters of the model */
+	Vec x_global = tsdata->get_datavector()->get_vector(); /* original data */
+//	Vec u_global = tsdata->get_u()->get_vector(); /* external forces */
+	Vec b_global = gammadata->get_b()->get_vector(); /* rhs of QP gamma problem */
+
+	/* local data */
+	const double *M_local_arr;
+	double *b_local_arr;
+
+	/* get local vectors */
+
+	/* get local arrays */
+	TRY( VecGetArrayRead(M_global,&M_local_arr) );
+	TRY( VecGetArray(b_global,&b_local_arr) );	
 
 	/* get constants of the problem */
 	int K = this->Klocal;
-	int dim = this->xdim;
-	int xmem = this->xmem;
-	int umem = this->umem;
-	int blocksize = 1 + this->xdim*this->xmem + this->umem; /* see get_thetavectorlength() */
+	int xdim = this->xdim;
+//	int xmem = this->xmem;
+//	int umem = this->umem;
+//	int blocksize = 1 + this->xdim*this->xmem + this->umem; /* see get_thetavectorlength() */
 
-	int t,n,k,j,n2;
-	int M_idxstart;
-	int Xdimlength = X.size()/(double)dim;
-	int T = Xdimlength - xmem;
-	double dot_sum, value, valuemodel;
-	
-	for(k=0;k<K;k++){
-		for(t=0;t<T;t++){
-			dot_sum = 0.0;
-			for(n=0;n<dim;n++){
-				value = X.get(n*Xdimlength+xmem+t); 
+	/* index set with components of x corresponding to partseq */
+	IS x_partseq_is;
+	Vec x_partseq_global; /* global vector with values of one dimension */
+	Vec x_partseq_local;  /* scattered xn_global to each processor */
+	TRY( VecCreateSeq(PETSC_COMM_SELF, x_partseq_length*xdim, &x_partseq_local) );
+	const double *x_partseq_local_arr; /* for read */
+
+	VecScatter ctx; /* for scattering xn_global to xn_local */
+
+	int num_partseq = (int)(T/(double)x_partseq_length+0.9);
+
+	double dot_sum, value, value_model;
+	int n, k, t, i_partseq;
+	int x_partseq_length_controled;
+
+	for(i_partseq=0; i_partseq < num_partseq; i_partseq++){
+		
+		/* get global xn_global */
+		
+		/* control the length of IS */
+		if((i_partseq+1)*x_partseq_length < T){
+			x_partseq_length_controled = x_partseq_length;
+		} else {
+			x_partseq_length_controled = x_partseq_length - (num_partseq*x_partseq_length - T);
+		}
+		
+		TRY( ISCreateStride(PETSC_COMM_WORLD, x_partseq_length_controled*xdim, i_partseq*x_partseq_length*xdim, 1, &x_partseq_is) );
+		TRY( VecGetSubVector(x_global,x_partseq_is,&x_partseq_global) );
+
+		/* scatter xn_global to xn_local */
+		TRY( VecScatterCreateToAll(x_partseq_global,&ctx,&x_partseq_local) );
+		TRY( VecScatterBegin(ctx, x_partseq_global, x_partseq_local, INSERT_VALUES, SCATTER_FORWARD) );
+		TRY( VecScatterEnd(ctx, x_partseq_global, x_partseq_local, INSERT_VALUES, SCATTER_FORWARD) );
+		TRY( VecScatterDestroy(&ctx) );
+
+		/* now I have my own seq vector xn_local with x(n,:) */
+		TRY( VecGetArrayRead(x_partseq_local, &x_partseq_local_arr) );
+		
+		for(k=0;k<Klocal;k++){
+			for(t=0;t<x_partseq_length;t++){
+				dot_sum = 0.0;
+				for(n=0;n<xdim;n++){
+					value = x_partseq_local_arr[t*xdim+n]; 
+				
+					/* compute model_value */
+					value_model = M_local_arr[k*xdim+n]; /* mu */
+
+//					M_idxstart = k*blocksize*this->xdim + n*blocksize;
+//					valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
+//					for(j=1;j<xmem;j++){ /* add A_j*X(t-j) */
+//						for(n2=0;n2<dim;n2++){
+//							valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j + t);
+//						}
+//					}
+				
+//					if(umem > 0){
+						/* there is u */
+//						for(j=0;j<umem-1;j++){ /* add B_j*U(t) */
+//							valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
+//						}
+//					}
+				
+					value = value - value_model;
+					dot_sum += value*value;
+				}
+				b_local_arr[k*T + i_partseq*x_partseq_length + t] = -(dot_sum);
+			}
+		}
+
+		TRY( VecRestoreArrayRead(x_partseq_local, &x_partseq_local_arr) );
+
+		/* restore subvector with xn_global */
+		TRY( VecRestoreSubVector(x_global,x_partseq_is,&x_partseq_global) );
+		TRY( ISDestroy(&x_partseq_is) );
+		
+	}
+
+	/* restore global vectors */
+	TRY( VecRestoreArrayRead(M_global,&M_local_arr) );
+	TRY( VecRestoreArray(b_global,&b_local_arr) );	
+
+//	for(k=0;k<K;k++){
+//		for(t=0;t<T;t++){
+//			dot_sum = 0.0;
+//			for(n=0;n<dim;n++){
+//				value = X.get(n*Xdimlength+xmem+t); 
 				
 				/* compute model_value */
-				M_idxstart = k*blocksize*this->xdim + n*blocksize;
-				valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
-				for(j=1;j<xmem;j++){ /* add A_j*X(t-j) */
-					for(n2=0;n2<dim;n2++){
-						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j + t);
-					}
-				}
+//				M_idxstart = k*blocksize*this->xdim + n*blocksize;
+//				valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
+//				for(j=1;j<xmem;j++){ /* add A_j*X(t-j) */
+//					for(n2=0;n2<dim;n2++){
+//						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j + t);
+//					}
+//				}
 				
-				if(umem > 0){
+//				if(umem > 0){
 					/* there is u */
-					for(j=0;j<umem-1;j++){ /* add B_j*U(t) */
-						valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
-					}
-				}
+//					for(j=0;j<umem-1;j++){ /* add B_j*U(t) */
+//						valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
+//					}
+//				}
 				
-				value = value - valuemodel; //TODO: get in MinLin?
-				dot_sum += value*value;
-			}
-			b(k*T + t) = -(dot_sum);
-		}
-	}	
+//				value = value - valuemodel; //TODO: get in MinLin?
+//				dot_sum += value*value;
+//			}
+//			b(k*T + t) = -(dot_sum);
+//		}
+//	}	
+
 
 }
 
@@ -441,7 +530,7 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	/* rhs */
 	for(n=0;n<xdim;n++){
 		/* get global xn_global */
-		TRY( ISCreateStride(PETSC_COMM_SELF, T, n, xdim, &xn_is) );
+		TRY( ISCreateStride(PETSC_COMM_WORLD, T, n, xdim, &xn_is) );
 		TRY( VecGetSubVector(X,xn_is,&xn_global) );
 		
 		/* scatter xn_global to xn_local */
@@ -462,7 +551,7 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 			b_arr[k*xdim + n] = value;
 		}	
 
-		TRY( VecGetArrayRead(xn_local, &xn_local_arr) );
+		TRY( VecRestoreArrayRead(xn_local, &xn_local_arr) );
 
 		/* restore subvector with xn_global */
 		TRY( VecRestoreSubVector(X,xn_is,&xn_global) );

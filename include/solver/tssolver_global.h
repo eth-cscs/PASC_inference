@@ -314,7 +314,6 @@ void TSSolver_Global::solve() {
 		coutMaster <<  "it = " << it << std::endl;
 
 		/* --- COMPUTE Theta --- */
-		coutAll << "------------------------ update theta solver" << std::endl;
 		this->timer_theta_update.start();
 		 model->update_thetasolver(thetasolver, tsdata);
 		this->timer_theta_update.stop();
@@ -322,7 +321,6 @@ void TSSolver_Global::solve() {
 		/* barrier  - everything has to be synchronized now */
 		TRY(PetscBarrier(NULL));
 
-		coutAll << "------------------------ solve theta problem" << std::endl;
 		this->timer_theta_solve.start();
 		 thetasolver->solve();
 		this->timer_theta_solve.stop();
@@ -351,8 +349,9 @@ void TSSolver_Global::solve() {
 
 
 		/* --- COMPUTE gamma --- */
+		coutAll << "------------------------ update gamma solver" << std::endl;
 		this->timer_gamma_update.start();
-//		 model->update_gammasolver(gammasolver, tsdata);
+		 model->update_gammasolver(gammasolver, tsdata);
 		this->timer_gamma_update.stop();
 
 		this->timer_gamma_solve.start();

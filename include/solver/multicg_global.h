@@ -239,7 +239,7 @@ void MultiCGSolver_Global::solve() {
 	free(solver_local); 
 	
 	//TODO:temp
-	TRY( VecView(x_global,PETSC_VIEWER_STDOUT_WORLD) );
+//	TRY( VecView(x_global,PETSC_VIEWER_STDOUT_WORLD) );
 }
 
 
