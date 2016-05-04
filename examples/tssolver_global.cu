@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int dimx = 3; /* data dimension */
-	int T = 10; /* length of time-series */
+	int T = 1000; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int Solution_K = 4;
@@ -83,7 +83,7 @@ int main( int argc, char *argv[] )
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-	mysolver.setting.maxit = 1;
+	mysolver.setting.maxit = 20;
 	mysolver.setting.debug_mode = 0;
 	mysolver.print(coutMaster,coutAll);
 

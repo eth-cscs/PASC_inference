@@ -301,12 +301,14 @@ void TSSolver_Global::solve() {
 
 	/* variables */
 	double L; /* object function value */
-//	double L_old, deltaL;
+	double L_old, deltaL;
 
 	/* initialize value of object function */
 	L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
 	
 	int it; 
+
+	TRY(PetscBarrier(NULL));
 
 	/* main cycle */
 	coutMaster.push();
@@ -314,6 +316,7 @@ void TSSolver_Global::solve() {
 		coutMaster <<  "it = " << it << std::endl;
 
 		/* --- COMPUTE Theta --- */
+		coutAll << "test" << std::endl;
 		this->timer_theta_update.start();
 		 model->update_thetasolver(thetasolver, tsdata);
 		this->timer_theta_update.stop();
@@ -321,6 +324,7 @@ void TSSolver_Global::solve() {
 		/* barrier  - everything has to be synchronized now */
 		TRY(PetscBarrier(NULL));
 
+		coutAll << "test2" << std::endl;
 		this->timer_theta_solve.start();
 		 thetasolver->solve();
 		this->timer_theta_solve.stop();
@@ -349,14 +353,22 @@ void TSSolver_Global::solve() {
 
 
 		/* --- COMPUTE gamma --- */
+		coutAll << "test3" << std::endl;
 		this->timer_gamma_update.start();
 		 model->update_gammasolver(gammasolver, tsdata);
 		this->timer_gamma_update.stop();
 
+		TRY(PetscBarrier(NULL));
+
+		coutAll << "test4" << std::endl;
 		this->timer_gamma_solve.start();
-		coutAll << "------------------------ run gamma solver" << std::endl;
 		 gammasolver->solve();
 		this->timer_gamma_solve.stop();
+
+		coutAll << "test5" << std::endl;
+
+
+		TRY(PetscBarrier(NULL));
 
 		/* print info about gammasolver */
 		if(setting.debug_mode >= 10){
@@ -379,19 +391,21 @@ void TSSolver_Global::solve() {
 		}
 
 		/* compute stopping criteria */
-//		L_old = L;
-//		L = model->get_L(gammasolver,thetasolver,tsdata);
-//		deltaL = std::abs(L - L_old);
+		L_old = L;
+		L = model->get_L(gammasolver,thetasolver,tsdata);
+		deltaL = std::abs(L - L_old);
 
 		/* print info about cost function */
-//		coutMaster <<  " - L_old       = " << L_old << std::endl;
-//		coutMaster <<  " - L           = " << L << std::endl;
-//		coutMaster <<  " - |L - L_old| = " << deltaL << std::endl;
+		coutMaster <<  " - L_old       = " << L_old << std::endl;
+		coutMaster <<  " - L           = " << L << std::endl;
+		coutMaster <<  " - |L - L_old| = " << deltaL << std::endl;
 
 		/* end the main cycle if the change of function value is sufficient */
-//		if (deltaL < setting.eps){
-//			break;
-//		}
+		if (deltaL < setting.eps){
+			break;
+		}
+		
+		TRY(PetscBarrier(NULL));
 		
 	}
 	coutMaster.pop();
@@ -399,6 +413,8 @@ void TSSolver_Global::solve() {
 	this->it_sum += it;
 	this->it_last = it;
 	this->L = L;
+
+	TRY(PetscBarrier(NULL));
 
 	this->timer_solve.stop(); /* stop this timer in the end of solution */
 	

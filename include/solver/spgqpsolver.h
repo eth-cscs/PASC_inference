@@ -324,9 +324,13 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	x = x0; /* set approximation as initial */
 
+	coutAll << "spgqpsolver test " << std::endl;
+
 	this->timer_projection.start();
 	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
 	this->timer_projection.stop();
+
+	coutAll << "spgqpsolver test  2" << std::endl;
 
 	/* compute gradient, g = A*x-b */
 	this->timer_matmult.start();
@@ -335,12 +339,17 @@ void SPGQPSolver<VectorBase>::solve() {
 	this->timer_matmult.stop();
 	g -= b;
 
+	coutAll << "spgqpsolver test  3" << std::endl;
+
 	/* initialize fs */
 	this->timer_fs.start();
 	 fx = get_fx();
 	 this->fx = fx;
 	 fs.init(fx);	
 	this->timer_fs.stop();
+
+	coutAll << "spgqpsolver test  4" << std::endl;
+
 
 	/* main cycle */
 	while(it < setting.maxit){

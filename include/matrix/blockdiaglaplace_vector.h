@@ -90,6 +90,47 @@ void BlockDiagLaplaceVectorMatrix<VectorBase>::matmult(VectorBase &y, const Vect
 	
 }
 
+#ifdef USE_PETSCVECTOR
+
+typedef petscvector::PetscVector PetscVector;
+
+template<>
+void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)FUNCTION: matmult" << std::endl;
+
+	// TODO: maybe y is not initialized, who knows
+	double *y_arr;
+	const double *x_arr;
+	TRY( VecGetArray(y.get_vector(),&y_arr) );
+	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
+
+	int k,t,id_row;
+	for(k=0;k<K;k++){
+		for(t=0;t<T;t++){
+			id_row = k*T+t;
+
+			/* first row */
+			if(t == 0){
+				y_arr[id_row] = alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
+			}
+			/* common row */
+			if(t > 0 && t < T-1){
+				y_arr[id_row] = -alpha*x_arr[id_row-1] + 2.0*alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
+			}
+			/* last row */
+			if(t == T-1){
+				y_arr[id_row] = -alpha*x_arr[id_row-1] + alpha*x_arr[id_row];
+			}
+		}
+	}
+
+	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
+	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
+	
+}
+
+#endif
+
 
 
 } /* end of namespace */

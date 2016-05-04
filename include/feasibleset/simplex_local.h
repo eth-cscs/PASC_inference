@@ -4,8 +4,8 @@
  *  @author Lukas Pospisil
  */
 
-#ifndef PASC_SIMPLEXFEASIBLESET_GLOBAL_H
-#define	PASC_SIMPLEXFEASIBLESET_GLOBAL_H
+#ifndef PASC_SIMPLEXFEASIBLESET_LOCAL_H
+#define	PASC_SIMPLEXFEASIBLESET_LOCAL_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
@@ -15,7 +15,7 @@ extern int DEBUG_MODE;
 #include "algebra.h"
 
 #ifndef USE_PETSCVECTOR
- #error 'TSSOLVER_GLOBAL is for PETSCVECTOR'
+ #error 'SIMPLEXFEASIBLESET_LOCAL is for PETSCVECTOR'
 #endif
 
 typedef petscvector::PetscVector PetscVector;

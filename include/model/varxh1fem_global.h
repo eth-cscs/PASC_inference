@@ -214,6 +214,7 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
+//	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
 	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->T,this->Klocal)); /* the feasible set of QP is simplex */ 	
@@ -311,7 +312,7 @@ void VarxH1FEMModel_Global::finalize_thetasolver(GeneralSolver **thetasolver, co
 double VarxH1FEMModel_Global::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData_Global *tsdata){
 	
 	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
-	return ((QPSolver<PetscVector> *)gammasolver)->get_fx();
+	return ((QPSolver_Global *)gammasolver)->get_fx();
 }
 
 QPData<PetscVector>* VarxH1FEMModel_Global::get_gammadata() const {
@@ -392,7 +393,7 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 		TRY( VecGetArrayRead(x_partseq_local, &x_partseq_local_arr) );
 		
 		for(k=0;k<Klocal;k++){
-			for(t=0;t<x_partseq_length;t++){
+			for(t=0;t<x_partseq_length_controled;t++){
 				dot_sum = 0.0;
 				for(n=0;n<xdim;n++){
 					value = x_partseq_local_arr[t*xdim+n]; 
@@ -427,7 +428,7 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 		/* restore subvector with xn_global */
 		TRY( VecRestoreSubVector(x_global,x_partseq_is,&x_partseq_global) );
 		TRY( ISDestroy(&x_partseq_is) );
-		
+
 	}
 
 	/* restore global vectors */
