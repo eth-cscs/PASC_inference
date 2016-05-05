@@ -28,7 +28,7 @@ class BlockDiagLaplaceVectorMatrix: public GeneralMatrix<VectorBase> {
 		double alpha; /* scale of whole matrix alpha*A */
 	
 	public:
-		BlockDiagLaplaceVectorMatrix(const VectorBase &x, int K, double alpha = 1.0); /* constructor from vector and number of blocks */
+		BlockDiagLaplaceVectorMatrix(const VectorBase &x, int K, int T, double alpha = 1.0); /* constructor from vector and number of blocks */
 
 		~BlockDiagLaplaceVectorMatrix(); /* destructor - destroy inner matrix */
 
@@ -45,14 +45,14 @@ std::string BlockDiagLaplaceVectorMatrix<VectorBase>::get_name() const {
 }
 
 template<class VectorBase>
-BlockDiagLaplaceVectorMatrix<VectorBase>::BlockDiagLaplaceVectorMatrix(const VectorBase &x, int newK, double newalpha){
+BlockDiagLaplaceVectorMatrix<VectorBase>::BlockDiagLaplaceVectorMatrix(const VectorBase &x, int newK, int newT, double newalpha){
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)CONSTRUCTOR: from PetscVector" << std::endl;
 
 	/* get informations from given vector */
 	alpha = newalpha;
 	K = newK; /* number of blocks */
-	N = x.size(); /* length of whole matrix N = K*T */
-	T = N/(double)K; /* size of each block */
+	T = newT; /* size of each block */
+	N = K*T; /* length of whole matrix N = K*T */
 	
 }
 
@@ -126,6 +126,8 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 
 	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
 	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
+
+
 	
 }
 

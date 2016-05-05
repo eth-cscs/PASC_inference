@@ -171,28 +171,20 @@ void QPSolver_Global::solve() {
 	Vec x0_local;
 	Vec b_local;
 
-	coutAll << "qpsolver_global_test1" << std::endl;
-
 	/* allocate local data */
 	TRY( VecGetLocalSize(x_global, &local_size) );
 	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x_local) );	
 	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x0_local) );	
 	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &b_local) );	
 
-	coutAll << "qpsolver_global_test2" << std::endl;
-
 	/* get local vectors */
 	TRY( VecGetLocalVector(x_global,x_local) );
-	TRY( VecGetLocalVectorRead(x0_global,x0_local) );
-	TRY( VecGetLocalVectorRead(b_global,b_local) );
-
-	coutAll << "qpsolver_global_test3" << std::endl;
+	TRY( VecGetLocalVector(x0_global,x0_local) );
+	TRY( VecGetLocalVector(b_global,b_local) );
 
 	GeneralVector<PetscVector> x(x_local);
 	GeneralVector<PetscVector> x0(x0_local);
 	GeneralVector<PetscVector> b(b_local);
-
-	coutAll << "qpsolver_global_test4" << std::endl;
 
 	/* get local vectors and prepare local data */
 	QPData<PetscVector> data_local; /* data of inner cg solver */
@@ -202,8 +194,6 @@ void QPSolver_Global::solve() {
 	data_local.set_x0(&x0);
 	data_local.set_feasibleset(qpdata->get_feasibleset());
 
-	coutAll << "qpsolver_global_test5" << std::endl;
-
 	/* create new instance of local solver */
 	solver_local = new QPSolver<PetscVector>(data_local);
 
@@ -212,19 +202,15 @@ void QPSolver_Global::solve() {
 	/* solve local problem */
 	solver_local->solve();
 
-	coutAll << "kokot makovy" << std::endl;
-
 
 	this->fx = solver_local->get_fx();
 	this->it_last = solver_local->get_it();
 	this->hessmult_last = solver_local->get_hessmult();
 
-	coutAll << "qpsolver_global_test6" << std::endl;
-
 	/* restore global vectors */
 	TRY( VecRestoreLocalVector(x_global,x_local) );
-	TRY( VecRestoreLocalVectorRead(x0_global,x0_local) );
-	TRY( VecRestoreLocalVectorRead(b_global,b_local) );
+	TRY( VecRestoreLocalVector(x0_global,x0_local) );
+	TRY( VecRestoreLocalVector(b_global,b_local) );
 
 	/* destroy local storage */
 //	TRY( VecDestroy(&x_local) );	
@@ -233,12 +219,6 @@ void QPSolver_Global::solve() {
 
 	/* free local solver */
 	free(solver_local); 
-	
-	//TODO:temp
-//	TRY( VecView(x_global,PETSC_VIEWER_STDOUT_WORLD) );
-
-	coutAll << "qpsolver_global_test7" << std::endl;
-
 	
 }
 

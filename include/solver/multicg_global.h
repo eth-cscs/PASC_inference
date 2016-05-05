@@ -225,6 +225,10 @@ void MultiCGSolver_Global::solve() {
 	/* solve local problem */
 	solver_local->solve();
 
+	/* copy results */
+	this->it_last = solver_local->get_it();
+	this->it_sum += this->it_last;
+
 	/* restore global vectors */
 	TRY( VecRestoreLocalVector(x_global,x_local) );
 	TRY( VecRestoreLocalVectorRead(x0_global,x0_local) );

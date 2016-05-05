@@ -369,7 +369,7 @@ class ConsoleOutput : public std::ostream {
 };
 
 static ConsoleOutput coutMaster(std::cout,0); /**< instance of output console stream on master */
-static ConsoleOutput coutAll(std::cout); /**< instance of output console stream on master */
+static ConsoleOutput coutAll(std::cout); /**< instance of output console stream */
 
 template<class MyType>
 void print_array(std::ostream &output, int my_size, MyType *my_array){

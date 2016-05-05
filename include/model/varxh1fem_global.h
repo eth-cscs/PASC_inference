@@ -215,7 +215,7 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
-	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
+	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->T,this->epssqr)); /* create new blockdiagonal matrix */
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->T,this->Klocal)); /* the feasible set of QP is simplex */ 	
 

@@ -287,6 +287,8 @@ void TSSolver_Global::solve() {
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
+	std::ostringstream temp_ostream;
+	
 	/* the gamma or theta solver wasn't specified yet */
 	if(!gammasolver || !thetasolver){
 		// TODO: give error - actually, gamma and theta solvers are created during constructor with tsdata - now we don't have tsdata, there is nothing to solve
@@ -316,7 +318,6 @@ void TSSolver_Global::solve() {
 		coutMaster <<  "it = " << it << std::endl;
 
 		/* --- COMPUTE Theta --- */
-		coutAll << "test" << std::endl;
 		this->timer_theta_update.start();
 		 model->update_thetasolver(thetasolver, tsdata);
 		this->timer_theta_update.stop();
@@ -324,7 +325,6 @@ void TSSolver_Global::solve() {
 		/* barrier  - everything has to be synchronized now */
 		TRY(PetscBarrier(NULL));
 
-		coutAll << "test2" << std::endl;
 		this->timer_theta_solve.start();
 		 thetasolver->solve();
 		this->timer_theta_solve.stop();
@@ -332,6 +332,15 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		/* print info about theta solver */
+		if(setting.debug_mode >= 2){
+			/* print info about cost function */
+			coutMaster << " theta solver:" << std::endl;
+			temp_ostream << "[" << GlobalManager.get_rank() << "]" << offset << "    - it = \t" << thetasolver->get_it() << ", time_update = \t" << this->timer_theta_update.get_value_last() << ", time_solve = \t" << this->timer_theta_solve.get_value_last() << std::endl;
+			TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, temp_ostream.str().c_str()) );
+			TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+			temp_ostream.str("");
+			temp_ostream.clear();
+		}
 		if(setting.debug_mode >= 10){
 			coutMaster <<  "- thetasolver status:" << std::endl;
 			coutMaster.push();
@@ -353,24 +362,28 @@ void TSSolver_Global::solve() {
 
 
 		/* --- COMPUTE gamma --- */
-		coutAll << "test3" << std::endl;
 		this->timer_gamma_update.start();
 		 model->update_gammasolver(gammasolver, tsdata);
 		this->timer_gamma_update.stop();
 
 		TRY(PetscBarrier(NULL));
 
-		coutAll << "test4" << std::endl;
 		this->timer_gamma_solve.start();
 		 gammasolver->solve();
 		this->timer_gamma_solve.stop();
 
-		coutAll << "test5" << std::endl;
-
-
 		TRY(PetscBarrier(NULL));
 
 		/* print info about gammasolver */
+		if(setting.debug_mode >= 2){
+			/* print info about cost function */
+			coutMaster << " gamma solver:" << std::endl;
+			temp_ostream << "[" << GlobalManager.get_rank() << "]" << offset << "    - it = \t" << gammasolver->get_it() << ", time_update = \t" << this->timer_gamma_update.get_value_last() << ", time_solve = \t" << this->timer_gamma_solve.get_value_last() << std::endl;
+			TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, temp_ostream.str().c_str()) );
+			TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+			temp_ostream.str("");
+			temp_ostream.clear();
+		}
 		if(setting.debug_mode >= 10){
 			coutMaster <<  "- gammasolver status:" << std::endl;
 			coutMaster.push();
@@ -395,14 +408,19 @@ void TSSolver_Global::solve() {
 		L = model->get_L(gammasolver,thetasolver,tsdata);
 		deltaL = std::abs(L - L_old);
 
-		/* print info about cost function */
-		coutMaster <<  " - L_old       = " << L_old << std::endl;
-		coutMaster <<  " - L           = " << L << std::endl;
-		coutMaster <<  " - |L - L_old| = " << deltaL << std::endl;
+		if(setting.debug_mode >= 2){
+			/* print info about cost function */
+			coutMaster << " outer loop status:" << std::endl;			
+			temp_ostream << "[" << GlobalManager.get_rank() << "]" << offset << "    - L_old = \t" << L_old << ", L = \t" << L << ", |L - L_old| = \t" << deltaL << std::endl;
+			TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, temp_ostream.str().c_str()) );
+			TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+			temp_ostream.str("");
+			temp_ostream.clear();
+		}
 
 		/* end the main cycle if the change of function value is sufficient */
 		if (deltaL < setting.eps){
-			break;
+//			break;
 		}
 		
 		TRY(PetscBarrier(NULL));

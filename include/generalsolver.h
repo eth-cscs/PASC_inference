@@ -128,6 +128,11 @@ class GeneralSolver {
 		 * 
 		 */ 
 		GeneralData *get_data() const;
+
+		/** @brief return number of iterations
+		 * 
+		 */ 
+		virtual int get_it() const;
 };
 
 /* general print, call virtual print() */
@@ -161,7 +166,9 @@ GeneralData *GeneralSolver::get_data() const{
 	return this->data;
 }
 
-
+int GeneralSolver::get_it() const{
+	return 0;
+}
 
 } /* end of namespace */
 

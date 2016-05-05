@@ -12,7 +12,7 @@
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000;
 #define SPGQPSOLVER_DEFAULT_EPS 0.001;
-#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 3;
+#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
 #define SPGQPSOLVER_DEFAULT_M 20;
 #define SPGQPSOLVER_DEFAULT_GAMMA 0.9;
@@ -324,13 +324,9 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	x = x0; /* set approximation as initial */
 
-	coutAll << "spgqpsolver test " << std::endl;
-
 	this->timer_projection.start();
 	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
 	this->timer_projection.stop();
-
-	coutAll << "spgqpsolver test  2" << std::endl;
 
 	/* compute gradient, g = A*x-b */
 	this->timer_matmult.start();
@@ -339,17 +335,12 @@ void SPGQPSolver<VectorBase>::solve() {
 	this->timer_matmult.stop();
 	g -= b;
 
-	coutAll << "spgqpsolver test  3" << std::endl;
-
 	/* initialize fs */
 	this->timer_fs.start();
 	 fx = get_fx();
 	 this->fx = fx;
 	 fs.init(fx);	
 	this->timer_fs.stop();
-
-	coutAll << "spgqpsolver test  4" << std::endl;
-
 
 	/* main cycle */
 	while(it < setting.maxit){
@@ -440,12 +431,17 @@ void SPGQPSolver<VectorBase>::solve() {
 		}
 
 		/* print progress of algorithm */
-		if(setting.debug_mode >= 3){
+		if(setting.debug_mode >= 3 && false){
 			coutMaster << "\033[33m   it = \033[0m" << it;
 			coutMaster << ", \t\033[36mfx = \033[0m" << fx;
 			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
+
+		if(setting.debug_mode >= 3){
+			coutAll << "\033[33m   it = \033[0m" << it << std::endl;
+		}
+
 
 		if(setting.debug_mode >= 5){
 			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
@@ -475,9 +471,9 @@ void SPGQPSolver<VectorBase>::solve() {
 	this->timer_solve.stop();
 
 	/* very short info */
-	if(setting.debug_mode >= 3){
-		coutMaster <<  " - it    = " << it << std::endl;
-		coutMaster <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
+	if(setting.debug_mode >= 3 || false){
+		coutAll <<  " - it    = " << it << std::endl;
+		coutAll <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
 
 	}
 

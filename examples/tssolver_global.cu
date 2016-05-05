@@ -48,7 +48,7 @@ int main( int argc, char *argv[] )
 
 	/* model parameters */
 	int Knum = 5;
-	int K[Knum] = {2,3,1,4,5}; /* number of clusters */
+	int K[Knum] = {4,3,1,2,5}; /* number of clusters */
 	Knum = GlobalManager.get_size(); // TODO: this is a hotfix for proc < Knum
 
 
@@ -84,7 +84,7 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.setting.maxit = 20;
-	mysolver.setting.debug_mode = 0;
+	mysolver.setting.debug_mode = 5;
 	mysolver.print(coutMaster,coutAll);
 
 	mysolver.solve();
