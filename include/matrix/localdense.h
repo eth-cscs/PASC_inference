@@ -55,7 +55,7 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 		LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols); /* constructor from array values */
 		~LocalDenseMatrix(); /* destructor - destroy inner matrix */
 
-		void print(std::ostream &output) const; /* print matrix */
+		void print(ConsoleOutput &output) const; /* print matrix */
 
 		std::string get_name() const;
 		
@@ -151,7 +151,7 @@ LocalDenseMatrix<PetscVector>::~LocalDenseMatrix(){
 
 /* print matrix */
 template<>
-void LocalDenseMatrix<PetscVector>::print(std::ostream &output) const		
+void LocalDenseMatrix<PetscVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
@@ -277,7 +277,7 @@ LocalDenseMatrix<MinlinHostVector>::~LocalDenseMatrix(){
 
 /* print matrix */
 template<>
-void LocalDenseMatrix<MinlinHostVector>::print(std::ostream &output) const {
+void LocalDenseMatrix<MinlinHostVector>::print(ConsoleOutput &output) const {
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
 	output << A_minlinhost << std::endl;
@@ -368,7 +368,7 @@ LocalDenseMatrix<MinlinDeviceVector>::~LocalDenseMatrix(){
 
 /* print matrix */
 template<>
-void LocalDenseMatrix<MinlinDeviceVector>::print(std::ostream &output) const {
+void LocalDenseMatrix<MinlinDeviceVector>::print(ConsoleOutput &output) const {
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
 	output << A_minlindevice;

@@ -36,7 +36,7 @@ class MultiCGSolver_GlobalSetting : public QPSolverSetting {
 		};
 		~MultiCGSolver_GlobalSetting() {};
 
-		virtual void print(std::ostream &output) const {
+		virtual void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - maxit:      " << this->maxit << std::endl;
 			output <<  " - eps:        " << this->eps << std::endl;
@@ -68,9 +68,9 @@ class MultiCGSolver_Global: public QPSolver<PetscVector> {
 		int get_it() const;
 		int get_hessmult() const;
 
-		void print(std::ostream &output) const;
-		void printstatus(std::ostream &output) const;
-		void printcontent(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
+		void printstatus(ConsoleOutput &output) const;
+		void printcontent(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 };
@@ -111,7 +111,7 @@ MultiCGSolver_Global::~MultiCGSolver_Global(){
 }
 
 /* print info about problem */
-void MultiCGSolver_Global::print(std::ostream &output) const {
+void MultiCGSolver_Global::print(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: print" << std::endl;
 
 	output << this->get_name() << std::endl;
@@ -131,7 +131,7 @@ void MultiCGSolver_Global::print(std::ostream &output) const {
 		
 }
 
-void MultiCGSolver_Global::printstatus(std::ostream &output) const {
+void MultiCGSolver_Global::printstatus(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -143,7 +143,7 @@ void MultiCGSolver_Global::printstatus(std::ostream &output) const {
 }
 
 /* print content of solver */
-void MultiCGSolver_Global::printcontent(std::ostream &output) const {
+void MultiCGSolver_Global::printcontent(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: printcontent" << std::endl;
 
 	output << this->get_name() << std::endl;

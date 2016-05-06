@@ -42,7 +42,7 @@ class GeneralMatrix {
 		 * 
 		 * @param output where to print
 		 */ 
-		virtual void print(std::ostream &output) const {};
+		virtual void print(ConsoleOutput &output) const {};
 
 		/** @brief get the type name of matrix
 		 */ 
@@ -64,13 +64,13 @@ class GeneralMatrix {
 		 * @param matrix 
 		 */ 
 		template<class VectorBase2>
-		friend std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorBase2> &matrix);
+		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralMatrix<VectorBase2> &matrix);
 
 };
 
 /* print general matrix, call virtual print() */
 template<class VectorBase>
-std::ostream &operator<<(std::ostream &output, const GeneralMatrix<VectorBase> &matrix){
+ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralMatrix<VectorBase> &matrix){
 	if(DEBUG_MODE >= 100) coutMaster << "(GeneralMatrixRHS)OPERATOR: <<" << std::endl;
 	output << matrix.get_name();
 	return output;

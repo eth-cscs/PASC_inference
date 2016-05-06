@@ -24,7 +24,7 @@ class CGQPSolverSetting : public QPSolverSetting {
 		};
 		~CGQPSolverSetting() {};
 
-		virtual void print(std::ostream &output) const {
+		virtual void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - maxit:      " << this->maxit << std::endl;
 			output <<  " - eps:        " << this->eps << std::endl;
@@ -65,10 +65,10 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		int get_it() const;
 		int get_hessmult() const;
 
-		void print(std::ostream &output) const;
-		void printcontent(std::ostream &output) const;
-		void printstatus(std::ostream &output) const;
-		void printtimer(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
+		void printcontent(ConsoleOutput &output) const;
+		void printstatus(ConsoleOutput &output) const;
+		void printtimer(ConsoleOutput &output) const;
 		
 		std::string get_name() const;
 
@@ -160,7 +160,7 @@ void CGQPSolver<VectorBase>::free_temp_vectors(){
 
 /* print info about problem */
 template<class VectorBase>
-void CGQPSolver<VectorBase>::print(std::ostream &output) const {
+void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: print" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -181,7 +181,7 @@ void CGQPSolver<VectorBase>::print(std::ostream &output) const {
 
 /* print content of solver */
 template<class VectorBase>
-void CGQPSolver<VectorBase>::printcontent(std::ostream &output) const {
+void CGQPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
 
 	output << this->get_name() << std::endl;
@@ -197,7 +197,7 @@ void CGQPSolver<VectorBase>::printcontent(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void CGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
+void CGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -209,7 +209,7 @@ void CGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void CGQPSolver<VectorBase>::printtimer(std::ostream &output) const {
+void CGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 /*	output <<  " - it all =       " << this->it_sum << std::endl;
 	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;

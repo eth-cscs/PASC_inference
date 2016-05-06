@@ -44,7 +44,7 @@ class VarxH1FEMModel: public TSModel<VectorBase> {
 		VarxH1FEMModel(int T, int dimx, int K, int xmem, int umem, double epssqr);
 		~VarxH1FEMModel();
 
-		void print(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 		int get_datavectorlength();
@@ -104,7 +104,7 @@ VarxH1FEMModel<VectorBase>::~VarxH1FEMModel(){
 
 /* print info about problem */
 template<class VectorBase>
-void VarxH1FEMModel<VectorBase>::print(std::ostream &output) const {
+void VarxH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */

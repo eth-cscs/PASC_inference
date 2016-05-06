@@ -44,7 +44,7 @@ class TSSolverGlobalSetting : public GeneralSolverSetting {
 		};
 		~TSSolverGlobalSetting() {};
 
-		void print(std::ostream &output) const {
+		void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - debug mode: " << this->debug_mode << std::endl;
 			output <<  " - maxit: " << this->maxit << std::endl;
@@ -90,11 +90,11 @@ class TSSolver_Global: public GeneralSolver {
 
 		virtual void solve();
 		
-		void print(std::ostream &output) const;
-		void print(std::ostream &output_global, std::ostream &output_local) const;
+		void print(ConsoleOutput &output) const;
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		
-		void printstatus(std::ostream &output) const;
-		void printtimer(std::ostream &output) const;
+		void printstatus(ConsoleOutput &output) const;
+		void printtimer(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 		TSData_Global *get_data() const;
@@ -165,88 +165,95 @@ TSSolver_Global::~TSSolver_Global(){
 
 
 /* print info about problem */
-void TSSolver_Global::print(std::ostream &output) const {
+void TSSolver_Global::print(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 
-	coutMaster.push();
+	output.push();
 	setting.print(output);
-	coutMaster.pop();
+	output.pop();
 
 	/* print data */
 	if(tsdata){
-		coutMaster.push();
+		output.push();
 		tsdata->print(output);
-		coutMaster.pop();
+		output.pop();
 	}
 
 	/* if child solvers are specified, then print also info about it */	
 	output <<  " Gamma Solver" << std::endl;
 	if(gammasolver){
-		coutMaster.push();
+		output.push();
 		gammasolver->print(output);
-		coutMaster.pop();
+		output.pop();
 	} else {
 		output <<  " - not set" << std::endl;
 	}
 
 	output <<  " Theta Solver" << std::endl;
 	if(thetasolver){
-		coutMaster.push();
+		output.push();
 		thetasolver->print(output);
-		coutMaster.pop();
+		output.pop();
 	} else {
 		output <<  " - not set" << std::endl;
 	}
+	
+	output.synchronize();
 }
 
 /* print info about problem */
-void TSSolver_Global::print(std::ostream &output_global, std::ostream &output_local) const {
+void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 
 	output_global <<  this->get_name() << std::endl;
 
-	coutMaster.push();
+	output_global.push();
 	setting.print(output_global);
-	coutMaster.pop();
+	output_global.pop();
 
 	/* print data */
 	if(tsdata){
-		coutMaster.push();
+		output_global.push();
 		tsdata->print(output_global, output_local);
-		coutMaster.pop();
+		output_global.pop();
 	}
 
 	/* if child solvers are specified, then print also info about it */	
 	output_global <<  " Gamma Solver" << std::endl;
 	if(gammasolver){
-		coutMaster.push();
+		output_global.push();
 		gammasolver->print(output_global);
-		coutMaster.pop();
+		output_global.pop();
 	} else {
 		output_global <<  " - not set" << std::endl;
 	}
 
 	output_global <<  " Theta Solver" << std::endl;
 	if(thetasolver){
-		coutMaster.push();
+		output_global.push();
 		thetasolver->print(output_global);
-		coutMaster.pop();
+		output_global.pop();
 	} else {
 		output_global <<  " - not set" << std::endl;
 	}
+	
+	output_local.synchronize();
+	output_global.synchronize();
 }
 
 
-void TSSolver_Global::printstatus(std::ostream &output) const {
+void TSSolver_Global::printstatus(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - it:          " << this->it_last << std::endl;
 	output <<  " - L:           " << this->L << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	
+	output.synchronize();
 }
 
-void TSSolver_Global::printtimer(std::ostream &output) const {
+void TSSolver_Global::printtimer(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	output <<  " - it all =          " << this->it_sum << std::endl;
 	output <<  " - timers" << std::endl;
@@ -273,7 +280,9 @@ void TSSolver_Global::printtimer(std::ostream &output) const {
 	} else {
 		output << " - not set" << std::endl;
 	}
-	
+
+	output.synchronize();
+
 }
 
 
@@ -301,6 +310,18 @@ void TSSolver_Global::solve() {
 
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
+	/* solved vector, if all values are 1, then all problems are solved */
+	Vec solved_vec;
+	TRY( VecCreate(PETSC_COMM_WORLD,&solved_vec) );
+	TRY( VecSetSizes(solved_vec,1,GlobalManager.get_size()) ); // TODO: there should be more options to set the distribution
+	TRY( VecSetFromOptions(solved_vec) );
+	double *solved_arr;
+	double solved_local = 0.0;
+	double solved_sum;
+	TRY( VecSet(solved_vec, solved_local) );
+	TRY( VecAssemblyBegin(solved_vec));
+	TRY( VecAssemblyEnd(solved_vec));
+
 	/* variables */
 	double L; /* object function value */
 	double L_old, deltaL;
@@ -326,7 +347,9 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		this->timer_theta_solve.start();
-		 thetasolver->solve();
+		 if(solved_local == 0.0){
+			thetasolver->solve();
+		 }
 		this->timer_theta_solve.stop();
 
 		TRY(PetscBarrier(NULL));
@@ -335,11 +358,11 @@ void TSSolver_Global::solve() {
 		if(setting.debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " theta solver:" << std::endl;
-			temp_ostream << "[" << GlobalManager.get_rank() << "]" << offset << "    - it = \t" << thetasolver->get_it() << ", time_update = \t" << this->timer_theta_update.get_value_last() << ", time_solve = \t" << this->timer_theta_solve.get_value_last() << std::endl;
-			TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, temp_ostream.str().c_str()) );
-			TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-			temp_ostream.str("");
-			temp_ostream.clear();
+			coutAll << "  - ";
+			coutAll << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
+			coutAll << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
+			coutAll << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
+			coutAll.synchronize();
 		}
 		if(setting.debug_mode >= 10){
 			coutMaster <<  "- thetasolver status:" << std::endl;
@@ -369,7 +392,9 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		this->timer_gamma_solve.start();
-		 gammasolver->solve();
+		 if(solved_local == 0.0){
+			gammasolver->solve();
+		 }
 		this->timer_gamma_solve.stop();
 
 		TRY(PetscBarrier(NULL));
@@ -378,11 +403,11 @@ void TSSolver_Global::solve() {
 		if(setting.debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " gamma solver:" << std::endl;
-			temp_ostream << "[" << GlobalManager.get_rank() << "]" << offset << "    - it = \t" << gammasolver->get_it() << ", time_update = \t" << this->timer_gamma_update.get_value_last() << ", time_solve = \t" << this->timer_gamma_solve.get_value_last() << std::endl;
-			TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, temp_ostream.str().c_str()) );
-			TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-			temp_ostream.str("");
-			temp_ostream.clear();
+			coutAll << "  - ";
+			coutAll << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
+			coutAll << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
+			coutAll << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
+			coutAll.synchronize();
 		}
 		if(setting.debug_mode >= 10){
 			coutMaster <<  "- gammasolver status:" << std::endl;
@@ -403,30 +428,45 @@ void TSSolver_Global::solve() {
 			coutMaster.pop();
 		}
 
-		/* compute stopping criteria */
+		/* compute stopping criteria if the problem was not solved yet */
 		L_old = L;
-		L = model->get_L(gammasolver,thetasolver,tsdata);
-		deltaL = std::abs(L - L_old);
+		if(solved_local == 0.0){
+			L = model->get_L(gammasolver,thetasolver,tsdata);
+			deltaL = std::abs(L - L_old);
+		}
+
+		/* update local stopping criteria */
+		if (deltaL < setting.eps){
+			solved_local = 1.0;
+
+			TRY( VecGetArray(solved_vec,&solved_arr) );
+			solved_arr[0] = solved_local;
+			TRY( VecRestoreArray(solved_vec,&solved_arr) );
+		}
+		TRY( VecAssemblyBegin(solved_vec));
+		TRY( VecAssemblyEnd(solved_vec));
 
 		if(setting.debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " outer loop status:" << std::endl;			
-			temp_ostream << "[" << GlobalManager.get_rank() << "]" << offset << "    - L_old = \t" << L_old << ", L = \t" << L << ", |L - L_old| = \t" << deltaL << std::endl;
-			TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, temp_ostream.str().c_str()) );
-			TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-			temp_ostream.str("");
-			temp_ostream.clear();
+			coutAll << "  - ";
+			coutAll << "solved = " << std::setw(2) << solved_local << ", ";
+			coutAll << "L_old = " << std::setw(12) << L_old << ", ";
+			coutAll << "L = " << std::setw(12) << L << ", ";
+			coutAll << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
+			coutAll.synchronize();
 		}
 
-		/* end the main cycle if the change of function value is sufficient */
-		if (deltaL < setting.eps){
-//			break;
+		/* global stopping criteria */
+		TRY( VecSum(solved_vec, &solved_sum));
+		if(solved_sum >= GlobalManager.get_size()){
+			break;
 		}
-		
-		TRY(PetscBarrier(NULL));
 		
 	}
 	coutMaster.pop();
+
+	TRY( VecDestroy(&solved_vec) );
 
 	this->it_sum += it;
 	this->it_last = it;

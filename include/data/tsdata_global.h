@@ -46,10 +46,10 @@ class TSData_Global: public GeneralData {
 		TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector, GeneralVector<PetscVector> &u);
 		~TSData_Global();
 
-		void print(std::ostream &output) const;
-		void print(std::ostream &output_global, std::ostream &output_local) const;
+		void print(ConsoleOutput &output) const;
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
-		void printcontent(std::ostream &output_global, std::ostream &output_local) const;
+		void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
 
 		int get_T() const;
@@ -186,14 +186,14 @@ TSData_Global::~TSData_Global(){
 
 
 /* print info about data */
-void TSData_Global::print(std::ostream &output) const {
+void TSData_Global::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output <<  " - T:           " << this->get_T() << std::endl;
 	output <<  " - xdim:        " << this->get_xdim() << std::endl;
 	output <<  " - K:           ";
-	print_array(output, this->tsmodel->get_Knum(), this->tsmodel->get_K());
+	print_array(output, this->tsmodel->get_num(), this->tsmodel->get_K());
 	output << std::endl;
 	output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	output <<  " - datavector:  ";
@@ -220,22 +220,25 @@ void TSData_Global::print(std::ostream &output) const {
 	} else {
 		output << "NO" << std::endl;
 	}
-	
+
+	output.synchronize();
 }
 
 /* print info about data */
-void TSData_Global::print(std::ostream &output_global, std::ostream &output_local) const {
+void TSData_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output_global <<  " - T:           " << this->get_T() << std::endl;
 	output_local  <<  "  - Tlocal:     " << this->tsmodel->get_Tlocal() << std::endl;
+	output_local.synchronize();
 
 	output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
 	output_global <<  " - K:           ";
-	print_array(output_global, this->tsmodel->get_Knum(), this->tsmodel->get_K());
+	print_array(output_global, this->tsmodel->get_num(), this->tsmodel->get_K());
 	output_global << std::endl;
 	output_local  <<  "  - Klocal:     " << this->tsmodel->get_Klocal() << std::endl;
+	output_local.synchronize();
 
 	output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	
@@ -243,6 +246,7 @@ void TSData_Global::print(std::ostream &output_global, std::ostream &output_loca
 	if(this->datavector){
 		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
 		output_local  <<  "  - local size: " << this->datavector->local_size() << std::endl;
+		output_local.synchronize();
 	} else {
 		output_global << "NO" << std::endl;
 	}
@@ -251,6 +255,7 @@ void TSData_Global::print(std::ostream &output_global, std::ostream &output_loca
 	if(this->u){
 		output_global << "YES (size: " << this->u->size() << ")" << std::endl;
 		output_local  <<  "  - local size: " << this->u->local_size() << std::endl;
+		output_local.synchronize();
 	} else {
 		output_global << "NO" << std::endl;
 	}
@@ -259,6 +264,7 @@ void TSData_Global::print(std::ostream &output_global, std::ostream &output_loca
 	if(this->gammavector){
 		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
 		output_local  <<  "  - local size: " << this->gammavector->local_size() << std::endl;
+		output_local.synchronize();
 	} else {
 		output_global << "NO" << std::endl;
 	}
@@ -267,15 +273,17 @@ void TSData_Global::print(std::ostream &output_global, std::ostream &output_loca
 	if(this->thetavector){
 		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
 		output_local  <<  "  - local size: " << this->thetavector->local_size() << std::endl;
+		output_local.synchronize();
 	} else {
 		output_global << "NO" << std::endl;
 	}
-	
+
+	output_global.synchronize();
 }
 
 
 /* print content of all data */
-void TSData_Global::printcontent(std::ostream &output_global,std::ostream &output_local) const {
+void TSData_Global::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */
@@ -285,25 +293,33 @@ void TSData_Global::printcontent(std::ostream &output_global,std::ostream &outpu
 	} else {
 		output_local << "not set" << std::endl;
 	}
+	output_local.synchronize();
+
 	output_local <<  " - u:          ";
 	if(this->u){
 		output_local << *this->u << std::endl;
 	} else {
 		output_local << "not set" << std::endl;
 	}
+	output_local.synchronize();
+
 	output_local <<  " - gammavector: ";
 	if(this->gammavector){
 		output_local << *this->gammavector << std::endl;
 	} else {
 		output_local << "not set" << std::endl;
 	}
+	output_local.synchronize();
+
 	output_local <<  " - thetavector: ";
 	if(this->thetavector){
 		output_local << *this->thetavector << std::endl;
 	} else {
 		output_local << "not set" << std::endl;
 	}
-		
+	output_local.synchronize();
+
+	output_global.synchronize();
 }
 
 std::string TSData_Global::get_name() const {

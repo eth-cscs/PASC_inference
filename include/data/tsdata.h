@@ -36,8 +36,8 @@ class TSData: public GeneralData {
 		TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector, GeneralVector<VectorBase> &u);
 		~TSData();
 
-		void print(std::ostream &output) const;
-		void printcontent(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
+		void printcontent(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 		int get_T() const;
@@ -169,7 +169,7 @@ TSData<VectorBase>::~TSData(){
 
 /* print info about data */
 template<class VectorBase>
-void TSData<VectorBase>::print(std::ostream &output) const {
+void TSData<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -206,7 +206,7 @@ void TSData<VectorBase>::print(std::ostream &output) const {
 
 /* print content of all data */
 template<class VectorBase>
-void TSData<VectorBase>::printcontent(std::ostream &output) const {
+void TSData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */

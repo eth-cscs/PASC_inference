@@ -67,13 +67,13 @@ class DiagData: public GeneralData {
 		 * 
 		 * @param output where to print
 		 */ 
-		void print(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
 
 		/** @brief print content of included data
 		 * 
 		 * @param output where to print
 		 */ 
-		void printcontent(std::ostream &output) const;
+		void printcontent(ConsoleOutput &output) const;
 
 		/** @brief get type of this data
 		 */
@@ -134,7 +134,7 @@ DiagData<VectorBase>::~DiagData(){
 
 /* print info about problem */
 template<class VectorBase>
-void DiagData<VectorBase>::print(std::ostream &output) const {
+void DiagData<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -160,7 +160,7 @@ void DiagData<VectorBase>::print(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void DiagData<VectorBase>::printcontent(std::ostream &output) const {
+void DiagData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */

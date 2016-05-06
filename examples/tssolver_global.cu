@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int dimx = 3; /* data dimension */
-	int T = 1000; /* length of time-series */
+	int T = 10000; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int Solution_K = 4;
@@ -47,25 +47,28 @@ int main( int argc, char *argv[] )
 
 
 	/* model parameters */
-	int Knum = 5;
-	int K[Knum] = {4,3,1,2,5}; /* number of clusters */
-	Knum = GlobalManager.get_size(); // TODO: this is a hotfix for proc < Knum
+	int num = 5;
+//	int K[Knum] = {4,3,1,2,5}; /* number of clusters */
+	int K[num] = {1,2,3,4,5}; 
+	double epssqr[num] = {20,20,20,20,20}; /* penalty */
+
+	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
 
 
 	int xmem = 0; /* coeficient of Var model - memory of x */
 	int umem = 0; /* coeficient of Var model - memory of u */
 	
-	double epssqr = 10; /* penalty */
 
 	/* print info about environment */
 	coutMaster << "---------------------" << std::endl;
 	coutMaster << "nproc:   " << GlobalManager.get_size() << std::endl;
-	coutAll <<    "my_rank: " << GlobalManager.get_rank() << std::endl;
+	coutAll <<    " my_rank: " << GlobalManager.get_rank() << std::endl;
+	coutAll.synchronize();
 	coutMaster << "---------------------" << std::endl << std::endl;
 	
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	VarxH1FEMModel_Global mymodel(T, dimx, Knum, K, xmem, umem, epssqr);
+	VarxH1FEMModel_Global mymodel(T, dimx, num, K, xmem, umem, epssqr);
 	mymodel.print(coutMaster,coutAll);
 
 	/* prepare time-series data */
@@ -91,7 +94,7 @@ int main( int argc, char *argv[] )
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	example::KMeans3D::saveVTK("output",".vtk",T,Knum,K,mydata.get_datavector(),mydata.get_gammavector());
+	example::KMeans3D::saveVTK("output",".vtk",T,num,K,mydata.get_datavector(),mydata.get_gammavector());
 	
 	mysolver.printtimer(coutMaster);
 

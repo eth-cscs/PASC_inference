@@ -28,7 +28,7 @@ class MultiCGSolverSetting : public QPSolverSetting {
 		};
 		~MultiCGSolverSetting() {};
 
-		virtual void print(std::ostream &output) const {
+		virtual void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - maxit:      " << this->maxit << std::endl;
 			output <<  " - eps:        " << this->eps << std::endl;
@@ -61,9 +61,9 @@ class MultiCGSolver: public QPSolver<VectorBase> {
 		int get_it() const;
 		int get_hessmult() const;
 
-		void print(std::ostream &output) const;
-		void printstatus(std::ostream &output) const;
-		void printcontent(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
+		void printstatus(ConsoleOutput &output) const;
+		void printcontent(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 };
@@ -108,7 +108,7 @@ MultiCGSolver<VectorBase>::~MultiCGSolver(){
 
 /* print info about problem */
 template<class VectorBase>
-void MultiCGSolver<VectorBase>::print(std::ostream &output) const {
+void MultiCGSolver<VectorBase>::print(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: print" << std::endl;
 
 	output << this->get_name() << std::endl;
@@ -129,7 +129,7 @@ void MultiCGSolver<VectorBase>::print(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void MultiCGSolver<VectorBase>::printstatus(std::ostream &output) const {
+void MultiCGSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -142,7 +142,7 @@ void MultiCGSolver<VectorBase>::printstatus(std::ostream &output) const {
 
 /* print content of solver */
 template<class VectorBase>
-void MultiCGSolver<VectorBase>::printcontent(std::ostream &output) const {
+void MultiCGSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: printcontent" << std::endl;
 
 	output << this->get_name() << std::endl;

@@ -40,7 +40,7 @@ class TSSolverSetting : public GeneralSolverSetting {
 		};
 		~TSSolverSetting() {};
 
-		void print(std::ostream &output) const {
+		void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - debug mode: " << this->debug_mode << std::endl;
 			output <<  " - maxit: " << this->maxit << std::endl;
@@ -87,9 +87,9 @@ class TSSolver: public GeneralSolver {
 
 		virtual void solve();
 		
-		void print(std::ostream &output) const;
-		void printstatus(std::ostream &output) const;
-		void printtimer(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
+		void printstatus(ConsoleOutput &output) const;
+		void printtimer(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 		TSData<VectorBase> *get_data() const;
@@ -164,7 +164,7 @@ TSSolver<VectorBase>::~TSSolver(){
 
 /* print info about problem */
 template<class VectorBase>
-void TSSolver<VectorBase>::print(std::ostream &output) const {
+void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 
@@ -200,7 +200,7 @@ void TSSolver<VectorBase>::print(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void TSSolver<VectorBase>::printstatus(std::ostream &output) const {
+void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -210,7 +210,7 @@ void TSSolver<VectorBase>::printstatus(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void TSSolver<VectorBase>::printtimer(std::ostream &output) const {
+void TSSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	output <<  " - it all =          " << this->it_sum << std::endl;
 	output <<  " - timers" << std::endl;

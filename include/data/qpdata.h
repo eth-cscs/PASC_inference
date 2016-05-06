@@ -47,7 +47,7 @@ class QPData: public GeneralData {
 		 * 
 		 * @param output where to print
 		 */
-		void print(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
 		
 		/** @brief print content of data
 		 * 
@@ -55,7 +55,7 @@ class QPData: public GeneralData {
 		 * 
 		 * @param output where to print
 		 */
-		void printcontent(std::ostream &output) const;
+		void printcontent(ConsoleOutput &output) const;
 		
 		/** @brief get the name of data
 		 */ 		
@@ -136,7 +136,7 @@ QPData<VectorBase>::~QPData(){
 
 /* print info about problem */
 template<class VectorBase>
-void QPData<VectorBase>::print(std::ostream &output) const {
+void QPData<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -174,7 +174,7 @@ void QPData<VectorBase>::print(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void QPData<VectorBase>::printcontent(std::ostream &output) const {
+void QPData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */

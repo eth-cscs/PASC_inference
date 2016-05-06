@@ -32,7 +32,7 @@ class KmeansH1FEMModel: public TSModel<VectorBase> {
 		KmeansH1FEMModel(int T, int dim, int K, double penalty);
 		~KmeansH1FEMModel();
 
-		void print(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 		int get_datavectorlength();
@@ -86,7 +86,7 @@ KmeansH1FEMModel<VectorBase>::~KmeansH1FEMModel(){
 
 /* print info about problem */
 template<class VectorBase>
-void KmeansH1FEMModel<VectorBase>::print(std::ostream &output) const {
+void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */

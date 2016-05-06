@@ -22,7 +22,7 @@ class DiagSolverSetting : public GeneralSolverSetting {
 		};
 		~DiagSolverSetting() {};
 
-		virtual void print(std::ostream &output) const {
+		virtual void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - debug_mode: " << this->debug_mode << std::endl;
 		};
@@ -52,9 +52,9 @@ class DiagSolver: public GeneralSolver {
 
 		void solve();
 
-		void print(std::ostream &output) const;
-		void printstatus(std::ostream &output) const;		
-		void printtimer(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
+		void printstatus(ConsoleOutput &output) const;		
+		void printtimer(ConsoleOutput &output) const;
 		std::string get_name() const;
 
 		DiagData<VectorBase> *get_data() const;
@@ -92,7 +92,7 @@ DiagSolver<VectorBase>::~DiagSolver(){
 
 /* print info about problem */
 template<class VectorBase>
-void DiagSolver<VectorBase>::print(std::ostream &output) const {
+void DiagSolver<VectorBase>::print(ConsoleOutput &output) const {
 	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: print" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -113,7 +113,7 @@ void DiagSolver<VectorBase>::print(std::ostream &output) const {
 
 
 template<class VectorBase>
-void DiagSolver<VectorBase>::printstatus(std::ostream &output) const {
+void DiagSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(this->setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -121,7 +121,7 @@ void DiagSolver<VectorBase>::printstatus(std::ostream &output) const {
 }
 
 template<class VectorBase>
-void DiagSolver<VectorBase>::printtimer(std::ostream &output) const {
+void DiagSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	output <<  " - timers" << std::endl;
 	output <<  "  - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;

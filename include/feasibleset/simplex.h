@@ -76,7 +76,7 @@ class SimplexFeasibleSet: public GeneralFeasibleSet<VectorBase> {
 		 * 
 		 * @param output where to print
 		 */ 
-		void print(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
 
 		/** @brief get name of this feasible set
 		 */
@@ -129,7 +129,7 @@ SimplexFeasibleSet<VectorBase>::~SimplexFeasibleSet(){
 
 /* print info about feasible set */
 template<class VectorBase>
-void SimplexFeasibleSet<VectorBase>::print(std::ostream &output) const {
+void SimplexFeasibleSet<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */

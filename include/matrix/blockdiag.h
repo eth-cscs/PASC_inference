@@ -31,7 +31,7 @@ class BlockDiagMatrix: public GeneralMatrix<VectorBase> {
 		BlockDiagMatrix(int nmb_block, MatrixBase **new_blocks, int blocksize); /* constructor with number_of_blocks and blocks */
 		~BlockDiagMatrix(); /* destructor - destroy inner matrix */
 
-		void print(std::ostream &output) const; /* print matrix */
+		void print(ConsoleOutput &output) const; /* print matrix */
 		std::string get_name() const;
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
@@ -70,7 +70,7 @@ BlockDiagMatrix<VectorBase,MatrixBase>::~BlockDiagMatrix(){
 
 /* print matrix */
 template<class VectorBase, class MatrixBase>
-void BlockDiagMatrix<VectorBase,MatrixBase>::print(std::ostream &output) const		
+void BlockDiagMatrix<VectorBase,MatrixBase>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)OPERATOR: << print" << std::endl;
 

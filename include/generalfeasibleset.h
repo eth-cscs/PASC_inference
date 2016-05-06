@@ -37,7 +37,7 @@ class GeneralFeasibleSet {
 		 * 
 		 * @param output where to print
 		 */ 
-		virtual void print(std::ostream &output) const;
+		virtual void print(ConsoleOutput &output) const;
 
 		/** @brief get the name of feasible set
 		 */
@@ -58,20 +58,20 @@ class GeneralFeasibleSet {
 		 * 
 		 */
 		template<class VectorBase2>
-		friend std::ostream &operator<<(std::ostream &output, const GeneralFeasibleSet<VectorBase2> &feasibleset); /* cannot be virtual, therefore it call virtual print() */
+		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralFeasibleSet<VectorBase2> &feasibleset); /* cannot be virtual, therefore it call virtual print() */
 	
 };
 
 /* general print, call virtual print() */
 template<class VectorBase2>
-std::ostream &operator<<(std::ostream &output, const GeneralFeasibleSet<VectorBase2> &feasibleset){
+ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralFeasibleSet<VectorBase2> &feasibleset){
 	if(DEBUG_MODE >= 100) coutMaster <<  "(GeneralFeasibleSet)OPERATOR: <<" << std::endl;
 	output << feasibleset.get_name();
 	return output;
 }
 
 template<class VectorBase>
-void GeneralFeasibleSet<VectorBase>::print(std::ostream &output) const {
+void GeneralFeasibleSet<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 }
 

@@ -32,7 +32,7 @@ class BlockDiagLaplaceVectorMatrix: public GeneralMatrix<VectorBase> {
 
 		~BlockDiagLaplaceVectorMatrix(); /* destructor - destroy inner matrix */
 
-		void print(std::ostream &output) const; /* print matrix */
+		void print(ConsoleOutput &output) const; /* print matrix */
 		std::string get_name() const;
 
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
@@ -63,7 +63,7 @@ BlockDiagLaplaceVectorMatrix<VectorBase>::~BlockDiagLaplaceVectorMatrix(){
 }
 
 template<class VectorBase>
-void BlockDiagLaplaceVectorMatrix<VectorBase>::print(std::ostream &output) const		
+void BlockDiagLaplaceVectorMatrix<VectorBase>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)OPERATOR: << print" << std::endl;
 

@@ -38,20 +38,20 @@ class GeneralSetting {
 		 * 
 		 * @param output where to print
 		 */
-		virtual void print(std::ostream &output) const {};
+		virtual void print(ConsoleOutput &output) const {};
 
 		/** @brief return the name of settings
 		 * 
 		 */
 		virtual std::string get_name() const;
 
-		friend std::ostream &operator<<(std::ostream &output, const GeneralSetting &setting); 
+		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralSetting &setting); 
 	
 };
 
 
 /* general print, call virtual print() */
-std::ostream &operator<<(std::ostream &output, const GeneralSetting &setting){
+ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralSetting &setting){
 	if(DEBUG_MODE >= 100) coutMaster << "(GeneralSolverSetting)OPERATOR: <<" << std::endl;
 	output << setting.get_name();
 	return output;

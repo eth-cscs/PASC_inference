@@ -38,7 +38,7 @@ class TSModel_Global: public GeneralModel {
 		
 		int xdim; /**< number of components in each time-step */
 
-		int Knum; /**< length of K */
+		int num; /**< length of K */
 		int *K; /**< number of clusters to test */
 
 		int Klocal; // TODO: this should be array
@@ -55,10 +55,10 @@ class TSModel_Global: public GeneralModel {
 
 	public:
 		TSModel_Global();
-		TSModel_Global(int T, int xdim, int Knum, int *K);
+		TSModel_Global(int T, int xdim, int num, int *K);
 		~TSModel_Global();
 
-		virtual void print(std::ostream &output) const;
+		virtual void print(ConsoleOutput &output) const;
 		virtual std::string get_name() const;
 
 		/* global length */
@@ -78,7 +78,7 @@ class TSModel_Global: public GeneralModel {
 		int get_Tlocal() const;
 		int get_xdim() const;
 
-		int get_Knum() const;
+		int get_num() const;
 		int* get_K() const;
 		int get_Klocal() const;
 		
@@ -155,7 +155,7 @@ TSModel_Global::TSModel_Global(){
 	this->T = 0;
 	this->xdim = 0;
 
-	this->Knum = 0;
+	this->num = 0;
 	this->K = NULL;
 
 	this->Klocal = 0;
@@ -163,14 +163,14 @@ TSModel_Global::TSModel_Global(){
 }
 
 
-TSModel_Global::TSModel_Global(int newT, int newxdim, int newKnum, int *newK){
+TSModel_Global::TSModel_Global(int newT, int newxdim, int newnum, int *newK){
 	if(DEBUG_MODE >= 100) coutMaster << "(TSModel_Global)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = newT;
 	this->xdim = newxdim;
 
-	this->Knum = newKnum;
+	this->num = newnum;
 	this->K = newK;
 	
 	this->Klocal = this->K[GlobalManager.get_rank()];
@@ -184,7 +184,7 @@ TSModel_Global::~TSModel_Global(){
 
 
 /* print info about model */
-void TSModel_Global::print(std::ostream &output) const {
+void TSModel_Global::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -194,7 +194,7 @@ void TSModel_Global::print(std::ostream &output) const {
 	output <<  " - xdim:    " << this->xdim << std::endl;
 
 	output <<  " - K:      ";
-	print_array(output, this->Knum, this->K);
+	print_array(output, this->num, this->K);
 	output << std::endl;
 	output <<  " - Klocal: " << this->Klocal << std::endl;
 		
@@ -227,8 +227,8 @@ int* TSModel_Global::get_K() const{
 	return K; 
 }
 
-int TSModel_Global::get_Knum() const{
-	return Knum; 
+int TSModel_Global::get_num() const{
+	return num; 
 }
 
 

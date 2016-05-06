@@ -32,25 +32,26 @@ class GeneralModel {
 
 		/** @brief print info about model
 		 */ 
-		virtual void print(std::ostream &output) const;
+		virtual void print(ConsoleOutput &output) const;
 
 		/** @brief get the name of model
 		 */ 
 		virtual std::string get_name() const;
 
-		friend std::ostream &operator<<(std::ostream &output, const GeneralModel &model); /* cannot be virtual, therefore it call virtual print() */
+		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralModel &model); /* cannot be virtual, therefore it call virtual print() */
 	
 };
 
 /* general print, call virtual print() */
-std::ostream &operator<<(std::ostream &output, const GeneralModel &model){
+ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralModel &model){
 	if(DEBUG_MODE >= 100) coutMaster << "(GeneralData)OPERATOR: <<" << std::endl;
 	output << model.get_name();
 	return output;
 }
 
-void GeneralModel::print(std::ostream &output) const {
+void GeneralModel::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
+	output.synchronize();
 }
 
 std::string GeneralModel::get_name() const {

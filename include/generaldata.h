@@ -35,7 +35,7 @@ class GeneralData {
 		 * 
 		 * @param output where to print
 		 */
-		virtual void print(std::ostream &output) const;
+		virtual void print(ConsoleOutput &output) const;
 
 		/** @brief print content of data
 		 * 
@@ -43,7 +43,7 @@ class GeneralData {
 		 * 
 		 * @param output where to print
 		 */
-		virtual void printcontent(std::ostream &output) const;
+		virtual void printcontent(ConsoleOutput &output) const;
 
 		/** @brief get the name of data
 		 */ 
@@ -52,22 +52,22 @@ class GeneralData {
 		/** @brief append name to input stream
 		 * 
 		 */
-		friend std::ostream &operator<<(std::ostream &output, const GeneralData &data); /* cannot be virtual, therefore it call virtual print() */
+		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralData &data); /* cannot be virtual, therefore it call virtual print() */
 	
 };
 
 /* general print, call virtual print() */
-std::ostream &operator<<(std::ostream &output, const GeneralData &data){
+ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralData &data){
 	if(DEBUG_MODE >= 100) coutMaster << "(GeneralData)OPERATOR: <<" << std::endl;
 	output << data.get_name();
 	return output;
 }
 
-void GeneralData::print(std::ostream &output) const {
+void GeneralData::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 }
 
-void GeneralData::printcontent(std::ostream &output) const {
+void GeneralData::printcontent(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 }
 

@@ -43,7 +43,7 @@ class GeneralSolverSetting : public GeneralSetting {
 		/** @brief print setting values
 		 *
 		 */ 
-		virtual void print(std::ostream &output) const {};
+		virtual void print(ConsoleOutput &output) const {};
 };
 
 /** @class GeneralSolver
@@ -89,7 +89,7 @@ class GeneralSolver {
 		 * 
 		 * @param output where to print
 		 */ 
-		virtual void print(std::ostream &output) const;
+		virtual void print(ConsoleOutput &output) const;
 
 		/** @brief print status of solver
 		 * 
@@ -97,13 +97,13 @@ class GeneralSolver {
 		 * 
 		 * @param output where to print
 		 */ 
-		virtual void printstatus(std::ostream &output) const;
+		virtual void printstatus(ConsoleOutput &output) const;
 
 		/** @brief print content of all solver data
 		 * 
 		 * @param output where to print
 		 */ 
-		virtual void printcontent(std::ostream &output) const;
+		virtual void printcontent(ConsoleOutput &output) const;
 
 		/** @brief print timers of solver
 		 * 
@@ -111,7 +111,7 @@ class GeneralSolver {
 		 * 
 		 * @param output where to print
 		 */ 
-		virtual void printtimer(std::ostream &output) const;
+		virtual void printtimer(ConsoleOutput &output) const;
 
 		/** @brief get the name of solver
 		 */ 
@@ -122,7 +122,7 @@ class GeneralSolver {
 		 */
 		virtual void solve() {};
 
-		friend std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver); /* cannot be virtual, therefore it call virtual print() */
+		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralSolver &solver); /* cannot be virtual, therefore it call virtual print() */
 
 		/** @brief get the pointer to inner data
 		 * 
@@ -136,25 +136,25 @@ class GeneralSolver {
 };
 
 /* general print, call virtual print() */
-std::ostream &operator<<(std::ostream &output, const GeneralSolver &solver){
+ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralSolver &solver){
 	if(DEBUG_MODE >= 100) coutMaster << "(GeneralSolver)OPERATOR: <<" << std::endl;
 	output << solver.get_name();
 	return output;
 }
 
-void GeneralSolver::print(std::ostream &output) const {
+void GeneralSolver::print(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 }
 
-void GeneralSolver::printstatus(std::ostream &output) const {
+void GeneralSolver::printstatus(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 }
 
-void GeneralSolver::printcontent(std::ostream &output) const {
+void GeneralSolver::printcontent(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 }
 
-void GeneralSolver::printtimer(std::ostream &output) const {
+void GeneralSolver::printtimer(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 }
 

@@ -10,7 +10,7 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define SPGQPSOLVER_DEFAULT_MAXIT 1000;
+#define SPGQPSOLVER_DEFAULT_MAXIT 5000;
 #define SPGQPSOLVER_DEFAULT_EPS 0.001;
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
@@ -45,7 +45,7 @@ class SPGQPSolverSetting : public QPSolverSetting {
 		};
 		~SPGQPSolverSetting() {};
 
-		virtual void print(std::ostream &output) const {
+		virtual void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - maxit:      " << this->maxit << std::endl;
 			output <<  " - eps:        " << this->eps << std::endl;
@@ -57,6 +57,7 @@ class SPGQPSolverSetting : public QPSolverSetting {
 			output <<  " - sigma2:     " << sigma2 << std::endl;
 			output <<  " - alphainit:  " << alphainit << std::endl;
 
+			output.synchronize();
 		};
 
 		std::string get_name() const {
@@ -79,7 +80,7 @@ class SPGQPSolver_fs {
 		int get_size();
 		void update(double new_fx);
 		
-		friend std::ostream &operator<<(std::ostream &output, SPGQPSolver_fs fs);
+		friend ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs);
 };
 
 
@@ -119,9 +120,9 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		int get_it() const;
 		int get_hessmult() const;
 
-		void print(std::ostream &output) const;
-		void printstatus(std::ostream &output) const;
-		void printtimer(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
+		void printstatus(ConsoleOutput &output) const;
+		void printtimer(ConsoleOutput &output) const;
 
 		std::string get_name() const;
 
@@ -229,7 +230,7 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 
 /* print info about problem */
 template<class VectorBase>
-void SPGQPSolver<VectorBase>::print(std::ostream &output) const {
+void SPGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: print" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -245,11 +246,12 @@ void SPGQPSolver<VectorBase>::print(std::ostream &output) const {
 		qpdata->print(output);
 		coutMaster.pop();
 	}
-	
+
+	output.synchronize();
 }
 
 template<class VectorBase>
-void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
+void SPGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -259,10 +261,11 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostream &output) const {
 	output <<  " - norm(gP):    " << this->gP << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
+	output.synchronize();
 }
 
 template<class VectorBase>
-void SPGQPSolver<VectorBase>::printtimer(std::ostream &output) const {
+void SPGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	output <<  " - it all =       " << this->it_sum << std::endl;
 	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;
@@ -275,6 +278,8 @@ void SPGQPSolver<VectorBase>::printtimer(std::ostream &output) const {
 	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
 	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
 	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
+
+	output.synchronize();
 }
 
 
@@ -545,18 +550,22 @@ void SPGQPSolver_fs::update(double new_fx){
 }
 
 /* print the content of the list */
-std::ostream &operator<<(std::ostream &output, SPGQPSolver_fs fs)
+ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs)
 {
 	int j, list_size;
 	std::list<double>::iterator it; /* iterator through list */
+	double node;
 
 	it = fs.fs_list.begin();
 	list_size = fs.fs_list.size(); /* = m? */
 	
+	std::ostringstream temp;
+	
 	output << "[ ";
 	/* for each component go throught the list */
 	for(j=0;j<list_size;j++){
-		output << *it;
+		temp << *it;
+		output << temp;
 		if(j < list_size-1){ 
 				/* this is not the last node */
 				output << ", ";

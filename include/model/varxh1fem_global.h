@@ -43,16 +43,18 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 	 	QPData<PetscVector> *thetadata; /**< QP with blockdiag with dim*K blocks, will be solved by multiCG  */
 
 		/* model specific variables */
-		double epssqr; /**< penalty coeficient */
+		double *epssqr; /**< penalty coeficient */
+		double epssqrlocal;
+		
 		int xmem; /**< size of memory for x */
 		int umem; /**< size of memory for u */
 
 	public:
-		VarxH1FEMModel_Global(int T, int xdim, int K_num, int *K, int xmem, int umem, double epssqr);
+		VarxH1FEMModel_Global(int T, int xdim, int num, int *K, int xmem, int umem, double *epssqr);
 		~VarxH1FEMModel_Global();
 
-		void print(std::ostream &output) const;
-		void print(std::ostream &output_global, std::ostream &output_local) const;
+		void print(ConsoleOutput &output) const;
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
 
 		
@@ -83,22 +85,21 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 namespace pascinference {
 
 /* constructor */
-VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_Knum, int *new_K, int new_xmem, int new_umem, double new_epssqr) {
+VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_num, int *new_K, int new_xmem, int new_umem, double *new_epssqr) {
 	if(DEBUG_MODE >= 100) coutMaster << "(VarxH1FEMModel_Global)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = new_T;
-	this->Knum = new_Knum;
+	this->num = new_num;
 	this->K = new_K;
-
-	this->Klocal = new_K[GlobalManager.get_rank()]; // TODO: Klocal will be array
-
+	this->Klocal = new_K[GlobalManager.get_rank()];
 
 	this->xdim = new_xdim;
 
 	this->xmem = new_xmem;
 	this->umem = new_umem;
 	this->epssqr = new_epssqr;
+	this->epssqrlocal = new_epssqr[GlobalManager.get_rank()]; 
 
 	/* compute vector lengths */
 	/* for data prepare vector of length T and spit it into processors */
@@ -129,7 +130,7 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_Kn
 
 
 	/* prepage global vectors with variables - theta and gamma */
-	int Ksum = sum_array(this->Knum, this->K);
+	int Ksum = sum_array(this->num, this->K);
 	
 	this->gammavectorlength_global = Ksum*this->T;
 	this->gammavectorlength_local = Klocal*this->T;
@@ -148,30 +149,33 @@ VarxH1FEMModel_Global::~VarxH1FEMModel_Global(){
 
 
 /* print info about model */
-void VarxH1FEMModel_Global::print(std::ostream &output) const {
+void VarxH1FEMModel_Global::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output <<  " - T:       " << this->T << std::endl;
 
 	output <<  " - K:       ";
-	print_array(output, this->Knum, this->K);
+	print_array(output, this->num, this->K);
 	output << std::endl;
 
 	output <<  " - xdim:    " << this->xdim << std::endl;
 	output <<  " - xmem:    " << this->xmem << std::endl;
 	output <<  " - umem:    " << this->umem << std::endl;
-	output <<  " - epssqr:  " << this->epssqr << std::endl;
+	output <<  " - epssqr:  ";
+	print_array(output, this->num, this->epssqr);
+	output << std::endl;
 
 	output <<  " - datalength:  " << this->datavectorlength_global << std::endl;
 	output <<  " - ulength:     " << this->ulength_global << std::endl;
 	output <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
 	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
-		
+	
+	output.synchronize();	
 }
 
 /* print info about model */
-void VarxH1FEMModel_Global::print(std::ostream &output_global, std::ostream &output_local) const {
+void VarxH1FEMModel_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -179,13 +183,16 @@ void VarxH1FEMModel_Global::print(std::ostream &output_global, std::ostream &out
 	output_global <<  "  - T:       " << this->T << std::endl;
 
 	output_global <<  "  - K:       ";
-	print_array(output_global, this->Knum, this->K);
+	print_array(output_global, this->num, this->K);
 	output_global << std::endl;
 
 	output_global <<  "  - xdim:    " << this->xdim << std::endl;
 	output_global <<  "  - xmem:    " << this->xmem << std::endl;
 	output_global <<  "  - umem:    " << this->umem << std::endl;
-	output_global <<  "  - epssqr:  " << this->epssqr << std::endl;
+	output_global <<  "  - epssqr:  ";
+	print_array(output_global, this->num, this->epssqr);
+	output_global << std::endl;
+
 
 	output_global <<  " - datalength:  " << this->datavectorlength_global << std::endl;
 	output_global <<  " - ulength:     " << this->ulength_global << std::endl;
@@ -194,8 +201,11 @@ void VarxH1FEMModel_Global::print(std::ostream &output_global, std::ostream &out
 
 	/* give local info */
 	output_global <<  " - local info:  " << std::endl;
-	output_local <<   "  - T=" << this->Tlocal << ",\t K=" << this->Klocal << ",\t datalength=" << this->datavectorlength_local << ", \t ulength=" << this->ulength_local << ",\t gammalength=" << this->gammavectorlength_local << ",\t thetalength=" << this->thetavectorlength_local << std::endl;
-		
+	output_local <<   "  - T=" << this->Tlocal << ",\t K=" << this->Klocal << ",\t epssqr=" << this->epssqrlocal << ",\t datalength=" << this->datavectorlength_local << ", \t ulength=" << this->ulength_local << ",\t gammalength=" << this->gammavectorlength_local << ",\t thetalength=" << this->thetavectorlength_local << std::endl;
+	output_local.synchronize();
+
+	output_global.synchronize();
+
 }
 
 /* get name of the model */
@@ -215,7 +225,7 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
-	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->T,this->epssqr)); /* create new blockdiagonal matrix */
+	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->T,this->epssqrlocal)); /* create new blockdiagonal matrix */
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->T,this->Klocal)); /* the feasible set of QP is simplex */ 	
 
@@ -547,7 +557,7 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 			/* RHS - compute dot product dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) ); */
 			value = 0;
 			for(t=0;t<T;t++){
-				value += xn_local_arr[t]*gamma_arr[t];
+				value += xn_local_arr[t]*gamma_arr[k*T+t];
 			}
 			b_arr[k*xdim + n] = value;
 		}	

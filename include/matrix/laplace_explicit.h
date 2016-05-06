@@ -42,7 +42,7 @@ class LaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 		LaplaceExplicitMatrix(const VectorBase &x); /* constructor from vector */
 		~LaplaceExplicitMatrix(); /* destructor - destroy inner matrix */
 
-		void print(std::ostream &output) const; /* print matrix */
+		void print(ConsoleOutput &output) const; /* print matrix */
 		std::string get_name() const;
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
@@ -131,7 +131,7 @@ LaplaceExplicitMatrix<PetscVector>::~LaplaceExplicitMatrix(){
 
 /* print matrix */
 template<>
-void LaplaceExplicitMatrix<PetscVector>::print(std::ostream &output) const		
+void LaplaceExplicitMatrix<PetscVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 
@@ -222,7 +222,7 @@ LaplaceExplicitMatrix<MinlinHostVector>::~LaplaceExplicitMatrix(){
 
 /* MinLinHost: print matrix */
 template<>
-void LaplaceExplicitMatrix<MinlinHostVector>::print(std::ostream &output) const		
+void LaplaceExplicitMatrix<MinlinHostVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlinhost << std::endl;
@@ -305,7 +305,7 @@ LaplaceExplicitMatrix<MinlinDeviceVector>::~LaplaceExplicitMatrix(){
 
 /* MinLinDevice: print matrix */
 template<>
-void LaplaceExplicitMatrix<MinlinDeviceVector>::print(std::ostream &output) const		
+void LaplaceExplicitMatrix<MinlinDeviceVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(LaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlindevice << std::endl;

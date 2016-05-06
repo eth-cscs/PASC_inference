@@ -45,7 +45,7 @@ class BlockDiagLaplaceExplicitMatrix: public GeneralMatrix<VectorBase> {
 
 		~BlockDiagLaplaceExplicitMatrix(); /* destructor - destroy inner matrix */
 
-		void print(std::ostream &output) const; /* print matrix */
+		void print(ConsoleOutput &output) const; /* print matrix */
 		std::string get_name() const;
 
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
@@ -147,7 +147,7 @@ BlockDiagLaplaceExplicitMatrix<PetscVector>::~BlockDiagLaplaceExplicitMatrix(){
 
 /* print matrix */
 template<>
-void BlockDiagLaplaceExplicitMatrix<PetscVector>::print(std::ostream &output) const		
+void BlockDiagLaplaceExplicitMatrix<PetscVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 
@@ -249,7 +249,7 @@ BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::~BlockDiagLaplaceExplicitMatri
 
 /* MinLinHost: print matrix */
 template<>
-void BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::print(std::ostream &output) const		
+void BlockDiagLaplaceExplicitMatrix<MinlinHostVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlinhost << std::endl;
@@ -344,7 +344,7 @@ BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::~BlockDiagLaplaceExplicitMat
 
 /* MinLinDevice: print matrix */
 template<>
-void BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::print(std::ostream &output) const		
+void BlockDiagLaplaceExplicitMatrix<MinlinDeviceVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceExplicitMatrix)OPERATOR: << print" << std::endl;
 	output << A_minlindevice << std::endl;

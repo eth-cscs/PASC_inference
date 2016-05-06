@@ -53,7 +53,7 @@ class FileCRSMatrix: public GeneralMatrix<VectorBase> {
 		FileCRSMatrix(const VectorBase &x, std::string filename); /* constructor */
 		~FileCRSMatrix(); /* destructor - destroy inner matrix */
 
-		void print(std::ostream &output) const; /* print matrix */
+		void print(ConsoleOutput &output) const; /* print matrix */
 		std::string get_name() const;
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
@@ -116,7 +116,7 @@ FileCRSMatrix<PetscVector>::~FileCRSMatrix(){
 
 /* print matrix */
 template<>
-void FileCRSMatrix<PetscVector>::print(std::ostream &output) const		
+void FileCRSMatrix<PetscVector>::print(ConsoleOutput &output) const		
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
 
@@ -184,7 +184,7 @@ FileCRSMatrix<MinlinHostVector>::~FileCRSMatrix(){
 
 /* print matrix */
 template<>
-void FileCRSMatrix<MinlinHostVector>::print(std::ostream &output) const {
+void FileCRSMatrix<MinlinHostVector>::print(ConsoleOutput &output) const {
 	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
 
 	output << A_minlinhost << std::endl;
@@ -245,7 +245,7 @@ FileCRSMatrix<MinlinDeviceVector>::~FileCRSMatrix(){
 
 /* print matrix */
 template<>
-void FileCRSMatrix<MinlinDeviceVector>::print(std::ostream &output) const {
+void FileCRSMatrix<MinlinDeviceVector>::print(ConsoleOutput &output) const {
 	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
 
 	output << A_minlinhost;

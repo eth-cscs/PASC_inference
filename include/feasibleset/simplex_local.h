@@ -67,7 +67,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		 * 
 		 * @param output where to print
 		 */ 
-		void print(std::ostream &output) const;
+		void print(ConsoleOutput &output) const;
 
 		/** @brief get name of this feasible set
 		 */
@@ -109,7 +109,7 @@ SimplexFeasibleSet_Local::~SimplexFeasibleSet_Local(){
 }
 
 /* print info about feasible set */
-void SimplexFeasibleSet_Local::print(std::ostream &output) const {
+void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */

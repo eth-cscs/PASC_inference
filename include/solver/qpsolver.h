@@ -32,7 +32,7 @@ class QPSolverSetting : public GeneralSolverSetting {
 		};
 		~QPSolverSetting() {};
 
-		virtual void print(std::ostream &output) const {
+		virtual void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
 			output <<  " - maxit: " << this->maxit << std::endl;
 			output <<  " - eps:   " << this->eps << std::endl;
@@ -70,10 +70,10 @@ class QPSolver: public GeneralSolver {
 
 		virtual void solve();
 
-		virtual void print(std::ostream &output) const;
-		virtual void printcontent(std::ostream &output) const;
-		virtual void printstatus(std::ostream &output) const;
-		virtual void printtimer(std::ostream &output) const;
+		virtual void print(ConsoleOutput &output) const;
+		virtual void printcontent(ConsoleOutput &output) const;
+		virtual void printstatus(ConsoleOutput &output) const;
+		virtual void printtimer(ConsoleOutput &output) const;
 		virtual std::string get_name() const;
 
 		virtual QPData<VectorBase> *get_data() const;
@@ -125,7 +125,7 @@ QPSolver<VectorBase>::~QPSolver(){
 
 /* print info about problem */
 template<class VectorBase>
-void QPSolver<VectorBase>::print(std::ostream &output) const {
+void QPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: print" << std::endl;
 
 	output <<  this->get_name() << std::endl;
@@ -150,7 +150,7 @@ void QPSolver<VectorBase>::print(std::ostream &output) const {
 
 /* print content of solver */
 template<class VectorBase>
-void QPSolver<VectorBase>::printcontent(std::ostream &output) const {
+void QPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
 
 	output << this->get_name() << std::endl;
@@ -167,7 +167,7 @@ void QPSolver<VectorBase>::printcontent(std::ostream &output) const {
 
 /* print status */
 template<class VectorBase>
-void QPSolver<VectorBase>::printstatus(std::ostream &output) const {
+void QPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(child_solver){
 		child_solver->printstatus(output);
 	} else {
@@ -177,7 +177,7 @@ void QPSolver<VectorBase>::printstatus(std::ostream &output) const {
 
 /* print timer */
 template<class VectorBase>
-void QPSolver<VectorBase>::printtimer(std::ostream &output) const {
+void QPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	if(child_solver){
 		child_solver->printtimer(output);
 	} else {
