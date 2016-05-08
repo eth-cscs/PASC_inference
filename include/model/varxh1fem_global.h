@@ -46,11 +46,14 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		double *epssqr; /**< penalty coeficient */
 		double epssqrlocal;
 		
-		int xmem; /**< size of memory for x */
-		int umem; /**< size of memory for u */
+		int *xmem; /**< size of memory for x */
+		int xmemlocal;
+
+//		int ulength_global;
+//		int ulength_local;
 
 	public:
-		VarxH1FEMModel_Global(int T, int xdim, int num, int *K, int xmem, int umem, double *epssqr);
+		VarxH1FEMModel_Global(int T, int xdim, int num, int *K, int *xmem, double *epssqr);
 		~VarxH1FEMModel_Global();
 
 		void print(ConsoleOutput &output) const;
@@ -85,21 +88,23 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 namespace pascinference {
 
 /* constructor */
-VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_num, int *new_K, int new_xmem, int new_umem, double *new_epssqr) {
+VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_num, int *new_K, int *new_xmem, double *new_epssqr) {
 	if(DEBUG_MODE >= 100) coutMaster << "(VarxH1FEMModel_Global)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = new_T;
-	this->num = new_num;
-	this->K = new_K;
-	this->Klocal = new_K[GlobalManager.get_rank()];
-
 	this->xdim = new_xdim;
 
+	this->num = new_num;
+	this->K = new_K;
 	this->xmem = new_xmem;
-	this->umem = new_umem;
 	this->epssqr = new_epssqr;
-	this->epssqrlocal = new_epssqr[GlobalManager.get_rank()]; 
+
+	int my_rank = GlobalManager.get_rank();
+
+	this->Klocal = new_K[my_rank];
+	this->xmemlocal = new_xmem[my_rank]; 
+	this->epssqrlocal = new_epssqr[my_rank]; 
 
 	/* compute vector lengths */
 	/* for data prepare vector of length T and spit it into processors */
@@ -116,26 +121,18 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_nu
 	this->datavectorlength_global = xdim*this->T;
 	this->datavectorlength_local = xdim*this->Tlocal;
 
-/*
-	int udim;
-	if(this->umem > 0){
-		udim = 1;
-	} else {
-		udim = 0;
-	}	
-	this->ulength_global = udim*(this->T + this->xmem);
-*/
-	this->ulength_global = 0; // TODO
-	this->ulength_local = 0;
-
-
 	/* prepage global vectors with variables - theta and gamma */
 	int Ksum = sum_array(this->num, this->K);
 	
+	int Kxmem[this->num];
+	mult_pw_array(this->num, Kxmem, this->K, this->xmem);
+	int Kxmemsum = sum_array(this->num,Kxmem);
+	
 	this->gammavectorlength_global = Ksum*this->T;
 	this->gammavectorlength_local = Klocal*this->T;
-	this->thetavectorlength_global = xdim * (1 + this->xdim*this->xmem + this->umem) * Ksum; /* xdim * (mu + A + B) * K */
-	this->thetavectorlength_local = xdim * (1 + this->xdim*this->xmem + this->umem) * Klocal; /* xdim * (mu + A + B) * K */
+
+	this->thetavectorlength_global = xdim*(Ksum + xdim*Kxmemsum); /* all(mu + A)  */
+	this->thetavectorlength_local = xdim * (1 + this->xdim*this->xmemlocal) * Klocal; /* xdim * (mu + A) * K */
 	
 }
 
@@ -154,20 +151,21 @@ void VarxH1FEMModel_Global::print(ConsoleOutput &output) const {
 	
 	/* give information about presence of the data */
 	output <<  " - T:       " << this->T << std::endl;
+	output <<  " - xdim:    " << this->xdim << std::endl;
 
 	output <<  " - K:       ";
 	print_array(output, this->num, this->K);
 	output << std::endl;
 
-	output <<  " - xdim:    " << this->xdim << std::endl;
-	output <<  " - xmem:    " << this->xmem << std::endl;
-	output <<  " - umem:    " << this->umem << std::endl;
+	output <<  " - xmem:    ";
+	print_array(output, this->num, this->xmem);
+	output << std::endl;
+
 	output <<  " - epssqr:  ";
 	print_array(output, this->num, this->epssqr);
 	output << std::endl;
 
 	output <<  " - datalength:  " << this->datavectorlength_global << std::endl;
-	output <<  " - ulength:     " << this->ulength_global << std::endl;
 	output <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
 	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
 	
@@ -181,27 +179,37 @@ void VarxH1FEMModel_Global::print(ConsoleOutput &output_global, ConsoleOutput &o
 	/* give information about presence of the data */
 	output_global <<  " - global info:  " << std::endl;
 	output_global <<  "  - T:       " << this->T << std::endl;
+	output_global <<  "  - xdim:    " << this->xdim << std::endl;
 
 	output_global <<  "  - K:       ";
 	print_array(output_global, this->num, this->K);
 	output_global << std::endl;
 
-	output_global <<  "  - xdim:    " << this->xdim << std::endl;
-	output_global <<  "  - xmem:    " << this->xmem << std::endl;
-	output_global <<  "  - umem:    " << this->umem << std::endl;
+	output_global <<  "  - xmem:    ";
+	print_array(output_global, this->num, this->xmem);
+	output_global << std::endl;
+
 	output_global <<  "  - epssqr:  ";
 	print_array(output_global, this->num, this->epssqr);
 	output_global << std::endl;
 
 
 	output_global <<  " - datalength:  " << this->datavectorlength_global << std::endl;
-	output_global <<  " - ulength:     " << this->ulength_global << std::endl;
 	output_global <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
 	output_global <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
 
 	/* give local info */
-	output_global <<  " - local info:  " << std::endl;
-	output_local <<   "  - T=" << this->Tlocal << ",\t K=" << this->Klocal << ",\t epssqr=" << this->epssqrlocal << ",\t datalength=" << this->datavectorlength_local << ", \t ulength=" << this->ulength_local << ",\t gammalength=" << this->gammavectorlength_local << ",\t thetalength=" << this->thetavectorlength_local << std::endl;
+	output_global <<  " - local variables:  " << std::endl;
+	output_global.push();
+	output_local << "T=" << std::setw(6) << this->Tlocal << ", ";
+	output_local << "K=" << std::setw(6) << this->Klocal << ", ";
+	output_local << "xmem=" << std::setw(6) << this->xmemlocal << ", ";
+	output_local << "epssqr=" << std::setw(6) << this->epssqrlocal << ", ";
+	output_local << "datalength=" << std::setw(6) << this->datavectorlength_local << ", ";
+	output_local << "gammalength=" << std::setw(6) << this->gammavectorlength_local << ", ";
+	output_local << "thetalength=" << std::setw(6) << this->thetavectorlength_local << std::endl;
+
+	output_global.pop();
 	output_local.synchronize();
 
 	output_global.synchronize();
@@ -251,7 +259,7 @@ void VarxH1FEMModel_Global::initialize_thetasolver(GeneralSolver **thetasolver, 
 	int nmb_blocks = this->Klocal*this->xdim;
 	LocalDenseMatrix<PetscVector> **blocks = new LocalDenseMatrix<PetscVector>*[nmb_blocks];
 
-	int blocksize = 1 + this->xdim*this->xmem + this->umem; /* see get_thetavectorlength() */
+	int blocksize = 1 + this->xdim*this->xmemlocal; /* see get_thetavectorlength() */
 
 	int k,n; /* through clusters, through dimensions */
 	for(k=0;k<this->Klocal;k++){ // TODO: parallel
@@ -337,14 +345,13 @@ QPData<PetscVector>* VarxH1FEMModel_Global::get_thetadata() const {
 void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const TSData_Global *tsdata){
 	/* update gamma_solver data - prepare new linear term */
 
-	int x_partseq_length = 3;
+	int x_partseq_length = 100;
 
 	typedef GeneralVector<PetscVector> (&pVector);
 
 	/* global data */
 	Vec M_global = tsdata->get_thetavector()->get_vector(); /* parameters of the model */
 	Vec x_global = tsdata->get_datavector()->get_vector(); /* original data */
-//	Vec u_global = tsdata->get_u()->get_vector(); /* external forces */
 	Vec b_global = gammadata->get_b()->get_vector(); /* rhs of QP gamma problem */
 
 	/* local data */
@@ -445,6 +452,9 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	TRY( VecRestoreArrayRead(M_global,&M_local_arr) );
 	TRY( VecRestoreArray(b_global,&b_local_arr) );	
 
+	TRY( VecAssemblyBegin(b_global));
+	TRY( VecAssemblyEnd(b_global));
+	
 //	for(k=0;k<K;k++){
 //		for(t=0;t<T;t++){
 //			dot_sum = 0.0;
@@ -483,7 +493,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 
 	/* pointers to data */
 	Vec X = tsdata->get_datavector()->get_vector();
-//	Vec U = tsdata->get_u()->get_vector();
 	Vec b_global = thetadata->get_b()->get_vector();
 	Vec gamma_global = gammadata->get_x()->get_vector();
 

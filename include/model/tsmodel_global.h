@@ -39,19 +39,17 @@ class TSModel_Global: public GeneralModel {
 		int xdim; /**< number of components in each time-step */
 
 		int num; /**< length of K */
-		int *K; /**< number of clusters to test */
 
-		int Klocal; // TODO: this should be array
+		int *K; /**< number of clusters to test */
+		int Klocal;
 
 		int datavectorlength_global;
 		int gammavectorlength_global;
 		int thetavectorlength_global;
-		int ulength_global;
 
 		int datavectorlength_local;
 		int gammavectorlength_local;
 		int thetavectorlength_local;
-		int ulength_local;
 
 	public:
 		TSModel_Global();
@@ -63,13 +61,11 @@ class TSModel_Global: public GeneralModel {
 
 		/* global length */
 		virtual int get_datavectorlength_global();
-		virtual int get_ulength_global();
 		virtual int get_gammavectorlength_global();
 		virtual int get_thetavectorlength_global();
 
 		/* local length */
 		virtual int get_datavectorlength_local();
-		virtual int get_ulength_local();
 		virtual int get_gammavectorlength_local();
 		virtual int get_thetavectorlength_local();
 
@@ -244,10 +240,6 @@ int TSModel_Global::get_thetavectorlength_global(){
 	return this->thetavectorlength_global;
 }
 
-int TSModel_Global::get_ulength_global(){
-	return this->ulength_global;
-}
-
 int TSModel_Global::get_datavectorlength_local(){
 	return this->datavectorlength_local;
 }
@@ -259,13 +251,6 @@ int TSModel_Global::get_gammavectorlength_local(){
 int TSModel_Global::get_thetavectorlength_local(){
 	return this->thetavectorlength_local;
 }
-
-int TSModel_Global::get_ulength_local(){
-	return this->ulength_local;
-}
-
-
-
 
 } /* end namespace */
 

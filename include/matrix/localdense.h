@@ -49,6 +49,8 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
  		double *read_double_array_from_file(std::ifstream &myfile, const int size);
  		int read_filesize(std::ifstream &myfile);
  		
+ 		int nmb_rows, nmb_cols;
+ 		
 	public:
 		LocalDenseMatrix(std::string filename); /* constructor from filename */
 		LocalDenseMatrix(int nmb_rows, int nmb_cols); /* constructor with dimension */
@@ -69,6 +71,16 @@ std::string LocalDenseMatrix<VectorBase>::get_name() const {
 	return "LocalDenseMatrix";
 }
 
+/* print matrix */
+template<class VectorBase>
+void LocalDenseMatrix<VectorBase>::print(ConsoleOutput &output) const		
+{
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
+
+	output << "LocalDense matrix (rows = " << this->nmb_rows << ", nmb_cols = "<< this->nmb_cols << ")";
+	
+//	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_SELF) );
+}
 
 /* -------------------------------- PETSC VECTOR -------------------------*/
 
@@ -102,6 +114,7 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(std::string filename){
 	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
 	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
 	
+	TRY( MatGetSize(A_petsc, &nmb_rows, &nmb_cols) );
 }
 
 /* Petsc: constructor from given array of values and size */
@@ -119,6 +132,8 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(double *values, int nmb_rows, in
 	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
 	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
 	
+	this->nmb_rows = nmb_rows;
+	this->nmb_cols = nmb_cols;
 }
 
 /* Petsc: constructor from given size */
@@ -135,6 +150,9 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
 	/* assembly matrix */ //TODO: is it necessary?
 	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
 	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
+
+	this->nmb_rows = nmb_rows;
+	this->nmb_cols = nmb_cols;
 	
 }
 
@@ -147,20 +165,6 @@ LocalDenseMatrix<PetscVector>::~LocalDenseMatrix(){
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
 		TRY( MatDestroy(&A_petsc) );
 	}
-}
-
-/* print matrix */
-template<>
-void LocalDenseMatrix<PetscVector>::print(ConsoleOutput &output) const		
-{
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
-
-	output << "LocalDense matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
-	output << "----------------------------------------------------------" << std::endl;
-	
-	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_SELF) );
-
-	output << "----------------------------------------------------------" << std::endl;
 }
 
 /* Petsc: matrix-vector multiplication */
@@ -212,6 +216,9 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(std::string filename){
 	int nmb_of_rows = read_int_from_file(myfile);
 	int nmb_of_cols = read_int_from_file(myfile);
 
+	this->nmb_rows = nmb_of_rows;
+	this->nmb_cols = nmb_of_cols;
+
 	/* prepare matrix */
 	MinlinHostMatrix A_new(nmb_of_rows,nmb_of_cols);
 
@@ -251,6 +258,9 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(double *values, int nmb_row
 	/* set new matrix */	
 	A_minlinhost = A_new;
 	
+	this->nmb_rows = nmb_rows;
+	this->nmb_cols = nmb_cols;
+
 }
 
 /* MinLin: constructor from given size */
@@ -273,14 +283,6 @@ LocalDenseMatrix<MinlinHostVector>::~LocalDenseMatrix(){
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: destroy minlin matrix
-}
-
-/* print matrix */
-template<>
-void LocalDenseMatrix<MinlinHostVector>::print(ConsoleOutput &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
-
-	output << A_minlinhost << std::endl;
 }
 
 /* Minlin: matrix-vector multiplication */
@@ -328,6 +330,9 @@ LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(std::string filename){
 	int nmb_of_rows = read_int_from_file(myfile);
 	int nmb_of_cols = read_int_from_file(myfile);
 
+	this->nmb_rows = nmb_of_rows;
+	this->nmb_cols = nmb_of_cols;
+	
 	/* prepare matrix */
 	MinlinDeviceMatrix A_new(nmb_of_rows,nmb_of_cols);
 
@@ -354,6 +359,9 @@ LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(int nmb_rows, int nmb_col
 
 	MinlinDeviceMatrix A_new(nmb_rows,nmb_cols);
 	A_minlindevice = A_new;
+	
+	this->nmb_rows = nmb_rows;
+	this->nmb_cols = nmb_cols;	
 		
 }
 
@@ -364,14 +372,6 @@ LocalDenseMatrix<MinlinDeviceVector>::~LocalDenseMatrix(){
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
 
 	// TODO: destroy minlin matrix
-}
-
-/* print matrix */
-template<>
-void LocalDenseMatrix<MinlinDeviceVector>::print(ConsoleOutput &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
-
-	output << A_minlindevice;
 }
 
 /* MinLin: matrix-vector multiplication */

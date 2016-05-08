@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int dimx = 3; /* data dimension */
-	int T = 10000; /* length of time-series */
+	int T = 1000; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int Solution_K = 4;
@@ -49,7 +49,7 @@ int main( int argc, char *argv[] )
 	/* model parameters */
 	int num = 5;
 //	int K[Knum] = {4,3,1,2,5}; /* number of clusters */
-	int K[num] = {1,2,3,4,5}; 
+	int K[num] = {5,4,3,1,2}; 
 	double epssqr[num] = {20,20,20,20,20}; /* penalty */
 
 	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
@@ -69,12 +69,12 @@ int main( int argc, char *argv[] )
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	VarxH1FEMModel_Global mymodel(T, dimx, num, K, xmem, umem, epssqr);
-	mymodel.print(coutMaster,coutAll);
+//	mymodel.print(coutMaster,coutAll);
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	TSData_Global mydata(mymodel);
-	mydata.print(coutMaster);
+//	mydata.print(coutMaster);
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
@@ -84,19 +84,20 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
-	/* solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.setting.maxit = 20;
-	mysolver.setting.debug_mode = 5;
+	mysolver.setting.debug_mode = 20;
 	mysolver.print(coutMaster,coutAll);
 
+	/* solve the problem */
+	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.solve();
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
 	example::KMeans3D::saveVTK("output",".vtk",T,num,K,mydata.get_datavector(),mydata.get_gammavector());
 	
-	mysolver.printtimer(coutMaster);
+	mysolver.printtimer(coutAll);
+	coutAll.synchronize();
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

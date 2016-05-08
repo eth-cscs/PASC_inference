@@ -199,7 +199,6 @@ void TSSolver_Global::print(ConsoleOutput &output) const {
 		output <<  " - not set" << std::endl;
 	}
 	
-	output.synchronize();
 }
 
 /* print info about problem */
@@ -222,7 +221,7 @@ void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	output_global <<  " Gamma Solver" << std::endl;
 	if(gammasolver){
 		output_global.push();
-		gammasolver->print(output_global);
+		gammasolver->print(output_global, output_local);
 		output_global.pop();
 	} else {
 		output_global <<  " - not set" << std::endl;
@@ -231,7 +230,7 @@ void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	output_global <<  " Theta Solver" << std::endl;
 	if(thetasolver){
 		output_global.push();
-		thetasolver->print(output_global);
+		thetasolver->print(output_global, output_local);
 		output_global.pop();
 	} else {
 		output_global <<  " - not set" << std::endl;
@@ -250,7 +249,6 @@ void TSSolver_Global::printstatus(ConsoleOutput &output) const {
 	output <<  " - L:           " << this->L << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 	
-	output.synchronize();
 }
 
 void TSSolver_Global::printtimer(ConsoleOutput &output) const {
@@ -280,8 +278,6 @@ void TSSolver_Global::printtimer(ConsoleOutput &output) const {
 	} else {
 		output << " - not set" << std::endl;
 	}
-
-	output.synchronize();
 
 }
 
@@ -362,14 +358,15 @@ void TSSolver_Global::solve() {
 			coutAll << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
 			coutAll << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
 			coutAll << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
+			if(setting.debug_mode >= 10){
+				coutMaster.push();
+				thetasolver->printstatus(coutAll);
+				coutMaster.pop();
+			}
 			coutAll.synchronize();
+
 		}
-		if(setting.debug_mode >= 10){
-			coutMaster <<  "- thetasolver status:" << std::endl;
-			coutMaster.push();
-			thetasolver->printstatus(coutMaster);
-			coutMaster.pop();
-		}
+					
 		if(setting.debug_mode >= 100){
 			coutMaster <<  "- thetasolver info:" << std::endl;
 			coutMaster.push();
@@ -407,13 +404,12 @@ void TSSolver_Global::solve() {
 			coutAll << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
 			coutAll << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
 			coutAll << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
+			if(setting.debug_mode >= 10){
+				coutMaster.push();
+				gammasolver->printstatus(coutAll);
+				coutMaster.pop();
+			}
 			coutAll.synchronize();
-		}
-		if(setting.debug_mode >= 10){
-			coutMaster <<  "- gammasolver status:" << std::endl;
-			coutMaster.push();
-			gammasolver->printstatus(coutMaster);
-			coutMaster.pop();
 		}
 		if(setting.debug_mode >= 100){
 			coutMaster <<  "- gammasolver info:" << std::endl;

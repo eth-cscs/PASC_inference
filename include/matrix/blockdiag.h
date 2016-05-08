@@ -74,15 +74,17 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::print(ConsoleOutput &output) const
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)OPERATOR: << print" << std::endl;
 
-	output << "blocksize:     " << this->blocksize << std::endl;
-	output << "nmb of blocks: " << this->nmb_blocks << std::endl;
+	output << "Blocks: (blocksize = " << this->blocksize << ", ";
+	output << "nmb of blocks = " << this->nmb_blocks << ")" << std::endl;
 
-// TODO: following does not work if output is coutAll because of barrier
-//	int i;
-//	for(i=0;i<this->nmb_blocks;i++){ /* print each block */
-//		output << "block (" << i << ")" << std::endl;
-//		this->blocks[i]->print(output);
-//	}
+	int i;
+	output.push();
+	for(i=0;i<this->nmb_blocks;i++){ /* print each block */
+		output << "block_" << i << ": ";
+		this->blocks[i]->print(output);
+		output << std::endl;
+	}
+	output.pop();
 }
 
 /* matrix-vector multiplication */

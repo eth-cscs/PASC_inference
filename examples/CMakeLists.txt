@@ -19,7 +19,8 @@ option(TEST_KMEANS "TEST_KMEANS" OFF)
 option(TEST_VARX "TEST_VARX" OFF)
 option(BENCHMARK1 "BENCHMARK1" OFF)
 option(BENCHMARK2 "BENCHMARK2" OFF)
-option(TSSOLVER_GLOBAL "TSSOLVER_GLOBAL" ON)
+option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" OFF)
+option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" ON)
 
 # include additional example headers
 include_directories("include")
@@ -109,15 +110,25 @@ if(${BENCHMARK2})
 	endif()
 endif()
 
-if(${TSSOLVER_GLOBAL})
+if(${TSSOLVER_GLOBAL_KMEANS})
 	# this is VARX global test
 	if(${USE_CUDA})
 		# if we know how to compile .cu, then include .cu
-		pascadd_executable("tssolver_global.cu" "tssolver_global")
+		pascadd_executable("tssolver_global_kmeans.cu" "tssolver_global_kmeans")
 	else()
 		# otherwise compile as .cpp
-		pascadd_executable("tssolver_global.cpp" "tssolver_global")
+		pascadd_executable("tssolver_global_kmeans.cpp" "tssolver_global_kmeans")
 	endif()
 endif()
 
+if(${TSSOLVER_GLOBAL_VARX})
+	# this is VARX global test
+	if(${USE_CUDA})
+		# if we know how to compile .cu, then include .cu
+		pascadd_executable("tssolver_global_varx.cu" "tssolver_global_varx")
+	else()
+		# otherwise compile as .cpp
+		pascadd_executable("tssolver_global_varx.cpp" "tssolver_global_varx")
+	endif()
+endif()
 

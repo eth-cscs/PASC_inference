@@ -48,6 +48,8 @@ class QPData: public GeneralData {
 		 * @param output where to print
 		 */
 		void print(ConsoleOutput &output) const;
+
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		
 		/** @brief print content of data
 		 * 
@@ -171,6 +173,69 @@ void QPData<VectorBase>::print(ConsoleOutput &output) const {
 		output << "not set" << std::endl;
 	}
 		
+}
+
+template<class VectorBase>
+void QPData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	output_global <<  this->get_name() << std::endl;
+	
+	/* give information about presence of the data */
+	output_global <<  " - A:            ";
+	if(this->A){
+		output_global << "YES (" << this->A->get_name() << ")" << std::endl; // TODO: get matrix name 
+		output_global.push();
+		this->A->print(output_local);
+		output_global.pop();
+		output_local.synchronize();
+	} else {
+		output_global << "not set" << std::endl;
+	}
+
+	output_global <<  " - b:            ";
+	if(this->b){
+		output_global << "YES (size: " << this->b->size() << ")" << std::endl;
+		output_global.push();
+		output_local  <<  "local size: " << this->b->local_size() << std::endl;
+		output_global.pop();
+		output_local.synchronize();		
+	} else {
+		output_global << "not set" << std::endl;
+	}
+
+	output_global <<  " - x0:           ";
+	if(this->x0){
+		output_global << "YES (size: " << this->x0->size() << ")" << std::endl;
+		output_global.push();
+		output_local  <<  "local size: " << this->x0->local_size() << std::endl;
+		output_global.pop();
+		output_local.synchronize();		
+	} else {
+		output_global << "not set" << std::endl;
+	}
+	
+	output_global <<  " - x:            ";
+	if(this->x){
+		output_global << "YES (size: " << this->x->size() << ")" << std::endl;
+		output_global.push();
+		output_local  <<  "local size: " << this->x->local_size() << std::endl;
+		output_global.pop();
+		output_local.synchronize();		
+	} else {
+		output_global << "not set" << std::endl;
+	}
+	
+	output_global <<  " - feasible_set: ";
+	if(this->feasibleset){
+		output_global << "YES (" << this->feasibleset->get_name() << ")" << std::endl;
+		output_global.push();
+		this->feasibleset->print(output_local);
+		output_global.pop();
+		output_local.synchronize();		
+	} else {
+		output_global << "not set" << std::endl;
+	}
+		
+	output_global.synchronize();
 }
 
 template<class VectorBase>

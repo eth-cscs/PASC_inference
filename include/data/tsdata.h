@@ -27,18 +27,15 @@ class TSData: public GeneralData {
 		GeneralVector<VectorBase> *thetavector; /**< parameters of models */
 		bool destroy_thetavector;
 
-		GeneralVector<VectorBase> *u; /**< external influence */
-		bool destroy_u;
-
 	public:
 		TSData();
 		TSData(TSModel<VectorBase> &tsmodel);
-		TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector, GeneralVector<VectorBase> &u);
+		TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector);
 		~TSData();
 
-		void print(ConsoleOutput &output) const;
-		void printcontent(ConsoleOutput &output) const;
-		std::string get_name() const;
+		virtual void print(ConsoleOutput &output) const;
+		virtual void printcontent(ConsoleOutput &output) const;
+		virtual std::string get_name() const;
 
 		int get_T() const;
 		int get_dim() const;
@@ -47,7 +44,6 @@ class TSData: public GeneralData {
 		/* GET functions */
 		TSModel<VectorBase> *get_model() const;
 		GeneralVector<VectorBase> *get_datavector() const;
-		GeneralVector<VectorBase> *get_u() const;
 		GeneralVector<VectorBase> *get_gammavector() const;
 		GeneralVector<VectorBase> *get_thetavector() const;
 
@@ -72,9 +68,6 @@ TSData<VectorBase>::TSData(){
 	this->datavector = NULL;
 	destroy_datavector = false;
 
-	this->u = NULL;
-	destroy_u = false;
-
 	this->gammavector = NULL;
 	destroy_gammavector = false;
 
@@ -85,7 +78,7 @@ TSData<VectorBase>::TSData(){
 
 /* datavector is given */
 template<class VectorBase>
-TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector, GeneralVector<VectorBase> &u){
+TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBase> &datavector, GeneralVector<VectorBase> &gammavector, GeneralVector<VectorBase> &thetavector){
 	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR model, datavector, gammavector, thetavector, u" << std::endl;
 
 	/* set initial content */
@@ -95,9 +88,6 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel, GeneralVector<VectorBas
 	// TODO: control compatibility with this->tsmodel->get_datavectorlength();
 	this->datavector = &datavector;
 	destroy_datavector = false; /* this datavector is not my */
-
-	this->u = NULL;
-	destroy_u = false;
 
 	/* set new gammavector and thetavector */
 	// TODO: control compatibility with this->tsmodel->get_gammavectorlength(), this->tsmodel->get_thetavectorlength();
@@ -122,15 +112,6 @@ TSData<VectorBase>::TSData(TSModel<VectorBase> &tsmodel){
 	this->datavector = new GeneralVector<VectorBase>(datavector_length);
 	destroy_datavector = true;
 
-	int u_length = this->tsmodel->get_ulength();
-	if(u_length > 0){
-		this->u = new GeneralVector<VectorBase>(u_length);
-		destroy_u = true;
-	} else {
-		this->u = NULL;
-		destroy_u = false;
-	}
-	
 	int gammavector_length = this->tsmodel->get_gammavectorlength();
 	this->gammavector = new GeneralVector<VectorBase>(gammavector_length);
 	destroy_gammavector = true;
@@ -160,10 +141,6 @@ TSData<VectorBase>::~TSData(){
 		free(this->thetavector);
 	}
 
-	if(this->destroy_u){
-		free(this->u);
-	}
-
 }
 
 
@@ -180,12 +157,6 @@ void TSData<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - datavector:  ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
-	} else {
-		output << "NO" << std::endl;
-	}
-	output <<  " - u:           ";
-	if(this->u){
-		output << "YES (size: " << this->u->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
@@ -213,12 +184,6 @@ void TSData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	output <<  " - datavector: ";
 	if(this->datavector){
 		output << *this->datavector << std::endl;
-	} else {
-		output << "not set" << std::endl;
-	}
-	output <<  " - u:          ";
-	if(this->u){
-		output << *this->u << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
@@ -281,11 +246,6 @@ TSModel<VectorBase> *TSData<VectorBase>::get_model() const{
 template<class VectorBase>
 GeneralVector<VectorBase> *TSData<VectorBase>::get_datavector() const{
 	return this->datavector;
-}
-
-template<class VectorBase>
-GeneralVector<VectorBase> *TSData<VectorBase>::get_u() const{
-	return this->u;
 }
 
 template<class VectorBase>

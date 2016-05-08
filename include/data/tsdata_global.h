@@ -37,13 +37,9 @@ class TSData_Global: public GeneralData {
 		GeneralVector<PetscVector> *thetavector; /**< parameters of models */
 		bool destroy_thetavector;
 
-		GeneralVector<PetscVector> *u; /**< external influence */
-		bool destroy_u;
-
 	public:
-		TSData_Global();
 		TSData_Global(TSModel_Global &tsmodel);
-		TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector, GeneralVector<PetscVector> &u);
+		TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector);
 		~TSData_Global();
 
 		void print(ConsoleOutput &output) const;
@@ -59,7 +55,6 @@ class TSData_Global: public GeneralData {
 		/* GET functions */
 		TSModel_Global *get_model() const;
 		GeneralVector<PetscVector> *get_datavector() const;
-		GeneralVector<PetscVector> *get_u() const;
 		GeneralVector<PetscVector> *get_gammavector() const;
 		GeneralVector<PetscVector> *get_thetavector() const;
 
@@ -72,29 +67,8 @@ class TSData_Global: public GeneralData {
 
 namespace pascinference {
 
-/* constructor */
-TSData_Global::TSData_Global(){
-	if(DEBUG_MODE >= 100) coutMaster << "(TSData_Global)CONSTRUCTOR" << std::endl;
-
-	/* set initial content */
-	this->tsmodel = NULL;
-
-	this->datavector = NULL;
-	destroy_datavector = false;
-
-	this->u = NULL;
-	destroy_u = false;
-
-	this->gammavector = NULL;
-	destroy_gammavector = false;
-
-	this->thetavector = NULL;
-	destroy_thetavector = false;
-
-}
-
 /* datavector is given */ //TODO: this is wrong
-TSData_Global::TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector, GeneralVector<PetscVector> &u){
+TSData_Global::TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector){
 	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR model, datavector, gammavector, thetavector, u" << std::endl;
 
 	/* set initial content */
@@ -104,9 +78,6 @@ TSData_Global::TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector>
 	// TODO: control compatibility with this->tsmodel->get_datavectorlength();
 	this->datavector = &datavector;
 	destroy_datavector = false; /* this datavector is not my */
-
-	this->u = NULL;
-	destroy_u = false;
 
 	/* set new gammavector and thetavector */
 	// TODO: control compatibility with this->tsmodel->get_gammavectorlength(), this->tsmodel->get_thetavectorlength();
@@ -132,18 +103,6 @@ TSData_Global::TSData_Global(TSModel_Global &tsmodel){
 	TRY( VecSetFromOptions(datavector_Vec) );
 	this->datavector = new GeneralVector<PetscVector>(datavector_Vec);
 	this->destroy_datavector = true;
-
-	if(this->tsmodel->get_ulength_global() > 0){
-		Vec u_Vec;
-		TRY( VecCreate(PETSC_COMM_WORLD,&u_Vec) );
-		TRY( VecSetSizes(u_Vec,this->tsmodel->get_ulength_local(),this->tsmodel->get_ulength_global()) );
-		TRY( VecSetFromOptions(u_Vec) );
-		this->u = new GeneralVector<PetscVector>(u_Vec);
-		this->destroy_u = true;
-	} else {
-		this->u = NULL;
-		this->destroy_u = false;
-	}
 
 	Vec gammavector_Vec;
 	TRY( VecCreate(PETSC_COMM_WORLD,&gammavector_Vec) );
@@ -178,10 +137,6 @@ TSData_Global::~TSData_Global(){
 		free(this->thetavector);
 	}
 
-	if(this->destroy_u){
-		free(this->u);
-	}
-
 }
 
 
@@ -199,12 +154,6 @@ void TSData_Global::print(ConsoleOutput &output) const {
 	output <<  " - datavector:  ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
-	} else {
-		output << "NO" << std::endl;
-	}
-	output <<  " - u:           ";
-	if(this->u){
-		output << "YES (size: " << this->u->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
@@ -251,15 +200,6 @@ void TSData_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_lo
 		output_global << "NO" << std::endl;
 	}
 	
-	output_global <<  " - u:           ";
-	if(this->u){
-		output_global << "YES (size: " << this->u->size() << ")" << std::endl;
-		output_local  <<  "  - local size: " << this->u->local_size() << std::endl;
-		output_local.synchronize();
-	} else {
-		output_global << "NO" << std::endl;
-	}
-	
 	output_global <<   " - gammavector: ";
 	if(this->gammavector){
 		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
@@ -290,14 +230,6 @@ void TSData_Global::printcontent(ConsoleOutput &output_global,ConsoleOutput &out
 	output_local <<  " - datavector: ";
 	if(this->datavector){
 		output_local << *this->datavector << std::endl;
-	} else {
-		output_local << "not set" << std::endl;
-	}
-	output_local.synchronize();
-
-	output_local <<  " - u:          ";
-	if(this->u){
-		output_local << *this->u << std::endl;
 	} else {
 		output_local << "not set" << std::endl;
 	}
@@ -359,10 +291,6 @@ TSModel_Global *TSData_Global::get_model() const{
 
 GeneralVector<PetscVector> *TSData_Global::get_datavector() const{
 	return this->datavector;
-}
-
-GeneralVector<PetscVector> *TSData_Global::get_u() const{
-	return this->u;
 }
 
 GeneralVector<PetscVector> *TSData_Global::get_gammavector() const{

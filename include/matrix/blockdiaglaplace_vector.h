@@ -67,10 +67,10 @@ void BlockDiagLaplaceVectorMatrix<VectorBase>::print(ConsoleOutput &output) cons
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)OPERATOR: << print" << std::endl;
 
-	output << "Laplace matrix" << std::endl;
-	output << " - K = " << K << std::endl;
-	output << " - T = " << T << std::endl;
-	output << " - N = " << N << std::endl;
+	output << "Laplace matrix (";
+	output << "K = " << K << ", ";
+	output << "T = " << T << ", ";
+	output << "N = " << N << ")" << std::endl;
 
 }
 

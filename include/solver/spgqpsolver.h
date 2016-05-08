@@ -254,14 +254,22 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
-	output <<  this->get_name() << std::endl;
-	output <<  " - it:          " << this->it_last << std::endl;
-	output <<  " - hess mult:   " << this->hessmult_last << std::endl;
-	output <<  " - fx:          " << this->fx << std::endl;	
-	output <<  " - norm(gP):    " << this->gP << std::endl;	
-	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	output <<  " - it: " << std::setw(6) << this->it_last << ", ";
+	output <<  "hess mult: " << std::setw(6) << this->hessmult_last << ", ";
+	output <<  "fx: " << std::setw(10) << this->fx << ", ";	
+	output <<  "norm(gP): " << std::setw(10) << this->gP << ", ";
+	output <<  "used memory: " << std::setw(6) << MemoryCheck::get_virtual() << "%" << std::endl;
 
-	output.synchronize();
+	output << " - ";
+//	output <<  "t_solve = " << std::setw(10) << this->timer_solve.get_value_last() << ", ";
+	output <<  "t_project = " << std::setw(10) << this->timer_projection.get_value_last() << ", ";
+	output <<  "t_matmult = " << std::setw(10) << this->timer_matmult.get_value_last() << ", ";
+//	output <<  "t_dot = " << std::setw(10) << this->timer_dot.get_value_last() << ", ";
+//	output <<  "t_update = " << std::setw(10) << this->timer_update.get_value_last() << ", ";
+//	output <<  "t_stepsize = " << std::setw(10) << this->timer_stepsize.get_value_last() << ", ";
+//	output <<  "t_fs = " << std::setw(10) << this->timer_fs.get_value_last() << ", ";
+	output <<  "t_other = " << std::setw(10) << this->timer_solve.get_value_last() - (this->timer_projection.get_value_last() + this->timer_matmult.get_value_last() + this->timer_dot.get_value_last() + this->timer_update.get_value_last() + this->timer_stepsize.get_value_last() + this->timer_fs.get_value_last()) << std::endl;
+
 }
 
 template<class VectorBase>
@@ -278,8 +286,6 @@ void SPGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
 	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
 	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
-
-	output.synchronize();
 }
 
 
@@ -565,7 +571,7 @@ ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs)
 	/* for each component go throught the list */
 	for(j=0;j<list_size;j++){
 		temp << *it;
-		output << temp;
+		output << temp.str();
 		if(j < list_size-1){ 
 				/* this is not the last node */
 				output << ", ";

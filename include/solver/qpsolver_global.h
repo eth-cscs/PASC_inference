@@ -49,23 +49,36 @@ class QPSolver_GlobalSetting : public GeneralSolverSetting {
 class QPSolver_Global: public QPSolver<PetscVector> {
 	protected:
 		const QPData<PetscVector> *qpdata; /* data on which the solver operates */
-		
+		QPData<PetscVector> *data_local; /* data of inner qp solver */		
+		QPSolver<PetscVector> *solver_local; /* local solver */
+
+		/* local data */
+		GeneralVector<PetscVector> *x;
+		GeneralVector<PetscVector> *x0;
+		GeneralVector<PetscVector> *b;
+
+		void GetLocalData();
+		void RestoreLocalData();
+
 	public:
 		QPSolver_GlobalSetting setting;
 
-		QPSolver_Global();
 		QPSolver_Global(const QPData<PetscVector> &new_qpdata); 
 		~QPSolver_Global();
 
-		void solve();
+		virtual void solve();
 		double get_fx() const;
 		int get_it() const;
 		int get_hessmult() const;
 
-		void print(ConsoleOutput &output) const;
-		void printstatus(ConsoleOutput &output) const;
-		void printcontent(ConsoleOutput &output) const;
-		std::string get_name() const;
+		virtual void print(ConsoleOutput &output) const;
+		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		
+		virtual void printstatus(ConsoleOutput &output) const;
+		virtual void printtimer(ConsoleOutput &output) const;
+
+		virtual void printcontent(ConsoleOutput &output) const;
+		virtual std::string get_name() const;
 
 };
 
@@ -77,31 +90,65 @@ class QPSolver_Global: public QPSolver<PetscVector> {
 namespace pascinference {
 
 /* constructor */
-QPSolver_Global::QPSolver_Global(){
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)CONSTRUCTOR" << std::endl;
-	
-	qpdata = NULL;
-	
-	this->fx = -1;
-	this->it_last = 0; 
-	this->hessmult_last = 0;
-	
-}
-
 QPSolver_Global::QPSolver_Global(const QPData<PetscVector> &new_qpdata){
 	qpdata = &new_qpdata;
 
 	this->fx = -1;
 	this->it_last = 0; 
 	this->hessmult_last = 0; 
+
+	/* initialize local QP solver */
+	this->data_local = new QPData<PetscVector>();
+
+	int local_size;
+	Vec x_local;
+	Vec x0_local;
+	Vec b_local;
+	
+	/* get local size */
+	TRY( VecGetLocalSize(qpdata->get_x()->get_vector(), &local_size) );
+
+	/* allocate local data */
+	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x_local) );	
+	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x0_local) );	
+	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &b_local) );	
+
+	x = new GeneralVector<PetscVector>(x_local);
+	x0 = new GeneralVector<PetscVector>(x0_local);
+	b = new GeneralVector<PetscVector>(b_local);
+
+	/* get local vectors and prepare local data */
+	data_local->set_A(qpdata->get_A());
+	data_local->set_b(b);
+	data_local->set_x(x);
+	data_local->set_x0(x0);
+	data_local->set_feasibleset(qpdata->get_feasibleset());
+	
+	/* create new instance of local solver */
+	solver_local = new QPSolver<PetscVector>(*data_local);
+
 }
 
 /* destructor */
 QPSolver_Global::~QPSolver_Global(){
 	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)DESTRUCTOR" << std::endl;
 
+	free(this->data_local);
+	free(this->solver_local);
+
 }
 
+void QPSolver_Global::GetLocalData(){
+	TRY( VecGetLocalVector(qpdata->get_x()->get_vector(),data_local->get_x()->get_vector()) );
+	TRY( VecGetLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
+	TRY( VecGetLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
+}
+
+void QPSolver_Global::RestoreLocalData(){
+	TRY( VecRestoreLocalVector(qpdata->get_x()->get_vector(),data_local->get_x()->get_vector()) );
+	TRY( VecRestoreLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
+	TRY( VecRestoreLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
+}
 
 /* print info about problem */
 void QPSolver_Global::print(ConsoleOutput &output) const {
@@ -122,6 +169,37 @@ void QPSolver_Global::print(ConsoleOutput &output) const {
 	}
 }
 
+/* print info about problem */
+void QPSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: print" << std::endl;
+
+	output_global <<  this->get_name() << std::endl;
+	
+	/* print settings */
+	output_global.push();
+	setting.print(output_global);
+	output_global.pop();
+
+	output_global << " - local solver:" << std::endl;
+	output_global.push();
+	if(solver_local){
+		solver_local->printstatus(output_local);
+	} else {
+		output_local <<  " - not set yet." << std::endl; 
+	}
+	output_local.synchronize();	
+	output_global.pop();
+	
+	/* print data */
+	if(qpdata){
+		output_global.push();
+		qpdata->print(output_global, output_local);
+		output_global.pop();
+	}
+	
+	output_global.synchronize();
+}
+
 /* print content of solver */
 void QPSolver_Global::printcontent(ConsoleOutput &output) const {
 	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
@@ -140,14 +218,22 @@ void QPSolver_Global::printcontent(ConsoleOutput &output) const {
 
 /* print status */
 void QPSolver_Global::printstatus(ConsoleOutput &output) const {
-
-	output <<  this->get_name() << std::endl;
-	output <<  " - max(it):       " << this->it_last << std::endl;
-	output <<  " - max(hessmult): " << this->hessmult_last << std::endl;
-	output <<  " - max(fx):  " << this->fx << std::endl;	
-	output <<  " - used memory:   " << MemoryCheck::get_virtual() << "%" << std::endl;
+	if(solver_local){
+		solver_local->printstatus(output);
+	} else {
+		output <<  " - status: not set yet." << std::endl; 
+	}
 }
 
+
+/* print timer */
+void QPSolver_Global::printtimer(ConsoleOutput &output) const {
+	if(solver_local){
+		solver_local->printtimer(output);
+	} else {
+		output <<  " - timer: not set yet." << std::endl; 
+	}
+}
 
 std::string QPSolver_Global::get_name() const {
 	return "General Global QP Solver";
@@ -158,67 +244,17 @@ void QPSolver_Global::solve() {
 	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: solve" << std::endl;
 
 	/* for each process prepare QP solver and solve the problem */
-	QPSolver<PetscVector> *solver_local; /* local solver */
 
-	/* global data */
-	Vec x_global = qpdata->get_x()->get_vector();
-	Vec x0_global = qpdata->get_x0()->get_vector();
-	Vec b_global = qpdata->get_b()->get_vector();
-
-	/* local data */
-	int local_size;
-	Vec x_local;
-	Vec x0_local;
-	Vec b_local;
-
-	/* allocate local data */
-	TRY( VecGetLocalSize(x_global, &local_size) );
-	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x_local) );	
-	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x0_local) );	
-	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &b_local) );	
-
-	/* get local vectors */
-	TRY( VecGetLocalVector(x_global,x_local) );
-	TRY( VecGetLocalVector(x0_global,x0_local) );
-	TRY( VecGetLocalVector(b_global,b_local) );
-
-	GeneralVector<PetscVector> x(x_local);
-	GeneralVector<PetscVector> x0(x0_local);
-	GeneralVector<PetscVector> b(b_local);
-
-	/* get local vectors and prepare local data */
-	QPData<PetscVector> data_local; /* data of inner cg solver */
-	data_local.set_A(qpdata->get_A());
-	data_local.set_b(&b);
-	data_local.set_x(&x);
-	data_local.set_x0(&x0);
-	data_local.set_feasibleset(qpdata->get_feasibleset());
-
-	/* create new instance of local solver */
-	solver_local = new QPSolver<PetscVector>(data_local);
-
-	/* copy settings */
+	GetLocalData();
 		
 	/* solve local problem */
 	solver_local->solve();
-
 
 	this->fx = solver_local->get_fx();
 	this->it_last = solver_local->get_it();
 	this->hessmult_last = solver_local->get_hessmult();
 
-	/* restore global vectors */
-	TRY( VecRestoreLocalVector(x_global,x_local) );
-	TRY( VecRestoreLocalVector(x0_global,x0_local) );
-	TRY( VecRestoreLocalVector(b_global,b_local) );
-
-	/* destroy local storage */
-//	TRY( VecDestroy(&x_local) );	
-//	TRY( VecDestroy(&x0_local) );	
-//	TRY( VecDestroy(&b_local) );	
-
-	/* free local solver */
-	free(solver_local); 
+	RestoreLocalData();
 	
 }
 

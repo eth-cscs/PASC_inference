@@ -37,6 +37,8 @@ class GeneralData {
 		 */
 		virtual void print(ConsoleOutput &output) const;
 
+		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
 		/** @brief print content of data
 		 * 
 		 * Print all values in inner data structures.
@@ -65,6 +67,10 @@ ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralData &data){
 
 void GeneralData::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
+}
+
+void GeneralData::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	output_global <<  this->get_name() << std::endl;
 }
 
 void GeneralData::printcontent(ConsoleOutput &output) const {

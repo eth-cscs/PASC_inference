@@ -71,6 +71,7 @@ class QPSolver: public GeneralSolver {
 		virtual void solve();
 
 		virtual void print(ConsoleOutput &output) const;
+		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual void printcontent(ConsoleOutput &output) const;
 		virtual void printstatus(ConsoleOutput &output) const;
 		virtual void printtimer(ConsoleOutput &output) const;
@@ -148,6 +149,32 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	}	
 }
 
+template<class VectorBase>
+void QPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: print" << std::endl;
+
+	output_global <<  this->get_name() << std::endl;
+	
+	/* print settings */
+	output_global.push();
+	setting.print(output_global);
+	output_global.pop();
+
+	/* print data */
+	if(qpdata){
+		output_global.push();
+		qpdata->print(output_global);
+		output_global.pop();
+	}
+	
+	/* if child solver is specified, then print also info about it */	
+	if(child_solver){
+		output_global.push();
+		child_solver->print(output_global, output_local);
+		output_global.pop();
+	}	
+}
+
 /* print content of solver */
 template<class VectorBase>
 void QPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
@@ -171,7 +198,7 @@ void QPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(child_solver){
 		child_solver->printstatus(output);
 	} else {
-		output <<  this->get_name() << std::endl;
+		output << this->get_name() << ": status" << std::endl;
 	}
 }
 
@@ -181,7 +208,7 @@ void QPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	if(child_solver){
 		child_solver->printtimer(output);
 	} else {
-		output <<  this->get_name() << std::endl;
+		output << this->get_name() << ": timer" << std::endl;
 	}
 }
 

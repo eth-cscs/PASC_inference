@@ -91,6 +91,8 @@ class GeneralSolver {
 		 */ 
 		virtual void print(ConsoleOutput &output) const;
 
+		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
 		/** @brief print status of solver
 		 * 
 		 *  Print the values of inner couters of the solver (for example iteration counter).
@@ -146,16 +148,21 @@ void GeneralSolver::print(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 }
 
+void GeneralSolver::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	output_global << this->get_name() << std::endl;
+	output_global.synchronize();
+}
+
 void GeneralSolver::printstatus(ConsoleOutput &output) const {
-	output << this->get_name() << std::endl;
+	output << this->get_name() << ": status" << std::endl;
 }
 
 void GeneralSolver::printcontent(ConsoleOutput &output) const {
-	output << this->get_name() << std::endl;
+	output << this->get_name() << ": content" << std::endl;
 }
 
 void GeneralSolver::printtimer(ConsoleOutput &output) const {
-	output << this->get_name() << std::endl;
+	output << this->get_name() << ": timer" << std::endl;
 }
 
 std::string GeneralSolver::get_name() const {
