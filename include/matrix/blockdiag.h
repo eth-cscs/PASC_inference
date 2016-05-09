@@ -32,6 +32,7 @@ class BlockDiagMatrix: public GeneralMatrix<VectorBase> {
 		~BlockDiagMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
+		void printcontent(ConsoleOutput &output) const;
 		std::string get_name() const;
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
@@ -85,6 +86,24 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::print(ConsoleOutput &output) const
 		output << std::endl;
 	}
 	output.pop();
+}
+
+/* print matrix */
+template<class VectorBase, class MatrixBase>
+void BlockDiagMatrix<VectorBase,MatrixBase>::printcontent(ConsoleOutput &output) const		
+{
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)OPERATOR: << printcontent" << std::endl;
+
+	output << "Blocks:" << std::endl;
+
+	int i;
+	output.push();
+	for(i=0;i<this->nmb_blocks;i++){ /* print each block */
+		output << "block_" << i << ": " << std::endl;
+		this->blocks[i]->printcontent(output);
+	}
+	output.pop();
+	output.synchronize();
 }
 
 /* matrix-vector multiplication */

@@ -493,96 +493,110 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 
 	/* pointers to data */
 	Vec X = tsdata->get_datavector()->get_vector();
-	Vec b_global = thetadata->get_b()->get_vector();
-	Vec gamma_global = gammadata->get_x()->get_vector();
 
-	/* local variables */
-//	Vec b_local;
-	const double *gamma_arr;
-	double *b_arr;
-	
 	/* get constants of the problem */
 	int Klocal = this->Klocal;
 	int T = this->T;
 	int xdim = this->xdim;
-//	int xmem = this->xmem;
+	int xmem = this->xmemlocal;
 //	int umem = this->umem;
-//	int blocksize = 1 + this->xdim*this->xmem + this->umem; /* see get_thetavectorlength() */
+	int blocksize = 1 + xdim*xmem; /* see get_thetavectorlength() */
 
 	/* blocks of the matrix */
 	BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *A = dynamic_cast<BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *>(thetadata->get_A());
 	LocalDenseMatrix<PetscVector> **blocks = A->get_blocks();
-	LocalDenseMatrix<PetscVector> *block;
 
-	/* index set with components of x corresponding to one dimension */
-	IS xn_is;
-	Vec xn_global; /* global vector with values of one dimension */
-	Vec xn_local;  /* scattered xn_global to each processor */
-	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn_local) );
-	const double *xn_local_arr; /* for read */
+	/* scatter and index sets with components of x corresponding to one dimension */
+	VecScatter ctx; 
+	IS xn1_is;
+	IS xn2_is;
+	Vec xn1_vec;  /* scattered xn_global to each processor */
+	Vec xn2_vec;
+	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn1_vec) );
+	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn2_vec) );
 
-	VecScatter ctx; /* for scattering xn_global to xn_local */
+	/* prepare local gamma */
+	Vec gamma_local;
+	TRY( VecCreateSeq(PETSC_COMM_SELF, T*Klocal, &gamma_local) );
+	TRY( VecGetLocalVectorRead(gammadata->get_x()->get_vector(), gamma_local));
 
-//	TRY( VecView(X,PETSC_VIEWER_STDOUT_WORLD) );
-//	TRY( VecView(b,PETSC_VIEWER_STDOUT_WORLD) );
-//	TRY( VecView(gamma,PETSC_VIEWER_STDOUT_WORLD) );
-	
+	/* here will be stored gamma_k */
+	IS gammak_is;
+	Vec gammak_vec;
+
+	/* prepare local b */
+	double *b_arr;
+	TRY( VecGetArray(thetadata->get_b()->get_vector(), &b_arr) );
+		
 	/* go through clusters and fill matrices */
 	int k;
-	int n; // n2
-	int t;
+	int col,row;
 	double value;
 
-
-	TRY( VecGetArrayRead(gamma_global, &gamma_arr) );
-	TRY( VecGetArray(b_global, &b_arr) );
-
 	/* matrix */
-	for(k=0;k<Klocal;k++){
-		block = blocks[k*xdim];
+	for(row=0;row<blocksize;row++){
+		for(col=row;col<blocksize;col++){
+			for(k=0;k<Klocal;k++){
+				value = k + 0.1*row + 0.01*col;
+				blocks[k*xdim]->set_value(row,col,value);
+			}
 			
-		/* fill matrix */
-		value = sum_subarray(k*T, (k+1)*T-1, gamma_arr);
-		block->set_value(0, 0, value);
-			
-	}	
+		}
+	}
+
+	TRY( VecRestoreArray(thetadata->get_b()->get_vector(), &b_arr) );
+	TRY( VecRestoreLocalVectorRead(gammadata->get_x()->get_vector(), gamma_local));
+
+//	TRY( VecDestroy(&gamma_local) );
+//	TRY( VecDestroy(&xn1_vec) );
+//	TRY( VecDestroy(&xn2_vec) );
+
+	// TODO: temp print
+	coutMaster << "------------- TEMP PRINT ------------" << std::endl;
+	coutAll << "proc: " << GlobalManager.get_rank() << std::endl;
+	for(int i=0;i< Klocal*xdim;i++){
+		coutMaster.push();
+		coutAll << "block:" << i << "\n";
+		blocks[i]->printcontent(coutAll);
+		coutMaster.pop();
+	}
+	coutAll.synchronize();
+	
 
 	/* rhs */
-	for(n=0;n<xdim;n++){
+//	for(n=0;n<xdim;n++){
 		/* get global xn_global */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, T, n, xdim, &xn_is) );
-		TRY( VecGetSubVector(X,xn_is,&xn_global) );
+//		TRY( ISCreateStride(PETSC_COMM_WORLD, T, n, xdim, &xn_is) );
+//		TRY( VecGetSubVector(X,xn_is,&xn_global) );
 		
 		/* scatter xn_global to xn_local */
-		TRY( VecScatterCreateToAll(xn_global,&ctx,&xn_local) );
-		TRY( VecScatterBegin(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
-		TRY( VecScatterEnd(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
-		TRY( VecScatterDestroy(&ctx) );
+//		TRY( VecScatterCreateToAll(xn_global,&ctx,&xn_local) );
+//		TRY( VecScatterBegin(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
+//		TRY( VecScatterEnd(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
+//		TRY( VecScatterDestroy(&ctx) );
 
 		/* now I have my own seq vector xn_local with x(n,:) */
-		TRY( VecGetArrayRead(xn_local, &xn_local_arr) );
+//		TRY( VecGetArrayRead(xn_local, &xn_local_arr) );
 		
-		for(k=0;k<Klocal;k++){
+//		for(k=0;k<Klocal;k++){
 			/* RHS - compute dot product dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) ); */
-			value = 0;
-			for(t=0;t<T;t++){
-				value += xn_local_arr[t]*gamma_arr[k*T+t];
-			}
-			b_arr[k*xdim + n] = value;
-		}	
+//			value = 0;
+//			for(t=0;t<T;t++){
+//				value += xn_local_arr[t]*gamma_arr[k*T+t];
+//			}
+//			b_arr[k*xdim + n] = value;
+//		}	
 
-		TRY( VecRestoreArrayRead(xn_local, &xn_local_arr) );
+//		TRY( VecRestoreArrayRead(xn_local, &xn_local_arr) );
 
 		/* restore subvector with xn_global */
-		TRY( VecRestoreSubVector(X,xn_is,&xn_global) );
-		TRY( ISDestroy(&xn_is) );
+//		TRY( VecRestoreSubVector(X,xn_is,&xn_global) );
+//		TRY( ISDestroy(&xn_is) );
 
 		
-	}
-	TRY( VecRestoreArrayRead(gamma_global, &gamma_arr) );
-	TRY( VecRestoreArray(b_global, &b_arr) );
+//	}
 
-	TRY( VecDestroy(&xn_local) );
+
 
 	
 //	for(k=0;k<Klocal;k++){

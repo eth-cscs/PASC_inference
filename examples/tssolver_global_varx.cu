@@ -62,7 +62,7 @@ int main( int argc, char *argv[] )
 
 	/* model parameters */
 	int num = 5;
-	int K[num] = {1,1,1,1,1}; /* number of clusters for each processor */
+	int K[num] = {3,2,1,1,1}; /* number of clusters for each processor */
 	double epssqr[num] = {20,20,20,20,20}; /* penalty for each processor */
 	int xmem[num] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
 
@@ -79,35 +79,39 @@ int main( int argc, char *argv[] )
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	VarxH1FEMModel_Global mymodel(T, xdim, num, K, xmem, epssqr);
-	coutMaster.push();
-	mymodel.print(coutMaster,coutAll);
-	coutMaster.pop();
+//	coutMaster.push();
+//	mymodel.print(coutMaster,coutAll);
+//	coutMaster.pop();
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	TSData_Global mydata(mymodel);
-	coutMaster.push();
-	mydata.print(coutMaster, coutAll);
-	coutMaster.pop();
+//	coutMaster.push();
+//	mydata.print(coutMaster, coutAll);
+//	coutMaster.pop();
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector());
-	coutMaster.push();
-	mydata.printcontent(coutMaster,coutAll);
-	coutMaster.pop();
+//	coutMaster.push();
+//	mydata.printcontent(coutMaster,coutAll);
+//	coutMaster.pop();
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-//	TSSolver_Global mysolver(mydata);
+	TSSolver_Global mysolver(mydata);
 
-//	mysolver.setting.maxit = 20;
-//	mysolver.setting.debug_mode = 20;
-//	mysolver.print(coutMaster,coutAll);
+	mysolver.setting.maxit = 1;
+	mysolver.setting.debug_mode = 20;
+	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-//	mysolver.solve();
+	mysolver.solve();
+
+	coutMaster.push();
+	mydata.print(coutMaster, coutAll);
+	coutMaster.pop();
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;

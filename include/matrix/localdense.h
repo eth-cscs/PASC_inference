@@ -58,6 +58,7 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 		~LocalDenseMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
+		void printcontent(ConsoleOutput &output) const;
 
 		std::string get_name() const;
 		
@@ -85,6 +86,8 @@ void LocalDenseMatrix<VectorBase>::print(ConsoleOutput &output) const
 /* -------------------------------- PETSC VECTOR -------------------------*/
 
 #ifdef USE_PETSCVECTOR
+
+#include <petscmat.h>
 
 /* Petsc: constructor from given filename */
 template<>
@@ -190,6 +193,31 @@ void LocalDenseMatrix<PetscVector>::set_value(int row, int col, double value) {
 		
 }
 
+template<>
+void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const		
+{
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
+
+	double values_row(nmb_cols);
+
+	int i,j;
+	for(i=0;i<nmb_rows;i++){
+		/* get one row */
+		TRY( MatGetRow(A_petsc,i,NULL,NULL,&values_row) );
+
+		for(j=0;j<nmb_cols;j++){
+			output << values_row[j];
+			if(j+1 < nmb_cols){
+				output << ",";
+			}
+		}
+		output << "\n";
+
+		TRY( MatRestoreRow(A_petsc,i,NULL,NULL,&values_row) );
+
+	}
+
+}
 
 #endif
 

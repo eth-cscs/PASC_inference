@@ -70,7 +70,8 @@ void BlockDiagLaplaceVectorMatrix<VectorBase>::print(ConsoleOutput &output) cons
 	output << "Laplace matrix (";
 	output << "K = " << K << ", ";
 	output << "T = " << T << ", ";
-	output << "N = " << N << ")" << std::endl;
+	output << "N = " << N << ", ";
+	output << "alpha = " << alpha << ")" << std::endl;
 
 }
 
