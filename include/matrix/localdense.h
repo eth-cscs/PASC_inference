@@ -177,7 +177,7 @@ void LocalDenseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x
 
 	// TODO: maybe y is not initialized, who knows
 	
-	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) ); // TODO: I dont want to use get_vector :( friend in PetscVector? and in MinLin?
+	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
 }
 
 /* Petsc: set value of matrix */

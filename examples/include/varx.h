@@ -43,13 +43,13 @@ namespace pascinference {
 				* @param datavector output datavector with random values 
 				*/ 
 				template<class VectorBase>
-				static void generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector);
+				static void generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector, bool scale_or_not);
 
 				/** @brief save results into CSV file 
 				* 
 				*/
 				template<class VectorBase>
-				static void saveCSV(std::string name_of_file, std::string extension, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
+				static void saveCSV(std::string name_of_file, std::string extension, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector, GeneralVector<VectorBase> *thetavector);
 
 
 		};
@@ -150,14 +150,14 @@ namespace pascinference {
 		}		
 
 		template<class VectorBase> 
-		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector_in){
+		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector_in, bool scatter_or_not){
 			// TODO: for general vectors
 			coutMaster << " --- I am generating nothing! (since I don't know how)" << std::endl;
 		}
 		
 #ifdef USE_PETSCVECTOR		
 		template<>
-		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<PetscVector> *datavector_in) {
+		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<PetscVector> *datavector_in, bool scale_or_not) {
 			
 			/* size of input */
 			int theta_size = K*xdim*(1 + xdim*xmem); 
@@ -248,10 +248,17 @@ namespace pascinference {
 			TRY( VecDestroy(&xtail_global) );
 			TRY( VecDestroy(&xtail_local) );
 
+			/* scale data */
+			if(scale_or_not){
+				double max_value;
+				TRY( VecMax(datavector_in->get_vector(), NULL, &max_value) );
+				TRY( VecScale(datavector_in->get_vector(), 1.0/max_value) );
+			}
+
 		}
 		
 		template<>
-		void VarX::saveCSV(std::string name_of_file, std::string extension, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<PetscVector> *datavector, GeneralVector<PetscVector> *gammavector){
+		void VarX::saveCSV(std::string name_of_file, std::string extension, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<PetscVector> *datavector, GeneralVector<PetscVector> *gammavector, GeneralVector<PetscVector> *thetavector){
 			Timer timer_saveCSV; 
 			timer_saveCSV.restart();
 			timer_saveCSV.start();
@@ -259,10 +266,11 @@ namespace pascinference {
 			int nproc = GlobalManager.get_size();
 			int my_rank = GlobalManager.get_rank();
 
-			int xmem = max_array(nproc, xmem_arr);
+			int xmem_max = max_array(nproc, xmem_arr);
+			int xmem = xmem_arr[my_rank];
 			int K = K_arr[my_rank];
 	
-			int n,t,k;
+			int n,t,k,t_mem,i;
 			
 			/* compute local sizes */
 			int Tlocal; /* local part */
@@ -298,6 +306,18 @@ namespace pascinference {
 			}
 			myfile << "\n";
 
+			/* theta */
+			int theta_start; /* where in theta start actual coefficients */
+			double Ax;
+			double x_model_n;
+			int blocksize = 1 + xdim*xmem;
+			double *theta_arr;
+			TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
+
+			/* gamma */
+			double *gamma_arr;
+			TRY( VecGetArray(gammavector->get_vector(),&gamma_arr) );
+
 			/* go through processors and write the sequence into local file */
 			int t_scatter = 50; /* > xmem */
 			int t_in_scatter;
@@ -328,7 +348,7 @@ namespace pascinference {
 				/* write begin of time-serie */
 				TRY( VecGetArrayRead(x_scatter, &x_scatter_arr) );
 				if(is_begin==0){
-					for(t=0;t<xmem;t++){
+					for(t=0;t<xmem_max;t++){
 						/* original time_serie */
 						for(n=0;n<xdim;n++){
 							myfile << x_scatter_arr[t*xdim+n] << ",";
@@ -349,7 +369,7 @@ namespace pascinference {
 				}
 				
 				/* common times */
-				for(t=is_begin+xmem;t<is_end;t++){
+				for(t=is_begin+xmem_max;t<is_end;t++){
 					t_in_scatter = t - is_begin;
 					/* original x */
 					for(n=0;n<xdim;n++){
@@ -357,11 +377,32 @@ namespace pascinference {
 					}
 					/* write gamma vectors */
 					for(k=0;k<K;k++){
-						myfile << k << ",";
+						myfile << gamma_arr[k*(T-xmem)+t-xmem_max] << ",";
 					}
 					/* compute new time serie from model */
 					for(n=0;n<xdim;n++){
-						myfile << n; //x_scatter_arr[t_in_scatter*xdim+n];
+
+						x_model_n = 0;
+						/* mu */
+						for(k=0;k<K;k++){
+							theta_start = k*blocksize*xdim;
+							x_model_n += gamma_arr[k*(T-xmem)+t-xmem_max]*theta_arr[theta_start + n*blocksize]; 
+						}
+				
+						/* A */
+						for(t_mem = 1; t_mem <= xmem; t_mem++){
+							/* add multiplication with A_{t_mem} */
+							Ax = 0;
+							for(i = 0; i < xdim; i++){
+								for(k=0;k<K;k++){
+									theta_start = k*blocksize*xdim;
+									Ax += gamma_arr[k*(T-xmem)+t-xmem_max]*theta_arr[theta_start + n*blocksize + 1 + (t_mem-1)*xdim + i]*x_scatter_arr[(t_in_scatter-t_mem)*xdim+i]; 
+								}
+							}
+							x_model_n += Ax;
+						}
+
+						myfile << x_model_n; //x_scatter_arr[t_in_scatter*xdim+n];
 						if(n+1 < xdim){
 							myfile << ",";
 						}
@@ -371,11 +412,15 @@ namespace pascinference {
 				TRY( VecRestoreArrayRead(x_scatter, &x_scatter_arr) );
 				
 				/* update upper and lower index of scatter_is */
-				is_begin = is_begin + t_scatter - xmem;
+				is_begin = is_begin + t_scatter - xmem_max;
 				is_end = min(is_begin + t_scatter,T);
 
 			}
 			TRY( VecDestroy(&x_scatter) );
+
+			TRY( VecRestoreArray(gammavector->get_vector(),&gamma_arr) );
+			TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
+
 			
 			myfile.close();
 			TRY(PetscBarrier(NULL));

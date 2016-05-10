@@ -130,6 +130,7 @@ MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata
 	
 	/* create new instance of local solver */
 	solver_local = new MultiCGSolver<PetscVector>(*data_local);
+
 }
 
 
@@ -248,7 +249,7 @@ void MultiCGSolver_Global::solve() {
 	/* for each block prepare CG solver and solve the problem */
 
 	GetLocalData();
-		
+
 	/* solve local problem */
 	solver_local->solve();
 

@@ -44,6 +44,9 @@ class GeneralMatrix {
 		 */ 
 		virtual void print(ConsoleOutput &output) const {};
 
+		virtual void printcontent(ConsoleOutput &output) const {};
+
+
 		/** @brief get the type name of matrix
 		 */ 
 		virtual std::string get_name() const;

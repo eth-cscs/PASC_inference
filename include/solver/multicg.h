@@ -291,7 +291,7 @@ void MultiCGSolver<PetscVector>::solve() {
 		TRY( VecGetSubVector(b,is_sub,&b_sub) );
 		TRY( VecGetSubVector(x,is_sub,&x_sub) );
 		TRY( VecGetSubVector(x0,is_sub,&x0_sub) );
-		
+
 		/* from petscvectors to general vectors */
 		b_subGV	= new GeneralVector<PetscVector>(b_sub);
 		x_subGV	= new GeneralVector<PetscVector>(x_sub);
@@ -302,12 +302,13 @@ void MultiCGSolver<PetscVector>::solve() {
 		data_sub.set_b(b_subGV);
 		data_sub.set_x(x_subGV);
 		data_sub.set_x0(x0_subGV);
-		
+
 		/* create new instance of solver, during the constructor the new temp vectors are initialized */
 		cgsolver = new CGQPSolver<PetscVector>(data_sub);
 		
 		/* copy settings */
-		
+
+
 		/* solve this subproblem */
 		cgsolver->solve();
 
@@ -330,6 +331,7 @@ void MultiCGSolver<PetscVector>::solve() {
 			
 		/* destroy sub solver */	
 		free(cgsolver);
+
 
 		// TODO: deal with iteration counters (max?)
 	}

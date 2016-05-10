@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
-	int T = 1000; /* length of time-series */
+	int T = 100; /* length of time-series */
 //	int T = 10;
 
 	/* solution - for generating the problem */
@@ -63,9 +63,9 @@ int main( int argc, char *argv[] )
 
 	/* model parameters */
 	int num = 5;
-	int K[num] = {3,2,1,1,1}; /* number of clusters for each processor */
-	double epssqr[num] = {20,20,20,20,20}; /* penalty for each processor */
-	int xmem[num] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
+	int K[num] = {3,2,4,1,1}; /* number of clusters for each processor */
+	double epssqr[num] = {10,10,10,10,10}; /* penalty for each processor */
+	int xmem[num] = {0,0,0,0,0}; /* coeficient of Var model - memory of x - for each processor */
 
 	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
 	
@@ -93,7 +93,7 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector());
+	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector(), true);
 //	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
 //	coutMaster.pop();
@@ -102,7 +102,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
-	mysolver.setting.maxit = 1;
+	mysolver.setting.maxit = 100;
 	mysolver.setting.debug_mode = 20;
 	mysolver.print(coutMaster,coutAll);
 
@@ -116,13 +116,17 @@ int main( int argc, char *argv[] )
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
-	example::VarX::saveCSV("varx",".csv",T,xdim,xmem,K,mydata.get_datavector(),mydata.get_gammavector());
+	example::VarX::saveCSV("varx",".csv",T,xdim,xmem,K,mydata.get_datavector(),mydata.get_gammavector(),mydata.get_thetavector());
 
 //	mysolver.printtimer(coutAll);
 //	coutAll.synchronize();
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
+
+	coutMaster.push();
+	mydata.printcontent(coutMaster,coutAll);
+	coutMaster.pop();
 	
 	Finalize();
 

@@ -123,7 +123,6 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
 	
 	/* timers */
 
-
 	this->fx = std::numeric_limits<double>::max();
 }
 
@@ -260,7 +259,9 @@ void CGQPSolver<VectorBase>::solve() {
 	int hessmult = 0; /* number of hessian multiplications */
 	double normg, alpha, beta, pAp, gg, gg_old;
 	
-	g = A*x; hessmult += 1; g -= b; /* compute gradient */
+	g = A*x; hessmult += 1; /* compute gradient */
+	g -= b;
+
 	p = g; /* initial conjugate direction */
 
 	gg = dot(g,g);
