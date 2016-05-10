@@ -51,6 +51,11 @@ namespace pascinference {
 				template<class VectorBase>
 				static void saveCSV(std::string name_of_file, std::string extension, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector, GeneralVector<VectorBase> *thetavector);
 
+				template<class VectorBase>
+				static void set_solution_gamma(int T, int xdim, int K, int xmem, GeneralVector<VectorBase> *gammavector);
+
+				template<class VectorBase>
+				static void set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<VectorBase> *gammavector);
 
 		};
 		
@@ -61,10 +66,11 @@ namespace pascinference {
 	namespace example {
 		int VarX::get_cluster_id(int t, int T){
 			int return_value = 0;
-			if(t >= T/3.0 && t < 2.0*T/3.0){
+			double coeff = (double)T/3.0;
+			if(t >= coeff && t < 2*coeff){
 				return_value = 1;
 			}
-			if(t >= 2.0*T/3.0){
+			if(t >= 2*coeff){
 				return_value = 2;
 			}
 			return return_value;
@@ -149,13 +155,41 @@ namespace pascinference {
 			/* discart r4 */
 		}		
 
-		template<class VectorBase> 
-		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector_in, bool scatter_or_not){
-			// TODO: for general vectors
-			coutMaster << " --- I am generating nothing! (since I don't know how)" << std::endl;
-		}
-		
+	
 #ifdef USE_PETSCVECTOR		
+		template<>
+		void VarX::set_solution_gamma(int T, int xdim, int K, int xmem, GeneralVector<PetscVector> *gammavector){
+			double *gammavector_arr;
+			int k,t;
+			
+			TRY( VecSet(gammavector->get_vector(),0.0) );
+			TRY( VecGetArray(gammavector->get_vector(),&gammavector_arr) );
+
+			for(t=xmem;t<T;t++){
+				k = get_cluster_id(t, T);
+				gammavector_arr[k*(T-xmem) + t - xmem] = 1;
+			}
+
+			TRY( VecRestoreArray(gammavector->get_vector(),&gammavector_arr) );
+			
+		}		
+
+		template<>
+		void VarX::set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<PetscVector> *thetavector){
+			double *thetavector_arr;
+			int i;
+			
+			TRY( VecSet(thetavector->get_vector(),0.0) );
+			TRY( VecGetArray(thetavector->get_vector(),&thetavector_arr) );
+
+			for(i=0;i<K*xdim*(1+xdim*xmem);i++){
+				thetavector_arr[i] = theta[i];
+			}
+
+			TRY( VecRestoreArray(thetavector->get_vector(),&thetavector_arr) );
+			
+		}		
+
 		template<>
 		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<PetscVector> *datavector_in, bool scale_or_not) {
 			
@@ -253,6 +287,9 @@ namespace pascinference {
 				double max_value;
 				TRY( VecMax(datavector_in->get_vector(), NULL, &max_value) );
 				TRY( VecScale(datavector_in->get_vector(), 1.0/max_value) );
+				
+				coutAll << "--- scaling data with max value of x: " << max_value << std::endl;
+				coutAll.synchronize();
 			}
 
 		}

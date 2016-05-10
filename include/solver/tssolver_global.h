@@ -390,7 +390,7 @@ void TSSolver_Global::solve() {
 
 		this->timer_gamma_solve.start();
 		 if(solved_local == 0.0){
-			gammasolver->solve();
+//			gammasolver->solve();
 		 }
 		this->timer_gamma_solve.stop();
 

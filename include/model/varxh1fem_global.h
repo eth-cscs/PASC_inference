@@ -652,17 +652,13 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	int xn2sub_nmb;
 	
 	/* vector with xn1sub.*gammak_vecs */
-	Vec xn1subgammak_vec;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, gammak_size, &xn1subgammak_vec) );
+	Vec xn2subgammak_vec;
+	TRY( VecCreateSeq(PETSC_COMM_SELF, gammak_size, &xn2subgammak_vec) );
 		
 	/* go through clusters and fill matrices */
 	int col,row, xdim1,xdim2, i,j;
 	double value;
 
-	double *todo_errase_this;
-	double *todo_errase_this2;
-	double *todo_errase_this3;
-	
 	/* matrix */
 	for(xdim1 = 0; xdim1<xdim+1; xdim1++){
 		/* constant */
@@ -711,16 +707,26 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 					
 					/* go through clusters and fill blocks */
 					for(k=0;k<Klocal;k++){
-						TRY( VecPointwiseMult(xn1subgammak_vec, xn2sub_vec, gammak_vecs[k]) );
+						TRY( VecPointwiseMult(xn2subgammak_vec, xn2sub_vec, gammak_vecs[k]) );
 
 						/* compute dot product xn1sub_vec*xn2sub_vec */
-						TRY( VecDot(xn1subgammak_vec,xn2sub_vec,&value) );
+						TRY( VecDot(xn2subgammak_vec,xn1sub_vec,&value) );
 
 						/* write values to symmetric matrix */
-						row = xdim1 + i*xdim;
-						col = xdim2 + j*xdim;
+						if(xdim1 == 0){
+							row = xdim1 + i*xdim;
+						}
+						if(xdim2 == 0){
+							col = xdim2 + j*xdim;
+						}
 						
-//						value = row + col*0.01;
+						if(xdim1 >= 1 && xdim1 < 1+xdim){
+							row = xdim1 + i*xdim;
+						}						
+						if(xdim2 >= 1 && xdim2 < 1+xdim){
+							col = xdim2 + j*xdim;
+						}						
+
 
 						if(row == col){
 							/* diagonal entry */
@@ -728,7 +734,7 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 						} else {
 							/* nondiagonal entry */
 							blocks[k*xdim]->set_value(row,col,value);
-							blocks[k*xdim]->set_value(col,row,value);
+//							blocks[k*xdim]->set_value(col,row,value);
 						}
 					}
 					
@@ -743,21 +749,21 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 					TRY( VecGetSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
 					/* go through clusters and fill RHS vector */
 					for(k=0;k<Klocal;k++){
-						TRY( VecPointwiseMult(xn1subgammak_vec, xn2sub_vec, gammak_vecs[k]) );
+						TRY( VecPointwiseMult(xn2subgammak_vec, xn2sub_vec, gammak_vecs[k]) );
 //						MyVecPointwiseMult(xn1subgammak_vec, xn1sub_vec, gammak_vecs[k]);
 
 						/* compute dot product xn1sub_vec*xn2sub_vec */
-//						TRY( VecDot(xn1subgammak_vec,xn2sub_vec,&value) ); // TODO: why this is not working?
-						MyVecDot(xn1subgammak_vec,xn2sub_vec,&value);
+						TRY( VecDot(xn2subgammak_vec,xn1sub_vec,&value) );
+//						MyVecDot(xn1subgammak_vec,xn2sub_vec,&value);
 
-						/* write values to symmetric matrix */
 						if(xdim1 == 0){
-							row = k*blocksize*xdim + (xdim2-1)*blocksize;
+							row = k*blocksize*xdim + i*blocksize + (xdim2-1);
 						}
 
 						/* x rows */
 						if(xdim1 >= 1 && xdim1 < 1+xdim){
-							row = k*blocksize*xdim + (xdim2-1)*blocksize + xdim1 + i*xdim;
+//							row = k*blocksize*xdim + (xdim2-1)*blocksize + xdim1 + (xn1sub_nmb-i-1)*xdim;
+							row = k*blocksize*xdim + (xdim2-1) + i*blocksize;
 						}
 
 						b_arr[row] = value;
@@ -777,12 +783,12 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 		
 	}
 
-	TRY( VecDestroy(&xn1subgammak_vec) );
-/*	coutAll << "b = ";
+	TRY( VecDestroy(&xn2subgammak_vec) );
+	coutAll << "b = ";
 	print_array(coutAll,Klocal*xdim*blocksize,b_arr);
 	coutAll << std::endl;
 	coutAll.synchronize();
-*/
+
 	TRY( VecRestoreArray(thetadata->get_b()->get_vector(), &b_arr) );
 //	TRY( VecRestoreLocalVector(gammadata->get_x()->get_vector(), gamma_local));
 
@@ -797,7 +803,7 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 //	TRY( VecDestroy(&xn2_vec) );
 
 	// TODO: temp print
-/*	coutMaster << "------------- TEMP PRINT ------------" << std::endl;
+	coutMaster << "------------- TEMP PRINT ------------" << std::endl;
 	coutAll << "proc: " << GlobalManager.get_rank() << std::endl;
 	for(i=0;i< Klocal*xdim;i++){
 		coutMaster.push();
@@ -806,7 +812,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 		coutMaster.pop();
 	}
 	coutAll.synchronize();
-*/
 	
 	/* rhs */
 //	for(n=0;n<xdim;n++){
