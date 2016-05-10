@@ -344,7 +344,7 @@ void TSSolver_Global::solve() {
 
 		this->timer_theta_solve.start();
 		 if(solved_local == 0.0){
-			thetasolver->solve();
+//!			thetasolver->solve();
 		 }
 		this->timer_theta_solve.stop();
 
@@ -383,14 +383,14 @@ void TSSolver_Global::solve() {
 
 		/* --- COMPUTE gamma --- */
 		this->timer_gamma_update.start();
-		 model->update_gammasolver(gammasolver, tsdata);
+//!		 model->update_gammasolver(gammasolver, tsdata);
 		this->timer_gamma_update.stop();
 
 		TRY(PetscBarrier(NULL));
 
 		this->timer_gamma_solve.start();
 		 if(solved_local == 0.0){
-			gammasolver->solve();
+//!			gammasolver->solve();
 		 }
 		this->timer_gamma_solve.stop();
 
@@ -427,7 +427,7 @@ void TSSolver_Global::solve() {
 		/* compute stopping criteria if the problem was not solved yet */
 		L_old = L;
 		if(solved_local == 0.0){
-			L = model->get_L(gammasolver,thetasolver,tsdata);
+//!			L = model->get_L(gammasolver,thetasolver,tsdata);
 			deltaL = std::abs(L - L_old);
 		}
 

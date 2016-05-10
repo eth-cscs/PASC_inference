@@ -572,6 +572,7 @@ ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs)
 	for(j=0;j<list_size;j++){
 		temp << *it;
 		output << temp.str();
+		temp.str("");
 		if(j < list_size-1){ 
 				/* this is not the last node */
 				output << ", ";

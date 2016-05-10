@@ -127,9 +127,9 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_nu
 	int Kxmem[this->num];
 	mult_pw_array(this->num, Kxmem, this->K, this->xmem);
 	int Kxmemsum = sum_array(this->num,Kxmem);
-	
-	this->gammavectorlength_global = Ksum*this->T;
-	this->gammavectorlength_local = Klocal*this->T;
+		
+	this->gammavectorlength_global = Ksum*this->T - Kxmemsum;
+	this->gammavectorlength_local = Klocal*(this->T - this->xmemlocal);
 
 	this->thetavectorlength_global = xdim*(Ksum + xdim*Kxmemsum); /* all(mu + A)  */
 	this->thetavectorlength_local = xdim * (1 + this->xdim*this->xmemlocal) * Klocal; /* xdim * (mu + A) * K */
@@ -491,9 +491,9 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const TSData_Global *tsdata){
 	/* update theta solver - prepare new BlockDiag matrix data and right-hand side vector */	
 
-	/* pointers to data */
-	Vec X = tsdata->get_datavector()->get_vector();
-
+	/* pointers to global data */
+	Vec x_global = tsdata->get_datavector()->get_vector();
+	
 	/* get constants of the problem */
 	int Klocal = this->Klocal;
 	int T = this->T;
@@ -514,38 +514,176 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	Vec xn2_vec;
 	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn1_vec) );
 	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn2_vec) );
+	int dim_to_scatter;
 
-	/* prepare local gamma */
+	int gammak_size = T-xmem;
+
+	/* prepare local gammas */
 	Vec gamma_local;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, T*Klocal, &gamma_local) );
-	TRY( VecGetLocalVectorRead(gammadata->get_x()->get_vector(), gamma_local));
-
-	/* here will be stored gamma_k */
-	IS gammak_is;
-	Vec gammak_vec;
-
+	TRY( VecCreateSeq(PETSC_COMM_SELF, Klocal*gammak_size, &gamma_local) );
+	TRY( VecGetLocalVector(gammadata->get_x()->get_vector(),gamma_local) );
+	
+	int Kmax = max_array(num, K);
+	Vec gammak_vecs[Kmax];
+	IS gammak_is[Kmax];
+	int k;
+	for(k=0;k<Kmax;k++){
+		if(k < Klocal){
+			TRY( ISCreateStride(PETSC_COMM_SELF, gammak_size, k*gammak_size, 1, &gammak_is[k]) );
+		} else {
+			TRY( ISCreateStride(PETSC_COMM_SELF, 0, k*gammak_size, 1, &gammak_is[k]) );
+		}
+		TRY( VecGetSubVector(gamma_local, gammak_is[k], &(gammak_vecs[k])) );
+	}
+	
+	TRY( PetscBarrier(NULL) );
+	
 	/* prepare local b */
 	double *b_arr;
 	TRY( VecGetArray(thetadata->get_b()->get_vector(), &b_arr) );
 		
+	/* index set for manipulating with local parts of xn according to xmem */
+	IS xn1sub_is;
+	IS xn2sub_is;
+	Vec xn1sub_vec; 
+	Vec xn2sub_vec;
+	int xn1sub_nmb;
+	int xn2sub_nmb;
+	
+	/* vector with xn1sub.*gammak_vecs */
+	Vec xn1subgammak_vec;
+	TRY( VecCreateSeq(PETSC_COMM_SELF, gammak_size, &xn1subgammak_vec) );
+		
 	/* go through clusters and fill matrices */
-	int k;
-	int col,row;
+	int col,row,i,j;
 	double value;
 
+	double *todo_errase_this;
+	double *todo_errase_this2;
+	double *todo_errase_this3;
+	
 	/* matrix */
-	for(row=0;row<blocksize;row++){
-		for(col=row;col<blocksize;col++){
-			for(k=0;k<Klocal;k++){
-				value = k + 0.1*row + 0.01*col;
-				blocks[k*xdim]->set_value(row,col,value);
+	for(row=0;row<1+xmem;row++){
+		coutAll << "row = " << row << std::endl;
+		coutAll.synchronize();
+
+		/* constant */
+		if(row == 0){
+			/* the first row is 1 */
+			TRY( VecSet(xn1_vec, 1.0) );
+
+			xn1sub_nmb = 1;
+		}
+		
+		/* x rows */
+		if(row > 0 && row < 1+xdim){
+			/* scatter xn with n=col-1 */
+			dim_to_scatter = row-1;
+
+			TRY( ISCreateStride(PETSC_COMM_WORLD, T, dim_to_scatter, xdim, &xn1_is) );
+
+			TRY( VecScatterCreateToAll(x_global,&ctx,&xn1_vec) );
+			TRY( VecScatterBegin(ctx, x_global, xn1_vec, INSERT_VALUES, SCATTER_FORWARD) );
+			TRY( VecScatterEnd(ctx, x_global, xn2_vec, INSERT_VALUES, SCATTER_FORWARD) );
+			TRY( VecScatterDestroy(&ctx) );
+
+			TRY( ISDestroy(&xn1_is) );
+
+			xn1sub_nmb = xmem;
+		}
+
+		TRY( PetscBarrier(NULL) );
+
+		for(j=0;j<xn1sub_nmb;j++){
+			/* get subvector based on xmem */
+			TRY( ISCreateStride(PETSC_COMM_SELF, gammak_size, i, 1, &xn1sub_is) );
+			TRY( VecGetSubVector(xn1_vec, xn1sub_is, &xn1sub_vec) );
+
+			for(col=row;col<1+xdim;col++){
+
+				/* constant */
+				if(col == 0){
+					/* the first col is 1 */
+					TRY( VecSet(xn2_vec, 1.0) );
+
+					xn2sub_nmb = 1;
+				}
+			
+				/* x cols */
+				if(col > 0 && col < 1+xdim){
+					/* scatter xn with n=col-1 */
+					dim_to_scatter = col-1;
+
+					TRY( ISCreateStride(PETSC_COMM_WORLD, T, dim_to_scatter, xdim, &xn2_is) );
+
+					TRY( VecScatterCreateToAll(x_global,&ctx,&xn2_vec) );
+					TRY( VecScatterBegin(ctx, x_global, xn2_vec, INSERT_VALUES, SCATTER_FORWARD) );
+					TRY( VecScatterEnd(ctx, x_global, xn2_vec, INSERT_VALUES, SCATTER_FORWARD) );
+					TRY( VecScatterDestroy(&ctx) );
+
+					TRY( ISDestroy(&xn2_is) );
+
+					xn2sub_nmb = xmem;
+				}
+
+			
+				TRY( PetscBarrier(NULL) );
+
+				for(i=0;i<xn2sub_nmb;i++){
+					/* get subvector based on xmem */
+					TRY( ISCreateStride(PETSC_COMM_SELF, gammak_size, i, 1, &xn2sub_is) );
+					TRY( VecGetSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
+								
+					for(k=0;k<Klocal;k++){
+						/* compute xn1subgammak_vec = xn1sub_vec.*gammak_vec */
+						TRY( VecPointwiseMult(xn1subgammak_vec, xn1sub_vec, gammak_vecs[k]) );
+	//					MyVecPointwiseMult(xn1subgammak_vec, xn1sub_vec, gammak_vecs[k]);
+
+						/* compute dot product xn1sub_vec*xn2sub_vec */
+	//					TRY( VecDot(xn1subgammak_vec,xn2sub_vec,&value) ); // TODO: why this is not working?
+						MyVecDot(xn1subgammak_vec,xn2sub_vec,&value);
+
+						/* write values to symmetric matrix */
+						if(col == row){
+							/* diagonal entry */
+							blocks[k*xdim]->set_value(row + j*xdim,col + i*xdim,value);
+						} else {
+							/* nondiagonal entry */
+							blocks[k*xdim]->set_value(row + j*xdim,col + i*xdim,value);
+							blocks[k*xdim]->set_value(i*xdim + col,row + j*xdim,value);
+						}
+					}
+
+					/* restore, clear and prepare for next col */
+					TRY( VecRestoreSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
+					TRY( ISDestroy(&xn2sub_is) );
+
+				}
+
+				coutAll.synchronize();
+				TRY( PetscBarrier(NULL) );
 			}
 			
 		}
+
+		/* restore, clear and prepare for next row */
+		TRY( VecRestoreSubVector(xn1_vec, xn1sub_is, &xn1sub_vec) );
+		TRY( ISDestroy(&xn1sub_is) );
+		
 	}
 
+//	TRY( VecDestroy(&xn1subgammak_vec) );
+
 	TRY( VecRestoreArray(thetadata->get_b()->get_vector(), &b_arr) );
-	TRY( VecRestoreLocalVectorRead(gammadata->get_x()->get_vector(), gamma_local));
+//	TRY( VecRestoreLocalVector(gammadata->get_x()->get_vector(), gamma_local));
+
+	/* restore gammas */
+	for(k=0;k<Kmax;k++){
+		TRY( VecRestoreSubVector(gammadata->get_x()->get_vector(), gammak_is[k], &(gammak_vecs[k])) );
+		TRY( ISDestroy(&gammak_is[k]) );
+	}
+	
+
 
 //	TRY( VecDestroy(&gamma_local) );
 //	TRY( VecDestroy(&xn1_vec) );
@@ -554,15 +692,14 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	// TODO: temp print
 	coutMaster << "------------- TEMP PRINT ------------" << std::endl;
 	coutAll << "proc: " << GlobalManager.get_rank() << std::endl;
-	for(int i=0;i< Klocal*xdim;i++){
+	for(i=0;i< Klocal*xdim;i++){
 		coutMaster.push();
-		coutAll << "block:" << i << "\n";
+		coutAll << "block:" << i << std::endl;
 		blocks[i]->printcontent(coutAll);
 		coutMaster.pop();
 	}
 	coutAll.synchronize();
 	
-
 	/* rhs */
 //	for(n=0;n<xdim;n++){
 		/* get global xn_global */

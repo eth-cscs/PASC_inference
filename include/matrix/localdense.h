@@ -198,7 +198,10 @@ void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const
 {
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
 
-	double values_row(nmb_cols);
+	const double *values_row;
+	double value;
+
+	std::ostringstream temp;
 
 	int i,j;
 	for(i=0;i<nmb_rows;i++){
@@ -206,12 +209,14 @@ void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const
 		TRY( MatGetRow(A_petsc,i,NULL,NULL,&values_row) );
 
 		for(j=0;j<nmb_cols;j++){
-			output << values_row[j];
+			temp << values_row[j];
+			output << std::setw(8) << temp.str();
+			temp.str("");
 			if(j+1 < nmb_cols){
 				output << ",";
 			}
 		}
-		output << "\n";
+		output << std::endl;
 
 		TRY( MatRestoreRow(A_petsc,i,NULL,NULL,&values_row) );
 

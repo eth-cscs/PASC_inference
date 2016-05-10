@@ -564,6 +564,15 @@ MyType sum_subarray(int start, int end, const MyType *my_array){
 }
 
 template<class MyType>
+MyType dot_arrays(int size, const MyType *my_array1, const MyType *my_array2){
+	MyType sum = 0;
+	for(int i=0;i<=size;i++){
+		sum += my_array1[i]*my_array2[i];
+	}	
+	return sum;
+}
+
+template<class MyType>
 MyType max(const MyType a1, const MyType a2){
 	MyType return_value = a1;
 	if(a2 > a1){
@@ -601,6 +610,60 @@ void mult_pw_array(int my_size, MyType *my_array, const MyType *my_array1, const
 			if (abort) exit(code);
 		}
 	}
+#endif
+
+#ifdef USE_PETSC
+void MyVecDot(Vec x, Vec y, double *out){
+	double *x_arr;
+	double *y_arr;
+	
+	int size;
+	TRY( VecGetSize(x, &size) );
+	
+	TRY( VecGetArray(x,&x_arr) );
+	TRY( VecGetArray(y,&y_arr) );
+	
+	*out = dot_arrays(size, x_arr, y_arr);
+
+	TRY( VecRestoreArray(x,&x_arr) );
+	TRY( VecRestoreArray(y,&y_arr) );
+}
+
+/* w = x.*y */
+void MyVecPointwiseMult(Vec w, Vec x, Vec y){
+	double *w_arr;
+	double *x_arr;
+	double *y_arr;
+	
+	int size;
+	TRY( VecGetSize(w, &size) );
+	
+	TRY( VecGetArray(w,&w_arr) );
+	TRY( VecGetArray(x,&x_arr) );
+	TRY( VecGetArray(y,&y_arr) );
+	
+	coutAll << "w: ";
+	print_array(coutAll, size, w_arr);
+	coutAll << std::endl;
+
+	coutAll << "x: ";
+	print_array(coutAll, size, x_arr);
+	coutAll << std::endl;
+
+	coutAll << "y: ";
+	print_array(coutAll, size, x_arr);
+
+	
+	for(int i=0;i<=size;i++){
+		w_arr[i] = x_arr[i]*y_arr[i];
+	}	
+
+	TRY( VecRestoreArray(w,&w_arr) );
+	TRY( VecRestoreArray(x,&x_arr) );
+	TRY( VecRestoreArray(y,&y_arr) );
+}
+
+
 #endif
 
 }

@@ -32,6 +32,7 @@ int main( int argc, char *argv[] )
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
 	int T = 1000; /* length of time-series */
+//	int T = 10;
 
 	/* solution - for generating the problem */
 	int solution_K = 3;
