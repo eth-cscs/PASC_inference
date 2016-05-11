@@ -113,6 +113,7 @@ int main( int argc, char *argv[] )
 	//temp
 	example::VarX::set_solution_gamma(T, xdim, solution_K, solution_xmem, mydata.get_gammavector());
 	example::VarX::set_solution_theta(T, xdim, solution_K, solution_xmem, solution_theta, mydata.get_thetavector());
+	mymodel.printsolution(coutMaster,coutAll);
 
 	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
@@ -137,6 +138,8 @@ int main( int argc, char *argv[] )
 	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
 	coutMaster.pop();
+	
+	mymodel.printsolution(coutMaster,coutAll);
 	
 	Finalize();
 

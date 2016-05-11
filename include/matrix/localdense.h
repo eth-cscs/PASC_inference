@@ -65,6 +65,8 @@ class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
 		void set_value(int row, int col, double value);
+		void add_value(int row, int col, double value);
+
 };
 
 template<class VectorBase>
@@ -186,6 +188,19 @@ void LocalDenseMatrix<PetscVector>::set_value(int row, int col, double value) {
 	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
 
 	TRY( MatSetValue(A_petsc, row, col, value, INSERT_VALUES) );
+
+	/* assembly matrix */ //TODO: is it necessary?
+	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
+	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
+		
+}
+
+/* Petsc: set value of matrix */
+template<>
+void LocalDenseMatrix<PetscVector>::add_value(int row, int col, double value) { 
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
+
+	TRY( MatSetValue(A_petsc, row, col, value, ADD_VALUES) );
 
 	/* assembly matrix */ //TODO: is it necessary?
 	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );

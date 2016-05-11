@@ -60,6 +60,8 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		void printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		
 		std::string get_name() const;
 
 		
@@ -214,6 +216,68 @@ void VarxH1FEMModel_Global::print(ConsoleOutput &output_global, ConsoleOutput &o
 	output_global.pop();
 	output_local.synchronize();
 
+	output_global.synchronize();
+
+}
+
+/* print model solution */
+void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	output_global <<  this->get_name() << std::endl;
+	
+	/* give information about presence of the data */
+	output_global <<  "theta:" << std::endl;
+
+	std::ostringstream temp;
+	
+	double *theta;
+	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
+	
+	int k,i,n,n2;
+	int blocksize = 1 + this->xdim*this->xmemlocal;
+
+	output_local.push();
+	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
+	output_local.push();
+	for(k=0;k<this->Klocal;k++){
+		output_local <<  "- k = " << k << std::endl;
+
+		/* mu */
+		output_local.push();
+		output_local <<  "- mu = [";
+		for(n=0;n<xdim;n++){
+			temp << theta[k*xdim*blocksize + n*blocksize];
+			output_local << temp.str();
+			if(n < xdim-1){
+				output_local << ", ";
+			}
+			temp.str("");
+		}
+		output_local <<  "]" << std::endl;
+		output_local.pop();
+
+		/* A */
+		output_local.push();
+		for(i=0;i<this->xmemlocal;i++){
+			output_local <<  "- A" << i << " = [" <<  std::endl;
+			output_local.push();
+			for(n=0;n<xdim;n++){
+				for(n2=0;n2<xdim;n2++){
+					temp << theta[k*xdim*blocksize + i*xdim + n*blocksize + 1 + n];
+					output_local << temp.str() << ", ";
+					temp.str("");
+				}
+				output_local << std::endl;
+			}
+			output_local.pop();
+			output_local <<  "  ]" << std::endl;
+		}
+		output_local.pop();
+
+	}
+	output_local.pop();
+	output_local.pop();
+
+	output_local.synchronize();
 	output_global.synchronize();
 
 }
@@ -420,6 +484,9 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 						}
 						x_model[n] += Ax;
 					}
+					
+					/* B */
+					//todo: process u(t)
 				}
 
 				/* now I have computed x_model(t), therefore I just compute || x_model(t)-x_data(t) ||^2 */
@@ -432,8 +499,6 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 				value = (-1)*value;
 				b_local_arr[k*gammak_size+t-xmem] = value;
 			}
-			
-
 
 		}
 		TRY( VecRestoreArrayRead(x_scatter, &x_scatter_arr) );
@@ -444,128 +509,9 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 
 	}
 	TRY( VecDestroy(&x_scatter) );
-/*
-	coutAll << "b = ";
-	print_array(coutAll,K*gammak_size,b_local_arr);
-	coutAll << std::endl;
-	coutAll.synchronize();
-*/
+
 	TRY( VecRestoreArrayRead(M_global,&theta) );
 	TRY( VecRestoreArray(b_global,&b_local_arr) );	
-
-
-	/* index set with components of x corresponding to partseq */
-	//VecScatter ctx; /* for scattering xn_global to xn_local */
-	//IS x_partseq_is;
-	//Vec x_partseq_global; /* global vector with values of one dimension */
-	//Vec x_partseq_local;  /* scattered xn_global to each processor */
-	//TRY( VecCreateSeq(PETSC_COMM_SELF, x_partseq_length*xdim, &x_partseq_local) ); /* prepare local vector with scattered part of sequence */
-	//const double *x_partseq_local_arr; /* for read */
-
-	//int num_partseq = (int)(T/(double)x_partseq_length+0.9);
-
-	//double dot_sum, value, value_model;
-	//int n, k, t, i_partseq;
-	//int x_partseq_length_controled;
-
-	//for(i_partseq=0; i_partseq < num_partseq; i_partseq++){
-		
-		///* get global xn_global */
-		
-		///* control the length of IS */
-		//if((i_partseq+1)*x_partseq_length < T){
-			//x_partseq_length_controled = x_partseq_length;
-		//} else {
-			//x_partseq_length_controled = x_partseq_length - (num_partseq*x_partseq_length - T);
-		//}
-		
-		//TRY( ISCreateStride(PETSC_COMM_WORLD, x_partseq_length_controled*xdim, i_partseq*x_partseq_length*xdim, 1, &x_partseq_is) );
-		//TRY( VecGetSubVector(x_global,x_partseq_is,&x_partseq_global) );
-
-		///* scatter xn_global to xn_local */
-		//TRY( VecScatterCreateToAll(x_partseq_global,&ctx,&x_partseq_local) );
-		//TRY( VecScatterBegin(ctx, x_partseq_global, x_partseq_local, INSERT_VALUES, SCATTER_FORWARD) );
-		//TRY( VecScatterEnd(ctx, x_partseq_global, x_partseq_local, INSERT_VALUES, SCATTER_FORWARD) );
-		//TRY( VecScatterDestroy(&ctx) );
-
-		///* now I have my own seq vector xn_local with x(n,:) */
-		//TRY( VecGetArrayRead(x_partseq_local, &x_partseq_local_arr) );
-		
-		//for(k=0;k<Klocal;k++){
-			//for(t=0;t<x_partseq_length_controled;t++){
-				//dot_sum = 0.0;
-				//for(n=0;n<xdim;n++){
-					//value = x_partseq_local_arr[t*xdim+n]; 
-				
-					///* compute model_value */
-					//value_model = M_local_arr[k*xdim+n]; /* mu */
-
-////					M_idxstart = k*blocksize*this->xdim + n*blocksize;
-////					valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
-////					for(j=1;j<xmem;j++){ /* add A_j*X(t-j) */
-////						for(n2=0;n2<dim;n2++){
-////							valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j + t);
-////						}
-////					}
-				
-////					if(umem > 0){
-						///* there is u */
-////						for(j=0;j<umem-1;j++){ /* add B_j*U(t) */
-////							valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
-////						}
-////					}
-				
-					//value = value - value_model;
-					//dot_sum += value*value;
-				//}
-				//b_local_arr[k*T + i_partseq*x_partseq_length + t] = -(dot_sum);
-			//}
-		//}
-
-		//TRY( VecRestoreArrayRead(x_partseq_local, &x_partseq_local_arr) );
-
-		///* restore subvector with xn_global */
-		//TRY( VecRestoreSubVector(x_global,x_partseq_is,&x_partseq_global) );
-		//TRY( ISDestroy(&x_partseq_is) );
-
-	//}
-
-	///* restore global vectors */
-	//TRY( VecRestoreArrayRead(M_global,&M_local_arr) );
-	//TRY( VecRestoreArray(b_global,&b_local_arr) );	
-
-	//TRY( VecAssemblyBegin(b_global));
-	//TRY( VecAssemblyEnd(b_global));
-	
-//	for(k=0;k<K;k++){
-//		for(t=0;t<T;t++){
-//			dot_sum = 0.0;
-//			for(n=0;n<dim;n++){
-//				value = X.get(n*Xdimlength+xmem+t); 
-				
-				/* compute model_value */
-//				M_idxstart = k*blocksize*this->xdim + n*blocksize;
-//				valuemodel = M.get(M_idxstart + 0); /* mu_K,n */
-//				for(j=1;j<xmem;j++){ /* add A_j*X(t-j) */
-//					for(n2=0;n2<dim;n2++){
-//						valuemodel += M.get(M_idxstart + 1 + j*dim + n2)*X.get(Xdimlength*n2 + xmem - j + t);
-//					}
-//				}
-				
-//				if(umem > 0){
-					/* there is u */
-//					for(j=0;j<umem-1;j++){ /* add B_j*U(t) */
-//						valuemodel += M.get(M_idxstart + 1 + xmem*dim + j)*U.get(xmem - j + t);
-//					}
-//				}
-				
-//				value = value - valuemodel; //TODO: get in MinLin?
-//				dot_sum += value*value;
-//			}
-//			b(k*T + t) = -(dot_sum);
-//		}
-//	}	
-
 
 }
 
@@ -659,12 +605,17 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	int col,row, xdim1,xdim2, i,j;
 	double value;
 
+	double coeff = 1;
+
 	/* matrix */
 	for(xdim1 = 0; xdim1<xdim+1; xdim1++){
 		/* constant */
 		if(xdim1 == 0){
 			/* the first row is 1 */
-			TRY( VecSet(xn1_vec, 1.0) );
+			TRY( VecSet(xn1_vec, coeff) );
+			VecAssemblyBegin(xn1_vec);
+			VecAssemblyEnd(xn1_vec);
+			
 			xn1sub_nmb = 1;
 		}
 		
@@ -681,7 +632,10 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 			/* constant */
 			if(xdim2 == 0){
 				/* the first row is 1 */
-				TRY( VecSet(xn2_vec, 1.0) );
+				TRY( VecSet(xn2_vec, coeff) );
+				VecAssemblyBegin(xn2_vec);
+				VecAssemblyEnd(xn2_vec);
+
 				xn2sub_nmb = 1;
 			}
 		
@@ -714,17 +668,17 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 
 						/* write values to symmetric matrix */
 						if(xdim1 == 0){
-							row = xdim1 + i*xdim;
+							row = xdim1 + (xn1sub_nmb-i-1)*xdim;
 						}
 						if(xdim2 == 0){
-							col = xdim2 + j*xdim;
+							col = xdim2 + (xn2sub_nmb-j-1)*xdim;
 						}
 						
 						if(xdim1 >= 1 && xdim1 < 1+xdim){
-							row = xdim1 + i*xdim;
+							row = xdim1 + (xn1sub_nmb-i-1)*xdim;
 						}						
 						if(xdim2 >= 1 && xdim2 < 1+xdim){
-							col = xdim2 + j*xdim;
+							col = xdim2 + (xn2sub_nmb-j-1)*xdim;
 						}						
 
 
@@ -733,8 +687,8 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 							blocks[k*xdim]->set_value(row,col,value);
 						} else {
 							/* nondiagonal entry */
-							blocks[k*xdim]->set_value(row,col,value);
-//							blocks[k*xdim]->set_value(col,row,value);
+//							blocks[k*xdim]->set_value(row,col,value);
+							blocks[k*xdim]->set_value(col,row,value);
 						}
 					}
 					
@@ -749,24 +703,29 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 					TRY( VecGetSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
 					/* go through clusters and fill RHS vector */
 					for(k=0;k<Klocal;k++){
-						TRY( VecPointwiseMult(xn2subgammak_vec, xn2sub_vec, gammak_vecs[k]) );
+						TRY( VecPointwiseMult(xn2subgammak_vec, xn1sub_vec, gammak_vecs[k]) );
 //						MyVecPointwiseMult(xn1subgammak_vec, xn1sub_vec, gammak_vecs[k]);
 
 						/* compute dot product xn1sub_vec*xn2sub_vec */
-						TRY( VecDot(xn2subgammak_vec,xn1sub_vec,&value) );
+						TRY( VecDot(xn2subgammak_vec,xn2sub_vec,&value) );
 //						MyVecDot(xn1subgammak_vec,xn2sub_vec,&value);
 
 						if(xdim1 == 0){
-							row = k*blocksize*xdim + i*blocksize + (xdim2-1);
+							row = k*blocksize*xdim + (xdim2-1)*blocksize;
 						}
 
 						/* x rows */
 						if(xdim1 >= 1 && xdim1 < 1+xdim){
-//							row = k*blocksize*xdim + (xdim2-1)*blocksize + xdim1 + (xn1sub_nmb-i-1)*xdim;
-							row = k*blocksize*xdim + (xdim2-1) + i*blocksize;
+							row = k*blocksize*xdim + (xdim2-1)*blocksize + xdim1 + (xn1sub_nmb-i-1)*xdim;
+
+//							row = k*blocksize*xdim + (xn1sub_nmb-i-1)*blocksize + xdim2;
+//							row = k*blocksize*xdim + i*xdim + (xdim2-1)*blocksize;
+//							row = k*blocksize*xdim + i*blocksize + xdim2;
+
 						}
 
 						b_arr[row] = value;
+
 					}
 					TRY( VecRestoreSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
 					TRY( ISDestroy(&xn2sub_is) );
@@ -813,6 +772,13 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	}
 	coutAll.synchronize();
 	
+	/* regularization */
+/*	for(k=0;k<Klocal;k++){
+		for(i=0;i<blocksize;i++){
+			
+		}
+	}
+	*/
 	/* rhs */
 //	for(n=0;n<xdim;n++){
 		/* get global xn_global */
