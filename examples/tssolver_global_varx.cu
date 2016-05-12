@@ -31,13 +31,12 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
-	int T = 10; /* length of time-series */
-//	int T = 10;
+	int T = 1000; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int solution_K = 3;
 	int solution_xmem = 2;
-	double coeff = 22564.5;
+	double coeff = 100;//22564.5;
 	
 	double solution_theta[(1 + xdim*solution_xmem)*xdim*solution_K] = {
 		 0.0212/coeff,		 1.996973851371985, -0.000487555607403,  0.006182144617033,  0.016898325978254,		-0.997151392835171,  0.000428873596151, -0.006196363191544, -0.016953822805627,		/* K=1,n=1:  mu,A1,A2 */
@@ -65,7 +64,7 @@ int main( int argc, char *argv[] )
 	/* model parameters */
 	int num = 5;
 	int K[num] = {3,3,3,3,3}; /* number of clusters for each processor */
-	double epssqr[num] = {10,10,10,10,10}; /* penalty for each processor */
+	double epssqr[num] = {20,10,1,0.001,10}; /* penalty for each processor */
 	int xmem[num] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
 
 	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
@@ -94,7 +93,7 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector(), false);
+	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector(), 0.1, false);
 //	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
 //	coutMaster.pop();
@@ -103,19 +102,19 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
-	mysolver.setting.maxit = 1;
+	mysolver.setting.maxit = 1000;
 	mysolver.setting.debug_mode = 20;
 	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 
-	//temp
-	example::VarX::set_solution_gamma(T, xdim, solution_K, solution_xmem, mydata.get_gammavector());
-	example::VarX::set_solution_theta(T, xdim, solution_K, solution_xmem, solution_theta, mydata.get_thetavector());
-	mymodel.printsolution(coutMaster,coutAll);
+//	//temp
+//	example::VarX::set_solution_gamma(T, xdim, solution_K, solution_xmem, mydata.get_gammavector());
+//	example::VarX::set_solution_theta(T, xdim, solution_K, solution_xmem, solution_theta, mydata.get_thetavector());
+//	mymodel.printsolution(coutMaster,coutAll);
 
-	TRY( VecSet(mydata.get_thetavector()->get_vector(),0.0) );
+//	TRY( VecSet(mydata.get_thetavector()->get_vector(),0.0) );
 
 	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
@@ -129,7 +128,10 @@ int main( int argc, char *argv[] )
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
-	example::VarX::saveCSV("varx",".csv",T,xdim,xmem,K,mydata.get_datavector(),mydata.get_gammavector(),mydata.get_thetavector());
+	int rank = GlobalManager.get_rank();
+	std::ostringstream oss_name_of_file;
+	oss_name_of_file << "varx_" << "_p" << rank << "_K" << K[rank] << "_xmem" << xmem[rank] << "_epssqr" << epssqr[rank] << ".csv";
+	example::VarX::saveCSV(oss_name_of_file.str(),T,xdim,xmem,K,mydata.get_datavector(),mydata.get_gammavector(),mydata.get_thetavector());
 
 //	mysolver.printtimer(coutAll);
 //	coutAll.synchronize();
@@ -137,11 +139,11 @@ int main( int argc, char *argv[] )
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
 
-	coutMaster.push();
-	mydata.printcontent(coutMaster,coutAll);
-	coutMaster.pop();
+//	coutMaster.push();
+//	mydata.printcontent(coutMaster,coutAll);
+//	coutMaster.pop();
 	
-	mymodel.printsolution(coutMaster,coutAll);
+//	mymodel.printsolution(coutMaster,coutAll);
 	
 	Finalize();
 

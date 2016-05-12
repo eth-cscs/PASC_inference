@@ -31,7 +31,7 @@ namespace pascinference {
 			
 				static int get_cluster_id(int t, int T);
 
-				static void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
+				static void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k, double noise);
 			public:
 			
 				/** @brief sample generator 
@@ -43,13 +43,13 @@ namespace pascinference {
 				* @param datavector output datavector with random values 
 				*/ 
 				template<class VectorBase>
-				static void generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector, bool scale_or_not);
+				static void generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector, double noise, bool scale_or_not);
 
 				/** @brief save results into CSV file 
 				* 
 				*/
 				template<class VectorBase>
-				static void saveCSV(std::string name_of_file, std::string extension, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector, GeneralVector<VectorBase> *thetavector);
+				static void saveCSV(std::string name_of_file, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector, GeneralVector<VectorBase> *thetavector);
 
 				template<class VectorBase>
 				static void set_solution_gamma(int T, int xdim, int K, int xmem, GeneralVector<VectorBase> *gammavector);
@@ -76,7 +76,7 @@ namespace pascinference {
 			return return_value;
 		}
 
-		void VarX::compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k){
+		void VarX::compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k, double noise){
 			int theta_length_n = 1+xdim*xmem; /* the size of theta for one dimension, one cluster */
 			int theta_start = k*theta_length_n*xdim; /* where in theta start actual coefficients */
 
@@ -95,10 +95,12 @@ namespace pascinference {
 //						coutMaster << "A" << t_mem << "_" << n << "," << i << " = " << theta[theta_start + n*theta_length_n + 1 + (t_mem-1)*xdim + i] << std::endl;
 						Ax += theta[theta_start + n*theta_length_n + 1 + (t_mem-1)*xdim + i]*data_in[(t_data_in-t_mem)*xdim+i]; 
 					}
-
 					data_out[t_data_out*xdim+n] += Ax;
 		
 				}
+				
+				/* noise */
+				data_out[t_data_out*xdim+n] += noise*rand()/(double)(RAND_MAX);;
 			}
 		}
 
@@ -191,7 +193,7 @@ namespace pascinference {
 		}		
 
 		template<>
-		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<PetscVector> *datavector_in, bool scale_or_not) {
+		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<PetscVector> *datavector_in, double noise, bool scale_or_not) {
 			
 			/* size of input */
 			int theta_size = K*xdim*(1 + xdim*xmem); 
@@ -249,7 +251,7 @@ namespace pascinference {
 					
 					for(t = xmem; t < t_length; t++){ /* through local time */
 						k = get_cluster_id(t_begin + t, T);
-						compute_next_step(x_arr, t, x_arr, t, xdim, xmem, theta, k);
+						compute_next_step(x_arr, t, x_arr, t, xdim, xmem, theta, k, noise);
 
 					}
 
@@ -295,7 +297,7 @@ namespace pascinference {
 		}
 		
 		template<>
-		void VarX::saveCSV(std::string name_of_file, std::string extension, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<PetscVector> *datavector, GeneralVector<PetscVector> *gammavector, GeneralVector<PetscVector> *thetavector){
+		void VarX::saveCSV(std::string name_of_file, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<PetscVector> *datavector, GeneralVector<PetscVector> *gammavector, GeneralVector<PetscVector> *thetavector){
 			Timer timer_saveCSV; 
 			timer_saveCSV.restart();
 			timer_saveCSV.start();
@@ -313,20 +315,12 @@ namespace pascinference {
 			int Tlocal; /* local part */
 			TRY( VecGetLocalSize(datavector->get_vector(),&Tlocal) );
 			Tlocal = Tlocal/(double)xdim;
-			
-			/* filename */
-			std::ostringstream oss_name_of_file_common;
-			std::ostringstream oss_name_of_file;
-			
+
 			/* to manipulate with file */
 			std::ofstream myfile;
-	
-			/* write to the name of file */
-			oss_name_of_file_common << name_of_file << "_p";
-			oss_name_of_file << oss_name_of_file_common.str() << my_rank << extension;
-
+						
 			/* open file to write */
-			myfile.open(oss_name_of_file.str().c_str());
+			myfile.open(name_of_file.c_str());
 
 			/* write header to file */
 			for(n=0; n<xdim; n++){

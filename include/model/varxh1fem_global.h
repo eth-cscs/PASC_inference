@@ -299,7 +299,7 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
-	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->T - this->xmemlocal,this->epssqrlocal)); /* create new blockdiagonal matrix */
+	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->T - this->xmemlocal,this->epssqrlocal*this->epssqrlocal)); /* create new blockdiagonal matrix */
 //	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->T - this->xmemlocal,this->Klocal)); /* the feasible set of QP is simplex */ 	
 
@@ -524,15 +524,19 @@ void VarxH1FEMModel_Global::scatter_xn(Vec &x_global, Vec &xn_local, int xdim, i
 
 	VecScatter ctx; 
 	IS xn_local_is;
+	IS scatter_is_to;
 
-	TRY( ISCreateStride(PETSC_COMM_WORLD, T, n, xdim, &xn_local_is) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, T, n, xdim, &xn_local_is) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, T, 0, 1, &scatter_is_to) );
 
-	TRY( VecScatterCreateToAll(x_global,&ctx,&xn_local) );
-	TRY( VecScatterBegin(ctx, x_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
-	TRY( VecScatterEnd(ctx, x_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
+	TRY( VecScatterCreate(x_global, xn_local_is, xn_local,scatter_is_to,&ctx) );
+	TRY( VecScatterBegin(ctx,x_global, xn_local, INSERT_VALUES,SCATTER_FORWARD) );
+	TRY( VecScatterEnd(ctx,x_global, xn_local, INSERT_VALUES,SCATTER_FORWARD) );
 	TRY( VecScatterDestroy(&ctx) );
 
 	TRY( ISDestroy(&xn_local_is) );
+	TRY( ISDestroy(&scatter_is_to) );
+
 }
 
 /* update theta solver */
@@ -626,9 +630,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 			scatter_xn(x_global, xn1_vec, xdim, xdim1-1);
 			xn1sub_nmb = xmem;
 
-			TRY( VecView(x_global, PETSC_VIEWER_STDOUT_SELF) );
-			TRY( VecView(xn1_vec, PETSC_VIEWER_STDOUT_SELF) );
-
 		}
 
 		TRY( PetscBarrier(NULL) );
@@ -654,8 +655,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 			}
 			
 			/* now I have two vectors with components corresponding with one dimension, what to do next? - local computations */
-			
-			coutMaster << "computing with: " << xdim1 << ", " << xdim2 << std::endl;
 			
 			for(i=0;i<xn1sub_nmb;i++){
 				/* prepare subvector from xn_vec which corresponds to row of Z */
@@ -708,8 +707,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 					TRY( VecRestoreSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
 					TRY( ISDestroy(&xn2sub_is) );
 
-					coutMaster << " -i,j: " << i << ", " << j << std::endl;
-
 				}
 				
 				/* ----- VECTOR ----- */
@@ -757,11 +754,11 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 		
 	}
 
-	TRY( VecDestroy(&xn2subgammak_vec) );
-	coutAll << "b = ";
-	print_array(coutAll,Klocal*xdim*blocksize,b_arr);
-	coutAll << std::endl;
-	coutAll.synchronize();
+//	TRY( VecDestroy(&xn2subgammak_vec) );
+//	coutAll << "b = ";
+//	print_array(coutAll,Klocal*xdim*blocksize,b_arr);
+//	coutAll << std::endl;
+//	coutAll.synchronize();
 
 	TRY( VecRestoreArray(thetadata->get_b()->get_vector(), &b_arr) );
 //	TRY( VecRestoreLocalVector(gammadata->get_x()->get_vector(), gamma_local));
@@ -780,162 +777,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	for(k=0;k<Klocal;k++){
 		blocks[k*xdim]->assemble();
 	}
-
-	// TODO: temp print
-	coutMaster << "------------- TEMP PRINT ------------" << std::endl;
-	coutAll << "proc: " << GlobalManager.get_rank() << std::endl;
-	for(i=0;i< Klocal*xdim;i++){
-		coutMaster.push();
-		coutAll << "block:" << i << std::endl;
-		blocks[i]->printcontent(coutAll);
-		coutMaster.pop();
-	}
-	coutAll.synchronize();
-	
-	/* regularization */
-/*	for(k=0;k<Klocal;k++){
-		for(i=0;i<blocksize;i++){
-			
-		}
-	}
-	*/
-	/* rhs */
-//	for(n=0;n<xdim;n++){
-		/* get global xn_global */
-//		TRY( ISCreateStride(PETSC_COMM_WORLD, T, n, xdim, &xn_is) );
-//		TRY( VecGetSubVector(X,xn_is,&xn_global) );
-		
-		/* scatter xn_global to xn_local */
-//		TRY( VecScatterCreateToAll(xn_global,&ctx,&xn_local) );
-//		TRY( VecScatterBegin(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
-//		TRY( VecScatterEnd(ctx, xn_global, xn_local, INSERT_VALUES, SCATTER_FORWARD) );
-//		TRY( VecScatterDestroy(&ctx) );
-
-		/* now I have my own seq vector xn_local with x(n,:) */
-//		TRY( VecGetArrayRead(xn_local, &xn_local_arr) );
-		
-//		for(k=0;k<Klocal;k++){
-			/* RHS - compute dot product dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) ); */
-//			value = 0;
-//			for(t=0;t<T;t++){
-//				value += xn_local_arr[t]*gamma_arr[k*T+t];
-//			}
-//			b_arr[k*xdim + n] = value;
-//		}	
-
-//		TRY( VecRestoreArrayRead(xn_local, &xn_local_arr) );
-
-		/* restore subvector with xn_global */
-//		TRY( VecRestoreSubVector(X,xn_is,&xn_global) );
-//		TRY( ISDestroy(&xn_is) );
-
-		
-//	}
-
-
-
-	
-//	for(k=0;k<Klocal;k++){
-		/* get actual block */
-//		block = blocks[k*xdim];
-
-		/* get local gamma corresponding to this cluster */
-
-
-		/* const row */
-//		for(i=0; i < 1; i++){
-			/* const column */
-//			for(j=0; j < 1; j++){
-//				value = sum_subarray(k*T, (k+1)*T-1, gamma_arr);
-//				block->set_value(i, j, value);
-//			}
-
-			/* x columns */
-//			for(j=1; j < xmem; j++){
-				
-//				for(n=0;n<dim;n++){
-//					value = dot(X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j), gamma(k*T,(k+1)*T-1));
-//					block->set_value(i, 1+j*dim+n, value);
-//					block->set_value(1+j*dim+n, i, value);
-//				}
-//			}
-
-			/* u columns */
-//			if(umem > 0){
-				/* there is u */
-//				for(j=0; j < umem+1; j++){	// TODO: is this right?
-//					value = dot(U(xmem-j, xmem+T-1-j), gamma(k*T,(k+1)*T-1));
-//					block->set_value(i, 1+xmem*dim+j, value);
-//					block->set_value(1+xmem*dim+j, i, value);
-//				}
-//			}
-
-			/* rhs */
-//			for(n=0;n<xdim;n++){
-//				value = dot( X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)), gamma(k*T,(k+1)*T-1) );
-//				b_arr[k*blocksize*xdim + n*blocksize] = n;
-//			}
-
-			
-//		}
-
-		/* X rows */
-//		for(i=1; i < xmem; i++){
-//			for(n2=0;n2<dim;n2++){
-//				temp = mul(X(xmem + n2*(xmem+T) - i, xmem+T-2  + n2*(xmem+T) - i), gamma(k*T,(k+1)*T-1));
-
-				/* x columns */
-//				for(j=1; j < xmem; j++){
-//					for(n=0;n<dim;n++){
-//						value = dot(temp, X(xmem + n*(xmem+T) - j, xmem+T-1  + n*(xmem+T) - j));
-//						block->set_value(1+i*dim+n2, 1+j*dim+n, value);
-//						block->set_value(1+j*dim+n, 1+i*dim+n2, value);
-//					}
-//				}
-
-				/* u columns */
-//				if(umem > 0){
-//					for(j=0; j < umem+1; j++){	// TODO: is this right?
-//						value = dot(temp, U(xmem-j, xmem+T-1-j));
-//						block->set_value(1+i*dim+n2, 1+xmem*dim+j, value);
-//						block->set_value(1+xmem*dim+j, 1+i*dim+n2, value);
-//					}
-//				}
-
-				/* rhs */
-//				for(n=0;n<dim;n++){
-//					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
-//					b(1 + k*blocksize*dim + n*blocksize + i*dim + n2) = value;
-//				}
-
-//			}
-//		}
-
-		/* U rows */
-//		if(umem > 0){ // TODO: is this right?
-//			for(i=0; i < umem+1; i++){
-//				temp = mul( U(xmem-i, xmem+T-1-i), gamma(k*T,(k+1)*T-1));
-
-				/* u columns */
-//				for(j=0; j < umem+1; j++){
-//					value = dot(temp, U(xmem-j, xmem+T-1-j));
-//					block->set_value(1+xmem*dim+i, 1+xmem*dim+j, value);
-//					block->set_value(1+xmem*dim+j, 1+xmem*dim+i, value);
-//				}
-
-				/* rhs */
-//				for(n=0;n<dim;n++){
-//					value = dot( temp, X(xmem + n*(xmem+T), xmem+T-1  + n*(xmem+T)) );
-//					b(1+xmem*dim + k*blocksize*dim + n*blocksize + i) = value;
-//				}
-//			}
-//		}
-
-		
-//	}
-
-
-
 
 }
 
