@@ -703,11 +703,11 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 					TRY( VecGetSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
 					/* go through clusters and fill RHS vector */
 					for(k=0;k<Klocal;k++){
-						TRY( VecPointwiseMult(xn2subgammak_vec, xn1sub_vec, gammak_vecs[k]) );
+						TRY( VecPointwiseMult(xn2subgammak_vec, xn2sub_vec, gammak_vecs[k]) );
 //						MyVecPointwiseMult(xn1subgammak_vec, xn1sub_vec, gammak_vecs[k]);
 
 						/* compute dot product xn1sub_vec*xn2sub_vec */
-						TRY( VecDot(xn2subgammak_vec,xn2sub_vec,&value) );
+						TRY( VecDot(xn2subgammak_vec,xn1sub_vec,&value) );
 //						MyVecDot(xn1subgammak_vec,xn2sub_vec,&value);
 
 						if(xdim1 == 0){
