@@ -93,7 +93,7 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector(), 0.1, false);
+	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector(), 10.1, false);
 //	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
 //	coutMaster.pop();

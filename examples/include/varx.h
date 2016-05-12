@@ -31,7 +31,7 @@ namespace pascinference {
 			
 				static int get_cluster_id(int t, int T);
 
-				static void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k, double noise);
+				static void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
 			public:
 			
 				/** @brief sample generator 
@@ -76,7 +76,7 @@ namespace pascinference {
 			return return_value;
 		}
 
-		void VarX::compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k, double noise){
+		void VarX::compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k){
 			int theta_length_n = 1+xdim*xmem; /* the size of theta for one dimension, one cluster */
 			int theta_start = k*theta_length_n*xdim; /* where in theta start actual coefficients */
 
@@ -98,9 +98,7 @@ namespace pascinference {
 					data_out[t_data_out*xdim+n] += Ax;
 		
 				}
-				
-				/* noise */
-				data_out[t_data_out*xdim+n] += noise*rand()/(double)(RAND_MAX);;
+			
 			}
 		}
 
@@ -251,7 +249,7 @@ namespace pascinference {
 					
 					for(t = xmem; t < t_length; t++){ /* through local time */
 						k = get_cluster_id(t_begin + t, T);
-						compute_next_step(x_arr, t, x_arr, t, xdim, xmem, theta, k, noise);
+						compute_next_step(x_arr, t, x_arr, t, xdim, xmem, theta, k);
 
 					}
 
@@ -278,11 +276,20 @@ namespace pascinference {
 				TRY( PetscBarrier(NULL) );
 			}
 
+			/* add noise to generated data */
+			for(t = 0; t < t_length; t++){
+				for(n = 0; n <xdim; n++){
+					x_arr[t*xdim+n] += noise*rand()/(double)(RAND_MAX);			
+				}
+			}
+
+
 			/* restore local data array */
 			TRY( VecRestoreArray(datavector_in->get_vector(),&x_arr) );
 
 			TRY( VecDestroy(&xtail_global) );
 			TRY( VecDestroy(&xtail_local) );
+
 
 			/* scale data */
 			if(scale_or_not){
