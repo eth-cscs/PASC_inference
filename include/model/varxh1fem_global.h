@@ -262,7 +262,7 @@ void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleO
 			output_local.push();
 			for(n=0;n<xdim;n++){
 				for(n2=0;n2<xdim;n2++){
-					temp << theta[k*xdim*blocksize + i*xdim + n*blocksize + 1 + n];
+					temp << theta[k*xdim*blocksize + i*xdim + n*blocksize + 1 + n2];
 					output_local << temp.str() << ", ";
 					temp.str("");
 				}
@@ -609,6 +609,7 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 
 	/* matrix */
 	for(xdim1 = 0; xdim1<xdim+1; xdim1++){
+//	for(xdim1 = 0; xdim1<1; xdim1++){
 		/* constant */
 		if(xdim1 == 0){
 			/* the first row is 1 */
@@ -624,11 +625,17 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 			/* scatter xn with n=xdim1 */
 			scatter_xn(x_global, xn1_vec, xdim, xdim1-1);
 			xn1sub_nmb = xmem;
+
+			TRY( VecView(x_global, PETSC_VIEWER_STDOUT_SELF) );
+			TRY( VecView(xn1_vec, PETSC_VIEWER_STDOUT_SELF) );
+
 		}
 
 		TRY( PetscBarrier(NULL) );
 
 		for(xdim2 = 0; xdim2<xdim+1;xdim2++){
+//		for(xdim2 = 0; xdim2<1;xdim2++){
+
 			/* constant */
 			if(xdim2 == 0){
 				/* the first row is 1 */
@@ -648,10 +655,15 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 			
 			/* now I have two vectors with components corresponding with one dimension, what to do next? - local computations */
 			
+			coutMaster << "computing with: " << xdim1 << ", " << xdim2 << std::endl;
+			
 			for(i=0;i<xn1sub_nmb;i++){
 				/* prepare subvector from xn_vec which corresponds to row of Z */
 				TRY( ISCreateStride(PETSC_COMM_SELF, gammak_size, i, 1, &xn1sub_is) );
 				TRY( VecGetSubVector(xn1_vec, xn1sub_is, &xn1sub_vec) );				
+				
+//				TRY( VecView(xn1_vec, PETSC_VIEWER_STDOUT_SELF) );
+//				TRY( VecView(xn1sub_vec, PETSC_VIEWER_STDOUT_SELF) );
 				
 				/* ----- MATRIX --- */
 				for(j=0;j<xn2sub_nmb;j++){
@@ -687,14 +699,17 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 							blocks[k*xdim]->set_value(row,col,value);
 						} else {
 							/* nondiagonal entry */
-//							blocks[k*xdim]->set_value(row,col,value);
-							blocks[k*xdim]->set_value(col,row,value);
+							blocks[k*xdim]->set_value(row,col,value);
+//							blocks[k*xdim]->add_value(col,row,value);
 						}
 					}
 					
 					/* restore, clear and prepare for next row */
 					TRY( VecRestoreSubVector(xn2_vec, xn2sub_is, &xn2sub_vec) );
 					TRY( ISDestroy(&xn2sub_is) );
+
+					coutMaster << " -i,j: " << i << ", " << j << std::endl;
+
 				}
 				
 				/* ----- VECTOR ----- */
@@ -760,6 +775,11 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 //	TRY( VecDestroy(&gamma_local) );
 //	TRY( VecDestroy(&xn1_vec) );
 //	TRY( VecDestroy(&xn2_vec) );
+
+	/* assemble blocks of matrix */
+	for(k=0;k<Klocal;k++){
+		blocks[k*xdim]->assemble();
+	}
 
 	// TODO: temp print
 	coutMaster << "------------- TEMP PRINT ------------" << std::endl;

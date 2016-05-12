@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
-	int T = 1000; /* length of time-series */
+	int T = 10; /* length of time-series */
 //	int T = 10;
 
 	/* solution - for generating the problem */
@@ -115,6 +115,8 @@ int main( int argc, char *argv[] )
 	example::VarX::set_solution_theta(T, xdim, solution_K, solution_xmem, solution_theta, mydata.get_thetavector());
 	mymodel.printsolution(coutMaster,coutAll);
 
+	TRY( VecSet(mydata.get_thetavector()->get_vector(),0.0) );
+
 	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
 	coutMaster.pop();
@@ -136,7 +138,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "- end program" << std::endl;
 
 	coutMaster.push();
-//	mydata.printcontent(coutMaster,coutAll);
+	mydata.printcontent(coutMaster,coutAll);
 	coutMaster.pop();
 	
 	mymodel.printsolution(coutMaster,coutAll);
