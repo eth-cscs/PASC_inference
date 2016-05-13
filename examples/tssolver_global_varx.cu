@@ -21,6 +21,18 @@ using namespace pascinference;
 
 extern int pascinference::DEBUG_MODE;
 
+int solution_get_cluster_id(int t, int T){
+	int id_cluster = 0;
+	double coeff = (double)T/3.0;
+	if(t >= coeff && t < 2*coeff){
+		id_cluster = 1;
+	}
+	if(t >= 2*coeff){
+		id_cluster = 2;
+	}
+	return id_cluster;
+}
+
 int main( int argc, char *argv[] )
 {
 	
@@ -93,7 +105,7 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, mydata.get_datavector(), 10.1, false);
+	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, mydata.get_datavector(), 10.1, false);
 //	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
 //	coutMaster.pop();

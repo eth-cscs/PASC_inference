@@ -6,30 +6,6 @@ namespace pascinference {
 	namespace example {
 		class VarX {
 			private:
-				/** @brief get random number 2D 
-				* 
-				* return 2D random number
-				* 
-				* @param mu array (of length 2) with mean value 
-				* @param diagonal covariance array (of length 2) with diagonal covariance matrix
-				* @param value1 x-coordinate of random point 
-				* @param value2 y-coordinate of random point 
-				*/ 
-				static void my_mvnrnd_D2(double *mu, double *covariance, double *value1, double *value2);
-			
-				/** @brief get random number 3D 
-				* 
-				* return 3D random number
-				* 
-				* @param mu array (of length 3) with mean value 
-				* @param diagonal covariance array (of length 3) with diagonal covariance matrix
-				* @param value1 x-coordinate of random point 
-				* @param value2 y-coordinate of random point 
-				* @param value3 z-coordinate of random point 
-				*/ 
-				static void my_mvnrnd_D3(double *mu, double *diag_covariance, double *value1, double *value2, double *value3);
-			
-				static int get_cluster_id(int t, int T);
 
 				static void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
 			public:
@@ -43,7 +19,7 @@ namespace pascinference {
 				* @param datavector output datavector with random values 
 				*/ 
 				template<class VectorBase>
-				static void generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<VectorBase> *datavector, double noise, bool scale_or_not);
+				static void generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, int (*get_cluster_id)(int, int), GeneralVector<VectorBase> *datavector, double noise, bool scale_or_not);
 
 				/** @brief save results into CSV file 
 				* 
@@ -52,10 +28,10 @@ namespace pascinference {
 				static void saveCSV(std::string name_of_file, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector, GeneralVector<VectorBase> *thetavector);
 
 				template<class VectorBase>
-				static void set_solution_gamma(int T, int xdim, int K, int xmem, GeneralVector<VectorBase> *gammavector);
+				static void set_solution_gamma(int T, int xdim, int K, int xmem, int (*get_cluster_id)(int, int), GeneralVector<VectorBase> *gammavector);
 
 				template<class VectorBase>
-				static void set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<VectorBase> *gammavector);
+				static void set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<VectorBase> *thetavector);
 
 		};
 		
@@ -64,17 +40,6 @@ namespace pascinference {
 
 namespace pascinference {
 	namespace example {
-		int VarX::get_cluster_id(int t, int T){
-			int return_value = 0;
-			double coeff = (double)T/3.0;
-			if(t >= coeff && t < 2*coeff){
-				return_value = 1;
-			}
-			if(t >= 2*coeff){
-				return_value = 2;
-			}
-			return return_value;
-		}
 
 		void VarX::compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k){
 			int theta_length_n = 1+xdim*xmem; /* the size of theta for one dimension, one cluster */
@@ -103,62 +68,9 @@ namespace pascinference {
 		}
 
 
-		void VarX::my_mvnrnd_D2(double *mu, double *covariance, double *value1, double *value2){
-			double L[4];
-			double r1, r2, r1n, r2n; 
-	
-			double R, c, s;
-
-			/* Compute normally distributed random numbers via Box-Muller */
-			r1 = rand()/(double)(RAND_MAX);
-			r1 = 1.-r1; /* to change from [0,1) to (0,1], which we need for the log */
-
-			r2 = rand()/(double)(RAND_MAX);
-			R = sqrt(-2.*log(r1));
-			c = cos(2.*M_PI*r2);
-			s = sin(2.*M_PI*r2);
-
-			/* compute normal distributed random values */
-			r1n = R*c;
-			r2n = R*s;
-	
-			/* choleski decomposition of SPD covariance matrix */
-			L[0] = sqrt(covariance[0]);
-			L[1] = 0;
-			L[2] = covariance[1]/L[0];
-			L[3] = sqrt(covariance[3] - L[2]*L[2]);
-
-			/* compute output values */
-			/* y = L*randn(2,1) + mean */
-			*value1 = L[0]*r1n + L[1]*r2n + mu[0];
-			*value2 = L[2]*r1n + L[3]*r2n + mu[1];
-
-		}		
-
-		void VarX::my_mvnrnd_D3(double *mu, double *diag_covariance, double *value1, double *value2, double *value3){
-			double r1, r2, r3, r4;
-
-			double mu12[2] = {mu[0],mu[1]};
-			double mu34[2] = {mu[2],0.0};
-			
-			double diag_covariance12[4] = {diag_covariance[0],0.0,0.0,diag_covariance[1]};
-			double diag_covariance34[4] = {diag_covariance[2],0.0,0.0,1.0};
-
-			my_mvnrnd_D2(mu12, diag_covariance12, &r1, &r2);
-			my_mvnrnd_D2(mu34, diag_covariance34, &r3, &r4);
-
-			/* compute output values */
-			*value1 = r1;
-			*value2 = r2;
-			*value3 = r3;
-
-			/* discart r4 */
-		}		
-
-	
 #ifdef USE_PETSCVECTOR		
 		template<>
-		void VarX::set_solution_gamma(int T, int xdim, int K, int xmem, GeneralVector<PetscVector> *gammavector){
+		void VarX::set_solution_gamma(int T, int xdim, int K, int xmem, int (*get_cluster_id)(int, int), GeneralVector<PetscVector> *gammavector){
 			double *gammavector_arr;
 			int k,t;
 			
@@ -166,7 +78,7 @@ namespace pascinference {
 			TRY( VecGetArray(gammavector->get_vector(),&gammavector_arr) );
 
 			for(t=xmem;t<T;t++){
-				k = get_cluster_id(t, T);
+				k = (*get_cluster_id)(t, T);
 				gammavector_arr[k*(T-xmem) + t - xmem] = 1;
 			}
 
@@ -191,7 +103,7 @@ namespace pascinference {
 		}		
 
 		template<>
-		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, GeneralVector<PetscVector> *datavector_in, double noise, bool scale_or_not) {
+		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, int (*get_cluster_id)(int, int), GeneralVector<PetscVector> *datavector_in, double noise, bool scale_or_not) {
 			
 			/* size of input */
 			int theta_size = K*xdim*(1 + xdim*xmem); 
@@ -248,7 +160,7 @@ namespace pascinference {
 					}
 					
 					for(t = xmem; t < t_length; t++){ /* through local time */
-						k = get_cluster_id(t_begin + t, T);
+						k = (*get_cluster_id)(t_begin + t, T);
 						compute_next_step(x_arr, t, x_arr, t, xdim, xmem, theta, k);
 
 					}
