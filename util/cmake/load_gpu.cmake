@@ -1,5 +1,3 @@
-# set variables (options) for whole cmake
-option(USE_GPU "USE_GPU" OFF)
 
 if(${USE_GPU})
 

@@ -1,5 +1,4 @@
 # set variables (options) for mkl
-option(USE_MKL "USE_MKL" ON)
 
 if(${USE_MKL})
 	message(STATUS "${Blue}loading MKL library${ColourReset}")

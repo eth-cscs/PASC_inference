@@ -1,5 +1,3 @@
-# set variables (options) for whole cmake
-option(USE_PETSCVECTOR "USE_PETSCVECTOR" ON)
 
 if(${USE_PETSCVECTOR})
 	message(STATUS "${Yellow}loading petscvector library${ColourReset}")

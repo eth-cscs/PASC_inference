@@ -1,5 +1,4 @@
 # set variables (options) for minlin
-option(USE_MINLIN "USE_MINLIN" ON)
 
 if(${USE_MINLIN})
 	message(STATUS "${Yellow}loading minlin library${ColourReset}")

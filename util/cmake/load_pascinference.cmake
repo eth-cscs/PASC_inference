@@ -1,5 +1,3 @@
-# set variables (options) for whole cmake
-option(COMPILE_PASCINFERENCE "COMPILE_PASCINFERENCE" ON)
 
 # include directories to this project
 set(PASCINFERENCE_INCLUDE "${PASCINFERENCE_ROOT}/include")

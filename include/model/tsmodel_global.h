@@ -27,7 +27,7 @@ namespace pascinference {
 /* Maybe these classes are not defined yet */ 
 class TSData_Global;
 
-/** \class TSModel_Global_Global
+/** \class TSModel_Global
  *  \brief General class for manipulation with global time-series models.
  *
 */
@@ -40,16 +40,16 @@ class TSModel_Global: public GeneralModel {
 
 		int num; /**< length of K */
 
-		int *K; /**< number of clusters to test */
-		int Klocal;
+		int *K; /**< numbers of clusters to test for all processors */
+		int Klocal; /**< local number of clusters */
 
-		int datavectorlength_global;
-		int gammavectorlength_global;
-		int thetavectorlength_global;
+		int datavectorlength_global; /**< global length of datavector (time-series values) */
+		int gammavectorlength_global; /**< global length of gammavector (switching functions) */
+		int thetavectorlength_global; /**< global length of thetavector (model parameters) */
 
-		int datavectorlength_local;
-		int gammavectorlength_local;
-		int thetavectorlength_local;
+		int datavectorlength_local; /**< local length of datavector (time-series values) */
+		int gammavectorlength_local; /**< local length of gammavector (switching functions) */
+		int thetavectorlength_local; /**< local length of thetavector (model parameters) */
 
 	public:
 		TSModel_Global();

@@ -1,4 +1,3 @@
-option(USE_CUDA "USE_CUDA" ON)
 
 if(${USE_CUDA})
 	message(STATUS "${Blue}loading CUDA library${ColourReset}")

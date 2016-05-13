@@ -1,6 +1,3 @@
-# set variables (options) for whole cmake
-option(USE_PETSC "USE_PETSC" ON)
-option(FIND_PETSC "FIND_PETSC" OFF)
 
 if(${USE_PETSC})
 	message(STATUS "${Blue}loading petsc library${ColourReset}")
