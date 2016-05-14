@@ -30,6 +30,7 @@ int solution_get_cluster_id(int t, int T){
 	if(t >= 2*coeff){
 		id_cluster = 2;
 	}
+
 	return id_cluster;
 }
 

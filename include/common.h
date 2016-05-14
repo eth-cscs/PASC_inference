@@ -26,6 +26,7 @@
 #include "common/globalmanager.h"
 #include "common/consoleoutput.h"
 #include "common/arrayoperation.h"
+#include "common/log.h"
 
 
 namespace pascinference {
