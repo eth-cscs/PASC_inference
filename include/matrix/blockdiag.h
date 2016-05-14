@@ -51,30 +51,31 @@ std::string BlockDiagMatrix<VectorBase,MatrixBase>::get_name() const {
 
 template<class VectorBase, class MatrixBase>
 BlockDiagMatrix<VectorBase,MatrixBase>::BlockDiagMatrix(int new_nmb_blocks, MatrixBase **new_blocks, int new_blocksize){
-	if(DEBUG_MODE >= 100){
-		coutMaster << "(BlockDiagMatrix)CONSTRUCTOR: from blocks" << std::endl;
-	}
-
+	LOG_FUNC_BEGIN
+	
 	this->blocks = new_blocks;
 	this->nmb_blocks = new_nmb_blocks;
 	this->blocksize = new_blocksize;
-}
+
+	LOG_FUNC_END
+}	
 
 
 template<class VectorBase, class MatrixBase>
 BlockDiagMatrix<VectorBase,MatrixBase>::~BlockDiagMatrix(){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)DESTRUCTOR" << std::endl;
-
+	LOG_FUNC_BEGIN
+	
 	//TODO: what to do?
+	
+	LOG_FUNC_END	
 }
 
 /* print matrix */
 template<class VectorBase, class MatrixBase>
 void BlockDiagMatrix<VectorBase,MatrixBase>::print(ConsoleOutput &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)OPERATOR: << print" << std::endl;
-
+	LOG_FUNC_BEGIN
+	
 	output << "Blocks: (blocksize = " << this->blocksize << ", ";
 	output << "nmb of blocks = " << this->nmb_blocks << ")" << std::endl;
 
@@ -86,14 +87,16 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::print(ConsoleOutput &output) const
 		output << std::endl;
 	}
 	output.pop();
+	
+	LOG_FUNC_END	
 }
 
 /* print matrix */
 template<class VectorBase, class MatrixBase>
 void BlockDiagMatrix<VectorBase,MatrixBase>::printcontent(ConsoleOutput &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)OPERATOR: << printcontent" << std::endl;
-
+	LOG_FUNC_BEGIN
+	
 	output << "Blocks:" << std::endl;
 
 	int i;
@@ -104,16 +107,19 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::printcontent(ConsoleOutput &output)
 	}
 	output.pop();
 	output.synchronize();
+	
+	LOG_FUNC_END
 }
 
 /* matrix-vector multiplication */
 template<class VectorBase, class MatrixBase>
 void BlockDiagMatrix<VectorBase,MatrixBase>::matmult(VectorBase &y, const VectorBase &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: matmult" << std::endl;
-
+	LOG_FUNC_BEGIN
+	
 	// TODO: maybe y is not initialized, who knows
 
 	// TODO: write block matmult
+	LOG_FUNC_END	
 }
 
 /* get number of blocks */

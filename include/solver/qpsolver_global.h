@@ -91,6 +91,8 @@ namespace pascinference {
 
 /* constructor */
 QPSolver_Global::QPSolver_Global(const QPData<PetscVector> &new_qpdata){
+	LOG_FUNC_BEGIN
+
 	qpdata = &new_qpdata;
 
 	this->fx = -1;
@@ -127,32 +129,42 @@ QPSolver_Global::QPSolver_Global(const QPData<PetscVector> &new_qpdata){
 	/* create new instance of local solver */
 	solver_local = new QPSolver<PetscVector>(*data_local);
 
+	LOG_FUNC_END
 }
 
 /* destructor */
 QPSolver_Global::~QPSolver_Global(){
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	free(this->data_local);
 	free(this->solver_local);
 
+	LOG_FUNC_END
 }
 
 void QPSolver_Global::GetLocalData(){
+	LOG_FUNC_BEGIN
+
 	TRY( VecGetLocalVector(qpdata->get_x()->get_vector(),data_local->get_x()->get_vector()) );
 	TRY( VecGetLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
 	TRY( VecGetLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
+
+	LOG_FUNC_END
 }
 
 void QPSolver_Global::RestoreLocalData(){
+	LOG_FUNC_BEGIN
+
 	TRY( VecRestoreLocalVector(qpdata->get_x()->get_vector(),data_local->get_x()->get_vector()) );
 	TRY( VecRestoreLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
 	TRY( VecRestoreLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
+
+	LOG_FUNC_END
 }
 
 /* print info about problem */
 void QPSolver_Global::print(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	
@@ -167,11 +179,13 @@ void QPSolver_Global::print(ConsoleOutput &output) const {
 		qpdata->print(output);
 		coutMaster.pop();
 	}
+
+	LOG_FUNC_END
 }
 
 /* print info about problem */
 void QPSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
 	
@@ -198,11 +212,13 @@ void QPSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	}
 	
 	output_global.synchronize();
+
+	LOG_FUNC_END
 }
 
 /* print content of solver */
 void QPSolver_Global::printcontent(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
 	
@@ -214,25 +230,34 @@ void QPSolver_Global::printcontent(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 /* print status */
 void QPSolver_Global::printstatus(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	if(solver_local){
 		solver_local->printstatus(output);
 	} else {
 		output <<  " - status: not set yet." << std::endl; 
 	}
+
+	LOG_FUNC_END
 }
 
 
 /* print timer */
 void QPSolver_Global::printtimer(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	if(solver_local){
 		solver_local->printtimer(output);
 	} else {
 		output <<  " - timer: not set yet." << std::endl; 
 	}
+
+	LOG_FUNC_END
 }
 
 std::string QPSolver_Global::get_name() const {
@@ -241,7 +266,7 @@ std::string QPSolver_Global::get_name() const {
 
 /* solve the problem */
 void QPSolver_Global::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* for each process prepare QP solver and solve the problem */
 
@@ -256,6 +281,7 @@ void QPSolver_Global::solve() {
 
 	RestoreLocalData();
 	
+	LOG_FUNC_END
 }
 
 double QPSolver_Global::get_fx() const {

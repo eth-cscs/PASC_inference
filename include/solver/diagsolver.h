@@ -71,29 +71,34 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 DiagSolver<VectorBase>::DiagSolver(){
-	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 	
 	diagdata = NULL;
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 DiagSolver<VectorBase>::DiagSolver(DiagData<VectorBase> &new_diagdata){
-	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)CONSTRUCTOR from data" << std::endl;
+	LOG_FUNC_BEGIN
 
 	diagdata = &new_diagdata;
+
+	LOG_FUNC_END
 }
 
 /* destructor */
 template<class VectorBase>
 DiagSolver<VectorBase>::~DiagSolver(){
-	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
+	LOG_FUNC_END
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void DiagSolver<VectorBase>::print(ConsoleOutput &output) const {
-	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	
@@ -109,24 +114,30 @@ void DiagSolver<VectorBase>::print(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 	
+	LOG_FUNC_END
 }
 
 
 template<class VectorBase>
 void DiagSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
-	if(this->setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void DiagSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	output <<  " - timers" << std::endl;
 	output <<  "  - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
 	output <<  "  - t_dot =    " << this->timer_dot.get_value_sum() << std::endl;
 
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
@@ -146,7 +157,7 @@ typedef petscvector::PetscVector PetscVector;
 /* Petsc: constructor from given right PetscVector */
 template<>
 void DiagSolver<PetscVector>::solve() {
-	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	this->timer_solve.start(); 
 
@@ -158,6 +169,7 @@ void DiagSolver<PetscVector>::solve() {
 	
 	this->timer_solve.stop(); 
 
+	LOG_FUNC_END
 }
 
 #endif
@@ -170,7 +182,7 @@ typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 
 template<>
 void DiagSolver<MinlinHostVector>::solve() {
-	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	this->timer_solve.start(); 
 
@@ -189,11 +201,13 @@ void DiagSolver<MinlinHostVector>::solve() {
 	this->timer_dot.stop(); 
 	
 	this->timer_solve.stop(); 
+
+	LOG_FUNC_END
 }
 
 template<>
 void DiagSolver<MinlinDeviceVector>::solve() {
-	if(this->setting.debug_mode >= 100) coutMaster << "(DiagSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	this->timer_solve.start(); 
 
@@ -212,6 +226,8 @@ void DiagSolver<MinlinDeviceVector>::solve() {
 	this->timer_dot.stop(); 
 
 	this->timer_solve.stop(); 
+
+	LOG_FUNC_END
 }
 
 #endif

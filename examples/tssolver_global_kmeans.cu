@@ -25,6 +25,7 @@ int main( int argc, char *argv[] )
 {
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
+	logging.begin();
 	
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
@@ -102,6 +103,7 @@ int main( int argc, char *argv[] )
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
 	
+	logging.end();
 	Finalize();
 
 	return 0;

@@ -25,8 +25,6 @@ extern int DEBUG_MODE;
 /* theta problem */
 #include "solver/multicg_global.h"
 #include "matrix/blockdiag.h"
-
-//#include "vector/localvector.h"
 #include "matrix/localdense.h"
 
 #include "data/tsdata_global.h"
@@ -34,9 +32,6 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-
-
-/* KMEANSH1MODEL_GLOBAL */ 
 class VarxH1FEMModel_Global: public TSModel_Global {
 	protected:
 		QPData<PetscVector> *gammadata; /**< QP with simplex */
@@ -93,7 +88,7 @@ namespace pascinference {
 
 /* constructor */
 VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_num, int *new_K, int *new_xmem, double *new_epssqr) {
-	if(DEBUG_MODE >= 100) coutMaster << "(VarxH1FEMModel_Global)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* set initial content */
 	this->T = new_T;
@@ -138,19 +133,23 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_nu
 	this->thetavectorlength_global = xdim*(Ksum + xdim*Kxmemsum); /* all(mu + A)  */
 	this->thetavectorlength_local = xdim * (1 + this->xdim*this->xmemlocal) * Klocal; /* xdim * (mu + A) * K */
 	
+	LOG_FUNC_END
 }
 
 /* destructor */
 VarxH1FEMModel_Global::~VarxH1FEMModel_Global(){
-	if(DEBUG_MODE >= 100) coutMaster << "(VarxH1FEMModel_Global)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 	
 	/* destroy auxiliary vectors */
 
+	LOG_FUNC_END
 }
 
 
 /* print info about model */
 void VarxH1FEMModel_Global::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -174,10 +173,14 @@ void VarxH1FEMModel_Global::print(ConsoleOutput &output) const {
 	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
 	
 	output.synchronize();	
+
+	LOG_FUNC_END
 }
 
 /* print info about model */
 void VarxH1FEMModel_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
 	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -218,10 +221,13 @@ void VarxH1FEMModel_Global::print(ConsoleOutput &output_global, ConsoleOutput &o
 
 	output_global.synchronize();
 
+	LOG_FUNC_END
 }
 
 /* print model solution */
 void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
 	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -280,6 +286,7 @@ void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleO
 	output_local.synchronize();
 	output_global.synchronize();
 
+	LOG_FUNC_END
 }
 
 /* get name of the model */
@@ -289,6 +296,8 @@ std::string VarxH1FEMModel_Global::get_name() const {
 
 /* prepare gamma solver */
 void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, const TSData_Global *tsdata){
+	LOG_FUNC_BEGIN
+
 	/* in this case, gamma problem is QP with simplex feasible set */
 	
 	/* create data */
@@ -298,9 +307,7 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-//	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->epssqr)); /* create new blockdiagonal matrix */
 	gammadata->set_A(new BlockDiagLaplaceVectorMatrix<PetscVector>(*gammadata->get_x0(),this->Klocal, this->T - this->xmemlocal,this->epssqrlocal*this->epssqrlocal)); /* create new blockdiagonal matrix */
-//	gammadata->set_A(new BlockDiagLaplaceExplicitMatrix<PetscVector>(*gammadata->get_x0(),this->K, this->epssqr)); /* create new blockdiagonal matrix */
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->T - this->xmemlocal,this->Klocal)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
@@ -312,13 +319,13 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	/* project random values to feasible set to be sure that initial approximation is feasible */
 	gammadata->get_feasibleset()->project(*gammadata->get_x0());
 
-	/* set default gammasolver (qpsolver) type */
-	// TODO: deprecated, decision tree implemented in QPSolver
-	//dynamic_cast<QPSolver<PetscVector> *>(*gammasolver)->setting.child_solvertype = SOLVER_SPGQP;
+	LOG_FUNC_END
 }
 
 /* prepare theta solver */
 void VarxH1FEMModel_Global::initialize_thetasolver(GeneralSolver **thetasolver, const TSData_Global *tsdata){
+	LOG_FUNC_BEGIN
+
 	/* in this case, theta problem is a sequence of unconstrained QP problems */
 
 	/* prepare array with matrices */
@@ -351,11 +358,13 @@ void VarxH1FEMModel_Global::initialize_thetasolver(GeneralSolver **thetasolver, 
 	/* create solver */
 	*thetasolver = new MultiCGSolver_Global(*thetadata);
 	
-	
+	LOG_FUNC_END
 }
 
 /* destroy gamma solver */
 void VarxH1FEMModel_Global::finalize_gammasolver(GeneralSolver **gammasolver, const TSData_Global *tsdata){
+	LOG_FUNC_BEGIN
+
 	/* I created this objects, I should destroy them */
 
 	/* destroy data */
@@ -367,16 +376,18 @@ void VarxH1FEMModel_Global::finalize_gammasolver(GeneralSolver **gammasolver, co
 	/* destroy solver */
 	free(*gammasolver);
 	
+	LOG_FUNC_END
 }
 
 /* destroy theta solver */
 void VarxH1FEMModel_Global::finalize_thetasolver(GeneralSolver **thetasolver, const TSData_Global *tsdata){
-	/* destroy blocks */
-
+	LOG_FUNC_BEGIN
+	
 	/* prepare pointer to child, I need to change pointer from general matrix to block diag (to be able to call get_block() ) */
 	BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *A = dynamic_cast<BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *>(thetadata->get_A());
 	LocalDenseMatrix<PetscVector> **blocks = A->get_blocks();
 
+	/* destroy blocks */
 	int k; /* through clusters, through dimensions */
 	for(k=0;k<this->Klocal;k++){ // TODO: parallel
 		/* if this is a first dimension, then destroy matrix */
@@ -392,6 +403,7 @@ void VarxH1FEMModel_Global::finalize_thetasolver(GeneralSolver **thetasolver, co
 	/* destroy solver */
 	free(*thetasolver);
 
+	LOG_FUNC_END
 }
 
 double VarxH1FEMModel_Global::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData_Global *tsdata){
@@ -409,6 +421,8 @@ QPData<PetscVector>* VarxH1FEMModel_Global::get_thetadata() const {
 }
 
 void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const TSData_Global *tsdata){
+	LOG_FUNC_BEGIN
+	
 	/* update gamma_solver data - prepare new linear term */
 
 	/* global data */
@@ -513,10 +527,13 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	TRY( VecRestoreArrayRead(M_global,&theta) );
 	TRY( VecRestoreArray(b_global,&b_local_arr) );	
 
+	LOG_FUNC_END
 }
 
 
 void VarxH1FEMModel_Global::scatter_xn(Vec &x_global, Vec &xn_local, int xdim, int n){
+	LOG_FUNC_BEGIN
+	
 	/* compute T */
 	int x_global_size;
 	TRY( VecGetSize(x_global,&x_global_size) );
@@ -537,10 +554,13 @@ void VarxH1FEMModel_Global::scatter_xn(Vec &x_global, Vec &xn_local, int xdim, i
 	TRY( ISDestroy(&xn_local_is) );
 	TRY( ISDestroy(&scatter_is_to) );
 
+	LOG_FUNC_END
 }
 
 /* update theta solver */
 void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const TSData_Global *tsdata){
+	LOG_FUNC_BEGIN
+	
 	/* update theta solver - prepare new BlockDiag matrix data and right-hand side vector */	
 
 	/* pointers to global data */
@@ -613,7 +633,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 
 	/* matrix */
 	for(xdim1 = 0; xdim1<xdim+1; xdim1++){
-//	for(xdim1 = 0; xdim1<1; xdim1++){
 		/* constant */
 		if(xdim1 == 0){
 			/* the first row is 1 */
@@ -635,7 +654,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 		TRY( PetscBarrier(NULL) );
 
 		for(xdim2 = 0; xdim2<xdim+1;xdim2++){
-//		for(xdim2 = 0; xdim2<1;xdim2++){
 
 			/* constant */
 			if(xdim2 == 0){
@@ -778,6 +796,7 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 		blocks[k*xdim]->assemble();
 	}
 
+	LOG_FUNC_END
 }
 
 

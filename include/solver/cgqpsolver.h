@@ -86,7 +86,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::CGQPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	qpdata = NULL;
 	
@@ -106,10 +106,14 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 	
 	/* function value */
 	this->fx = std::numeric_limits<double>::max();
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
+	LOG_FUNC_BEGIN
+
 	qpdata = &new_qpdata;
 	
 	/* allocate temp vectors */
@@ -124,43 +128,53 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
 	/* timers */
 
 	this->fx = std::numeric_limits<double>::max();
+
+	LOG_FUNC_END
 }
 
 
 /* destructor */
 template<class VectorBase>
 CGQPSolver<VectorBase>::~CGQPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* free temp vectors */
 	free_temp_vectors();
+
+	LOG_FUNC_END
 }
 
 /* prepare temp_vectors */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::allocate_temp_vectors(){
+	LOG_FUNC_BEGIN
+
 	GeneralVector<VectorBase> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
 
 	g = new GeneralVector<VectorBase>(*pattern);
 	p = new GeneralVector<VectorBase>(*pattern);
 	Ap = new GeneralVector<VectorBase>(*pattern);	
 	
+	LOG_FUNC_END
 }
 
 /* destroy temp_vectors */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::free_temp_vectors(){
+	LOG_FUNC_BEGIN
+
 	free(g);
 	free(p);
 	free(Ap);
 	
+	LOG_FUNC_END
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	
@@ -176,12 +190,13 @@ void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 /* print content of solver */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
 	
@@ -193,11 +208,12 @@ void CGQPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void CGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printstatus" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - it:          " << this->it_last << std::endl;
@@ -205,10 +221,13 @@ void CGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output <<  " - fx:          " << this->fx << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void CGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 /*	output <<  " - it all =       " << this->it_sum << std::endl;
 	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;
@@ -222,6 +241,8 @@ void CGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
 	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
 */
+
+	LOG_FUNC_END
 }
 
 
@@ -234,7 +255,7 @@ std::string CGQPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void CGQPSolver<VectorBase>::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
@@ -329,6 +350,7 @@ void CGQPSolver<VectorBase>::solve() {
 
 	this->fx = normg; /* fx = norm(g) */
 	
+	LOG_FUNC_END
 }
 
 template<class VectorBase>

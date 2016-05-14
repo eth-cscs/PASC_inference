@@ -79,11 +79,13 @@ std::string LocalDenseMatrix<VectorBase>::get_name() const {
 template<class VectorBase>
 void LocalDenseMatrix<VectorBase>::print(ConsoleOutput &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << "LocalDense matrix (rows = " << this->nmb_rows << ", nmb_cols = "<< this->nmb_cols << ")";
 	
 //	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_SELF) );
+
+	LOG_FUNC_END
 }
 
 /* -------------------------------- PETSC VECTOR -------------------------*/
@@ -95,6 +97,8 @@ void LocalDenseMatrix<VectorBase>::print(ConsoleOutput &output) const
 /* Petsc: constructor from given filename */
 template<>
 LocalDenseMatrix<PetscVector>::LocalDenseMatrix(std::string filename){
+	LOG_FUNC_BEGIN
+
 	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100){
 		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
@@ -121,15 +125,14 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(std::string filename){
 	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
 	
 	TRY( MatGetSize(A_petsc, &nmb_rows, &nmb_cols) );
+
+	LOG_FUNC_END
 }
 
 /* Petsc: constructor from given array of values and size */
 template<>
 LocalDenseMatrix<PetscVector>::LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from values" << std::endl;
-	}
+	LOG_FUNC_BEGIN
 
 	/* prepare matrix, values in column major order! */
 	TRY( MatCreateSeqDense(PETSC_COMM_SELF, nmb_rows, nmb_cols, values, &A_petsc) );
@@ -140,15 +143,14 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(double *values, int nmb_rows, in
 	
 	this->nmb_rows = nmb_rows;
 	this->nmb_cols = nmb_cols;
+
+	LOG_FUNC_END
 }
 
 /* Petsc: constructor from given size */
 template<>
 LocalDenseMatrix<PetscVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size" << std::endl;
-	}
+	LOG_FUNC_BEGIN
 
 	/* prepare matrix, values in column major order! */
 	TRY( MatCreateSeqDense(PETSC_COMM_SELF, nmb_rows, nmb_cols, NULL, &A_petsc) );
@@ -160,27 +162,31 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
 	this->nmb_rows = nmb_rows;
 	this->nmb_cols = nmb_cols;
 	
+	LOG_FUNC_END
 }
 
 /* Petsc: destructor - destroy the matrix */
 template<>
 LocalDenseMatrix<PetscVector>::~LocalDenseMatrix(){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
 		TRY( MatDestroy(&A_petsc) );
 	}
+
+	LOG_FUNC_END
 }
 
 /* Petsc: matrix-vector multiplication */
 template<>
 void LocalDenseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
+	LOG_FUNC_BEGIN
 
 	// TODO: maybe y is not initialized, who knows
 	
 	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
+
+	LOG_FUNC_END
 }
 
 /* Petsc: set value of matrix */
@@ -203,7 +209,7 @@ void LocalDenseMatrix<PetscVector>::add_value(int row, int col, double value) {
 
 template<>
 void LocalDenseMatrix<PetscVector>::assemble() { 
-	/* assembly matrix */ //TODO: is it necessary?
+	/* assembly matrix */ 
 	TRY( MatAssemblyBegin(A_petsc, MAT_FINAL_ASSEMBLY) );
 	TRY( MatAssemblyEnd(A_petsc, MAT_FINAL_ASSEMBLY) );
 }
@@ -211,7 +217,7 @@ void LocalDenseMatrix<PetscVector>::assemble() {
 template<>
 void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)OPERATOR: << print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	const double *values_row;
 	double value;
@@ -237,6 +243,7 @@ void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const
 
 	}
 
+	LOG_FUNC_END
 }
 
 #endif
@@ -247,6 +254,8 @@ void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const
 
 template<>
 LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(std::string filename){
+	LOG_FUNC_BEGIN
+
 	if(DEBUG_MODE >= 100){
 		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
 		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
@@ -284,15 +293,14 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(std::string filename){
 	
 	/* set new matrix */	
 	A_minlinhost = A_new;
+
+	LOG_FUNC_END
 }
 
 /* Minlin: constructor from given array of values and size */
 template<>
 LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(double *values, int nmb_rows, int nmb_cols){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from values" << std::endl;
-	}
+	LOG_FUNC_BEGIN
 
 	MinlinHostMatrix A_new(nmb_rows,nmb_cols);
 
@@ -309,46 +317,45 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(double *values, int nmb_row
 	this->nmb_rows = nmb_rows;
 	this->nmb_cols = nmb_cols;
 
+	LOG_FUNC_END
 }
 
 /* MinLin: constructor from given size */
 template<>
 LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size" << std::endl;
-	}
+	LOG_FUNC_BEGIN
 
 	MinlinHostMatrix A_new(nmb_rows,nmb_cols);
 	A_minlinhost = A_new;
 	
+	LOG_FUNC_END
 }
 
 /* MinLin: destructor - destroy the matrix */
 template<>
 LocalDenseMatrix<MinlinHostVector>::~LocalDenseMatrix(){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	// TODO: destroy minlin matrix
+
+	LOG_FUNC_END
 }
 
 /* Minlin: matrix-vector multiplication */
 template<>
 void LocalDenseMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
+	LOG_FUNC_BEGIN
 
 	y = A_minlinhost*x;	
 		
+	LOG_FUNC_END
 }
 
 /* MinLin: set value of matrix */
 template<>
 void LocalDenseMatrix<MinlinHostVector>::set_value(int row, int col, double value) { 
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
 
 	A_minlinhost(row,col) = value;	
-
 
 }
 
@@ -360,6 +367,8 @@ void LocalDenseMatrix<MinlinHostVector>::set_value(int row, int col, double valu
 
 template<>
 LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(std::string filename){
+	LOG_FUNC_BEGIN
+
 	if(DEBUG_MODE >= 100){
 		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
 		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
@@ -395,11 +404,15 @@ LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(std::string filename){
 	
 	/* set new matrix */	
 	A_minlindevice = A_new;
+
+	LOG_FUNC_END
 }
 
 /* MinLin: constructor from given size */
 template<>
 LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(int nmb_rows, int nmb_cols){
+	LOG_FUNC_BEGIN
+
 	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100){
 		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size" << std::endl;
@@ -411,24 +424,27 @@ LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(int nmb_rows, int nmb_col
 	this->nmb_rows = nmb_rows;
 	this->nmb_cols = nmb_cols;	
 		
+	LOG_FUNC_END
 }
 
 /* Minlin: destructor - destroy the matrix */
 template<>
 LocalDenseMatrix<MinlinDeviceVector>::~LocalDenseMatrix(){
-	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	// TODO: destroy minlin matrix
+
+	LOG_FUNC_END
 }
 
 /* MinLin: matrix-vector multiplication */
 template<>
 void LocalDenseMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const MinlinDeviceVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: matmult" << std::endl;
+	LOG_FUNC_BEGIN
 
 	y = A_minlindevice*x;	
-		
+
+	LOG_FUNC_END
 }
 
 /* MinLin: set value of matrix */
@@ -448,6 +464,7 @@ void LocalDenseMatrix<MinlinDeviceVector>::set_value(int row, int col, double va
 template<class VectorBase>
 template<class MatrixType>
 void LocalDenseMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &A){
+	LOG_FUNC_BEGIN
 
 	/* petsc binary file content: (http://www.mcs.anl.gov/petsc/petsc-dev/docs/manualpages/Mat/MatLoad.html)
 	 * int    MAT_FILE_CLASSID
@@ -504,7 +521,7 @@ void LocalDenseMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &
 		}
 	}
 
-
+	LOG_FUNC_END
 }
 
 template<class VectorBase>

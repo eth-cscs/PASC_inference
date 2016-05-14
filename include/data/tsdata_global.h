@@ -69,7 +69,7 @@ namespace pascinference {
 
 /* datavector is given */ //TODO: this is wrong
 TSData_Global::TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector){
-	if(DEBUG_MODE >= 100) coutMaster << "(TSData)CONSTRUCTOR model, datavector, gammavector, thetavector, u" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* set initial content */
 	this->tsmodel = &tsmodel;
@@ -87,11 +87,12 @@ TSData_Global::TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector>
 	this->thetavector = &thetavector;
 	destroy_thetavector = false;
 
+	LOG_FUNC_END
 }
 
 /* no datavector provided - prepare own data vector */
 TSData_Global::TSData_Global(TSModel_Global &tsmodel){
-	if(DEBUG_MODE >= 100) coutMaster << "(TSData_Global)CONSTRUCTOR model" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* set initial content */
 	this->tsmodel = &tsmodel;
@@ -118,11 +119,12 @@ TSData_Global::TSData_Global(TSModel_Global &tsmodel){
 	this->thetavector = new GeneralVector<PetscVector>(thetavector_Vec);
 	this->destroy_thetavector = true;
 
+	LOG_FUNC_END
 }
 
 /* destructor */
 TSData_Global::~TSData_Global(){
-	if(DEBUG_MODE >= 100) coutMaster << "(TSData_Global)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 	
 	/* if I created a datavector, then I should also be able to destroy it */
 	if(this->destroy_datavector){
@@ -137,11 +139,14 @@ TSData_Global::~TSData_Global(){
 		free(this->thetavector);
 	}
 
+	LOG_FUNC_END
 }
 
 
 /* print info about data */
 void TSData_Global::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -171,11 +176,13 @@ void TSData_Global::print(ConsoleOutput &output) const {
 	}
 
 	output.synchronize();
+
+	LOG_FUNC_END
 }
 
 /* print info about data */
 void TSData_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
-	output_global <<  this->get_name() << std::endl;
+	LOG_FUNC_BEGIN
 	
 	/* give information about presence of the data */
 	output_global <<  " - T:           " << this->get_T() << std::endl;
@@ -219,11 +226,15 @@ void TSData_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_lo
 	}
 
 	output_global.synchronize();
+
+	LOG_FUNC_END
 }
 
 
 /* print content of all data */
 void TSData_Global::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */
@@ -252,6 +263,8 @@ void TSData_Global::printcontent(ConsoleOutput &output_global,ConsoleOutput &out
 	output_local.synchronize();
 
 	output_global.synchronize();
+
+	LOG_FUNC_END
 }
 
 std::string TSData_Global::get_name() const {

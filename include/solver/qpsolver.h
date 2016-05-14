@@ -97,37 +97,43 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 QPSolver<VectorBase>::QPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 	
 	qpdata = NULL;
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
 	
 	fx = std::numeric_limits<double>::max();
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 QPSolver<VectorBase>::QPSolver(QPData<VectorBase> &new_qpdata){
-	qpdata = &new_qpdata;
+	LOG_FUNC_BEGIN
 
+	qpdata = &new_qpdata;
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
-	
 	fx = std::numeric_limits<double>::max();
+
+	LOG_FUNC_END
 }
 
 /* destructor */
 template<class VectorBase>
 QPSolver<VectorBase>::~QPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* destroy child solver */
 	free(child_solver);
+
+	LOG_FUNC_END
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void QPSolver<VectorBase>::print(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	
@@ -147,11 +153,13 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	if(child_solver){
 		child_solver->print(output);
 	}	
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void QPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
 	
@@ -173,12 +181,14 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 		child_solver->print(output_global, output_local);
 		output_global.pop();
 	}	
+
+	LOG_FUNC_END
 }
 
 /* print content of solver */
 template<class VectorBase>
 void QPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(CGQPSolver)FUNCTION: printcontent" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
 	
@@ -190,26 +200,35 @@ void QPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 /* print status */
 template<class VectorBase>
 void QPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	if(child_solver){
 		child_solver->printstatus(output);
 	} else {
 		output << this->get_name() << ": status" << std::endl;
 	}
+
+	LOG_FUNC_END
 }
 
 /* print timer */
 template<class VectorBase>
 void QPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	if(child_solver){
 		child_solver->printtimer(output);
 	} else {
 		output << this->get_name() << ": timer" << std::endl;
 	}
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
@@ -220,7 +239,7 @@ std::string QPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void QPSolver<VectorBase>::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* the child solver wasn't specified yet */
 	if(!child_solver){
@@ -257,6 +276,7 @@ void QPSolver<VectorBase>::solve() {
 	/* call solve function to child solver */
 	child_solver->solve();
 	
+	LOG_FUNC_END
 }
 
 template<class VectorBase>

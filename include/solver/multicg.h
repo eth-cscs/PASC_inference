@@ -78,7 +78,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 MultiCGSolver<VectorBase>::MultiCGSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	qpdata = NULL;
 	
@@ -86,30 +86,35 @@ MultiCGSolver<VectorBase>::MultiCGSolver(){
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
 
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 MultiCGSolver<VectorBase>::MultiCGSolver(const QPData<VectorBase> &new_qpdata){
+	LOG_FUNC_BEGIN
+
 	qpdata = &new_qpdata;
 
 	this->fx = -1; /* max(norm(g)) */
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
 
+	LOG_FUNC_END
 }
 
 
 /* destructor */
 template<class VectorBase>
 MultiCGSolver<VectorBase>::~MultiCGSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
+	LOG_FUNC_END
 }
 
 /* print info about problem */
 template<class VectorBase>
 void MultiCGSolver<VectorBase>::print(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
 	
@@ -126,11 +131,12 @@ void MultiCGSolver<VectorBase>::print(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void MultiCGSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: printstatus" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - max(it):       " << this->it_last << std::endl;
@@ -138,12 +144,13 @@ void MultiCGSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output <<  " - max(norm(g)):  " << this->fx << std::endl;	
 	output <<  " - used memory:   " << MemoryCheck::get_virtual() << "%" << std::endl;
 
+	LOG_FUNC_END
 }
 
 /* print content of solver */
 template<class VectorBase>
 void MultiCGSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: printcontent" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
 	
@@ -155,6 +162,7 @@ void MultiCGSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
@@ -166,7 +174,7 @@ std::string MultiCGSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void MultiCGSolver<VectorBase>::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* for each block prepare CG solver and solve the problem */
 	CGQPSolver<VectorBase> *cgsolver; /* cg solver for one block */
@@ -209,7 +217,7 @@ void MultiCGSolver<VectorBase>::solve() {
 		/* copy settings */
 		
 		/* solve this subproblem */
-//		cgsolver->solve();
+		cgsolver->solve();
 
 		/* update iteration counter */
 		if(cgsolver->get_fx() > this->fx) this->fx = cgsolver->get_fx();
@@ -224,8 +232,7 @@ void MultiCGSolver<VectorBase>::solve() {
 		// TODO: deal with iteration counters (max?)
 	}
 
-
-	
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
@@ -253,7 +260,7 @@ typedef petscvector::PetscVector PetscVector;
 /* solve the problem */
 template<>
 void MultiCGSolver<PetscVector>::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* for each block prepare CG solver and solve the problem */
 	CGQPSolver<PetscVector> *cgsolver; /* cg solver for one block */
@@ -336,8 +343,7 @@ void MultiCGSolver<PetscVector>::solve() {
 		// TODO: deal with iteration counters (max?)
 	}
 
-
-	
+	LOG_FUNC_END
 }
 
 #endif

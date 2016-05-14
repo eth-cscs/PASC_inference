@@ -115,26 +115,30 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 DiagData<VectorBase>::DiagData(){
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagData)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* set initial content */
 	this->a = NULL;
 	this->b = NULL;
 	this->x = NULL;
 
+	LOG_FUNC_END
 }
 
 /* destructor */
 template<class VectorBase>
 DiagData<VectorBase>::~DiagData(){
-	if(DEBUG_MODE >= 100) coutMaster << "(DiagData)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 	
+	LOG_FUNC_END
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void DiagData<VectorBase>::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -157,10 +161,13 @@ void DiagData<VectorBase>::print(ConsoleOutput &output) const {
 		output << "not set" << std::endl;
 	}
 		
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void DiagData<VectorBase>::printcontent(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -182,6 +189,8 @@ void DiagData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	} else {
 		output << "not set" << std::endl;
 	}
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>

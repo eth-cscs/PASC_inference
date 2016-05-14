@@ -140,7 +140,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 SPGQPSolver<VectorBase>::SPGQPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	qpdata = NULL;
 	
@@ -167,10 +167,13 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	this->timer_stepsize.restart();
 	this->timer_fs.restart();
 	
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
+	LOG_FUNC_BEGIN
+
 	qpdata = &new_qpdata;
 	
 	/* allocate temp vectors */
@@ -193,21 +196,26 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 	this->timer_fs.restart();
 	this->timer_solve.restart();	
 
+	LOG_FUNC_END
 }
 
 
 /* destructor */
 template<class VectorBase>
 SPGQPSolver<VectorBase>::~SPGQPSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* free temp vectors */
 	free_temp_vectors();
+
+	LOG_FUNC_END
 }
 
 /* prepare temp_vectors */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
+	LOG_FUNC_BEGIN
+
 	GeneralVector<VectorBase> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
 
 	g = new GeneralVector<VectorBase>(*pattern);
@@ -215,23 +223,27 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	Ad = new GeneralVector<VectorBase>(*pattern);	
 	temp = new GeneralVector<VectorBase>(*pattern);	
 	
+	LOG_FUNC_END
 }
 
 /* destroy temp_vectors */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::free_temp_vectors(){
+	LOG_FUNC_BEGIN
+
 	free(g);
 	free(d);
 	free(Ad);
 	free(temp);
 	
+	LOG_FUNC_END
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	
@@ -248,11 +260,13 @@ void SPGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	}
 
 	output.synchronize();
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  " - it: " << std::setw(6) << this->it_last << ", ";
 	output <<  "hess mult: " << std::setw(6) << this->hessmult_last << ", ";
@@ -270,10 +284,13 @@ void SPGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 //	output <<  "t_fs = " << std::setw(10) << this->timer_fs.get_value_last() << ", ";
 	output <<  "t_other = " << std::setw(10) << this->timer_solve.get_value_last() - (this->timer_projection.get_value_last() + this->timer_matmult.get_value_last() + this->timer_dot.get_value_last() + this->timer_update.get_value_last() + this->timer_stepsize.get_value_last() + this->timer_fs.get_value_last()) << std::endl;
 
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	output <<  " - it all =       " << this->it_sum << std::endl;
 	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;
@@ -286,6 +303,8 @@ void SPGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
 	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
 	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
+
+	LOG_FUNC_END
 }
 
 
@@ -297,7 +316,7 @@ std::string SPGQPSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
@@ -488,13 +507,13 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	}
 
-	
+	LOG_FUNC_END
 }
 
 /* compute function value using inner *x and already computed *g */
 template<class VectorBase>
 double SPGQPSolver<VectorBase>::get_fx() const {
-	if(setting.debug_mode >= 11) coutMaster << "(SPGQPSolver)FUNCTION: get_fx()" << std::endl;
+	LOG_FUNC_BEGIN
 	
 	double fx = std::numeric_limits<double>::max();
 
@@ -511,6 +530,7 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 	temp = g - b;
 	fx = 0.5*dot(temp,x);
 
+	LOG_FUNC_END
 	return fx;	
 }
 

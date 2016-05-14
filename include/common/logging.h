@@ -1,5 +1,5 @@
-#ifndef PASC_COMMON_LOG_H
-#define	PASC_COMMON_LOG_H
+#ifndef PASC_COMMON_LOGGING_H
+#define	PASC_COMMON_LOGGING_H
 
 #include "common/globalmanager.h"
 #include <fstream>
@@ -11,8 +11,9 @@
 namespace pascinference {
 
 
-class _logClass {
+class LoggingClass {
 	private:
+		std::string filename;
 		std::ofstream myfile;
 		bool log_or_not;
 		bool log_or_not_file;
@@ -24,12 +25,41 @@ class _logClass {
 			if(clock_gettime(CLOCK_REALTIME, &tv) != 0) return 0;
 			return (((double) tv.tv_sec) + (double) (tv.tv_nsec / 1000000000.0));
 		}
+		
+		void openfile(){
+			myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+		}
+		
+		void closefile(){
+			myfile.close();
+		}
 
 	public:
-		_logClass(){
+		LoggingClass(){
+			log_or_not = false;
+		};
+
+		~LoggingClass(){
+	
+		};
+
+		void on(){
+			log_or_not = true;
+		};
+	
+		void off(){
+			log_or_not = false;
+		};
+		
+		bool get_log_or_not(){
+			return log_or_not;
+		};
+
+		void begin(){
 			std::ostringstream oss_name_of_file;
 			oss_name_of_file << "log_p" << GlobalManager.get_rank() << ".txt";
-			myfile.open(oss_name_of_file.str().c_str());
+			filename = oss_name_of_file.str();
+			myfile.open(filename.c_str());
 
 			log_or_not = true;
 			log_or_not_file = false; // TODO: this could be turned on
@@ -44,50 +74,47 @@ class _logClass {
 			myfile << "LOG_OPEN" << LOG_SEPARATOR;
 			myfile << "filename=" << oss_name_of_file.str() << ",start time=" << reference_time;
 			myfile << "\n";
-		};
-
-		~_logClass(){
-			myfile.close();
-		}
-
-		void on(){
-			log_or_not = true;
-		};
-	
-		void off(){
-			log_or_not = false;
+			closefile();			
 		};
 		
-		bool get_log_or_not(){
-			return log_or_not;
+		void end(){
+			log_or_not = false;
 		};
 
 		void begin_func(std::string name_class,std::string name_function, std::string file, int line){
-			myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
-			if(log_or_not_file){
-				myfile << file << LOG_SEPARATOR;
-				myfile << line << LOG_SEPARATOR;
+			if(log_or_not){
+				openfile();
+				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
+				if(log_or_not_file){
+					myfile << file << LOG_SEPARATOR;
+					myfile << line << LOG_SEPARATOR;
+				}
+				myfile << "FUNC_BEGIN" << LOG_SEPARATOR;
+				myfile << name_class << "::" << name_function;
+				myfile << "\n";
+				closefile();			
 			}
-			myfile << "FUNC_BEGIN" << LOG_SEPARATOR;
-			myfile << name_class << "." << name_function;
-			myfile << "\n";
 		};
 		
 		void end_func(std::string name_class,std::string name_function, std::string file, int line){
-			myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
-			if(log_or_not_file){
-				myfile << file << LOG_SEPARATOR;
-				myfile << line << LOG_SEPARATOR;
+			if(log_or_not){
+				openfile();
+				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
+				if(log_or_not_file){
+					myfile << file << LOG_SEPARATOR;
+					myfile << line << LOG_SEPARATOR;
+				}
+				myfile << "FUNC_END" << LOG_SEPARATOR;
+				myfile << name_class << "::" << name_function;
+				myfile << "\n";
+				closefile();
 			}
-			myfile << "FUNC_END" << LOG_SEPARATOR;
-			myfile << name_class << "." << name_function;
-			myfile << "\n";
 		};
 		
 	
 };
 
-_logClass logging;
+LoggingClass logging;
 
 
 }

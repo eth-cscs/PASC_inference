@@ -117,7 +117,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 QPData<VectorBase>::QPData(){
-	if(DEBUG_MODE >= 100) coutMaster << "(QPData)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* set initial content */
 	this->A = NULL;
@@ -126,19 +126,23 @@ QPData<VectorBase>::QPData(){
 	this->x = NULL;
 	this->feasibleset = NULL;
 
+	LOG_FUNC_END
 }
 
 /* destructor */
 template<class VectorBase>
 QPData<VectorBase>::~QPData(){
-	if(DEBUG_MODE >= 100) coutMaster << "(QPData)DESTRUCTOR" << std::endl;
-	
+	LOG_FUNC_BEGIN
+
+	LOG_FUNC_END
 }
 
 
 /* print info about problem */
 template<class VectorBase>
 void QPData<VectorBase>::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -173,10 +177,13 @@ void QPData<VectorBase>::print(ConsoleOutput &output) const {
 		output << "not set" << std::endl;
 	}
 		
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void QPData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
 	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -236,10 +243,14 @@ void QPData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outp
 	}
 		
 	output_global.synchronize();
+
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void QPData<VectorBase>::printcontent(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
@@ -274,6 +285,7 @@ void QPData<VectorBase>::printcontent(ConsoleOutput &output) const {
 		output << "not set" << std::endl;
 	}
 		
+	LOG_FUNC_END
 }
 
 template<class VectorBase>

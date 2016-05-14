@@ -94,28 +94,33 @@ namespace pascinference {
 
 /* constructor */
 SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int Tnew, int Knew){
-	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet_Local)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* set initial content */
 	this->T = Tnew;
 	this->K_local = Knew;
 
+	LOG_FUNC_END
 }
 
 /* general destructor */
 SimplexFeasibleSet_Local::~SimplexFeasibleSet_Local(){
-	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet_Local)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 	
+	LOG_FUNC_END	
 }
 
 /* print info about feasible set */
 void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+	
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output <<  " - T:       " << T << std::endl;
 	output <<  " - K_local: " << K_local << std::endl;
-		
+
+	LOG_FUNC_END
 }
 
 std::string SimplexFeasibleSet_Local::get_name() const {
@@ -125,8 +130,8 @@ std::string SimplexFeasibleSet_Local::get_name() const {
 
 
 void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
-	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet_Local)FUNCTION: project" << std::endl;
-
+	LOG_FUNC_BEGIN
+	
 	int t,k;
 	double x_sub[K_local];  /* GammaVector x_sub(K); */
 
@@ -152,13 +157,15 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 
 	TRY( VecRestoreArray(x.get_vector(),&x_arr) );
 
-
+	LOG_FUNC_END
 }
 
 
 /* project x_sub to feasible set defined by equality and inequality constraints
  * sum(x_sub) = 1
  * x_sub >= 0
+ * 
+ * NEVER LOG THIS FUNCTION! (lots of calls)
  */
 void SimplexFeasibleSet_Local::get_projection_sub(double *x_sub, int n){
 	int i;

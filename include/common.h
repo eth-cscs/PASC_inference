@@ -20,13 +20,14 @@
 #include "sys/sysinfo.h"
 #include <iostream>
 #include <iomanip> /* setw - formated cout output */
+#include <typeinfo> 
 
 #include "common/timer.h"
 #include "common/memorycheck.h"
 #include "common/globalmanager.h"
 #include "common/consoleoutput.h"
 #include "common/arrayoperation.h"
-#include "common/log.h"
+#include "common/logging.h"
 
 
 namespace pascinference {

@@ -96,6 +96,8 @@ namespace pascinference {
 
 /* constructor */
 MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata){
+	LOG_FUNC_BEGIN
+
 	qpdata = &new_qpdata;
 
 	this->fx = -1; /* max(norm(g)) */
@@ -131,33 +133,43 @@ MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata
 	/* create new instance of local solver */
 	solver_local = new MultiCGSolver<PetscVector>(*data_local);
 
+	LOG_FUNC_END
 }
 
 
 /* destructor */
 MultiCGSolver_Global::~MultiCGSolver_Global(){
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	free(this->data_local);
 	free(this->solver_local);
 	
+	LOG_FUNC_END
 }
 
 void MultiCGSolver_Global::GetLocalData(){
+	LOG_FUNC_BEGIN
+
 	TRY( VecGetLocalVector(qpdata->get_x()->get_vector(),data_local->get_x()->get_vector()) );
 	TRY( VecGetLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
 	TRY( VecGetLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
+
+	LOG_FUNC_END
 }
 
 void MultiCGSolver_Global::RestoreLocalData(){
+	LOG_FUNC_BEGIN
+
 	TRY( VecRestoreLocalVector(qpdata->get_x()->get_vector(),data_local->get_x()->get_vector()) );
 	TRY( VecRestoreLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
 	TRY( VecRestoreLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
+
+	LOG_FUNC_END
 }
 
 /* print info about problem */
 void MultiCGSolver_Global::print(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
 	
@@ -174,11 +186,12 @@ void MultiCGSolver_Global::print(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 /* print info about problem */
 void MultiCGSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: print" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
 	
@@ -195,21 +208,23 @@ void MultiCGSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &ou
 		output_global.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 void MultiCGSolver_Global::printstatus(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: printstatus" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  " - max(it): " << std::setw(6) << this->it_last << ", ";
 	output <<  "max(hessmult): " << std::setw(6) << this->hessmult_last << ", ";
 	output <<  "max(norm(g)): " << std::setw(10) << this->fx << ", ";
 	output <<  "used memory: " << std::setw(6) << MemoryCheck::get_virtual() << "%" << std::endl;
 
+	LOG_FUNC_END
 }
 
 /* print content of solver */
 void MultiCGSolver_Global::printcontent(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: printcontent" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
 	
@@ -221,6 +236,7 @@ void MultiCGSolver_Global::printcontent(ConsoleOutput &output) const {
 		coutMaster.pop();
 	}
 		
+	LOG_FUNC_END
 }
 
 std::string MultiCGSolver_Global::get_name() const {
@@ -244,7 +260,7 @@ int MultiCGSolver_Global::get_hessmult() const {
 
 /* solve with Petscvector on every processor */
 void MultiCGSolver_Global::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(MultiCGSolver_Global)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* for each block prepare CG solver and solve the problem */
 
@@ -260,6 +276,7 @@ void MultiCGSolver_Global::solve() {
 	/* destroy local storage */
 	RestoreLocalData();	
 
+	LOG_FUNC_END
 }
 
 

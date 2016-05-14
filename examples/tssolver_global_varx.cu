@@ -38,7 +38,8 @@ int main( int argc, char *argv[] )
 {
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
-	
+	logging.begin();
+		
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
@@ -157,7 +158,8 @@ int main( int argc, char *argv[] )
 //	coutMaster.pop();
 	
 //	mymodel.printsolution(coutMaster,coutAll);
-	
+
+	logging.end();
 	Finalize();
 
 	return 0;

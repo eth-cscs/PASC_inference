@@ -109,7 +109,7 @@ namespace pascinference {
 
 /* constructor */
 TSSolver_Global::TSSolver_Global(){
-	if(setting.debug_mode >= 100) coutMaster << "(TSSolver_Global)CONSTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 	
 	tsdata = NULL;
 	model = NULL;
@@ -127,9 +127,12 @@ TSSolver_Global::TSSolver_Global(){
 	this->timer_gamma_update.restart();
 	this->timer_theta_update.restart();
 
+	LOG_FUNC_END
 }
 
 TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
+	LOG_FUNC_BEGIN
+
 	tsdata = &new_tsdata;
 	model = tsdata->get_model(); 
 
@@ -147,11 +150,13 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	this->timer_theta_solve.restart();
 	this->timer_gamma_update.restart();
 	this->timer_theta_update.restart();
+
+	LOG_FUNC_END
 }
 
 /* destructor */
 TSSolver_Global::~TSSolver_Global(){
-	if(setting.debug_mode >= 100) coutMaster << "(TSSolver_Global)DESTRUCTOR" << std::endl;
+	LOG_FUNC_BEGIN
 
 	/* destroy child solvers - based on model */
 	if(gammasolver){
@@ -161,11 +166,13 @@ TSSolver_Global::~TSSolver_Global(){
 		model->finalize_thetasolver(&thetasolver, tsdata);	
 	}
 	
+	LOG_FUNC_END
 }
 
 
 /* print info about problem */
 void TSSolver_Global::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 
@@ -199,10 +206,12 @@ void TSSolver_Global::print(ConsoleOutput &output) const {
 		output <<  " - not set" << std::endl;
 	}
 	
+	LOG_FUNC_END
 }
 
 /* print info about problem */
 void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
 
@@ -238,20 +247,25 @@ void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	
 	output_local.synchronize();
 	output_global.synchronize();
+
+	LOG_FUNC_END
 }
 
 
 void TSSolver_Global::printstatus(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - it:          " << this->it_last << std::endl;
 	output <<  " - L:           " << this->L << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 	
+	LOG_FUNC_END
 }
 
 void TSSolver_Global::printtimer(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
 	output <<  this->get_name() << std::endl;
 	output <<  " - it all =          " << this->it_sum << std::endl;
 	output <<  " - timers" << std::endl;
@@ -279,6 +293,7 @@ void TSSolver_Global::printtimer(ConsoleOutput &output) const {
 		output << " - not set" << std::endl;
 	}
 
+	LOG_FUNC_END
 }
 
 
@@ -288,7 +303,7 @@ std::string TSSolver_Global::get_name() const {
 
 /* solve the problem */
 void TSSolver_Global::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(TSSolver_Global)FUNCTION: solve" << std::endl;
+	LOG_FUNC_BEGIN
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
@@ -472,6 +487,7 @@ void TSSolver_Global::solve() {
 
 	this->timer_solve.stop(); /* stop this timer in the end of solution */
 	
+	LOG_FUNC_END
 }
 
 TSData_Global *TSSolver_Global::get_data() const {
