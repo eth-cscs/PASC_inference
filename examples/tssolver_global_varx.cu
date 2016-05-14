@@ -38,7 +38,11 @@ int main( int argc, char *argv[] )
 {
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
-	logging.begin();
+
+	/* start logging */
+	std::ostringstream oss_name_of_file_log;
+	oss_name_of_file_log << "results/log_p" << GlobalManager.get_rank() << ".txt";
+	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
@@ -143,9 +147,9 @@ int main( int argc, char *argv[] )
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
 	int rank = GlobalManager.get_rank();
-	std::ostringstream oss_name_of_file;
-	oss_name_of_file << "varx_" << "_p" << rank << "_K" << K[rank] << "_xmem" << xmem[rank] << "_epssqr" << epssqr[rank] << ".csv";
-	example::VarX::saveCSV(oss_name_of_file.str(),T,xdim,xmem,K,mydata.get_datavector(),mydata.get_gammavector(),mydata.get_thetavector());
+	std::ostringstream oss_name_of_file_csv;
+	oss_name_of_file_csv << "results/varx_" << "_p" << rank << "_K" << K[rank] << "_xmem" << xmem[rank] << "_epssqr" << epssqr[rank] << ".csv";
+	example::VarX::saveCSV(oss_name_of_file_csv.str(),T,xdim,xmem,K,mydata.get_datavector(),mydata.get_gammavector(),mydata.get_thetavector());
 
 //	mysolver.printtimer(coutAll);
 //	coutAll.synchronize();

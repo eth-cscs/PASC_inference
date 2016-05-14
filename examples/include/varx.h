@@ -71,6 +71,8 @@ namespace pascinference {
 #ifdef USE_PETSCVECTOR		
 		template<>
 		void VarX::set_solution_gamma(int T, int xdim, int K, int xmem, int (*get_cluster_id)(int, int), GeneralVector<PetscVector> *gammavector){
+			LOG_FUNC_STATIC_BEGIN
+			
 			double *gammavector_arr;
 			int k,t;
 			
@@ -84,10 +86,13 @@ namespace pascinference {
 
 			TRY( VecRestoreArray(gammavector->get_vector(),&gammavector_arr) );
 			
+			LOG_FUNC_STATIC_END
 		}		
 
 		template<>
 		void VarX::set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<PetscVector> *thetavector){
+			LOG_FUNC_STATIC_BEGIN
+
 			double *thetavector_arr;
 			int i;
 			
@@ -100,10 +105,12 @@ namespace pascinference {
 
 			TRY( VecRestoreArray(thetavector->get_vector(),&thetavector_arr) );
 			
+			LOG_FUNC_STATIC_END
 		}		
 
 		template<>
 		void VarX::generate(int T, int xdim, int K, int xmem, double *theta, double *xstart, int (*get_cluster_id)(int, int), GeneralVector<PetscVector> *datavector_in, double noise, bool scale_or_not) {
+			LOG_FUNC_STATIC_BEGIN
 			
 			/* size of input */
 			int theta_size = K*xdim*(1 + xdim*xmem); 
@@ -213,10 +220,13 @@ namespace pascinference {
 				coutAll.synchronize();
 			}
 
+			LOG_FUNC_STATIC_END
 		}
 		
 		template<>
 		void VarX::saveCSV(std::string name_of_file, int T, int xdim, int *xmem_arr, int *K_arr, GeneralVector<PetscVector> *datavector, GeneralVector<PetscVector> *gammavector, GeneralVector<PetscVector> *thetavector){
+			LOG_FUNC_STATIC_BEGIN
+
 			Timer timer_saveCSV; 
 			timer_saveCSV.restart();
 			timer_saveCSV.start();
@@ -379,6 +389,8 @@ namespace pascinference {
 			timer_saveCSV.stop();
 			coutAll <<  " - problem saved to CSV in: " << timer_saveCSV.get_value_sum() << std::endl;
 			coutAll.synchronize();
+
+			LOG_FUNC_STATIC_END
 		}
 #endif
 		

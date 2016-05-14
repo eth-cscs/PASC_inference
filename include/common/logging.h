@@ -5,8 +5,12 @@
 #include <fstream>
 
 #define LOG_SEPARATOR "|"
+
 #define LOG_FUNC_BEGIN logging.begin_func(typeid(this).name(),__FUNCTION__,__FILE__,__LINE__);
 #define LOG_FUNC_END logging.end_func(typeid(this).name(),__FUNCTION__,__FILE__,__LINE__);
+
+#define LOG_FUNC_STATIC_BEGIN logging.begin_func("static",__FUNCTION__,__FILE__,__LINE__);
+#define LOG_FUNC_STATIC_END logging.end_func("static",__FUNCTION__,__FILE__,__LINE__);
 
 namespace pascinference {
 
@@ -55,10 +59,8 @@ class LoggingClass {
 			return log_or_not;
 		};
 
-		void begin(){
-			std::ostringstream oss_name_of_file;
-			oss_name_of_file << "log_p" << GlobalManager.get_rank() << ".txt";
-			filename = oss_name_of_file.str();
+		void begin(std::string new_filename){
+			filename = new_filename;
 			myfile.open(filename.c_str());
 
 			log_or_not = true;
@@ -72,12 +74,24 @@ class LoggingClass {
 				myfile << __LINE__ << LOG_SEPARATOR;
 			}
 			myfile << "LOG_OPEN" << LOG_SEPARATOR;
-			myfile << "filename=" << oss_name_of_file.str() << ",start time=" << reference_time;
+			myfile << "filename=" << filename << ",start time=" << reference_time;
 			myfile << "\n";
 			closefile();			
 		};
 		
 		void end(){
+			if(log_or_not){
+				openfile();
+				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
+				if(log_or_not_file){
+					myfile << __FILE__ << LOG_SEPARATOR;
+					myfile << __LINE__ << LOG_SEPARATOR;
+				}
+				myfile << "LOG_CLOSE" << LOG_SEPARATOR;
+				myfile << "filename=" << filename;
+				myfile << "\n";
+				closefile();			
+			}
 			log_or_not = false;
 		};
 

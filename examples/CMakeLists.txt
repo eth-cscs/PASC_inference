@@ -47,6 +47,8 @@ include(load_pascinference) # PascInference
 # print information about settings
 include(printsetting)
 
+# prepare directories
+make_directory("results")
 
 # add example executable files
 if(${TSSOLVER_GLOBAL_KMEANS})
