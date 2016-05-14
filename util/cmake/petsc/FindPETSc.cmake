@@ -325,7 +325,7 @@ endif (false)
   mark_as_advanced (PETSC_INCLUDES PETSC_LIBRARIES PETSC_COMPILER PETSC_DEFINITIONS PETSC_MPIEXEC PETSC_EXECUTABLE_RUNS)
 endif ()
 
-#include (FindPackageHandleStandardArgs)
-#find_package_handle_standard_args (PETSc
- # "PETSc could not be found.  Be sure to set PETSC_DIR and PETSC_ARCH."
- # PETSC_INCLUDES PETSC_LIBRARIES PETSC_EXECUTABLE_RUNS)
+include (FindPackageHandleStandardArgs)
+find_package_handle_standard_args (PETSc
+  "PETSc could not be found.  Be sure to set PETSC_DIR and PETSC_ARCH."
+  PETSC_INCLUDES PETSC_LIBRARIES PETSC_EXECUTABLE_RUNS)
