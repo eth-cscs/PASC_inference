@@ -11,8 +11,6 @@
 #include "data/tsdata_global.h"
 #include "model/varxh1fem_global.h"
 
-#include "varx.h"
-
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
 #endif
@@ -111,7 +109,8 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	example::VarX::generate(T, xdim, solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, mydata.get_datavector(), 10.1, false);
+	mymodel.generate_data(solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, &mydata, 10.1, false);
+
 //	coutMaster.push();
 //	mydata.printcontent(coutMaster,coutAll);
 //	coutMaster.pop();

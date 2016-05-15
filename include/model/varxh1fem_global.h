@@ -60,7 +60,9 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		Vec xn1_vec;  /* scattered xn_global to each processor */
 		Vec xn2_vec;
 		Vec xn2subgammak_vec; /* vector with xn1sub.*gammak_vecs */
-			
+
+		void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
+		
 	public:
 		VarxH1FEMModel_Global(int T, int xdim, int num, int *K, int *xmem, double *epssqr);
 		~VarxH1FEMModel_Global();
@@ -81,13 +83,12 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		void update_gammasolver(GeneralSolver *gamma_solver, const TSData_Global *tsdata);
 		void update_thetasolver(GeneralSolver *theta_solver, const TSData_Global *tsdata);
 	
-		void generate_data(TSData_Global *tsdata);
-
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData_Global *tsdata);
 
 		QPData<PetscVector> *get_gammadata() const;
 		QPData<PetscVector> *get_thetadata() const;
 
+		void generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, double noise, bool scale_or_not);
 		void saveCSV(std::string name_of_file, const TSData_Global *tsdata);
 
 //		static void set_solution_gamma(int T, int xdim, int K, int xmem, int (*get_cluster_id)(int, int), GeneralVector<VectorBase> *gammavector);
@@ -983,6 +984,146 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 	LOG_FUNC_STATIC_END
 }
 
+
+void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, double noise, bool scale_or_not){
+	LOG_FUNC_STATIC_BEGIN
+			
+	/* size of input */
+	int theta_size = K_solution*xdim*(1 + xdim*xmem_solution); 
+	int xstart_size = xdim*xmem_solution;
+
+	int nproc = GlobalManager.get_size();
+	int my_rank = GlobalManager.get_rank();
+
+	/* get ownership range */
+	int t_begin, t_end, t_length; 
+	TRY( VecGetOwnershipRange(tsdata->get_datavector()->get_vector(), &t_begin, &t_end) );
+	t_begin = ((double)t_begin)/((double)xdim);
+	t_end = ((double)t_end)/((double)xdim);			
+	t_length = t_end - t_begin;
+			
+	/* scattering the tails */
+	VecScatter ctx; /* for scattering xn_global to xn_local */
+	IS scatter_is;
+	IS scatter_is_to;
+	TRY( ISCreateStride(PETSC_COMM_SELF, xstart_size, 0, 1, &scatter_is_to) );
+			
+	Vec xtail_global;
+		TRY( VecCreate(PETSC_COMM_WORLD,&xtail_global) );
+		TRY( VecSetSizes(xtail_global,xstart_size, PETSC_DECIDE) );
+		TRY( VecSetFromOptions(xtail_global) );
+	Vec xtail_local;
+		TRY( VecCreateSeq(PETSC_COMM_SELF, xstart_size, &xtail_local) );
+	double *xtail_arr;
+
+	/* get local data array */
+	double *x_arr;
+	TRY( VecGetArray(tsdata->get_datavector()->get_vector(),&x_arr) );
+
+	/* I suppose that t_length >= xmem */
+	int rank, t, n, k;
+	for(rank = 0; rank < nproc; rank++){ /* through processors - this is sequential */
+		/* xstart */
+		if(rank == my_rank){
+			/* the start */
+			for(t = 0; t < xmem_solution; t++){
+				if(rank == 0){
+					/* given start */
+					for(n = 0; n < xdim; n++){
+						x_arr[t*xdim+n] = xstart[t*xdim+n];
+					}	
+				} else {
+					/* compute start from obtained tail from previous rank */
+					TRY( VecGetArray(xtail_local,&xtail_arr) );
+					for(t = 0; t < xstart_size;t++){
+						x_arr[t] = xtail_arr[t];
+					}
+					TRY( VecRestoreArray(xtail_global,&xtail_arr) );
+				}
+			}
+					
+			for(t = xmem_solution; t < t_length; t++){ /* through local time */
+				k = (*get_cluster_id)(t_begin + t, T);
+				compute_next_step(x_arr, t, x_arr, t, xdim, xmem_solution, theta, k);
+
+			}
+		}
+
+		/* fill the tail vector */
+		TRY( VecGetArray(xtail_global,&xtail_arr) );
+		for(t = 0; t < xstart_size;t++){
+			xtail_arr[t] = x_arr[(t_length-xmem_solution)*xdim+t];
+		}
+		TRY( VecRestoreArray(xtail_global,&xtail_arr) );
+
+		/* now tails are stored in global vector, scatter them to local vector */
+		TRY( ISCreateStride(PETSC_COMM_WORLD, xstart_size, rank*xstart_size, 1, &scatter_is) );
+
+		/* scatter xtail_global to xtail_local */
+		TRY( VecScatterCreate(xtail_global,scatter_is,xtail_local,scatter_is_to,&ctx) );
+		TRY( VecScatterBegin(ctx,xtail_global,xtail_local,INSERT_VALUES,SCATTER_FORWARD) );
+		TRY( VecScatterEnd(ctx,xtail_global,xtail_local,INSERT_VALUES,SCATTER_FORWARD) );
+
+		TRY( ISDestroy(&scatter_is) );
+		TRY( VecScatterDestroy(&ctx) );
+
+		TRY( PetscBarrier(NULL) );
+	}
+
+	/* add noise to generated data */
+	for(t = 0; t < t_length; t++){
+		for(n = 0; n <xdim; n++){
+			x_arr[t*xdim+n] += noise*rand()/(double)(RAND_MAX);			
+		}
+	}
+
+
+	/* restore local data array */
+	TRY( VecRestoreArray(tsdata->get_datavector()->get_vector(),&x_arr) );
+
+	TRY( VecDestroy(&xtail_global) );
+	TRY( VecDestroy(&xtail_local) );
+
+
+	/* scale data */
+	if(scale_or_not){
+		double max_value;
+		TRY( VecMax(tsdata->get_datavector()->get_vector(), NULL, &max_value) );
+		TRY( VecScale(tsdata->get_datavector()->get_vector(), 1.0/max_value) );
+				
+		coutAll << "--- scaling data with max value of x: " << max_value << std::endl;
+		coutAll.synchronize();
+	}
+
+	LOG_FUNC_STATIC_END
+}
+
+
+void VarxH1FEMModel_Global::compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k){
+	int theta_length_n = 1+xdim*xmem; /* the size of theta for one dimension, one cluster */
+	int theta_start = k*theta_length_n*xdim; /* where in theta start actual coefficients */
+
+	double Ax;
+
+	int t_mem,n,i;
+	for(n = 0; n < xdim; n++){
+		/* mu */
+		data_out[t_data_out*xdim+n] = theta[theta_start + n*theta_length_n]; 
+				
+		/* A */
+		for(t_mem = 1; t_mem <= xmem; t_mem++){
+			/* add multiplication with A_{t_mem} */
+			Ax = 0;
+			for(i = 0; i < xdim; i++){
+//				coutMaster << "A" << t_mem << "_" << n << "," << i << " = " << theta[theta_start + n*theta_length_n + 1 + (t_mem-1)*xdim + i] << std::endl;
+				Ax += theta[theta_start + n*theta_length_n + 1 + (t_mem-1)*xdim + i]*data_in[(t_data_in-t_mem)*xdim+i]; 
+			}
+			data_out[t_data_out*xdim+n] += Ax;
+	
+		}
+	
+	}
+}
 
 } /* end namespace */
 
