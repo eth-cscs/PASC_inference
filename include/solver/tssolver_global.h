@@ -444,6 +444,10 @@ void TSSolver_Global::solve() {
 		if(solved_local == 0.0){
 			L = model->get_L(gammasolver,thetasolver,tsdata);
 			deltaL = std::abs(L - L_old);
+
+			/* log L */
+			LOG_FX2(L,"L")
+			LOG_FX2(deltaL,"deltaL")
 		}
 
 		/* update local stopping criteria */
@@ -473,10 +477,6 @@ void TSSolver_Global::solve() {
 		if(solved_sum >= GlobalManager.get_size()){
 			break;
 		}
-		
-		/* log L */
-		LOG_FX2(L,"L")
-		LOG_FX2(deltaL,"deltaL")
 
 	}
 	coutMaster.pop();

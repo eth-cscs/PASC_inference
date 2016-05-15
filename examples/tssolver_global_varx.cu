@@ -49,7 +49,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
-	int T = 2000; /* length of time-series */
+	int T = 500; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int solution_K = 3;
@@ -146,10 +146,7 @@ int main( int argc, char *argv[] )
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
-	int rank = GlobalManager.get_rank();
-	std::ostringstream oss_name_of_file_csv;
-	oss_name_of_file_csv << "results/varx_" << "_p" << rank << "_K" << K[rank] << "_xmem" << xmem[rank] << "_epssqr" << epssqr[rank] << ".csv";
-	example::VarX::saveCSV(oss_name_of_file_csv.str(),T,xdim,xmem,K,mydata.get_datavector(),mydata.get_gammavector(),mydata.get_thetavector());
+	mymodel.saveCSV("result/varx",&mydata);
 
 //	mysolver.printtimer(coutAll);
 //	coutAll.synchronize();

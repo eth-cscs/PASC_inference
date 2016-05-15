@@ -1,6 +1,8 @@
 #ifndef PASC_VARXH1FEMMODEL_GLOBAL_H
 #define	PASC_VARXH1FEMMODEL_GLOBAL_H
 
+#define DEFAULT_T_SCATTER 50
+
 #ifndef USE_PETSCVECTOR
  #error 'VARXH1FEMMODEL_GLOBAL is for PETSCVECTOR'
 #endif
@@ -85,7 +87,13 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 
 		QPData<PetscVector> *get_gammadata() const;
 		QPData<PetscVector> *get_thetadata() const;
-		
+
+		void saveCSV(std::string name_of_file, const TSData_Global *tsdata);
+
+//		static void set_solution_gamma(int T, int xdim, int K, int xmem, int (*get_cluster_id)(int, int), GeneralVector<VectorBase> *gammavector);
+
+//				template<class VectorBase>
+//				static void set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<VectorBase> *thetavector);		
 };
 
 } // end of namespace
@@ -144,7 +152,7 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_nu
 	this->thetavectorlength_local = xdim * (1 + this->xdim*this->xmemlocal) * Klocal; /* xdim * (mu + A) * K */
 	
 	/* update gamma solver */
-	t_scatter = 50; /* > xmem, how long time-series to scatter to all processors */
+	t_scatter = DEFAULT_T_SCATTER; /* > xmem, how long time-series to scatter to all processors */
 	TRY( VecCreateSeq(PETSC_COMM_SELF, t_scatter*xdim, &x_scatter) );
 	
 	/* update theta solver */
@@ -815,6 +823,165 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	LOG_FUNC_END
 }
 
+void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Global *tsdata){
+	LOG_FUNC_STATIC_BEGIN
+
+	Timer timer_saveCSV; 
+	timer_saveCSV.restart();
+	timer_saveCSV.start();
+	
+	int nproc = GlobalManager.get_size();
+	int my_rank = GlobalManager.get_rank();
+
+	int xmem_max = max_array(nproc, this->xmem);
+	
+	int n,t,k,t_mem,i;
+			
+	/* to manipulate with file */
+	std::ofstream myfile;
+						
+	/* open file to write */
+	std::ostringstream oss_name_of_file_csv;
+	oss_name_of_file_csv << name_of_file << "_p" << my_rank << "_K" << Klocal << "_xmem" << xmemlocal << "_epssqr" << epssqrlocal << ".csv";
+	myfile.open(oss_name_of_file_csv.str().c_str());
+
+	/* write header to file */
+	for(n=0; n<xdim; n++){
+		myfile << "x" << n << "_orig,";
+	}
+	for(k=0; k<Klocal; k++){
+		myfile << "gamma" << k << ",";
+	}
+	for(n=0; n<xdim; n++){
+		myfile << "x" << n << "_model";
+		if(n+1 < xdim){
+			myfile << ",";
+		}
+	}
+	myfile << "\n";
+
+	/* theta */
+	int theta_start; /* where in theta start actual coefficients */
+	double Ax;
+	double x_model_n;
+	int blocksize = 1 + xdim*xmemlocal;
+	double *theta_arr;
+	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta_arr) );
+
+	/* gamma */
+	double *gamma_arr;
+	TRY( VecGetArray(gammadata->get_x()->get_vector(),&gamma_arr) );
+
+	/* go through processors and write the sequence into local file */
+	int t_in_scatter;
+	int is_begin = 0;
+	int is_end = min(is_begin + t_scatter,T);
+
+	VecScatter ctx;
+	IS scatter_is;
+	IS scatter_is_to;
+	const double *x_scatter_arr;
+	
+	while(is_end <= T && is_begin < is_end){ /* while there is something to scatter */
+		/* scatter part of time serie */
+		TRY( ISCreateStride(PETSC_COMM_WORLD, (is_end-is_begin)*xdim, is_begin*xdim, 1, &scatter_is) );
+		TRY( ISCreateStride(PETSC_COMM_SELF, (is_end-is_begin)*xdim, 0, 1, &scatter_is_to) );
+
+		TRY( VecScatterCreate(tsdata->get_datavector()->get_vector(),scatter_is, x_scatter,scatter_is_to,&ctx) );
+		TRY( VecScatterBegin(ctx,tsdata->get_datavector()->get_vector(),x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
+		TRY( VecScatterEnd(ctx,tsdata->get_datavector()->get_vector(),x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
+		TRY( VecScatterDestroy(&ctx) );
+
+		TRY( ISDestroy(&scatter_is_to) );
+		TRY( ISDestroy(&scatter_is) );
+
+		TRY( PetscBarrier(NULL) );
+				
+		TRY( VecGetArrayRead(x_scatter, &x_scatter_arr) );
+		if(is_begin==0){
+			for(t=0;t<xmem_max;t++){
+				/* original time_serie */
+				for(n=0;n<xdim;n++){
+					myfile << x_scatter_arr[t*xdim+n] << ",";
+				}
+				/* write gamma vectors */
+				for(k=0;k<Klocal;k++){
+					myfile << "0,";
+				}
+				/* new time-serie */
+				for(n=0;n<xdim;n++){
+					myfile << x_scatter_arr[t*xdim+n];
+					if(n+1 < xdim){
+						myfile << ",";
+					}
+				}
+				myfile << "\n";
+			}
+		}
+
+		for(t=is_begin+xmem_max;t<is_end;t++){
+			t_in_scatter = t - is_begin;
+
+			/* original x */
+			for(n=0;n<xdim;n++){
+				myfile << x_scatter_arr[t_in_scatter*xdim+n] << ",";
+			}
+			/* write gamma vectors */
+			for(k=0;k<Klocal;k++){
+				myfile << gamma_arr[k*(T-xmemlocal)+t-xmem_max] << ",";
+			}
+			/* compute new time serie from model */
+			for(n=0;n<xdim;n++){
+				x_model_n = 0;
+
+				/* mu */
+				for(k=0;k<Klocal;k++){
+					theta_start = k*blocksize*xdim;
+					x_model_n += gamma_arr[k*(T-xmemlocal)+t-xmem_max]*theta_arr[theta_start + n*blocksize]; 
+				}
+		
+				/* A */
+				for(t_mem = 1; t_mem <= xmemlocal; t_mem++){
+					/* add multiplication with A_{t_mem} */
+					Ax = 0;
+					for(i = 0; i < xdim; i++){
+						for(k=0;k<Klocal;k++){
+							theta_start = k*blocksize*xdim;
+							Ax += gamma_arr[k*(T-xmemlocal)+t-xmem_max]*theta_arr[theta_start + n*blocksize + 1 + (t_mem-1)*xdim + i]*x_scatter_arr[(t_in_scatter-t_mem)*xdim+i]; 
+						}
+					}
+					x_model_n += Ax;
+				}
+
+				myfile << x_model_n; //x_scatter_arr[t_in_scatter*xdim+n];
+				if(n+1 < xdim){
+					myfile << ",";
+				}
+			}
+			myfile << "\n";
+		}
+		TRY( VecRestoreArrayRead(x_scatter, &x_scatter_arr) );
+				
+		/* update upper and lower index of scatter_is */
+		is_begin = is_begin + t_scatter - xmem_max;
+		is_end = min(is_begin + t_scatter,T);
+
+	}
+
+	TRY( VecRestoreArray(gammadata->get_x()->get_vector(),&gamma_arr) );
+	TRY( VecRestoreArray(thetadata->get_x()->get_vector(),&theta_arr) );
+
+			
+	myfile.close();
+	TRY(PetscBarrier(NULL));
+
+	/* writing finished */
+	timer_saveCSV.stop();
+	coutAll <<  " - problem saved to CSV in: " << timer_saveCSV.get_value_sum() << std::endl;
+	coutAll.synchronize();
+
+	LOG_FUNC_STATIC_END
+}
 
 
 } /* end namespace */
