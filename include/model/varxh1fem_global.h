@@ -49,6 +49,16 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 
 		void scatter_xn(Vec &x_global, Vec &xn_local, int xdim, int n);
 		
+		/* update gamma solver */
+		int t_scatter; /* > xmem, how long time-series to scatter to all processors */
+		Vec x_scatter;
+		
+		/* update thetasolver */
+		Vec gamma_local;
+		Vec xn1_vec;  /* scattered xn_global to each processor */
+		Vec xn2_vec;
+		Vec xn2subgammak_vec; /* vector with xn1sub.*gammak_vecs */
+			
 	public:
 		VarxH1FEMModel_Global(int T, int xdim, int num, int *K, int *xmem, double *epssqr);
 		~VarxH1FEMModel_Global();
@@ -133,6 +143,18 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_nu
 	this->thetavectorlength_global = xdim*(Ksum + xdim*Kxmemsum); /* all(mu + A)  */
 	this->thetavectorlength_local = xdim * (1 + this->xdim*this->xmemlocal) * Klocal; /* xdim * (mu + A) * K */
 	
+	/* update gamma solver */
+	t_scatter = 50; /* > xmem, how long time-series to scatter to all processors */
+	TRY( VecCreateSeq(PETSC_COMM_SELF, t_scatter*xdim, &x_scatter) );
+	
+	/* update theta solver */
+	int gammak_size = T-xmemlocal;	
+	TRY( VecCreateSeq(PETSC_COMM_SELF, gammak_size, &xn2subgammak_vec) );
+	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn1_vec) );
+	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn2_vec) );
+	TRY( VecCreateSeq(PETSC_COMM_SELF, Klocal*gammak_size, &gamma_local) );
+	
+	
 	LOG_FUNC_END
 }
 
@@ -142,6 +164,15 @@ VarxH1FEMModel_Global::~VarxH1FEMModel_Global(){
 	
 	/* destroy auxiliary vectors */
 
+	/* update gamma solver */
+//	TRY( VecDestroy(&x_scatter) );
+	
+	/* update theta solver */
+//	TRY( VecDestroy(&xn2subgammak_vec) );
+//	TRY( VecDestroy(&xn1_vec) );
+//	TRY( VecDestroy(&xn2_vec) );
+//	TRY( VecDestroy(&gamma_local) );
+	
 	LOG_FUNC_END
 }
 
@@ -450,7 +481,6 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	double Ax, value;
 	double x_model[xdim];
 
-	int t_scatter = 50; /* > xmem, how long time-series to scatter to all processors */
 	int t_in_scatter;
 	int is_begin = 0;
 	int is_end = min(is_begin + t_scatter,T);
@@ -458,8 +488,7 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	VecScatter ctx;
 	IS scatter_is;
 	IS scatter_is_to;
-	Vec x_scatter;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, t_scatter*xdim, &x_scatter) );
+
 	const double *x_scatter_arr;
 	while(is_end <= T && is_begin < is_end){ /* while there is something to scatter */
 		/* scatter part of time serie */
@@ -522,8 +551,6 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 		is_end = min(is_begin + t_scatter,T);
 
 	}
-	TRY( VecDestroy(&x_scatter) );
-
 	TRY( VecRestoreArrayRead(M_global,&theta) );
 	TRY( VecRestoreArray(b_global,&b_local_arr) );	
 
@@ -578,17 +605,9 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *A = dynamic_cast<BlockDiagMatrix<PetscVector,LocalDenseMatrix<PetscVector> > *>(thetadata->get_A());
 	LocalDenseMatrix<PetscVector> **blocks = A->get_blocks();
 
-	/* scatter and index sets with components of x corresponding to one dimension */
-	Vec xn1_vec;  /* scattered xn_global to each processor */
-	Vec xn2_vec;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn1_vec) );
-	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn2_vec) );
-
 	int gammak_size = T-xmem;
 
 	/* prepare local gammas */
-	Vec gamma_local;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, Klocal*gammak_size, &gamma_local) );
 	TRY( VecGetLocalVector(gammadata->get_x()->get_vector(),gamma_local) );
 	
 	int Kmax = max_array(num, K);
@@ -621,10 +640,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	int xn1sub_nmb;
 	int xn2sub_nmb;
 	
-	/* vector with xn1sub.*gammak_vecs */
-	Vec xn2subgammak_vec;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, gammak_size, &xn2subgammak_vec) );
-		
 	/* go through clusters and fill matrices */
 	int col,row, xdim1,xdim2, i,j;
 	double value;
@@ -783,9 +798,10 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 
 	/* restore gammas */
 	for(k=0;k<Kmax;k++){
-		TRY( VecRestoreSubVector(gammadata->get_x()->get_vector(), gammak_is[k], &(gammak_vecs[k])) );
+		TRY( VecRestoreSubVector(gamma_local, gammak_is[k], &(gammak_vecs[k])) );
 		TRY( ISDestroy(&gammak_is[k]) );
 	}
+	TRY( VecRestoreLocalVector(gammadata->get_x()->get_vector(),gamma_local) );
 
 //	TRY( VecDestroy(&gamma_local) );
 //	TRY( VecDestroy(&xn1_vec) );

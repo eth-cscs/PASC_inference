@@ -10,7 +10,7 @@
 #define DEFAULT_LOG_FUNC_CALL	true
 #define DEFAULT_LOG_LEVEL		true
 #define DEFAULT_LOG_MEMORY		true
-#define DEFAULT_LOG_FILE_LINE	true
+#define DEFAULT_LOG_FILE_LINE	false
 
 #define LOG_FUNC_BEGIN logging.begin_func(typeid(this).name(),__FUNCTION__,__FILE__,__LINE__);
 #define LOG_FUNC_END logging.end_func(typeid(this).name(),__FUNCTION__,__FILE__,__LINE__);
@@ -20,6 +20,7 @@
 
 #define LOG_IT(it_num) logging.it(this->get_name(),__FILE__,__LINE__,it_num);
 #define LOG_FX(fx_value) logging.fx(this->get_name(),__FILE__,__LINE__,fx_value);
+#define LOG_FX2(fx_value,name_add) logging.fx(this->get_name(),__FILE__,__LINE__,fx_value,name_add);
 
 
 namespace pascinference {
@@ -196,6 +197,27 @@ class LoggingClass {
 					myfile << line << LOG_SEPARATOR;
 				}
 				myfile << "FX_" << name_algorithm << LOG_SEPARATOR;
+				myfile << fx_value;
+				myfile << "\n";
+				closefile();
+			}
+		};
+
+		void fx(std::string name_algorithm, std::string file, int line, double fx_value, std::string name_add){
+			if(log_or_not){
+				openfile();
+				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
+				if(log_or_not_level){
+					myfile << level << LOG_SEPARATOR;
+				}
+				if(log_or_not_memory){
+					myfile << MemoryCheck::get_virtual() << LOG_SEPARATOR;
+				}
+				if(log_or_not_file_line){
+					myfile << file << LOG_SEPARATOR;
+					myfile << line << LOG_SEPARATOR;
+				}
+				myfile << "FX_" << name_algorithm << "_" << name_add << LOG_SEPARATOR;
 				myfile << fx_value;
 				myfile << "\n";
 				closefile();

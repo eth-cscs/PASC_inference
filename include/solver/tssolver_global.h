@@ -474,6 +474,10 @@ void TSSolver_Global::solve() {
 			break;
 		}
 		
+		/* log L */
+		LOG_FX2(L,"L")
+		LOG_FX2(deltaL,"deltaL")
+
 	}
 	coutMaster.pop();
 
