@@ -281,6 +281,7 @@ void QPSolver<VectorBase>::solve() {
 	this->hessmult_last = child_solver->get_hessmult();
 	
 	LOG_IT(this->it_last)
+	LOG_FX(this->fx)
 		
 	LOG_FUNC_END
 }

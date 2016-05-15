@@ -282,6 +282,7 @@ void QPSolver_Global::solve() {
 	RestoreLocalData();
 
 	LOG_IT(this->it_last)
+	LOG_FX(this->fx)
 	
 	LOG_FUNC_END
 }

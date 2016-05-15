@@ -488,6 +488,7 @@ void TSSolver_Global::solve() {
 	this->timer_solve.stop(); /* stop this timer in the end of solution */
 
 	LOG_IT(this->it_last)
+	LOG_FX(this->L)
 	
 	LOG_FUNC_END
 }

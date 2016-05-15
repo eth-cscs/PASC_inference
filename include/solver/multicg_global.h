@@ -272,11 +272,13 @@ void MultiCGSolver_Global::solve() {
 	/* copy results */
 	this->it_last = solver_local->get_it();
 	this->it_sum += this->it_last;
+	this->fx = solver_local->get_fx();
 
 	/* destroy local storage */
 	RestoreLocalData();	
 
 	LOG_IT(this->it_last)
+	LOG_FX(this->fx)
 
 	LOG_FUNC_END
 }

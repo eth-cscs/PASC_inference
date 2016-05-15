@@ -509,6 +509,7 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	/* write info to log file */
 	LOG_IT(it)
+	LOG_FX(fx)
 
 	LOG_FUNC_END
 }

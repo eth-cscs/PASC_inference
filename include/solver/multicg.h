@@ -234,6 +234,7 @@ void MultiCGSolver<VectorBase>::solve() {
 	
 	/* write info to log file */
 	LOG_IT(this->it_last)	
+	LOG_FX(this->fx)
 
 	LOG_FUNC_END
 }
