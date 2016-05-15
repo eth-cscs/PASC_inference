@@ -167,7 +167,7 @@ void MultiCGSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 
 template<class VectorBase>
 std::string MultiCGSolver<VectorBase>::get_name() const {
-	return "MultiCG method for QP with BlockDiag system matrix";
+	return "MultiCG";
 }
 
 
@@ -231,6 +231,9 @@ void MultiCGSolver<VectorBase>::solve() {
 
 		// TODO: deal with iteration counters (max?)
 	}
+	
+	/* write info to log file */
+	LOG_IT(this->it_last)	
 
 	LOG_FUNC_END
 }

@@ -38,7 +38,7 @@ class MemoryCheck {
 			return virtualMemUsed;
 		}
 
-		/** @brief get the percentage usege of virtual memory
+		/** @brief get the percentage usage of virtual memory
 		 * 
 		 */ 
 		static double get_virtual(){

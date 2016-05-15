@@ -202,6 +202,9 @@ void DiagSolver<MinlinHostVector>::solve() {
 	
 	this->timer_solve.stop(); 
 
+	/* write info to log file */
+	LOG_IT(1)
+	
 	LOG_FUNC_END
 }
 

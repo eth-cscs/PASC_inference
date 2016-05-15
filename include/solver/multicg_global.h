@@ -240,7 +240,7 @@ void MultiCGSolver_Global::printcontent(ConsoleOutput &output) const {
 }
 
 std::string MultiCGSolver_Global::get_name() const {
-	return "MultiCG_Global method for QP with BlockDiag system matrix";
+	return "MultiCG_Global";
 }
 
 double MultiCGSolver_Global::get_fx() const {
@@ -275,6 +275,8 @@ void MultiCGSolver_Global::solve() {
 
 	/* destroy local storage */
 	RestoreLocalData();	
+
+	LOG_IT(this->it_last)
 
 	LOG_FUNC_END
 }

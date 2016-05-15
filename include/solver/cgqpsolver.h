@@ -349,7 +349,10 @@ void CGQPSolver<VectorBase>::solve() {
 	this->hessmult_last = hessmult;
 
 	this->fx = normg; /* fx = norm(g) */
-	
+
+	/* write info to log file */
+	LOG_IT(it)
+		
 	LOG_FUNC_END
 }
 

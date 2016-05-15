@@ -261,7 +261,7 @@ void QPSolver_Global::printtimer(ConsoleOutput &output) const {
 }
 
 std::string QPSolver_Global::get_name() const {
-	return "General Global QP Solver";
+	return "GeneralQPSolver_Global";
 }
 
 /* solve the problem */
@@ -280,6 +280,8 @@ void QPSolver_Global::solve() {
 	this->hessmult_last = solver_local->get_hessmult();
 
 	RestoreLocalData();
+
+	LOG_IT(this->it_last)
 	
 	LOG_FUNC_END
 }
@@ -302,10 +304,6 @@ int QPSolver_Global::get_hessmult() const {
 	return this->hessmult_last; 
 }
 
-
-//QPData<PetscVector> *QPSolver_Global::get_data() const {
-//	return qpdata;
-//}
 
 } /* end namespace */
 

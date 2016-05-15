@@ -233,7 +233,7 @@ void QPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 template<class VectorBase>
 std::string QPSolver<VectorBase>::get_name() const {
-	return "General QP Solver";
+	return "GeneralQPSolver";
 }
 
 /* solve the problem */
@@ -275,7 +275,13 @@ void QPSolver<VectorBase>::solve() {
 
 	/* call solve function to child solver */
 	child_solver->solve();
+
+	this->fx = child_solver->get_fx();
+	this->it_last = child_solver->get_it();
+	this->hessmult_last = child_solver->get_hessmult();
 	
+	LOG_IT(this->it_last)
+		
 	LOG_FUNC_END
 }
 

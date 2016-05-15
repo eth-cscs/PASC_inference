@@ -298,7 +298,7 @@ void TSSolver_Global::printtimer(ConsoleOutput &output) const {
 
 
 std::string TSSolver_Global::get_name() const {
-	return "Time-Series Solver";
+	return "TSSolver_Global";
 }
 
 /* solve the problem */
@@ -486,6 +486,8 @@ void TSSolver_Global::solve() {
 	TRY(PetscBarrier(NULL));
 
 	this->timer_solve.stop(); /* stop this timer in the end of solution */
+
+	LOG_IT(this->it_last)
 	
 	LOG_FUNC_END
 }

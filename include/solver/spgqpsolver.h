@@ -310,7 +310,7 @@ void SPGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 template<class VectorBase>
 std::string SPGQPSolver<VectorBase>::get_name() const {
-	return "Spectral Projected Gradient method for QP";
+	return "SPGQP";
 }
 
 /* solve the problem */
@@ -506,6 +506,9 @@ void SPGQPSolver<VectorBase>::solve() {
 		coutAll <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
 
 	}
+
+	/* write info to log file */
+	LOG_IT(it)
 
 	LOG_FUNC_END
 }

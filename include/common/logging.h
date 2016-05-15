@@ -2,15 +2,24 @@
 #define	PASC_COMMON_LOGGING_H
 
 #include "common/globalmanager.h"
+#include "common/memorycheck.h"
 #include <fstream>
 
 #define LOG_SEPARATOR "|"
+
+#define DEFAULT_LOG_FUNC_CALL	true
+#define DEFAULT_LOG_LEVEL		true
+#define DEFAULT_LOG_MEMORY		true
+#define DEFAULT_LOG_FILE_LINE	true
 
 #define LOG_FUNC_BEGIN logging.begin_func(typeid(this).name(),__FUNCTION__,__FILE__,__LINE__);
 #define LOG_FUNC_END logging.end_func(typeid(this).name(),__FUNCTION__,__FILE__,__LINE__);
 
 #define LOG_FUNC_STATIC_BEGIN logging.begin_func("static",__FUNCTION__,__FILE__,__LINE__);
 #define LOG_FUNC_STATIC_END logging.end_func("static",__FUNCTION__,__FILE__,__LINE__);
+
+#define LOG_IT(it_num) logging.it(this->get_name(),__FILE__,__LINE__,it_num);
+
 
 namespace pascinference {
 
@@ -19,9 +28,14 @@ class LoggingClass {
 	private:
 		std::string filename;
 		std::ofstream myfile;
-		bool log_or_not;
-		bool log_or_not_file;
 
+		bool log_or_not;
+		bool log_or_not_func_call;
+		bool log_or_not_file_line;
+		bool log_or_not_level;
+		bool log_or_not_memory;
+		
+		int level;
 		double reference_time;
 
 		double getUnixTime(void){
@@ -47,29 +61,27 @@ class LoggingClass {
 	
 		};
 
-		void on(){
-			log_or_not = true;
-		};
-	
-		void off(){
-			log_or_not = false;
-		};
-		
-		bool get_log_or_not(){
-			return log_or_not;
-		};
-
 		void begin(std::string new_filename){
 			filename = new_filename;
 			myfile.open(filename.c_str());
 
 			log_or_not = true;
-			log_or_not_file = false; // TODO: this could be turned on
+			log_or_not_file_line = DEFAULT_LOG_FILE_LINE;
+			log_or_not_func_call = DEFAULT_LOG_FUNC_CALL;
+			log_or_not_level = DEFAULT_LOG_LEVEL;
+			log_or_not_memory = DEFAULT_LOG_MEMORY;
 			
+			level = -1;
 			reference_time = getUnixTime();
 
 			myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
-			if(log_or_not_file){
+			if(log_or_not_level){
+				myfile << level << LOG_SEPARATOR;
+			}
+			if(log_or_not_memory){
+				myfile << MemoryCheck::get_virtual() << LOG_SEPARATOR;
+			}
+			if(log_or_not_file_line){
 				myfile << __FILE__ << LOG_SEPARATOR;
 				myfile << __LINE__ << LOG_SEPARATOR;
 			}
@@ -83,7 +95,13 @@ class LoggingClass {
 			if(log_or_not){
 				openfile();
 				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
-				if(log_or_not_file){
+				if(log_or_not_level){
+					myfile << "-1" << LOG_SEPARATOR;
+				}
+				if(log_or_not_memory){
+					myfile << MemoryCheck::get_virtual() << LOG_SEPARATOR;
+				}
+				if(log_or_not_file_line){
 					myfile << __FILE__ << LOG_SEPARATOR;
 					myfile << __LINE__ << LOG_SEPARATOR;
 				}
@@ -96,10 +114,18 @@ class LoggingClass {
 		};
 
 		void begin_func(std::string name_class,std::string name_function, std::string file, int line){
-			if(log_or_not){
+			level++;
+
+			if(log_or_not && log_or_not_func_call){
 				openfile();
 				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
-				if(log_or_not_file){
+				if(log_or_not_level){
+					myfile << level << LOG_SEPARATOR;
+				}
+				if(log_or_not_memory){
+					myfile << MemoryCheck::get_virtual() << LOG_SEPARATOR;
+				}
+				if(log_or_not_file_line){
 					myfile << file << LOG_SEPARATOR;
 					myfile << line << LOG_SEPARATOR;
 				}
@@ -111,10 +137,16 @@ class LoggingClass {
 		};
 		
 		void end_func(std::string name_class,std::string name_function, std::string file, int line){
-			if(log_or_not){
+			if(log_or_not && log_or_not_func_call){
 				openfile();
 				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
-				if(log_or_not_file){
+				if(log_or_not_level){
+					myfile << level << LOG_SEPARATOR;
+				}
+				if(log_or_not_memory){
+					myfile << MemoryCheck::get_virtual() << LOG_SEPARATOR;
+				}
+				if(log_or_not_file_line){
 					myfile << file << LOG_SEPARATOR;
 					myfile << line << LOG_SEPARATOR;
 				}
@@ -123,9 +155,31 @@ class LoggingClass {
 				myfile << "\n";
 				closefile();
 			}
+			
+			level--;
 		};
 		
-	
+		void it(std::string name_algorithm, std::string file, int line, int it){
+			if(log_or_not){
+				openfile();
+				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
+				if(log_or_not_level){
+					myfile << level << LOG_SEPARATOR;
+				}
+				if(log_or_not_memory){
+					myfile << MemoryCheck::get_virtual() << LOG_SEPARATOR;
+				}
+				if(log_or_not_file_line){
+					myfile << file << LOG_SEPARATOR;
+					myfile << line << LOG_SEPARATOR;
+				}
+				myfile << "IT_" << name_algorithm << LOG_SEPARATOR;
+				myfile << it;
+				myfile << "\n";
+				closefile();
+			}
+		};
+			
 };
 
 LoggingClass logging;
