@@ -54,7 +54,7 @@ int main( int argc, char *argv[] )
 	int solution_xmem = 2;
 	double coeff = 100;//22564.5;
 	
-	double solution_theta[(1 + xdim*solution_xmem)*xdim*solution_K] = {
+	double solution_theta[108] = {
 		 0.0212/coeff,		 1.996973851371985, -0.000487555607403,  0.006182144617033,  0.016898325978254,		-0.997151392835171,  0.000428873596151, -0.006196363191544, -0.016953822805627,		/* K=1,n=1:  mu,A1,A2 */
 		-0.0013/coeff,		-0.048771990907163,  1.976630233947632, -0.000172081430470,  0.009037772624055,		 0.049412051999825, -0.977231426020431, -0.000394989636220, -0.008493648930036,		/* K=1,n=2 */
 		-0.0436/coeff,		-0.032574927768410, -0.008102611355981,  1.981548648130319, -0.029603366150073,		 0.033237925367826,  0.007963832173957, -0.981922239657675,  0.030099449853664,		/* K=1,n=3 */
@@ -69,7 +69,7 @@ int main( int argc, char *argv[] )
 		-0.0041/coeff,		 0.008782704798477, -0.006718795784519, -0.006974446738886,  1.963829240798505,		-0.008423618747776,  0.006554328766455,  0.007167678893911, -0.964105839991197		/* K=3,n=4 */			
 	};
 
-	double solution_xstart[xdim*solution_xmem] = {
+	double solution_xstart[8] = {
 		50.0/coeff,	50.0503/coeff,	/* n=1 */
 		70.0/coeff,	69.8995/coeff,	/* n=2 */
 		70.0/coeff,	70.0001/coeff,	/* n=3 */
@@ -79,9 +79,9 @@ int main( int argc, char *argv[] )
 
 	/* model parameters */
 	int num = 5;
-	int K[num] = {3,3,3,3,3}; /* number of clusters for each processor */
-	double epssqr[num] = {20,10,1,0.001,10}; /* penalty for each processor */
-	int xmem[num] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
+	int K[5] = {3,3,3,3,3}; /* number of clusters for each processor */
+	double epssqr[5] = {20,10,1,0.001,10}; /* penalty for each processor */
+	int xmem[5] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
 
 	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
 

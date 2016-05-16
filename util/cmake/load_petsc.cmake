@@ -14,7 +14,7 @@ if(${USE_PETSC})
 		include_directories(${PETSC_INCLUDES})
 
 #		set(CMAKE_CXX_COMPILER "${PETSC_DIR}/${PETSC_ARCH}/bin/mpicxx")
-		set(CMAKE_CXX_COMPILER "mpicxx")
+#		set(CMAKE_CXX_COMPILER "mpicxx")
 
 	endif()
 
