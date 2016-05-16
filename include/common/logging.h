@@ -64,7 +64,7 @@ class LoggingClass {
 		};
 
 		void begin(std::string new_filename){
-			this->filename = new std::string("aaa");
+			this->filename = new std::string(new_filename);
 			myfile.open(filename->c_str());
 
 			log_or_not = true;

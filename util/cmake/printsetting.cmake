@@ -44,7 +44,7 @@ printsetting_mkl()
 printsetting_minlin()
 
 # PASCInference
-printsetting_pascinference()
+#printsetting_pascinference()
 
 
 message("----------------------------------------------------------\n")
