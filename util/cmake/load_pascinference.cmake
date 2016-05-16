@@ -27,6 +27,7 @@ else()
 	
 endif()
 
+link_directories(${CMAKE_BINARY_DIR})
 set(LIBRARIES_DEF ${PASCINFERENCE_LIB_LOCATION} "${LIBRARIES_DEF}")
 
 # define print info (will be called in printsetting.cmake)

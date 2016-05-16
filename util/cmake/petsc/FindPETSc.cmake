@@ -275,7 +275,7 @@ int main(int argc,char *argv[]) {
   mark_as_advanced (PETSC_INCLUDE_DIR PETSC_INCLUDE_CONF)
   set (petsc_includes_minimal ${PETSC_INCLUDE_CONF} ${PETSC_INCLUDE_DIR})
 
-if(false)
+
   petsc_test_runs ("${petsc_includes_minimal}" "${PETSC_LIBRARIES_TS}" petsc_works_minimal)
   if (petsc_works_minimal)
     message (STATUS "Minimal PETSc includes and libraries work.  This probably means we are building with shared libs.")
@@ -306,7 +306,7 @@ if(false)
       endif (petsc_works_alllibraries)
     endif (petsc_works_allincludes)
   endif (petsc_works_minimal)
-endif (false)
+
 
   # We do an out-of-source build so __FILE__ will be an absolute path, hence __INSDIR__ is superfluous
   if (${PETSC_VERSION} VERSION_LESS 3.1)
