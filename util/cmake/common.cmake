@@ -92,6 +92,7 @@ macro(PASCADD_EXECUTABLE filename outname)
 
 		# link external libraries	
 		target_link_libraries(${outname} ${LIBRARIES_DEF})
+		
 
 		# set the name of output file
 		set_source_files_properties(${filename}

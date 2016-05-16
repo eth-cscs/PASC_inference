@@ -27,8 +27,13 @@ else()
 	
 endif()
 
+<<<<<<< HEAD
 # uncomment if library-issue is solved
 #set(LIBRARIES_DEF ${PASCINFERENCE_LIB_LOCATION} "${LIBRARIES_DEF}")
+=======
+link_directories(${CMAKE_BINARY_DIR})
+set(LIBRARIES_DEF ${PASCINFERENCE_LIB_LOCATION} "${LIBRARIES_DEF}")
+>>>>>>> 21ed9b1033a51a72e145c1b8603fdec78bcb427e
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_PASCINFERENCE)
