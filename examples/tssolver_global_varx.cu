@@ -84,7 +84,6 @@ int main( int argc, char *argv[] )
 	int xmem[num] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
 
 	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
-	
 
 	/* print info about environment */
 	coutMaster << "---------------------" << std::endl;
@@ -96,68 +95,36 @@ int main( int argc, char *argv[] )
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	VarxH1FEMModel_Global mymodel(T, xdim, num, K, xmem, epssqr);
-//	coutMaster.push();
-//	mymodel.print(coutMaster,coutAll);
-//	coutMaster.pop();
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	TSData_Global mydata(mymodel);
-//	coutMaster.push();
-//	mydata.print(coutMaster, coutAll);
-//	coutMaster.pop();
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	mymodel.generate_data(solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, &mydata, 10.1, false);
-
-//	coutMaster.push();
-//	mydata.printcontent(coutMaster,coutAll);
-//	coutMaster.pop();
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
 	mysolver.setting.maxit = 1000;
-	mysolver.setting.debug_mode = 20;
+	mysolver.setting.debug_mode = 0;
 	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-
-//	//temp
-//	example::VarX::set_solution_gamma(T, xdim, solution_K, solution_xmem, mydata.get_gammavector());
-//	example::VarX::set_solution_theta(T, xdim, solution_K, solution_xmem, solution_theta, mydata.get_thetavector());
-//	mymodel.printsolution(coutMaster,coutAll);
-
-//	TRY( VecSet(mydata.get_thetavector()->get_vector(),0.0) );
-
-	coutMaster.push();
-//	mydata.printcontent(coutMaster,coutAll);
-	coutMaster.pop();
-
 	mysolver.solve();
-
-	coutMaster.push();
-//	mydata.print(coutMaster, coutAll);
-	coutMaster.pop();
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
 	mymodel.saveCSV("result/varx",&mydata);
 
-//	mysolver.printtimer(coutAll);
-//	coutAll.synchronize();
+	mysolver.printtimer(coutAll);
+	coutAll.synchronize();
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
-
-//	coutMaster.push();
-//	mydata.printcontent(coutMaster,coutAll);
-//	coutMaster.pop();
-	
-//	mymodel.printsolution(coutMaster,coutAll);
 
 	logging.end();
 	Finalize();

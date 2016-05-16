@@ -28,7 +28,7 @@ namespace pascinference {
 
 class LoggingClass {
 	private:
-		std::string filename;
+		std::string *filename;
 		std::ofstream myfile;
 
 		bool log_or_not;
@@ -47,7 +47,7 @@ class LoggingClass {
 		}
 		
 		void openfile(){
-			myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+			myfile.open(filename->c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 		}
 		
 		void closefile(){
@@ -64,8 +64,8 @@ class LoggingClass {
 		};
 
 		void begin(std::string new_filename){
-			filename = new_filename;
-			myfile.open(filename.c_str());
+			this->filename = new std::string("aaa");
+			myfile.open(filename->c_str());
 
 			log_or_not = true;
 			log_or_not_file_line = DEFAULT_LOG_FILE_LINE;
@@ -90,7 +90,7 @@ class LoggingClass {
 			myfile << "LOG_OPEN" << LOG_SEPARATOR;
 			myfile << "filename=" << filename << ",start time=" << reference_time;
 			myfile << "\n";
-			closefile();			
+			myfile.close();			
 		};
 		
 		void end(){
