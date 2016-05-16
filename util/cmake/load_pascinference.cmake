@@ -27,7 +27,8 @@ else()
 	
 endif()
 
-set(LIBRARIES_DEF ${PASCINFERENCE_LIB_LOCATION} "${LIBRARIES_DEF}")
+# uncomment if library-issue is solved
+#set(LIBRARIES_DEF ${PASCINFERENCE_LIB_LOCATION} "${LIBRARIES_DEF}")
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_PASCINFERENCE)
