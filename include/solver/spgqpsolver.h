@@ -11,7 +11,7 @@
 #include "data/qpdata.h"
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 10000;
-#define SPGQPSOLVER_DEFAULT_EPS 0.0001;
+#define SPGQPSOLVER_DEFAULT_EPS 0.00001;
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
 #define SPGQPSOLVER_DEFAULT_M 20;
@@ -374,7 +374,9 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	/* main cycle */
 	while(it < setting.maxit){
-
+		/* increase iteration counter */
+		it += 1;
+		
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
 		 d = x - alpha_bb*g;
@@ -409,6 +411,11 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->gP = sqrt(dd);
 		if(this->gP < setting.eps){
 			break;
+		} else {
+			/* adaptive precision */
+			if(it == 1){ 
+				setting.eps = max(setting.eps,setting.eps*this->gP);
+			}
 		}
 		
 		/* fx_max = max(fs) */
@@ -488,8 +495,6 @@ void SPGQPSolver<VectorBase>::solve() {
 			
 		}
 		
-		/* increase iteration counter */
-		it += 1;
 	} /* main cycle end */
 
 	this->it_sum += it;

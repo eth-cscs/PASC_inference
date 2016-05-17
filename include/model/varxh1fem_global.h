@@ -88,7 +88,10 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		QPData<PetscVector> *get_gammadata() const;
 		QPData<PetscVector> *get_thetadata() const;
 
-		void generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, double noise, bool scale_or_not);
+		void generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, bool scale_or_not);
+		void generate_data_add_noise(TSData_Global *tsdata, double *diag_covariance);
+		void generate_data_add_noise(TSData_Global *tsdata, double *diag_covariance, int (*get_cluster_id)(int, int));
+
 		void saveCSV(std::string name_of_file, const TSData_Global *tsdata);
 
 //		static void set_solution_gamma(int T, int xdim, int K, int xmem, int (*get_cluster_id)(int, int), GeneralVector<VectorBase> *gammavector);
@@ -843,7 +846,8 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 						
 	/* open file to write */
 	std::ostringstream oss_name_of_file_csv;
-	oss_name_of_file_csv << name_of_file << "_p" << my_rank << "_K" << Klocal << "_xmem" << xmemlocal << "_epssqr" << epssqrlocal << ".csv";
+//	oss_name_of_file_csv << name_of_file << "_p" << my_rank << "_K" << Klocal << "_xmem" << xmemlocal << "_epssqr" << epssqrlocal << ".csv";
+	oss_name_of_file_csv << name_of_file << "_p" << my_rank << ".csv";
 	myfile.open(oss_name_of_file_csv.str().c_str());
 
 	/* write header to file */
@@ -985,7 +989,7 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 }
 
 
-void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, double noise, bool scale_or_not){
+void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, bool scale_or_not){
 	LOG_FUNC_STATIC_BEGIN
 			
 	/* size of input */
@@ -1070,14 +1074,6 @@ void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, dou
 		TRY( PetscBarrier(NULL) );
 	}
 
-	/* add noise to generated data */
-	for(t = 0; t < t_length; t++){
-		for(n = 0; n <xdim; n++){
-			x_arr[t*xdim+n] += noise*rand()/(double)(RAND_MAX);			
-		}
-	}
-
-
 	/* restore local data array */
 	TRY( VecRestoreArray(tsdata->get_datavector()->get_vector(),&x_arr) );
 
@@ -1098,6 +1094,68 @@ void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, dou
 	LOG_FUNC_STATIC_END
 }
 
+void VarxH1FEMModel_Global::generate_data_add_noise(TSData_Global *tsdata, double *diag_covariance){
+	int n,t;
+	
+	/* prepare mu */
+	double mu[xdim];
+	double values[xdim];
+
+	for(n = 0; n <xdim; n++){
+		mu[n] = 0.0;
+	}
+
+	/* get local data array */
+	double *x_arr;
+	TRY( VecGetArray(tsdata->get_datavector()->get_vector(),&x_arr) );
+	
+	/* add noise to generated data */
+	for(t = 0; t < Tlocal; t++){
+		my_mvnrnd_Dn(xdim, mu, diag_covariance, values);
+		for(n = 0; n <xdim; n++){
+			x_arr[t*xdim+n] += values[n];
+		}
+	}
+	TRY( VecRestoreArray(tsdata->get_datavector()->get_vector(),&x_arr) );
+	
+}
+
+void VarxH1FEMModel_Global::generate_data_add_noise(TSData_Global *tsdata, double *diag_covariance, int (*get_cluster_id)(int, int)){
+	int n,t,k,i;
+	
+	/* prepare mu */
+	double mu[xdim];
+	double values[xdim];
+	double Kdiag_covariance[xdim];
+
+	for(n = 0; n <xdim; n++){
+		mu[n] = 0.0;
+	}
+
+	/* get ownership range */
+	int t_begin; 
+	TRY( VecGetOwnershipRange(tsdata->get_datavector()->get_vector(), &t_begin, NULL) );
+	t_begin = ((double)t_begin)/((double)xdim);
+
+	/* get local data array */
+	double *x_arr;
+	TRY( VecGetArray(tsdata->get_datavector()->get_vector(),&x_arr) );
+	
+	/* add noise to generated data */
+	for(t = 0; t < Tlocal; t++){
+		k = (*get_cluster_id)(t_begin + t, T);
+		for(i = 0; i < xdim; i++){
+			Kdiag_covariance[i] = diag_covariance[k*xdim + i];
+		}
+		
+		my_mvnrnd_Dn(xdim, mu, Kdiag_covariance, values);
+		for(n = 0; n <xdim; n++){
+			x_arr[t*xdim+n] += values[n];
+		}
+	}
+	TRY( VecRestoreArray(tsdata->get_datavector()->get_vector(),&x_arr) );
+	
+}
 
 void VarxH1FEMModel_Global::compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k){
 	int theta_length_n = 1+xdim*xmem; /* the size of theta for one dimension, one cluster */

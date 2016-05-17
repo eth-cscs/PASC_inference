@@ -10,8 +10,8 @@ project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
 #decide which example to compile
-option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" OFF)
-option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" ON)
+option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" ON)
+option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" OFF)
 
 # include additional example headers
 include_directories("include")

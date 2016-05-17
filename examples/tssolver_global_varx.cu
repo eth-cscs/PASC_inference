@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
-	oss_name_of_file_log << "results/log_p" << GlobalManager.get_rank() << ".txt";
+	oss_name_of_file_log << "results/varx_log_p" << GlobalManager.get_rank() << ".txt";
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
@@ -47,7 +47,7 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
-	int T = 500; /* length of time-series */
+	int T = 1000; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int solution_K = 3;
@@ -76,11 +76,14 @@ int main( int argc, char *argv[] )
 		90.0/coeff,	89.8995/coeff 	/* n=4 */
 	};
 
+	double noise_covariance[4] = {
+		1, 1, 1, 2
+	};
 
 	/* model parameters */
 	int num = 5;
-	int K[5] = {3,3,3,3,3}; /* number of clusters for each processor */
-	double epssqr[5] = {20,10,1,0.001,10}; /* penalty for each processor */
+	int K[5] = {3,3,3,3,4}; /* number of clusters for each processor */
+	double epssqr[5] = {30,20,10,1,10}; /* penalty for each processor */
 	int xmem[5] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
 
 	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
@@ -102,26 +105,28 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	mymodel.generate_data(solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, &mydata, 10.1, false);
+	mymodel.generate_data(solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, &mydata, false);
+//	mymodel.generate_data_add_noise(&mydata, noise_covariance);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
 	mysolver.setting.maxit = 1000;
-	mysolver.setting.debug_mode = 0;
-	mysolver.print(coutMaster,coutAll);
+	mysolver.setting.debug_mode = 2;
+//	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.solve();
 
+	/* print timers */
+//	mysolver.printtimer(coutAll);
+//	coutAll.synchronize();
+
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
-	mymodel.saveCSV("result/varx",&mydata);
-
-	mysolver.printtimer(coutAll);
-	coutAll.synchronize();
+	mymodel.saveCSV("results/varx",&mydata);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

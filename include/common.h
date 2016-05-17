@@ -28,7 +28,7 @@
 #include "common/consoleoutput.h"
 #include "common/arrayoperation.h"
 #include "common/logging.h"
-
+#include "common/mvnrnd.h"
 
 namespace pascinference {
 
