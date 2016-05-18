@@ -24,13 +24,13 @@ extern int pascinference::DEBUG_MODE;
 int solution_get_cluster_id(int t, int T){
 	int id_cluster = 0;
 	double coeff = (double)T/4.0;
-	if(t >= coeff && t < 2*coeff){
+	if((t >= ceil(0*T) && t < ceil(0.1*T)) || (t >= ceil(0.35*T) && t < ceil(0.4*T)) || (t >= ceil(0.5*T) && t < ceil(0.52*T)) || (t >= ceil(0.8*T) && t < ceil(0.9*T)) || (t >= ceil(0.2*T) && t < ceil(0.25*T))){
 		id_cluster = 1;
 	}
-	if(t >= 2*coeff && t < 3*coeff){
-		id_cluster = 2;
+	if((t >= ceil(0.1*T) && t < ceil(0.2*T)) || (t >= ceil(0.4*T) && t < ceil(0.5*T)) || (t >= ceil(0.8*T) && t < ceil(0.8*T)) || (t >= ceil(0.9*T) && t < ceil(0.95*T))){
+		id_cluster = 2; 
 	}
-	if(t >= 3*coeff){
+	if((t >= ceil(0.25*T) && t < ceil(0.35*T)) || (t >= ceil(0.52*T) && t < ceil(0.6*T)) || (t >= ceil(0.9*T) && t < ceil(0.95*T))){
 		id_cluster = 3;
 	}
 
@@ -77,25 +77,23 @@ int main( int argc, char *argv[] )
 	int xdim = 3; /* data dimension */
 
 	/* solution - for generating the problem */
-	int solution_K = 4;
+	int solution_K = 3;
 	int solution_xmem = 0;
 	
-	double solution_theta[12] = {
+	double solution_theta[9] = {
 		 0.0, 0.0, 0.0,		/* K=1,n=1,2,3:  mu */
 		 1.0, 0.0, 0.0,		/* K=2,n=1,2,3 */
-		 0.0, 1.0, 0.0,		/* K=3,n=1,2,3 */
-		 0.5, 0.5, 0.2		/* K=4,n=1,2,3 */
+		 0.0, 1.0, 0.0		/* K=3,n=1,2,3 */
 	};
 
-	double solution_xstart[4] = {
-		0.0, 0.0, 0.0, 0.0	/* n=1,2,3,4 */
+	double solution_xstart[3] = {
+		0.0, 0.0, 0.0	/* n=1,2,3 */
 	};
 
-	double noise_covariance[12] = {
+	double noise_covariance[9] = {
 		0.05, 0.05, 0.01,  
 		0.05, 0.05, 0.01,  
-		0.05, 0.05, 0.01,  
-		0.05,  0.05, 0.05
+		0.05, 0.05, 0.01  
 	};
 
 	/* model parameters */
@@ -105,7 +103,7 @@ int main( int argc, char *argv[] )
 	int *xmem = new int(num);
 
 	int i;
-	for(i=1; i<num; i++ ){
+	for(i=0; i<num; i++ ){
 		K[i] = Kforall;
 		epssqr[i] = epssqrforall;
 		xmem[i] = 0;
@@ -138,7 +136,7 @@ int main( int argc, char *argv[] )
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	example::KMeans3D::saveVTK("kmeans",".vtk",T,num,K,mydata.get_datavector(),mydata.get_gammavector());
+	example::KMeans3D::saveVTK("results/kmeans",".vtk",T,num,K,mydata.get_datavector(),mydata.get_gammavector());
 	coutAll.synchronize();
 	
 	/* print timers */
