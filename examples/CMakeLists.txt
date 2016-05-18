@@ -5,12 +5,16 @@
 # lukas.pospisil@usi.ch
 #
 # *******************************************************************************/
+#
+# cmake -DFIND_PETSC=ON -DCMAKE_CXX_COMPILER=/usr/bin/mpicxx ..
+#
 
 project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
 #decide which example to compile
-option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" ON)
+option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" OFF)
+option(TSSOLVER_GLOBAL_KMEANS_LARGE "TSSOLVER_GLOBAL_KMEANS_LARGE" ON)
 option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" OFF)
 
 # include additional example headers
@@ -59,6 +63,17 @@ if(${TSSOLVER_GLOBAL_KMEANS})
 	else()
 		# otherwise compile as .cpp
 		pascadd_executable("tssolver_global_kmeans.cpp" "tssolver_global_kmeans")
+	endif()
+endif()
+
+if(${TSSOLVER_GLOBAL_KMEANS_LARGE})
+	# this is VARX global test
+	if(${USE_CUDA})
+		# if we know how to compile .cu, then include .cu
+		pascadd_executable("tssolver_global_kmeans_large.cu" "tssolver_global_kmeans_large")
+	else()
+		# otherwise compile as .cpp
+		pascadd_executable("tssolver_global_kmeans_large.cpp" "tssolver_global_kmeans_large")
 	endif()
 endif()
 
