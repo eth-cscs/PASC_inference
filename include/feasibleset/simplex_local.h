@@ -136,27 +136,23 @@ std::string SimplexFeasibleSet_Local::get_name() const {
 	return "SimplexFeasibleSet_Local";
 }
 
-
-
 void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	LOG_FUNC_BEGIN
 	
-	int t,k;
-	double x_sub[K_local];  /* GammaVector x_sub(K); */
-
 	/* get local array */
 	double *x_arr;
 	
 	TRY( VecGetArray(x.get_vector(),&x_arr) );
 
-#ifdef USE_GPU
+#ifdef USE_CUDA
 	/* use kernel to compute projection */
 	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
 	project_kernel<<<T, 1>>>(x_arr,T,K_local);
+
 #else
 	/* use openmp */
 	#pragma omp parallel for
-	for(t=0;t<T;t++){
+	for(int t=0;t<T;t++){
 		project_sub(t,x_arr,T,K_local);
 	}
 #endif

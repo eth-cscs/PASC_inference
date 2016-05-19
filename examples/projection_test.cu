@@ -60,14 +60,11 @@ int main( int argc, char *argv[] )
 	Timer timer1; /* total projection time for petscseq */
 
 	int K,T;
-	for(K=K_begin;K<=K_end;K+=K_step){
-	for(T=T_begin;T<=T_end;T+=T_step){
-
-	/* prepare local petsc vector, 
+/* prepare local petsc vector, 
 	 * in practical application, this vector
 	 * will be obtained from this "global" vector using VecGetLocalVector */
 	Vec x_global;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, K*T, &x_global) );	
+	TRY( VecCreateSeq(PETSC_COMM_SELF, K*T, &x_global) );
 
 	/* --- INITIALIZATION --- */
 	/* prepare random generator */
@@ -82,13 +79,18 @@ int main( int argc, char *argv[] )
 
 	/* petscvecseq */
 		Vec x_local;
+		GeneralVector<PetscVector> x(x_local);
+		
+
+	for(K=K_begin;K<=K_end;K+=K_step){
+	for(T=T_begin;T<=T_end;T+=T_step){
+
 		#ifdef USE_CUDA
 			TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*T, &x_local) );
 		#else
 			TRY( VecCreateSeq(PETSC_COMM_SELF, K*T, &x_local) );
 		#endif
 
-		GeneralVector<PetscVector> x(x_local);
 		timer1.restart();	
 
 	/* log */
@@ -107,7 +109,7 @@ int main( int argc, char *argv[] )
 
 		/* --- COMPUTE PROJECTION --- */
 			timer1.start();
-			feasibleset.project(x);
+			feasibleset.project(*x);
 			timer1.stop();
 	
 		/* restore global vector from local */
@@ -116,8 +118,7 @@ int main( int argc, char *argv[] )
 	}
 
 	/* --- PRINT INFO ABOUT TIMERS --- */
-		coutMaster << "K = " << K << ", T = " << T << std::endl;
-		coutMaster << " 1.) PetscVecSeq = " << std::setw(10) << timer1.get_value_sum() << std::endl;
+		coutMaster << "K = "<< std::setw(4) << K << ", T = " << std::setw(9) << T << ", time = " << std::setw(10) << timer1.get_value_sum() << std::endl;
 
 		#ifdef USE_CUDA
 			oss_print_to_log << "TIME_PETSCVECSEQ|";
@@ -129,14 +130,15 @@ int main( int argc, char *argv[] )
 		LOG_DIRECT(oss_print_to_log.str());
 		oss_print_to_log.str("");
 	
+	}
+	}
+	
 	/* --- DESTROY --- */
 		/* destroy the random generator */
 		TRY( PetscRandomDestroy(&rnd) );
 
 		/* destroy used vector */
 		TRY( VecDestroy(&x_global) );	
-	}
-	}
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
