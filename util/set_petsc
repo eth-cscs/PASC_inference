@@ -1,2 +1,2 @@
 export PETSC_DIR=/users/pospisil/playground/petsc-maint
-export PETSC_ARCH=arch-gnu-xc30-daint
+export PETSC_ARCH=arch-gnu-xc30-daint-cuda

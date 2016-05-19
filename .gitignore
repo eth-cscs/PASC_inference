@@ -30,4 +30,5 @@
 html
 build
 examples/build
+examples/build2
 doxygen_sqlite3.db
