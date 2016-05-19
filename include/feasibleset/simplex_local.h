@@ -140,6 +140,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	
 	TRY( VecGetArray(x.get_vector(),&x_arr) );
 
+	#pragma omp parallel for
 	for(t=0;t<T;t++){
 		/* cut x_sub from x */
 		for(k=0;k<K_local;k++){

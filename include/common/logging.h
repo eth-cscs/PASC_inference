@@ -7,7 +7,7 @@
 
 #define LOG_SEPARATOR "|"
 
-#define DEFAULT_LOG_FUNC_CALL	true
+#define DEFAULT_LOG_FUNC_CALL	false
 #define DEFAULT_LOG_LEVEL		true
 #define DEFAULT_LOG_MEMORY		true
 #define DEFAULT_LOG_FILE_LINE	false
@@ -21,6 +21,8 @@
 #define LOG_IT(it_num) logging.it(this->get_name(),__FILE__,__LINE__,it_num);
 #define LOG_FX(fx_value) logging.fx(this->get_name(),__FILE__,__LINE__,fx_value);
 #define LOG_FX2(fx_value,name_add) logging.fx(this->get_name(),__FILE__,__LINE__,fx_value,name_add);
+
+#define LOG_DIRECT(my_string) logging.direct(my_string, __FILE__,__LINE__);
 
 
 namespace pascinference {
@@ -108,7 +110,7 @@ class LoggingClass {
 					myfile << __LINE__ << LOG_SEPARATOR;
 				}
 				myfile << "LOG_CLOSE" << LOG_SEPARATOR;
-				myfile << "filename=" << filename;
+				myfile << "filename=" << *filename;
 				myfile << "\n";
 				closefile();			
 			}
@@ -223,6 +225,27 @@ class LoggingClass {
 				closefile();
 			}
 		};
+
+		template<class AnyType>
+		void direct(AnyType my_string, std::string file, int line){
+			if(log_or_not){
+				openfile();
+				myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
+				if(log_or_not_level){
+					myfile << level << LOG_SEPARATOR;
+				}
+				if(log_or_not_memory){
+					myfile << MemoryCheck::get_virtual() << LOG_SEPARATOR;
+				}
+				if(log_or_not_file_line){
+					myfile << file << LOG_SEPARATOR;
+					myfile << line << LOG_SEPARATOR;
+				}
+				myfile << my_string << "\n";
+				closefile();
+			}
+		};
+
 };
 
 LoggingClass logging;
