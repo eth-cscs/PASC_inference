@@ -52,7 +52,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		 * @param x_sub values of subvector in array
 		 * @param n size of subvector
 		*/ 		
-		void get_projection_sub(double *x_sub, int n);
+		void project_sub(int t, double *x, int T, int K);
 
 	public:
 		/** @brief default constructor
@@ -83,8 +83,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		 */		
 		void project(GeneralVector<PetscVector> &x);
 
-		void project_sub(int t, double *x, int T, int K);
-		void sort_bubble(double *x, int n);
+
 		
 		
 };
@@ -153,12 +152,12 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 #ifdef USE_GPU
 	/* use kernel to compute projection */
 	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
-	project_kernel<<<T, 1>>>(x_local_arr,T,K_local);
+	project_kernel<<<T, 1>>>(x_arr,T,K_local);
 #else
 	/* use openmp */
 	#pragma omp parallel for
 	for(t=0;t<T;t++){
-		project_sub(t,x_local_arr,T,K_local);
+		project_sub(t,x_arr,T,K_local);
 	}
 #endif
 
@@ -168,7 +167,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 }
 
 
-void sort_bubble(double *x, int n){
+void SimplexFeasibleSet_Local::sort_bubble(double *x, int n){
 	int i;
 	int m = n;
 	int mnew;
@@ -204,7 +203,7 @@ void sort_bubble(double *x, int n){
  * K - number of clusters (2 - 10^2)
  * T - length of time-series (10^5 - 10^9) 
  */ 
-void project_sub(int t, double *x, int T, int K){
+void SimplexFeasibleSet_Local::project_sub(int t, double *x, int T, int K){
 	if(t<T){ /* maybe we call more than T kernels */
 		int k;
 
