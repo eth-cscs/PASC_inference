@@ -58,32 +58,31 @@ int main( int argc, char *argv[] )
 	coutMaster << "- start program" << std::endl;
 
 	Timer timer1; /* total projection time for petscseq */
+	timer1.restart();	
 
 	int K,T;
-/* prepare local petsc vector, 
-	 * in practical application, this vector
-	 * will be obtained from this "global" vector using VecGetLocalVector */
 	Vec x_global;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, K*T, &x_global) );
+	Vec x_local;
 
-	/* --- INITIALIZATION --- */
+	SimplexFeasibleSet_Local *feasibleset;  	
+	GeneralVector<PetscVector> *x;
+
 	/* prepare random generator */
-		PetscRandom rnd;
-		TRY( PetscRandomCreate(PETSC_COMM_WORLD,&rnd) );
-		TRY( PetscRandomSetType(rnd,PETSCRAND) );
-		TRY( PetscRandomSetFromOptions(rnd) );
-		TRY( PetscRandomSetSeed(rnd,13) );
+	PetscRandom rnd;
+	TRY( PetscRandomCreate(PETSC_COMM_WORLD,&rnd) );
+	TRY( PetscRandomSetType(rnd,PETSCRAND) );
+	TRY( PetscRandomSetFromOptions(rnd) );
+	TRY( PetscRandomSetSeed(rnd,13) );
 
-	/* prepare feasible set */
-		SimplexFeasibleSet_Local feasibleset(T,K);  	
-
-	/* petscvecseq */
-		Vec x_local;
-		GeneralVector<PetscVector> x(x_local);
-		
 
 	for(K=K_begin;K<=K_end;K+=K_step){
 	for(T=T_begin;T<=T_end;T+=T_step){
+
+		TRY( VecCreateMPI(PETSC_COMM_WORLD,K*T,PETSC_DETERMINE, &x_global) );
+		/* --- INITIALIZATION --- */
+
+		/* prepare feasible set */
+		feasibleset =  new SimplexFeasibleSet_Local(T,K);  	
 
 		#ifdef USE_CUDA
 			TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*T, &x_local) );
@@ -91,33 +90,30 @@ int main( int argc, char *argv[] )
 			TRY( VecCreateSeq(PETSC_COMM_SELF, K*T, &x_local) );
 		#endif
 
-		timer1.restart();	
-
-	/* log */
+		/* log */
 		std::ostringstream oss_print_to_log;
 
-	/* throught all sample cases */
-	int j;
-	for(j=0;j<n;j++){
-		/* --- SET RANDOM VALUES TO GLOBAL VECTOR --- */
+		/* throught all sample cases */
+		int j;
+		for(j=0;j<n;j++){
+			/* --- SET RANDOM VALUES TO GLOBAL VECTOR --- */
 			TRY( VecSetRandom(x_global, rnd) );
 		
-		/* --- GET LOCAL VECTOR --- */
-		/* petscvecseq */
+			/* --- GET LOCAL VECTOR --- */
 			TRY( VecGetLocalVector(x_global,x_local) );
 
+			x = new GeneralVector<PetscVector>(x_local);
 
-		/* --- COMPUTE PROJECTION --- */
+			/* --- COMPUTE PROJECTION --- */
 			timer1.start();
-			feasibleset.project(*x);
+				feasibleset->project(*x);
 			timer1.stop();
 	
-		/* restore global vector from local */
-			/* petsc sequential vector */
+			/* --- RESTORE GLOBAL VECTOR --- */
 			TRY( VecRestoreLocalVector(x_global,x_local) );
-	}
+		}
 
-	/* --- PRINT INFO ABOUT TIMERS --- */
+		/* --- PRINT INFO ABOUT TIMERS --- */
 		coutMaster << "K = "<< std::setw(4) << K << ", T = " << std::setw(9) << T << ", time = " << std::setw(10) << timer1.get_value_sum() << std::endl;
 
 		#ifdef USE_CUDA
@@ -130,15 +126,16 @@ int main( int argc, char *argv[] )
 		LOG_DIRECT(oss_print_to_log.str());
 		oss_print_to_log.str("");
 	
+		/* destroy used vectors */
+		TRY( VecDestroy(&x_global) );	
+
 	}
 	}
 	
 	/* --- DESTROY --- */
-		/* destroy the random generator */
-		TRY( PetscRandomDestroy(&rnd) );
+	/* destroy the random generator */
+	TRY( PetscRandomDestroy(&rnd) );
 
-		/* destroy used vector */
-		TRY( VecDestroy(&x_global) );	
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
