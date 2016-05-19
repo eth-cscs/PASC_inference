@@ -59,11 +59,11 @@ class LoggingClass {
 	public:
 		LoggingClass(){
 			log_or_not = false;
-		};
+		}
 
 		~LoggingClass(){
 	
-		};
+		}
 
 		void begin(std::string new_filename){
 			this->filename = new std::string(new_filename);
@@ -93,7 +93,7 @@ class LoggingClass {
 			myfile << "filename=" << filename << ",start time=" << reference_time;
 			myfile << "\n";
 			myfile.close();			
-		};
+		}
 		
 		void end(){
 			if(log_or_not){
@@ -115,7 +115,7 @@ class LoggingClass {
 				closefile();			
 			}
 			log_or_not = false;
-		};
+		}
 
 		void begin_func(std::string name_class,std::string name_function, std::string file, int line){
 			level++;
@@ -138,7 +138,7 @@ class LoggingClass {
 				myfile << "\n";
 				closefile();			
 			}
-		};
+		}
 		
 		void end_func(std::string name_class,std::string name_function, std::string file, int line){
 			if(log_or_not && log_or_not_func_call){
@@ -161,7 +161,7 @@ class LoggingClass {
 			}
 			
 			level--;
-		};
+		}
 		
 		void it(std::string name_algorithm, std::string file, int line, int it){
 			if(log_or_not){
@@ -182,7 +182,7 @@ class LoggingClass {
 				myfile << "\n";
 				closefile();
 			}
-		};
+		}
 
 		void fx(std::string name_algorithm, std::string file, int line, double fx_value){
 			if(log_or_not){
@@ -203,7 +203,7 @@ class LoggingClass {
 				myfile << "\n";
 				closefile();
 			}
-		};
+		}
 
 		void fx(std::string name_algorithm, std::string file, int line, double fx_value, std::string name_add){
 			if(log_or_not){
@@ -224,7 +224,7 @@ class LoggingClass {
 				myfile << "\n";
 				closefile();
 			}
-		};
+		}
 
 		template<class AnyType>
 		void direct(AnyType my_string, std::string file, int line){
@@ -244,7 +244,7 @@ class LoggingClass {
 				myfile << my_string << "\n";
 				closefile();
 			}
-		};
+		}
 
 };
 
