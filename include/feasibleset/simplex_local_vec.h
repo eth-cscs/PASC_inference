@@ -17,6 +17,7 @@ extern int DEBUG_MODE;
  #error 'SIMPLEXFEASIBLESET_LOCAL_VEC is for PETSC'
 #endif
 
+#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 
 namespace pascinference {
 
@@ -78,7 +79,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		 * 
 		 * @param x point which will be projected
 		 */		
-		void project(Vec &x);
+		void project(Vec x);
 
 
 		
@@ -89,6 +90,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 #ifdef USE_CUDA
 __device__ void device_sort_bubble(double *x, int n);
 __global__ void project_kernel(double *x, int T, int K);
+__global__ void project_kernel_test(double *x, int T, int K);
 #endif
 
 } // end of namespace
@@ -133,22 +135,26 @@ std::string SimplexFeasibleSet_Local::get_name() const {
 	return "SimplexFeasibleSet_Local";
 }
 
-void SimplexFeasibleSet_Local::project(Vec &x) {
+void SimplexFeasibleSet_Local::project(Vec x) {
 	LOG_FUNC_BEGIN
 	
 	/* get local array */
 	double *x_arr;
 	
-	TRY( VecGetArray(x,&x_arr) );
 
 #ifdef USE_CUDA
 /* use kernel to compute projection */
+	TRY( VecCUDAGetArrayReadWrite(x,&x_arr) );
+
 	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
 	gpuErrchk(cudaDeviceSynchronize());
-	
 	project_kernel<<<T, 1>>>(x_arr,T,K_local);
 	gpuErrchk(cudaDeviceSynchronize());
+
+	TRY( VecCUDARestoreArrayReadWrite(x,&x_arr) );
 #else
+	TRY( VecGetArray(x,&x_arr) );
+
 	/* use openmp */
 	int t;
 	#pragma omp parallel for private(t)	
@@ -156,9 +162,9 @@ void SimplexFeasibleSet_Local::project(Vec &x) {
 		project_sub(t,x_arr,T,K_local);
 	}
 	
-#endif
-
 	TRY( VecRestoreArray(x,&x_arr) );
+	
+#endif
 
 	LOG_FUNC_END
 }
@@ -302,6 +308,14 @@ __device__ void device_sort_bubble(double *x, int n){
 	}
 }
 
+__global__ void project_kernel_test(double *x, int T, int K){
+    int t = blockIdx.x*blockDim.x + threadIdx.x;
+    
+    if(t<T){
+	x[t] = 1.5;
+    }
+
+}
 /* this is a kernel function which computes a projection of a point onto simplex in nD
  *
  * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
@@ -341,8 +355,8 @@ __global__ void project_kernel(double *x, int T, int K){
 		if(!is_inside){
 			int j,i;
 			/* compute sorted x_sub */
-			double *y;
-			y = new double[K];
+			double *y = new double[K];
+			
 			double sum_y;
 			for(k=0;k<K;k++){
 				y[k] = x[k*T+t]; 
@@ -384,7 +398,7 @@ __global__ void project_kernel(double *x, int T, int K){
 				}
 			}
 			
-			delete y;
+			delete[] y;
 			//free(y);
 		}
 		
