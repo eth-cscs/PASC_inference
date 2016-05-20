@@ -14,12 +14,17 @@ extern int DEBUG_MODE;
 #include "generalfeasibleset.h"
 #include "algebra.h"
 
+
+
 #ifndef USE_PETSCVECTOR
  #error 'SIMPLEXFEASIBLESET_LOCAL is for PETSCVECTOR'
 #endif
 
 typedef petscvector::PetscVector PetscVector;
 
+#ifdef USE_CUDA
+    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#endif
 
 namespace pascinference {
 

@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
 	TRY( PetscRandomSetFromOptions(rnd) );
 	TRY( PetscRandomSetSeed(rnd,13) );
 
-	GeneralVector<PetscVector> x(x_local);
+	GeneralVector<PetscVector> *x;
 
 	for(K=K_begin;K<=K_end;K+=K_step){
 	for(T=T_begin;T<=T_end;T+=T_step){
@@ -103,9 +103,11 @@ int main( int argc, char *argv[] )
 			/* --- GET LOCAL VECTOR --- */
 			TRY( VecGetLocalVector(x_global,x_local) );
 
+			x = new GeneralVector<PetscVector>(x_local);
+
 			/* --- COMPUTE PROJECTION --- */
 			timer1.start();
-				feasibleset->project(x);
+				feasibleset->project(*x);
 			timer1.stop();
 	
 			/* --- RESTORE GLOBAL VECTOR --- */
