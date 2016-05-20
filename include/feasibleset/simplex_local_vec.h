@@ -142,10 +142,12 @@ void SimplexFeasibleSet_Local::project(Vec &x) {
 	TRY( VecGetArray(x,&x_arr) );
 
 #ifdef USE_CUDA
-	/* use kernel to compute projection */
+/* use kernel to compute projection */
 	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
+	gpuErrchk(cudaDeviceSynchronize());
+	
 	project_kernel<<<T, 1>>>(x_arr,T,K_local);
-
+	gpuErrchk(cudaDeviceSynchronize());
 #else
 	/* use openmp */
 	int t;
@@ -339,7 +341,8 @@ __global__ void project_kernel(double *x, int T, int K){
 		if(!is_inside){
 			int j,i;
 			/* compute sorted x_sub */
-			double *y = new double[K];
+			double *y;
+			y = new double[K];
 			double sum_y;
 			for(k=0;k<K;k++){
 				y[k] = x[k*T+t]; 
@@ -382,11 +385,14 @@ __global__ void project_kernel(double *x, int T, int K){
 			}
 			
 			delete y;
+			//free(y);
 		}
 		
 	}
 
 	/* if t >= T then relax and do nothing */	
+
+
 }
 
 #endif
