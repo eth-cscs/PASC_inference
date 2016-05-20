@@ -1,24 +1,21 @@
-/** @file simplex_local.h
- *  @brief simplex feasible set for petscvector with local problems
+/** @file simplex_local_vec.h
+ *  @brief simplex feasible set for VEC with local problems
  *
  *  @author Lukas Pospisil
  */
 
-#ifndef PASC_SIMPLEXFEASIBLESET_LOCAL_H
-#define	PASC_SIMPLEXFEASIBLESET_LOCAL_H
+#ifndef PASC_SIMPLEXFEASIBLESET_LOCAL_VEC_H
+#define	PASC_SIMPLEXFEASIBLESET_LOCAL_VEC_H
 
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
 
 #include <iostream>
 #include "generalfeasibleset.h"
-#include "algebra.h"
 
-#ifndef USE_PETSCVECTOR
- #error 'SIMPLEXFEASIBLESET_LOCAL is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'SIMPLEXFEASIBLESET_LOCAL_VEC is for PETSC'
 #endif
-
-typedef petscvector::PetscVector PetscVector;
 
 
 namespace pascinference {
@@ -81,7 +78,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		 * 
 		 * @param x point which will be projected
 		 */		
-		void project(GeneralVector<PetscVector> &x);
+		void project(Vec &x);
 
 
 		
@@ -136,13 +133,13 @@ std::string SimplexFeasibleSet_Local::get_name() const {
 	return "SimplexFeasibleSet_Local";
 }
 
-void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
+void SimplexFeasibleSet_Local::project(Vec &x) {
 	LOG_FUNC_BEGIN
 	
 	/* get local array */
 	double *x_arr;
 	
-	TRY( VecGetArray(x.get_vector(),&x_arr) );
+	TRY( VecGetArray(x,&x_arr) );
 
 #ifdef USE_CUDA
 	/* use kernel to compute projection */
@@ -151,13 +148,15 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 
 #else
 	/* use openmp */
-	#pragma omp parallel for
-	for(int t=0;t<T;t++){
+	int t;
+	#pragma omp parallel for private(t)	
+	for(t=0;t<T;t++){
 		project_sub(t,x_arr,T,K_local);
 	}
+	
 #endif
 
-	TRY( VecRestoreArray(x.get_vector(),&x_arr) );
+	TRY( VecRestoreArray(x,&x_arr) );
 
 	LOG_FUNC_END
 }

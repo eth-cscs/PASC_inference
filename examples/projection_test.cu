@@ -8,7 +8,7 @@
  */
 
 #include "pascinference.h"
-#include "feasibleset/simplex_local.h"
+#include "feasibleset/simplex_local_vec.h"
 
 
 #ifndef USE_PETSCVECTOR
@@ -65,7 +65,6 @@ int main( int argc, char *argv[] )
 	Vec x_local;
 
 	SimplexFeasibleSet_Local *feasibleset;  	
-	GeneralVector<PetscVector> *x;
 
 	/* prepare random generator */
 	PetscRandom rnd;
@@ -102,11 +101,9 @@ int main( int argc, char *argv[] )
 			/* --- GET LOCAL VECTOR --- */
 			TRY( VecGetLocalVector(x_global,x_local) );
 
-			x = new GeneralVector<PetscVector>(x_local);
-
 			/* --- COMPUTE PROJECTION --- */
 			timer1.start();
-				feasibleset->project(*x);
+				feasibleset->project(x_local);
 			timer1.stop();
 	
 			/* --- RESTORE GLOBAL VECTOR --- */
@@ -125,6 +122,9 @@ int main( int argc, char *argv[] )
 
 		LOG_DIRECT(oss_print_to_log.str());
 		oss_print_to_log.str("");
+
+		/* destroy feasible set */
+		free(feasibleset);
 	
 		/* destroy used vectors */
 		TRY( VecDestroy(&x_global) );	
