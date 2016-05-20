@@ -145,19 +145,25 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	TRY( VecGetArray(x.get_vector(),&x_arr) );
 
 #ifdef USE_CUDA
+	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
+
 	/* use kernel to compute projection */
 	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
 	project_kernel<<<T, 1>>>(x_arr,T,K_local);
 
+	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
 #else
+	TRY( VecGetArray(x.get_vector(),&x_arr) );
+	
 	/* use openmp */
 	#pragma omp parallel for
 	for(int t=0;t<T;t++){
 		project_sub(t,x_arr,T,K_local);
 	}
-#endif
 
 	TRY( VecRestoreArray(x.get_vector(),&x_arr) );
+#endif
+
 
 	LOG_FUNC_END
 }

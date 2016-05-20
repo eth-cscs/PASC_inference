@@ -8,7 +8,7 @@
  */
 
 #include "pascinference.h"
-#include "feasibleset/simplex_local_vec.h"
+#include "feasibleset/simplex_local.h"
 
 
 #ifndef USE_PETSCVECTOR
@@ -26,7 +26,7 @@ int main( int argc, char *argv[] )
 	Initialize(argc, argv); 
 
 	/* read command line arguments */
-	if(argc < 7 && false){
+	if(argc < 7){
 		coutMaster << "1. 2. 3. argument - T_begin:T_step:T_end      - the dimension of the problem" << std::endl;
 		coutMaster << "4. 5. 6. argument - K_begin:K_step:K_end      - the number of clusters" << std::endl;
 		coutMaster << "7. argument       - n     					 - number of tests" << std::endl;
@@ -34,25 +34,15 @@ int main( int argc, char *argv[] )
 		return 1;
 	}
 
-//	int T_begin = atoi(argv[1]);
-//	int T_step = atoi(argv[2]);
-//	int T_end = atoi(argv[3]);
+	int T_begin = atoi(argv[1]);
+	int T_step = atoi(argv[2]);
+	int T_end = atoi(argv[3]);
 
-//	int K_begin = atoi(argv[4]);
-//	int K_step = atoi(argv[5]);
-//	int K_end = atoi(argv[6]);
+	int K_begin = atoi(argv[4]);
+	int K_step = atoi(argv[5]);
+	int K_end = atoi(argv[6]);
 
-	int T_begin = 10;
-	int T_step = 10;
-	int T_end = 50;
-
-	int K_begin = 1;
-	int K_step = 1;
-	int K_end = 5;
-
-//	int n = atoi(argv[7]);
-
-	int n = 100;
+	int n = atoi(argv[7]);
 
 	coutMaster << "T_begin:T_step:T_end      = " << std::setw(7) << T_begin << std::setw(7) << T_step << std::setw(7) << T_end << " (length of time-series)" << std::endl;
 	coutMaster << "K_begin:K_step:K_end      = " << std::setw(7) << K_begin << std::setw(7) << K_step << std::setw(7) << K_end << " (number of clusters)" << std::endl;
@@ -83,6 +73,7 @@ int main( int argc, char *argv[] )
 	TRY( PetscRandomSetFromOptions(rnd) );
 	TRY( PetscRandomSetSeed(rnd,13) );
 
+	GeneralVector<PetscVector> x(x_local);
 
 	for(K=K_begin;K<=K_end;K+=K_step){
 	for(T=T_begin;T<=T_end;T+=T_step){
@@ -96,8 +87,6 @@ int main( int argc, char *argv[] )
 		#ifdef USE_CUDA
 			TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*T, &x_local) );
 			gpuErrchk(cudaDeviceSynchronize());
-			
-//			coutMaster << "create:" << K << "," << T << std::endl;
 		#else
 			TRY( VecCreateSeq(PETSC_COMM_SELF, K*T, &x_local)  );
 		#endif
@@ -116,7 +105,7 @@ int main( int argc, char *argv[] )
 
 			/* --- COMPUTE PROJECTION --- */
 			timer1.start();
-				feasibleset->project(x_local);
+				feasibleset->project(x);
 			timer1.stop();
 	
 			/* --- RESTORE GLOBAL VECTOR --- */
