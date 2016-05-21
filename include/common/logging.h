@@ -7,7 +7,7 @@
 
 #define LOG_SEPARATOR "|"
 
-#define DEFAULT_LOG_FUNC_CALL	false
+#define DEFAULT_LOG_FUNC_CALL	true
 #define DEFAULT_LOG_LEVEL		true
 #define DEFAULT_LOG_MEMORY		true
 #define DEFAULT_LOG_FILE_LINE	false

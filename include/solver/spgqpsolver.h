@@ -11,7 +11,7 @@
 #include "data/qpdata.h"
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 10000;
-#define SPGQPSOLVER_DEFAULT_EPS 0.00001;
+#define SPGQPSOLVER_DEFAULT_EPS 0.0001;
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
 #define SPGQPSOLVER_DEFAULT_M 20;
@@ -413,8 +413,8 @@ void SPGQPSolver<VectorBase>::solve() {
 			break;
 		} else {
 			/* adaptive precision */
-			if(it == 1){ 
-				setting.eps = max(setting.eps,setting.eps*this->gP);
+			if(it == 2){ 
+				setting.eps = max(setting.eps,0.0001*this->gP);
 			}
 		}
 		
