@@ -78,6 +78,8 @@ int main( int argc, char *argv[] )
 	for(K=K_begin;K<=K_end;K+=K_step){
 	for(T=T_begin;T<=T_end;T+=T_step){
 
+		timer1.restart();
+
 		TRY( VecCreateMPI(PETSC_COMM_WORLD,K*T,PETSC_DETERMINE, &x_global) );
 		/* --- INITIALIZATION --- */
 
