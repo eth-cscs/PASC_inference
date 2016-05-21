@@ -270,8 +270,10 @@ void QPSolver<VectorBase>::solve() {
 
 	/* update settings of child solver */
 	child_solver->setting.debug_mode = setting.debug_mode;
+//	child_solver->setting.eps = setting.eps;
 
 	/* now the child_solver should be specified and prepared */
+	child_solver->myhotfixeps = this->myhotfixeps;
 
 	/* call solve function to child solver */
 	child_solver->solve();

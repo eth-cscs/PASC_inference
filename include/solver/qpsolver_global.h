@@ -272,6 +272,8 @@ void QPSolver_Global::solve() {
 
 	GetLocalData();
 		
+	solver_local->myhotfixeps = this->myhotfixeps;
+		
 	/* solve local problem */
 	solver_local->solve();
 

@@ -18,7 +18,7 @@ typedef petscvector::PetscVector PetscVector;
 //temp
 #include "solver/qpsolver.h"
 #include "solver/diagsolver.h"
-
+#include "solver/qpsolver_global.h"
 
 #define TSSOLVER_GLOBAL_DEFAULT_MAXIT 1000;
 #define TSSOLVER_GLOBAL_DEFAULT_EPS 0.001;
@@ -405,6 +405,21 @@ void TSSolver_Global::solve() {
 
 		this->timer_gamma_solve.start();
 		 if(solved_local == 0.0){
+			gammasolver->myhotfixeps = 0.0001;
+			if(it < 4){
+//			    gammasolver->myhotfixeps = 0.001;
+			}
+			if(it < 3){
+//			    gammasolver->myhotfixeps = 0.001;
+			}
+			if(it < 2){
+//			    gammasolver->myhotfixeps = 0.001;
+			}
+			if(it < 1){
+//			    gammasolver->myhotfixeps = 0.01;
+			}
+
+
 			gammasolver->solve();
 		 }
 		this->timer_gamma_solve.stop();
@@ -451,7 +466,7 @@ void TSSolver_Global::solve() {
 		}
 
 		/* update local stopping criteria */
-		if (deltaL < setting.eps){
+		if (deltaL < setting.eps && it > 4){
 			solved_local = 1.0;
 
 			TRY( VecGetArray(solved_vec,&solved_arr) );

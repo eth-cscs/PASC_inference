@@ -10,8 +10,8 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define SPGQPSOLVER_DEFAULT_MAXIT 10000;
-#define SPGQPSOLVER_DEFAULT_EPS 0.0001;
+#define SPGQPSOLVER_DEFAULT_MAXIT 5000;
+#define SPGQPSOLVER_DEFAULT_EPS 0.001;
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
 
 #define SPGQPSOLVER_DEFAULT_M 20;
@@ -369,8 +369,10 @@ void SPGQPSolver<VectorBase>::solve() {
 	this->timer_fs.start();
 	 fx = get_fx();
 	 this->fx = fx;
-	 fs.init(fx);	
+	 fs.init(fx);
 	this->timer_fs.stop();
+
+	coutMaster << this->myhotfixeps << std::endl;
 
 	/* main cycle */
 	while(it < setting.maxit){
@@ -409,13 +411,13 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* stopping criteria */
 		this->gP = sqrt(dd);
-		if(this->gP < setting.eps){
+		if(this->gP < this->myhotfixeps){
 			break;
 		} else {
 			/* adaptive precision */
-			if(it == 2){ 
-				setting.eps = max(setting.eps,0.0001*this->gP);
-			}
+//			if(it == 2){ 
+//				setting.eps = max(setting.eps,0.01*this->gP);
+//			}
 		}
 		
 		/* fx_max = max(fs) */

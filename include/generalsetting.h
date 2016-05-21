@@ -26,6 +26,8 @@ class GeneralSetting {
 	protected:
 
 	public:
+		double eps;
+
 		/** @brief default constructor
 		 */
 		GeneralSetting() {};

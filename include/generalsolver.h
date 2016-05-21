@@ -59,6 +59,8 @@ class GeneralSolver {
 	public:
 		GeneralSolverSetting setting; /**< settings of the solver */
 
+		double myhotfixeps;
+
 		/** @brief default constructor
 		 * 
 		 * Set inner data to null.
