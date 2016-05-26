@@ -26,31 +26,6 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-/* settings */
-class MultiCGSolver_GlobalSetting : public QPSolverSetting {
-	public:
-		MultiCGSolver_GlobalSetting() {
-			this->maxit = MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT;
-			this->eps = MULTICGSOLVER_GLOBAL_DEFAULT_EPS;
-			this->debug_mode = MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
-		};
-		~MultiCGSolver_GlobalSetting() {};
-
-		virtual void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - maxit:      " << this->maxit << std::endl;
-			output <<  " - eps:        " << this->eps << std::endl;
-			output <<  " - debug_mode: " << this->debug_mode << std::endl;
-
-		};
-
-		std::string get_name() const {
-			return "MultiCG_Global SolverSetting";
-		};
-		
-};
-
-
 /* MultiCGSolver_Global */ 
 class MultiCGSolver_Global: public QPSolver<PetscVector> {
 	protected:
@@ -68,8 +43,6 @@ class MultiCGSolver_Global: public QPSolver<PetscVector> {
 		void RestoreLocalData();
 
 	public:
-		MultiCGSolver_GlobalSetting setting;
-
 		MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata); 
 		~MultiCGSolver_Global();
 
@@ -103,6 +76,10 @@ MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata
 	this->fx = -1; /* max(norm(g)) */
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
+
+	this->maxit = MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT;
+	this->eps = MULTICGSOLVER_GLOBAL_DEFAULT_EPS;
+	this->debug_mode = MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
 
 	/* initialize local QP solver */
 	this->data_local = new QPData<PetscVector>();
@@ -174,9 +151,9 @@ void MultiCGSolver_Global::print(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 	
 	/* print settings */
-	coutMaster.push();
-	setting.print(output);
-	coutMaster.pop();
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -196,9 +173,9 @@ void MultiCGSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_global << this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global.push();
-	setting.print(output_global);
-	output_global.pop();
+	output_global <<  " - maxit:      " << this->maxit << std::endl;
+	output_global <<  " - eps:        " << this->eps << std::endl;
+	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -244,8 +221,6 @@ std::string MultiCGSolver_Global::get_name() const {
 }
 
 double MultiCGSolver_Global::get_fx() const {
-	if(setting.debug_mode >= 11) coutMaster << "(MultiCGSolver_Global)FUNCTION: get_fx()" << std::endl;
-	
 	return this->fx;	
 }
 

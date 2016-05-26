@@ -17,34 +17,6 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-/* settings */
-class QPSolver_GlobalSetting : public GeneralSolverSetting {
-	protected:
-
-	public:
-	
-		QPSolver_GlobalSetting() {
-			this->maxit = QPSOLVER_GLOBAL_DEFAULT_MAXIT;
-			this->eps = QPSOLVER_GLOBAL_DEFAULT_EPS;
-			this->debug_mode = QPSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
-		};
-		~QPSolver_GlobalSetting() {};
-
-		virtual void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - maxit: " << this->maxit << std::endl;
-			output <<  " - eps:   " << this->eps << std::endl;
-
-		};
-
-		std::string get_name() const {
-			return "General Global QP SolverSetting";
-		};
-	
-
-};
-
-
 /* QPSolver_Global */ 
 class QPSolver_Global: public QPSolver<PetscVector> {
 	protected:
@@ -61,8 +33,6 @@ class QPSolver_Global: public QPSolver<PetscVector> {
 		void RestoreLocalData();
 
 	public:
-		QPSolver_GlobalSetting setting;
-
 		QPSolver_Global(const QPData<PetscVector> &new_qpdata); 
 		~QPSolver_Global();
 
@@ -98,6 +68,10 @@ QPSolver_Global::QPSolver_Global(const QPData<PetscVector> &new_qpdata){
 	this->fx = -1;
 	this->it_last = 0; 
 	this->hessmult_last = 0; 
+
+	this->maxit = QPSOLVER_GLOBAL_DEFAULT_MAXIT;
+	this->eps = QPSOLVER_GLOBAL_DEFAULT_EPS;
+	this->debug_mode = QPSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
 
 	/* initialize local QP solver */
 	this->data_local = new QPData<PetscVector>();
@@ -169,9 +143,9 @@ void QPSolver_Global::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	coutMaster.push();
-	setting.print(output);
-	coutMaster.pop();
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -190,9 +164,9 @@ void QPSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global.push();
-	setting.print(output_global);
-	output_global.pop();
+	output_global <<  " - maxit:      " << this->maxit << std::endl;
+	output_global <<  " - eps:        " << this->eps << std::endl;
+	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	output_global << " - local solver:" << std::endl;
 	output_global.push();
@@ -272,7 +246,8 @@ void QPSolver_Global::solve() {
 
 	GetLocalData();
 		
-	solver_local->myhotfixeps = this->myhotfixeps;
+	/* set settings */
+	solver_local->eps = this->eps;
 		
 	/* solve local problem */
 	solver_local->solve();
@@ -290,20 +265,14 @@ void QPSolver_Global::solve() {
 }
 
 double QPSolver_Global::get_fx() const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: get_fx()" << std::endl;
-
 	return this->fx; 
 }
 
 int QPSolver_Global::get_it() const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: get_it()" << std::endl;
-
 	return this->it_last; 
 }
 
 int QPSolver_Global::get_hessmult() const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver_Global)FUNCTION: get_hessmult()" << std::endl;
-
 	return this->hessmult_last; 
 }
 

@@ -22,51 +22,6 @@
 
 namespace pascinference {
 
-/* settings */
-class SPGQPSolverSetting : public QPSolverSetting {
-	public:
-		int m; /* size of fs */
-		double gamma; 
-		double sigma1;
-		double sigma2;
-		double alphainit; /* initial step-size */
-
-		SPGQPSolverSetting() {
-			this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
-			this->eps = SPGQPSOLVER_DEFAULT_EPS;
-			this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
-
-			m = SPGQPSOLVER_DEFAULT_M;
-			gamma = SPGQPSOLVER_DEFAULT_GAMMA;
-			sigma1 = SPGQPSOLVER_DEFAULT_SIGMA1;
-			sigma2 = SPGQPSOLVER_DEFAULT_SIGMA2;
-			alphainit = SPGQPSOLVER_DEFAULT_ALPHAINIT;
-
-		};
-		~SPGQPSolverSetting() {};
-
-		virtual void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - maxit:      " << this->maxit << std::endl;
-			output <<  " - eps:        " << this->eps << std::endl;
-			output <<  " - debug_mode: " << this->debug_mode << std::endl;
-
-			output <<  " - m:          " << m << std::endl;
-			output <<  " - gamma:      " << gamma << std::endl;
-			output <<  " - sigma1:     " << sigma1 << std::endl;
-			output <<  " - sigma2:     " << sigma2 << std::endl;
-			output <<  " - alphainit:  " << alphainit << std::endl;
-
-			output.synchronize();
-		};
-
-		std::string get_name() const {
-			return "SPGQP SolverSetting";
-		};
-		
-};
-
-
 /* for manipulation with fs - function values for generalized Armijo condition */
 class SPGQPSolver_fs {
 	private:
@@ -89,28 +44,33 @@ class SPGQPSolver_fs {
 template<class VectorBase>
 class SPGQPSolver: public QPSolver<VectorBase> {
 	private:
-		Timer timer_solve; /* total solution time of SPG algorithm */
-		Timer timer_projection; /* the sum of time necessary to perform projections */
-		Timer timer_matmult; /* the sum of time necessary to perform matrix multiplication */
-		Timer timer_dot; /* the sum of time necessary to compute dot_products */
-		Timer timer_update; /* total time of vector updates */
-		Timer timer_stepsize; /* total time of step-size computation */
-		Timer timer_fs; /* total time of manipulation with fs vector during iterations */
+		Timer timer_solve; 			/**< total solution time of SPG algorithm */
+		Timer timer_projection;		/**< the sum of time necessary to perform projections */
+		Timer timer_matmult; 		/**< the sum of time necessary to perform matrix multiplication */
+		Timer timer_dot; 			/**< the sum of time necessary to compute dot_products */
+		Timer timer_update; 		/**< total time of vector updates */
+		Timer timer_stepsize;	 	/**< total time of step-size computation */
+		Timer timer_fs; 			/**< total time of manipulation with fs vector during iterations */
 
-		QPData<VectorBase> *qpdata; /* data on which the solver operates */
-		double gP; /* norm of projected gradient */
+		/* settings */
+		int m;						/**< size of fs */
+		double gamma; 
+		double sigma1;
+		double sigma2;
+		double alphainit;			/** initial step-size */
+
+		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
+		double gP; 					/**< norm of projected gradient */
 	
 		/* temporary vectors used during the solution process */
 		void allocate_temp_vectors();
 		void free_temp_vectors();
-		GeneralVector<VectorBase> *g; /* gradient */
-		GeneralVector<VectorBase> *d; /* projected gradient */
-		GeneralVector<VectorBase> *Ad; /* A*d */
-		GeneralVector<VectorBase> *temp; /* general temp vector */
+		GeneralVector<VectorBase> *g; 		/**< gradient */
+		GeneralVector<VectorBase> *d; 		/**< projected gradient */
+		GeneralVector<VectorBase> *Ad; 		/**< A*d */
+		GeneralVector<VectorBase> *temp;	/**< general temp vector */
 
 	public:
-		SPGQPSolverSetting setting;
-
 		SPGQPSolver();
 		SPGQPSolver(QPData<VectorBase> &new_qpdata); 
 		~SPGQPSolver();
@@ -145,10 +105,10 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	qpdata = NULL;
 	
 	/* temp vectors */
-	g = NULL;
-	d = NULL;
-	Ad = NULL;
-	temp = NULL;
+	this->g = NULL;
+	this->d = NULL;
+	this->Ad = NULL;
+	this->temp = NULL;
 
 	this->it_sum = 0;
 	this->hessmult_sum = 0;
@@ -157,6 +117,17 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	
 	this->fx = std::numeric_limits<double>::max();
 	this->gP = std::numeric_limits<double>::max();
+
+	/* settings */
+	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
+	this->eps = SPGQPSOLVER_DEFAULT_EPS;
+	this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
+
+	this->m = SPGQPSOLVER_DEFAULT_M;
+	this->gamma = SPGQPSOLVER_DEFAULT_GAMMA;
+	this->sigma1 = SPGQPSOLVER_DEFAULT_SIGMA1;
+	this->sigma2 = SPGQPSOLVER_DEFAULT_SIGMA2;
+	this->alphainit = SPGQPSOLVER_DEFAULT_ALPHAINIT;
 	
 	/* prepare timers */
 	this->timer_solve.restart();	
@@ -186,6 +157,17 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 
 	this->fx = std::numeric_limits<double>::max();
 	this->gP = std::numeric_limits<double>::max();
+
+	/* settings */
+	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
+	this->eps = SPGQPSOLVER_DEFAULT_EPS;
+	this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
+
+	this->m = SPGQPSOLVER_DEFAULT_M;
+	this->gamma = SPGQPSOLVER_DEFAULT_GAMMA;
+	this->sigma1 = SPGQPSOLVER_DEFAULT_SIGMA1;
+	this->sigma2 = SPGQPSOLVER_DEFAULT_SIGMA2;
+	this->alphainit = SPGQPSOLVER_DEFAULT_ALPHAINIT;
 
 	/* prepare timers */
 	this->timer_projection.restart();
@@ -248,9 +230,15 @@ void SPGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	coutMaster.push();
-	setting.print(output);
-	coutMaster.pop();	
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+
+	output <<  " - m:          " << m << std::endl;
+	output <<  " - gamma:      " << gamma << std::endl;
+	output <<  " - sigma1:     " << sigma1 << std::endl;
+	output <<  " - sigma2:     " << sigma2 << std::endl;
+	output <<  " - alphainit:  " << alphainit << std::endl;
 	
 	/* print data */
 	if(qpdata){
@@ -341,7 +329,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	int hessmult = 0; /* number of hessian multiplications */
 
 	double fx; /* function value */
-	SPGQPSolver_fs fs(setting.m); /* store function values for generalized Armijo condition */
+	SPGQPSolver_fs fs(this->m); /* store function values for generalized Armijo condition */
 	double fx_max; /* max(fs) */
 	double xi, beta_bar, beta_hat, beta; /* for Armijo condition */
 	double dd; /* dot(d,d) */
@@ -350,7 +338,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	double alpha_bb; /* BB step-size */
 
 	/* initial step-size */
-	alpha_bb = setting.alphainit;
+	alpha_bb = this->alphainit;
 
 	x = x0; /* set approximation as initial */
 
@@ -372,10 +360,8 @@ void SPGQPSolver<VectorBase>::solve() {
 	 fs.init(fx);
 	this->timer_fs.stop();
 
-	coutMaster << this->myhotfixeps << std::endl;
-
 	/* main cycle */
-	while(it < setting.maxit){
+	while(it < this->maxit){
 		/* increase iteration counter */
 		it += 1;
 		
@@ -411,12 +397,12 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* stopping criteria */
 		this->gP = sqrt(dd);
-		if(this->gP < this->myhotfixeps){
+		if(this->gP < this->eps){
 			break;
 		} else {
 			/* adaptive precision */
 //			if(it == 2){ 
-//				setting.eps = max(setting.eps,0.01*this->gP);
+//				this->eps = max(this->eps,0.01*this->gP);
 //			}
 		}
 		
@@ -429,17 +415,17 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.start();
 		 xi = (fx_max - fx)/dAd;
 		 beta_bar = -gd/dAd;
-		 beta_hat = setting.gamma*beta_bar + std::sqrt(setting.gamma*setting.gamma*beta_bar*beta_bar + 2*xi);
+		 beta_hat = this->gamma*beta_bar + std::sqrt(this->gamma*this->gamma*beta_bar*beta_bar + 2*xi);
 
 		 /* beta = max(sigma1,min(sigma2,beta_hat)) */
-		 if(beta_hat < setting.sigma1){
-			 beta_hat = setting.sigma1;
+		 if(beta_hat < this->sigma1){
+			 beta_hat = this->sigma1;
 		 }
 		 
-		 if(beta_hat < setting.sigma2){
+		 if(beta_hat < this->sigma2){
 			beta = beta_hat;
 		 } else {
-			beta = setting.sigma2;
+			beta = this->sigma2;
 		 }
 		this->timer_stepsize.stop();
 
@@ -461,7 +447,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.stop();
 
 		/* print qpdata */
-		if(setting.debug_mode >= 10){
+		if(this->debug_mode >= 10){
 			coutMaster << "x: " << x << std::endl;
 			coutMaster << "d: " << d << std::endl;
 			coutMaster << "g: " << g << std::endl;
@@ -470,19 +456,19 @@ void SPGQPSolver<VectorBase>::solve() {
 		}
 
 		/* print progress of algorithm */
-		if(setting.debug_mode >= 3 && false){
+		if(this->debug_mode >= 3 && false){
 			coutMaster << "\033[33m   it = \033[0m" << it;
 			coutMaster << ", \t\033[36mfx = \033[0m" << fx;
 			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
-		if(setting.debug_mode >= 3){
+		if(this->debug_mode >= 3){
 			coutAll << "\033[33m   it = \033[0m" << it << std::endl;
 		}
 
 
-		if(setting.debug_mode >= 5){
+		if(this->debug_mode >= 5){
 			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			coutMaster << "\033[36m dAd = \033[0m" << dAd << ",";
 			coutMaster << "\033[36m gd = \033[0m" << gd << std::endl;
@@ -508,7 +494,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	this->timer_solve.stop();
 
 	/* very short info */
-	if(setting.debug_mode >= 3 || false){
+	if(this->debug_mode >= 3 || false){
 		coutAll <<  " - it    = " << it << std::endl;
 		coutAll <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
 

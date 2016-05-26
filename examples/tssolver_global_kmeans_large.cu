@@ -126,8 +126,8 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
-	mysolver.setting.maxit = 1000;
-	mysolver.setting.debug_mode = 2;
+	mysolver.maxit = 1000;
+	mysolver.debug_mode = 2;
 //	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */

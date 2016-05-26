@@ -16,37 +16,6 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-/* settings */
-class QPSolverSetting : public GeneralSolverSetting {
-	protected:
-
-	public:
-		SolverType child_solvertype;
-	
-		QPSolverSetting() {
-			this->maxit = QPSOLVER_DEFAULT_MAXIT;
-			this->eps = QPSOLVER_DEFAULT_EPS;
-			this->debug_mode = QPSOLVER_DEFAULT_DEBUG_MODE;
-			
-			this->child_solvertype = SOLVER_AUTO;
-		};
-		~QPSolverSetting() {};
-
-		virtual void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - maxit: " << this->maxit << std::endl;
-			output <<  " - eps:   " << this->eps << std::endl;
-
-		};
-
-		std::string get_name() const {
-			return "General QP SolverSetting";
-		};
-	
-
-};
-
-
 /* QPSolver */ 
 template<class VectorBase>
 class QPSolver: public GeneralSolver {
@@ -60,10 +29,9 @@ class QPSolver: public GeneralSolver {
 		int it_last; /**< number of iterations during last solution */
 		int hessmult_sum; /**< number of all Hessian multiplication */
 		int hessmult_last; /**< number of Hessian multiplication */
-		
-	public:
-		QPSolverSetting setting;
 
+		SolverType child_solvertype;		
+	public:
 		QPSolver();
 		QPSolver(QPData<VectorBase> &new_qpdata); 
 		~QPSolver();
@@ -104,6 +72,12 @@ QPSolver<VectorBase>::QPSolver(){
 	
 	fx = std::numeric_limits<double>::max();
 
+	this->maxit = QPSOLVER_DEFAULT_MAXIT;
+	this->eps = QPSOLVER_DEFAULT_EPS;
+	this->debug_mode = QPSOLVER_DEFAULT_DEBUG_MODE;
+			
+	this->child_solvertype = SOLVER_AUTO;
+
 	LOG_FUNC_END
 }
 
@@ -114,6 +88,12 @@ QPSolver<VectorBase>::QPSolver(QPData<VectorBase> &new_qpdata){
 	qpdata = &new_qpdata;
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
 	fx = std::numeric_limits<double>::max();
+
+	this->maxit = QPSOLVER_DEFAULT_MAXIT;
+	this->eps = QPSOLVER_DEFAULT_EPS;
+	this->debug_mode = QPSOLVER_DEFAULT_DEBUG_MODE;
+			
+	this->child_solvertype = SOLVER_AUTO;
 
 	LOG_FUNC_END
 }
@@ -138,9 +118,9 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	coutMaster.push();
-	setting.print(output);
-	coutMaster.pop();
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -164,9 +144,9 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global.push();
-	setting.print(output_global);
-	output_global.pop();
+	output_global <<  " - maxit:      " << this->maxit << std::endl;
+	output_global <<  " - eps:        " << this->eps << std::endl;
+	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -244,36 +224,33 @@ void QPSolver<VectorBase>::solve() {
 	/* the child solver wasn't specified yet */
 	if(!child_solver){
 		/* which specific solver we can use to solve the problem? */
-		if(setting.child_solvertype == SOLVER_AUTO){
+		if(this->child_solvertype == SOLVER_AUTO){
 			//TODO: here write more sophisticated auto decision tree
 			if(qpdata->get_feasibleset()){
 				/* with constraints */
-				setting.child_solvertype = SOLVER_SPGQP;
+				this->child_solvertype = SOLVER_SPGQP;
 			} else {
 				/* unconstrained */
-				setting.child_solvertype = SOLVER_CG;
+				this->child_solvertype = SOLVER_CG;
 			}
 		} 
 
 		/* prepare CG solver */
-		if(setting.child_solvertype == SOLVER_CG){
+		if(this->child_solvertype == SOLVER_CG){
 			/* create new instance of CG Solver */
 			child_solver = new CGQPSolver<VectorBase>(*qpdata);
 		}
 
 		/* prepare SPGQP solver */
-		if(setting.child_solvertype == SOLVER_SPGQP){
+		if(this->child_solvertype == SOLVER_SPGQP){
 			/* create new instance of CG Solver */
 			child_solver = new SPGQPSolver<VectorBase>(*qpdata);
 		}
 	}
 
 	/* update settings of child solver */
-	child_solver->setting.debug_mode = setting.debug_mode;
-//	child_solver->setting.eps = setting.eps;
-
-	/* now the child_solver should be specified and prepared */
-	child_solver->myhotfixeps = this->myhotfixeps;
+	child_solver->debug_mode = this->debug_mode;
+	child_solver->eps = this->eps;
 
 	/* call solve function to child solver */
 	child_solver->solve();
@@ -290,22 +267,16 @@ void QPSolver<VectorBase>::solve() {
 
 template<class VectorBase>
 double QPSolver<VectorBase>::get_fx() const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_fx()" << std::endl;
-
 	return child_solver->get_fx(); // TODO: control existence
 }
 
 template<class VectorBase>
 int QPSolver<VectorBase>::get_it() const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_it()" << std::endl;
-
 	return child_solver->get_it(); // TODO: control existence
 }
 
 template<class VectorBase>
 int QPSolver<VectorBase>::get_hessmult() const {
-	if(setting.debug_mode >= 100) coutMaster << "(QPSolver)FUNCTION: get_hessmult()" << std::endl;
-
 	return child_solver->get_hessmult(); // TODO: control existence
 }
 

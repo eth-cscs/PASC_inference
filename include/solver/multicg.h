@@ -18,31 +18,6 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-/* settings */
-class MultiCGSolverSetting : public QPSolverSetting {
-	public:
-		MultiCGSolverSetting() {
-			this->maxit = MULTICGSOLVER_DEFAULT_MAXIT;
-			this->eps = MULTICGSOLVER_DEFAULT_EPS;
-			this->debug_mode = MULTICGSOLVER_DEFAULT_DEBUG_MODE;
-		};
-		~MultiCGSolverSetting() {};
-
-		virtual void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - maxit:      " << this->maxit << std::endl;
-			output <<  " - eps:        " << this->eps << std::endl;
-			output <<  " - debug_mode: " << this->debug_mode << std::endl;
-
-		};
-
-		std::string get_name() const {
-			return "MultiCG SolverSetting";
-		};
-		
-};
-
-
 /* MultiCGSolver */ 
 template<class VectorBase>
 class MultiCGSolver: public QPSolver<VectorBase> {
@@ -50,8 +25,6 @@ class MultiCGSolver: public QPSolver<VectorBase> {
 		const QPData<VectorBase> *qpdata; /* data on which the solver operates, matrix has to be blogdiag */
 	
 	public:
-		MultiCGSolverSetting setting;
-
 		MultiCGSolver();
 		MultiCGSolver(const QPData<VectorBase> &new_qpdata); 
 		~MultiCGSolver();
@@ -86,6 +59,10 @@ MultiCGSolver<VectorBase>::MultiCGSolver(){
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
 
+	this->maxit = MULTICGSOLVER_DEFAULT_MAXIT;
+	this->eps = MULTICGSOLVER_DEFAULT_EPS;
+	this->debug_mode = MULTICGSOLVER_DEFAULT_DEBUG_MODE;
+
 	LOG_FUNC_END
 }
 
@@ -98,6 +75,10 @@ MultiCGSolver<VectorBase>::MultiCGSolver(const QPData<VectorBase> &new_qpdata){
 	this->fx = -1; /* max(norm(g)) */
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
+
+	this->maxit = MULTICGSOLVER_DEFAULT_MAXIT;
+	this->eps = MULTICGSOLVER_DEFAULT_EPS;
+	this->debug_mode = MULTICGSOLVER_DEFAULT_DEBUG_MODE;
 
 	LOG_FUNC_END
 }
@@ -119,9 +100,9 @@ void MultiCGSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 	
 	/* print settings */
-	coutMaster.push();
-	setting.print(output);
-	coutMaster.pop();
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -241,7 +222,7 @@ void MultiCGSolver<VectorBase>::solve() {
 
 template<class VectorBase>
 double MultiCGSolver<VectorBase>::get_fx() const {
-	if(setting.debug_mode >= 11) coutMaster << "(MultiCGSolver)FUNCTION: get_fx()" << std::endl;
+	if(this->debug_mode >= 11) coutMaster << "(MultiCGSolver)FUNCTION: get_fx()" << std::endl;
 	
 	return this->fx;	
 }

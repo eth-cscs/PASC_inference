@@ -14,25 +14,6 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-/* settings */
-class DiagSolverSetting : public GeneralSolverSetting {
-	public:
-		DiagSolverSetting() {
-			this->debug_mode = DIAGSOLVER_DEFAULT_DEBUG_MODE;
-		};
-		~DiagSolverSetting() {};
-
-		virtual void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - debug_mode: " << this->debug_mode << std::endl;
-		};
-
-		std::string get_name() const {
-			return "DiagSolverSetting";
-		};
-		
-};
-
 
 /* DiagSolver */ 
 template<class VectorBase>
@@ -44,7 +25,6 @@ class DiagSolver: public GeneralSolver {
 		DiagData<VectorBase> *diagdata; /* data on which the solver operates */
 
 	public:
-		DiagSolverSetting setting;
 
 		DiagSolver();
 		DiagSolver(DiagData<VectorBase> &new_diagdata); 
@@ -103,9 +83,9 @@ void DiagSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	coutMaster.push();
-	setting.print(output);
-	coutMaster.pop();
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(diagdata){

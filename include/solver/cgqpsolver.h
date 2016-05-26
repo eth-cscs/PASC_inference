@@ -14,31 +14,6 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-/* settings */
-class CGQPSolverSetting : public QPSolverSetting {
-	public:
-		CGQPSolverSetting() {
-			this->maxit = CGQPSOLVER_DEFAULT_MAXIT;
-			this->eps = CGQPSOLVER_DEFAULT_EPS;
-			this->debug_mode = CGQPSOLVER_DEFAULT_DEBUG_MODE;
-		};
-		~CGQPSolverSetting() {};
-
-		virtual void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - maxit:      " << this->maxit << std::endl;
-			output <<  " - eps:        " << this->eps << std::endl;
-			output <<  " - debug_mode: " << this->debug_mode << std::endl;
-
-		};
-
-		std::string get_name() const {
-			return "CG SolverSetting";
-		};
-		
-};
-
-
 /* CGQPSolver */ 
 template<class VectorBase>
 class CGQPSolver: public QPSolver<VectorBase> {
@@ -53,7 +28,6 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		GeneralVector<VectorBase> *Ap; /* A*p */
 	
 	public:
-		CGQPSolverSetting setting;
 
 		CGQPSolver();
 		CGQPSolver(const QPData<VectorBase> &new_qpdata); 
@@ -100,6 +74,11 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 	this->hessmult_sum = 0;
 	this->it_last = 0;
 	this->hessmult_last = 0;	
+
+	/* settings */
+	this->maxit = CGQPSOLVER_DEFAULT_MAXIT;
+	this->eps = CGQPSOLVER_DEFAULT_EPS;
+	this->debug_mode = CGQPSOLVER_DEFAULT_DEBUG_MODE;
 	
 	/* timers */
 	
@@ -124,6 +103,11 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
 	this->hessmult_sum = 0;
 	this->it_last = 0;
 	this->hessmult_last = 0;	
+
+	/* settings */
+	this->maxit = CGQPSOLVER_DEFAULT_MAXIT;
+	this->eps = CGQPSOLVER_DEFAULT_EPS;
+	this->debug_mode = CGQPSOLVER_DEFAULT_DEBUG_MODE;
 	
 	/* timers */
 
@@ -179,9 +163,9 @@ void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	coutMaster.push();
-	setting.print(output);
-	coutMaster.pop();
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print settings */
 	if(qpdata){
@@ -288,7 +272,7 @@ void CGQPSolver<VectorBase>::solve() {
 	gg = dot(g,g);
 	normg = std::sqrt(gg);
 
-	while(normg > this->setting.eps && it < this->setting.maxit){
+	while(normg > this->eps && it < this->maxit){
 		/* compute new approximation */
 
 		Ap = A*p; hessmult += 1;
@@ -311,11 +295,11 @@ void CGQPSolver<VectorBase>::solve() {
 		p *= beta;
 		p += g;
 		
-		if(this->setting.debug_mode >= 10){
+		if(this->debug_mode >= 10){
 			coutMaster << "it " << it << ": ||g|| = " << normg << std::endl;
 		}
 
-		if(this->setting.debug_mode >= 100){
+		if(this->debug_mode >= 100){
 			coutMaster << "x = " << x << std::endl;
 			coutMaster << "g = " << g << std::endl;
 			coutMaster << "p = " << p << std::endl;
@@ -336,7 +320,7 @@ void CGQPSolver<VectorBase>::solve() {
 	}
 		
 	/* print output */
-	if(this->setting.debug_mode >= 10){
+	if(this->debug_mode >= 10){
 		coutMaster << "------------------------" << std::endl;
 		coutMaster << " it_cg = " << it << std::endl;
 		coutMaster << " norm_g = " << normg << std::endl;
@@ -359,7 +343,7 @@ void CGQPSolver<VectorBase>::solve() {
 
 template<class VectorBase>
 double CGQPSolver<VectorBase>::get_fx() const {
-	if(setting.debug_mode >= 11) coutMaster << "(CGQPSolver)FUNCTION: get_fx()" << std::endl;
+	if(this->debug_mode >= 11) coutMaster << "(CGQPSolver)FUNCTION: get_fx()" << std::endl;
 	
 	return this->fx;	
 }

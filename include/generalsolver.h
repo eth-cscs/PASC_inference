@@ -15,37 +15,6 @@
 
 namespace pascinference {
 
-/** @class GeneralSolverSetting
- *  @brief manipulation with settings
- *
- *  Parent class for manipulation with settings of solvers.
- *  All specific settings of solvers implementations should be defined as inherited classes from this class.
- * 
- */ 
-class GeneralSolverSetting : public GeneralSetting {
-	protected:
-		
-	public:
-		int debug_mode; /**< print info about the progress */
-		int maxit; /**< max number of iterations */
-		double eps; /**< precision */
-		
-		/** @brief set default setting values
-		 *
-		 */ 
-		GeneralSolverSetting() {};
-
-		/** @brief destroy settings
-		 *
-		 */ 
-		~GeneralSolverSetting() {};
-		
-		/** @brief print setting values
-		 *
-		 */ 
-		virtual void print(ConsoleOutput &output) const {};
-};
-
 /** @class GeneralSolver
  *  @brief solver for solving problems
  * 
@@ -57,9 +26,10 @@ class GeneralSolver {
 	protected:
 		GeneralData *data; /**< pointer to data on which the solver operates */
 	public:
-		GeneralSolverSetting setting; /**< settings of the solver */
-
-		double myhotfixeps;
+		/* settings */
+		int debug_mode; /**< print info about the progress */
+		int maxit; /**< max number of iterations */
+		double eps; /**< precision */
 
 		/** @brief default constructor
 		 * 

@@ -26,40 +26,6 @@ typedef petscvector::PetscVector PetscVector;
 
 namespace pascinference {
 
-/* settings */
-class TSSolverGlobalSetting : public GeneralSolverSetting {
-	protected:
-
-	public:
-		SolverType gammasolvertype;
-		SolverType thetasolvertype;
-
-		TSSolverGlobalSetting() {
-			this->maxit = TSSOLVER_GLOBAL_DEFAULT_MAXIT;
-			this->eps = TSSOLVER_GLOBAL_DEFAULT_EPS;
-			this->debug_mode = TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
-
-			this->gammasolvertype = SOLVER_AUTO;
-			this->thetasolvertype = SOLVER_AUTO;
-		};
-		~TSSolverGlobalSetting() {};
-
-		void print(ConsoleOutput &output) const {
-			output <<  this->get_name() << std::endl;
-			output <<  " - debug mode: " << this->debug_mode << std::endl;
-			output <<  " - maxit: " << this->maxit << std::endl;
-			output <<  " - eps: " << this->eps << std::endl;
-
-		};
-
-		std::string get_name() const {
-			return "Time-Serie-Global Solver Setting";
-		};
-		
-		
-};
-
-
 /* TSSolver_Global_Global */ 
 class TSSolver_Global: public GeneralSolver {
 	protected:
@@ -81,9 +47,10 @@ class TSSolver_Global: public GeneralSolver {
 		Timer timer_gamma_update; /**< timer for updating gamma problem */
 		Timer timer_theta_update; /**< timer for updating theta problem */
 
-	public:
-		TSSolverGlobalSetting setting;
+		SolverType gammasolvertype;
+		SolverType thetasolvertype;
 
+	public:
 		TSSolver_Global();
 		TSSolver_Global(TSData_Global &new_tsdata); 
 		~TSSolver_Global();
@@ -111,13 +78,19 @@ namespace pascinference {
 TSSolver_Global::TSSolver_Global(){
 	LOG_FUNC_BEGIN
 	
-	tsdata = NULL;
-	model = NULL;
-	gammasolver = NULL; /* in this time, we don't know how to solve the problem */
-	thetasolver = NULL; /* in this time, we don't know how to solve the problem */
+	this->tsdata = NULL;
+	this->model = NULL;
+	this->gammasolver = NULL; /* in this time, we don't know how to solve the problem */
+	this->thetasolver = NULL; /* in this time, we don't know how to solve the problem */
+	this->gammasolvertype = SOLVER_AUTO;
+	this->thetasolvertype = SOLVER_AUTO;
 
 	this->it_sum = 0;
 	this->it_last = 0;
+
+	this->maxit = TSSOLVER_GLOBAL_DEFAULT_MAXIT;
+	this->eps = TSSOLVER_GLOBAL_DEFAULT_EPS;
+	this->debug_mode = TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
 
 	this->L = std::numeric_limits<double>::max();
 
@@ -139,6 +112,10 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	/* we can initialize solvers - based on model */
 	model->initialize_gammasolver(&gammasolver, tsdata);	
 	model->initialize_thetasolver(&thetasolver, tsdata);	
+
+	this->maxit = TSSOLVER_GLOBAL_DEFAULT_MAXIT;
+	this->eps = TSSOLVER_GLOBAL_DEFAULT_EPS;
+	this->debug_mode = TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
 	
 	this->it_sum = 0;
 	this->it_last = 0;
@@ -176,9 +153,10 @@ void TSSolver_Global::print(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 
-	output.push();
-	setting.print(output);
-	output.pop();
+	/* print settings */
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(tsdata){
@@ -215,9 +193,10 @@ void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 
 	output_global <<  this->get_name() << std::endl;
 
-	output_global.push();
-	setting.print(output_global);
-	output_global.pop();
+	/* print settings */
+	output_global <<  " - maxit:      " << this->maxit << std::endl;
+	output_global <<  " - eps:        " << this->eps << std::endl;
+	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(tsdata){
@@ -316,8 +295,7 @@ void TSSolver_Global::solve() {
 	}
 
 	/* update settings of child solvers */ //TODO: this is not working at all
-	gammasolver->setting.debug_mode = setting.debug_mode;
-	thetasolver->setting.debug_mode = setting.debug_mode;
+	gammasolver->debug_mode = this->debug_mode;
 
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
@@ -346,7 +324,7 @@ void TSSolver_Global::solve() {
 
 	/* main cycle */
 	coutMaster.push();
-	for(it=0;it < setting.maxit;it++){
+	for(it=0;it < this->maxit;it++){
 		coutMaster <<  "it = " << it << std::endl;
 
 		/* --- COMPUTE Theta --- */
@@ -366,14 +344,14 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		/* print info about theta solver */
-		if(setting.debug_mode >= 2){
+		if(this->debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " theta solver:" << std::endl;
 			coutAll << "  - ";
 			coutAll << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
 			coutAll << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
 			coutAll << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
-			if(setting.debug_mode >= 10){
+			if(this->debug_mode >= 10){
 				coutMaster.push();
 				thetasolver->printstatus(coutAll);
 				coutMaster.pop();
@@ -382,13 +360,13 @@ void TSSolver_Global::solve() {
 
 		}
 					
-		if(setting.debug_mode >= 100){
+		if(this->debug_mode >= 100){
 			coutMaster <<  "- thetasolver info:" << std::endl;
 			coutMaster.push();
 			thetasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(setting.debug_mode >= 101){
+		if(this->debug_mode >= 101){
 			coutMaster <<  "- thetasolver content:" << std::endl;
 			coutMaster.push();
 			thetasolver->printcontent(coutMaster);
@@ -405,21 +383,6 @@ void TSSolver_Global::solve() {
 
 		this->timer_gamma_solve.start();
 		 if(solved_local == 0.0){
-			gammasolver->myhotfixeps = 0.0001;
-			if(it < 4){
-//			    gammasolver->myhotfixeps = 0.001;
-			}
-			if(it < 3){
-//			    gammasolver->myhotfixeps = 0.001;
-			}
-			if(it < 2){
-//			    gammasolver->myhotfixeps = 0.001;
-			}
-			if(it < 1){
-//			    gammasolver->myhotfixeps = 0.01;
-			}
-
-
 			gammasolver->solve();
 		 }
 		this->timer_gamma_solve.stop();
@@ -427,27 +390,27 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		/* print info about gammasolver */
-		if(setting.debug_mode >= 2){
+		if(this->debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " gamma solver:" << std::endl;
 			coutAll << "  - ";
 			coutAll << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
 			coutAll << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
 			coutAll << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
-			if(setting.debug_mode >= 10){
+			if(this->debug_mode >= 10){
 				coutMaster.push();
 				gammasolver->printstatus(coutAll);
 				coutMaster.pop();
 			}
 			coutAll.synchronize();
 		}
-		if(setting.debug_mode >= 100){
+		if(this->debug_mode >= 100){
 			coutMaster <<  "- gammasolver info:" << std::endl;
 			coutMaster.push();
 			gammasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(setting.debug_mode >= 101){
+		if(this->debug_mode >= 101){
 			coutMaster <<  "- gammasolver content:" << std::endl;
 			coutMaster.push();
 			gammasolver->printcontent(coutMaster);
@@ -466,7 +429,7 @@ void TSSolver_Global::solve() {
 		}
 
 		/* update local stopping criteria */
-		if (deltaL < setting.eps && it > 4){
+		if (deltaL < this->eps && it > 4){
 			solved_local = 1.0;
 
 			TRY( VecGetArray(solved_vec,&solved_arr) );
@@ -476,7 +439,7 @@ void TSSolver_Global::solve() {
 		TRY( VecAssemblyBegin(solved_vec));
 		TRY( VecAssemblyEnd(solved_vec));
 
-		if(setting.debug_mode >= 2){
+		if(this->debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " outer loop status:" << std::endl;			
 			coutAll << "  - ";
