@@ -329,6 +329,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	int hessmult = 0; /* number of hessian multiplications */
 
 	double fx; /* function value */
+	double fx_old; /* f(x_{it - 1}) */
 	SPGQPSolver_fs fs(this->m); /* store function values for generalized Armijo condition */
 	double fx_max; /* max(fs) */
 	double xi, beta_bar, beta_hat, beta; /* for Armijo condition */
@@ -356,6 +357,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	/* initialize fs */
 	this->timer_fs.start();
 	 fx = get_fx();
+	 fx_old = std::numeric_limits<double>::max();
 	 this->fx = fx;
 	 fs.init(fx);
 	this->timer_fs.stop();
@@ -395,17 +397,6 @@ void SPGQPSolver<VectorBase>::solve() {
 		 gd = dot(g,d);
 		this->timer_dot.stop();
 
-		/* stopping criteria */
-		this->gP = sqrt(dd);
-		if(this->gP < this->eps){
-			break;
-		} else {
-			/* adaptive precision */
-//			if(it == 2){ 
-//				this->eps = max(this->eps,0.01*this->gP);
-//			}
-		}
-		
 		/* fx_max = max(fs) */
 		this->timer_fs.start();
 		 fx_max = fs.get_max();	
@@ -437,6 +428,7 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* compute new function value using gradient and update fs list */
 		this->timer_fs.start();
+		 fx_old = fx;
 		 fx = get_fx();
 		 fs.update(fx);
 		this->timer_fs.stop();
@@ -445,6 +437,14 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.start();
 		 alpha_bb = dd/dAd;
 		this->timer_stepsize.stop();
+
+		/* stopping criteria */
+		this->gP = sqrt(dd);
+//		if(this->gP < this->eps){
+//		if(abs(fx - fx_old) < this->eps){
+		if(this->gP < this->eps*norm(b)){
+			break;
+		}
 
 		/* print qpdata */
 		if(this->debug_mode >= 10){
