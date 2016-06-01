@@ -362,6 +362,8 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 	/* project random values to feasible set to be sure that initial approximation is feasible */
 	gammadata->get_feasibleset()->project(*gammadata->get_x0());
 
+	/* if I am using GPU, then prepare gpu vector */
+
 	LOG_FUNC_END
 }
 
