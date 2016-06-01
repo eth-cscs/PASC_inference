@@ -45,6 +45,7 @@ class TSData_Global: public GeneralData {
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
+		void printcontent(ConsoleOutput &output) const;
 		void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
 
@@ -230,6 +231,36 @@ void TSData_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_lo
 	LOG_FUNC_END
 }
 
+/* print content of all data */
+void TSData_Global::printcontent(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	output <<  this->get_name() << std::endl;
+	
+	/* print the content of the data */
+	output <<  " - datavector: ";
+	if(this->datavector){
+		output << *this->datavector << std::endl;
+	} else {
+		output << "not set" << std::endl;
+	}
+
+	output <<  " - gammavector: ";
+	if(this->gammavector){
+		output << *this->gammavector << std::endl;
+	} else {
+		output << "not set" << std::endl;
+	}
+
+	output <<  " - thetavector: ";
+	if(this->thetavector){
+		output << *this->thetavector << std::endl;
+	} else {
+		output << "not set" << std::endl;
+	}
+
+	LOG_FUNC_END
+}
 
 /* print content of all data */
 void TSData_Global::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {

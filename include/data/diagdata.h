@@ -69,11 +69,15 @@ class DiagData: public GeneralData {
 		 */ 
 		void print(ConsoleOutput &output) const;
 
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
 		/** @brief print content of included data
 		 * 
 		 * @param output where to print
 		 */ 
 		void printcontent(ConsoleOutput &output) const;
+
+		void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
 		/** @brief get type of this data
 		 */
@@ -134,7 +138,7 @@ DiagData<VectorBase>::~DiagData(){
 }
 
 
-/* print info about problem */
+/* print info about data */
 template<class VectorBase>
 void DiagData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
@@ -165,6 +169,40 @@ void DiagData<VectorBase>::print(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
+void DiagData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
+	output_global <<  this->get_name() << std::endl;
+	
+	/* give information about presence of the data */
+	output_local <<  " - a:            ";
+	if(this->a){
+		output_local << "YES (size: " << this->a->size() << ")" << std::endl;
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
+	
+	output_local <<  " - b:            ";
+	if(this->b){
+		output_local << "YES (size: " << this->b->size() << ")" << std::endl;
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
+
+	output_local <<  " - x:            ";
+	if(this->x){
+		output_local << "YES (size: " << this->x->size() << ")" << std::endl;
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
+		
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
 void DiagData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
@@ -190,6 +228,16 @@ void DiagData<VectorBase>::printcontent(ConsoleOutput &output) const {
 		output << "not set" << std::endl;
 	}
 
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void DiagData<VectorBase>::printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
+	output_global <<  this->get_name() << std::endl;
+
+	// TODO
 	LOG_FUNC_END
 }
 

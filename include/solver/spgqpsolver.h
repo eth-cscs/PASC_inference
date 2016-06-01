@@ -577,7 +577,6 @@ ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs)
 {
 	int j, list_size;
 	std::list<double>::iterator it; /* iterator through list */
-	double node;
 
 	it = fs.fs_list.begin();
 	list_size = fs.fs_list.size(); /* = m? */

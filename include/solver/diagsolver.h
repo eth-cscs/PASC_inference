@@ -33,6 +33,8 @@ class DiagSolver: public GeneralSolver {
 		void solve();
 
 		void print(ConsoleOutput &output) const;
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		
 		void printstatus(ConsoleOutput &output) const;		
 		void printtimer(ConsoleOutput &output) const;
 		std::string get_name() const;
@@ -97,6 +99,29 @@ void DiagSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_END
 }
 
+/* print info about problem */
+template<class VectorBase>
+void DiagSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
+	output_global <<  this->get_name() << std::endl;
+	
+	/* print settings */
+	output_local <<  " - maxit:      " << this->maxit << std::endl;
+	output_local <<  " - eps:        " << this->eps << std::endl;
+	output_local <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_local.synchronize();
+
+	/* print data */
+	if(diagdata){
+		output_global << "- data:" << std::endl;
+		coutMaster.push();
+		diagdata->print(output_global,output_local);
+		coutMaster.pop();
+	}
+	
+	LOG_FUNC_END
+}
 
 template<class VectorBase>
 void DiagSolver<VectorBase>::printstatus(ConsoleOutput &output) const {

@@ -10,7 +10,6 @@
 #include "common.h"
 #include "algebra.h"
 #include "solver/list.h"
-#include "generalsetting.h"
 #include "generaldata.h"
 
 namespace pascinference {

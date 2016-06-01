@@ -58,6 +58,9 @@ class QPData: public GeneralData {
 		 * @param output where to print
 		 */
 		void printcontent(ConsoleOutput &output) const;
+
+		void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
 		
 		/** @brief get the name of data
 		 */ 		
@@ -284,6 +287,56 @@ void QPData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	} else {
 		output << "not set" << std::endl;
 	}
+		
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void QPData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
+	output_global <<  this->get_name() << std::endl;
+		
+	/* give information about presence of the data */
+	output_local <<  " - A:            ";
+	if(this->A){
+		this->A->print(output_local); 
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
+	
+	output_local <<  " - b:            ";
+	if(this->b){
+		output_local << *(this->b) << std::endl;
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
+	
+	output_local <<  " - x0:           ";
+	if(this->x0){
+		output_local << *(this->x0) << std::endl;
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
+	
+	output_local <<  " - x:            ";
+	if(this->x0){
+		output_local << *(this->x) << std::endl;
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
+	
+	output_local <<  " - feasible_set: ";
+	if(this->feasibleset){
+		output_local << *(this->feasibleset) << std::endl;
+	} else {
+		output_local << "not set" << std::endl;
+	}
+	output_local.synchronize();
 		
 	LOG_FUNC_END
 }

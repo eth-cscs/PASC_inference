@@ -220,7 +220,6 @@ void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const
 	LOG_FUNC_BEGIN
 
 	const double *values_row;
-	double value;
 
 	std::ostringstream temp;
 

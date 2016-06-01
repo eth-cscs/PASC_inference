@@ -40,6 +40,8 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		int get_hessmult() const;
 
 		void print(ConsoleOutput &output) const;
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
 		void printcontent(ConsoleOutput &output) const;
 		void printstatus(ConsoleOutput &output) const;
 		void printtimer(ConsoleOutput &output) const;
@@ -173,6 +175,16 @@ void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 		qpdata->print(output);
 		coutMaster.pop();
 	}
+		
+	LOG_FUNC_END
+}
+
+/* print info about problem */
+template<class VectorBase>
+void CGQPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
+	output_global <<  this->get_name() << std::endl;
 		
 	LOG_FUNC_END
 }
