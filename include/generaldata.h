@@ -47,6 +47,8 @@ class GeneralData {
 		 */
 		virtual void printcontent(ConsoleOutput &output) const;
 
+		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
 		/** @brief get the name of data
 		 */ 
 		virtual std::string get_name() const;
@@ -75,6 +77,10 @@ void GeneralData::print(ConsoleOutput &output_global, ConsoleOutput &output_loca
 
 void GeneralData::printcontent(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
+}
+
+void GeneralData::printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	output_global <<  this->get_name() << std::endl;
 }
 
 std::string GeneralData::get_name() const {
