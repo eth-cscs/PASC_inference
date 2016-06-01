@@ -35,7 +35,7 @@ class SPGQPSolver_fs {
 		int get_size();
 		void update(double new_fx);
 		
-		friend ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs);
+		void print(ConsoleOutput &output);
 };
 
 
@@ -605,13 +605,13 @@ void SPGQPSolver_fs::update(double new_fx){
 }
 
 /* print the content of the list */
-ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs)
+void SPGQPSolver_fs::print(ConsoleOutput &output)
 {
 	int j, list_size;
 	std::list<double>::iterator it; /* iterator through list */
 
-	it = fs.fs_list.begin();
-	list_size = fs.fs_list.size(); /* = m? */
+	it = this->fs_list.begin();
+	list_size = this->fs_list.size(); /* = m? */
 	
 	std::ostringstream temp;
 	
@@ -628,8 +628,6 @@ ConsoleOutput &operator<<(ConsoleOutput &output, SPGQPSolver_fs fs)
 		}
 	}
 	output << " ]";
-			
-	return output;
 }
 
 
