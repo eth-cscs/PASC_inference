@@ -81,6 +81,8 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		int get_hessmult() const;
 
 		void print(ConsoleOutput &output) const;
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
 		void printstatus(ConsoleOutput &output) const;
 		void printtimer(ConsoleOutput &output) const;
 
@@ -248,6 +250,35 @@ void SPGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	}
 
 	output.synchronize();
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+	LOG_FUNC_BEGIN
+
+	output_global <<  this->get_name() << std::endl;
+	
+	/* print settings */
+	output_local <<  " - maxit:      " << this->maxit << std::endl;
+	output_local <<  " - eps:        " << this->eps << std::endl;
+	output_local <<  " - debug_mode: " << this->debug_mode << std::endl;
+
+	output_local <<  " - m:          " << m << std::endl;
+	output_local <<  " - gamma:      " << gamma << std::endl;
+	output_local <<  " - sigma1:     " << sigma1 << std::endl;
+	output_local <<  " - sigma2:     " << sigma2 << std::endl;
+	output_local <<  " - alphainit:  " << alphainit << std::endl;
+
+	output_local.synchronize();
+	
+	/* print data */
+	if(qpdata){
+		coutMaster.push();
+		qpdata->print(output_global, output_local);
+		coutMaster.pop();
+	}
 
 	LOG_FUNC_END
 }
@@ -442,7 +473,8 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->gP = sqrt(dd);
 //		if(this->gP < this->eps){
 //		if(abs(fx - fx_old) < this->eps){
-		if(this->gP < this->eps*norm(b)){
+//		if(this->gP < this->eps*norm(b)){
+		if((this->gP < this->eps*norm(b)) || (abs(fx - fx_old) < this->eps)){
 			break;
 		}
 

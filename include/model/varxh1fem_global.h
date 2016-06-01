@@ -993,7 +993,7 @@ void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, dou
 	LOG_FUNC_STATIC_BEGIN
 			
 	/* size of input */
-	int theta_size = K_solution*xdim*(1 + xdim*xmem_solution); 
+//	int theta_size = K_solution*xdim*(1 + xdim*xmem_solution); 
 	int xstart_size = xdim*xmem_solution;
 
 	int nproc = GlobalManager.get_size();

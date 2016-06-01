@@ -48,7 +48,6 @@ int main( int argc, char *argv[] )
 		std::cout << std::endl << argv[0] << " T K epssqr" << std::endl;
 		return 1;
 	}
-	int k; /* iterators */
 	int T = atoi(argv[1]); 
 	int Kforall = atoi(argv[2]); 
 	int epssqrforall = atof(argv[3]); 
