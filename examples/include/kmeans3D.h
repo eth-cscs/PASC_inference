@@ -248,6 +248,8 @@ namespace pascinference {
 
 		template<>
 		void KMeans3D::saveVTK(std::string name_of_file, std::string extension, int T, int Knum, int *Karr, GeneralVector<PetscVector> *datavector_in, GeneralVector<PetscVector> *gammavector_in){
+			LOG_FUNC_STATIC_BEGIN
+			
 			Timer timer_saveVTK; 
 			timer_saveVTK.restart();
 			timer_saveVTK.start();
@@ -330,39 +332,34 @@ namespace pascinference {
 			double *gammavector_arr;
 			TRY( VecGetArray(gammavector.get_vector(),&gammavector_arr) );
 
-			double gamma_max[gammavector.local_size()];
-			int gamma_max_idx[gammavector.local_size()];
-			double temp;
-			/* initialization of arrays */
-			for(t=0;t<T;t++){
-				gamma_max[t] = 0.0;
-				gamma_max_idx[t] = 0;
-			}
-	
 			for(k=0;k<K;k++){
 				/* write gamma_k */
 				myfile << "SCALARS gamma_" << k << " float 1\n";
 				myfile << "LOOKUP_TABLE default\n";
 				for(t=0;t<T;t++){
 					myfile << gammavector_arr[k*T + t] << "\n";
-
-					/* update maximum */
-					if(gammavector_arr[k*T + t] > gamma_max[t]){
-						temp = gammavector_arr[k*T+t];
-						gamma_max[t] = temp;
-						gamma_max_idx[t] = k;
-					}
 				}
 			}
 
-			TRY( VecRestoreArray(gammavector.get_vector(),&gammavector_arr) )
-
-			/* store gamma values */
+			/* store gamma max values */
 			myfile << "SCALARS gamma_max_id float 1\n";
 			myfile << "LOOKUP_TABLE default\n";
+			int gamma_max_idx;
+			double gamma_max_value;
+
 			for(t=0;t<T;t++){
-				myfile << gamma_max_idx[t] << "\n";
+				gamma_max_idx = 0;
+				gamma_max_value = gammavector_arr[0*T + t];
+				for(k=1;k<K;k++){
+					if(gammavector_arr[k*T + t] > gamma_max_value){
+						gamma_max_value = gammavector_arr[k*T+t];
+						gamma_max_idx = k;
+					}
+				}
+				myfile << gamma_max_idx << "\n";
 			}
+
+			TRY( VecRestoreArray(gammavector.get_vector(),&gammavector_arr) )
 
 			/* store proc_id */
 			myfile << "SCALARS proc_id float 1\n";
@@ -395,6 +392,7 @@ namespace pascinference {
 			timer_saveVTK.stop();
 			coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
 
+			LOG_FUNC_STATIC_END
 		}		
 		
 		

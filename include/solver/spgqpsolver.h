@@ -20,6 +20,9 @@
 #define SPGQPSOLVER_DEFAULT_SIGMA2 0.99;
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0;
 
+#define SPGQPSOLVER_STOP_NORMGP true;
+#define SPGQPSOLVER_STOP_DIFFF false;
+
 namespace pascinference {
 
 /* for manipulation with fs - function values for generalized Armijo condition */
@@ -53,6 +56,9 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		Timer timer_fs; 			/**< total time of manipulation with fs vector during iterations */
 
 		/* settings */
+		bool stop_normgp; 			/**< stopping criteria based on norm of gP */
+		bool stop_difff;			/**< stopping criteria based on size of decrease of f */
+
 		int m;						/**< size of fs */
 		double gamma; 
 		double sigma1;
@@ -121,6 +127,9 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	this->gP = std::numeric_limits<double>::max();
 
 	/* settings */
+	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
+	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
+
 	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
 	this->eps = SPGQPSOLVER_DEFAULT_EPS;
 	this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
@@ -161,6 +170,9 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 	this->gP = std::numeric_limits<double>::max();
 
 	/* settings */
+	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
+	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
+
 	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
 	this->eps = SPGQPSOLVER_DEFAULT_EPS;
 	this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
@@ -368,6 +380,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	double gd; /* dot(g,d) */
 	double dAd; /* dot(Ad,d) */
 	double alpha_bb; /* BB step-size */
+	double normb = norm(b); /* norm of linear term used in stopping criteria */
 
 	/* initial step-size */
 	alpha_bb = this->alphainit;
@@ -471,10 +484,10 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* stopping criteria */
 		this->gP = sqrt(dd);
-//		if(this->gP < this->eps){
-//		if(abs(fx - fx_old) < this->eps){
-//		if(this->gP < this->eps*norm(b)){
-		if((this->gP < this->eps*norm(b)) || (abs(fx - fx_old) < this->eps)){
+		if( this->stop_difff && abs(fx - fx_old) < this->eps){
+			break;
+		}
+		if(this->stop_normgp && this->gP < this->eps*normb){
 			break;
 		}
 
