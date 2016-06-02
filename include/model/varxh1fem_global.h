@@ -40,11 +40,11 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 	 	QPData<PetscVector> *thetadata; /**< QP with blockdiag with dim*K blocks, will be solved by multiCG  */
 
 		/* model specific variables */
-		double *epssqr; /**< penalty coeficient */
-		double epssqrlocal;
+		double *epssqr; /**< penalty coeficients of all processes */
+		double epssqrlocal; /**< local penalty parameter */
 		
-		int *xmem; /**< size of memory for x */
-		int xmemlocal;
+		int *xmem; /**< size of memory for x of all processes */
+		int xmemlocal; /**< size of memoro for x of local problem */
 
 //		int ulength_global;
 //		int ulength_local;
@@ -57,9 +57,9 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		
 		/* update thetasolver */
 		Vec gamma_local;
-		Vec xn1_vec;  /* scattered xn_global to each processor */
-		Vec xn2_vec;
-		Vec xn2subgammak_vec; /* vector with xn1sub.*gammak_vecs */
+		Vec xn1_vec;  /**< scattered xn_global to each processor */
+		Vec xn2_vec;  /**< scattered xn_global to each processor */
+		Vec xn2subgammak_vec; /**< vector with xn1sub.*gammak_vecs */
 
 		void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
 		
@@ -361,8 +361,6 @@ void VarxH1FEMModel_Global::initialize_gammasolver(GeneralSolver **gammasolver, 
 
 	/* project random values to feasible set to be sure that initial approximation is feasible */
 	gammadata->get_feasibleset()->project(*gammadata->get_x0());
-
-	/* if I am using GPU, then prepare gpu vector */
 
 	LOG_FUNC_END
 }

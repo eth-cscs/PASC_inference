@@ -106,6 +106,7 @@ TSSolver_Global::TSSolver_Global(){
 TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	LOG_FUNC_BEGIN
 
+	/* set provided data and model */
 	tsdata = &new_tsdata;
 	model = tsdata->get_model(); 
 
@@ -113,15 +114,19 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	model->initialize_gammasolver(&gammasolver, tsdata);	
 	model->initialize_thetasolver(&thetasolver, tsdata);	
 
+	/* set settings */
 	this->maxit = TSSOLVER_GLOBAL_DEFAULT_MAXIT;
 	this->eps = TSSOLVER_GLOBAL_DEFAULT_EPS;
 	this->debug_mode = TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
 	
+	/* iteration counters */
 	this->it_sum = 0;
 	this->it_last = 0;
 
+	/* initial value of object function */
 	this->L = std::numeric_limits<double>::max();
 
+	/* initialize timers */
 	this->timer_solve.restart();	
 	this->timer_gamma_solve.restart();
 	this->timer_theta_solve.restart();
