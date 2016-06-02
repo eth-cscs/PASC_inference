@@ -184,9 +184,13 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	mytimer.restart();
 
 	mytimer.start();
-
 	y(1,N-2) = alpha*2*x(1,N-2) - alpha*x(0,N-3) - alpha*x(2,N-1);
+	mytimer.stop();
+
+	coutMaster << "end mat mult1:" << mytimer.get_value_last() << std::endl;
+
 	
+	mytimer.start();
 	/* begin and end of each block */
 	for(int k=0;k<K;k++){
 		y(k*T) = alpha*x(k*T) - alpha*x(k*T+1);
@@ -195,7 +199,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	
 	mytimer.stop();
 
-	coutMaster << "end mat mult:" << mytimer.get_value_last() << std::endl;
+	coutMaster << "end mat mult2:" << mytimer.get_value_last() << std::endl;
 	
 	
 /*	double *y_arr;
