@@ -189,9 +189,9 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	Vec x3;
 	Vec yy;
 	
-	TRY( ISCreateStride(PETSC_COMM_SELF, 1, N-2, 1, &isx1) );
-	TRY( ISCreateStride(PETSC_COMM_SELF, 0, N-2, 1, &isx2) );
-	TRY( ISCreateStride(PETSC_COMM_SELF, 2, N-2, 1, &isx3) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, N-2, 0, 1, &isx1) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, N-2, 1, 1, &isx2) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, N-2, 2, 1, &isx3) );
 
 	Timer mytimer;
 	mytimer.restart();
