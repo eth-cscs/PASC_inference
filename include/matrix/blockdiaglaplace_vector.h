@@ -95,6 +95,7 @@ void BlockDiagLaplaceVectorMatrix<VectorBase>::matmult(VectorBase &y, const Vect
 
 typedef petscvector::PetscVector PetscVector;
 
+#ifndef USE_GPU
 template<>
 void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)FUNCTION: matmult" << std::endl;
@@ -131,6 +132,56 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 
 	
 }
+#else
+/* A*x using CUDA kernel */
+template <typename TT> __global__
+void kernel_mult(TT* Axp, TT* xp, int T, int K, double alpha)
+{
+	/* compute my id */
+	int t = blockIdx.x*blockDim.x + threadIdx.x;
+
+	/* compute id of cluster */
+	int k = (int)(t/T);
+	
+	/* compute id_row in local block */
+	int t_local = t-k*T;
+
+	/* first row */
+	if(t_local == 0){
+		Axp[t] = alpha*xp[t] - alpha*xp[t+1];
+	}
+	/* common row */
+	if(t_local > 0 && t_local < T-1){
+		Axp[t] = -alpha*xp[t-1] + 2.0*alpha*xp[t] - alpha*xp[t+1];
+	}
+	/* last row */
+	if(t_local == T-1){
+		Axp[t] = -alpha*xp[t-1] + alpha*xp[t];
+	}
+
+	/* if t >= N then relax and do nothing */	
+
+}
+
+template<>
+void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)FUNCTION: matmult" << std::endl;
+
+	double *y_arr;
+	const double *x_arr;
+	TRY( VecGetArray(y.get_vector(),&y_arr) );
+	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
+
+	kernel_mult<<<T*N, 1>>>(y_arr,x_arr,T,K,alpha);
+	gpuErrchk( cudaDeviceSynchronize() );
+
+	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
+	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
+
+}
+
+#endif
+
 
 #endif
 
