@@ -180,14 +180,48 @@ template<>
 void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)FUNCTION: matmult" << std::endl;
 
+	IS isx1;
+	IS isx2;
+	IS isx3;
+	
+	Vec x1;
+	Vec x2;
+	Vec x3;
+	Vec yy;
+	
+	TRY( ISCreateStride(PETSC_COMM_SELF, 1, N-2, 1, &isx1) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, 0, N-2, 1, &isx2) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, 2, N-2, 1, &isx3) );
+
 	Timer mytimer;
 	mytimer.restart();
-
 	mytimer.start();
-	y(1,N-2) = alpha*2*x(1,N-2) - alpha*x(0,N-3) - alpha*x(2,N-1);
+
+	TRY( VecGetSubVector(x->get_vector(), isx1, &x1) )
+	TRY( VecGetSubVector(x->get_vector(), isx2, &x2) )
+	TRY( VecGetSubVector(x->get_vector(), isx3, &x3) )
+	TRY( VecGetSubVector(y->get_vector(), isx2, &yy) )
+
+	TRY( VecCopy(x2,yy) );
+	TRY( VecScale(yy,2));
+	TRY( VecAXPY(yy,-1.0,x1) );
+	TRY( VecAXPY(yy,-1.0,x3) );
+	TRY( VecScale(yy,alpha));
+
+	TRY( VecRestoreSubVector(x->get_vector(), isx1, &x1) )
+	TRY( VecRestoreSubVector(x->get_vector(), isx2, &x2) )
+	TRY( VecRestoreSubVector(x->get_vector(), isx3, &x3) )
+	TRY( VecRestoreSubVector(y->get_vector(), isx2, &yy) )
+	
 	mytimer.stop();
 
+	TRY( ISDestroy(&isx1) );
+	TRY( ISDestroy(&isx2) );
+	TRY( ISDestroy(&isx3) );
+
 	coutMaster << "end mat mult1:" << mytimer.get_value_last() << std::endl;
+
+
 
 	
 	mytimer.start();
