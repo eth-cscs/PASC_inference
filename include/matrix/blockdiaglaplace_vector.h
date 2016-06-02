@@ -40,7 +40,7 @@ class BlockDiagLaplaceVectorMatrix: public GeneralMatrix<VectorBase> {
 };
 
 #ifdef USE_GPU
-__global__ void kernel_mult(double* Axp, double* xp, int T, int K, double alpha);
+__global__ void kernel_mult(double* Axp, const double* xp, int T, int K, double alpha);
 #endif
 
 
@@ -141,7 +141,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 #else
 
 /* A*x using CUDA kernel */
-__global__ void kernel_mult(double* Axp, double* xp, int T, int K, double alpha)
+__global__ void kernel_mult(double* Axp, const double* xp, int T, int K, double alpha)
 {
 	/* compute my id */
 	int t = blockIdx.x*blockDim.x + threadIdx.x;
