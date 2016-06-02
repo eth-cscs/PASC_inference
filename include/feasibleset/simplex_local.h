@@ -147,8 +147,6 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	/* get local array */
 	double *x_arr;
 	
-	TRY( VecGetArray(x.get_vector(),&x_arr) );
-
 #ifdef USE_CUDA
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
@@ -156,7 +154,6 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
 	project_kernel<<<T, 1>>>(x_arr,T,K_local);
 	gpuErrchk( cudaDeviceSynchronize() );
-
 
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
 #else
