@@ -146,26 +146,28 @@ __global__ void kernel_mult(double* Axp, const double* xp, int T, int K, double 
 	/* compute my id */
 	int t = blockIdx.x*blockDim.x + threadIdx.x;
 
-	/* compute id of cluster */
-	int k = (int)(t/T);
+	if(t < K*T){
+		/* compute id of cluster */
+		int k = (int)(t/T);
 	
-	/* compute id_row in local block */
-	int t_local = t-k*T;
+		/* compute id_row in local block */
+		int t_local = t-k*T;
 
-	/* first row */
-	if(t_local == 0){
-		Axp[t] = alpha*xp[t] - alpha*xp[t+1];
-	}
-	/* common row */
-	if(t_local > 0 && t_local < T-1){
-		Axp[t] = -alpha*xp[t-1] + 2.0*alpha*xp[t] - alpha*xp[t+1];
-	}
-	/* last row */
-	if(t_local == T-1){
-		Axp[t] = -alpha*xp[t-1] + alpha*xp[t];
+		/* first row */
+		if(t_local == 0){
+			Axp[t] = alpha*xp[t] - alpha*xp[t+1];
+		}
+		/* common row */
+		if(t_local > 0 && t_local < T-1){
+			Axp[t] = -alpha*xp[t-1] + 2.0*alpha*xp[t] - alpha*xp[t+1];
+		}
+		/* last row */
+		if(t_local == T-1){
+			Axp[t] = -alpha*xp[t-1] + alpha*xp[t];
+		}
 	}
 
-	/* if t >= N then relax and do nothing */	
+	/* if t >= K*T then relax and do nothing */	
 
 }
 
@@ -178,7 +180,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecGetArray(y.get_vector(),&y_arr) );
 	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
 
-	kernel_mult<<<T*N, 1>>>(y_arr,x_arr,T,K,alpha);
+	kernel_mult<<<T*K, 1>>>(y_arr,x_arr,T,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
