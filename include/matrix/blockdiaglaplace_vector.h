@@ -193,7 +193,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 		y((k+1)*T-1) = alpha*x((k+1)*T-1) - alpha*x((k+1)*T-2);
 	}
 	
-	mytimer.start();
+	mytimer.stop();
 
 	coutMaster << "end mat mult:" << mytimer.get_value_last() << std::endl;
 	
