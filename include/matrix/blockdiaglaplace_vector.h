@@ -154,19 +154,22 @@ __global__ void kernel_mult(double* y, double* x, int T, int K, double alpha)
 	
 		/* compute id_row in local block */
 		int t_local = t-k*T;
+		double value;
 
 		/* first row */
 		if(t_local == 0){
-			y[t] = alpha*x[t] - alpha*x[t+1];
+			value = x[t] - x[t+1];
 		}
 		/* common row */
 		if(t_local > 0 && t_local < T-1){
-			y[t] = -alpha*x[t-1] + 2.0*alpha*x[t] - alpha*x[t+1];
+			value = -x[t-1] + 2.0*x[t] - x[t+1];
 		}
 		/* last row */
 		if(t_local == T-1){
-			y[t] = -alpha*x[t-1] + alpha*x[t];
+			value = -x[t-1] + x[t];
 		}
+		
+		y[t] = alpha*value;
 	}
 
 	/* if t >= K*T then relax and do nothing */	
