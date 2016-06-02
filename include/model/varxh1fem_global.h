@@ -50,6 +50,7 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 //		int ulength_local;
 
 		void scatter_xn(Vec &x_global, Vec &xn_local, int xdim, int n);
+		void scatter_part(Vec &x_global, int is_begin, int is_end, Vec &x_scatter, int xdim);
 		
 		/* update gamma solver */
 		int t_scatter; /* > xmem, how long time-series to scatter to all processors */
@@ -497,25 +498,11 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	int is_begin = 0;
 	int is_end = min(is_begin + t_scatter,T);
 
-	VecScatter ctx;
-	IS scatter_is;
-	IS scatter_is_to;
-
 	const double *x_scatter_arr;
+
 	while(is_end <= T && is_begin < is_end){ /* while there is something to scatter */
 		/* scatter part of time serie */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, (is_end-is_begin)*xdim, is_begin*xdim, 1, &scatter_is) );
-		TRY( ISCreateStride(PETSC_COMM_SELF, (is_end-is_begin)*xdim, 0, 1, &scatter_is_to) );
-
-		TRY( VecScatterCreate(tsdata->get_datavector()->get_vector(),scatter_is, x_scatter,scatter_is_to,&ctx) );
-		TRY( VecScatterBegin(ctx,tsdata->get_datavector()->get_vector(),x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
-		TRY( VecScatterEnd(ctx,tsdata->get_datavector()->get_vector(),x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
-		TRY( VecScatterDestroy(&ctx) );
-
-		TRY( ISDestroy(&scatter_is_to) );
-		TRY( ISDestroy(&scatter_is) );
-
-		TRY( PetscBarrier(NULL) );
+		scatter_part(x_global, is_begin, is_end, x_scatter, xdim);
 				
 		/* write begin of time-serie */
 		TRY( VecGetArrayRead(x_scatter, &x_scatter_arr) );
@@ -827,6 +814,34 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	LOG_FUNC_END
 }
 
+void VarxH1FEMModel_Global::scatter_part(Vec &x_global, int is_begin, int is_end, Vec &x_scatter, int xdim){
+	LOG_FUNC_BEGIN
+	
+	/* compute T */
+	int x_global_size;
+	TRY( VecGetSize(x_global,&x_global_size) );
+	int T = x_global_size/(double)xdim;
+
+	VecScatter ctx; 
+	IS scatter_is;
+	IS scatter_is_to;
+
+	/* scatter part of time serie */
+	TRY( ISCreateStride(PETSC_COMM_WORLD, (is_end-is_begin)*xdim, is_begin*xdim, 1, &scatter_is) );
+	TRY( ISCreateStride(PETSC_COMM_SELF, (is_end-is_begin)*xdim, 0, 1, &scatter_is_to) );
+
+	TRY( VecScatterCreate(x_global,scatter_is, x_scatter,scatter_is_to,&ctx) );
+	TRY( VecScatterBegin(ctx,x_global,x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
+	TRY( VecScatterEnd(ctx,x_global,x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
+	TRY( VecScatterDestroy(&ctx) );
+
+	TRY( ISDestroy(&scatter_is_to) );
+	TRY( ISDestroy(&scatter_is) );
+
+	LOG_FUNC_END
+}
+
+
 void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Global *tsdata){
 	LOG_FUNC_STATIC_BEGIN
 
@@ -882,25 +897,12 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 	int is_begin = 0;
 	int is_end = min(is_begin + t_scatter,T);
 
-	VecScatter ctx;
-	IS scatter_is;
-	IS scatter_is_to;
+	Vec x_global = tsdata->get_datavector()->get_vector();
 	const double *x_scatter_arr;
 	
 	while(is_end <= T && is_begin < is_end){ /* while there is something to scatter */
 		/* scatter part of time serie */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, (is_end-is_begin)*xdim, is_begin*xdim, 1, &scatter_is) );
-		TRY( ISCreateStride(PETSC_COMM_SELF, (is_end-is_begin)*xdim, 0, 1, &scatter_is_to) );
-
-		TRY( VecScatterCreate(tsdata->get_datavector()->get_vector(),scatter_is, x_scatter,scatter_is_to,&ctx) );
-		TRY( VecScatterBegin(ctx,tsdata->get_datavector()->get_vector(),x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
-		TRY( VecScatterEnd(ctx,tsdata->get_datavector()->get_vector(),x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
-		TRY( VecScatterDestroy(&ctx) );
-
-		TRY( ISDestroy(&scatter_is_to) );
-		TRY( ISDestroy(&scatter_is) );
-
-		TRY( PetscBarrier(NULL) );
+		scatter_part(x_global, is_begin, is_end, x_scatter, xdim);
 				
 		TRY( VecGetArrayRead(x_scatter, &x_scatter_arr) );
 		if(is_begin==0){
@@ -993,7 +995,6 @@ void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, dou
 	LOG_FUNC_STATIC_BEGIN
 			
 	/* size of input */
-//	int theta_size = K_solution*xdim*(1 + xdim*xmem_solution); 
 	int xstart_size = xdim*xmem_solution;
 
 	int nproc = GlobalManager.get_size();
@@ -1168,12 +1169,11 @@ void VarxH1FEMModel_Global::compute_next_step(double *data_out, int t_data_out, 
 		/* mu */
 		data_out[t_data_out*xdim+n] = theta[theta_start + n*theta_length_n]; 
 				
-		/* A */
+		/* A (xmem) */
 		for(t_mem = 1; t_mem <= xmem; t_mem++){
 			/* add multiplication with A_{t_mem} */
 			Ax = 0;
 			for(i = 0; i < xdim; i++){
-//				coutMaster << "A" << t_mem << "_" << n << "," << i << " = " << theta[theta_start + n*theta_length_n + 1 + (t_mem-1)*xdim + i] << std::endl;
 				Ax += theta[theta_start + n*theta_length_n + 1 + (t_mem-1)*xdim + i]*data_in[(t_data_in-t_mem)*xdim+i]; 
 			}
 			data_out[t_data_out*xdim+n] += Ax;
