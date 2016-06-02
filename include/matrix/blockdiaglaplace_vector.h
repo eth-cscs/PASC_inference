@@ -186,7 +186,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
 	kernel_mult<<<T*K, 1>>>(y_arr,x_arr,T,K,alpha);
-	gpuErrchk( cudaDeviceSynchronize() );
+//	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecCUDARestoreArrayReadWrite(y.get_vector(),&y_arr) );
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
