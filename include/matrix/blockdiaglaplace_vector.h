@@ -180,63 +180,7 @@ template<>
 void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)FUNCTION: matmult" << std::endl;
 
-	IS isx1;
-	IS isx2;
-	IS isx3;
-	
-	Vec x1;
-	Vec x2;
-	Vec x3;
-	Vec yy;
-	
-	TRY( ISCreateStride(PETSC_COMM_SELF, N-2, 0, 1, &isx1) );
-	TRY( ISCreateStride(PETSC_COMM_SELF, N-2, 1, 1, &isx2) );
-	TRY( ISCreateStride(PETSC_COMM_SELF, N-2, 2, 1, &isx3) );
-
-	Timer mytimer;
-	mytimer.restart();
-	mytimer.start();
-
-	TRY( VecGetSubVector(x.get_vector(), isx1, &x1) )
-	TRY( VecGetSubVector(x.get_vector(), isx2, &x2) )
-	TRY( VecGetSubVector(x.get_vector(), isx3, &x3) )
-	TRY( VecGetSubVector(y.get_vector(), isx2, &yy) )
-
-	TRY( VecCopy(x2,yy) );
-	TRY( VecScale(yy,2));
-	TRY( VecAXPY(yy,-1.0,x1) );
-	TRY( VecAXPY(yy,-1.0,x3) );
-	TRY( VecScale(yy,alpha));
-
-	TRY( VecRestoreSubVector(x.get_vector(), isx1, &x1) )
-	TRY( VecRestoreSubVector(x.get_vector(), isx2, &x2) )
-	TRY( VecRestoreSubVector(x.get_vector(), isx3, &x3) )
-	TRY( VecRestoreSubVector(y.get_vector(), isx2, &yy) )
-	
-	mytimer.stop();
-
-	TRY( ISDestroy(&isx1) );
-	TRY( ISDestroy(&isx2) );
-	TRY( ISDestroy(&isx3) );
-
-	coutMaster << "end mat mult1:" << mytimer.get_value_last() << std::endl;
-
-
-
-	
-	mytimer.start();
-	/* begin and end of each block */
-	for(int k=0;k<K;k++){
-		y(k*T) = alpha*x(k*T) - alpha*x(k*T+1);
-		y((k+1)*T-1) = alpha*x((k+1)*T-1) - alpha*x((k+1)*T-2);
-	}
-	
-	mytimer.stop();
-
-	coutMaster << "end mat mult2:" << mytimer.get_value_last() << std::endl;
-
-	
-/*	double *y_arr;
+	double *y_arr;
 	double *x_arr;
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
@@ -246,7 +190,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 
 	TRY( VecCUDARestoreArrayReadWrite(y.get_vector(),&y_arr) );
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
-*/
+
 }
 
 #endif
