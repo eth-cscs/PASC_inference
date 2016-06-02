@@ -53,7 +53,7 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		void scatter_part(Vec &x_global, int is_begin, int is_end, Vec &x_scatter, int xdim);
 		
 		/* update gamma solver */
-		int t_scatter; /* > xmem, how long time-series to scatter to all processors */
+		int t_scatter; /**< size of scatter > xmem, how long time-series to scatter to all processors */
 		Vec x_scatter;
 		
 		/* update thetasolver */
@@ -63,7 +63,11 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		Vec xn2subgammak_vec; /**< vector with xn1sub.*gammak_vecs */
 
 		void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
-		
+
+		void compute_x_model(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, const double *gamma_arr, int t_gamma_arr);
+		void compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, const double *gamma_arr, int t_gamma_arr);
+		void compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k);
+
 	public:
 		VarxH1FEMModel_Global(int T, int xdim, int num, int *K, int *xmem, double *epssqr);
 		~VarxH1FEMModel_Global();
@@ -73,7 +77,6 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		void printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		
 		std::string get_name() const;
-
 		
 		void initialize_gammasolver(GeneralSolver **gamma_solver, const TSData_Global *tsdata);
 		void initialize_thetasolver(GeneralSolver **theta_solver, const TSData_Global *tsdata);
@@ -475,11 +478,11 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	Vec b_global = gammadata->get_b()->get_vector(); /* rhs of QP gamma problem */
 
 	/* local data */
-	const double *theta;
+	const double *theta_arr;
 	double *b_local_arr;
 
 	/* get local arrays */
-	TRY( VecGetArrayRead(M_global,&theta) );
+	TRY( VecGetArrayRead(M_global,&theta_arr) );
 	TRY( VecGetArray(b_global,&b_local_arr) );	
 
 	/* get constants of the problem */
@@ -513,23 +516,7 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 			for(k=0;k<K;k++){
 				theta_start = k*blocksize*xdim; /* where in theta start actual coefficients */
 
-				for(n = 0; n < xdim; n++){
-					/* mu */
-					x_model[n] = theta[theta_start + n*blocksize]; 
-				
-					/* A */
-					for(t_mem = 1; t_mem <= xmem; t_mem++){
-						/* add multiplication with A_{t_mem} */
-						Ax = 0;
-						for(i = 0; i < xdim; i++){
-							Ax += theta[theta_start + n*blocksize + 1 + (t_mem-1)*xdim + i]*x_scatter_arr[(t_in_scatter-t_mem)*xdim+i]; 
-						}
-						x_model[n] += Ax;
-					}
-					
-					/* B */
-					//todo: process u(t)
-				}
+				compute_x_modelk(x_model, x_scatter_arr, t_in_scatter-t_mem, theta_arr, k);
 
 				/* now I have computed x_model(t), therefore I just compute || x_model(t)-x_data(t) ||^2 */
 				value = 0;
@@ -550,7 +537,7 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 		is_end = min(is_begin + t_scatter,T);
 
 	}
-	TRY( VecRestoreArrayRead(M_global,&theta) );
+	TRY( VecRestoreArrayRead(M_global,&theta_arr) );
 	TRY( VecRestoreArray(b_global,&b_local_arr) );	
 
 	LOG_FUNC_END
@@ -883,7 +870,7 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 	/* theta */
 	int theta_start; /* where in theta start actual coefficients */
 	double Ax;
-	double x_model_n;
+	double x_model[xdim];
 	int blocksize = 1 + xdim*xmemlocal;
 	double *theta_arr;
 	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta_arr) );
@@ -937,30 +924,12 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 			for(k=0;k<Klocal;k++){
 				myfile << gamma_arr[k*(T-xmemlocal)+t-xmem_max] << ",";
 			}
+			
 			/* compute new time serie from model */
+			compute_x_model(x_model, x_scatter_arr, t_in_scatter-t_mem, theta_arr, gamma_arr, t);
+
 			for(n=0;n<xdim;n++){
-				x_model_n = 0;
-
-				/* mu */
-				for(k=0;k<Klocal;k++){
-					theta_start = k*blocksize*xdim;
-					x_model_n += gamma_arr[k*(T-xmemlocal)+t-xmem_max]*theta_arr[theta_start + n*blocksize]; 
-				}
-		
-				/* A */
-				for(t_mem = 1; t_mem <= xmemlocal; t_mem++){
-					/* add multiplication with A_{t_mem} */
-					Ax = 0;
-					for(i = 0; i < xdim; i++){
-						for(k=0;k<Klocal;k++){
-							theta_start = k*blocksize*xdim;
-							Ax += gamma_arr[k*(T-xmemlocal)+t-xmem_max]*theta_arr[theta_start + n*blocksize + 1 + (t_mem-1)*xdim + i]*x_scatter_arr[(t_in_scatter-t_mem)*xdim+i]; 
-						}
-					}
-					x_model_n += Ax;
-				}
-
-				myfile << x_model_n; //x_scatter_arr[t_in_scatter*xdim+n];
+				myfile << x_model[n];
 				if(n+1 < xdim){
 					myfile << ",";
 				}
@@ -989,7 +958,6 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 
 	LOG_FUNC_STATIC_END
 }
-
 
 void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, bool scale_or_not){
 	LOG_FUNC_STATIC_BEGIN
@@ -1181,6 +1149,69 @@ void VarxH1FEMModel_Global::compute_next_step(double *data_out, int t_data_out, 
 		}
 	
 	}
+}
+
+void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, const double *gamma_arr, int t_gamma_arr){
+	int nproc = GlobalManager.get_size();
+	int my_rank = GlobalManager.get_rank();
+
+	int xmem_max = max_array(nproc, this->xmem);
+
+	int n, t_mem, i;
+	int blocksize = 1 + this->xdim*this->xmemlocal;
+
+	double Ax;
+	int	theta_start = k*blocksize*this->xdim;
+	
+	/* get gamma value */
+	double gamma_value;
+	if(gamma_arr){
+		gamma_value = gamma_arr[k*(this->T-xmemlocal)+t_gamma_arr-xmem_max];	
+	} else {
+		gamma_value = 1.0;
+	}
+	
+	for(n=0;n<xdim;n++){
+		x_model[n] = 0;
+
+		/* mu */
+		x_model[n] += gamma_value*theta_arr[theta_start + n*blocksize]; 
+		
+		/* A */
+		for(t_mem = 1; t_mem <= this->xmemlocal; t_mem++){
+			/* add multiplication with A_{t_mem} */
+			Ax = 0;
+			for(i = 0; i < xdim; i++){
+					Ax += gamma_value*theta_arr[theta_start + n*blocksize + 1 + (t_mem-1)*xdim + i]*x_arr[t_x_arr*xdim+i]; 
+			}
+			x_model[n] += Ax;
+		}
+
+	}
+
+}
+
+void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k){
+	compute_x_modelk(x_model, x_arr, t_x_arr, theta_arr, k, NULL, -1);
+}
+
+void VarxH1FEMModel_Global::compute_x_model(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, const double *gamma_arr, int t_gamma_arr){
+	double x_modelk[xdim];
+	int k, n;
+
+	/* initialize */
+	for(n=0;n<xdim;n++){
+		x_model[n] = 0; 
+	}
+	
+	/* go throught clusters */
+	for(k=0;k<Klocal;k++){
+		compute_x_modelk(x_modelk, x_arr, t_x_arr, theta_arr, k, gamma_arr, t_gamma_arr);
+		for(n=0;n<xdim;n++){
+			x_model[n] += x_modelk[n]; 
+		}
+	}
+
 }
 
 } /* end namespace */
