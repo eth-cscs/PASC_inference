@@ -234,7 +234,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	mytimer.stop();
 
 	coutMaster << "end mat mult2:" << mytimer.get_value_last() << std::endl;
-	
+
 	
 /*	double *y_arr;
 	double *x_arr;
