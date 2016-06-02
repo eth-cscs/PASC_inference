@@ -132,14 +132,6 @@ void QPSolver_Global::GetLocalData(){
 	TRY( VecGetLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
 	TRY( VecGetLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
 
-	#ifdef USE_GPU
-		/* copy data to gpu */
-
-//		TRY( VecCopy() );
-	
-		//TODO: give option to decide what to copy
-	#endif
-
 	LOG_FUNC_END
 }
 
@@ -149,13 +141,6 @@ void QPSolver_Global::RestoreLocalData(){
 	TRY( VecRestoreLocalVector(qpdata->get_x()->get_vector(),data_local->get_x()->get_vector()) );
 	TRY( VecRestoreLocalVector(qpdata->get_x0()->get_vector(),data_local->get_x0()->get_vector()) );
 	TRY( VecRestoreLocalVector(qpdata->get_b()->get_vector(),data_local->get_b()->get_vector()) );
-
-	#ifdef USE_GPU
-		/* copy data from gpu */
-	
-		//TODO: give option to decide what to copy
-	#endif
-
 
 	LOG_FUNC_END
 }

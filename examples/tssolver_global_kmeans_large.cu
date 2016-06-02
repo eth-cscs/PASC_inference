@@ -137,14 +137,15 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- SAVING VTK ---" << std::endl;
 	example::KMeans3D::saveVTK("results/kmeans",".vtk",T,num,K,mydata.get_datavector(),mydata.get_gammavector());
 	coutAll.synchronize();
-	
-	/* print timers */
-//	mysolver.printtimer(coutAll);
-//	coutAll.synchronize();
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
 	mymodel.saveCSV("results/kmeans",&mydata);
+	coutAll.synchronize();
+
+	/* print timers */
+	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	mysolver.printtimer(coutAll);
 	coutAll.synchronize();
 
 	/* say bye */	
