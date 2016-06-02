@@ -197,10 +197,10 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	mytimer.restart();
 	mytimer.start();
 
-	TRY( VecGetSubVector(x->get_vector(), isx1, &x1) )
-	TRY( VecGetSubVector(x->get_vector(), isx2, &x2) )
-	TRY( VecGetSubVector(x->get_vector(), isx3, &x3) )
-	TRY( VecGetSubVector(y->get_vector(), isx2, &yy) )
+	TRY( VecGetSubVector(x.get_vector(), isx1, &x1) )
+	TRY( VecGetSubVector(x.get_vector(), isx2, &x2) )
+	TRY( VecGetSubVector(x.get_vector(), isx3, &x3) )
+	TRY( VecGetSubVector(y.get_vector(), isx2, &yy) )
 
 	TRY( VecCopy(x2,yy) );
 	TRY( VecScale(yy,2));
@@ -208,10 +208,10 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecAXPY(yy,-1.0,x3) );
 	TRY( VecScale(yy,alpha));
 
-	TRY( VecRestoreSubVector(x->get_vector(), isx1, &x1) )
-	TRY( VecRestoreSubVector(x->get_vector(), isx2, &x2) )
-	TRY( VecRestoreSubVector(x->get_vector(), isx3, &x3) )
-	TRY( VecRestoreSubVector(y->get_vector(), isx2, &yy) )
+	TRY( VecRestoreSubVector(x.get_vector(), isx1, &x1) )
+	TRY( VecRestoreSubVector(x.get_vector(), isx2, &x2) )
+	TRY( VecRestoreSubVector(x.get_vector(), isx3, &x3) )
+	TRY( VecRestoreSubVector(y.get_vector(), isx2, &yy) )
 	
 	mytimer.stop();
 
