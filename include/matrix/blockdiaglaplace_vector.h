@@ -141,7 +141,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 #else
 
 /* A*x using CUDA kernel */
-__global__ void kernel_mult(double* y, double* xp, int T, int K, double alpha)
+__global__ void kernel_mult(double* y, const double* x, int T, int K, double alpha)
 {
 	/* compute my id */
 	int t = blockIdx.x*blockDim.x + threadIdx.x;
@@ -176,15 +176,15 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)FUNCTION: matmult" << std::endl;
 
 	double *y_arr;
-	double *x_arr;
-	TRY( VecGetArray(y.get_vector(),&y_arr) );
-	TRY( VecGetArray(x.get_vector(),&x_arr) );
+	const double *x_arr;
+	TRY( VecCUDAGetArray(y.get_vector(),&y_arr) );
+	TRY( VecCUDAGetArrayRead(x.get_vector(),&x_arr) );
 
 	kernel_mult<<<T*K, 1>>>(y_arr,x_arr,T,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 
-	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
-	TRY( VecRestoreArray(x.get_vector(),&x_arr) );
+	TRY( VecCUDARestoreArray(y.get_vector(),&y_arr) );
+	TRY( VecCUDARestoreArrayRead(x.get_vector(),&x_arr) );
 
 }
 
