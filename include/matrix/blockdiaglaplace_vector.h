@@ -141,7 +141,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 #else
 
 /* A*x using CUDA kernel */
-__global__ void kernel_mult(double* Axp, const double* xp, int T, int K, double alpha)
+__global__ void kernel_mult(double* y, double* xp, int T, int K, double alpha)
 {
 	/* compute my id */
 	int t = blockIdx.x*blockDim.x + threadIdx.x;
@@ -155,15 +155,15 @@ __global__ void kernel_mult(double* Axp, const double* xp, int T, int K, double 
 
 		/* first row */
 		if(t_local == 0){
-			Axp[t] = alpha*xp[t] - alpha*xp[t+1];
+			y[t] = alpha*xp[t] - alpha*xp[t+1];
 		}
 		/* common row */
 		if(t_local > 0 && t_local < T-1){
-			Axp[t] = -alpha*xp[t-1] + 2.0*alpha*xp[t] - alpha*xp[t+1];
+			y[t] = -alpha*xp[t-1] + 2.0*alpha*xp[t] - alpha*xp[t+1];
 		}
 		/* last row */
 		if(t_local == T-1){
-			Axp[t] = -alpha*xp[t-1] + alpha*xp[t];
+			y[t] = -alpha*xp[t-1] + alpha*xp[t];
 		}
 	}
 
@@ -176,15 +176,15 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagLaplaceVectorMatrix)FUNCTION: matmult" << std::endl;
 
 	double *y_arr;
-	const double *x_arr;
+	double *x_arr;
 	TRY( VecGetArray(y.get_vector(),&y_arr) );
-	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
+	TRY( VecGetArray(x.get_vector(),&x_arr) );
 
 	kernel_mult<<<T*K, 1>>>(y_arr,x_arr,T,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
-	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
+	TRY( VecRestoreArray(x.get_vector(),&x_arr) );
 
 }
 
