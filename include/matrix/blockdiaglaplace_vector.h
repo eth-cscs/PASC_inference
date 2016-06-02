@@ -16,6 +16,10 @@ extern int DEBUG_MODE;
 	typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
 #endif
 
+#ifdef USE_CUDA
+    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#endif
+
 namespace pascinference {
 
 /* laplace matrix */ 
@@ -155,15 +159,15 @@ __global__ void kernel_mult(double* y, const double* x, int T, int K, double alp
 
 		/* first row */
 		if(t_local == 0){
-			y[t] = alpha*xp[t] - alpha*xp[t+1];
+			y[t] = alpha*x[t] - alpha*x[t+1];
 		}
 		/* common row */
 		if(t_local > 0 && t_local < T-1){
-			y[t] = -alpha*xp[t-1] + 2.0*alpha*xp[t] - alpha*xp[t+1];
+			y[t] = -alpha*x[t-1] + 2.0*alpha*x[t] - alpha*x[t+1];
 		}
 		/* last row */
 		if(t_local == T-1){
-			y[t] = -alpha*xp[t-1] + alpha*xp[t];
+			y[t] = -alpha*x[t-1] + alpha*x[t];
 		}
 	}
 
@@ -177,13 +181,13 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 
 	double *y_arr;
 	const double *x_arr;
-	TRY( VecCUDAGetArray(y.get_vector(),&y_arr) );
+	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 	TRY( VecCUDAGetArrayRead(x.get_vector(),&x_arr) );
 
 	kernel_mult<<<T*K, 1>>>(y_arr,x_arr,T,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 
-	TRY( VecCUDARestoreArray(y.get_vector(),&y_arr) );
+	TRY( VecCUDARestoreArrayReadWrite(y.get_vector(),&y_arr) );
 	TRY( VecCUDARestoreArrayRead(x.get_vector(),&x_arr) );
 
 }
