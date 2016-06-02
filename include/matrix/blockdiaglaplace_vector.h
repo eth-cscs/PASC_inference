@@ -182,7 +182,6 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
-	coutMaster << "calling kernel mult" << std::endl;
 	kernel_mult<<<T*K, 1>>>(y_arr,x_arr,T,K,alpha);
 //	kernel_mult<<<T, K>>>(y_arr,x_arr,T,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
