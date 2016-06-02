@@ -323,9 +323,9 @@ void SPGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
-	output <<  " - it all =       " << this->it_sum << std::endl;
-	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;
-	output <<  " - timers all" << std::endl;
+	output <<  " - it all =        " << this->it_sum << std::endl;
+	output <<  " - hessmult all =  " << this->hessmult_sum << std::endl;
+	output <<  " - timers" << std::endl;
 	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
 	output <<  "  - t_project =    " << this->timer_projection.get_value_sum() << std::endl;
 	output <<  "  - t_matmult =    " << this->timer_matmult.get_value_sum() << std::endl;

@@ -29,6 +29,8 @@ namespace pascinference {
 /* MultiCGSolver_Global */ 
 class MultiCGSolver_Global: public QPSolver<PetscVector> {
 	protected:
+		Timer timer_solve; 			/**< total solution time of MultiCGSolver_Global algorithm */
+	
 		const QPData<PetscVector> *qpdata; /* data on which the solver operates, matrix has to be blogdiag */
 	
 		QPData<PetscVector> *data_local;
@@ -56,6 +58,8 @@ class MultiCGSolver_Global: public QPSolver<PetscVector> {
 		
 		void printstatus(ConsoleOutput &output) const;
 		void printcontent(ConsoleOutput &output) const;
+		void printtimer(ConsoleOutput &output) const;		
+		
 		std::string get_name() const;
 
 };
@@ -76,6 +80,8 @@ MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata
 	this->fx = -1; /* max(norm(g)) */
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
+	this->it_sum = 0; 
+	this->hessmult_sum = 0;
 
 	this->maxit = MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT;
 	this->eps = MULTICGSOLVER_GLOBAL_DEFAULT_EPS;
@@ -110,6 +116,9 @@ MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata
 	/* create new instance of local solver */
 	solver_local = new MultiCGSolver<PetscVector>(*data_local);
 
+	/* prepare timers */
+	this->timer_solve.restart();	
+	
 	LOG_FUNC_END
 }
 
@@ -216,6 +225,18 @@ void MultiCGSolver_Global::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_END
 }
 
+void MultiCGSolver_Global::printtimer(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	output <<  this->get_name() << std::endl;
+	output <<  " - it all =        " << this->it_sum << std::endl;
+	output <<  " - hessmult all =  " << this->hessmult_sum << std::endl;
+	output <<  " - timers" << std::endl;
+	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
+
+	LOG_FUNC_END
+}
+
 std::string MultiCGSolver_Global::get_name() const {
 	return "MultiCG_Global";
 }
@@ -237,6 +258,8 @@ int MultiCGSolver_Global::get_hessmult() const {
 void MultiCGSolver_Global::solve() {
 	LOG_FUNC_BEGIN
 
+	this->timer_solve.start(); /* stop this timer in the end of solution */
+	
 	/* for each block prepare CG solver and solve the problem */
 
 	GetLocalData();
@@ -247,6 +270,8 @@ void MultiCGSolver_Global::solve() {
 	/* copy results */
 	this->it_last = solver_local->get_it();
 	this->it_sum += this->it_last;
+	this->hessmult_last = solver_local->get_it();
+	this->hessmult_sum += this->hessmult_last;
 	this->fx = solver_local->get_fx();
 
 	/* destroy local storage */
@@ -254,6 +279,8 @@ void MultiCGSolver_Global::solve() {
 
 	LOG_IT(this->it_last)
 	LOG_FX(this->fx)
+
+	this->timer_solve.stop();
 
 	LOG_FUNC_END
 }
