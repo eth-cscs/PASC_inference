@@ -32,13 +32,6 @@ class QPSolver_Global: public QPSolver<PetscVector> {
 		void GetLocalData();
 		void RestoreLocalData();
 
-		#ifdef USE_GPU
-			/* gpu data */
-			GeneralVector<PetscVector> *x_gpu;
-			GeneralVector<PetscVector> *x0_gpu;
-			GeneralVector<PetscVector> *b_gpu;
-		#endif
-
 	public:
 		QPSolver_Global(const QPData<PetscVector> &new_qpdata); 
 		~QPSolver_Global();
@@ -91,50 +84,31 @@ QPSolver_Global::QPSolver_Global(const QPData<PetscVector> &new_qpdata){
 	/* get local size */
 	TRY( VecGetLocalSize(qpdata->get_x()->get_vector(), &local_size) );
 
-	/* allocate local data on CPU */
-	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x_local) );	
-	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x0_local) );	
-	TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &b_local) );	
+	#ifndef USE_GPU
+		/* allocate local data on CPU */
+		TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x_local) );	
+		TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &x0_local) );	
+		TRY( VecCreateSeq(PETSC_COMM_SELF, local_size, &b_local) );	
+	#else
+		/* allocate local data on GPU */
+		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, local_size, &x_local) );	
+		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, local_size, &x0_local) );	
+		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, local_size, &b_local) );	
+	#endif
 
 	x = new GeneralVector<PetscVector>(x_local);
 	x0 = new GeneralVector<PetscVector>(x0_local);
 	b = new GeneralVector<PetscVector>(b_local);
 
-	#ifndef USE_GPU
-		/* set local vectors and prepare local data on CPU */
-		data_local->set_A(qpdata->get_A());
-		data_local->set_b(b);
-		data_local->set_x(x);
-		data_local->set_x0(x0);
-		data_local->set_feasibleset(qpdata->get_feasibleset());
+	/* set local vectors and prepare local data */
+	data_local->set_A(qpdata->get_A());
+	data_local->set_b(b);
+	data_local->set_x(x);
+	data_local->set_x0(x0);
+	data_local->set_feasibleset(qpdata->get_feasibleset());
 	
-		/* create new instance of local solver */
-		solver_local = new QPSolver<PetscVector>(*data_local);
-	#else
-		/* prepare data for GPU */
-		Vec x_local_gpu;
-		Vec x0_local_gpu;
-		Vec b_local_gpu;
-
-		/* allocate local data on GPU */
-		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, local_size, &x_local_gpu) );	
-		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, local_size, &x0_local_gpu) );	
-		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, local_size, &b_local_gpu) );	
-
-		x_gpu = new GeneralVector<PetscVector>(x_local_gpu);
-		x0_gpu = new GeneralVector<PetscVector>(x0_local_gpu);
-		b_gpu = new GeneralVector<PetscVector>(b_local_gpu);
-		
-		/* set local vectors and prepare local data on GPU */
-		data_local->set_A(qpdata->get_A());
-		data_local->set_b(b_gpu);
-		data_local->set_x(x_gpu);
-		data_local->set_x0(x0_gpu);
-		data_local->set_feasibleset(qpdata->get_feasibleset());
-	
-		/* create new instance of GPU solver */
-		solver_local = new QPSolver<PetscVector>(*data_local);		
-	#endif
+	/* create new instance of local solver */
+	solver_local = new QPSolver<PetscVector>(*data_local);
 
 	LOG_FUNC_END
 }
@@ -161,7 +135,7 @@ void QPSolver_Global::GetLocalData(){
 	#ifdef USE_GPU
 		/* copy data to gpu */
 
-		TRY( VecCopy() );
+//		TRY( VecCopy() );
 	
 		//TODO: give option to decide what to copy
 	#endif
