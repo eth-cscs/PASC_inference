@@ -65,7 +65,7 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
 
 		void compute_x_model(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, const double *gamma_arr, int t_gamma_arr);
-		void compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, const double *gamma_arr, int t_gamma_arr);
+		void compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, double gamma_value);
 		void compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k);
 
 	public:
@@ -1151,26 +1151,13 @@ void VarxH1FEMModel_Global::compute_next_step(double *data_out, int t_data_out, 
 	}
 }
 
-void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, const double *gamma_arr, int t_gamma_arr){
-	int nproc = GlobalManager.get_size();
-	int my_rank = GlobalManager.get_rank();
-
-	int xmem_max = max_array(nproc, this->xmem);
-
+void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, double gamma_value){
 	int n, t_mem, i;
 	int blocksize = 1 + this->xdim*this->xmemlocal;
 
 	double Ax;
 	int	theta_start = k*blocksize*this->xdim;
-	
-	/* get gamma value */
-	double gamma_value;
-	if(gamma_arr){
-		gamma_value = gamma_arr[k*(this->T-xmemlocal)+t_gamma_arr-xmem_max];	
-	} else {
-		gamma_value = 1.0;
-	}
-	
+
 	for(n=0;n<xdim;n++){
 		x_model[n] = 0;
 
@@ -1192,12 +1179,13 @@ void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_ar
 }
 
 void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k){
-	compute_x_modelk(x_model, x_arr, t_x_arr, theta_arr, k, NULL, -1);
+	compute_x_modelk(x_model, x_arr, t_x_arr, theta_arr, k, 1.0);
 }
 
 void VarxH1FEMModel_Global::compute_x_model(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, const double *gamma_arr, int t_gamma_arr){
 	double x_modelk[xdim];
 	int k, n;
+	int xmem_max = max_array(GlobalManager.get_size(), this->xmem);
 
 	/* initialize */
 	for(n=0;n<xdim;n++){
@@ -1206,7 +1194,7 @@ void VarxH1FEMModel_Global::compute_x_model(double *x_model, const double *x_arr
 	
 	/* go throught clusters */
 	for(k=0;k<Klocal;k++){
-		compute_x_modelk(x_modelk, x_arr, t_x_arr, theta_arr, k, gamma_arr, t_gamma_arr);
+		compute_x_modelk(x_modelk, x_arr, t_x_arr, theta_arr, k, gamma_arr[k*(this->T-xmemlocal)+t_gamma_arr-xmem_max]);
 		for(n=0;n<xdim;n++){
 			x_model[n] += x_modelk[n]; 
 		}
