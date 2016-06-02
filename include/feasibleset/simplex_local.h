@@ -148,6 +148,10 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	double *x_arr;
 	
 #ifdef USE_CUDA
+	Timer mytimer;
+	mytimer.restart();
+	mytimer.start();
+
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
 	/* use kernel to compute projection */
@@ -156,6 +160,11 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
+
+	mytimer.stop();
+	
+	coutMaster << "projection: " << mytimer.get_value_last() << std::endl;
+
 #else
 	TRY( VecGetArray(x.get_vector(),&x_arr) );
 	
