@@ -48,17 +48,37 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		*/ 		
 		void sort_bubble(double *x, int n);
 
-		/** @brief compute projection to one simplex subset
+		/** @brief projection onto simplex
+		 *
+		 * computes a projection of a point onto simplex in nD
+		 *
+		 * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
+		 * and compute projection
+		 * P(p) = arg min || p - y ||_2
+		 * subject to constraints (which define simplex)
+		 * y_0 + ... y_{K-1} = 1
+		 * y_i >= 0 for all i=0,...,K-1
+		 *
+		 * in practical applications K is much more lower number than T
+		 * K - number of clusters (2 - 10^2)
+		 * T - length of time-series (10^5 - 10^9) 
 		 * 
-		 * @param x_sub values of subvector in array
-		 * @param n size of subvector
+		 * @param t where my subvector starts
+		 * @param x values of whole vector in array
+		 * @param K size of subvector
 		*/ 		
-		void project_sub(int t, double *x, int T, int K);
+		void project_sub(double *x, int t, int T, int K);
 
-		#ifdef USE_CUDA
-			double *x_sorted;
+		#ifdef USE_GPU
+			double *x_sorted; /**< for manipulation with sorted data on GPU */
+			int blockSize; /**< block size returned by the launch configurator */
+			int minGridSize; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
+			int gridSize; /**< the actual grid size needed, based on input size */
 		#endif
-		
+
+		int T; /**< number of disjoint simplex subsets */
+		int K_local; /**< size of each simplex subset */
+				
 	public:
 		/** @brief default constructor
 		*/ 	
@@ -78,24 +98,38 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		 */
 		virtual std::string get_name() const;
 
-		/* variables */
-		int T; /**< number of disjoint simplex subsets */
-		int K_local; /**< size of each simplex subset */
-		
 		/** @brief compute projection onto feasible set
 		 * 
 		 * @param x point which will be projected
 		 */		
 		void project(GeneralVector<PetscVector> &x);
-
-
-		
 		
 };
 
 /* cuda kernels cannot be a member of class */
 #ifdef USE_CUDA
 __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
+
+/** @brief kernel projection onto simplex
+ *
+ * computes a projection of a point onto simplex in nD
+ *
+ * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
+ * and compute projection
+ * P(p) = arg min || p - y ||_2
+ * subject to constraints (which define simplex)
+ * y_0 + ... y_{K-1} = 1
+ * y_i >= 0 for all i=0,...,K-1
+ *
+ * in practical applications K is much more lower number than T
+ * K - number of clusters (2 - 10^2)
+ * T - length of time-series (10^5 - 10^9) 
+ * 
+ * @param x values of whole vector in array
+ * @param x_sorted allocated vector for manipulating with sorted x
+ * @param T parameter of vector length
+ * @param K parameter of vector length
+ */ 
 __global__ void project_kernel(double *x, double *x_sorted, int T, int K);
 #endif
 
@@ -114,9 +148,11 @@ SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int Tnew, int Knew){
 	this->T = Tnew;
 	this->K_local = Knew;
 
-	#ifdef USE_CUDA
+	#ifdef USE_GPU
 		/* allocate space for sorting */
 		gpuErrchk( cudaMalloc((void **)&x_sorted,K_local*T*sizeof(double)) );
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,project_kernel, 0, 0) );
+		gridSize = (T + blockSize - 1)/ blockSize;
 	#endif
 
 	LOG_FUNC_END
@@ -126,7 +162,7 @@ SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int Tnew, int Knew){
 SimplexFeasibleSet_Local::~SimplexFeasibleSet_Local(){
 	LOG_FUNC_BEGIN
 	
-	#ifdef USE_CUDA
+	#ifdef USE_GPU
 		/* destroy space for sorting */
 		gpuErrchk( cudaFree(&x_sorted) );
 	#endif	
@@ -141,8 +177,14 @@ void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T:       " << T << std::endl;
-	output <<  " - K_local: " << K_local << std::endl;
+	output <<  " - T:           " << T << std::endl;
+	output <<  " - K_local:     " << K_local << std::endl;
+
+	#ifdef USE_GPU
+		output <<  " - blockSize:   " << blockSize << std::endl;
+		output <<  " - gridSize:    " << gridSize << std::endl;
+		output <<  " - minGridSize: " << minGridSize << std::endl;
+	#endif
 
 	LOG_FUNC_END
 }
@@ -157,43 +199,26 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	/* get local array */
 	double *x_arr;
 	
-#ifdef USE_CUDA
-	Timer mytimer;
-	mytimer.restart();
-	mytimer.start();
+	#ifdef USE_GPU
+		TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
-	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
+		/* use kernel to compute projection */
+		//TODO: here should be actually the comparison of Vec type! not simple use_gpu
+		project_kernel<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K_local);
+		gpuErrchk( cudaDeviceSynchronize() );
 
-	/* use kernel to compute projection */
-	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
-	int blockSize; /* The launch configurator returned block size */
-	int minGridSize; /* The minimum grid size needed to achieve the maximum occupancy for a full device launch */
-	int gridSize; /* The actual grid size needed, based on input size */
+		TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
+	#else
+		TRY( VecGetArray(x.get_vector(),&x_arr) );
 	
-	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,project_kernel, 0, 0) );
-	gridSize = (T + blockSize - 1)/ blockSize;
-	
-//	coutMaster << "minGridSize:" << minGridSize << ", gridSize: " << gridSize << ", blockSize: " << blockSize << std::endl;
-	
-	project_kernel<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K_local);
-	gpuErrchk( cudaDeviceSynchronize() );
+		/* use openmp */
+		#pragma omp parallel for
+		for(int t=0;t<T;t++){
+			project_sub(x_arr,t,T,K_local);
+		}
 
-	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
-
-	mytimer.stop();
-	
-#else
-	TRY( VecGetArray(x.get_vector(),&x_arr) );
-	
-	/* use openmp */
-	#pragma omp parallel for
-	for(int t=0;t<T;t++){
-		project_sub(t,x_arr,T,K_local);
-	}
-
-	TRY( VecRestoreArray(x.get_vector(),&x_arr) );
-#endif
-
+		TRY( VecRestoreArray(x.get_vector(),&x_arr) );
+	#endif
 
 	LOG_FUNC_END
 }
@@ -221,20 +246,7 @@ void SimplexFeasibleSet_Local::sort_bubble(double *x, int n){
     }
 }
 
-/* this will be a kernel function which computes a projection of a point onto simplex in nD
- *
- * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
- * and compute projection
- * P(p) = arg min || p - y ||_2
- * subject to constraints (which define simplex)
- * y_0 + ... y_{K-1} = 1
- * y_i >= 0 for all i=0,...,K-1
- *
- * in practical applications K is much more lower number than T
- * K - number of clusters (2 - 10^2)
- * T - length of time-series (10^5 - 10^9) 
- */ 
-void SimplexFeasibleSet_Local::project_sub(int t, double *x, int T, int K){
+void SimplexFeasibleSet_Local::project_sub(double *x, int t, int T, int K){
 	if(t<T){ /* maybe we call more than T kernels */
 		int k;
 
@@ -312,7 +324,7 @@ void SimplexFeasibleSet_Local::project_sub(int t, double *x, int T, int K){
 
 
 /* kernels in cuda */
-#ifdef USE_CUDA
+#ifdef USE_GPU
 
 __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K){
 	int i;
@@ -336,19 +348,6 @@ __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K){
 	}
 }
 
-/* this is a kernel function which computes a projection of a point onto simplex in nD
- *
- * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
- * and compute projection
- * P(p) = arg min || p - y ||_2
- * subject to constraints (which define simplex)
- * y_0 + ... y_{K-1} = 1
- * y_i >= 0 for all i=0,...,K-1
- *
- * in practical applications K is much more lower number than T
- * K - number of clusters (2 - 10^2)
- * T - length of time-series (10^5 - 10^9) 
- */ 
 __global__ void project_kernel(double *x, double *x_sorted, int T, int K){
 	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
 

@@ -12,11 +12,6 @@
 project(PASC_INFERENCE)
 cmake_minimum_required(VERSION 2.8)
 
-#decide which example to compile
-option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" OFF)
-option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" OFF)
-option(PROJECTION_TEST "PROJECTION_TEST" OFF)
-
 # include additional example headers
 include_directories("include")
 
@@ -26,7 +21,7 @@ set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}/../")
 # include cmake functions
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake/" ${CMAKE_MODULE_PATH})
 
-#default settings
+# default settings
 option(USE_BOOST "USE_BOOST" ON)
 option(USE_CUDA "USE_CUDA" OFF)
 option(USE_GPU "USE_GPU" OFF)
@@ -53,6 +48,15 @@ include(printsetting)
 
 # prepare directories
 make_directory("results")
+
+# decide which example to compile
+option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" OFF)
+option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" OFF)
+option(PROJECTION_TEST "PROJECTION_TEST" OFF)
+
+message(STATUS "${Yellow}TSSOLVER_GLOBAL_KMEANS : ${Green}${TSSOLVER_GLOBAL_KMEANS}${Yellow}${ColourReset}")
+message(STATUS "${Yellow}TSSOLVER_GLOBAL_VARX   : ${Green}${TSSOLVER_GLOBAL_VARX}${Yellow}${ColourReset}")
+message(STATUS "${Yellow}PROJECTION_TEST        : ${Green}${PROJECTION_TEST}${Yellow}${ColourReset}")
 
 # add example executable files
 if(${TSSOLVER_GLOBAL_KMEANS})
