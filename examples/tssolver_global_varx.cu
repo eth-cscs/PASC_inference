@@ -34,6 +34,25 @@ int solution_get_cluster_id(int t, int T){
 
 int main( int argc, char *argv[] )
 {
+	/* read command line arguments */
+	if(argc < 3){
+		std::cout << "1. argument - T      - the dimension of the problem" << std::endl;
+		std::cout << "2. argument - xmem   - VarX parameter" << std::endl;
+		std::cout << "3. argument - K      - the dimension of the problem" << std::endl;
+		std::cout << "4. argument - epssqr - penalty" << std::endl;
+		std::cout << std::endl << argv[0] << " T xmem K epssqr" << std::endl;
+		return 1;
+	}
+
+	int T = atoi(argv[1]); 
+	int xmemforall = atoi(argv[2]);
+	int Kforall = atoi(argv[3]); 
+	int epssqrforall = atof(argv[4]);
+	 
+	std::cout << "T       = " << T << " (length of time-series)" << std::endl;
+	std::cout << "xmem    = " << T << " (VarX parameter)" << std::endl;
+	std::cout << "K       = " << Kforall << " (number of clusters)" << std::endl;
+	std::cout << "epssqrt = " << epssqrforall << " (penalty)" << std::endl;
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
 
@@ -47,7 +66,6 @@ int main( int argc, char *argv[] )
 
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
-	int T = 1000; /* length of time-series */
 
 	/* solution - for generating the problem */
 	int solution_K = 3;
@@ -81,20 +99,18 @@ int main( int argc, char *argv[] )
 	};
 
 	/* model parameters */
-	int num = 5;
-	int K[5] = {3,3,3,3,4}; /* number of clusters for each processor */
-	double epssqr[5] = {30,20,10,1,10}; /* penalty for each processor */
-	int xmem[5] = {2,2,2,2,2}; /* coeficient of Var model - memory of x - for each processor */
+	int num = GlobalManager.get_size();
+	int *K = new int(num);
+	double *epssqr = new double(num);
+	int *xmem = new int(num);
 
-	num = GlobalManager.get_size(); // TODO: this is a hotfix for proc < num
-
-	/* print info about environment */
-	coutMaster << "---------------------" << std::endl;
-	coutMaster << "nproc:   " << GlobalManager.get_size() << std::endl;
-	coutAll <<    " my_rank: " << GlobalManager.get_rank() << std::endl;
-	coutAll.synchronize();
-	coutMaster << "---------------------" << std::endl << std::endl;
-	
+	int i;
+	for(i=0; i<num; i++ ){
+		K[i] = Kforall;
+		epssqr[i] = epssqrforall;
+		xmem[i] = xmemforall;
+	}
+		
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	VarxH1FEMModel_Global mymodel(T, xdim, num, K, xmem, epssqr);
@@ -112,8 +128,8 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
-	mysolver.setting.maxit = 1000;
-	mysolver.setting.debug_mode = 2;
+	mysolver.maxit = 1000;
+	mysolver.debug_mode = 2;
 //	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
