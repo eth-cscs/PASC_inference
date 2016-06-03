@@ -338,6 +338,7 @@ __device__ void device_sort_bubble(double *x, int n){
 __global__ void project_kernel(double *x, int T, int K){
 	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
 
+	int k;
 	if(t<T){
 		bool is_inside = true;
 		double sum = 0.0;
@@ -362,7 +363,7 @@ __global__ void project_kernel(double *x, int T, int K){
 			double *y = new double[K];
 			double sum_y;
 			for(k=0;k<K;k++){
-				y[k] = x_my[k]; 
+				y[k] = x[k*T+t]; 
 			}
 			device_sort_bubble(y,K);
 
@@ -393,11 +394,11 @@ __global__ void project_kernel(double *x, int T, int K){
     
 			for(k = 0; k < K; k++){ // TODO: could be performed parallely  
 				/* (*x_sub)(i) = max(*x_sub-t_hat,0); */
-				ti = x_my[k] - t_hat;	
+				ti = x[k*T+t] - t_hat;	
 				if(ti > 0.0){
-					x_my[k] = ti;
+					x[k*T+t] = ti;
 				} else {
-					x_my[k] = 0.0;
+					x[k*T+t] = 0.0;
 				}
 			}
 			
