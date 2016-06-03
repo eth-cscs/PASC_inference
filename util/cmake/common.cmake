@@ -12,8 +12,8 @@ set(FLAGS_DEF_D "")
 set(LIBRARIES_DEF "")
 
 # add debug definitions to compiler flags
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp -Wall")
 
 # define some colors for funny cmake messages
 option(CMAKE_USE_COLOR "CMAKE_USE_COLOR" ON)
