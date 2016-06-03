@@ -8,6 +8,7 @@ if(${USE_CUDA})
 	string(TOUPPER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_UPPER)
 	set(CUDA_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-vla ${CMAKE_CXX_FLAGS_${BUILD_TYPE_UPPER}}") # add flags specific to build type
 	string(REPLACE "-std=c++11" "" CUDA_CXX_FLAGS ${CUDA_CXX_FLAGS}) # remove C++11 from options
+	string(REPLACE "-Wall" "" CUDA_CXX_FLAGS ${CUDA_CXX_FLAGS}) # remove Wall from options
 
 	set(FLAGS_DEF "-USE_CUDA ${FLAGS_DEF}")
 	set(FLAGS_DEF_D "-DUSE_CUDA ${FLAGS_DEF_D}")
