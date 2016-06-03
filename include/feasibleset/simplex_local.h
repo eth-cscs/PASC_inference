@@ -337,7 +337,7 @@ __device__ void device_sort_bubble(double *x, int n){
  */ 
 __global__ void project_kernel(double *x, int T, int K){
 	/* allocate shared memory */
-	__shared__ double x_shared[K*blockDim.x];
+	extern __shared__ double x_shared[];
 	
 	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
 
