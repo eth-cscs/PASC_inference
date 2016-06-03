@@ -161,7 +161,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	
 	coutMaster << "minGridSize:" << minGridSize << ", gridSize: " << gridSize << ", blockSize: " << blockSize << std::endl;
 	
-	project_kernel<<<gridSize, blockSize>>>(x_arr,T,K_local);
+	project_kernel<<<gridSize, blockSize, blockSize*K_local>>>(x_arr,T,K_local);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
