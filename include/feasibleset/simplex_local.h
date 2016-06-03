@@ -173,7 +173,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,project_kernel, 0, 0) );
 	gridSize = (T + blockSize - 1)/ blockSize;
 	
-	coutMaster << "minGridSize:" << minGridSize << ", gridSize: " << gridSize << ", blockSize: " << blockSize << std::endl;
+//	coutMaster << "minGridSize:" << minGridSize << ", gridSize: " << gridSize << ", blockSize: " << blockSize << std::endl;
 	
 	project_kernel<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K_local);
 	gpuErrchk( cudaDeviceSynchronize() );
