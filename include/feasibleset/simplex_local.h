@@ -376,7 +376,7 @@ __global__ void project_kernel(double *x, double *x_sorted, int T, int K){
 		}
 
 		/* if given point is not inside the feasible domain, then do projection */
-		if(!is_inside && false){
+		if(!is_inside){
 			int j,i;
 			/* compute sorted x_sub */
 			double sum_y;
