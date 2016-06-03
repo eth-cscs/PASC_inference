@@ -316,10 +316,12 @@ void TSSolver_Global::solve() {
 
 	/* variables */
 	double L; /* object function value */
-	double L_old, deltaL;
+	double L_old;
+	double deltaL;
 
 	/* initialize value of object function */
 	L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
+	deltaL = L;
 	
 	int it; 
 

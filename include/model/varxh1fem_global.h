@@ -488,11 +488,9 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	int xdim = this->xdim;
 	int xmem = this->xmemlocal;
 	int xmem_max = max_array(GlobalManager.get_size(), this->xmem);
-	int blocksize = 1 + xdim*xmem;
 	int gammak_size = T-xmem;
-	int theta_start; /* where in theta start actual coefficients */
-	int k,t_mem,t,n,i;
-	double Ax, value;
+	int k,t,n;
+	double value;
 	double x_model[xdim];
 
 	int t_in_scatter;
@@ -512,9 +510,7 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 
 			/* x_scatter_arr[t_in_scatter*xdim] is a start */
 			for(k=0;k<K;k++){
-				theta_start = k*blocksize*xdim; /* where in theta start actual coefficients */
-
-				compute_x_modelk(x_model, x_scatter_arr, t_in_scatter-t_mem, theta_arr, k);
+				compute_x_modelk(x_model, x_scatter_arr, t_in_scatter, theta_arr, k);
 
 				/* now I have computed x_model(t), therefore I just compute || x_model(t)-x_data(t) ||^2 */
 				value = 0;
@@ -625,7 +621,9 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	int xn2sub_nmb;
 	
 	/* go through clusters and fill matrices */
-	int col,row, xdim1,xdim2, i,j;
+	int col = -1;
+	int row = -1;
+	int xdim1,xdim2, i,j;
 	double value;
 
 	double coeff = 1;
@@ -716,7 +714,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 						} else {
 							/* nondiagonal entry */
 							blocks[k*xdim]->set_value(row,col,value);
-//							blocks[k*xdim]->add_value(col,row,value);
 						}
 					}
 					
@@ -801,11 +798,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 
 void VarxH1FEMModel_Global::scatter_part(Vec &x_global, int is_begin, int is_end, Vec &x_scatter, int xdim){
 	LOG_FUNC_BEGIN
-	
-	/* compute T */
-	int x_global_size;
-	TRY( VecGetSize(x_global,&x_global_size) );
-	int T = x_global_size/(double)xdim;
 
 	VecScatter ctx; 
 	IS scatter_is;
@@ -839,7 +831,7 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 
 	int xmem_max = max_array(nproc, this->xmem);
 	
-	int n,t,k,t_mem,i;
+	int n,t,k;
 			
 	/* to manipulate with file */
 	std::ofstream myfile;
@@ -866,10 +858,7 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 	myfile << "\n";
 
 	/* theta */
-	int theta_start; /* where in theta start actual coefficients */
-	double Ax;
 	double x_model[xdim];
-	int blocksize = 1 + xdim*xmemlocal;
 	double *theta_arr;
 	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta_arr) );
 
@@ -924,7 +913,7 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 			}
 			
 			/* compute new time serie from model */
-			compute_x_model(x_model, x_scatter_arr, t_in_scatter-t_mem, theta_arr, gamma_arr, t);
+			compute_x_model(x_model, x_scatter_arr, t_in_scatter, theta_arr, gamma_arr, t);
 
 			for(n=0;n<xdim;n++){
 				myfile << x_model[n];
@@ -1130,13 +1119,13 @@ void VarxH1FEMModel_Global::compute_next_step(double *data_out, int t_data_out, 
 
 	double Ax;
 
-	int t_mem,n,i;
+	int n,i;
 	for(n = 0; n < xdim; n++){
 		/* mu */
 		data_out[t_data_out*xdim+n] = theta[theta_start + n*theta_length_n]; 
 				
 		/* A (xmem) */
-		for(t_mem = 1; t_mem <= xmem; t_mem++){
+		for(int t_mem = 1; t_mem <= xmem; t_mem++){
 			/* add multiplication with A_{t_mem} */
 			Ax = 0;
 			for(i = 0; i < xdim; i++){
@@ -1150,7 +1139,7 @@ void VarxH1FEMModel_Global::compute_next_step(double *data_out, int t_data_out, 
 }
 
 void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, double gamma_value){
-	int n, t_mem, i;
+	int n, i;
 	int blocksize = 1 + this->xdim*this->xmemlocal;
 
 	double Ax;
@@ -1163,11 +1152,11 @@ void VarxH1FEMModel_Global::compute_x_modelk(double *x_model, const double *x_ar
 		x_model[n] += gamma_value*theta_arr[theta_start + n*blocksize]; 
 		
 		/* A */
-		for(t_mem = 1; t_mem <= this->xmemlocal; t_mem++){
+		for(int t_mem = 1; t_mem <= this->xmemlocal; t_mem++){
 			/* add multiplication with A_{t_mem} */
 			Ax = 0;
 			for(i = 0; i < xdim; i++){
-					Ax += gamma_value*theta_arr[theta_start + n*blocksize + 1 + (t_mem-1)*xdim + i]*x_arr[t_x_arr*xdim+i]; 
+					Ax += gamma_value*theta_arr[theta_start + n*blocksize + 1 + (t_mem-1)*xdim + i]*x_arr[(t_x_arr-t_mem)*xdim+i]; 
 			}
 			x_model[n] += Ax;
 		}
