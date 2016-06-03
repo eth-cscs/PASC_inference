@@ -16,6 +16,7 @@
 #include <math.h>
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <sstream>
 #include <stack>
 #include <limits>
@@ -56,12 +57,14 @@
 
 
 /* include pascinference stuff */
-#include "common.h"
-#include "algebra.h"
+#include "common/common.h"
+#include "algebra/algebra.h"
 
-#include "generaldata.h"
-#include "generalsolver.h"
-#include "generalfeasibleset.h"
+#include "data/generaldata.h"
+#include "solver/list.h"
+#include "solver/generalsolver.h"
+#include "feasibleset/generalfeasibleset.h"
+#include "model/generalmodel.h"
 
 
 #endif

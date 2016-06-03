@@ -14,12 +14,7 @@
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
 
-#include <iostream>
-#include "algebra.h"
-#include "generalmodel.h"
-#include "generalsolver.h"
-#include "generaldata.h"
-
+#include "pascinference.h"
 #include "data/tsdata_global.h"
 
 namespace pascinference {

@@ -7,9 +7,7 @@
 
 typedef petscvector::PetscVector PetscVector;
 
-#include <iostream>
-#include "generalsolver.h"
-#include "algebra.h"
+#include "pascinference.h"
 
 #include "data/tsdata_global.h"
 #include "model/tsmodel_global.h"

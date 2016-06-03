@@ -4,10 +4,7 @@
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
 
-#include <iostream>
-#include "generalsolver.h"
-#include "algebra.h"
-
+#include "pascinference.h"
 #include "data/qpdata.h"
 
 #define QPSOLVER_DEFAULT_MAXIT 1000;

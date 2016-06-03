@@ -7,8 +7,7 @@
 #ifndef PASC_GENERALFEASIBLESET_H
 #define	PASC_GENERALFEASIBLESET_H
 
-#include "common.h"
-#include "algebra.h"
+#include "pascinference.h"
 
 namespace pascinference {
 

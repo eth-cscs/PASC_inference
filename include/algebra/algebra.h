@@ -10,9 +10,9 @@
 #ifndef PASC_ALGEBRA_H
 #define	PASC_ALGEBRA_H
 
-#include "common.h"
-#include "generalmatrix.h"
-#include "generalvector.h"
+#include "pascinference.h"
+#include "algebra/generalmatrix.h"
+#include "algebra/generalvector.h"
 
 #endif
 	

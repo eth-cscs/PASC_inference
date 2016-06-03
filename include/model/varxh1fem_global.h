@@ -12,9 +12,7 @@ typedef petscvector::PetscVector PetscVector;
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
 
-#include <iostream>
-#include "algebra.h"
-#include "model/tsmodel_global.h"
+#include "pascinference.h"
 
 /* gamma problem */
 //#include "matrix/blockdiaglaplace_explicit.h"

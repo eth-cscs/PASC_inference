@@ -10,7 +10,7 @@ typedef petscvector::PetscVector PetscVector;
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
 
-#include <iostream>
+#include "pascinference.h"
 
 #include "solver/multicg.h"
 #include "solver/qpsolver.h"

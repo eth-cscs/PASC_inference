@@ -7,8 +7,6 @@
 #ifndef PASC_GENERALMATRIX_H
 #define	PASC_GENERALMATRIX_H
 
-#include <iostream>
-
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE; 
 

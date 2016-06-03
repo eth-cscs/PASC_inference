@@ -6,7 +6,7 @@
 #include <list>
 #include <algorithm>
 
-#include "common.h"
+#include "pascinference.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 

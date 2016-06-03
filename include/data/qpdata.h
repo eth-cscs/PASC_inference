@@ -10,10 +10,7 @@
 /* for debugging, if >= 100, then print info about each called function */
 extern int DEBUG_MODE;
 
-#include <iostream>
-#include "generaldata.h"
-#include "generalfeasibleset.h"
-#include "algebra.h"
+#include "pascinference.h"
 
 namespace pascinference {
 

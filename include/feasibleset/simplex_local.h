@@ -10,11 +10,7 @@
 /* for debugging, if >= 100, then print info about ach called function */
 extern int DEBUG_MODE;
 
-#include <iostream>
-#include "generalfeasibleset.h"
-#include "algebra.h"
-
-
+#include "pascinference.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'SIMPLEXFEASIBLESET_LOCAL is for PETSCVECTOR'

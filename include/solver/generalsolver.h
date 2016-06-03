@@ -7,10 +7,7 @@
 #ifndef PASCGENERALSOLVER_H
 #define	PASCGENERALSOLVER_H
 
-#include "common.h"
-#include "algebra.h"
-#include "solver/list.h"
-#include "generaldata.h"
+#include "pascinference.h"
 
 namespace pascinference {
 

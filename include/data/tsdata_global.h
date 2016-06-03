@@ -17,8 +17,7 @@ typedef petscvector::PetscVector PetscVector;
 extern int DEBUG_MODE;
 
 #include <iostream>
-#include "generaldata.h"
-#include "algebra.h"
+#include "common/common.h"
 #include "model/tsmodel_global.h"
 
 namespace pascinference {

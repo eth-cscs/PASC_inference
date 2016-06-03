@@ -7,7 +7,7 @@
 #ifndef PASC_GENERALDATA_H
 #define	PASC_GENERALDATA_H
 
-#include "common.h"
+#include "pascinference.h"
 
 namespace pascinference {
 
