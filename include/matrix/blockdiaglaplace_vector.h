@@ -25,11 +25,16 @@ namespace pascinference {
 template<class VectorBase>
 class BlockDiagLaplaceVectorMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		int K; /* number of block */
-		int N; /* size of the matrix */
-		int T; /* size of each block N = K*T */
-		double alpha; /* scale of whole matrix alpha*A */
-	
+		int K; /**< number of block */
+		int N; /**< size of the matrix */
+		int T; /**< size of each block N = K*T */
+		double alpha; /**< scale of whole matrix alpha*A */
+
+		#ifdef USE_GPU
+			int blockSize; /**< block size returned by the launch configurator */
+			int minGridSize; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
+			int gridSize; /**< the actual grid size needed, based on input size */
+		#endif	
 	public:
 		BlockDiagLaplaceVectorMatrix(const VectorBase &x, int K, int T, double alpha = 1.0); /* constructor from vector and number of blocks */
 
@@ -63,6 +68,10 @@ BlockDiagLaplaceVectorMatrix<VectorBase>::BlockDiagLaplaceVectorMatrix(const Vec
 	T = newT; /* size of each block */
 	N = K*T; /* length of whole matrix N = K*T */
 	
+	#ifdef USE_GPU
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_mult, 0, 0) );
+		gridSize = (K*T + blockSize - 1)/ blockSize;
+	#endif
 }
 
 template<class VectorBase>
@@ -81,6 +90,12 @@ void BlockDiagLaplaceVectorMatrix<VectorBase>::print(ConsoleOutput &output) cons
 	output << "T = " << T << ", ";
 	output << "N = " << N << ", ";
 	output << "alpha = " << alpha << ")" << std::endl;
+
+	#ifdef USE_GPU
+		output <<  " - blockSize:   " << blockSize << std::endl;
+		output <<  " - gridSize:    " << gridSize << std::endl;
+		output <<  " - minGridSize: " << minGridSize << std::endl;
+	#endif
 
 }
 
@@ -116,8 +131,9 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
 
 	int k,t,id_row;
-	for(k=0;k<K;k++){
-		for(t=0;t<T;t++){
+	// TODO: parfor?
+	for(t=0;t<T;t++){
+		for(k=0;k<K;k++){
 			id_row = k*T+t;
 
 			/* first row */
@@ -184,7 +200,8 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
-	kernel_mult<<<T*K, 1>>>(y_arr,x_arr,T,K,alpha);
+	/* call kernel */
+	kernel_mult<<<gridSize, blockSize>>>(y_arr,x_arr,T,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecCUDARestoreArrayReadWrite(y.get_vector(),&y_arr) );

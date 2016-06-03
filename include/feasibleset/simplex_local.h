@@ -130,7 +130,7 @@ __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
  * @param T parameter of vector length
  * @param K parameter of vector length
  */ 
-__global__ void project_kernel(double *x, double *x_sorted, int T, int K);
+__global__ void kernel_project(double *x, double *x_sorted, int T, int K);
 #endif
 
 } // end of namespace
@@ -151,7 +151,7 @@ SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int Tnew, int Knew){
 	#ifdef USE_GPU
 		/* allocate space for sorting */
 		gpuErrchk( cudaMalloc((void **)&x_sorted,K_local*T*sizeof(double)) );
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,project_kernel, 0, 0) );
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_project, 0, 0) );
 		gridSize = (T + blockSize - 1)/ blockSize;
 	#endif
 
@@ -204,7 +204,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 
 		/* use kernel to compute projection */
 		//TODO: here should be actually the comparison of Vec type! not simple use_gpu
-		project_kernel<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K_local);
+		kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K_local);
 		gpuErrchk( cudaDeviceSynchronize() );
 
 		TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
@@ -348,7 +348,7 @@ __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K){
 	}
 }
 
-__global__ void project_kernel(double *x, double *x_sorted, int T, int K){
+__global__ void kernel_project(double *x, double *x_sorted, int T, int K){
 	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
 
 	int k;
