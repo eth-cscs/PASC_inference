@@ -336,24 +336,7 @@ __device__ void device_sort_bubble(double *x, int n){
  * T - length of time-series (10^5 - 10^9) 
  */ 
 __global__ void project_kernel(double *x, int T, int K){
-	/* allocate shared memory */
-	double *x_my = new double(K);
-	
 	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
-
-	int k;
-	int T_block = blockDim.x;
-	int t_block = threadIdx.x;
-	
-	if(t<T){ /* maybe we call more than T kernels */
-
-		/* copy values from global memory to shared memory */
-		for(k=0;k<K;k++){
-			x_my[k] = x[k*T+t];
-		}
-	}
-	
-	__syncthreads();
 
 	if(t<T){
 		bool is_inside = true;
@@ -361,10 +344,10 @@ __global__ void project_kernel(double *x, int T, int K){
 	
 		/* control inequality constraints */
 		for(k = 0; k < K; k++){ // TODO: could be performed parallely  
-			if(x_my[k] < 0.0){
+			if(x[k*T+t] < 0.0){
 				is_inside = false;
 			}
-			sum += x_my[k];
+			sum += x[k*T+t];
 		}
 
 		/* control equality constraints */
@@ -373,7 +356,7 @@ __global__ void project_kernel(double *x, int T, int K){
 		}
 
 		/* if given point is not inside the feasible domain, then do projection */
-		if(!is_inside){
+		if(!is_inside && false){
 			int j,i;
 			/* compute sorted x_sub */
 			double *y = new double[K];
@@ -422,16 +405,6 @@ __global__ void project_kernel(double *x, int T, int K){
 		}
 		
 	}
-
-	/* copy data back from shared to global memory */
-	if(t<T){
-		/* copy values from global memory to shared memory */
-		for(k=0;k<K;k++){
-			x[k*T+t] = x_my[k];
-		}
-	}
-	
-
 
 	/* if t >= T then relax and do nothing */	
 }
