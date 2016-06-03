@@ -337,7 +337,7 @@ __device__ void device_sort_bubble(double *x, int n){
  */ 
 __global__ void project_kernel(double *x, int T, int K){
 	/* allocate shared memory */
-	double x_shared[];
+	double *x_my = new double(K);
 	
 	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
 
@@ -349,7 +349,7 @@ __global__ void project_kernel(double *x, int T, int K){
 
 		/* copy values from global memory to shared memory */
 		for(k=0;k<K;k++){
-			x_shared[k*T_block+t_block] = x[k*T+t];
+			x_my[k] = x[k*T+t];
 		}
 	}
 	
@@ -361,10 +361,10 @@ __global__ void project_kernel(double *x, int T, int K){
 	
 		/* control inequality constraints */
 		for(k = 0; k < K; k++){ // TODO: could be performed parallely  
-			if(x_shared[k*T_block+t_block] < 0.0){
+			if(x_my[k] < 0.0){
 				is_inside = false;
 			}
-			sum += x_shared[k*T_block+t_block];
+			sum += x_my[k];
 		}
 
 		/* control equality constraints */
@@ -379,7 +379,7 @@ __global__ void project_kernel(double *x, int T, int K){
 			double *y = new double[K];
 			double sum_y;
 			for(k=0;k<K;k++){
-				y[k] = x_shared[k*T_block+t_block]; 
+				y[k] = x_my[k]; 
 			}
 			device_sort_bubble(y,K);
 
@@ -410,11 +410,11 @@ __global__ void project_kernel(double *x, int T, int K){
     
 			for(k = 0; k < K; k++){ // TODO: could be performed parallely  
 				/* (*x_sub)(i) = max(*x_sub-t_hat,0); */
-				ti = x_shared[k*T_block+t_block] - t_hat;	
+				ti = x_my[k] - t_hat;	
 				if(ti > 0.0){
-					x_shared[k*T_block+t_block] = ti;
+					x_my[k] = ti;
 				} else {
-					x_shared[k*T_block+t_block] = 0.0;
+					x_my[k] = 0.0;
 				}
 			}
 			
@@ -427,7 +427,7 @@ __global__ void project_kernel(double *x, int T, int K){
 	if(t<T){
 		/* copy values from global memory to shared memory */
 		for(k=0;k<K;k++){
-			x[k*T+t] = x_shared[k*T_block+t_block];
+			x[k*T+t] = x_my[k];
 		}
 	}
 	
