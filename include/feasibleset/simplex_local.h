@@ -175,7 +175,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	
 	coutMaster << "minGridSize:" << minGridSize << ", gridSize: " << gridSize << ", blockSize: " << blockSize << std::endl;
 	
-	project_kernel<<<gridSize, blockSize>>>(x_arr,T,K_local);
+	project_kernel<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K_local);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
@@ -316,7 +316,7 @@ void SimplexFeasibleSet_Local::project_sub(int t, double *x, int T, int K){
 
 __device__ void device_sort_bubble(double *x, double *x_sorted, int t, int T, int K){
 	int i,k;
-	int m=n;
+	int m=K;
 	int mnew;
 	double swap;
 
