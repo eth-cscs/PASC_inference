@@ -20,7 +20,8 @@
 #define SPGQPSOLVER_DEFAULT_SIGMA2 0.99;
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0;
 
-#define SPGQPSOLVER_STOP_NORMGP true;
+#define SPGQPSOLVER_STOP_NORMGP false;
+#define SPGQPSOLVER_STOP_NORMGP_NORMB true;
 #define SPGQPSOLVER_STOP_DIFFF false;
 
 namespace pascinference {
@@ -57,6 +58,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		/* settings */
 		bool stop_normgp; 			/**< stopping criteria based on norm of gP */
+		bool stop_normgp_normb;		/**< stopping criteria based on norm of gP and norm of b */
 		bool stop_difff;			/**< stopping criteria based on size of decrease of f */
 
 		int m;						/**< size of fs */
@@ -128,6 +130,7 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 
 	/* settings */
 	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
+	this->stop_normgp_normb = SPGQPSOLVER_STOP_NORMGP_NORMB;
 	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
 
 	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
@@ -171,6 +174,7 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 
 	/* settings */
 	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
+	this->stop_normgp_normb = SPGQPSOLVER_STOP_NORMGP_NORMB;
 	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
 
 	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
@@ -487,7 +491,10 @@ void SPGQPSolver<VectorBase>::solve() {
 		if( this->stop_difff && abs(fx - fx_old) < this->eps){
 			break;
 		}
-		if(this->stop_normgp && this->gP < this->eps*normb){
+		if(this->stop_normgp_normb && this->gP < this->eps*normb){
+			break;
+		}
+		if(this->stop_normgp && this->gP < this->eps){
 			break;
 		}
 
