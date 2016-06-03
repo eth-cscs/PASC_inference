@@ -159,8 +159,6 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 
 	mytimer.stop();
 	
-	coutMaster << "projection: " << mytimer.get_value_last() << std::endl;
-
 #else
 	TRY( VecGetArray(x.get_vector(),&x_arr) );
 	
