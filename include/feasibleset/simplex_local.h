@@ -331,7 +331,7 @@ __device__ void device_sort_bubble(double *x, double *x_sorted, int t, int T, in
 		for(i=1;i<m;i++){
 			/* Swap elements in wrong order */
 			if (x_sorted[i*T+t] < x_sorted[(i - 1)*T+t]){
-				swap = x_sorted[i*T+k];
+				swap = x_sorted[i*T+t];
 				x_sorted[i*T+t] = x[(i-1)*T+t];
 				x[(i-1)*T+t] = swap;
 				mnew = i;
