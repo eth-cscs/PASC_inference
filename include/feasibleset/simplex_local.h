@@ -152,7 +152,16 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 
 	/* use kernel to compute projection */
 	//TODO: here should be actually the comparison of Vec type! not simple use_gpu
-	project_kernel<<<T, 1>>>(x_arr,T,K_local);
+	int blockSize; /* The launch configurator returned block size */
+	int minGridSize; /* The minimum grid size needed to achieve the maximum occupancy for a full device launch */
+	int gridSize; /* The actual grid size needed, based on input size */
+	
+	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,project_kernel, 0, 0) );
+	gridSize = (T + blockSize - 1)/ blockSize;
+	
+	coutMaster << "minGridSize:" << minGridSize << ", gridSize: " << gridSize << ", blockSize: " << blockSize << std::endl;
+	
+	project_kernel<<<gridSize, blockSize>>>(x_arr,T,K_local);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
@@ -200,7 +209,6 @@ void SimplexFeasibleSet_Local::sort_bubble(double *x, int n){
 
 /* this will be a kernel function which computes a projection of a point onto simplex in nD
  *
- * just for curiosity more details: 
  * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
  * and compute projection
  * P(p) = arg min || p - y ||_2
@@ -328,7 +336,18 @@ __device__ void device_sort_bubble(double *x, int n){
  * T - length of time-series (10^5 - 10^9) 
  */ 
 __global__ void project_kernel(double *x, int T, int K){
-	int t = blockIdx.x*blockDim.x + threadIdx.x; /* compute my id */
+	/* allocate shared memory */
+	__shared__ double x_shared[K*blockDim.x];
+	
+	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
+	
+	/* copy values from global memory to shared memory */
+	int k;
+	for(k=0;k<K;k++){
+	    x_shared[k*blockDim.x+thread.Idx] = x[k*T+t];
+	}
+	__syncthreads();
+	
 
 	if(t<T){ /* maybe we call more than T kernels */
 		int k;
