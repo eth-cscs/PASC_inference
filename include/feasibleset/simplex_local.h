@@ -55,6 +55,10 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		*/ 		
 		void project_sub(int t, double *x, int T, int K);
 
+		#ifdef USE_CUDA
+			double *x_sorted;
+		#endif
+		
 	public:
 		/** @brief default constructor
 		*/ 	
@@ -91,8 +95,8 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 
 /* cuda kernels cannot be a member of class */
 #ifdef USE_CUDA
-__device__ void device_sort_bubble(double *x, int n);
-__global__ void project_kernel(double *x, int T, int K);
+__device__ void device_sort_bubble(double *x, double *x_sorted, int t, int T, int K);
+__global__ void project_kernel(double *x, double *x_sorted, int T, int K);
 #endif
 
 } // end of namespace
@@ -110,12 +114,22 @@ SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int Tnew, int Knew){
 	this->T = Tnew;
 	this->K_local = Knew;
 
+	#ifdef USE_CUDA
+		/* allocate space for sorting */
+		gpuErrchk( cudaMalloc((void **)&x_sorted,K_local*T*sizeof(double)) );
+	#endif
+
 	LOG_FUNC_END
 }
 
 /* general destructor */
 SimplexFeasibleSet_Local::~SimplexFeasibleSet_Local(){
 	LOG_FUNC_BEGIN
+	
+	#ifdef USE_CUDA
+		/* destroy space for sorting */
+		gpuErrchk( cudaFree(&x_sorted) );
+	#endif	
 	
 	LOG_FUNC_END	
 }
@@ -300,21 +314,26 @@ void SimplexFeasibleSet_Local::project_sub(int t, double *x, int T, int K){
 /* kernels in cuda */
 #ifdef USE_CUDA
 
-__device__ void device_sort_bubble(double *x, int n){
-	int i;
+__device__ void device_sort_bubble(double *x, double *x_sorted, int t, int T, int K){
+	int i,k;
 	int m=n;
 	int mnew;
 	double swap;
+
+	/* copy elements */
+	for(k = 0;k<K;k++){
+		x_sorted[k*T+t] = x[k*T+t];
+	}
 
 	while(m > 0){
 		/* Iterate through x */
 		mnew = 0;
 		for(i=1;i<m;i++){
 			/* Swap elements in wrong order */
-			if (x[i] < x[i - 1]){
-				swap = x[i];
-				x[i] = x[i-1];
-				x[i-1] = swap;
+			if (x_sorted[i*T+t] < x_sorted[(i - 1)*T+t]){
+				swap = x_sorted[i*T+k];
+				x_sorted[i*T+t] = x[(i-1)*T+t];
+				x[(i-1)*T+t] = swap;
 				mnew = i;
 			}
 	        }
@@ -335,7 +354,7 @@ __device__ void device_sort_bubble(double *x, int n){
  * K - number of clusters (2 - 10^2)
  * T - length of time-series (10^5 - 10^9) 
  */ 
-__global__ void project_kernel(double *x, int T, int K){
+__global__ void project_kernel(double *x, double *x_sorted, int T, int K){
 	int t = blockIdx.x*blockDim.x + threadIdx.x; /* thread t */
 
 	int k;
@@ -360,12 +379,8 @@ __global__ void project_kernel(double *x, int T, int K){
 		if(!is_inside && false){
 			int j,i;
 			/* compute sorted x_sub */
-			double *y = new double[K];
 			double sum_y;
-			for(k=0;k<K;k++){
-				y[k] = x[k*T+t]; 
-			}
-			device_sort_bubble(y,K);
+			device_sort_bubble(x,x_sorted,t,T,K);
 
 			/* now perform analytical solution of projection problem */	
 			double t_hat = 0.0;
@@ -376,11 +391,11 @@ __global__ void project_kernel(double *x, int T, int K){
 				/* compute sum(y) */
 				sum_y = 0.0;
 				for(j=i;j<K;j++){ /* sum(y(i,n-1)) */
-					sum_y += y[j];
+					sum_y += x_sorted[j*T+t];
 				}
 				
 				ti = (sum_y - 1.0)/(double)(K-i);
-				if(ti >= y[i-1]){
+				if(ti >= x_sorted[(i-1)*T+t]){
 					t_hat = ti;
 					i = -1; /* break */
 				} else {
@@ -401,8 +416,6 @@ __global__ void project_kernel(double *x, int T, int K){
 					x[k*T+t] = 0.0;
 				}
 			}
-			
-			delete y;
 		}
 		
 	}
