@@ -95,7 +95,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 
 /* cuda kernels cannot be a member of class */
 #ifdef USE_CUDA
-__device__ void device_sort_bubble(double *x, double *x_sorted, int t, int T, int K);
+__device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
 __global__ void project_kernel(double *x, double *x_sorted, int T, int K);
 #endif
 
@@ -314,16 +314,11 @@ void SimplexFeasibleSet_Local::project_sub(int t, double *x, int T, int K){
 /* kernels in cuda */
 #ifdef USE_CUDA
 
-__device__ void device_sort_bubble(double *x, double *x_sorted, int t, int T, int K){
-	int i,k;
+__device__ void device_sort_bubble(double *x_sorted, int t, int T, int K){
+	int i;
 	int m=K;
 	int mnew;
 	double swap;
-
-	/* copy elements */
-	for(k = 0;k<K;k++){
-		x_sorted[k*T+t] = x[k*T+t];
-	}
 
 	while(m > 0){
 		/* Iterate through x */
@@ -333,7 +328,7 @@ __device__ void device_sort_bubble(double *x, double *x_sorted, int t, int T, in
 			if (x_sorted[i*T+t] < x_sorted[(i - 1)*T+t]){
 				swap = x_sorted[i*T+t];
 				x_sorted[i*T+t] = x[(i-1)*T+t];
-				x[(i-1)*T+t] = swap;
+				x_sorted[(i-1)*T+t] = swap;
 				mnew = i;
 			}
 	        }
@@ -368,6 +363,8 @@ __global__ void project_kernel(double *x, double *x_sorted, int T, int K){
 				is_inside = false;
 			}
 			sum += x[k*T+t];
+			
+			x_sorted[k*T+t] = x[k*T+t];
 		}
 
 		/* control equality constraints */
@@ -380,7 +377,7 @@ __global__ void project_kernel(double *x, double *x_sorted, int T, int K){
 			int j,i;
 			/* compute sorted x_sub */
 			double sum_y;
-			device_sort_bubble(x,x_sorted,t,T,K);
+			device_sort_bubble(x_sorted,t,T,K);
 
 			/* now perform analytical solution of projection problem */	
 			double t_hat = 0.0;
