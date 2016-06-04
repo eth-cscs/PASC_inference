@@ -48,6 +48,8 @@ class TSData_Global: public GeneralData {
 		void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
 
+		void cut_gamma() const;
+
 		int get_T() const;
 		int get_xdim() const;
 		int get_K() const;
@@ -336,6 +338,47 @@ GeneralVector<PetscVector> *TSData_Global::get_gammavector() const{
 
 GeneralVector<PetscVector> *TSData_Global::get_thetavector() const{
 	return this->thetavector;
+}
+
+void TSData_Global::cut_gamma() const{
+	LOG_FUNC_BEGIN
+
+	int max_id;
+	double max_value;
+	
+	int K = get_K();
+	int gamma_t = this->tsmodel->get_gammavectorlength_local()/(double)K;
+	
+	double *gamma_arr;
+	TRY( VecGetArray(gammavector->get_vector(),&gamma_arr) );
+	
+	int t,k;
+	for(t = 0; t < gamma_t; t++){
+		/* find max value */
+		max_id = 0;
+		max_value = gamma_arr[t];
+		for(k = 1; k < K; k++){
+			if(gamma_arr[k*gamma_t + t] > max_value){
+				max_id = k;
+				max_value = gamma_arr[k*gamma_t + t];
+			}
+		}
+		
+		/* set new values */
+		for(k = 0; k < K; k++){
+			if(k == max_id){
+				gamma_arr[k*gamma_t + t] = 1.0;
+			} else {
+				gamma_arr[k*gamma_t + t] = 0.0;
+			}
+		}
+
+
+	}
+
+	TRY( VecRestoreArray(gammavector->get_vector(),&gamma_arr) );
+	
+	LOG_FUNC_END
 }
 
 

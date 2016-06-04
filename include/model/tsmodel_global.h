@@ -124,6 +124,7 @@ class TSModel_Global: public GeneralModel {
 		virtual double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData_Global *tsdata){
 			return std::numeric_limits<double>::max();
 		};
+			
 };
 
 } // end of namespace
@@ -181,7 +182,6 @@ void TSModel_Global::print(ConsoleOutput &output) const {
 std::string TSModel_Global::get_name() const {
 	return "General Time-Series-Global Model";	
 }
-
 
 /* ---- GET FUNCTIONS ---- */
 int TSModel_Global::get_T() const{

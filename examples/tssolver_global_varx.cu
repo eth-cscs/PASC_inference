@@ -19,7 +19,7 @@ using namespace pascinference;
 
 extern int pascinference::DEBUG_MODE;
 
-int solution_get_cluster_id(int t, int T){
+int get_cluster_id_solution(int t, int T){
 	int id_cluster = 0;
 	double coeff = (double)T/3.0;
 	if(t >= coeff && t < 2*coeff){
@@ -35,7 +35,7 @@ int solution_get_cluster_id(int t, int T){
 int main( int argc, char *argv[] )
 {
 	/* read command line arguments */
-	if(argc < 3){
+	if(argc < 4){
 		std::cout << "1. argument - T      - the dimension of the problem" << std::endl;
 		std::cout << "2. argument - xmem   - VarX parameter" << std::endl;
 		std::cout << "3. argument - K      - the dimension of the problem" << std::endl;
@@ -45,14 +45,14 @@ int main( int argc, char *argv[] )
 	}
 
 	int T = atoi(argv[1]); 
-	int xmemforall = atoi(argv[2]);
-	int Kforall = atoi(argv[3]); 
-	int epssqrforall = atof(argv[4]);
+	int xmem = atoi(argv[2]);
+	int K = atoi(argv[3]); 
+	int epssqr = atof(argv[4]);
 	 
 	std::cout << "T       = " << T << " (length of time-series)" << std::endl;
-	std::cout << "xmem    = " << T << " (VarX parameter)" << std::endl;
-	std::cout << "K       = " << Kforall << " (number of clusters)" << std::endl;
-	std::cout << "epssqrt = " << epssqrforall << " (penalty)" << std::endl;
+	std::cout << "xmem    = " << xmem << " (VarX parameter)" << std::endl;
+	std::cout << "K       = " << K << " (number of clusters)" << std::endl;
+	std::cout << "epssqrt = " << epssqr << " (penalty)" << std::endl;
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
 
@@ -68,11 +68,11 @@ int main( int argc, char *argv[] )
 	int xdim = 4; /* data dimension */
 
 	/* solution - for generating the problem */
-	int solution_K = 3;
-	int solution_xmem = 2;
+	int K_solution = 3;
+	int xmem_solution = 2;
 	double coeff = 100;//22564.5;
 	
-	double solution_theta[108] = {
+	double theta_solution[108] = {
 		 0.0212/coeff,		 1.996973851371985, -0.000487555607403,  0.006182144617033,  0.016898325978254,		-0.997151392835171,  0.000428873596151, -0.006196363191544, -0.016953822805627,		/* K=1,n=1:  mu,A1,A2 */
 		-0.0013/coeff,		-0.048771990907163,  1.976630233947632, -0.000172081430470,  0.009037772624055,		 0.049412051999825, -0.977231426020431, -0.000394989636220, -0.008493648930036,		/* K=1,n=2 */
 		-0.0436/coeff,		-0.032574927768410, -0.008102611355981,  1.981548648130319, -0.029603366150073,		 0.033237925367826,  0.007963832173957, -0.981922239657675,  0.030099449853664,		/* K=1,n=3 */
@@ -87,7 +87,7 @@ int main( int argc, char *argv[] )
 		-0.0041/coeff,		 0.008782704798477, -0.006718795784519, -0.006974446738886,  1.963829240798505,		-0.008423618747776,  0.006554328766455,  0.007167678893911, -0.964105839991197		/* K=3,n=4 */			
 	};
 
-	double solution_xstart[8] = {
+	double xstart_solution[8] = {
 		50.0/coeff,	50.0503/coeff,	/* n=1 */
 		70.0/coeff,	69.8995/coeff,	/* n=2 */
 		70.0/coeff,	70.0001/coeff,	/* n=3 */
@@ -98,22 +98,9 @@ int main( int argc, char *argv[] )
 		1, 1, 1, 2
 	};
 
-	/* model parameters */
-	int num = GlobalManager.get_size();
-	int *K = new int(num);
-	double *epssqr = new double(num);
-	int *xmem = new int(num);
-
-	int i;
-	for(i=0; i<num; i++ ){
-		K[i] = Kforall;
-		epssqr[i] = epssqrforall;
-		xmem[i] = xmemforall;
-	}
-		
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	VarxH1FEMModel_Global mymodel(T, xdim, num, K, xmem, epssqr);
+	VarxH1FEMModel_Global mymodel(T, xdim, K, xmem, epssqr);
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
@@ -121,7 +108,7 @@ int main( int argc, char *argv[] )
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	mymodel.generate_data(solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, &mydata, false);
+	mymodel.generate_data(K_solution, xmem_solution, theta_solution, xstart_solution, &get_cluster_id_solution, &mydata, false);
 //	mymodel.generate_data_add_noise(&mydata, noise_covariance);
 
 	/* prepare time-series solver */
@@ -134,11 +121,14 @@ int main( int argc, char *argv[] )
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+//	mymodel.set_solution_gamma(K_solution, xmem_solution, &get_cluster_id_solution, mydata.get_gammavector());
 	mysolver.solve();
 
 	/* print timers */
 //	mysolver.printtimer(coutAll);
 //	coutAll.synchronize();
+
+	mydata.cut_gamma();
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;

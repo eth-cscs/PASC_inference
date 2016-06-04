@@ -93,7 +93,7 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 
 		void saveCSV(std::string name_of_file, const TSData_Global *tsdata);
 
-//		static void set_solution_gamma(int T, int xdim, int K, int xmem, int (*get_cluster_id)(int, int), GeneralVector<VectorBase> *gammavector);
+		void set_solution_gamma(int K_solution, int xmem_solution, int (*get_cluster_id)(int, int), GeneralVector<PetscVector> *gammavector);
 
 //				template<class VectorBase>
 //				static void set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<VectorBase> *thetavector);		
@@ -628,9 +628,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 				TRY( ISCreateStride(PETSC_COMM_SELF, gammak_size, i, 1, &xn1sub_is) );
 				TRY( VecGetSubVector(xn1_vec, xn1sub_is, &xn1sub_vec) );				
 				
-//				TRY( VecView(xn1_vec, PETSC_VIEWER_STDOUT_SELF) );
-//				TRY( VecView(xn1sub_vec, PETSC_VIEWER_STDOUT_SELF) );
-				
 				/* ----- MATRIX --- */
 				for(j=0;j<xn2sub_nmb;j++){
 					/* prepare subvector from xn_vec which corresponds to column of Z */
@@ -850,7 +847,7 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 			}
 			
 			/* compute new time serie from model */
-			compute_x_model(x_model, x_scatter_arr, t_in_scatter, theta_arr, gamma_arr, t);
+			compute_x_model(x_model, x_scatter_arr, t_in_scatter, theta_arr, gamma_arr, t-xmem);
 
 			for(n=0;n<xdim;n++){
 				myfile << x_model[n];
@@ -1117,13 +1114,38 @@ void VarxH1FEMModel_Global::compute_x_model(double *x_model, const double *x_arr
 	
 	/* go throught clusters */
 	for(k=0;k<K;k++){
-		compute_x_modelk(x_modelk, x_arr, t_x_arr, theta_arr, k, gamma_arr[k*(this->T-xmem)+t_gamma_arr-xmem]);
+		compute_x_modelk(x_modelk, x_arr, t_x_arr, theta_arr, k, gamma_arr[k*(this->T-xmem)+t_gamma_arr]);
 		for(n=0;n<xdim;n++){
 			x_model[n] += x_modelk[n]; 
 		}
 	}
 
 }
+
+void VarxH1FEMModel_Global::set_solution_gamma(int K_solution, int xmem_solution, int (*get_cluster_id)(int, int), GeneralVector<PetscVector> *gammavector){
+	//TODO: K_solution == K ? xmem_solution == xmem ?
+
+	LOG_FUNC_STATIC_BEGIN
+
+	double *gamma_arr;
+	TRY( VecGetArray(gammavector->get_vector(),&gamma_arr) );
+	
+	int t,k,k_sol;
+	int gamma_length = T-xmem_solution;
+	for(t = 0; t < gamma_length; t++){
+		for(k = 0; k < K_solution; k++){
+			gamma_arr[k*gamma_length + t] = 0;
+		}
+
+		k_sol = (*get_cluster_id)(xmem_solution + t, T);
+		gamma_arr[k_sol*gamma_length + t] = 1.0;
+	}
+
+	TRY( VecRestoreArray(gammavector->get_vector(),&gamma_arr) );
+
+	LOG_FUNC_STATIC_END
+}
+
 
 } /* end namespace */
 
