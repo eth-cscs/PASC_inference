@@ -41,17 +41,6 @@ class ConsoleArgClass {
 				return false;
 			}
 
-//	if(vm.count("debug")){// TODO: this can be included in global application
-//		DEBUG_MODE = vm["debug"].as<int>(); /* set global variable */
-//	}
-
-//	if(vm.count("length")){
-//		T = vm["length"].as<int>(); /* set global variable */
-//	}
-
-//	if(vm.count("clusters")){
-//		K = vm["clusters"].as<int>(); /* set global variable */
-//	}
 			return true;
 		}
 
@@ -69,8 +58,8 @@ class ConsoleArgClass {
 			}
 		}
 		
-		template<class Type>
-		void set_option_value(std::string name, Type *out_value, Type implicit_value){
+		template<class Type, class Type2>
+		void set_option_value(std::string name, Type *out_value, Type2 implicit_value){
 			if(vm->count(name)){
 				*out_value = (*vm)[name].as<Type>();
 			} else {
@@ -79,7 +68,7 @@ class ConsoleArgClass {
 		}		
 };
 
-ConsoleArgClass consoleArg;
+static ConsoleArgClass consoleArg;
 
 //TODO: define aliases
 //typedef boost::program_options::value<int>() ConsoleInt;

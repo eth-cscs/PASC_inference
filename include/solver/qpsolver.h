@@ -7,9 +7,9 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 #include "data/qpdata.h"
 
-#define QPSOLVER_DEFAULT_MAXIT 1000;
-#define QPSOLVER_DEFAULT_EPS 0.0001;
-#define QPSOLVER_DEFAULT_DEBUG_MODE 0;
+#define QPSOLVER_DEFAULT_MAXIT 1000
+#define QPSOLVER_DEFAULT_EPS 0.0001
+#define QPSOLVER_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {
 
@@ -69,10 +69,10 @@ QPSolver<VectorBase>::QPSolver(){
 	
 	fx = std::numeric_limits<double>::max();
 
-	this->maxit = QPSOLVER_DEFAULT_MAXIT;
-	this->eps = QPSOLVER_DEFAULT_EPS;
-	this->debug_mode = QPSOLVER_DEFAULT_DEBUG_MODE;
-			
+	consoleArg.set_option_value("qpsolver_maxit", &this->maxit, QPSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("qpsolver_eps", &this->eps, QPSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("qpsolver_debug_mode", &this->debug_mode, QPSOLVER_DEFAULT_DEBUG_MODE);
+
 	this->child_solvertype = SOLVER_AUTO;
 
 	LOG_FUNC_END
@@ -86,9 +86,9 @@ QPSolver<VectorBase>::QPSolver(QPData<VectorBase> &new_qpdata){
 	child_solver = NULL; /* in this time, we don't know how to solve the problem */
 	fx = std::numeric_limits<double>::max();
 
-	this->maxit = QPSOLVER_DEFAULT_MAXIT;
-	this->eps = QPSOLVER_DEFAULT_EPS;
-	this->debug_mode = QPSOLVER_DEFAULT_DEBUG_MODE;
+	consoleArg.set_option_value("qpsolver_maxit", &this->maxit, QPSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("qpsolver_eps", &this->eps, QPSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("qpsolver_debug_mode", &this->debug_mode, QPSOLVER_DEFAULT_DEBUG_MODE);
 			
 	this->child_solvertype = SOLVER_AUTO;
 

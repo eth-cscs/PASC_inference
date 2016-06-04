@@ -15,6 +15,7 @@
  #error 'This example is for PETSCVECTOR'
 #endif
 
+#include "solver/tssolver_global.h"
 
 typedef petscvector::PetscVector PetscVector;
 
@@ -25,13 +26,13 @@ int main( int argc, char *argv[] )
 {
 	/* add local program options */
 	consoleArg.get_description()->add_options()
-		("T_begin", boost::program_options::value<int>(), "dimension of the problem")
-		("T_step", boost::program_options::value<int>(), "dimension of the problem")
-		("T_end", boost::program_options::value<int>(), "dimension of the problem")
-		("K_begin", boost::program_options::value<int>(), "number of clusters")
-		("K_step", boost::program_options::value<int>(), "number of clusters")
-		("K_end", boost::program_options::value<int>(), "number of clusters")
-		("ntests", boost::program_options::value<int>(), "number of tests");	
+		("test_Tbegin", boost::program_options::value<int>(), "dimension of the problem")
+		("test_Tstep", boost::program_options::value<int>(), "dimension of the problem")
+		("test_Tend", boost::program_options::value<int>(), "dimension of the problem")
+		("test_Kbegin", boost::program_options::value<int>(), "number of clusters")
+		("test_Kstep", boost::program_options::value<int>(), "number of clusters")
+		("test_Kend", boost::program_options::value<int>(), "number of clusters")
+		("test_n", boost::program_options::value<int>(), "number of tests");	
 
 	/* call initialize */
 	if(!Initialize(argc, argv)){
@@ -43,22 +44,21 @@ int main( int argc, char *argv[] )
 	int K_begin, K_step, K_end;
 	int n;
 	
-	if(!consoleArg.set_option_value("T_begin", &T_begin)){
-		std::cout << "T_begin has to be set! Call application with parameter -h to see all parameters" << std::endl;
+	if(!consoleArg.set_option_value("test_Tbegin", &T_begin)){
+		std::cout << "test_Tbegin has to be set! Call application with parameter -h to see all parameters" << std::endl;
 		return 0;
 	}
-	consoleArg.set_option_value("T_end", &T_end, T_begin);
-	consoleArg.set_option_value("T_step", &T_step, 1);
+	consoleArg.set_option_value("test_Tend", &T_end, T_begin);
+	consoleArg.set_option_value("test_Tstep", &T_step, 1);
 
-	if(!consoleArg.set_option_value("K_begin", &K_begin)){
-		std::cout << "K_begin has to be set! Call application with parameter -h to see all parameters" << std::endl;
+	if(!consoleArg.set_option_value("test_Kbegin", &K_begin)){
+		std::cout << "test_Kbegin has to be set! Call application with parameter -h to see all parameters" << std::endl;
 		return 0;
 	}
-	consoleArg.set_option_value("K_end", &K_end, K_begin);
-	consoleArg.set_option_value("K_step", &K_step, 1);
+	consoleArg.set_option_value("test_Kend", &K_end, K_begin);
+	consoleArg.set_option_value("test_Kstep", &K_step, 1);
 
-	consoleArg.set_option_value("ntests", &n, 1);
-
+	consoleArg.set_option_value("test_n", &n, 1);
 
 	coutMaster << "T_begin:T_step:T_end      = " << std::setw(7) << T_begin << std::setw(7) << T_step << std::setw(7) << T_end << " (length of time-series)" << std::endl;
 	coutMaster << "K_begin:K_step:K_end      = " << std::setw(7) << K_begin << std::setw(7) << K_step << std::setw(7) << K_end << " (number of clusters)" << std::endl;

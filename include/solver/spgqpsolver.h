@@ -10,19 +10,19 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define SPGQPSOLVER_DEFAULT_MAXIT 5000;
-#define SPGQPSOLVER_DEFAULT_EPS 0.0001;
-#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0;
+#define SPGQPSOLVER_DEFAULT_MAXIT 5000
+#define SPGQPSOLVER_DEFAULT_EPS 0.001
+#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0
 
-#define SPGQPSOLVER_DEFAULT_M 20;
-#define SPGQPSOLVER_DEFAULT_GAMMA 0.9;
-#define SPGQPSOLVER_DEFAULT_SIGMA1 0.0001;
-#define SPGQPSOLVER_DEFAULT_SIGMA2 0.9999;
-#define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0;
+#define SPGQPSOLVER_DEFAULT_M 20
+#define SPGQPSOLVER_DEFAULT_GAMMA 0.9
+#define SPGQPSOLVER_DEFAULT_SIGMA1 0.0001
+#define SPGQPSOLVER_DEFAULT_SIGMA2 0.9999
+#define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0
 
-#define SPGQPSOLVER_STOP_NORMGP false;
-#define SPGQPSOLVER_STOP_NORMGP_NORMB true;
-#define SPGQPSOLVER_STOP_DIFFF false;
+#define SPGQPSOLVER_STOP_NORMGP false
+#define SPGQPSOLVER_STOP_NORMGP_NORMB true
+#define SPGQPSOLVER_STOP_DIFFF false
 
 namespace pascinference {
 
@@ -129,20 +129,34 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	this->gP = std::numeric_limits<double>::max();
 
 	/* settings */
-	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
-	this->stop_normgp_normb = SPGQPSOLVER_STOP_NORMGP_NORMB;
-	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
+	consoleArg.set_option_value("spgqpsolver_maxit", &this->maxit, SPGQPSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("spgqpsolver_eps", &this->eps, SPGQPSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
+	
+	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_DEFAULT_M);	
+	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_DEFAULT_GAMMA);	
+	consoleArg.set_option_value("spgqpsolver_sigma1", &this->sigma1, SPGQPSOLVER_DEFAULT_SIGMA1);	
+	consoleArg.set_option_value("spgqpsolver_sigma2", &this->sigma2, SPGQPSOLVER_DEFAULT_SIGMA2);	
+	consoleArg.set_option_value("spgqpsolver_alphainit", &this->alphainit, SPGQPSOLVER_DEFAULT_ALPHAINIT);	
 
+	consoleArg.set_option_value("spgqpsolver_stop_normgp", &this->stop_normgp, SPGQPSOLVER_STOP_NORMGP);
+	consoleArg.set_option_value("spgqpsolver_stop_normgp_normb", &this->stop_normgp_normb, SPGQPSOLVER_STOP_NORMGP_NORMB);
+	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
+/*	
 	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
 	this->eps = SPGQPSOLVER_DEFAULT_EPS;
 	this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
-
+	
 	this->m = SPGQPSOLVER_DEFAULT_M;
 	this->gamma = SPGQPSOLVER_DEFAULT_GAMMA;
 	this->sigma1 = SPGQPSOLVER_DEFAULT_SIGMA1;
 	this->sigma2 = SPGQPSOLVER_DEFAULT_SIGMA2;
 	this->alphainit = SPGQPSOLVER_DEFAULT_ALPHAINIT;
 	
+	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
+	this->stop_normgp_normb = SPGQPSOLVER_STOP_NORMGP_NORMB;
+	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
+	*/
 	/* prepare timers */
 	this->timer_solve.restart();	
 	this->timer_projection.restart();
@@ -173,19 +187,19 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 	this->gP = std::numeric_limits<double>::max();
 
 	/* settings */
-	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
-	this->stop_normgp_normb = SPGQPSOLVER_STOP_NORMGP_NORMB;
-	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
+	consoleArg.set_option_value("spgqpsolver_maxit", &this->maxit, SPGQPSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("spgqpsolver_eps", &this->eps, SPGQPSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
+	
+	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_DEFAULT_M);	
+	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_DEFAULT_GAMMA);	
+	consoleArg.set_option_value("spgqpsolver_sigma1", &this->sigma1, SPGQPSOLVER_DEFAULT_SIGMA1);	
+	consoleArg.set_option_value("spgqpsolver_sigma2", &this->sigma2, SPGQPSOLVER_DEFAULT_SIGMA2);	
+	consoleArg.set_option_value("spgqpsolver_alphainit", &this->alphainit, SPGQPSOLVER_DEFAULT_ALPHAINIT);	
 
-	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
-	this->eps = SPGQPSOLVER_DEFAULT_EPS;
-	this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
-
-	this->m = SPGQPSOLVER_DEFAULT_M;
-	this->gamma = SPGQPSOLVER_DEFAULT_GAMMA;
-	this->sigma1 = SPGQPSOLVER_DEFAULT_SIGMA1;
-	this->sigma2 = SPGQPSOLVER_DEFAULT_SIGMA2;
-	this->alphainit = SPGQPSOLVER_DEFAULT_ALPHAINIT;
+	consoleArg.set_option_value("spgqpsolver_stop_normgp", &this->stop_normgp, SPGQPSOLVER_STOP_NORMGP);
+	consoleArg.set_option_value("spgqpsolver_stop_normgp_normb", &this->stop_normgp_normb, SPGQPSOLVER_STOP_NORMGP_NORMB);
+	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
 
 	/* prepare timers */
 	this->timer_projection.restart();

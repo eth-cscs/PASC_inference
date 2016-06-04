@@ -8,9 +8,9 @@ extern int DEBUG_MODE;
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define CGQPSOLVER_DEFAULT_MAXIT 1000;
-#define CGQPSOLVER_DEFAULT_EPS 0.0001;
-#define CGQPSOLVER_DEFAULT_DEBUG_MODE 0;
+#define CGQPSOLVER_DEFAULT_MAXIT 1000
+#define CGQPSOLVER_DEFAULT_EPS 0.0001
+#define CGQPSOLVER_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {
 
@@ -78,12 +78,11 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 	this->hessmult_last = 0;	
 
 	/* settings */
-	this->maxit = CGQPSOLVER_DEFAULT_MAXIT;
-	this->eps = CGQPSOLVER_DEFAULT_EPS;
-	this->debug_mode = CGQPSOLVER_DEFAULT_DEBUG_MODE;
+	consoleArg.set_option_value("cgqpsolver_maxit", &this->maxit, CGQPSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("cgqpsolver_eps", &this->eps, CGQPSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("cgqpsolver_debug_mode", &this->debug_mode, CGQPSOLVER_DEFAULT_DEBUG_MODE);
 	
 	/* timers */
-	
 	
 	/* function value */
 	this->fx = std::numeric_limits<double>::max();
@@ -107,9 +106,9 @@ CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
 	this->hessmult_last = 0;	
 
 	/* settings */
-	this->maxit = CGQPSOLVER_DEFAULT_MAXIT;
-	this->eps = CGQPSOLVER_DEFAULT_EPS;
-	this->debug_mode = CGQPSOLVER_DEFAULT_DEBUG_MODE;
+	consoleArg.set_option_value("cgqpsolver_maxit", &this->maxit, CGQPSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("cgqpsolver_eps", &this->eps, CGQPSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("cgqpsolver_debug_mode", &this->debug_mode, CGQPSOLVER_DEFAULT_DEBUG_MODE);
 	
 	/* timers */
 

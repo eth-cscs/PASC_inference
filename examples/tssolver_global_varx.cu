@@ -34,28 +34,26 @@ int get_cluster_id_solution(int t, int T){
 
 int main( int argc, char *argv[] )
 {
-	/* read command line arguments */
-	if(argc < 5){
-		std::cout << "1. argument - T      - the dimension of the problem" << std::endl;
-		std::cout << "2. argument - xmem   - VarX parameter" << std::endl;
-		std::cout << "3. argument - K      - the dimension of the problem" << std::endl;
-		std::cout << "4. argument - epssqr - penalty" << std::endl;
-		std::cout << std::endl << argv[0] << " T xmem K epssqr" << std::endl;
-		return 1;
-	}
+	/* add local program options */
+	consoleArg.get_description()->add_options()
+		("test_T", boost::program_options::value<int>(), "dimension of the problem")
+		("test_K", boost::program_options::value<int>(), "number of clusters")
+		("test_xmem", boost::program_options::value<int>(), "VarX parameter")
+		("test_epssqr", boost::program_options::value<double>(), "penalty parameter");
 
-	int T = atoi(argv[1]); 
-	int xmem = atoi(argv[2]);
-	int K = atoi(argv[3]); 
-	int epssqr = atof(argv[4]);
-	 
-	std::cout << "T       = " << T << " (length of time-series)" << std::endl;
-	std::cout << "xmem    = " << xmem << " (VarX parameter)" << std::endl;
-	std::cout << "K       = " << K << " (number of clusters)" << std::endl;
-	std::cout << "epssqrt = " << epssqr << " (penalty)" << std::endl;
+	/* call initialize */
+	if(!Initialize(argc, argv)){
+		return 0;
+	} 
+
+	int T, K, xmem; 
+	double epssqr; 
+
+	consoleArg.set_option_value("test_T", &T, 1000);
+	consoleArg.set_option_value("test_K", &K, 3);
+	consoleArg.set_option_value("test_xmem", &xmem, 2);
+	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 	
-	Initialize(argc, argv); // TODO: load parameters from console input
-
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
 	oss_name_of_file_log << "results/varx_log_p" << GlobalManager.get_rank() << ".txt";
@@ -115,7 +113,6 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
-	mysolver.maxit = 1000;
 	mysolver.debug_mode = 2;
 //	mysolver.print(coutMaster,coutAll);
 

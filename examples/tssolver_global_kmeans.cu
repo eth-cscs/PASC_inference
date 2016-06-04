@@ -39,23 +39,27 @@ int solution_get_cluster_id(int t, int T){
 
 int main( int argc, char *argv[] )
 {
+	/* add local program options */
+	consoleArg.get_description()->add_options()
+		("test_T", boost::program_options::value<int>(), "dimension of the problem")
+		("test_K", boost::program_options::value<int>(), "number of clusters")
+		("test_epssqr", boost::program_options::value<double>(), "penalty parameter");
 
-	/* read command line arguments */
-	if(argc < 3){
-		std::cout << "1. argument - T      - the dimension of the problem" << std::endl;
-		std::cout << "2. argument - K      - number of clusters" << std::endl;
-		std::cout << "3. argument - epssqr - penalty" << std::endl;
-		std::cout << std::endl << argv[0] << " T K epssqr" << std::endl;
-		return 1;
-	}
-	int T = atoi(argv[1]); 
-	int K = atoi(argv[2]); 
-	int epssqr = atof(argv[3]); 
+	/* call initialize */
+	if(!Initialize(argc, argv)){
+		return 0;
+	} 
+
+	int T, K; 
+	double epssqr; 
+
+	consoleArg.set_option_value("test_T", &T, 1000);
+	consoleArg.set_option_value("test_K", &K, 3);
+	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
+
 	std::cout << "T       = " << T << " (length of time-series)" << std::endl;
 	std::cout << "K       = " << K << " (number of clusters)" << std::endl;
 	std::cout << "epssqrt = " << epssqr << " (penalty)" << std::endl;
-	
-	Initialize(argc, argv); // TODO: load parameters from console input
 
 	/* print info about environment */
 	coutMaster << "---------------------" << std::endl;

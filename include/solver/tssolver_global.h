@@ -18,9 +18,9 @@ typedef petscvector::PetscVector PetscVector;
 #include "solver/diagsolver.h"
 #include "solver/qpsolver_global.h"
 
-#define TSSOLVER_GLOBAL_DEFAULT_MAXIT 1000;
-#define TSSOLVER_GLOBAL_DEFAULT_EPS 0.001;
-#define TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0;
+#define TSSOLVER_GLOBAL_DEFAULT_MAXIT 1000
+#define TSSOLVER_GLOBAL_DEFAULT_EPS 0.001
+#define TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {
 
@@ -85,9 +85,9 @@ TSSolver_Global::TSSolver_Global(){
 	this->it_sum = 0;
 	this->it_last = 0;
 
-	this->maxit = TSSOLVER_GLOBAL_DEFAULT_MAXIT;
-	this->eps = TSSOLVER_GLOBAL_DEFAULT_EPS;
-	this->debug_mode = TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
+	consoleArg.set_option_value("tssolver_global_maxit", &this->maxit, TSSOLVER_GLOBAL_DEFAULT_MAXIT);
+	consoleArg.set_option_value("tssolver_global_eps", &this->eps, TSSOLVER_GLOBAL_DEFAULT_EPS);
+	consoleArg.set_option_value("tssolver_global_debug_mode", &this->debug_mode, TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
 
 	this->L = std::numeric_limits<double>::max();
 
@@ -112,10 +112,10 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	model->initialize_thetasolver(&thetasolver, tsdata);	
 
 	/* set settings */
-	this->maxit = TSSOLVER_GLOBAL_DEFAULT_MAXIT;
-	this->eps = TSSOLVER_GLOBAL_DEFAULT_EPS;
-	this->debug_mode = TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
-	
+	consoleArg.set_option_value("tssolver_global_maxit", &this->maxit, TSSOLVER_GLOBAL_DEFAULT_MAXIT);
+	consoleArg.set_option_value("tssolver_global_eps", &this->eps, TSSOLVER_GLOBAL_DEFAULT_EPS);
+	consoleArg.set_option_value("tssolver_global_debug_mode", &this->debug_mode, TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
+
 	/* iteration counters */
 	this->it_sum = 0;
 	this->it_last = 0;
@@ -433,7 +433,7 @@ void TSSolver_Global::solve() {
 		}
 
 		/* update local stopping criteria */
-		if (deltaL < this->eps && it > 4){
+		if (deltaL < this->eps){
 			solved_local = 1.0;
 
 			TRY( VecGetArray(solved_vec,&solved_arr) );

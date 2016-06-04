@@ -20,9 +20,9 @@ extern int DEBUG_MODE;
 #include "matrix/blockdiag.h"
 #include "matrix/localdense.h"
 
-#define MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT 1000;
-#define MULTICGSOLVER_GLOBAL_DEFAULT_EPS 0.0001;
-#define MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0;
+#define MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT 1000
+#define MULTICGSOLVER_GLOBAL_DEFAULT_EPS 0.0001
+#define MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {
 
@@ -83,9 +83,9 @@ MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata
 	this->it_sum = 0; 
 	this->hessmult_sum = 0;
 
-	this->maxit = MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT;
-	this->eps = MULTICGSOLVER_GLOBAL_DEFAULT_EPS;
-	this->debug_mode = MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
+	consoleArg.set_option_value("multicgsolver_global_maxit", &this->maxit, MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT);
+	consoleArg.set_option_value("multicgsolver_global_eps", &this->eps, MULTICGSOLVER_GLOBAL_DEFAULT_EPS);
+	consoleArg.set_option_value("multicgsolver_global_debug_mode", &this->debug_mode, MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
 
 	/* initialize local QP solver */
 	this->data_local = new QPData<PetscVector>();

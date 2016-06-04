@@ -12,9 +12,9 @@ extern int DEBUG_MODE;
 #include "matrix/blockdiag.h"
 #include "matrix/localdense.h"
 
-#define MULTICGSOLVER_DEFAULT_MAXIT 1000;
-#define MULTICGSOLVER_DEFAULT_EPS 0.0001;
-#define MULTICGSOLVER_DEFAULT_DEBUG_MODE 0;
+#define MULTICGSOLVER_DEFAULT_MAXIT 1000
+#define MULTICGSOLVER_DEFAULT_EPS 0.0001
+#define MULTICGSOLVER_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {
 
@@ -61,9 +61,9 @@ MultiCGSolver<VectorBase>::MultiCGSolver(){
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
 
-	this->maxit = MULTICGSOLVER_DEFAULT_MAXIT;
-	this->eps = MULTICGSOLVER_DEFAULT_EPS;
-	this->debug_mode = MULTICGSOLVER_DEFAULT_DEBUG_MODE;
+	consoleArg.set_option_value("multicgsolver_maxit", &this->maxit, MULTICGSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("multicgsolver_eps", &this->eps, MULTICGSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("multicgsolver_debug_mode", &this->debug_mode, MULTICGSOLVER_DEFAULT_DEBUG_MODE);
 
 	LOG_FUNC_END
 }
@@ -78,9 +78,9 @@ MultiCGSolver<VectorBase>::MultiCGSolver(const QPData<VectorBase> &new_qpdata){
 	this->it_last = 0; /* max(it_block) */
 	this->hessmult_last = 0; /* max(hessmult_block) */
 
-	this->maxit = MULTICGSOLVER_DEFAULT_MAXIT;
-	this->eps = MULTICGSOLVER_DEFAULT_EPS;
-	this->debug_mode = MULTICGSOLVER_DEFAULT_DEBUG_MODE;
+	consoleArg.set_option_value("multicgsolver_maxit", &this->maxit, MULTICGSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("multicgsolver_eps", &this->eps, MULTICGSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("multicgsolver_debug_mode", &this->debug_mode, MULTICGSOLVER_DEFAULT_DEBUG_MODE);
 
 	LOG_FUNC_END
 }
