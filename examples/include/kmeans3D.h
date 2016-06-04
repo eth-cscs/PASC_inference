@@ -52,7 +52,7 @@ namespace pascinference {
 				static void saveVTK(std::string name_of_file, int T, int K, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
 
 				template<class VectorBase>
-				static void saveVTK(std::string name_of_file, std::string extension, int T, int Knum, int *K, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
+				static void saveVTK(std::string name_of_file, std::string extension, int T, int K, GeneralVector<VectorBase> *datavector, GeneralVector<VectorBase> *gammavector);
 
 
 		};
@@ -247,7 +247,7 @@ namespace pascinference {
 
 
 		template<>
-		void KMeans3D::saveVTK(std::string name_of_file, std::string extension, int T, int Knum, int *Karr, GeneralVector<PetscVector> *datavector_in, GeneralVector<PetscVector> *gammavector_in){
+		void KMeans3D::saveVTK(std::string name_of_file, std::string extension, int T, int K, GeneralVector<PetscVector> *datavector_in, GeneralVector<PetscVector> *gammavector_in){
 			LOG_FUNC_STATIC_BEGIN
 			
 			Timer timer_saveVTK; 
@@ -261,7 +261,6 @@ namespace pascinference {
 	
 			int t,k;
 			int my_rank = GlobalManager.get_rank();
-			int K = Karr[my_rank];
 			int Tlocal = datavector.local_size()/3.0; /* xdim = 3 */
 			
 			/* filename */

@@ -50,7 +50,7 @@ class TSData_Global: public GeneralData {
 
 		int get_T() const;
 		int get_xdim() const;
-		int* get_K() const;
+		int get_K() const;
 
 		/* GET functions */
 		TSModel_Global *get_model() const;
@@ -152,9 +152,7 @@ void TSData_Global::print(ConsoleOutput &output) const {
 	/* give information about presence of the data */
 	output <<  " - T:           " << this->get_T() << std::endl;
 	output <<  " - xdim:        " << this->get_xdim() << std::endl;
-	output <<  " - K:           ";
-	print_array(output, this->tsmodel->get_num(), this->tsmodel->get_K());
-	output << std::endl;
+	output <<  " - K:           " << this->tsmodel->get_K() << std::endl;
 	output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	output <<  " - datavector:  ";
 	if(this->datavector){
@@ -190,11 +188,7 @@ void TSData_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_lo
 	output_local.synchronize();
 
 	output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
-	output_global <<  " - K:           ";
-	print_array(output_global, this->tsmodel->get_num(), this->tsmodel->get_K());
-	output_global << std::endl;
-	output_local  <<  "  - Klocal:     " << this->tsmodel->get_Klocal() << std::endl;
-	output_local.synchronize();
+	output_global <<  " - K:           " << this->tsmodel->get_K() << std::endl;
 
 	output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	
@@ -320,11 +314,11 @@ int TSData_Global::get_xdim() const{
 	}
 }
 
-int* TSData_Global::get_K() const{
+int TSData_Global::get_K() const{
 	if(this->tsmodel){
 		return this->tsmodel->get_K();
 	} else {
-		return NULL;
+		return 0;
 	}
 }
 

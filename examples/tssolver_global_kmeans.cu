@@ -49,11 +49,11 @@ int main( int argc, char *argv[] )
 		return 1;
 	}
 	int T = atoi(argv[1]); 
-	int Kforall = atoi(argv[2]); 
-	int epssqrforall = atof(argv[3]); 
+	int K = atoi(argv[2]); 
+	int epssqr = atof(argv[3]); 
 	std::cout << "T       = " << T << " (length of time-series)" << std::endl;
-	std::cout << "K       = " << Kforall << " (number of clusters)" << std::endl;
-	std::cout << "epssqrt = " << epssqrforall << " (penalty)" << std::endl;
+	std::cout << "K       = " << K << " (number of clusters)" << std::endl;
+	std::cout << "epssqrt = " << epssqr << " (penalty)" << std::endl;
 	
 	Initialize(argc, argv); // TODO: load parameters from console input
 
@@ -96,21 +96,11 @@ int main( int argc, char *argv[] )
 	};
 
 	/* model parameters */
-	int num = GlobalManager.get_size();
-	int *K = new int(num);
-	double *epssqr = new double(num);
-	int *xmem = new int(num);
+	int xmem = 0;
 
-	int i;
-	for(i=0; i<num; i++ ){
-		K[i] = Kforall;
-		epssqr[i] = epssqrforall;
-		xmem[i] = 0;
-	}
-	
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	VarxH1FEMModel_Global mymodel(T, xdim, num, K, xmem, epssqr);
+	VarxH1FEMModel_Global mymodel(T, xdim, K, xmem, epssqr);
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
@@ -135,7 +125,7 @@ int main( int argc, char *argv[] )
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	example::KMeans3D::saveVTK("results/kmeans",".vtk",T,num,K,mydata.get_datavector(),mydata.get_gammavector());
+	example::KMeans3D::saveVTK("results/kmeans",".vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
 	coutAll.synchronize();
 
 	/* save results into CSV file */

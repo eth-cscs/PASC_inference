@@ -33,10 +33,7 @@ class TSModel_Global: public GeneralModel {
 		
 		int xdim; /**< number of components in each time-step */
 
-		int num; /**< length of K */
-
-		int *K; /**< numbers of clusters to test for all processors */
-		int Klocal; /**< local number of clusters */
+		int K; /**< number of clusters */
 
 		int datavectorlength_global; /**< global length of datavector (time-series values) */
 		int gammavectorlength_global; /**< global length of gammavector (switching functions) */
@@ -48,7 +45,7 @@ class TSModel_Global: public GeneralModel {
 
 	public:
 		TSModel_Global();
-		TSModel_Global(int T, int xdim, int num, int *K);
+		TSModel_Global(int T, int xdim, int K);
 		~TSModel_Global();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -69,9 +66,7 @@ class TSModel_Global: public GeneralModel {
 		int get_Tlocal() const;
 		int get_xdim() const;
 
-		int get_num() const;
-		int* get_K() const;
-		int get_Klocal() const;
+		int get_K() const;
 		
 		/** @brief alloc memory for gamma solver
 		 *  
@@ -144,27 +139,21 @@ TSModel_Global::TSModel_Global(){
 
 	/* set initial content */
 	this->T = 0;
+	this->Tlocal = 0;
 	this->xdim = 0;
-
-	this->num = 0;
-	this->K = NULL;
-
-	this->Klocal = 0;
+	this->K = 0;
 
 }
 
 
-TSModel_Global::TSModel_Global(int newT, int newxdim, int newnum, int *newK){
+TSModel_Global::TSModel_Global(int newT, int newxdim, int newK){
 	if(DEBUG_MODE >= 100) coutMaster << "(TSModel_Global)CONSTRUCTOR" << std::endl;
 
 	/* set initial content */
 	this->T = newT;
 	this->xdim = newxdim;
 
-	this->num = newnum;
 	this->K = newK;
-	
-	this->Klocal = this->K[GlobalManager.get_rank()];
 }
 
 /* destructor */
@@ -184,10 +173,7 @@ void TSModel_Global::print(ConsoleOutput &output) const {
 	output <<  " - T:      " << this->T << std::endl;
 	output <<  " - xdim:    " << this->xdim << std::endl;
 
-	output <<  " - K:      ";
-	print_array(output, this->num, this->K);
-	output << std::endl;
-	output <<  " - Klocal: " << this->Klocal << std::endl;
+	output <<  " - K: " << this->K << std::endl;
 		
 }
 
@@ -210,16 +196,8 @@ int TSModel_Global::get_xdim() const{
 	return xdim; 
 }
 
-int TSModel_Global::get_Klocal() const{
-	return Klocal; 
-}
-
-int* TSModel_Global::get_K() const{
+int TSModel_Global::get_K() const{
 	return K; 
-}
-
-int TSModel_Global::get_num() const{
-	return num; 
 }
 
 
