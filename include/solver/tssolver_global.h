@@ -293,7 +293,7 @@ void TSSolver_Global::solve() {
 	/* the gamma or theta solver wasn't specified yet */
 	if(!gammasolver || !thetasolver){
 		// TODO: give error - actually, gamma and theta solvers are created during constructor with tsdata - now if we don't have tsdata, there is nothing to solve
-		coutMaster << "Warning: gammasolver of thetasolver is not set yet!" << std::endl;
+		coutMaster << "Warning: gammasolver or thetasolver is not set yet!" << std::endl;
 	}
 
 	/* update settings of child solvers */ //TODO: this is not working at all
