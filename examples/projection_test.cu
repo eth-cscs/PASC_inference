@@ -23,31 +23,47 @@ using namespace pascinference;
 
 int main( int argc, char *argv[] )
 {
-	Initialize(argc, argv); 
+	/* add local program options */
+	consoleArg.get_description()->add_options()
+		("T_begin", boost::program_options::value<int>(), "dimension of the problem")
+		("T_step", boost::program_options::value<int>(), "dimension of the problem")
+		("T_end", boost::program_options::value<int>(), "dimension of the problem")
+		("K_begin", boost::program_options::value<int>(), "number of clusters")
+		("K_step", boost::program_options::value<int>(), "number of clusters")
+		("K_end", boost::program_options::value<int>(), "number of clusters")
+		("ntests", boost::program_options::value<int>(), "number of tests");	
 
-	/* read command line arguments */
-	if(argc < 7){
-		coutMaster << "1. 2. 3. argument - T_begin:T_step:T_end      - the dimension of the problem" << std::endl;
-		coutMaster << "4. 5. 6. argument - K_begin:K_step:K_end      - the number of clusters" << std::endl;
-		coutMaster << "7. argument       - n     					 - number of tests" << std::endl;
-		coutMaster << std::endl << argv[0] << " T_begin T_step T_end K_begin K_step K_end n" << std::endl;
-		return 1;
+	/* call initialize */
+	if(!Initialize(argc, argv)){
+		return 0;
+	} 
+
+	/* load console arguments */
+	int T_begin,T_step, T_end;
+	int K_begin, K_step, K_end;
+	int n;
+	
+	if(!consoleArg.set_option_value("T_begin", &T_begin)){
+		std::cout << "T_begin has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		return 0;
 	}
+	consoleArg.set_option_value("T_end", &T_end, T_begin);
+	consoleArg.set_option_value("T_step", &T_step, 1);
 
-	int T_begin = atoi(argv[1]);
-	int T_step = atoi(argv[2]);
-	int T_end = atoi(argv[3]);
+	if(!consoleArg.set_option_value("K_begin", &K_begin)){
+		std::cout << "K_begin has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		return 0;
+	}
+	consoleArg.set_option_value("K_end", &K_end, K_begin);
+	consoleArg.set_option_value("K_step", &K_step, 1);
 
-	int K_begin = atoi(argv[4]);
-	int K_step = atoi(argv[5]);
-	int K_end = atoi(argv[6]);
+	consoleArg.set_option_value("ntests", &n, 1);
 
-	int n = atoi(argv[7]);
 
 	coutMaster << "T_begin:T_step:T_end      = " << std::setw(7) << T_begin << std::setw(7) << T_step << std::setw(7) << T_end << " (length of time-series)" << std::endl;
 	coutMaster << "K_begin:K_step:K_end      = " << std::setw(7) << K_begin << std::setw(7) << K_step << std::setw(7) << K_end << " (number of clusters)" << std::endl;
 
-	coutMaster << "n       = " << std::setw(7) << n << " (number of tests)" << std::endl;
+	coutMaster << "n = " << std::setw(7) << n << " (number of tests)" << std::endl;
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;

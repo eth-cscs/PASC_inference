@@ -26,6 +26,7 @@
 #include "common/memorycheck.h"
 #include "common/globalmanager.h"
 #include "common/consoleoutput.h"
+#include "common/consoleinput.h"
 #include "common/arrayoperation.h"
 #include "common/logging.h"
 #include "common/mvnrnd.h"
@@ -46,7 +47,7 @@ int DEBUG_MODE; /**< the debug mode of the library */
  *
  * @todo process input arguments (use boost library?)
  */
-void Initialize(int, char**); 
+bool Initialize(int, char**); 
 
 /** @brief finalize the library
  * 
@@ -123,7 +124,11 @@ void MyVecPointwiseMult(Vec w, Vec x, Vec y){
 
 #endif
 
-void Initialize(int argc, char *argv[]){
+bool Initialize(int argc, char *argv[]){
+	/* console arguments */
+	if(!consoleArg.init(argc,argv)){
+		return false;
+	}
 
 	/* initialize random seed: */
 	if(RANDOM_BY_TIME){
@@ -137,8 +142,9 @@ void Initialize(int argc, char *argv[]){
 //		PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
 		PetscInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
 		petscvector::PETSC_INITIALIZED = true;
-	
 	#endif
+	
+	return true;
 }
 
 void Finalize(){
