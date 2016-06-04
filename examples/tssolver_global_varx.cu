@@ -35,7 +35,7 @@ int get_cluster_id_solution(int t, int T){
 int main( int argc, char *argv[] )
 {
 	/* read command line arguments */
-	if(argc < 4){
+	if(argc < 5){
 		std::cout << "1. argument - T      - the dimension of the problem" << std::endl;
 		std::cout << "2. argument - xmem   - VarX parameter" << std::endl;
 		std::cout << "3. argument - K      - the dimension of the problem" << std::endl;
@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
 	mymodel.generate_data(K_solution, xmem_solution, theta_solution, xstart_solution, &get_cluster_id_solution, &mydata, false);
-//	mymodel.generate_data_add_noise(&mydata, noise_covariance);
+	mymodel.generate_data_add_noise(&mydata, noise_covariance);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;

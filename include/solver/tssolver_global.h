@@ -45,9 +45,6 @@ class TSSolver_Global: public GeneralSolver {
 		Timer timer_gamma_update; /**< timer for updating gamma problem */
 		Timer timer_theta_update; /**< timer for updating theta problem */
 
-		SolverType gammasolvertype;
-		SolverType thetasolvertype;
-
 	public:
 		TSSolver_Global();
 		TSSolver_Global(TSData_Global &new_tsdata); 
@@ -63,6 +60,10 @@ class TSSolver_Global: public GeneralSolver {
 		std::string get_name() const;
 
 		TSData_Global *get_data() const;
+
+		GeneralSolver *get_gammasolver() const;
+		GeneralSolver *get_thetasolver() const;
+
 };
 
 } // end of namespace
@@ -80,8 +81,6 @@ TSSolver_Global::TSSolver_Global(){
 	this->model = NULL;
 	this->gammasolver = NULL; /* in this time, we don't know how to solve the problem */
 	this->thetasolver = NULL; /* in this time, we don't know how to solve the problem */
-	this->gammasolvertype = SOLVER_AUTO;
-	this->thetasolvertype = SOLVER_AUTO;
 
 	this->it_sum = 0;
 	this->it_last = 0;
@@ -484,6 +483,13 @@ TSData_Global *TSSolver_Global::get_data() const {
 	return tsdata;
 }
 
+GeneralSolver *TSSolver_Global::get_gammasolver() const {
+	return gammasolver;
+}
+
+GeneralSolver *TSSolver_Global::get_thetasolver() const {
+	return thetasolver;
+}
 
 
 } /* end namespace */
