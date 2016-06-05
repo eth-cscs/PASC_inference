@@ -837,17 +837,19 @@ void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Globa
 		for(t=is_begin+xmem;t<is_end;t++){
 			t_in_scatter = t - is_begin;
 
+			/* compute new time serie from model */
+			compute_x_model(x_model, x_scatter_arr, t_in_scatter, theta_arr, gamma_arr, t-xmem);
+
 			/* original x */
 			for(n=0;n<xdim;n++){
 				myfile << x_scatter_arr[t_in_scatter*xdim+n] << ",";
 			}
+
 			/* write gamma vectors */
 			for(k=0;k<K;k++){
 				myfile << gamma_arr[k*(T-xmem)+t-xmem] << ",";
 			}
 			
-			/* compute new time serie from model */
-			compute_x_model(x_model, x_scatter_arr, t_in_scatter, theta_arr, gamma_arr, t-xmem);
 
 			for(n=0;n<xdim;n++){
 				myfile << x_model[n];
