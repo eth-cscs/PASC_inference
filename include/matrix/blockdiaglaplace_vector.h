@@ -131,7 +131,9 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
 
 	int k,t,id_row;
-	// TODO: parfor?
+	
+	/* use openmp */
+	#pragma omp parallel for
 	for(t=0;t<T;t++){
 		for(k=0;k<K;k++){
 			id_row = k*T+t;
