@@ -1,7 +1,13 @@
 #ifndef PASC_COMMON_CONSOLEINPUT_H
 #define	PASC_COMMON_CONSOLEINPUT_H
 
+/* do deal with get console size */
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+/* load console parameters with boost */
 #include <boost/program_options.hpp>
+
 #include "options.h"
 
 namespace pascinference {
@@ -13,7 +19,11 @@ class ConsoleArgClass {
 
 	public:
 		ConsoleArgClass() {
-			description = new boost::program_options::options_description("PASC Inference Usage");
+			/* get terminal size */
+			struct winsize w;
+			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+			description = new boost::program_options::options_description("PASC Inference Usage", w.ws_row);
 
 			/* define command line options */
 			description->add_options()
