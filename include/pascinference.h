@@ -55,6 +55,16 @@
 	#include <device_functions.h>
 #endif
 
+/* boost stuff */
+#ifdef USE_BOOST
+	#ifdef USE_CUDA
+		#undef _GLIBCXX_ATOMIC_BUILTINS
+	#endif
+
+	/* load console parameters with boost */
+	#include <boost/program_options.hpp>
+
+#endif
 
 /* include pascinference stuff */
 #include "common/common.h"

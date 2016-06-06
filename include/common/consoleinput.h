@@ -5,9 +5,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-/* load console parameters with boost */
-#include <boost/program_options.hpp>
-
 #include "options.h"
 
 namespace pascinference {
