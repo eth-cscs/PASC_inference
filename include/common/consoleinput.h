@@ -14,13 +14,15 @@ class ConsoleArgClass {
 		boost::program_options::options_description *description;
 		boost::program_options::variables_map *vm;
 
+		int console_nmb_cols;
 	public:
 		ConsoleArgClass() {
 			/* get terminal size */
 			struct winsize w;
 			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-
-			description = new boost::program_options::options_description("PASC Inference Usage", w.ws_row);
+			console_nmb_cols = w.ws_col;
+			
+			description = new boost::program_options::options_description("PASC Inference Usage", console_nmb_cols);
 
 			/* define command line options */
 			description->add_options()
@@ -28,7 +30,11 @@ class ConsoleArgClass {
 				("version,v", "Display the version number");	
 
 			/* add other options from options.h */
-			add_options(description);
+			add_options(description, console_nmb_cols);
+		}
+		
+		int get_console_nmb_cols(){
+			return console_nmb_cols;
 		}
 		
 		bool init(int argc, char *argv[]){

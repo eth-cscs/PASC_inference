@@ -40,10 +40,12 @@ int solution_get_cluster_id(int t, int T){
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
-	consoleArg.get_description()->add_options()
+	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
+	opt_problem.add_options()
 		("test_T", boost::program_options::value<int>(), "dimension of the problem")
 		("test_K", boost::program_options::value<int>(), "number of clusters")
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter");
+	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
 	if(!Initialize(argc, argv)){

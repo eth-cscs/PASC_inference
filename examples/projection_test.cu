@@ -25,7 +25,8 @@ using namespace pascinference;
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
-	consoleArg.get_description()->add_options()
+	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
+	opt_problem.add_options()
 		("test_Tbegin", boost::program_options::value<int>(), "dimension of the problem")
 		("test_Tstep", boost::program_options::value<int>(), "dimension of the problem")
 		("test_Tend", boost::program_options::value<int>(), "dimension of the problem")
@@ -33,6 +34,7 @@ int main( int argc, char *argv[] )
 		("test_Kstep", boost::program_options::value<int>(), "number of clusters")
 		("test_Kend", boost::program_options::value<int>(), "number of clusters")
 		("test_n", boost::program_options::value<int>(), "number of tests");	
+	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
 	if(!Initialize(argc, argv)){
