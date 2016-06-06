@@ -48,7 +48,7 @@ class BlockDiagLaplaceVectorMatrix: public GeneralMatrix<VectorBase> {
 };
 
 #ifdef USE_GPU
-__global__ void kernel_mult_correction(double* Axp, double* xp, int T, int K, double alpha);
+__global__ void kernel_mult(double* Axp, double* xp, int T, int K, double alpha);
 #endif
 
 
