@@ -62,6 +62,11 @@ static void add_options(boost::program_options::options_description *description
 		("spgqpsolver_stop_difff", boost::program_options::value<bool>(), "stopping criteria based on difference of object function");
 	description->add(opt_spgqpsolver);
 
+	/* VARXH1FEMMODEL */
+	boost::program_options::options_description opt_varxh1femmodel("VARXH1FEMMODEL", console_nmb_cols);
+	opt_varxh1femmodel.add_options()
+		("varxh1femmodel_t_scatter", boost::program_options::value<int>(), "scatter size in assembling Gamma problem, how long time-series to scatter to all processors");
+	description->add(opt_varxh1femmodel);
 
 
 }

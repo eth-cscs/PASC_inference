@@ -1,7 +1,7 @@
 #ifndef PASC_VARXH1FEMMODEL_GLOBAL_H
 #define	PASC_VARXH1FEMMODEL_GLOBAL_H
 
-#define DEFAULT_T_SCATTER 50
+#define DEFAULT_T_SCATTER 100
 
 #ifndef USE_PETSCVECTOR
  #error 'VARXH1FEMMODEL_GLOBAL is for PETSCVECTOR'
@@ -144,7 +144,7 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_K,
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
 	
 	/* update gamma solver */
-	t_scatter = DEFAULT_T_SCATTER; /* > xmem, how long time-series to scatter to all processors */
+	consoleArg.set_option_value("varxh1femmodel_t_scatter", &this->t_scatter, DEFAULT_T_SCATTER); /* > xmem, how long time-series to scatter to all processors */
 	TRY( VecCreateSeq(PETSC_COMM_SELF, t_scatter*xdim, &x_scatter) );
 	
 	/* temp vectors for update theta solver */
