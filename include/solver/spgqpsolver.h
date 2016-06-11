@@ -24,6 +24,11 @@
 #define SPGQPSOLVER_STOP_NORMGP_NORMB true
 #define SPGQPSOLVER_STOP_DIFFF false
 
+#ifdef USE_PETSCVECTOR
+	typedef petscvector::PetscVector PetscVector;
+#endif
+
+
 namespace pascinference {
 
 /* for manipulation with fs - function values for generalized Armijo condition */
@@ -78,12 +83,22 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		GeneralVector<VectorBase> *Ad; 		/**< A*d */
 		GeneralVector<VectorBase> *temp;	/**< general temp vector */
 
+		void compute_dots(double *dd, double *dAd, double *gd) const;
+
+		/* for manipulation with mdot */
+		double *Mdots_val;
+
+		#ifdef USE_PETSCVECTOR
+			Vec *Mdots_vec;
+		#endif
+		
 	public:
 		SPGQPSolver();
 		SPGQPSolver(QPData<VectorBase> &new_qpdata); 
 		~SPGQPSolver();
 
 		void solve();
+
 		double get_fx() const;
 		double get_fx(double fx_old, double beta, double gd, double dAd) const;
 		int get_it() const;
@@ -166,7 +181,7 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	this->timer_update.restart();
 	this->timer_stepsize.restart();
 	this->timer_fs.restart();
-	
+
 	LOG_FUNC_END
 }
 
@@ -237,6 +252,16 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	d = new GeneralVector<VectorBase>(*pattern);
 	Ad = new GeneralVector<VectorBase>(*pattern);	
 	temp = new GeneralVector<VectorBase>(*pattern);	
+
+	//TODO: prepare Mdot without petsc?
+	/* prepare for Mdot */
+	#ifdef USE_PETSCVECTOR
+			TRY( PetscMalloc1(3,&Mdots_val) );
+			TRY( PetscMalloc1(3,&Mdots_vec) );
+			Mdots_vec[0] = d->get_vector();
+			Mdots_vec[1] = Ad->get_vector();
+			Mdots_vec[2] = g->get_vector();
+	#endif
 	
 	LOG_FUNC_END
 }
@@ -250,6 +275,11 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 	free(d);
 	free(Ad);
 	free(temp);
+	
+	#ifdef USE_PETSCVECTOR
+		TRY( PetscFree(&Mdots_val) );
+		TRY( PetscFree(&Mdots_vec) );
+	#endif
 	
 	LOG_FUNC_END
 }
@@ -455,9 +485,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* dAd = dot(Ad,d) */
 		/* gd = dot(g,d) */
 		this->timer_dot.start();
-		 dd = dot(d,d);
-		 dAd = dot(Ad,d);
-		 gd = dot(g,d);
+		 compute_dots(&dd, &dAd, &gd);
 		this->timer_dot.stop();
 
 		/* fx_max = max(fs) */
@@ -609,6 +637,18 @@ double SPGQPSolver<VectorBase>::get_fx(double fx_old, double beta, double gd, do
 	return fx;	
 }
 
+/* compute dot products */
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::compute_dots(double *dd, double *dAd, double *gd) const {
+	LOG_FUNC_BEGIN
+
+	*dd = dot(*d,*d);
+	*dAd = dot(*Ad,*d);
+	*gd = dot(*g,*d);
+
+	LOG_FUNC_END
+}
+
 template<class VectorBase>
 int SPGQPSolver<VectorBase>::get_it() const {
 	return this->it_last;
@@ -675,6 +715,23 @@ void SPGQPSolver_fs::print(ConsoleOutput &output)
 	}
 	output << " ]";
 }
+
+
+/* ----------- PETSC special stuff ------------- */
+#ifdef USE_PETSC
+/* compute dot products */
+template<>
+void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const {
+	LOG_FUNC_BEGIN
+
+	TRY(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
+	*dd = Mdots_val[0];
+	*dAd = Mdots_val[1];
+	*gd = Mdots_val[2];
+
+	LOG_FUNC_END
+}
+#endif
 
 
 
