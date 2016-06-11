@@ -11,7 +11,7 @@
 #include "data/qpdata.h"
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 5000
-#define SPGQPSOLVER_DEFAULT_EPS 0.001
+#define SPGQPSOLVER_DEFAULT_EPS 0.0001
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0
 
 #define SPGQPSOLVER_DEFAULT_M 20
@@ -85,6 +85,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		void solve();
 		double get_fx() const;
+		double get_fx(double fx_old, double beta, double gd, double dAd) const;
 		int get_it() const;
 		int get_hessmult() const;
 
@@ -491,7 +492,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* compute new function value using gradient and update fs list */
 		this->timer_fs.start();
 		 fx_old = fx;
-		 fx = get_fx();
+		 fx = get_fx(fx_old,beta,gd,dAd);
 		 fs.update(fx);
 		this->timer_fs.stop();
 
@@ -592,6 +593,17 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 	/* use computed gradient in this->g to compute function value */
 	temp = g - b;
 	fx = 0.5*dot(temp,x);
+
+	LOG_FUNC_END
+	return fx;	
+}
+
+/* compute function value using previously computed values */
+template<class VectorBase>
+double SPGQPSolver<VectorBase>::get_fx(double fx_old, double beta, double gd, double dAd) const {
+	LOG_FUNC_BEGIN
+	
+	double fx = fx_old + beta*(gd + 0.5*beta*dAd);
 
 	LOG_FUNC_END
 	return fx;	
