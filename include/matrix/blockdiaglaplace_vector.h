@@ -35,6 +35,7 @@ class BlockDiagLaplaceVectorMatrix: public GeneralMatrix<VectorBase> {
 			int minGridSize; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
 			int gridSize; /**< the actual grid size needed, based on input size */
 		#endif	
+		
 	public:
 		BlockDiagLaplaceVectorMatrix(const VectorBase &x, int K, int T, double alpha = 1.0); /* constructor from vector and number of blocks */
 
@@ -130,26 +131,30 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecGetArray(y.get_vector(),&y_arr) );
 	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
 
-	int k,t,id_row;
+//	int k,t,id_row;
 	
 	/* use openmp */
 	#pragma omp parallel for
-	for(id_row=0;id_row<T*K;id_row++){
-		k = floor(id_row/(double)T);
-		t = id_row - k*T;
+	for(int id_row=0;id_row<T*K;id_row++){
+		int k = (int)(id_row/(double)T);;
+		int t = id_row - k*T;
+
+		double value;
 
 		/* first row */
 		if(t == 0){
-			y_arr[id_row] = alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
+			value = alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
 		}
 		/* common row */
 		if(t > 0 && t < T-1){
-			y_arr[id_row] = -alpha*x_arr[id_row-1] + 2.0*alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
+			value = -alpha*x_arr[id_row-1] + 2.0*alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
 		}
 		/* last row */
 		if(t == T-1){
-			y_arr[id_row] = -alpha*x_arr[id_row-1] + alpha*x_arr[id_row];
+			value = -alpha*x_arr[id_row-1] + alpha*x_arr[id_row];
 		}
+		
+		y_arr[id_row] = value;
 	}
 
 	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
@@ -162,33 +167,33 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 __global__ void kernel_mult(double* y, double* x, int T, int K, double alpha)
 {
 	/* compute my id */
-	int t = blockIdx.x*blockDim.x + threadIdx.x;
+	int id_row = blockIdx.x*blockDim.x + threadIdx.x;
 
-	if(t < K*T){
+	if(id_row < K*T){
 		/* compute id of cluster */
-		int k = (int)(t/T);
+		int k = (int)(id_row/T);
 	
 		/* compute id_row in local block */
-		int t_local = t-k*T;
+		int t = id_row-k*T;
 		double value;
 
 		/* first row */
-		if(t_local == 0){
-			value = x[t] - x[t+1];
+		if(t == 0){
+			value = x[id_row] - x[id_row+1];
 		}
 		/* common row */
-		if(t_local > 0 && t_local < T-1){
-			value = -x[t-1] + 2.0*x[t] - x[t+1];
+		if(t > 0 && t < T-1){
+			value = -x[id_row-1] + 2.0*x[id_row] - x[id_row+1];
 		}
 		/* last row */
-		if(t_local == T-1){
-			value = -x[t-1] + x[t];
+		if(t == T-1){
+			value = -x[id_row-1] + x[id_row];
 		}
 		
-		y[t] = alpha*value;
+		y[id_row] = alpha*value;
 	}
 
-	/* if t >= K*T then relax and do nothing */	
+	/* if id_row >= K*T then relax and do nothing */	
 
 }
 
