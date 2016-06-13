@@ -28,6 +28,9 @@
 	typedef petscvector::PetscVector PetscVector;
 #endif
 
+#ifdef USE_CUDA
+    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#endif
 
 namespace pascinference {
 
@@ -256,16 +259,10 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	//TODO: prepare Mdot without petsc?
 	/* prepare for Mdot */
 	#ifdef USE_PETSCVECTOR
-		#ifndef USE_CUDA
-			/* without cuda */
-			TRY( PetscMalloc1(3,&Mdots_val) );
-			TRY( PetscMalloc1(3,&Mdots_vec) );
-		#else
-			/* allocate arrays on cuda */
-			gpuErrchk( cudaMalloc((void **)&Mdots_val,3*sizeof(double)) );
-			gpuErrchk( cudaMalloc((void **)&Mdots_vec,3*sizeof(Vec)) );
-		
-		#endif	
+		/* without cuda */
+		TRY( PetscMalloc1(3,&Mdots_val) );
+		TRY( PetscMalloc1(3,&Mdots_vec) );
+
 		Mdots_vec[0] = d->get_vector();
 		Mdots_vec[1] = Ad->get_vector();
 		Mdots_vec[2] = g->get_vector();
@@ -286,13 +283,8 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 	free(temp);
 	
 	#ifdef USE_PETSCVECTOR
-		#ifndef USE_CUDA
-			TRY( PetscFree(&Mdots_val) );
-			TRY( PetscFree(&Mdots_vec) );
-		#else
-			gpuErrchk( cudaMalloc(&Mdots_val) );
-			gpuErrchk( cudaMalloc(&Mdots_vec) );
-		#endif
+		TRY( PetscFree(Mdots_val) );
+		TRY( PetscFree(Mdots_vec) );
 	#endif
 	
 	LOG_FUNC_END
