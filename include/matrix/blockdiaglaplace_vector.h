@@ -133,22 +133,22 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	int k,t,id_row;
 	
 	/* use openmp */
-	for(t=0;t<T;t++){
-		for(k=0;k<K;k++){
-			id_row = k*T+t;
+	#pragma omp parallel for
+	for(id_row=0;id_row<T*K;id_row++){
+		k = floor(id_row/(double)T);
+		t = id_row - k*T;
 
-			/* first row */
-			if(t == 0){
-				y_arr[id_row] = alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
-			}
-			/* common row */
-			if(t > 0 && t < T-1){
-				y_arr[id_row] = -alpha*x_arr[id_row-1] + 2.0*alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
-			}
-			/* last row */
-			if(t == T-1){
-				y_arr[id_row] = -alpha*x_arr[id_row-1] + alpha*x_arr[id_row];
-			}
+		/* first row */
+		if(t == 0){
+			y_arr[id_row] = alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
+		}
+		/* common row */
+		if(t > 0 && t < T-1){
+			y_arr[id_row] = -alpha*x_arr[id_row-1] + 2.0*alpha*x_arr[id_row] - alpha*x_arr[id_row+1];
+		}
+		/* last row */
+		if(t == T-1){
+			y_arr[id_row] = -alpha*x_arr[id_row-1] + alpha*x_arr[id_row];
 		}
 	}
 
