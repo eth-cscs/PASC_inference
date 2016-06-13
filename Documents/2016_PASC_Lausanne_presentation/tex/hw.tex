@@ -1,0 +1,215 @@
+\documentclass{article} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb,amsmath}
+
+\usepackage{xcolor}
+\usepackage[top=3cm, bottom=3cm, left=3cm, right=3cm, includefoot]{geometry}
+
+\definecolor{dgreen}{rgb}{0.0, 0.5, 0.0} 
+
+\usepackage{yfonts}
+
+\begin{document}
+
+\begin{displaymath}
+ \theta^{*}(t) = \arg \min\limits_{\theta(t)} \int\limits_{0}^{T} g(x(t), \theta(t)) ~dt
+  ~~ \approx ~~ 
+  \arg \min\limits_{\theta(t)} \sum\limits_{t=0}^{T} g(x_t, \theta(t))
+\end{displaymath}
+
+\begin{displaymath}
+ \textrm{error of the model on $[0,T]$}
+\end{displaymath}
+
+\begin{displaymath}
+ \textrm{$\theta(t)$ is constant on clusters}
+\end{displaymath}
+
+\begin{displaymath}
+ [\Theta^{*}, \Gamma^{*}(t) ] = \arg \min\limits_{\Theta,\Gamma} \int\limits_{0}^{T} \sum\limits_{k=1}^K \gamma_k(t) \cdot g(x(t), \theta_k) ~dt
+  ~~ \approx ~~ 
+  \arg \min\limits_{\Theta,\Gamma} \sum\limits_{t=0}^{T} \sum\limits_{k=1}^{K} \gamma_{k,t} \cdot g(x_t, \theta_k)
+\end{displaymath}
+
+\begin{displaymath}
+ \theta_1, \theta_2, \dots, \theta_k ~\textrm{- model parameters on clusters}
+\end{displaymath}
+
+\begin{displaymath}
+ \gamma_1(t), \gamma_2(t), \dots, \gamma_k(t) ~\textrm{- cluster indicator functions}
+\end{displaymath}
+
+\begin{displaymath}
+ \theta_1 ~~~ \theta_2 ~~~ \theta_3 ~~~ \gamma_1(t) ~~~ \gamma_2(t) ~~~ \gamma_3(t) 
+\end{displaymath}
+
+\begin{displaymath}
+ \textrm{continuous real-valued functions $\gamma_k(t) \in [0,1]$}
+\end{displaymath}
+
+\begin{displaymath}
+ \textrm{smooth $\gamma_k(t)$ $~\Rightarrow~$ regularisation}
+\end{displaymath}
+
+\begin{displaymath}
+ \gamma_k(t) \in \lbrace 0,1 \rbrace, ~~
+ \gamma_k(t) =
+ \left\lbrace
+  \begin{array}{ll}
+   1~ & \textrm{if $k$-th cluster is active in $t$} \\
+   0~ & \textrm{if $k$-th cluster is inactive in $t$}
+  \end{array}
+ \right.
+\end{displaymath}
+
+\begin{displaymath}
+ 0 \leq \gamma_k(t) \leq 1, ~~
+ \forall t: \sum\limits_{k=1}^K \gamma_k(t) = 1
+\end{displaymath}
+
+\begin{displaymath}
+ \textrm{s.t.} ~~ 0 \leq \gamma_k(t) \leq 1, ~
+ \forall t: \sum\limits_{k=1}^K \gamma_k(t) = 1
+\end{displaymath}
+
+\begin{displaymath}
+ \int\limits_{0}^{T} \sum\limits_{k=1}^K \gamma_k(t) \cdot g(x(t), \theta_k) ~dt {\color{red} + \varepsilon^2 \sum\limits_{k=1}^K \int\limits_0^T (\partial_t \gamma_k(t))^2 dt}
+  ~~ \approx ~~ 
+  \sum\limits_{t=0}^{T} \sum\limits_{k=1}^{K} \gamma_{k,t} \cdot g(x_t, \theta_k)
+    {\color{red} + \varepsilon^2 \sum\limits_{k=1}^K \sum\limits_{t=0}^{T-1} (\gamma_{k,t+1} - \gamma_{k,t})^2}
+\end{displaymath}
+
+\begin{displaymath}
+ [\Theta^{*}, \Gamma^{*} ] = 
+  \arg \min\limits_{\Theta,\Gamma} \sum\limits_{t=0}^{T} \sum\limits_{k=1}^{K} \gamma_{k,t} \cdot g(x_t, \theta_k)
+  + \varepsilon^2 \sum\limits_{k=1}^K \sum\limits_{t=0}^{T-1} (\gamma_{k,t+1} - \gamma_{k,t})^2
+\end{displaymath}
+
+\begin{displaymath}
+ \textrm{s.t.} ~~ 0 \leq \gamma_{k,t} \leq 1, ~
+ \forall t: \sum\limits_{k=1}^K \gamma_{k,t} = 1
+\end{displaymath}
+
+\begin{displaymath}
+ L(\Theta,\Gamma)
+\end{displaymath}
+
+\begin{center}
+\begin{table}[h!]
+\renewcommand{\tablename}{Algorithm}
+\it
+\begin{tabular}{p{0.95\linewidth}}
+\hspace*{0.6CM}set feasible initial approximation $\Gamma_{0}$\\
+\medskip
+\hspace*{0.6CM}{\textbf{while}} $\Vert L(\Theta_{it},\Gamma_{it}) - L(\Theta_{it-1},\Gamma_{it-1}) \Vert > \varepsilon_L$\\[0.1cm]
+\hspace*{1.2CM} solve $\Theta_{it} = \arg \min\limits_{\Theta} L(\Theta, \Gamma_{it})$ $~~~$ (with fixed $\Gamma_{it}$) \\[0.1cm]
+\hspace*{1.2CM} solve $\Gamma_{it} = \arg \min\limits_{\Gamma} L(\Theta_{it}, \Gamma)$ $~~~$ (with fixed $\Theta_{it}$) \\[0.1cm]
+\hspace*{1.2CM} $it = it + 1$ \\
+\hspace*{0.6CM}{\textbf{endwhile}}
+\end{tabular}
+\end{table}
+\end{center}
+
+\begin{displaymath}
+ \begin{array}{rcl}
+  \theta_1 & = & [0,0,0] \\
+  \theta_2 & = & [1,0,0] \\
+  \theta_3 & = & [0,1,0] 
+ \end{array}
+\end{displaymath}
+
+
+\begin{displaymath}
+ \sum\limits_{t=0}^T \Vert x_t - \theta(t) \Vert^2 ~ \rightarrow ~ \min
+\end{displaymath}
+
+
+
+$y^t \in \{ 0 , 1\} $ : binary data 
+
+\vspace{0.5cm} 
+
+$P_X^t = \left(  P(x_1^t),...,P(x_n^t),1 \right)^T$ probability vector
+
+\vspace{0.5cm} 
+
+Log-likelihood at time $t$:
+\begin{equation*}
+\mathcal{L} (t) = y^t \log \left( \Lambda_X(t)^{T} P_X^t \right) + (1-y^t )\log \left( 1- \Lambda_X(t)^{T} P_X^t \right) 
+\end{equation*}
+
+\vspace{0.5cm}  
+
+
+Want to solve the estimation problem
+\begin{equation*}
+\underset{ \Lambda_X(t): \ t \in [0,T]}{\max} \ \int_0^T \mathcal{L}(t) dt
+\end{equation*}
+such that:
+\begin{equation*}
+0 < \Lambda_X(t)^{T} P_X^t  < 1, \ \ \ \forall t
+\end{equation*}
+
+\begin{displaymath}
+ Y^t = a + b Y^{t-1} + c X^{t-1} + \textrm{noise}
+\end{displaymath}
+
+\begin{displaymath}
+ c \cong 0 ~~~ c \neq 0 ~~~ \Lambda \cong 0 ~~~ \Lambda = P[y^t \vert {\color{blue} x^t}] ~~~ \varepsilon = P[y^t ~\textrm{and NOT} ~ {\color{blue} x^t}]
+ ~~~ y^t ~~~ {\color{blue} X} ~~~ {\color{blue} x^t} ~~~ Y
+\end{displaymath}
+
+\begin{displaymath}
+ {\color{blue} X} ~~
+ {\color{blue} \textrm{not}~X} ~~ Y ~~
+ \lbrace y^t \rbrace, t = 0,\dots,T ~~
+ {\color{blue}  \lbrace x^t \rbrace, t = 0,\dots,T} 
+\end{displaymath}
+
+\begin{displaymath}
+ \begin{array}{rcl}
+  P[y^t] & = & P[y^t ~\textrm{and}~ {\color{blue} x^t}] + P[y^t ~\textrm{and NOT} ~ {\color{blue} x^t}] \\
+  & = & \Lambda P[{\color{blue} x^t}] + \varepsilon
+ \end{array}
+\end{displaymath}
+
+\begin{displaymath}
+\begin{array}{l}
+\textrm{${\color{blue} X}$ has a causality impact on $Y$ if} \\
+\textrm{for any $t$, event $y^t$ is happening if (and only if) event ${\color{blue} x^t}$ happened.}
+\end{array}
+\end{displaymath}
+
+fit a stochastic model for Y and X, e.g. a linear VAR-X: \newline
+
+If model with $c \cong 0$ is more statistically-significant than the one with $c \neq 0$
+
+\begin{displaymath}
+\textrm{$X$ has no \textbf{Granger-causality} impact on $Y$}
+\end{displaymath}
+
+Law of  the Total Probability: \newline
+
+If $\Lambda \cong 0$ there is no causality impact from ${\color{blue} X}$ on $Y$. 
+
+\begin{displaymath}
+P[y^t] = 
+\Lambda_1 {\color{red} (t)} P [{\color{blue} x_1^t}]
++
+\Lambda_2 {\color{red} (t)} P [{\color{blue} x_2^t}]
++
+\dots
++
+\Lambda_n {\color{red} (t)} P [{\color{blue} x_n^t}]
+\end{displaymath}
+\begin{displaymath}
++ P[y^t ~\textrm{and not$({\color{blue} x_1^t}$ or $\dots$ or ${\color{blue} x_n^t})$} ]
+\end{displaymath}
+where $\Lambda_i {\color{red} (t)} = P [y^t \vert {\color{blue} x_i^t}]$ is possibly time-dependent due to unresolved scales. \newline
+
+If $\Lambda_i \cong 0$ there is no causality impact from ${\color{blue} X_i}$ on $Y$. 
+
+
+\end{document}
+

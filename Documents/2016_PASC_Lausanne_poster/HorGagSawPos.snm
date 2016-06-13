@@ -1,0 +1,15 @@
+\beamer@slide {eq:ARX}{1}
+\beamer@slide {eq:loglik}{1}
+\beamer@slide {eq:loglik_lb}{1}
+\beamer@slide {eq:loglik_lb_con}{1}
+\beamer@slide {eq:general}{1}
+\beamer@slide {alg:outer}{1}
+\beamer@slide {eq:qp}{1}
+\beamer@slide {eq:aic}{1}
+\beamer@slide {alg:spg_qp}{1}
+\beamer@slide {fig:parallelisation}{1}
+\beamer@slide {fig:kmeans_matlab}{1}
+\beamer@slide {fig:kmeans_pizdaint1}{1}
+\beamer@slide {fig:kmeans_pizdaint3}{1}
+\beamer@slide {fig:indicator}{1}
+\beamer@slide {fig:L}{1}

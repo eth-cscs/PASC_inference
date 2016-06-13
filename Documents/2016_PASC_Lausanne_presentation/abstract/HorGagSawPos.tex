@@ -1,0 +1,93 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[onehalfspacing]{setspace}
+\hoffset=-1.0cm\voffset=-2.0cm \textwidth=155mm\textheight=220mm
+
+\usepackage{authblk}
+
+\title{Causality Inference in a nonstationary and nonhomogenous framework}
+\author[a]{Illia Horenko}
+\author[a]{\underline{Patrick Gagliardini}}
+\author[b]{William Sawyer}
+\author[a]{\underline{Luk\'{a}\v{s} Posp\'{i}\v{s}il}}
+\affil[a]{Universit\`{a} della Svizzera italiana, Lugano, Switzerland}
+\affil[b]{Swiss National Supercomputing Centre (CSCS/ETH Zurich), Switzerland}
+\affil[ ]{\textit {\{illia.horenko,patrick.gagliardini,lukas.pospisil\}@usi.ch, william.sawyer@cscs.ch}}
+
+\date{}
+
+\begin{document}
+\pagenumbering{gobble}
+  \maketitle
+
+
+
+\par
+\vspace{4mm}
+
+\noindent
+The project deploys statistical and computational techniques to develop a novel approach to causality inference 
+in multivariate time series of economical data on equity and credit risks. The methods build on recent research of project participants, \cite{bib:HorenkoGerber}. They improve on classical approaches to causality analysis such as Granger causality (see \cite{bib:Granger})  by accommodating 
+general forms of nonstationarity and non-homogenity resulting from unresolved and latent scale effects.  \newline
+Emerging causality framework results in and is implemented through a clustering of time series based on a minimization of the averaged clustering
+functional, which describes the mean distance between observation data
+and its representation in terms of given number of abstract Bayesian causality models of a certain predefined class.
+We are using finite element framework to the problem of time series analysis and propose a numerical scheme
+for time series clustering \cite{bib:horenko}. \newline
+One of the most challenging components of the emerging HPC implementation is a
+Quadratic Programming (QP) problem with the combination of linear equality and bound inequality constraints.
+In our contribution, we compare tree different QP algorithms to solve this problem -
+Augmented Lagrangian method combined with active-set strategy \cite{bib:DosPos}, Interior-point methods \cite{bib:Boyd}, and
+the modification of Spectral Projected Gradient method for QP \cite{bib:spg}, \cite{bib:Pos}.
+We demonstrate and compare the efficiency of the methods solving practical benchmark problems. \newline
+
+
+
+
+
+%% BIBLIOGRAPHY 
+\begin{thebibliography}{}
+
+\bibitem{bib:HorenkoGerber}
+Horenko I., and Gerber S.:
+{\em On inference of causality for discrete state models in a multiscale context}.
+Proc. Natl. Acad. Sci. USA (PNAS), DOI: 10.1073/pnas.1410404111, (2014).
+
+\bibitem{bib:Granger}
+Granger C.:
+{\em Investigating Causal Relations by Econometric Models and Cross-Spectral methods}.
+Econometrica, 37, pp. 424--438, (1969).
+
+
+\bibitem{bib:horenko} 
+Horenko I.:
+{\em Finite element approach to clustering of multidimensional time series}.
+SIAM Journal of Scientific Computing 32, pp. 62--83, (2010).
+
+\bibitem{bib:DosPos}
+ Dost\'{a}l Z., Posp\'{i}\v{s}il L.:
+ {\em Optimal iterative QP and QPQC algorithms}.
+ Annals of Operations Research, DOI: 10.1007/s10479-013-1479-0, (2013).  
+
+\bibitem{bib:Boyd}
+  Boyd S., Vandenberghe L.:
+  {\em Convex Optimization}. 
+  Cambridge University Press, New York, 1st edition, (2004).
+
+\bibitem{bib:spg} 
+  Birgin E.G., Mart\'{i}nez J.M., and Raydan M.:
+  {\em Nonmonotone spectral projected gradient methods on convex sets}.
+  SIAM Journal on Optimization 10, pp. 1196--1211, (2000).
+
+\bibitem{bib:Pos}
+ Posp\'{i}\v{s}il L.:
+ {\em Development of Algorithms for Solving Minimizing Problems with Convex Quadratic Function on Special Convex Sets and Applications}.
+ PhD Thesis, V\v{S}B-TU Ostrava, (2015).
+
+
+  
+
+   
+\end{thebibliography}
+
+
+\end{document}
