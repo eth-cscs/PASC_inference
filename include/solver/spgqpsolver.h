@@ -256,11 +256,20 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	//TODO: prepare Mdot without petsc?
 	/* prepare for Mdot */
 	#ifdef USE_PETSCVECTOR
+		#ifndef USE_CUDA
+			/* without cuda */
 			TRY( PetscMalloc1(3,&Mdots_val) );
 			TRY( PetscMalloc1(3,&Mdots_vec) );
-			Mdots_vec[0] = d->get_vector();
-			Mdots_vec[1] = Ad->get_vector();
-			Mdots_vec[2] = g->get_vector();
+		#else
+			/* allocate arrays on cuda */
+			gpuErrchk( cudaMalloc((void **)&Mdots_val,3*sizeof(double)) );
+			gpuErrchk( cudaMalloc((void **)&Mdots_vec,3*sizeof(Vec)) );
+		
+		#endif	
+		Mdots_vec[0] = d->get_vector();
+		Mdots_vec[1] = Ad->get_vector();
+		Mdots_vec[2] = g->get_vector();
+
 	#endif
 	
 	LOG_FUNC_END
@@ -277,8 +286,13 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 	free(temp);
 	
 	#ifdef USE_PETSCVECTOR
-		TRY( PetscFree(&Mdots_val) );
-		TRY( PetscFree(&Mdots_vec) );
+		#ifndef USE_CUDA
+			TRY( PetscFree(&Mdots_val) );
+			TRY( PetscFree(&Mdots_vec) );
+		#else
+			gpuErrchk( cudaMalloc(&Mdots_val) );
+			gpuErrchk( cudaMalloc(&Mdots_vec) );
+		#endif
 	#endif
 	
 	LOG_FUNC_END
