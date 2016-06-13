@@ -53,10 +53,12 @@ make_directory("results")
 option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" OFF)
 option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" OFF)
 option(PROJECTION_TEST "PROJECTION_TEST" OFF)
+option(EDF "EDF" OFF)
 
 message(STATUS "${Yellow}TSSOLVER_GLOBAL_KMEANS : ${Green}${TSSOLVER_GLOBAL_KMEANS}${Yellow}${ColourReset}")
 message(STATUS "${Yellow}TSSOLVER_GLOBAL_VARX   : ${Green}${TSSOLVER_GLOBAL_VARX}${Yellow}${ColourReset}")
 message(STATUS "${Yellow}PROJECTION_TEST        : ${Green}${PROJECTION_TEST}${Yellow}${ColourReset}")
+message(STATUS "${Yellow}EDF                    : ${Green}${EDF}${Yellow}${ColourReset}")
 
 # add example executable files
 if(${TSSOLVER_GLOBAL_KMEANS})
@@ -73,10 +75,8 @@ endif()
 if(${TSSOLVER_GLOBAL_VARX})
 	# this is VARX global test
 	if(${USE_CUDA})
-		# if we know how to compile .cu, then include .cu
 		pascadd_executable("tssolver_global_varx.cu" "tssolver_global_varx")
 	else()
-		# otherwise compile as .cpp
 		pascadd_executable("tssolver_global_varx.cpp" "tssolver_global_varx")
 	endif()
 endif()
@@ -89,3 +89,14 @@ if(${PROJECTION_TEST})
 		pascadd_executable("projection_test.cpp" "projection_test")
 	endif()
 endif()
+
+if(${EDF})
+	# this is edf test
+	if(${USE_CUDA})
+		pascadd_executable("edf.cu" "edf")
+	else()
+		pascadd_executable("edf.cpp" "edf")
+	endif()
+endif()
+
+

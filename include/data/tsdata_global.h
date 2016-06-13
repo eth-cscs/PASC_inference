@@ -37,16 +37,17 @@ class TSData_Global: public GeneralData {
 		bool destroy_thetavector;
 
 	public:
+		TSData_Global();
 		TSData_Global(TSModel_Global &tsmodel);
-		TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector);
+//		TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector);
 		~TSData_Global();
 
-		void print(ConsoleOutput &output) const;
-		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		virtual void print(ConsoleOutput &output) const;
+		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
-		void printcontent(ConsoleOutput &output) const;
-		void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		std::string get_name() const;
+		virtual void printcontent(ConsoleOutput &output) const;
+		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		virtual std::string get_name() const;
 
 		void cut_gamma() const;
 
@@ -69,28 +70,45 @@ class TSData_Global: public GeneralData {
 
 namespace pascinference {
 
-/* datavector is given */ //TODO: this is wrong
-TSData_Global::TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector){
+TSData_Global::TSData_Global(){
 	LOG_FUNC_BEGIN
 
-	/* set initial content */
-	this->tsmodel = &tsmodel;
+	this->tsmodel = NULL;
 
-	/* set new datavector */
-	// TODO: control compatibility with this->tsmodel->get_datavectorlength();
-	this->datavector = &datavector;
-	destroy_datavector = false; /* this datavector is not my */
+	this->datavector = NULL;
+	destroy_datavector = false;
 
-	/* set new gammavector and thetavector */
-	// TODO: control compatibility with this->tsmodel->get_gammavectorlength(), this->tsmodel->get_thetavectorlength();
-	this->gammavector = &gammavector;
+	this->gammavector = NULL;
 	destroy_gammavector = false;
 
-	this->thetavector = &thetavector;
+	this->thetavector = NULL;
 	destroy_thetavector = false;
 
 	LOG_FUNC_END
 }
+
+/* datavector is given */ //TODO: this is wrong
+//TSData_Global::TSData_Global(TSModel_Global &tsmodel, GeneralVector<PetscVector> &datavector, GeneralVector<PetscVector> &gammavector, GeneralVector<PetscVector> &thetavector){
+//	LOG_FUNC_BEGIN
+
+	/* set initial content */
+//	this->tsmodel = &tsmodel;
+
+	/* set new datavector */
+	// TODO: control compatibility with this->tsmodel->get_datavectorlength();
+//	this->datavector = &datavector;
+//	destroy_datavector = false; /* this datavector is not my */
+
+	/* set new gammavector and thetavector */
+	// TODO: control compatibility with this->tsmodel->get_gammavectorlength(), this->tsmodel->get_thetavectorlength();
+//	this->gammavector = &gammavector;
+//	destroy_gammavector = false;
+
+//	this->thetavector = &thetavector;
+//	destroy_thetavector = false;
+
+//	LOG_FUNC_END
+//}
 
 /* no datavector provided - prepare own data vector */
 TSData_Global::TSData_Global(TSModel_Global &tsmodel){
