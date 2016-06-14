@@ -200,7 +200,7 @@ void EdfData::edfRead(std::string filename){
 	/* ------ PREPARE DATAVECTOR ------ */
 	/* compute vector lengths */
 	T = hdr_records_detail[0].hdr_samples*hdr_records;
-	R = hdr_ns;
+	R = hdr_ns-1;
 
 	/* for data prepare vector of length T and spit it into processors */
 	Vec layout;
@@ -228,9 +228,14 @@ void EdfData::edfRead(std::string filename){
 	t_length = t_end - t_begin;
 		
 	/* ------ RECORDS ------ */
-	int recnum, ii, samplei, value;
+	int recnum, ii, samplei, index;
 	double scalefac, dc;
     
+	int16_t value;
+
+//    read_from_file(myfile, &value, sizeof(uint16_t));
+//	value = atoi(buffer);
+
 //    for(recnum = 0; recnum < hdr.records; recnum++){
     for(recnum = 0; recnum < 1; recnum++){
         for(ii = 0; ii < hdr_ns; ii++){
@@ -238,14 +243,20 @@ void EdfData::edfRead(std::string filename){
 			dc = hdr_records_detail[ii].hdr_physicalMax - scalefac*hdr_records_detail[ii].hdr_digitalMax;
 
 			for(samplei=0; samplei < hdr_records_detail[ii].hdr_samples; samplei++){
-				read_from_file(myfile, buffer, sizeof(uint16_t));
-				value = atoi(buffer);
-				coutMaster << sizeof(int16_t) << "test ";
-				coutMaster << "[" << recnum << "," << ii << "," << samplei << "] = " << value << "; " << buffer << std::endl;
+				myfile.read((char *)&value, sizeof(int16_t)); /* read block of memory */
+				value =  value * scalefac + dc;
 //				tmpdata(recnum).data{ii} = fread(fid,hdr.samples(ii),'int16')*scalefac + dc;
+				index = 0;
+				TRY( VecSetValue(datavector_Vec, index, value, INSERT_VALUES) );
+
 			}
         }
     }
+
+	/* vector is prepared */
+	TRY( VecAssemblyBegin(datavector_Vec) );
+	TRY( VecAssemblyEnd(datavector_Vec) );
+
 /*    
     record = zeros(hdr.ns, hdr.samples(1)*hdr.records);
     
