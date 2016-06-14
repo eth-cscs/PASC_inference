@@ -21,12 +21,9 @@ endif()
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_BOOST)
+	printinfo_yesno("USE_BOOST\t\t\t" "${USE_BOOST}")
 	if(${USE_BOOST})
-		printinfo_green("BOOST\t\t\t\t" "YES")
 		printinfo(" - Boost_INCLUDE_DIR\t\t" "${Boost_INCLUDE_DIR}")
-	else()
-		printinfo_red("BOOST\t\t\t\t" "NO")
 	endif()
-
 endmacro()
 

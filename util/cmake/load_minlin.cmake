@@ -49,11 +49,9 @@ endif()
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_MINLIN)
+	printinfo_yesno("USE_MINLIN\t\t\t" "${USE_MINLIN}")
 	if(${USE_MINLIN})
-		printinfo_green("MINLIN\t\t\t\t" "YES")
-		printinfo(" - MINLIN_INCLUDES\t\t" "${MINLIN_INCLUDE}")
-	else()
-		printinfo_red("MINLIN\t\t\t\t" "NO")
+		printinfo(" - MINLIN_INCLUDES\t" "${MINLIN_INCLUDE}")
 	endif()
 
 endmacro()

@@ -29,16 +29,13 @@ endif()
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_PETSC)
+	printinfo_yesno("USE_PETSC\t\t\t" "${USE_PETSC}")
 	if(${USE_PETSC})
-		printinfo_green("USE_PETSC\t\t\t" "YES")
 		printinfo(" - PETSC_DIR\t\t\t" "$ENV{PETSC_DIR}")
 		printinfo(" - PETSC_ARCH\t\t\t" "$ENV{PETSC_ARCH}")
 		printinfo(" - PETSC_INCLUDES\t\t" "${PETSC_INCLUDES}")
 		printinfo(" - PETSC_LIBRARIES\t\t" "${PETSC_LIBRARIES}")
-		printinfo(" - FIND_PETSC\t\t\t" "${FIND_PETSC}")
-	else()
-		printinfo_red("USE_PETSC\t\t\t" "NO")
+		printinfo_yesno("- FIND_PETSC\t\t\t" "${FIND_PETSC}")
 	endif()
-
 endmacro()
 

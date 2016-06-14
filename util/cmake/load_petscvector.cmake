@@ -25,11 +25,9 @@ endif()
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_PETSCVECTOR)
+	printinfo_yesno("USE_PETSCVECTOR\t\t" "${USE_PETSCVECTOR}")
 	if(${USE_PETSCVECTOR})
-		printinfo_green("USE_PETSCVECTOR\t\t" "YES")
 		printinfo(" - include\t\t\t" "${PETSCVECTOR_INCLUDE}")
-	else()
-		printinfo_red("USE_PETSCVECTOR\t\t" "NO")
 	endif()
 endmacro()
 

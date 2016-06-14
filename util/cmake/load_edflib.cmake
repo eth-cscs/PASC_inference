@@ -48,13 +48,10 @@ endif()
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_EDFLIB)
+	printinfo_yesno("USE_EDFLIB\t\t\t" "${USE_EDFLIB}")
 	if(${USE_EDFLIB})
-		printinfo_green("USE_EDFLIB\t\t\t" "YES")
 		printinfo(" - EDFLIB_INCLUDE_DIR\t\t" "${EDFLIB_INCLUDE_DIR}")
 		printinfo(" - EDFLIB_LIB_LOCATION\t\t" "${EDFLIB_LIB_LOCATION}")
-	else()
-		printinfo_red("USE_EDFLIB\t\t\t" "NO")
 	endif()
-
 endmacro()
 

@@ -37,15 +37,23 @@ link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 # print name of variable and value
 macro(PRINTINFO name value)
- message(" ${name}${Yellow}${value}${ColourReset}")
+ message(" ${name} : ${Yellow}${value}${ColourReset}")
 endmacro()
 
 macro(PRINTINFO_RED name value)
- message(" ${name}${Red}${value}${ColourReset}")
+ message(" ${name} : ${Red}${value}${ColourReset}")
 endmacro()
 
 macro(PRINTINFO_GREEN name value)
- message(" ${name}${Green}${value}${ColourReset}")
+ message(" ${name} : ${Green}${value}${ColourReset}")
+endmacro()
+
+macro(PRINTINFO_YESNO name value)
+	if(${value})
+		message(" ${ColourReset}${name} : ${Green}${value}${Yellow}${ColourReset}")
+	else()
+		message(" ${ColourReset}${name} : ${Red}${value}${Yellow}${ColourReset}")
+	endif()
 endmacro()
 
 

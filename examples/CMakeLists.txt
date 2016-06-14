@@ -30,7 +30,7 @@ option(USE_MKL "USE_MKL" OFF)
 option(USE_PETSC "USE_PETSC" ON)
 option(FIND_PETSC "FIND_PETSC" OFF)
 option(USE_PETSCVECTOR "USE_PETSCVECTOR" ON)
-option(USE_EDFLIB "USE_EDFLIB" ON)
+option(USE_EDFLIB "USE_EDFLIB" OFF)
 option(COMPILE_PASCINFERENCE "COMPILE_PASCINFERENCE" OFF)
 
 # include cmake functions
@@ -48,10 +48,10 @@ option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" OFF)
 option(PROJECTION_TEST "PROJECTION_TEST" OFF)
 option(EDF "EDF" OFF)
 
-message(STATUS "${Yellow}TSSOLVER_GLOBAL_KMEANS : ${Green}${TSSOLVER_GLOBAL_KMEANS}${Yellow}${ColourReset}")
-message(STATUS "${Yellow}TSSOLVER_GLOBAL_VARX   : ${Green}${TSSOLVER_GLOBAL_VARX}${Yellow}${ColourReset}")
-message(STATUS "${Yellow}PROJECTION_TEST        : ${Green}${PROJECTION_TEST}${Yellow}${ColourReset}")
-message(STATUS "${Yellow}EDF                    : ${Green}${EDF}${Yellow}${ColourReset}")
+printinfo_yesno("TSSOLVER_GLOBAL_KMEANS\t\t" "${TSSOLVER_GLOBAL_KMEANS}")
+printinfo_yesno("TSSOLVER_GLOBAL_VARX\t\t" "${TSSOLVER_GLOBAL_VARX}")
+printinfo_yesno("PROJECTION_TEST\t\t" "${PROJECTION_TEST}")
+printinfo_yesno("EDF\t\t\t\t" "${EDF}")
 
 # add example executable files
 if(${TSSOLVER_GLOBAL_KMEANS})
