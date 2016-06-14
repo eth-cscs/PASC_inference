@@ -25,7 +25,11 @@ namespace pascinference {
 
 class EdfData: public TSData_Global {
 	protected:
+		void read_from_file(std::ifstream &myfile, char *outchar, int length){
+			myfile.read(outchar, length);
+		};
 
+		void edfRead(std::string filename);
 	public:
 //		EdfData();
 //		EdfData(TSModel_Global &tsmodel) {};
@@ -67,10 +71,59 @@ namespace pascinference {
 }
 */
 
+void EdfData::edfRead(std::string filename){
+	LOG_FUNC_BEGIN
+	
+	/* open file */
+	std::ifstream myfile(filename.c_str(), std::ios::in | std::ios::binary);
+
+	myfile.seekg(0, std::ios::beg);
+
+	char *buffer8;
+	buffer8 = (char *)malloc(8);
+	for(int i=0;i<8;i++){
+//		buffer8[i] = 0;
+	}
+
+	char *buffer80;
+	buffer80 = (char *)malloc(80);
+	for(int i=0;i<80;i++){
+//		buffer80[i] = 0;
+	}
+
+	/* version */
+	myfile.read(buffer8, 8);
+//	read_from_file(myfile, buffer, 8);
+//	coutMaster << "version: "  << atoi(buffer8) << std::endl;
+	coutMaster << "version: "  << buffer8 << std::endl;
+
+	/* patientID */
+//	read_from_file(myfile, buffer, 80);
+	myfile.read(buffer80, 80);
+
+	/* recordID */
+//	read_from_file(myfile, buffer, 80);
+//	myfile.read(buffer80, 80);
+//	coutMaster << "recordID: "  << atoi(buffer80) << std::endl;
+
+	/* start date */
+//	read_from_file(myfile, buffer, 8);
+//	myfile.read(buffer80, 80);
+	coutMaster << "startdate: "  << std::string(buffer80,80) << std::endl;
+
+	
+	/* close file */
+    myfile.close();		
+
+	LOG_FUNC_END
+}
+
 /* from filename */
 EdfData::EdfData(std::string filename){
 	LOG_FUNC_BEGIN
 
+	/* read data from input file */
+	edfRead(filename);
 
 	LOG_FUNC_END
 }
