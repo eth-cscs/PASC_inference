@@ -236,17 +236,15 @@ void EdfData::edfRead(std::string filename){
 //    read_from_file(myfile, &value, sizeof(uint16_t));
 //	value = atoi(buffer);
 
-//    for(recnum = 0; recnum < hdr.records; recnum++){
-    for(recnum = 0; recnum < 1; recnum++){
-        for(ii = 0; ii < hdr_ns; ii++){
+    for(recnum = 0; recnum < hdr_records; recnum++){
+        for(ii = 0; ii < R; ii++){
 			scalefac = (hdr_records_detail[ii].hdr_physicalMax - hdr_records_detail[ii].hdr_physicalMin)/(double)(hdr_records_detail[ii].hdr_digitalMax - hdr_records_detail[ii].hdr_digitalMin);
 			dc = hdr_records_detail[ii].hdr_physicalMax - scalefac*hdr_records_detail[ii].hdr_digitalMax;
 
 			for(samplei=0; samplei < hdr_records_detail[ii].hdr_samples; samplei++){
 				myfile.read((char *)&value, sizeof(int16_t)); /* read block of memory */
 				value =  value * scalefac + dc;
-//				tmpdata(recnum).data{ii} = fread(fid,hdr.samples(ii),'int16')*scalefac + dc;
-				index = 0;
+				index = ii*this->T + recnum*hdr_records_detail[ii].hdr_samples + samplei;
 				TRY( VecSetValue(datavector_Vec, index, value, INSERT_VALUES) );
 
 			}
