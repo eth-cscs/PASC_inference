@@ -7,7 +7,7 @@ if(${USE_PETSC})
 	
 	# PETSc: include
 	if(${FIND_PETSC})
-		message(STATUS "${Blue}PETSC_INCLUDES is not specified, trying to run find_package(PETSc)${ColourReset}")
+		message(STATUS "${Blue}trying to run find_package(PETSc)${ColourReset}")
 		# magic function from Jed Brown
 		find_package(PETSc)
 

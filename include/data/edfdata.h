@@ -11,6 +11,10 @@
  #error 'EDFDATA is for PETSCVECTOR'
 #endif
 
+#ifndef USE_EDFLIB
+ #error 'EDFDATA works only with -DEDFLIB=ON'
+#endif
+
 typedef petscvector::PetscVector PetscVector;
 
 /* for debugging, if >= 100, then print info about ach called function */
@@ -20,6 +24,9 @@ extern int DEBUG_MODE;
 #include "common/common.h"
 #include "data/tsdata_global.h"
 #include "model/tsmodel_global.h"
+
+/* include EDFlib for reading edf files */
+#include "edflib.h"
 
 namespace pascinference {
 
@@ -74,6 +81,8 @@ namespace pascinference {
 void EdfData::edfRead(std::string filename){
 	LOG_FUNC_BEGIN
 	
+	coutMaster << edflib_version() << std::endl;
+
 	/* open file */
 	std::ifstream myfile(filename.c_str(), std::ios::in | std::ios::binary);
 

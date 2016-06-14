@@ -1,7 +1,9 @@
 # define general functions and variables used in other scripts
 
-# set default build type
+# include other funny functions
+#include(CheckLibraryExists)
 
+# set default build type
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif()
@@ -10,6 +12,7 @@ endif()
 set(FLAGS_DEF "")
 set(FLAGS_DEF_D "")
 set(LIBRARIES_DEF "")
+set(COMPILE_FIRST "")
 
 # add debug definitions to compiler flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
@@ -26,6 +29,11 @@ if(NOT WIN32 AND ${CMAKE_USE_COLOR})
   set(Yellow      "${Esc}[33m")
   set(Blue        "${Esc}[34m")
 endif()
+
+# prepare directory for libraries
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+make_directory(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 # print name of variable and value
 macro(PRINTINFO name value)
@@ -75,6 +83,8 @@ macro(PASCADD_EXECUTABLE filename outname)
 		set_target_properties(${outname} PROPERTIES
 			OUTPUT_NAME ${outname}
 		)
+
+		add_dependencies(${outname} ${COMPILE_FIRST})
 	endif()	
 
 	if(${FILE_EXT} MATCHES ".cpp")
@@ -103,9 +113,20 @@ macro(PASCADD_EXECUTABLE filename outname)
 #			DEBUG ${CMAKE_CXX_FLAGS_DEBUG}
 		)
 
+		add_dependencies(${outname} ${COMPILE_FIRST})
 	endif()	
 	
 	
 endmacro()
+
+include(load_cuda) # CUDA
+include(load_gpu) # GPU
+include(load_petsc) # PETSC
+include(load_petscvector) # PetscVector
+include(load_boost) # BOOST
+include(load_mkl) # MKL
+include(load_minlin) # MinLin
+include(load_edflib) # EDFlib
+include(load_pascinference) # PascInference
 
 

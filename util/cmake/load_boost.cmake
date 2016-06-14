@@ -1,5 +1,3 @@
-# set variables (options) for minlin
-
 if(${USE_BOOST})
 	message(STATUS "${Yellow}loading boost library${ColourReset}")
 
