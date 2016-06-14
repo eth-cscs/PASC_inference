@@ -77,14 +77,16 @@ macro(PASCADD_EXECUTABLE filename outname)
 	
 		# link external libraries	
 		target_link_libraries(${outname} ${LIBRARIES_DEF})
-#		target_link_libraries(${outname} "${CMAKE_CURRENT_BINARY_DIR}/pascinference")
 
 		# set the name of output file
 		set_target_properties(${outname} PROPERTIES
 			OUTPUT_NAME ${outname}
 		)
-
-		add_dependencies(${outname} ${COMPILE_FIRST})
+		
+		# if there are dependencies, then add it
+		if(${COMPILE_FIRST})
+			add_dependencies(${outname} ${COMPILE_FIRST})
+		endif()
 	endif()	
 
 	if(${FILE_EXT} MATCHES ".cpp")
@@ -112,8 +114,11 @@ macro(PASCADD_EXECUTABLE filename outname)
 			OUTPUT_NAME ${outname}
 #			DEBUG ${CMAKE_CXX_FLAGS_DEBUG}
 		)
-
-		add_dependencies(${outname} ${COMPILE_FIRST})
+		
+		# if there are dependencies, then add it
+		if(${COMPILE_FIRST})
+			add_dependencies(${outname} ${COMPILE_FIRST})
+		endif()
 	endif()	
 	
 	
