@@ -18,12 +18,12 @@ namespace pascinference {
 template<class VectorBase, class MatrixBase>
 class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		MatrixBase **blocks; /**< array of pointers to matrices */
-		int nmb_blocks; /**< number of diagonal blocks */
-		int blocksize; /**< constant size of all blocks */
+		int T; /**< dimension of each block */
+		int R; /**< number of vertices = number of blocks in row,col */
+		double alpha; /**< general matrix multiplicator */
 		
 	public:
-		BlockGraphMatrix(int nmb_block, MatrixBase **new_blocks, int blocksize); /* constructor with number_of_blocks and blocks */
+		BlockGraphMatrix(int T, int R, double alpha=1.0);
 		~BlockGraphMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -32,9 +32,9 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 		
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
-		int get_nmb_blocks() const;
-		MatrixBase **get_blocks() const;
-		int get_blocksize() const;
+		int get_R() const;
+		int get_T() const;
+		double get_alpha() const;
 
 };
 
@@ -45,12 +45,12 @@ std::string BlockGraphMatrix<VectorBase,MatrixBase>::get_name() const {
 
 
 template<class VectorBase, class MatrixBase>
-BlockGraphMatrix<VectorBase,MatrixBase>::BlockGraphMatrix(int new_nmb_blocks, MatrixBase **new_blocks, int new_blocksize){
+BlockGraphMatrix<VectorBase,MatrixBase>::BlockGraphMatrix(int T, int R, double alpha){
 	LOG_FUNC_BEGIN
 	
-	this->blocks = new_blocks;
-	this->nmb_blocks = new_nmb_blocks;
-	this->blocksize = new_blocksize;
+	this->T = T;
+	this->R = R;
+	this->alpha = alpha;
 
 	LOG_FUNC_END
 }	
@@ -71,17 +71,9 @@ void BlockGraphMatrix<VectorBase,MatrixBase>::print(ConsoleOutput &output) const
 {
 	LOG_FUNC_BEGIN
 	
-	output << "Blocks: (blocksize = " << this->blocksize << ", ";
-	output << "nmb of blocks = " << this->nmb_blocks << ")" << std::endl;
-
-	int i;
-	output.push();
-	for(i=0;i<this->nmb_blocks;i++){ /* print each block */
-		output << "block_" << i << ": ";
-		this->blocks[i]->print(output);
-		output << std::endl;
-	}
-	output.pop();
+	output << "T:     " << T << std::endl;
+	output << "R:     " << R << std::endl;
+	output << "alpha: " << alpha << std::endl;
 	
 	LOG_FUNC_END	
 }
@@ -92,16 +84,6 @@ void BlockGraphMatrix<VectorBase,MatrixBase>::printcontent(ConsoleOutput &output
 {
 	LOG_FUNC_BEGIN
 	
-	output << "Blocks:" << std::endl;
-
-	int i;
-	output.push();
-	for(i=0;i<this->nmb_blocks;i++){ /* print each block */
-		output << "block_" << i << ": " << std::endl;
-		this->blocks[i]->printcontent(output);
-	}
-	output.pop();
-	output.synchronize();
 	
 	LOG_FUNC_END
 }
@@ -117,30 +99,21 @@ void BlockGraphMatrix<VectorBase,MatrixBase>::matmult(VectorBase &y, const Vecto
 	LOG_FUNC_END	
 }
 
-/* get number of blocks */
 template<class VectorBase, class MatrixBase>
-int BlockGraphMatrix<VectorBase,MatrixBase>::get_nmb_blocks() const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockGraphMatrix)FUNCTION: get_nmb_blocks" << std::endl;
-
-	return this->nmb_blocks;
+int BlockGraphMatrix<VectorBase,MatrixBase>::get_R() const { 
+	return this->R;
 }
 
-
-/* get number of blocks */
 template<class VectorBase, class MatrixBase>
-MatrixBase **BlockGraphMatrix<VectorBase,MatrixBase>::get_blocks() const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockGraphMatrix)FUNCTION: get_blocks" << std::endl;
-
-	return this->blocks;
+int BlockGraphMatrix<VectorBase,MatrixBase>::get_T() const { 
+	return this->T;
 }
 
-/* get blocksize */
 template<class VectorBase, class MatrixBase>
-int BlockGraphMatrix<VectorBase,MatrixBase>::get_blocksize() const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockGraphMatrix)FUNCTION: get_blocksize" << std::endl;
-
-	return this->blocksize;
+double BlockGraphMatrix<VectorBase,MatrixBase>::get_alpha() const { 
+	return this->alpha;
 }
+
 
 
 

@@ -8,6 +8,7 @@
  */
 
 #include "pascinference.h"
+#include "matrix/blockgraph.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
