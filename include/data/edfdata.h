@@ -11,10 +11,6 @@
  #error 'EDFDATA is for PETSCVECTOR'
 #endif
 
-#ifndef USE_EDFLIB
- #error 'EDFDATA works only with -DEDFLIB=ON'
-#endif
-
 typedef petscvector::PetscVector PetscVector;
 
 /* for debugging, if >= 100, then print info about ach called function */
@@ -25,13 +21,38 @@ extern int DEBUG_MODE;
 #include "data/tsdata_global.h"
 #include "model/tsmodel_global.h"
 
-/* include EDFlib for reading edf files */
-#include "edflib.h"
-
 namespace pascinference {
 
 class EdfData: public TSData_Global {
 	protected:
+		struct Record {
+			std::string hdr_label;
+			std::string hdr_transducer;
+			std::string hdr_units;
+			double hdr_physicalMin; // TODO: double or int?
+			double hdr_physicalMax;
+			double hdr_digitalMin;
+			double hdr_digitalMax;
+			std::string hdr_prefilter;
+			int hdr_samples;
+		};
+		
+		int hdr_ver;
+		std::string hdr_patientID;
+		std::string hdr_recordID;
+		std::string hdr_startdate;
+		std::string hdr_starttime;
+		int hdr_bytes;
+		int hdr_records;
+		int hdr_duration;
+		int hdr_ns;
+		Record *hdr_records_detail;
+		bool free_hdr_records_detail;
+
+		int R;
+		int T;
+		int Tlocal;
+		
 		void read_from_file(std::ifstream &myfile, char *outchar, int length){
 			myfile.read(outchar, length);
 		};
@@ -74,53 +95,176 @@ namespace pascinference {
 	this->thetavector = NULL;
 	destroy_thetavector = false;
 
+	free_hdr_records_detail = false;
+	
 	LOG_FUNC_END
 }
 */
 
 void EdfData::edfRead(std::string filename){
 	LOG_FUNC_BEGIN
-	
-	coutMaster << edflib_version() << std::endl;
 
 	/* open file */
 	std::ifstream myfile(filename.c_str(), std::ios::in | std::ios::binary);
 
 	myfile.seekg(0, std::ios::beg);
 
-	char *buffer8;
-	buffer8 = (char *)malloc(8);
-	for(int i=0;i<8;i++){
-//		buffer8[i] = 0;
-	}
+	int i;
+	char buffer[100];
 
-	char *buffer80;
-	buffer80 = (char *)malloc(80);
-	for(int i=0;i<80;i++){
-//		buffer80[i] = 0;
-	}
+	/* ------ HEADER ------ */
+	read_from_file(myfile, buffer, 8);
+	hdr_ver = atoi(buffer);
 
-	/* version */
-	myfile.read(buffer8, 8);
-//	read_from_file(myfile, buffer, 8);
-//	coutMaster << "version: "  << atoi(buffer8) << std::endl;
-	coutMaster << "version: "  << buffer8 << std::endl;
+	read_from_file(myfile, buffer, 80);
+	hdr_patientID = std::string(buffer);
 
-	/* patientID */
-//	read_from_file(myfile, buffer, 80);
-	myfile.read(buffer80, 80);
+	read_from_file(myfile, buffer, 80);
+	hdr_recordID = std::string(buffer);
 
-	/* recordID */
-//	read_from_file(myfile, buffer, 80);
-//	myfile.read(buffer80, 80);
-//	coutMaster << "recordID: "  << atoi(buffer80) << std::endl;
+	read_from_file(myfile, buffer, 8);
+	hdr_startdate = std::string(buffer);
 
-	/* start date */
-//	read_from_file(myfile, buffer, 8);
-//	myfile.read(buffer80, 80);
-	coutMaster << "startdate: "  << std::string(buffer80,80) << std::endl;
+	read_from_file(myfile, buffer, 8);
+	hdr_starttime = std::string(buffer);
 
+	read_from_file(myfile, buffer, 8);
+	hdr_bytes = atoi(buffer);
+
+	read_from_file(myfile, buffer, 44);
+	/* reserved */
 	
+	read_from_file(myfile, buffer, 8);
+	hdr_records = atoi(buffer);
+
+	read_from_file(myfile, buffer, 8);
+	hdr_duration = atoi(buffer);
+
+	read_from_file(myfile, buffer, 4);
+	hdr_ns = atoi(buffer);
+
+	/* arrays */
+	hdr_records_detail = (Record*)malloc(sizeof(Record)*hdr_ns);
+	free_hdr_records_detail = true;
+
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 16);
+		hdr_records_detail[i].hdr_label = std::string(buffer);
+	}
+			
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 80);
+		hdr_records_detail[i].hdr_transducer = std::string(buffer);
+	}
+
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 8);
+		hdr_records_detail[i].hdr_units = std::string(buffer);
+	}
+	
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 8);
+		hdr_records_detail[i].hdr_physicalMin = atof(buffer);
+	}
+	
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 8);
+		hdr_records_detail[i].hdr_physicalMax = atof(buffer);
+	}
+
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 8);
+		hdr_records_detail[i].hdr_digitalMin = atof(buffer);
+	}
+
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 8);
+		hdr_records_detail[i].hdr_digitalMax = atof(buffer);
+	}
+
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 80);
+		hdr_records_detail[i].hdr_prefilter = std::string(buffer);
+	}
+
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 8);
+		hdr_records_detail[i].hdr_samples = atoi(buffer);
+	}	
+
+	for(i=0;i<hdr_ns;i++){
+		read_from_file(myfile, buffer, 32);
+		/* reserved */
+	}	
+
+	/* ------ PREPARE DATAVECTOR ------ */
+	/* compute vector lengths */
+	T = hdr_records_detail[0].hdr_samples*hdr_records;
+	R = hdr_ns;
+
+	/* for data prepare vector of length T and spit it into processors */
+	Vec layout;
+
+	/* try to make a global vector of length T and then get size of local portion */
+	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
+	TRY( VecSetSizes(layout,PETSC_DECIDE,this->T) );
+	TRY( VecSetFromOptions(layout) );
+	/* get the ownership range - now I know how much I will calculate from the time-series */
+	TRY( VecGetLocalSize(layout,&(this->Tlocal)) );
+	TRY( VecDestroy(&layout) ); /* destroy testing vector - it is useless now */
+	
+	Vec datavector_Vec;
+	TRY( VecCreate(PETSC_COMM_WORLD,&datavector_Vec) );
+	TRY( VecSetSizes(datavector_Vec,this->Tlocal*R,T*R) );
+	TRY( VecSetFromOptions(datavector_Vec) );
+	this->datavector = new GeneralVector<PetscVector>(datavector_Vec);
+	this->destroy_datavector = true;
+
+	/* get ownership range */
+	int t_begin, t_end, t_length; 
+	TRY( VecGetOwnershipRange(datavector_Vec, &t_begin, &t_end) );
+	t_begin = ((double)t_begin)/((double)R);
+	t_end = ((double)t_end)/((double)R);			
+	t_length = t_end - t_begin;
+		
+	/* ------ RECORDS ------ */
+	int recnum, ii, samplei, value;
+	double scalefac, dc;
+    
+//    for(recnum = 0; recnum < hdr.records; recnum++){
+    for(recnum = 0; recnum < 1; recnum++){
+        for(ii = 0; ii < hdr_ns; ii++){
+			scalefac = (hdr_records_detail[ii].hdr_physicalMax - hdr_records_detail[ii].hdr_physicalMin)/(double)(hdr_records_detail[ii].hdr_digitalMax - hdr_records_detail[ii].hdr_digitalMin);
+			dc = hdr_records_detail[ii].hdr_physicalMax - scalefac*hdr_records_detail[ii].hdr_digitalMax;
+
+			for(samplei=0; samplei < hdr_records_detail[ii].hdr_samples; samplei++){
+				read_from_file(myfile, buffer, sizeof(uint16_t));
+				value = atoi(buffer);
+				coutMaster << sizeof(int16_t) << "test ";
+				coutMaster << "[" << recnum << "," << ii << "," << samplei << "] = " << value << "; " << buffer << std::endl;
+//				tmpdata(recnum).data{ii} = fread(fid,hdr.samples(ii),'int16')*scalefac + dc;
+			}
+        }
+    }
+/*    
+    record = zeros(hdr.ns, hdr.samples(1)*hdr.records);
+    
+    for ii = 1:numel(hdr.label)
+        ctr = 1;
+        for jj = 1:hdr.records
+            try
+                record(ii, ctr : ctr + hdr.samples(ii) - 1) = tmpdata(jj).data{ii};
+            end
+            ctr = ctr + length(tmpdata(jj).data{ii});
+        end
+    end
+*/
+
+//	coutMaster << "size of int16:" << sizeof(int16_t) << std::endl;
+
+	this->destroy_gammavector = false;
+	this->destroy_thetavector = false;
+
 	/* close file */
     myfile.close();		
 
@@ -142,16 +286,8 @@ EdfData::~EdfData(){
 	LOG_FUNC_BEGIN
 	
 	/* if I created a datavector, then I should also be able to destroy it */
-	if(this->destroy_datavector){
-		free(this->datavector);
-	}
-	
-	if(this->destroy_gammavector){
-		free(this->gammavector);
-	}
-
-	if(this->destroy_thetavector){
-		free(this->thetavector);
+	if(this->free_hdr_records_detail){
+		free(this->hdr_records_detail);
 	}
 
 	LOG_FUNC_END
@@ -165,7 +301,33 @@ void EdfData::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T:           " << this->get_T() << std::endl;
+	output <<  " - version of this data format:            " << hdr_ver << std::endl;
+	output <<  " - local patient identification:           " << hdr_patientID << std::endl;
+	output <<  " - local recording identification:         " << hdr_recordID << std::endl;
+	output <<  " - startdate of recording (dd.mm.yy):      " << hdr_startdate << std::endl;
+	output <<  " - starttime of recording (hh.mm.ss):      " << hdr_starttime << std::endl;
+	output <<  " - number of bytes in header record:       " << hdr_bytes << std::endl;
+	output <<  " - number of data records (-1 if unknown): " << hdr_records << std::endl;
+	output <<  " - duration of a data record, in seconds:  " << hdr_duration << std::endl;
+	output <<  " - number of signals (ns) in data record:  " << hdr_ns << std::endl;
+
+	output <<  " - record details:" << std::endl;
+	for(int i=0;i<hdr_ns;i++){
+		output <<  "   - id:                 " << i << std::endl;
+		output <<  "     label:              " << hdr_records_detail[i].hdr_label << std::endl;
+		output <<  "     transducer type:    " << hdr_records_detail[i].hdr_transducer << std::endl;
+		output <<  "     physical dimension: " << hdr_records_detail[i].hdr_units << std::endl;
+		output <<  "     physical minimum:   " << hdr_records_detail[i].hdr_physicalMin << std::endl;
+		output <<  "     physical maximum:   " << hdr_records_detail[i].hdr_physicalMax << std::endl;
+		output <<  "     digital minimum:    " << hdr_records_detail[i].hdr_digitalMin << std::endl;
+		output <<  "     digital maximum:    " << hdr_records_detail[i].hdr_digitalMax << std::endl;
+		output <<  "     prefiltering:       " << hdr_records_detail[i].hdr_prefilter << std::endl;
+		output <<  "     nr of samples:      " << hdr_records_detail[i].hdr_samples << std::endl;
+	}
+
+	output <<  "----------------------------------------------------------------" << std::endl;
+
+/*	output <<  " - T:           " << this->get_T() << std::endl;
 	output <<  " - xdim:        " << this->get_xdim() << std::endl;
 	output <<  " - K:           " << this->tsmodel->get_K() << std::endl;
 	output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
@@ -187,7 +349,7 @@ void EdfData::print(ConsoleOutput &output) const {
 	} else {
 		output << "NO" << std::endl;
 	}
-
+*/
 	output.synchronize();
 
 	LOG_FUNC_END

@@ -66,7 +66,9 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
-	EdfData mydata("data/S001R01.edf.txt");
+	EdfData mydata("S001R01.edf.txt");
+
+//	mydata.print(coutMaster);
 
 	/* prepare model */
 //	coutMaster << "--- PREPARING MODEL ---" << std::endl;
