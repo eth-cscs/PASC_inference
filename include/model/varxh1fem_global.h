@@ -1,8 +1,6 @@
 #ifndef PASC_VARXH1FEMMODEL_GLOBAL_H
 #define	PASC_VARXH1FEMMODEL_GLOBAL_H
 
-#define DEFAULT_T_SCATTER 100
-
 #ifndef USE_PETSCVECTOR
  #error 'VARXH1FEMMODEL_GLOBAL is for PETSCVECTOR'
 #endif
@@ -39,18 +37,9 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 
 		/* model specific variables */
 		double epssqr; /**< penalty coeficient */
-		
-		int xmem; /**< size of memory of x in model */
 
 //		int ulength_global;
 //		int ulength_local;
-
-		void scatter_xn(Vec &x_global, Vec &xn_local, int xdim, int n);
-		void scatter_part(Vec &x_global, int is_begin, int is_end, Vec &x_scatter, int xdim);
-		
-		/* update gamma solver */
-		int t_scatter; /**< size of scatter > xmem, how long time-series to scatter to all processors */
-		Vec x_scatter;
 		
 		/* update thetasolver */
 		Vec gamma_local;
@@ -59,11 +48,11 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		Vec xn2subgammak_vec; /**< vector with xn1sub.*gammak_vecs */
 
 		void compute_next_step(double *data_out, int t_data_out, double *data_in, int t_data_in, int xdim, int xmem, double *theta, int k);
-		void compute_x_model(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, const double *gamma_arr, int t_gamma_arr);
 		void compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k, double gamma_value);
 		void compute_x_modelk(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, int k);
 
 	public:
+	
 		VarxH1FEMModel_Global(int T, int xdim, int K, int xmem, double epssqr);
 		~VarxH1FEMModel_Global();
 
@@ -91,9 +80,9 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 		void generate_data_add_noise(TSData_Global *tsdata, double *diag_covariance);
 		void generate_data_add_noise(TSData_Global *tsdata, double *diag_covariance, int (*get_cluster_id)(int, int));
 
-		void saveCSV(std::string name_of_file, const TSData_Global *tsdata);
-
 		void set_solution_gamma(int K_solution, int xmem_solution, int (*get_cluster_id)(int, int), GeneralVector<PetscVector> *gammavector);
+
+		void compute_x_model(double *x_model, const double *x_arr, int t_x_arr, const double *theta_arr, const double *gamma_arr, int t_gamma_arr);
 
 //				template<class VectorBase>
 //				static void set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<VectorBase> *thetavector);		
@@ -143,16 +132,16 @@ VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_K,
 	this->thetavectorlength_local = xdim*(1 + this->xdim*this->xmem)*K; 
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
 	
-	/* update gamma solver */
-	consoleArg.set_option_value("varxh1femmodel_t_scatter", &this->t_scatter, DEFAULT_T_SCATTER); /* > xmem, how long time-series to scatter to all processors */
-	TRY( VecCreateSeq(PETSC_COMM_SELF, t_scatter*xdim, &x_scatter) );
-	
 	/* temp vectors for update theta solver */
 	int gammak_size = T-xmem;	
 	TRY( VecCreateSeq(PETSC_COMM_SELF, gammak_size, &xn2subgammak_vec) );
 	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn1_vec) );
 	TRY( VecCreateSeq(PETSC_COMM_SELF, T, &xn2_vec) );
 	TRY( VecCreateSeq(PETSC_COMM_SELF, K*gammak_size, &gamma_local) );
+	
+	/* set other variables */
+	consoleArg.set_option_value("tsmodel_global_t_scatter", &this->t_scatter, DEFAULT_T_SCATTER); /* > xmem, how long time-series to scatter to all processors */
+	TRY( VecCreateSeq(PETSC_COMM_SELF, t_scatter*xdim, &x_scatter) );	
 	
 	LOG_FUNC_END
 }
@@ -462,7 +451,7 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 
 	while(is_end <= T && is_begin < is_end){ /* while there is something to scatter */
 		/* scatter part of time serie */
-		scatter_part(x_global, is_begin, is_end, x_scatter, xdim);
+		scatter_part(x_global, is_begin, is_end, xdim);
 				
 		/* write begin of time-serie */
 		TRY( VecGetArrayRead(x_scatter, &x_scatter_arr) );
@@ -494,33 +483,6 @@ void VarxH1FEMModel_Global::update_gammasolver(GeneralSolver *gammasolver, const
 	}
 	TRY( VecRestoreArrayRead(M_global,&theta_arr) );
 	TRY( VecRestoreArray(b_global,&b_local_arr) );	
-
-	LOG_FUNC_END
-}
-
-
-void VarxH1FEMModel_Global::scatter_xn(Vec &x_global, Vec &xn_local, int xdim, int n){
-	LOG_FUNC_BEGIN
-	
-	/* compute T */
-	int x_global_size;
-	TRY( VecGetSize(x_global,&x_global_size) );
-	int T = x_global_size/(double)xdim;
-
-	VecScatter ctx; 
-	IS xn_local_is;
-	IS scatter_is_to;
-
-	TRY( ISCreateStride(PETSC_COMM_SELF, T, n, xdim, &xn_local_is) );
-	TRY( ISCreateStride(PETSC_COMM_SELF, T, 0, 1, &scatter_is_to) );
-
-	TRY( VecScatterCreate(x_global, xn_local_is, xn_local,scatter_is_to,&ctx) );
-	TRY( VecScatterBegin(ctx,x_global, xn_local, INSERT_VALUES,SCATTER_FORWARD) );
-	TRY( VecScatterEnd(ctx,x_global, xn_local, INSERT_VALUES,SCATTER_FORWARD) );
-	TRY( VecScatterDestroy(&ctx) );
-
-	TRY( ISDestroy(&xn_local_is) );
-	TRY( ISDestroy(&scatter_is_to) );
 
 	LOG_FUNC_END
 }
@@ -730,156 +692,6 @@ void VarxH1FEMModel_Global::update_thetasolver(GeneralSolver *thetasolver, const
 	}
 
 	LOG_FUNC_END
-}
-
-void VarxH1FEMModel_Global::scatter_part(Vec &x_global, int is_begin, int is_end, Vec &x_scatter, int xdim){
-	LOG_FUNC_BEGIN
-
-	VecScatter ctx; 
-	IS scatter_is;
-	IS scatter_is_to;
-
-	/* scatter part of time serie */
-	TRY( ISCreateStride(PETSC_COMM_WORLD, (is_end-is_begin)*xdim, is_begin*xdim, 1, &scatter_is) );
-	TRY( ISCreateStride(PETSC_COMM_SELF, (is_end-is_begin)*xdim, 0, 1, &scatter_is_to) );
-
-	TRY( VecScatterCreate(x_global,scatter_is, x_scatter,scatter_is_to,&ctx) );
-	TRY( VecScatterBegin(ctx,x_global,x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
-	TRY( VecScatterEnd(ctx,x_global,x_scatter,INSERT_VALUES,SCATTER_FORWARD) );
-	TRY( VecScatterDestroy(&ctx) );
-
-	TRY( ISDestroy(&scatter_is_to) );
-	TRY( ISDestroy(&scatter_is) );
-
-	LOG_FUNC_END
-}
-
-
-void VarxH1FEMModel_Global::saveCSV(std::string name_of_file, const TSData_Global *tsdata){
-	LOG_FUNC_STATIC_BEGIN
-
-	Timer timer_saveCSV; 
-	timer_saveCSV.restart();
-	timer_saveCSV.start();
-	
-	int nproc = GlobalManager.get_size();
-	int my_rank = GlobalManager.get_rank();
-
-	int n,t,k;
-			
-	/* to manipulate with file */
-	std::ofstream myfile;
-						
-	/* open file to write */
-	std::ostringstream oss_name_of_file_csv;
-//	oss_name_of_file_csv << name_of_file << "_p" << my_rank << "_K" << Klocal << "_xmem" << xmemlocal << "_epssqr" << epssqrlocal << ".csv";
-	oss_name_of_file_csv << name_of_file << "_p" << my_rank << ".csv";
-	myfile.open(oss_name_of_file_csv.str().c_str());
-
-	/* write header to file */
-	for(n=0; n<xdim; n++){
-		myfile << "x" << n << "_orig,";
-	}
-	for(k=0; k<K; k++){
-		myfile << "gamma" << k << ",";
-	}
-	for(n=0; n<xdim; n++){
-		myfile << "x" << n << "_model";
-		if(n+1 < xdim){
-			myfile << ",";
-		}
-	}
-	myfile << "\n";
-
-	/* theta */
-	double x_model[xdim];
-	double *theta_arr;
-	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta_arr) );
-
-	/* gamma */
-	double *gamma_arr;
-	TRY( VecGetArray(gammadata->get_x()->get_vector(),&gamma_arr) );
-
-	/* go through processors and write the sequence into local file */
-	int t_in_scatter;
-	int is_begin = 0;
-	int is_end = min(is_begin + t_scatter,T);
-
-	Vec x_global = tsdata->get_datavector()->get_vector();
-	const double *x_scatter_arr;
-	
-	while(is_end <= T && is_begin < is_end){ /* while there is something to scatter */
-		/* scatter part of time serie */
-		scatter_part(x_global, is_begin, is_end, x_scatter, xdim);
-				
-		TRY( VecGetArrayRead(x_scatter, &x_scatter_arr) );
-		if(is_begin==0){
-			for(t=0;t<xmem;t++){
-				/* original time_serie */
-				for(n=0;n<xdim;n++){
-					myfile << x_scatter_arr[t*xdim+n] << ",";
-				}
-				/* write gamma vectors */
-				for(k=0;k<K;k++){
-					myfile << "0,";
-				}
-				/* new time-serie */
-				for(n=0;n<xdim;n++){
-					myfile << x_scatter_arr[t*xdim+n];
-					if(n+1 < xdim){
-						myfile << ",";
-					}
-				}
-				myfile << "\n";
-			}
-		}
-
-		for(t=is_begin+xmem;t<is_end;t++){
-			t_in_scatter = t - is_begin;
-
-			/* compute new time serie from model */
-			compute_x_model(x_model, x_scatter_arr, t_in_scatter, theta_arr, gamma_arr, t-xmem);
-
-			/* original x */
-			for(n=0;n<xdim;n++){
-				myfile << x_scatter_arr[t_in_scatter*xdim+n] << ",";
-			}
-
-			/* write gamma vectors */
-			for(k=0;k<K;k++){
-				myfile << gamma_arr[k*(T-xmem)+t-xmem] << ",";
-			}
-			
-
-			for(n=0;n<xdim;n++){
-				myfile << x_model[n];
-				if(n+1 < xdim){
-					myfile << ",";
-				}
-			}
-			myfile << "\n";
-		}
-		TRY( VecRestoreArrayRead(x_scatter, &x_scatter_arr) );
-				
-		/* update upper and lower index of scatter_is */
-		is_begin = is_begin + t_scatter - xmem;
-		is_end = min(is_begin + t_scatter,T);
-
-	}
-
-	TRY( VecRestoreArray(gammadata->get_x()->get_vector(),&gamma_arr) );
-	TRY( VecRestoreArray(thetadata->get_x()->get_vector(),&theta_arr) );
-
-			
-	myfile.close();
-	TRY(PetscBarrier(NULL));
-
-	/* writing finished */
-	timer_saveCSV.stop();
-	coutAll <<  " - problem saved to CSV in: " << timer_saveCSV.get_value_sum() << std::endl;
-	coutAll.synchronize();
-
-	LOG_FUNC_STATIC_END
 }
 
 void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, double *theta, double *xstart, int (*get_cluster_id)(int, int), TSData_Global *tsdata, bool scale_or_not){

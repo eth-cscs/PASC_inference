@@ -59,16 +59,17 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_K", &K, 3);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 
-	std::cout << "T       = " << T << " (length of time-series)" << std::endl;
-	std::cout << "K       = " << K << " (number of clusters)" << std::endl;
-	std::cout << "epssqrt = " << epssqr << " (penalty)" << std::endl;
+	coutMaster << "- PROBLEM INFO -----------------" << std::endl;
+	coutMaster << " T      = " << T << " (length of time-series)" << std::endl;
+	coutMaster << " K      = " << K << " (number of clusters)" << std::endl;
+	coutMaster << " epssqr = " << epssqr << " (penalty)" << std::endl;
 
 	/* print info about environment */
-	coutMaster << "---------------------" << std::endl;
-	coutMaster << "nproc:   " << GlobalManager.get_size() << std::endl;
+	coutMaster << "- MPI INFO --------------------" << std::endl;
+	coutMaster << " nproc:   " << GlobalManager.get_size() << std::endl;
 	coutAll <<    " my_rank: " << GlobalManager.get_rank() << std::endl;
 	coutAll.synchronize();
-	coutMaster << "---------------------" << std::endl << std::endl;
+	coutMaster << "------------------------------" << std::endl << std::endl;
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -136,7 +137,7 @@ int main( int argc, char *argv[] )
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
-	mymodel.saveCSV("results/kmeans",&mydata);
+	mydata.saveCSV("results/kmeans");
 	coutAll.synchronize();
 
 	/* print timers */
