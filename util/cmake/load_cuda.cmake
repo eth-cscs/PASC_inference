@@ -19,7 +19,7 @@ endif()
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_CUDA)
-	printinfo_yesno("USE_CUDA\t\t\t" "${USE_CUDA}")
+	printinfo_onoff("USE_CUDA\t\t\t" "${USE_CUDA}")
 	if(${USE_CUDA})
 		printinfo(" - CUDA_CXX_FLAGS\t" "${CUDA_CXX_FLAGS}")
 	endif()

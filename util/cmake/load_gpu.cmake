@@ -15,6 +15,6 @@ endif()
 
 # define print info (will be called in printsetting.cmake)
 macro(PRINTSETTING_GPU)
-	printinfo_yesno("USE_GPU\t\t\t" "${USE_GPU}")
+	printinfo_onoff("USE_GPU\t\t\t" "${USE_GPU}")
 endmacro()
 

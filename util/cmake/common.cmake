@@ -48,7 +48,7 @@ macro(PRINTINFO_GREEN name value)
  message(" ${name} : ${Green}${value}${ColourReset}")
 endmacro()
 
-macro(PRINTINFO_YESNO name value)
+macro(PRINTINFO_ONOFF name value)
 	if(${value})
 		message(" ${ColourReset}${name} : ${Green}${value}${Yellow}${ColourReset}")
 	else()

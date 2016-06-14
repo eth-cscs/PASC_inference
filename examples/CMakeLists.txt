@@ -49,11 +49,11 @@ option(PROJECTION_TEST "PROJECTION_TEST" OFF)
 option(EDF "EDF" OFF)
 option(GRAPH_TEST "GRAPH_TEST" OFF)
 
-printinfo_yesno("TSSOLVER_GLOBAL_KMEANS\t\t" "${TSSOLVER_GLOBAL_KMEANS}")
-printinfo_yesno("TSSOLVER_GLOBAL_VARX\t\t" "${TSSOLVER_GLOBAL_VARX}")
-printinfo_yesno("PROJECTION_TEST\t\t" "${PROJECTION_TEST}")
-printinfo_yesno("EDF\t\t\t\t" "${EDF}")
-printinfo_yesno("GRAPH_TEST\t\t\t" "${GRAPH_TEST}")
+printinfo_onoff("TSSOLVER_GLOBAL_KMEANS\t\t" "${TSSOLVER_GLOBAL_KMEANS}")
+printinfo_onoff("TSSOLVER_GLOBAL_VARX\t\t" "${TSSOLVER_GLOBAL_VARX}")
+printinfo_onoff("PROJECTION_TEST\t\t" "${PROJECTION_TEST}")
+printinfo_onoff("EDF\t\t\t\t" "${EDF}")
+printinfo_onoff("GRAPH_TEST\t\t\t" "${GRAPH_TEST}")
 
 # add example executable files
 if(${TSSOLVER_GLOBAL_KMEANS})
