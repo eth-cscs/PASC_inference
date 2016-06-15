@@ -1,5 +1,5 @@
-/** @file tssolver_global_kmeans_large.cu
- *  @brief test the varx global problem solver
+/** @file test_kmeans_large.cu
+ *  @brief test the varx global problem solver with Kmeans problem
  *
  *  Generate random Kmeans problem and solve it using VarX global solver.
  *
