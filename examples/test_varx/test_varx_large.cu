@@ -131,7 +131,7 @@ int main( int argc, char *argv[] )
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
-	mymodel.saveCSV("results/varx",&mydata);
+	mydata.saveCSV("results/varx");
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

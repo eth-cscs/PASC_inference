@@ -42,63 +42,10 @@ include(printsetting)
 # prepare directories
 make_directory("results")
 
-# decide which example to compile
-option(TSSOLVER_GLOBAL_KMEANS "TSSOLVER_GLOBAL_KMEANS" OFF)
-option(TSSOLVER_GLOBAL_VARX "TSSOLVER_GLOBAL_VARX" OFF)
-option(PROJECTION_TEST "PROJECTION_TEST" OFF)
-option(EDF "EDF" OFF)
-option(GRAPH_TEST "GRAPH_TEST" OFF)
+# --------- include test cmake functions --------
+include("test_kmeans/test_kmeans.cmake")
+include("test_varx/test_varx.cmake")
+include("test_other/test_other.cmake")
+include("test_edf/test_edf.cmake")
+message("\n----------------------------------------------------------\n")
 
-printinfo_onoff("TSSOLVER_GLOBAL_KMEANS\t\t" "${TSSOLVER_GLOBAL_KMEANS}")
-printinfo_onoff("TSSOLVER_GLOBAL_VARX\t\t" "${TSSOLVER_GLOBAL_VARX}")
-printinfo_onoff("PROJECTION_TEST\t\t" "${PROJECTION_TEST}")
-printinfo_onoff("EDF\t\t\t\t" "${EDF}")
-printinfo_onoff("GRAPH_TEST\t\t\t" "${GRAPH_TEST}")
-
-# add example executable files
-if(${TSSOLVER_GLOBAL_KMEANS})
-	# this is VARX global test
-	if(${USE_CUDA})
-		# if we know how to compile .cu, then include .cu
-		pascadd_executable("tssolver_global_kmeans.cu" "tssolver_global_kmeans")
-	else()
-		# otherwise compile as .cpp
-		pascadd_executable("tssolver_global_kmeans.cpp" "tssolver_global_kmeans")
-	endif()
-endif()
-
-if(${TSSOLVER_GLOBAL_VARX})
-	# this is VARX global test
-	if(${USE_CUDA})
-		pascadd_executable("tssolver_global_varx.cu" "tssolver_global_varx")
-	else()
-		pascadd_executable("tssolver_global_varx.cpp" "tssolver_global_varx")
-	endif()
-endif()
-
-if(${PROJECTION_TEST})
-	# this is projection test
-	if(${USE_CUDA})
-		pascadd_executable("projection_test.cu" "projection_test")
-	else()
-		pascadd_executable("projection_test.cpp" "projection_test")
-	endif()
-endif()
-
-if(${EDF})
-	# this is edf test
-	if(${USE_CUDA})
-		pascadd_executable("edf.cu" "edf")
-	else()
-		pascadd_executable("edf.cpp" "edf")
-	endif()
-endif()
-
-if(${GRAPH_TEST})
-	# this is a test of graphmatrix multiplication
-	if(${USE_CUDA})
-		pascadd_executable("graph_test.cu" "graph_test")
-	else()
-		pascadd_executable("graph_test.cpp" "graph_test")
-	endif()
-endif()

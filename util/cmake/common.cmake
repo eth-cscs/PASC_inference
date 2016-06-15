@@ -66,7 +66,7 @@ macro(PASCADD_EXECUTABLE filename outname)
 #	string(STRIP ${LIBRARIES_DEF} LIBRARIES_DEF)
 	
 	if(${FILE_EXT} MATCHES ".cu")
-		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (CUDA)${ColourReset}")
+#		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (CUDA)${ColourReset}")
 
 		# --- compile with CUDA ---
 		if(NOT ${USE_CUDA})
@@ -98,7 +98,7 @@ macro(PASCADD_EXECUTABLE filename outname)
 	endif()	
 
 	if(${FILE_EXT} MATCHES ".cpp")
-		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (C++)${ColourReset}")
+#		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (C++)${ColourReset}")
 
 		# compile with g++
 
