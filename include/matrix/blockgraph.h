@@ -234,7 +234,8 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 		/* stuff for 3diag mult */
 		Vec x_aux;
 		int left_overlap, right_overlap;
-		IS x_sub_is;
+		IS left_overlap_is;
+		IS right_overlap_is;
 		
 	public:
 		BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha=1.0);
@@ -294,63 +295,27 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 	/* unfortunatelly, we need additional aux vector */
 	TRY( VecDuplicate(x.get_vector(),&x_aux) );
 
-	/* create IS for 3diag mult */
-	if(this->Tbegin > 0){
-		left_overlap = 1;
-	} else {
-		left_overlap = 0;
-	}
-	if(this->Tend < T){
-		right_overlap = 1;
-	} else {
-		right_overlap = 0;
-	}
-	
-//	coutAll << "left: " << left_overlap << ", right: " << right_overlap << std::endl;
-	
+	/* get ranges of all processors - necessary to compute overlaping indexes */
 	const int *ranges;
 	ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
     TRY( VecGetOwnershipRanges(x_aux,&ranges) );
-	
-	IS *myiss;
-	myiss = (IS *)(malloc(R*K*sizeof(IS)));
-
-	/* here store indexes for IS */
-	int is_arr[Tlocal+left_overlap+right_overlap];
-	
-	int i,j;
 	int myrank = GlobalManager.get_rank();
-	for(i=0;i<R*K;i++){
-		/* if there is left overlap, compute index and add it to the begin of IS */
-		if(left_overlap > 0){
-			is_arr[0] = ranges[myrank-1] + (i+1)*(ranges[myrank]-ranges[myrank-1])/(double)(R*K)-1;
-		}
-		
-		/* add normal idexes */
-		for(j=0;j<Tlocal;j++){
-			is_arr[j+left_overlap] = Tbegin*R*K+i*Tlocal+j;
-		}
 
-		/* if there is right overlap, compute index add add it to the end of IS */
-		if(right_overlap == 1){
-			is_arr[left_overlap+Tlocal] = ranges[myrank+1] + i*(int)((ranges[myrank+2]-ranges[myrank+1])/((double)R*K));
-		}
-
-		TRY( ISCreateGeneral(PETSC_COMM_SELF, Tlocal+left_overlap+right_overlap, is_arr, PETSC_COPY_VALUES, &(myiss[i])) );
+	/* create IS for 3diag mult */
+	if(this->Tbegin > 0){
+		left_overlap = 1;
+		TRY( ISCreateStride(PETSC_COMM_SELF, R*K, ranges[myrank-1] + (ranges[myrank]-ranges[myrank-1])/(double)(R*K)-1 ,(ranges[myrank]-ranges[myrank-1])/(double)(R*K), &left_overlap_is) );
+	} else {
+		left_overlap = 0;
+		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &left_overlap_is) );
 	}
-	TRY( ISConcatenate(PETSC_COMM_SELF, R*K, myiss, &x_sub_is) );
-
-//	if(GlobalManager.get_rank() == 1){
-//		TRY( ISView(x_sub_is,PETSC_VIEWER_STDOUT_SELF) );
-//	}
-//	TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-				
-	/* destroy aux is */
-//	for(int i=0;i<R*K;i++){
-//		TRY( ISDestroy(&(myiss[i])) );
-//	}
-//	free(myiss);
-//	free(ranges);
+	if(this->Tend < T){
+		right_overlap = 1;
+		TRY( ISCreateStride(PETSC_COMM_SELF, R*K, ranges[myrank+1], (ranges[myrank+2]-ranges[myrank+1])/(double)(R*K), &right_overlap_is) );
+	} else {
+		right_overlap = 0;
+		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &right_overlap_is) );
+	}
 
 	LOG_FUNC_END
 }	
@@ -364,7 +329,8 @@ BlockGraphMatrix<VectorBase>::~BlockGraphMatrix(){
 //	TRY( VecDestroy(&x_aux) );
 	
 	/* destroy IS for 3diag mult */
-//	TRY( ISDestroy(&x_sub_is) );
+//	TRY( ISDestroy(&left_overlap_is) );
+//	TRY( ISDestroy(&right_overlap_is) );
 	
 	LOG_FUNC_END	
 }
@@ -481,9 +447,19 @@ void BlockGraphMatrix<VectorBase>::matmult_tridiag(const VectorBase &x) const {
 	double *y_arr;
 	const double *x_arr;
 	
+	Vec left_overlap_vec;
+	Vec right_overlap_vec;
+	const double *left_overlap_arr;
+	const double *right_overlap_arr;
+
 	/* get subvector and array */
-	TRY( VecGetSubVector(x.get_vector(),x_sub_is,&x_sub) );
-	TRY( VecGetArrayRead(x_sub,&x_arr) );
+	TRY( VecGetSubVector(x.get_vector(),left_overlap_is,&left_overlap_vec) );
+	TRY( VecGetArrayRead(left_overlap_vec,&left_overlap_arr) );
+
+	TRY( VecGetSubVector(x.get_vector(),right_overlap_is,&right_overlap_vec) );
+	TRY( VecGetArrayRead(right_overlap_vec,&right_overlap_arr) );
+	
+	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
 	TRY( VecGetArray(x_aux,&y_arr) );
 
 	/* use openmp */
@@ -493,30 +469,58 @@ void BlockGraphMatrix<VectorBase>::matmult_tridiag(const VectorBase &x) const {
 		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
 		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = left_overlap + tlocal + (k*R+r)*(Tlocal+left_overlap+right_overlap);
+		int x_arr_idx = tlocal + (k*R+r)*Tlocal;
+		int overlap_id = k*R+r;
 
 		double value;
+		double right_value;
+		double left_value;
 
 		/* first row */
 		if(tglobal == 0){
-			value = alpha*x_arr[x_arr_idx] + alpha*x_arr[x_arr_idx+1];
+			if(tlocal+1 >= Tlocal){
+				right_value = right_overlap_arr[overlap_id];
+			} else {
+				right_value = x_arr[x_arr_idx+1];
+			}
+			value = alpha*x_arr[x_arr_idx] + alpha*right_value;
 		}
 		/* common row */
 		if(tglobal > 0 && tglobal < T-1){
-			value = alpha*x_arr[x_arr_idx-1] + alpha*x_arr[x_arr_idx] + alpha*x_arr[x_arr_idx+1];
+			if(tlocal+1 >= Tlocal){
+				right_value = right_overlap_arr[overlap_id];
+			} else {
+				right_value = x_arr[x_arr_idx+1];
+			}
+			if(tlocal-1 < 0){
+				left_value = left_overlap_arr[overlap_id];
+			} else {
+				left_value = x_arr[x_arr_idx-1];
+			}
+			value = alpha*left_value + alpha*x_arr[x_arr_idx] + alpha*right_value;
 		}
 		/* last row */
 		if(tglobal == T-1){
-			value = alpha*x_arr[x_arr_idx-1] + alpha*x_arr[x_arr_idx];
+			if(tlocal-1 < 0){
+				left_value = left_overlap_arr[overlap_id];
+			} else {
+				left_value = x_arr[x_arr_idx-1];
+			}
+			value = alpha*left_value + alpha*x_arr[x_arr_idx];
 		}
 		
 		y_arr[y_arr_idx] = value; /* = (k+1)*1000+(r+1)*100+(tglobal+1); test */
 	}
 
-	/* restore array and subvector */
+	/* restore subvector and array */
+	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
 	TRY( VecRestoreArray(x_aux,&y_arr) );
-	TRY( VecRestoreArrayRead(x_sub,&x_arr) );
-	TRY( VecRestoreSubVector(x.get_vector(),x_sub_is,&x_sub) );
+
+	TRY( VecRestoreArrayRead(left_overlap_vec,&left_overlap_arr) );
+	TRY( VecRestoreSubVector(x.get_vector(),left_overlap_is,&left_overlap_vec) );
+
+	TRY( VecRestoreArrayRead(right_overlap_vec,&right_overlap_arr) );
+	TRY( VecRestoreSubVector(x.get_vector(),right_overlap_is,&right_overlap_vec) );
 
 }
 
@@ -535,7 +539,7 @@ void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase
 	TRY( VecGetArray(y.get_vector(),&y_arr) );
 
 	/* use openmp */
-//	#pragma omp parallel for
+	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
 		int k = floor(y_arr_idx/(double)(Tlocal*R));
 		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
