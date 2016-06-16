@@ -22,7 +22,7 @@ namespace pascinference {
 
 class BGM_Graph {
 	private:
-		GeneralVector<PetscVector> coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
+		GeneralVector<PetscVector> *coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
 		int dim; /**< dimension of coordinates */	
 		int n; /**< number of vertices */
 		double threshold; /**< the value used for processing the graph */
@@ -42,11 +42,33 @@ class BGM_Graph {
 		
 	public:
 		BGM_Graph(std::string filename, int dim=2){
+			coordinates = new GeneralVector<PetscVector>();
+			
 			/* load vertices from file */
-			coordinates.load_local(filename);
+			coordinates->load_local(filename);
 
 			this->dim = dim;
-			n = coordinates.size()/(double)dim;
+			n = coordinates->size()/(double)dim;
+
+			threshold = -1;
+			processed = false;
+		};
+
+		BGM_Graph(const double *coordinates_array, int n, int dim){
+			/* prepare vector from values */
+			Vec vec_arr;
+			TRY( VecCreateSeqWithArray(PETSC_COMM_SELF,1,n*dim,coordinates_array,&vec_arr) );
+
+			coordinates = new GeneralVector<PetscVector>(vec_arr);
+
+//			Vec coordinates_vec = coordinates.get_vector();
+//			TRY( VecDuplicate(vec_arr, &coordinates_vec) );
+//			TRY( VecCopy(vec_arr, coordinates_vec) );
+			
+//			TRY( VecDestroy(&vec_arr) );
+
+			this->dim = dim;
+			this->n = n;
 
 			threshold = -1;
 			processed = false;
@@ -54,6 +76,7 @@ class BGM_Graph {
 
 		~BGM_Graph(){
 //			TRY( VecDestroy(&coordinates.get_vector()));
+//			free(coordinates);
 
 			/* if the graph was processed, then free memory */
 			if(processed){
@@ -74,6 +97,14 @@ class BGM_Graph {
 			return this->threshold;
 		}
 		
+		int *get_neighbor_nmbs(){
+			return neighbor_nmbs;
+		}
+		
+		int **get_neighbor_ids(){
+			return neighbor_ids;
+		}
+		
 		void process_cpu(double threshold) {
 			this->threshold = threshold;
 			
@@ -88,7 +119,7 @@ class BGM_Graph {
 			
 			/* get local array and work with it */
 			const double *coordinates_arr;
-			TRY( VecGetArrayRead(coordinates.get_vector(),&coordinates_arr) );
+			TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
 			
 			/* go throught graph - compute number of neighbors */
 			for(i=0;i<n;i++){
@@ -126,7 +157,7 @@ class BGM_Graph {
 			free(counters);
 			
 			/* restore array */
-			TRY( VecRestoreArrayRead(coordinates.get_vector(),&coordinates_arr) );
+			TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 			
 			processed = true;
 		}
@@ -152,7 +183,7 @@ class BGM_Graph {
 			output << " - threshold: " << this->threshold << std::endl;
 			output << " - processed: " << this->processed << std::endl;
 
-			output << " - coordinates: " << coordinates << std::endl;
+			output << " - coordinates: " << *coordinates << std::endl;
 
 			int i,j;
 			if(this->processed){
@@ -197,8 +228,14 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 			int gridSize; /**< the actual grid size needed, based on input size */
 		#endif	
 
-		void matmult_tridiag(VectorBase &y, const VectorBase &x) const; /* y = 3diag(1,1,1)*x */
-				
+		void matmult_tridiag(const VectorBase &x) const; /* x_aux = 3diag(1,1,1)*x */
+		void matmult_graph(VectorBase &y, const VectorBase &x) const; /* y = Wgraph *kr* x_aux */
+		
+		/* stuff for 3diag mult */
+		Vec x_aux;
+		int left_overlap, right_overlap;
+		IS x_sub_is;
+		
 	public:
 		BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha=1.0);
 		~BlockGraphMatrix(); /* destructor - destroy inner matrix */
@@ -230,8 +267,7 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 	LOG_FUNC_BEGIN
 
 	this->graph = &new_graph;
-//	this->R = this->graph->get_n();
-	this->R = 1; // todo: hot-fix test 
+	this->R = this->graph->get_n();
 
 	this->K = K;
 	this->alpha = alpha;
@@ -255,6 +291,36 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 		blockSize = 0;
 	#endif
 
+	/* unfortunatelly, we need additional aux vector */
+	TRY( VecDuplicate(x.get_vector(),&x_aux) );
+
+	/* create IS for 3diag mult */
+	if(this->Tbegin > 0){
+		left_overlap = 1;
+	} else {
+		left_overlap = 0;
+	}
+	if(this->Tend < T){
+		right_overlap = 1;
+	} else {
+		right_overlap = 0;
+	}
+	
+	IS *myiss;
+	myiss = (IS *)(malloc(R*K*sizeof(IS)));
+	int i;
+	for(i=0;i<R*K;i++){
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal+left_overlap+right_overlap, Tbegin-left_overlap+i*T , 1, &(myiss[i])) );
+	}
+	TRY( ISConcatenate(PETSC_COMM_WORLD, R*K, myiss, &x_sub_is) );
+
+	/* destroy aux is */
+	for(int i=0;i<R*K;i++){
+		TRY( ISDestroy(&(myiss[i])) );
+	}
+	free(myiss);
+
+
 	LOG_FUNC_END
 }	
 
@@ -263,7 +329,11 @@ template<class VectorBase>
 BlockGraphMatrix<VectorBase>::~BlockGraphMatrix(){
 	LOG_FUNC_BEGIN
 	
-	//TODO: what to do?
+	/* destroy aux vector */
+//	TRY( VecDestroy(&x_aux) );
+	
+	/* destroy IS for 3diag mult */
+//	TRY( ISDestroy(&x_sub_is) );
 	
 	LOG_FUNC_END	
 }
@@ -338,8 +408,13 @@ void BlockGraphMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase &x) c
 	
 	// TODO: maybe y is not initialized, who knows
 
-	/* at first multiply y = 3diag(1,1,1)*x */
-	matmult_tridiag(y, x);
+	/* at first multiply x_aux = 3diag(1,1,1)*x */
+	matmult_tridiag(x);
+
+//	TRY( VecView(x_aux, PETSC_VIEWER_STDOUT_WORLD) );
+
+	/* now perform kronecker product with graph matrix */
+	matmult_graph(y, x);
 
 	LOG_FUNC_END	
 }
@@ -370,86 +445,99 @@ double BlockGraphMatrix<VectorBase>::get_alpha() const {
 }
 
 template<class VectorBase>
-void BlockGraphMatrix<VectorBase>::matmult_tridiag(VectorBase &y, const VectorBase &x) const {
+void BlockGraphMatrix<VectorBase>::matmult_tridiag(const VectorBase &x) const {
+	Vec x_sub;
 	double *y_arr;
 	const double *x_arr;
 	
-	int coor_x, coor_y, coor_m, coor_n;
-	
-	DM da;
-	TRY( DMDACreate2d(PETSC_COMM_WORLD, 
-						DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, /* type of ghost nodes the array have */
-						DMDA_STENCIL_STAR,	
-                        K*R,T, /* global dimension of array */
-                        1, PETSC_DECIDE, /* number of processors (I consider one row) */
-                        1, /* dof ? */
-                        1, /* stencil width */
-                        PETSC_NULL,PETSC_NULL, // todo: ? 
-                        &da) );
-
-//	TRY( DMView(da,PETSC_VIEWER_STDOUT_WORLD) );
-	TRY( DMDAGetCorners(da, &coor_x, &coor_y, NULL, &coor_m, &coor_n, NULL) );
-
-	coutAll << "coors: " << coor_x << ", "  << coor_y << ", "  << coor_m << ", "  << coor_n << std::endl;
-	coutAll.synchronize();
-
-	Vec newvec;
-	TRY( DMCreateGlobalVector(da, &newvec) );
-	TRY( VecView(newvec, PETSC_VIEWER_STDOUT_WORLD));
-
-
-	TRY( DMDAVecGetArray(da,newvec,&y_arr) );
-//	TRY( DMDAVecGetArray(da,y.get_vector(),&y_arr) );
-//	TRY( DMDAVecGetArrayRead(da,x.get_vector(),&x_arr) );
-
-	for(int id_row=0;id_row<coor_m*coor_n;id_row++){
-//		coutAll << id_row << ":" << x_arr[id_row] << std::endl;
-//		y_arr[id_row] = 20;
-	}
-//	coutAll.synchronize();
-
-
-	TRY( DMDAVecRestoreArray(da,newvec,&y_arr) );
-//	TRY( DMDAVecRestoreArray(da,y.get_vector(),&y_arr) );
-//	TRY( DMDAVecRestoreArrayRead(da,x.get_vector(),&x_arr) );
-
-	
-//	TRY( VecGetArray(y.get_vector(),&y_arr) );
-//	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
+	/* get subvector and array */
+	TRY( VecGetSubVector(x.get_vector(),x_sub_is,&x_sub) );
+	TRY( VecGetArrayRead(x_sub,&x_arr) );
+	TRY( VecGetArray(x_aux,&y_arr) );
 
 	/* use openmp */
-//	#pragma omp parallel for
-//	for(int id_row=0;id_row<Tlocal*R*K;id_row++){
-//		int k = (int)(id_row/(double)(Tlocal*R));
-//		int r = (int)((id_row - k*Tlocal*R)/(double)Tlocal);
-//		int t = id_row - k*Tlocal*R - r*Tlocal;
-//		int t_global = Tbegin+t;
+	#pragma omp parallel for
+	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
+		int k = (int)(y_arr_idx/(double)(Tlocal*R));
+		int r = (int)((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
+		int tlocal = y_arr_idx - k*Tlocal*R - r*Tlocal;
+		int tglobal = Tbegin+tlocal;
+		int x_arr_idx = -left_overlap+y_arr_idx;
 
-//		double value;
+		double value;
 
 		/* first row */
-//		if(t_global == 0){
-//			value = 2;//alpha*x_arr[id_row] + alpha*x_arr[id_row+1];
-//		}
+		if(tglobal == 0){
+			value = alpha*x_arr[x_arr_idx] + alpha*x_arr[x_arr_idx+1];
+		}
 		/* common row */
-//		if(t_global > 0 && t_global < T-1){
-//			value = 3;//alpha*x_arr[id_row-1] + alpha*x_arr[id_row] + alpha*x_arr[id_row+1];
-//		}
+		if(tglobal > 0 && tglobal < T-1){
+			value = alpha*x_arr[x_arr_idx-1] + alpha*x_arr[x_arr_idx] + alpha*x_arr[x_arr_idx+1];
+		}
 		/* last row */
-//		if(t_global == T-1){
-//			value = 2;//alpha*x_arr[id_row-1] + alpha*x_arr[id_row];
-//		}
+		if(tglobal == T-1){
+			value = alpha*x_arr[x_arr_idx-1] + alpha*x_arr[x_arr_idx];
+		}
 		
-//		y_arr[id_row] = value;
-//	}
+		y_arr[y_arr_idx] = value; /* = (k+1)*1000+(r+1)*100+(tglobal+1); test */
+	}
 
-//	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
-//	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
-
-	TRY( DMDestroy(&da) );
+	/* restore array and subvector */
+	TRY( VecRestoreArray(x_aux,&y_arr) );
+	TRY( VecRestoreArrayRead(x_sub,&x_arr) );
+	TRY( VecRestoreSubVector(x.get_vector(),x_sub_is,&x_sub) );
 
 }
 
+template<class VectorBase>
+void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase &x) const {
+	double *y_arr;
+	const double *x_arr;
+	const double *x_aux_arr;
+	
+	int* neighbor_nmbs = graph->get_neighbor_nmbs();
+	int **neightbor_ids = graph->get_neighbor_ids();
+			
+	/* get array */
+	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
+	TRY( VecGetArrayRead(x_aux,&x_aux_arr) );
+	TRY( VecGetArray(y.get_vector(),&y_arr) );
+
+	/* use openmp */
+//	#pragma omp parallel for
+	for(int row_idx=0;row_idx<Tlocal*K*R;row_idx++){
+		int k = (int)(row_idx/(double)(Tlocal*R));
+		int r = (int)((row_idx-k*Tlocal*R)/(double)(Tlocal));
+		int tlocal = row_idx - k*Tlocal*R - r*Tlocal;
+		int tglobal = Tbegin+tlocal;
+		int x_arr_idx = -left_overlap+row_idx;
+
+		double value;
+		int Wsum;
+
+		/* compute sum of W entries in row */
+		if(tglobal == 0 || tglobal == T-1){
+			Wsum = 2*neighbor_nmbs[r];
+		} else {
+			Wsum = 3*neighbor_nmbs[r];
+		}
+
+		/* diagonal entry */
+		y_arr[row_idx] = Wsum*x_arr[row_idx];
+
+		/* non-diagonal entries */
+		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
+			y_arr[row_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
+		}
+
+	}
+
+	/* restore array */
+	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
+	TRY( VecRestoreArrayRead(x_aux,&x_aux_arr) );
+	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
+
+}
 
 
 } /* end of namespace */
