@@ -306,20 +306,51 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 		right_overlap = 0;
 	}
 	
+//	coutAll << "left: " << left_overlap << ", right: " << right_overlap << std::endl;
+	
+	const int *ranges;
+	ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
+    TRY( VecGetOwnershipRanges(x_aux,&ranges) );
+	
 	IS *myiss;
 	myiss = (IS *)(malloc(R*K*sizeof(IS)));
-	int i;
+
+	/* here store indexes for IS */
+	int is_arr[Tlocal+left_overlap+right_overlap];
+	
+	int i,j;
+	int myrank = GlobalManager.get_rank();
 	for(i=0;i<R*K;i++){
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal+left_overlap+right_overlap, Tbegin-left_overlap+i*T , 1, &(myiss[i])) );
-	}
-	TRY( ISConcatenate(PETSC_COMM_WORLD, R*K, myiss, &x_sub_is) );
+		/* if there is left overlap, compute index and add it to the begin of IS */
+		if(left_overlap > 0){
+			is_arr[0] = ranges[myrank-1] + (i+1)*(ranges[myrank]-ranges[myrank-1])/(double)(R*K)-1;
+		}
+		
+		/* add normal idexes */
+		for(j=0;j<Tlocal;j++){
+			is_arr[j+left_overlap] = Tbegin*R*K+i*Tlocal+j;
+		}
 
+		/* if there is right overlap, compute index add add it to the end of IS */
+		if(right_overlap == 1){
+			is_arr[left_overlap+Tlocal] = ranges[myrank+1] + i*(int)((ranges[myrank+2]-ranges[myrank+1])/((double)R*K));
+		}
+
+		TRY( ISCreateGeneral(PETSC_COMM_SELF, Tlocal+left_overlap+right_overlap, is_arr, PETSC_COPY_VALUES, &(myiss[i])) );
+	}
+	TRY( ISConcatenate(PETSC_COMM_SELF, R*K, myiss, &x_sub_is) );
+
+//	if(GlobalManager.get_rank() == 1){
+//		TRY( ISView(x_sub_is,PETSC_VIEWER_STDOUT_SELF) );
+//	}
+//	TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+				
 	/* destroy aux is */
-	for(int i=0;i<R*K;i++){
-		TRY( ISDestroy(&(myiss[i])) );
-	}
-	free(myiss);
-
+//	for(int i=0;i<R*K;i++){
+//		TRY( ISDestroy(&(myiss[i])) );
+//	}
+//	free(myiss);
+//	free(ranges);
 
 	LOG_FUNC_END
 }	
@@ -411,10 +442,10 @@ void BlockGraphMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase &x) c
 	/* at first multiply x_aux = 3diag(1,1,1)*x */
 	matmult_tridiag(x);
 
-//	TRY( VecView(x_aux, PETSC_VIEWER_STDOUT_WORLD) );
-
 	/* now perform kronecker product with graph matrix */
 	matmult_graph(y, x);
+
+//	TRY(VecCopy(x_aux,y.get_vector()));
 
 	LOG_FUNC_END	
 }
@@ -458,11 +489,11 @@ void BlockGraphMatrix<VectorBase>::matmult_tridiag(const VectorBase &x) const {
 	/* use openmp */
 	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
-		int k = (int)(y_arr_idx/(double)(Tlocal*R));
-		int r = (int)((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
-		int tlocal = y_arr_idx - k*Tlocal*R - r*Tlocal;
+		int k = floor(y_arr_idx/(double)(Tlocal*R));
+		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
+		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = -left_overlap+y_arr_idx;
+		int x_arr_idx = left_overlap + tlocal + (k*R+r)*(Tlocal+left_overlap+right_overlap);
 
 		double value;
 
@@ -505,12 +536,12 @@ void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase
 
 	/* use openmp */
 //	#pragma omp parallel for
-	for(int row_idx=0;row_idx<Tlocal*K*R;row_idx++){
-		int k = (int)(row_idx/(double)(Tlocal*R));
-		int r = (int)((row_idx-k*Tlocal*R)/(double)(Tlocal));
-		int tlocal = row_idx - k*Tlocal*R - r*Tlocal;
+	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
+		int k = floor(y_arr_idx/(double)(Tlocal*R));
+		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
+		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = -left_overlap+row_idx;
+		int x_arr_idx = tlocal + (k*R+r)*(Tlocal);
 
 		double value;
 		int Wsum;
@@ -523,11 +554,11 @@ void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase
 		}
 
 		/* diagonal entry */
-		y_arr[row_idx] = Wsum*x_arr[row_idx];
+		y_arr[y_arr_idx] = Wsum*x_arr[x_arr_idx];
 
 		/* non-diagonal entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
-			y_arr[row_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
+			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
 		}
 
 	}
