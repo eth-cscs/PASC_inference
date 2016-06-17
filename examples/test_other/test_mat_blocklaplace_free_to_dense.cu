@@ -145,7 +145,7 @@ int main( int argc, char *argv[] )
 			#else
 				/* from GPU to CPU and then get array */
 				TRY( VecCopy(y.get_vector(),y_VecCPU) );
-				TRY( VecGetArray(y_Vec, &values) );
+				TRY( VecGetArray(y_VecCPU, &values) );
 			#endif
 		
 			/* print row */
@@ -169,7 +169,7 @@ int main( int argc, char *argv[] )
 			#ifndef USE_GPU
 				TRY( VecRestoreArray(y.get_vector(), &values) );
 			#else
-				TRY( VecRestoreArray(y_Vec, &values) );
+				TRY( VecRestoreArray(y_VecCPU, &values) );
 			#endif
 
 		}
