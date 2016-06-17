@@ -342,7 +342,7 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 
 }
 
-void BlockDiagLaplaceVectorMatrix::matmult(PetscVector &y, const PetscVector &x) const { 
+void BlockLaplaceMatrix::matmult(PetscVector &y, const PetscVector &x) const {
 	double *y_arr;
 	double *x_arr;
 	
