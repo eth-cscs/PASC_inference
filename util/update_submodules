@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 
-echo "We are ready to download submodules from GitHub!";
+echo "------------ We are ready to download submodules from GitHub! ------------";
 
 git submodule update --init --recursive
 
+echo "------------ Modules downloaded! ------------";
 
