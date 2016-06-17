@@ -62,7 +62,7 @@ int main( int argc, char *argv[] )
 
 	/* create base vector */
 	/* try to make a global vector of length T and then get size of local portion */
-	Vec x_Vec;
+	Vec x_Vec, y_VecCPU;
 	int Tlocal, Tbegin, Tend;
 	Vec layout;
 	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
@@ -80,6 +80,8 @@ int main( int argc, char *argv[] )
 		TRY( VecSetType(x_Vec, VECMPICUDA) );
 		TRY( VecSetSizes(x_Vec,K*Tlocal,K*T) );
 		TRY( VecSetFromOptions(x_Vec) );
+
+		TRY( VecCreateMPI(PETSC_COMM_WORLD,K*Tlocal,K*T, &y_VecCPU) ); /* for printing I need vector on CPU */
 
 //		TRY( VecCreateMPICUDA(PETSC_COMM_WORLD,K*Tlocal,K*T, &x_Vec) );
 	#endif
@@ -141,7 +143,9 @@ int main( int argc, char *argv[] )
 			#ifndef USE_GPU
 				TRY( VecGetArray(y.get_vector(), &values) );
 			#else
-				TRY( VecCUDAGetArrayReadWrite(y.get_vector(), &values) );
+				/* from GPU to CPU and then get array */
+				TRY( VecCopy(y.get_vector(),y_VecCPU) );
+				TRY( VecGetArray(y_Vec, &values) );
 			#endif
 		
 			/* print row */
@@ -165,7 +169,7 @@ int main( int argc, char *argv[] )
 			#ifndef USE_GPU
 				TRY( VecRestoreArray(y.get_vector(), &values) );
 			#else
-				TRY( VecCUDARestoreArrayReadWrite(y.get_vector(), &values) );
+				TRY( VecRestoreArray(y_Vec, &values) );
 			#endif
 
 		}
