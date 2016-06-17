@@ -13,6 +13,11 @@
 
 #ifdef USE_CUDA
     #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+
+	__global__ void write_to_array(double* arr, int idx, double value){
+		arr[idx] = value;
+	}
+
 #endif
 
 typedef petscvector::PetscVector PetscVector;
@@ -110,7 +115,8 @@ int main( int argc, char *argv[] )
 
 		if(t >= Tbegin && t < Tend){
 			tlocal = t - Tbegin;
-			gamma_arr[tlocal + k*Tlocal] = 1;
+			write_to_array<<<1, 1>>>(gamma_arr, tlocal + k*Tlocal, 1.0);
+			gpuErrchk( cudaDeviceSynchronize() );
 		}
 
 		#ifndef USE_GPU
