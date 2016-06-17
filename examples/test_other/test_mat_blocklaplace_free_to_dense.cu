@@ -11,6 +11,10 @@
  #error 'This example is for PETSCVECTOR'
 #endif
 
+#ifdef USE_CUDA
+    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#endif
+
 typedef petscvector::PetscVector PetscVector;
  
 using namespace pascinference;
@@ -31,8 +35,7 @@ int main( int argc, char *argv[] )
 	} 
 
 	/* load console arguments */
-	int T, K, R;
-	std::string filename;
+	int T, K;
 	bool test_view_matrix;
 	
 	consoleArg.set_option_value("test_T", &T, 10);
@@ -66,7 +69,12 @@ int main( int argc, char *argv[] )
 	#ifndef USE_GPU
 		TRY( VecCreateMPI(PETSC_COMM_WORLD,K*Tlocal,K*T, &x_Vec) );
 	#else
-		TRY( VecCreateMPICUDA(PETSC_COMM_WORLD,K*Tlocal,K*T, &x_Vec) );
+		TRY( VecCreate(PETSC_COMM_WORLD,&x_Vec) );
+		TRY( VecSetType(x_Vec, VECMPICUDA) );
+		TRY( VecSetSizes(x_Vec,K*Tlocal,K*T) );
+		TRY( VecSetFromOptions(x_Vec) );
+
+//		TRY( VecCreateMPICUDA(PETSC_COMM_WORLD,K*Tlocal,K*T, &x_Vec) );
 	#endif
 
 	GeneralVector<PetscVector> x(x_Vec);
