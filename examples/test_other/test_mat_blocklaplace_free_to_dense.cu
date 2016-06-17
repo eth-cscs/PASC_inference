@@ -14,15 +14,17 @@
 #ifdef USE_CUDA
     #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 
-	__global__ void write_to_array(double* arr, int idx, double value){
-		arr[idx] = value;
-	}
-
 #endif
 
 typedef petscvector::PetscVector PetscVector;
  
 using namespace pascinference;
+
+#ifdef USE_CUDA
+	__global__ void write_to_array(double* arr, int idx, double value){
+		arr[idx] = value;
+	}
+#endif
 
 int main( int argc, char *argv[] )
 {
@@ -109,19 +111,21 @@ int main( int argc, char *argv[] )
 
 		#ifndef USE_GPU
 			TRY( VecGetArray(x_Vec,&gamma_arr) );
-		#else
-			TRY( VecCUDAGetArrayReadWrite(x_Vec,&gamma_arr) );
-		#endif
 
-		if(t >= Tbegin && t < Tend){
-			tlocal = t - Tbegin;
-			write_to_array<<<1, 1>>>(gamma_arr, tlocal + k*Tlocal, 1.0);
-			gpuErrchk( cudaDeviceSynchronize() );
-		}
+			if(t >= Tbegin && t < Tend){
+				tlocal = t - Tbegin;
+				gamma_arr[tlocal + k*Tlocal] = 1;
+			}
 
-		#ifndef USE_GPU
 			TRY( VecRestoreArray(x_Vec,&gamma_arr) );
 		#else
+			TRY( VecCUDAGetArrayReadWrite(x_Vec,&gamma_arr) );
+
+			if(t >= Tbegin && t < Tend){
+				write_to_array<<<1, 1>>>(gamma_arr, tlocal + k*Tlocal, 1.0);
+				gpuErrchk( cudaDeviceSynchronize() );
+			}
+
 			TRY( VecCUDARestoreArrayReadWrite(x_Vec,&gamma_arr) );
 		#endif
 
