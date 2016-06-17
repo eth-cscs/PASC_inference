@@ -62,8 +62,12 @@ int main( int argc, char *argv[] )
 	TRY( VecGetLocalSize(layout,&Tlocal) );
 	TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
 	TRY( VecDestroy(&layout) ); /* destroy testing vector - it is useless now */
-		
-	TRY( VecCreateMPI(PETSC_COMM_WORLD,K*Tlocal,K*T, &x_Vec) );
+
+	#ifndef USE_GPU
+		TRY( VecCreateMPI(PETSC_COMM_WORLD,K*Tlocal,K*T, &x_Vec) );
+	#else
+		TRY( VecCreateMPICUDA(PETSC_COMM_WORLD,K*Tlocal,K*T, &x_Vec) );
+	#endif
 
 	GeneralVector<PetscVector> x(x_Vec);
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
@@ -90,12 +94,23 @@ int main( int argc, char *argv[] )
 		TRY( VecAssemblyBegin(x_Vec) );
 		TRY( VecAssemblyEnd(x_Vec) );
 
-		TRY( VecGetArray(x_Vec,&gamma_arr) );
+		#ifndef USE_GPU
+			TRY( VecGetArray(x_Vec,&gamma_arr) );
+		#else
+			TRY( VecCUDAGetArrayReadWrite(x_Vec,&gamma_arr) );
+		#endif
+
 		if(t >= Tbegin && t < Tend){
 			tlocal = t - Tbegin;
 			gamma_arr[tlocal + k*Tlocal] = 1;
 		}
-		TRY( VecRestoreArray(x_Vec,&gamma_arr) );
+
+		#ifndef USE_GPU
+			TRY( VecRestoreArray(x_Vec,&gamma_arr) );
+		#else
+			TRY( VecCUDARestoreArrayReadWrite(x_Vec,&gamma_arr) );
+		#endif
+
 		TRY( VecAssemblyBegin(x_Vec) );
 		TRY( VecAssemblyEnd(x_Vec) );
 
@@ -105,7 +120,11 @@ int main( int argc, char *argv[] )
 		
 		if(test_view_matrix){
 			/* get array of values */
-			TRY( VecGetArray(y.get_vector(), &values) );
+			#ifndef USE_GPU
+				TRY( VecGetArray(y.get_vector(), &values) );
+			#else
+				TRY( VecCUDAGetArrayReadWrite(y.get_vector(), &values) );
+			#endif
 		
 			/* print row */
 			TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, row_idx) );
@@ -125,7 +144,12 @@ int main( int argc, char *argv[] )
 			TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
 
 			/* restore array with values */
-			TRY( VecRestoreArray(y.get_vector(), &values) );
+			#ifndef USE_GPU
+				TRY( VecRestoreArray(y.get_vector(), &values) );
+			#else
+				TRY( VecCUDARestoreArrayReadWrite(y.get_vector(), &values) );
+			#endif
+
 		}
 	}
 
