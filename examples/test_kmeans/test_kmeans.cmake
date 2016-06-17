@@ -1,4 +1,5 @@
 include_directories("${CMAKE_SOURCE_DIR}/test_kmeans/")
+include_directories("${CMAKE_SOURCE_DIR}/test_kmeans/include")
 
 # decide which example to compile
 option(TEST_KMEANS_LARGE "TEST_KMEANS_LARGE" OFF)
