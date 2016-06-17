@@ -6,8 +6,8 @@ option(TEST_KMEANS_LARGE "TEST_KMEANS_LARGE" OFF)
 option(TEST_KMEANS_GENERATE "TEST_KMEANS_GENERATE" OFF)
 
 # print info
-printinfo_onoff("TEST_KMEANS_LARGE\t\t" "${TEST_KMEANS_LARGE}")
-printinfo_onoff("TEST_KMEANS_GENERATE\t\t" "${TEST_KMEANS_GENERATE}")
+printinfo_onoff("TEST_KMEANS_LARGE\t\t\t" "${TEST_KMEANS_LARGE}")
+printinfo_onoff("TEST_KMEANS_GENERATE\t\t\t" "${TEST_KMEANS_GENERATE}")
 
 # add example executable files
 if(${TEST_KMEANS_LARGE})

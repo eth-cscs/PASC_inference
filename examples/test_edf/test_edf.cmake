@@ -4,7 +4,7 @@ include_directories("${CMAKE_SOURCE_DIR}/test_edf/")
 option(TEST_EDF "TEST_EDF" OFF)
 
 # print info
-printinfo_onoff("TEST_EDF\t\t\t" "${TEST_EDF}")
+printinfo_onoff("TEST_EDF\t\t\t\t" "${TEST_EDF}")
 
 if(${TEST_EDF})
 	# this is edf test

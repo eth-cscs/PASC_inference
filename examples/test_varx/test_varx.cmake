@@ -4,7 +4,7 @@ include_directories("${CMAKE_SOURCE_DIR}/test_varx/")
 option(TEST_VARX_LARGE "TEST_VARX_LARGE" OFF)
 
 # print info
-printinfo_onoff("TEST_VARX_LARGE\t\t" "${TEST_VARX_LARGE}")
+printinfo_onoff("TEST_VARX_LARGE\t\t\t" "${TEST_VARX_LARGE}")
 
 # add example executable files
 if(${TEST_VARX_LARGE})

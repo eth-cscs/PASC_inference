@@ -11,13 +11,6 @@
 	typedef petscvector::PetscVector PetscVector;
 #endif
 
-#ifdef USE_MINLIN
-	typedef minlin::threx::HostVector<double> MinlinHostVector;
-	typedef minlin::threx::DeviceVector<double> MinlinDeviceVector;
-#endif
-
-#include "petscdmda.h"
-
 namespace pascinference {
 
 class BGM_Graph {
@@ -31,180 +24,25 @@ class BGM_Graph {
 		int *neighbor_nmbs;
 		int **neighbor_ids;
 
-		double compute_norm(const double *values, int idx1, int idx2){
-			int d;
-			double mynorm = 0;
-			for(d=0;d<dim;d++){
-				mynorm += (values[idx1+d*n] - values[idx2+d*n])*(values[idx1+d*n] - values[idx2+d*n]);
-			}
-			return mynorm;
-		}
+		double compute_norm(const double *values, int idx1, int idx2);
 		
 	public:
-		BGM_Graph(std::string filename, int dim=2){
-			coordinates = new GeneralVector<PetscVector>();
-			
-			/* load vertices from file */
-			coordinates->load_local(filename);
+		BGM_Graph(std::string filename, int dim=2);
 
-			this->dim = dim;
-			n = coordinates->size()/(double)dim;
+		BGM_Graph(const double *coordinates_array, int n, int dim);
 
-			threshold = -1;
-			processed = false;
-		};
-
-		BGM_Graph(const double *coordinates_array, int n, int dim){
-			/* prepare vector from values */
-			Vec vec_arr;
-			TRY( VecCreateSeqWithArray(PETSC_COMM_SELF,1,n*dim,coordinates_array,&vec_arr) );
-
-			coordinates = new GeneralVector<PetscVector>(vec_arr);
-
-//			Vec coordinates_vec = coordinates.get_vector();
-//			TRY( VecDuplicate(vec_arr, &coordinates_vec) );
-//			TRY( VecCopy(vec_arr, coordinates_vec) );
-			
-//			TRY( VecDestroy(&vec_arr) );
-
-			this->dim = dim;
-			this->n = n;
-
-			threshold = -1;
-			processed = false;
-		};
-
-		~BGM_Graph(){
-//			TRY( VecDestroy(&coordinates.get_vector()));
-//			free(coordinates);
-
-			/* if the graph was processed, then free memory */
-			if(processed){
-				free(neighbor_nmbs);
-			}
-			
-		};
+		~BGM_Graph();
 		
-		int get_n(){
-			return this->n;
-		}
-
-		int get_dim(){
-			return this->dim;
-		}
-
-		double get_threshold(){
-			return this->threshold;
-		}
+		int get_n();
+		int get_dim();
+		double get_threshold();
+		int *get_neighbor_nmbs();
+		int **get_neighbor_ids();
 		
-		int *get_neighbor_nmbs(){
-			return neighbor_nmbs;
-		}
-		
-		int **get_neighbor_ids(){
-			return neighbor_ids;
-		}
-		
-		void process_cpu(double threshold) {
-			this->threshold = threshold;
-			
-			int i,j,d;
-			double mynorm;
+		void process_cpu(double threshold);
 
-			/* prepare array for number of neighbors */
-			neighbor_nmbs = (int*)malloc(n*sizeof(int));
-			for(i=0;i<n;i++){
-				neighbor_nmbs[i] = 0;
-			}
-			
-			/* get local array and work with it */
-			const double *coordinates_arr;
-			TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
-			
-			/* go throught graph - compute number of neighbors */
-			for(i=0;i<n;i++){
-				for(j=i+1;j<n;j++){
-					if(compute_norm(coordinates_arr, i, j) < threshold){
-						neighbor_nmbs[i] += 1;
-						neighbor_nmbs[j] += 1;
-					}
-				}
-			}
-
-			/* prepare storages for neightbors ids */
-			neighbor_ids = (int**)malloc(n*sizeof(int*));
-			for(i=0;i<n;i++){
-				neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
-			}
-
-			/* go throught graph - fill indexes of neighbors */
-			int *counters;
-			counters = (int*)malloc(n*sizeof(int));
-			for(i=0;i<n;i++){
-				counters[i] = 0;
-			}
-			for(i=0;i<n;i++){
-				for(j=i+1;j<n;j++){
-					if(compute_norm(coordinates_arr, i, j) < threshold){
-						neighbor_ids[i][counters[i]] = j;
-						neighbor_ids[j][counters[j]] = i;
-
-						counters[i] += 1;
-						counters[j] += 1;
-					}
-				}
-			}
-			free(counters);
-			
-			/* restore array */
-			TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
-			
-			processed = true;
-		}
-		
-		void print(ConsoleOutput &output) const {
-			output << "Graph" << std::endl;
-			
-			output.push();
-			output << " - dim:       " << this->dim << std::endl;
-			output << " - vertices:  " << this->n << std::endl;
-			output << " - threshold: " << this->threshold << std::endl;
-			output << " - processed: " << this->processed << std::endl;
-			output.pop();
-			
-		};
-		
-		void print_content(ConsoleOutput &output) const {
-			output << "Graph" << std::endl;
-			
-			output.push();
-			output << " - dim:       " << this->dim << std::endl;
-			output << " - vertices:  " << this->n << std::endl;
-			output << " - threshold: " << this->threshold << std::endl;
-			output << " - processed: " << this->processed << std::endl;
-
-			output << " - coordinates: " << *coordinates << std::endl;
-
-			int i,j;
-			if(this->processed){
-				output << " - processed arrays: " << std::endl;
-				output.push();
-				for(i=0;i<n;i++){
-					output << i << ": " << "(" << neighbor_nmbs[i] << "): ";
-					for(j=0;j<neighbor_nmbs[i];j++){
-						output << neighbor_ids[i][j];
-						if(j < neighbor_nmbs[i]-1){
-							output << ", ";
-						}
-					}					
-					output << std::endl;
-				}
-				output.pop();
-			}
-
-			output.pop();
-			
-		};
+		void print(ConsoleOutput &output) const;
+		void print_content(ConsoleOutput &output) const;
 		
 };
 
@@ -572,6 +410,175 @@ void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase
 	TRY( VecRestoreArrayRead(x_aux,&x_aux_arr) );
 	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
 
+}
+
+
+/* ----------------- BGM_Graph implementation ------------- */
+
+double BGM_Graph::compute_norm(const double *values, int idx1, int idx2){
+	int d;
+	double mynorm = 0;
+	for(d=0;d<dim;d++){
+		mynorm += (values[idx1+d*n] - values[idx2+d*n])*(values[idx1+d*n] - values[idx2+d*n]);
+	}
+	return mynorm;
+}
+
+BGM_Graph::BGM_Graph(std::string filename, int dim){
+	coordinates = new GeneralVector<PetscVector>();
+	
+	/* load vertices from file */
+	coordinates->load_local(filename);
+
+	this->dim = dim;
+	n = coordinates->size()/(double)dim;
+
+	threshold = -1;
+	processed = false;
+}
+
+BGM_Graph::BGM_Graph(const double *coordinates_array, int n, int dim){
+	/* prepare vector from values */
+	Vec vec_arr;
+	TRY( VecCreateSeqWithArray(PETSC_COMM_SELF,1,n*dim,coordinates_array,&vec_arr) );
+
+	coordinates = new GeneralVector<PetscVector>(vec_arr);
+
+	this->dim = dim;
+	this->n = n;
+
+	threshold = -1;
+	processed = false;
+}
+
+BGM_Graph::~BGM_Graph(){
+//	TRY( VecDestroy(&coordinates.get_vector()));
+//	free(coordinates);
+
+	/* if the graph was processed, then free memory */
+	if(processed){
+		free(neighbor_nmbs);
+	}
+	
+}
+
+int BGM_Graph::get_n(){
+	return this->n;
+}
+
+int BGM_Graph::get_dim(){
+	return this->dim;
+}
+
+double BGM_Graph::get_threshold(){
+	return this->threshold;
+}
+
+int *BGM_Graph::get_neighbor_nmbs(){
+	return neighbor_nmbs;
+}
+
+int **BGM_Graph::get_neighbor_ids(){
+	return neighbor_ids;
+}
+
+void BGM_Graph::process_cpu(double threshold) {
+	this->threshold = threshold;
+	
+	int i,j,d;
+	double mynorm;
+
+	/* prepare array for number of neighbors */
+	neighbor_nmbs = (int*)malloc(n*sizeof(int));
+	for(i=0;i<n;i++){
+		neighbor_nmbs[i] = 0;
+	}
+	
+	/* get local array and work with it */
+	const double *coordinates_arr;
+	TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
+	
+	/* go throught graph - compute number of neighbors */
+	for(i=0;i<n;i++){
+		for(j=i+1;j<n;j++){
+			if(compute_norm(coordinates_arr, i, j) < threshold){
+				neighbor_nmbs[i] += 1;
+				neighbor_nmbs[j] += 1;
+			}
+		}
+	}
+
+	/* prepare storages for neightbors ids */
+	neighbor_ids = (int**)malloc(n*sizeof(int*));
+	for(i=0;i<n;i++){
+		neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
+	}
+
+	/* go throught graph - fill indexes of neighbors */
+	int *counters;
+	counters = (int*)malloc(n*sizeof(int));
+	for(i=0;i<n;i++){
+		counters[i] = 0;
+	}
+	for(i=0;i<n;i++){
+		for(j=i+1;j<n;j++){
+			if(compute_norm(coordinates_arr, i, j) < threshold){
+				neighbor_ids[i][counters[i]] = j;
+				neighbor_ids[j][counters[j]] = i;
+
+				counters[i] += 1;
+				counters[j] += 1;
+			}
+		}
+	}
+	free(counters);
+	
+	/* restore array */
+	TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
+	
+	processed = true;
+}
+
+void BGM_Graph::print(ConsoleOutput &output) const {
+	output << "Graph" << std::endl;
+	
+	output.push();
+	output << " - dim:       " << this->dim << std::endl;
+	output << " - vertices:  " << this->n << std::endl;
+	output << " - threshold: " << this->threshold << std::endl;
+	output << " - processed: " << this->processed << std::endl;
+	output.pop();
+	
+}
+
+void BGM_Graph::print_content(ConsoleOutput &output) const {
+	output << "Graph" << std::endl;
+	
+	output.push();
+	output << " - dim:       " << this->dim << std::endl;
+	output << " - vertices:  " << this->n << std::endl;
+	output << " - threshold: " << this->threshold << std::endl;
+	output << " - processed: " << this->processed << std::endl;
+
+	output << " - coordinates: " << *coordinates << std::endl;
+
+	int i,j;
+	if(this->processed){
+		output << " - processed arrays: " << std::endl;
+		output.push();
+		for(i=0;i<n;i++){
+			output << i << ": " << "(" << neighbor_nmbs[i] << "): ";
+			for(j=0;j<neighbor_nmbs[i];j++){
+				output << neighbor_ids[i][j];
+				if(j < neighbor_nmbs[i]-1){
+					output << ", ";
+				}
+			}
+			output << std::endl;
+			}
+		output.pop();
+	}
+	output.pop();
 }
 
 
