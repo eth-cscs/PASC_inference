@@ -85,7 +85,7 @@ BlockLaplaceMatrix::BlockLaplaceMatrix(const PetscVector &x, int K, double alpha
 
 	#ifdef USE_GPU
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_mult, 0, 0) );
-		gridSize = (K*T + blockSize - 1)/ blockSize;
+		gridSize = (K*Tlocal + blockSize - 1)/ blockSize;
 	#endif
 
 	/* get ranges of all processors - necessary to compute overlaping indexes */
