@@ -335,7 +335,7 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 			value = -alpha*left_value + alpha*x_arr[x_arr_idx];
 		}
 		
-		y_arr[y_arr_idx] = value; 
+		y_arr[y_arr_idx] = y_arr_idx;//value; 
 	}
 
 	/* if id_row >= K*T then relax and do nothing */	
