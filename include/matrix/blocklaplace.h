@@ -56,7 +56,7 @@ class BlockLaplaceMatrix: public GeneralMatrix<PetscVector> {
 };
 
 #ifdef USE_GPU
-__global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int K, double alpha);
+__global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int K, double alpha);
 #endif
 
 
@@ -286,7 +286,7 @@ void BlockLaplaceMatrix::matmult(PetscVector &y, const PetscVector &x) const {
 #else
 
 /* A*x using CUDA kernel */
-__global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int K, double alpha)
+__global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int K, double alpha)
 {
 	/* compute my id */
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -342,7 +342,7 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 
 }
 
-void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
+void BlockDiagLaplaceVectorMatrix::matmult(PetscVector &y, const PetscVector &x) const { 
 	double *y_arr;
 	double *x_arr;
 	
@@ -362,7 +362,7 @@ void BlockDiagLaplaceVectorMatrix<PetscVector>::matmult(PetscVector &y, const Pe
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 
 	/* call kernel */
-	kernel_mult<<<gridSize, blockSize>>>(y_arr,x_arr,left_overlap_arr,right_overlap_arr,T,Tlocal,K,alpha);
+	kernel_mult<<<gridSize, blockSize>>>(y_arr,x_arr,left_overlap_arr,right_overlap_arr,T,Tlocal,Tbegin,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 	
 	/* restore subvector and array */
