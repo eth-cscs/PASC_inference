@@ -211,13 +211,13 @@ void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output) const
 	output << " - alpha: " << alpha << std::endl;
 
 	#ifdef USE_GPU
-		output_global <<  " - blockSize1:   " << blockSize1 << std::endl;
-		output_global <<  " - gridSize1:    " << gridSize1 << std::endl;
-		output_global <<  " - minGridSize1: " << minGridSize1 << std::endl;
+		output <<  " - blockSize1:   " << blockSize1 << std::endl;
+		output <<  " - gridSize1:    " << gridSize1 << std::endl;
+		output <<  " - minGridSize1: " << minGridSize1 << std::endl;
 
-		output_global <<  " - blockSize2:   " << blockSize2 << std::endl;
-		output_global <<  " - gridSize2:    " << gridSize2 << std::endl;
-		output_global <<  " - minGridSize2: " << minGridSize2 << std::endl;
+		output <<  " - blockSize2:   " << blockSize2 << std::endl;
+		output <<  " - gridSize2:    " << gridSize2 << std::endl;
+		output <<  " - minGridSize2: " << minGridSize2 << std::endl;
 	#endif
 	
 	LOG_FUNC_END	
