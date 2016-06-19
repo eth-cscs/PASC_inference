@@ -147,10 +147,10 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 
 	#ifdef USE_GPU
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize1, &blockSize1,kernel_BlockGraphMatrix_mult_tridiag, 0, 0) );
-		gridSize1 = (Tlocal*K*R + blockSize - 1)/ blockSize1;
+		gridSize1 = (Tlocal*K*R + blockSize1 - 1)/ blockSize1;
 
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize2, &blockSize2,kernel_BlockGraphMatrix_mult_graph, 0, 0) );
-		gridSize2 = (Tlocal*K*R + blockSize - 1)/ blockSize2;
+		gridSize2 = (Tlocal*K*R + blockSize2 - 1)/ blockSize2;
 	#endif
 
 	/* unfortunatelly, we need additional aux vector */
@@ -654,7 +654,6 @@ BGM_Graph::~BGM_Graph(){
 
 		#ifdef USE_GPU
 			gpuErrchk( cudaFree(neighbor_nmbs_gpu) );
-			int i;
 			for(i=0;i<n;i++){
 				gpuErrchk( cudaFree(neighbor_ids_gpu[i]) );
 			}
@@ -688,8 +687,7 @@ int **BGM_Graph::get_neighbor_ids(){
 void BGM_Graph::process(double threshold) {
 	this->threshold = threshold;
 	
-	int i,j,d;
-	double mynorm;
+	int i,j;
 
 	/* prepare array for number of neighbors */
 	neighbor_nmbs = (int*)malloc(n*sizeof(int));
