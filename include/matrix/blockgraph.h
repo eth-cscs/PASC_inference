@@ -7,6 +7,10 @@
  #error 'BLOCKGRAPH is for PETSCVECTOR only, sorry'
 #endif
 
+#ifdef USE_CUDA
+    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#endif
+
 #ifdef USE_PETSCVECTOR
 	typedef petscvector::PetscVector PetscVector;
 #endif
