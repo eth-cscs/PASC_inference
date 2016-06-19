@@ -5,15 +5,15 @@
  */
 
 #include "pascinference.h"
-#include "data/tsdata_global.h"
-#include "model/varxh1fem_global.h"
-
-#include "kmeans3D.h"
+#include "data/kmeansdata.h"
+#include "model/kmeansh1fem.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
 #endif
  
+typedef petscvector::PetscVector PetscVector;
+
 using namespace pascinference;
 
 extern int pascinference::DEBUG_MODE;
@@ -89,7 +89,6 @@ int main( int argc, char *argv[] )
 
 	/* solution - for generating the problem */
 	int solution_K = 3;
-	int solution_xmem = 0;
 	
 	double solution_theta[9] = {
 		 0.0, 0.0, 0.0,		/* K=1,n=1,2,3:  mu */
@@ -107,8 +106,6 @@ int main( int argc, char *argv[] )
 		0.05, 0.05, 0.01  
 	};
 
-	/* this is kmeans problem, but we use varx-model */
-	int xmem = 0;
 
 	std::ostringstream oss_name_of_file;
 
@@ -122,20 +119,17 @@ int main( int argc, char *argv[] )
 	/* ---- GENERATE THE LARGEST PROBLEM ---- */
 	/* prepare data */
 	coutMaster << "- generating largest problem: T = " << T_end << std::endl;
-	VarxH1FEMModel_Global mymodel(T_end, xdim, 0, xmem, 0);
-	TSData_Global mydata(mymodel);
-	mymodel.generate_data(solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, &mydata, false);
-	mymodel.generate_data_add_noise(&mydata, noise_covariance, &solution_get_cluster_id);
+	KmeansData<PetscVector> mydata(T_end,xdim);
+	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, solution_K, 0);
+	mydata.set_model(mymodel);
 
-	Vec data_Vec = mydata.get_datavector()->get_vector();
+	mydata.generate(solution_K, solution_theta, &solution_get_cluster_id, false);
+	mydata.add_noise(noise_covariance);
 
 	/* save data */
 	oss_name_of_file << "results/data_kmeans_T" << T_end << ".bin";
 	coutMaster << "- saving: " << oss_name_of_file.str() << std::endl;
-	PetscViewer viewer_out;
-	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD,oss_name_of_file.str().c_str(),FILE_MODE_WRITE,&viewer_out) );
-	TRY( VecView( data_Vec, viewer_out) );
-	TRY( PetscViewerDestroy(&viewer_out) );
+	mydata.save_datavector(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
 	/* generate gamma0 vector for all K */
@@ -144,6 +138,9 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> *gamma0; /* temp general vector for projection */
 	int K_num = (K_end - K_begin)/(double)K_step;
 	gamma0s_Vec = (Vec *)(malloc(K_num*sizeof(Vec)));
+
+	PetscViewer viewer_out;
+	Vec data_Vec = mydata.get_datavector()->get_vector();
 
 	int k, ki;
 	for(ki = 0; ki <= K_num; ki++){
@@ -252,6 +249,8 @@ int main( int argc, char *argv[] )
 		}
 
 	}
+
+
 
 	/* destroy the random generator */
 	TRY( PetscRandomDestroy(&rnd) );

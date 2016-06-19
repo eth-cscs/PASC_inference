@@ -7,19 +7,17 @@
  */
 
 #include "pascinference.h"
-#include "solver/tssolver_global.h"
-#include "data/tsdata_global.h"
-#include "model/varxh1fem_global.h"
-
-#include "kmeans3D.h"
+#include "solver/tssolver.h"
+#include "data/kmeansdata.h"
+#include "model/kmeansh1fem.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
 #endif
- 
-using namespace pascinference;
 
-extern int pascinference::DEBUG_MODE;
+typedef petscvector::PetscVector PetscVector;
+
+using namespace pascinference;
 
 int solution_get_cluster_id(int t, int T){
     int id_cluster;
@@ -63,12 +61,6 @@ int main( int argc, char *argv[] )
 	coutMaster << " T      = " << T << " (length of time-series)" << std::endl;
 	coutMaster << " K      = " << K << " (number of clusters)" << std::endl;
 	coutMaster << " epssqr = " << epssqr << " (penalty)" << std::endl;
-
-	/* print info about environment */
-	coutMaster << "- MPI INFO --------------------" << std::endl;
-	coutMaster << " nproc:   " << GlobalManager.get_size() << std::endl;
-	coutAll <<    " my_rank: " << GlobalManager.get_rank() << std::endl;
-	coutAll.synchronize();
 	coutMaster << "------------------------------" << std::endl << std::endl;
 
 	/* start logging */
@@ -84,7 +76,6 @@ int main( int argc, char *argv[] )
 
 	/* solution - for generating the problem */
 	int solution_K = 3;
-	int solution_xmem = 0;
 	
 	double solution_theta[9] = {
 		 0.0, 0.0, 0.0,		/* K=1,n=1,2,3:  mu */
@@ -102,29 +93,22 @@ int main( int argc, char *argv[] )
 		0.05, 0.05, 0.01  
 	};
 
-	/* model parameters */
-	int xmem = 0;
+	/* prepare time-series data */
+	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	KmeansData<PetscVector> mydata(T,xdim);
 
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	VarxH1FEMModel_Global mymodel(T, xdim, K, xmem, epssqr);
-
-	/* prepare time-series data */
-	coutMaster << "--- PREPARING DATA ---" << std::endl;
-	TSData_Global mydata(mymodel);
+	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, solution_K, epssqr);
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
-	mymodel.generate_data(solution_K, solution_xmem, solution_theta, solution_xstart, &solution_get_cluster_id, &mydata, false);
-	mymodel.generate_data_add_noise(&mydata, noise_covariance, &solution_get_cluster_id);
+	mydata.generate(solution_K, solution_theta, &solution_get_cluster_id, false);
+	mydata.add_noise(noise_covariance);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-	TSSolver_Global mysolver(mydata);
-
-	mysolver.maxit = 1000;
-	mysolver.debug_mode = 2;
-//	mysolver.print(coutMaster,coutAll);
+	TSSolver<PetscVector> mysolver(mydata);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
@@ -132,13 +116,11 @@ int main( int argc, char *argv[] )
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	example::KMeans3D::saveVTK("results/kmeans",".vtk",T,K,mydata.get_datavector(),mydata.get_gammavector());
-	coutAll.synchronize();
+	mydata.saveVTK("results/test_kmeans.vtk");
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING CSV ---" << std::endl;
-	mydata.saveCSV("results/kmeans");
-	coutAll.synchronize();
+	mydata.saveCSV("results/test_kmeans.csv");
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;

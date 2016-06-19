@@ -25,6 +25,7 @@ namespace pascinference {
 
 class EdfData: public TSData_Global {
 	protected:
+		/* informations from EDF file */
 		struct Record {
 			std::string hdr_label;
 			std::string hdr_transducer;
@@ -36,7 +37,6 @@ class EdfData: public TSData_Global {
 			std::string hdr_prefilter;
 			int hdr_samples;
 		};
-		
 		int hdr_ver;
 		std::string hdr_patientID;
 		std::string hdr_recordID;

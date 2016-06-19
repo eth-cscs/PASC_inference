@@ -32,7 +32,8 @@ class DiagSolver: public GeneralSolver {
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		
-		void printstatus(ConsoleOutput &output) const;		
+		void printstatus(ConsoleOutput &output) const;
+		void printcontent(ConsoleOutput &output) const;
 		void printtimer(ConsoleOutput &output) const;
 		std::string get_name() const;
 
@@ -53,6 +54,15 @@ DiagSolver<VectorBase>::DiagSolver(){
 	LOG_FUNC_BEGIN
 	
 	diagdata = NULL;
+	
+	/* settings */
+	this->maxit = 0;
+	this->eps = 0;
+	this->debug_mode = 0;
+
+	/* prepare timers */
+	this->timer_solve.restart();	
+	this->timer_dot.restart();
 
 	LOG_FUNC_END
 }
@@ -62,6 +72,15 @@ DiagSolver<VectorBase>::DiagSolver(DiagData<VectorBase> &new_diagdata){
 	LOG_FUNC_BEGIN
 
 	diagdata = &new_diagdata;
+
+	/* settings */
+	this->maxit = 0;
+	this->eps = 0;
+	this->debug_mode = 0;
+
+	/* prepare timers */
+	this->timer_solve.restart();	
+	this->timer_dot.restart();
 
 	LOG_FUNC_END
 }
@@ -104,10 +123,9 @@ void DiagSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_local <<  " - maxit:      " << this->maxit << std::endl;
-	output_local <<  " - eps:        " << this->eps << std::endl;
-	output_local <<  " - debug_mode: " << this->debug_mode << std::endl;
-	output_local.synchronize();
+	output_global <<  " - maxit:      " << this->maxit << std::endl;
+	output_global <<  " - eps:        " << this->eps << std::endl;
+	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print data */
 	if(diagdata){
@@ -127,6 +145,24 @@ void DiagSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
+	LOG_FUNC_END
+}
+
+/* print content of solver */
+template<class VectorBase>
+void DiagSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	output << this->get_name() << std::endl;
+	
+	/* print content of data */
+	if(diagdata){
+		output << "- data:" << std::endl;
+		coutMaster.push();
+		diagdata->printcontent(output);
+		coutMaster.pop();
+	}
+		
 	LOG_FUNC_END
 }
 
@@ -162,6 +198,7 @@ void DiagSolver<PetscVector>::solve() {
 	LOG_FUNC_BEGIN
 
 	this->timer_solve.start(); 
+
 
 	this->timer_dot.start(); 
 	 TRY( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );

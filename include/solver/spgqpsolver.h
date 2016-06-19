@@ -12,7 +12,7 @@
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 5000
 #define SPGQPSOLVER_DEFAULT_EPS 0.0001
-#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0
+#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 3
 
 #define SPGQPSOLVER_DEFAULT_M 20
 #define SPGQPSOLVER_DEFAULT_GAMMA 0.9
@@ -20,8 +20,8 @@
 #define SPGQPSOLVER_DEFAULT_SIGMA2 0.9999
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0
 
-#define SPGQPSOLVER_STOP_NORMGP false
-#define SPGQPSOLVER_STOP_NORMGP_NORMB true
+#define SPGQPSOLVER_STOP_NORMGP true
+#define SPGQPSOLVER_STOP_NORMGP_NORMB false
 #define SPGQPSOLVER_STOP_DIFFF false
 
 #ifdef USE_PETSCVECTOR
@@ -476,6 +476,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		 qpdata->get_feasibleset()->project(d);
 		this->timer_projection.stop();
 
+
 		/* d = d - x */
 		this->timer_update.start();
 		 d -= x;
@@ -527,6 +528,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_fs.start();
 		 fx_old = fx;
 		 fx = get_fx(fx_old,beta,gd,dAd);
+//		 fx = get_fx();
 		 fs.update(fx);
 		this->timer_fs.stop();
 
@@ -536,7 +538,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.stop();
 
 		/* stopping criteria */
-		this->gP = sqrt(dd);
+		this->gP = std::sqrt(dAd);
 		if( this->stop_difff && abs(fx - fx_old) < this->eps){
 			break;
 		}
@@ -557,7 +559,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		}
 
 		/* print progress of algorithm */
-		if(this->debug_mode >= 3 && false){
+		if(this->debug_mode >= 3){
 			coutMaster << "\033[33m   it = \033[0m" << it;
 			coutMaster << ", \t\033[36mfx = \033[0m" << fx;
 			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;

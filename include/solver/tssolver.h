@@ -1,38 +1,38 @@
-#ifndef PASC_TSSOLVER_GLOBAL_H
-#define	PASC_TSSOLVER_GLOBAL_H
+#ifndef PASC_TSSOLVER_H
+#define	PASC_TSSOLVER_H
 
 #ifndef USE_PETSCVECTOR
- #error 'TSSOLVER_GLOBAL is for PETSCVECTOR'
+ #error 'TSSOLVER is for PETSCVECTOR'
+ typedef petscvector::PetscVector PetscVector;
 #endif
 
-typedef petscvector::PetscVector PetscVector;
 
 #include "pascinference.h"
 
-#include "data/tsdata_global.h"
-#include "model/tsmodel_global.h"
-
+#include "data/tsdata.h"
+#include "model/tsmodel.h"
 
 //temp
 #include "solver/qpsolver.h"
 #include "solver/diagsolver.h"
-#include "solver/qpsolver_global.h"
+#include "solver/qpsolver.h"
 
-#define TSSOLVER_GLOBAL_DEFAULT_MAXIT 1000
-#define TSSOLVER_GLOBAL_DEFAULT_EPS 0.001
-#define TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0
+#define TSSOLVER_DEFAULT_MAXIT 1000
+#define TSSOLVER_DEFAULT_EPS 0.001
+#define TSSOLVER_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {
 
-/* TSSolver_Global_Global */ 
-class TSSolver_Global: public GeneralSolver {
+/* TSSolver */ 
+template<class VectorBase>
+class TSSolver: public GeneralSolver {
 	protected:
-		TSData_Global *tsdata; /**< tsdata on which the solver operates */
+		TSData<VectorBase> *tsdata; /**< tsdata on which the solver operates */
 
 		GeneralSolver *gammasolver; /**< to solve inner gamma problem */
 		GeneralSolver *thetasolver; /**< to solve inner theta problem */
 
-		TSModel_Global *model; /**< pointer to used time-series model */
+		TSModel<VectorBase> *model; /**< pointer to used time-series model */
 
 		int it_sum; /**< sum of all iterations */
 		int it_last; /**< number of interations in last solution */
@@ -46,9 +46,9 @@ class TSSolver_Global: public GeneralSolver {
 		Timer timer_theta_update; /**< timer for updating theta problem */
 
 	public:
-		TSSolver_Global();
-		TSSolver_Global(TSData_Global &new_tsdata); 
-		~TSSolver_Global();
+		TSSolver();
+		TSSolver(TSData<VectorBase> &new_tsdata); 
+		~TSSolver();
 
 		virtual void solve();
 		
@@ -59,7 +59,7 @@ class TSSolver_Global: public GeneralSolver {
 		void printtimer(ConsoleOutput &output) const;
 		std::string get_name() const;
 
-		TSData_Global *get_data() const;
+		TSData<VectorBase> *get_data() const;
 
 		GeneralSolver *get_gammasolver() const;
 		GeneralSolver *get_thetasolver() const;
@@ -74,7 +74,8 @@ class TSSolver_Global: public GeneralSolver {
 namespace pascinference {
 
 /* constructor */
-TSSolver_Global::TSSolver_Global(){
+template<class VectorBase>
+TSSolver<VectorBase>::TSSolver(){
 	LOG_FUNC_BEGIN
 	
 	this->tsdata = NULL;
@@ -85,9 +86,9 @@ TSSolver_Global::TSSolver_Global(){
 	this->it_sum = 0;
 	this->it_last = 0;
 
-	consoleArg.set_option_value("tssolver_global_maxit", &this->maxit, TSSOLVER_GLOBAL_DEFAULT_MAXIT);
-	consoleArg.set_option_value("tssolver_global_eps", &this->eps, TSSOLVER_GLOBAL_DEFAULT_EPS);
-	consoleArg.set_option_value("tssolver_global_debug_mode", &this->debug_mode, TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("tssolver_debug_mode", &this->debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
 
 	this->L = std::numeric_limits<double>::max();
 
@@ -100,7 +101,8 @@ TSSolver_Global::TSSolver_Global(){
 	LOG_FUNC_END
 }
 
-TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
+template<class VectorBase>
+TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata){
 	LOG_FUNC_BEGIN
 
 	/* set provided data and model */
@@ -108,16 +110,13 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	model = tsdata->get_model(); 
 
 	/* we can initialize solvers - based on model */
-	this->gammasolver = NULL;
 	model->initialize_gammasolver(&gammasolver, tsdata);	
-
-	this->thetasolver = NULL;
 	model->initialize_thetasolver(&thetasolver, tsdata);	
 
 	/* set settings */
-	consoleArg.set_option_value("tssolver_global_maxit", &this->maxit, TSSOLVER_GLOBAL_DEFAULT_MAXIT);
-	consoleArg.set_option_value("tssolver_global_eps", &this->eps, TSSOLVER_GLOBAL_DEFAULT_EPS);
-	consoleArg.set_option_value("tssolver_global_debug_mode", &this->debug_mode, TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("tssolver_debug_mode", &this->debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
 
 	/* iteration counters */
 	this->it_sum = 0;
@@ -137,7 +136,8 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 }
 
 /* destructor */
-TSSolver_Global::~TSSolver_Global(){
+template<class VectorBase>
+TSSolver<VectorBase>::~TSSolver(){
 	LOG_FUNC_BEGIN
 
 	/* destroy child solvers - based on model */
@@ -153,7 +153,8 @@ TSSolver_Global::~TSSolver_Global(){
 
 
 /* print info about problem */
-void TSSolver_Global::print(ConsoleOutput &output) const {
+template<class VectorBase>
+void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -193,7 +194,8 @@ void TSSolver_Global::print(ConsoleOutput &output) const {
 }
 
 /* print info about problem */
-void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+template<class VectorBase>
+void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -236,7 +238,8 @@ void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 }
 
 
-void TSSolver_Global::printstatus(ConsoleOutput &output) const {
+template<class VectorBase>
+void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -247,7 +250,8 @@ void TSSolver_Global::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_END
 }
 
-void TSSolver_Global::printtimer(ConsoleOutput &output) const {
+template<class VectorBase>
+void TSSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -281,12 +285,14 @@ void TSSolver_Global::printtimer(ConsoleOutput &output) const {
 }
 
 
-std::string TSSolver_Global::get_name() const {
-	return "TSSolver_Global";
+template<class VectorBase>
+std::string TSSolver<VectorBase>::get_name() const {
+	return "TSSolver<VectorBase>";
 }
 
 /* solve the problem */
-void TSSolver_Global::solve() {
+template<class VectorBase>
+void TSSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
@@ -315,8 +321,6 @@ void TSSolver_Global::solve() {
 	
 	int it; 
 
-	TRY(PetscBarrier(NULL));
-
 	/* main cycle */
 	coutMaster.push();
 	for(it=0;it < this->maxit;it++){
@@ -331,7 +335,7 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		this->timer_theta_solve.start();
-		thetasolver->solve();
+		 thetasolver->solve();
 		this->timer_theta_solve.stop();
 
 		TRY(PetscBarrier(NULL));
@@ -359,13 +363,13 @@ void TSSolver_Global::solve() {
 			thetasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(this->debug_mode >= 101 || true){
+		if(this->debug_mode >= 101){
 			coutMaster <<  "- thetasolver content:" << std::endl;
 			coutMaster.push();
-			thetasolver->printcontent(coutAll);
-			coutAll.synchronize();
+			thetasolver->printcontent(coutMaster);
 			coutMaster.pop();
 		}
+
 
 		/* --- COMPUTE gamma --- */
 		this->timer_gamma_update.start();
@@ -375,10 +379,8 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		this->timer_gamma_solve.start();
-		gammasolver->solve();
+		 gammasolver->solve();
 		this->timer_gamma_solve.stop();
-
-		TRY(PetscBarrier(NULL));
 
 		/* print info about gammasolver */
 		if(this->debug_mode >= 2){
@@ -404,8 +406,7 @@ void TSSolver_Global::solve() {
 		if(this->debug_mode >= 101){
 			coutMaster <<  "- gammasolver content:" << std::endl;
 			coutMaster.push();
-			gammasolver->printcontent(coutAll);
-			coutAll.synchronize();
+			gammasolver->printcontent(coutMaster);
 			coutMaster.pop();
 		}
 
@@ -428,8 +429,8 @@ void TSSolver_Global::solve() {
 			coutAll.synchronize();
 		}
 
-		/* stopping criteria */
-		if (deltaL < this->eps){
+		/* global stopping criteria */
+		if(deltaL < this->eps){
 			break;
 		}
 
@@ -440,8 +441,6 @@ void TSSolver_Global::solve() {
 	this->it_last = it;
 	this->L = L;
 
-	TRY(PetscBarrier(NULL));
-
 	this->timer_solve.stop(); /* stop this timer in the end of solution */
 
 	LOG_IT(this->it_last)
@@ -450,15 +449,18 @@ void TSSolver_Global::solve() {
 	LOG_FUNC_END
 }
 
-TSData_Global *TSSolver_Global::get_data() const {
+template<class VectorBase>
+TSData<VectorBase> *TSSolver<VectorBase>::get_data() const {
 	return tsdata;
 }
 
-GeneralSolver *TSSolver_Global::get_gammasolver() const {
+template<class VectorBase>
+GeneralSolver *TSSolver<VectorBase>::get_gammasolver() const {
 	return gammasolver;
 }
 
-GeneralSolver *TSSolver_Global::get_thetasolver() const {
+template<class VectorBase>
+GeneralSolver *TSSolver<VectorBase>::get_thetasolver() const {
 	return thetasolver;
 }
 

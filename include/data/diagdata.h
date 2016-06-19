@@ -173,29 +173,38 @@ void DiagData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output_local <<  " - a:            ";
+	output_global <<  " - a:            ";
 	if(this->a){
-		output_local << "YES (size: " << this->a->size() << ")" << std::endl;
+		output_global << "YES (size: " << this->a->size() << ")" << std::endl;
+		output_global.push();
+		output_local  <<  "local size: " << this->a->local_size() << std::endl;
+		output_global.pop();
+		output_local.synchronize();		
 	} else {
-		output_local << "not set" << std::endl;
+		output_global << "not set" << std::endl;
 	}
-	output_local.synchronize();
 	
-	output_local <<  " - b:            ";
+	output_global <<  " - b:            ";
 	if(this->b){
-		output_local << "YES (size: " << this->b->size() << ")" << std::endl;
+		output_global << "YES (size: " << this->b->size() << ")" << std::endl;
+		output_global.push();
+		output_local  <<  "local size: " << this->b->local_size() << std::endl;
+		output_global.pop();
+		output_local.synchronize();		
 	} else {
-		output_local << "not set" << std::endl;
+		output_global << "not set" << std::endl;
 	}
-	output_local.synchronize();
 
-	output_local <<  " - x:            ";
+	output_global <<  " - x:            ";
 	if(this->x){
-		output_local << "YES (size: " << this->x->size() << ")" << std::endl;
+		output_global << "YES (size: " << this->x->size() << ")" << std::endl;
+		output_global.push();
+		output_local  <<  "local size: " << this->x->local_size() << std::endl;
+		output_global.pop();
+		output_local.synchronize();		
 	} else {
-		output_local << "not set" << std::endl;
+		output_global << "not set" << std::endl;
 	}
-	output_local.synchronize();
 		
 	LOG_FUNC_END
 }

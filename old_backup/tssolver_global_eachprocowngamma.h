@@ -304,6 +304,18 @@ void TSSolver_Global::solve() {
 
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
+	/* solved vector, if all values are 1, then all problems are solved */
+	Vec solved_vec;
+	TRY( VecCreate(PETSC_COMM_WORLD,&solved_vec) );
+	TRY( VecSetSizes(solved_vec,1,GlobalManager.get_size()) ); // TODO: there should be more options to set the distribution
+	TRY( VecSetFromOptions(solved_vec) );
+	double *solved_arr;
+	double solved_local = 0.0;
+	double solved_sum;
+	TRY( VecSet(solved_vec, solved_local) );
+	TRY( VecAssemblyBegin(solved_vec));
+	TRY( VecAssemblyEnd(solved_vec));
+
 	/* variables */
 	double L; /* object function value */
 	double L_old;
@@ -331,7 +343,9 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		this->timer_theta_solve.start();
-		thetasolver->solve();
+		 if(solved_local == 0.0){
+			thetasolver->solve();
+		 }
 		this->timer_theta_solve.stop();
 
 		TRY(PetscBarrier(NULL));
@@ -359,13 +373,13 @@ void TSSolver_Global::solve() {
 			thetasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(this->debug_mode >= 101 || true){
+		if(this->debug_mode >= 101){
 			coutMaster <<  "- thetasolver content:" << std::endl;
 			coutMaster.push();
-			thetasolver->printcontent(coutAll);
-			coutAll.synchronize();
+			thetasolver->printcontent(coutMaster);
 			coutMaster.pop();
 		}
+
 
 		/* --- COMPUTE gamma --- */
 		this->timer_gamma_update.start();
@@ -375,7 +389,9 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		this->timer_gamma_solve.start();
-		gammasolver->solve();
+		 if(solved_local == 0.0){
+			gammasolver->solve();
+		 }
 		this->timer_gamma_solve.stop();
 
 		TRY(PetscBarrier(NULL));
@@ -404,37 +420,53 @@ void TSSolver_Global::solve() {
 		if(this->debug_mode >= 101){
 			coutMaster <<  "- gammasolver content:" << std::endl;
 			coutMaster.push();
-			gammasolver->printcontent(coutAll);
-			coutAll.synchronize();
+			gammasolver->printcontent(coutMaster);
 			coutMaster.pop();
 		}
 
 		/* compute stopping criteria if the problem was not solved yet */
 		L_old = L;
-		L = model->get_L(gammasolver,thetasolver,tsdata);
-		deltaL = std::abs(L - L_old);
+		if(solved_local == 0.0){
+			L = model->get_L(gammasolver,thetasolver,tsdata);
+			deltaL = std::abs(L - L_old);
 
-		/* log L */
-		LOG_FX2(L,"L")
-		LOG_FX2(deltaL,"deltaL")
+			/* log L */
+			LOG_FX2(L,"L")
+			LOG_FX2(deltaL,"deltaL")
+		}
+
+		/* update local stopping criteria */
+		if (deltaL < this->eps){
+			solved_local = 1.0;
+
+			TRY( VecGetArray(solved_vec,&solved_arr) );
+			solved_arr[0] = solved_local;
+			TRY( VecRestoreArray(solved_vec,&solved_arr) );
+		}
+		TRY( VecAssemblyBegin(solved_vec));
+		TRY( VecAssemblyEnd(solved_vec));
 
 		if(this->debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " outer loop status:" << std::endl;			
 			coutAll << "  - ";
+			coutAll << "solved = " << std::setw(2) << solved_local << ", ";
 			coutAll << "L_old = " << std::setw(12) << L_old << ", ";
 			coutAll << "L = " << std::setw(12) << L << ", ";
 			coutAll << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
 			coutAll.synchronize();
 		}
 
-		/* stopping criteria */
-		if (deltaL < this->eps){
+		/* global stopping criteria */
+		TRY( VecSum(solved_vec, &solved_sum));
+		if(solved_sum >= GlobalManager.get_size()){
 			break;
 		}
 
 	}
 	coutMaster.pop();
+
+	TRY( VecDestroy(&solved_vec) );
 
 	this->it_sum += it;
 	this->it_last = it;

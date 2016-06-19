@@ -6,12 +6,12 @@
 namespace pascinference {
 
 static void add_options(boost::program_options::options_description *description, int console_nmb_cols){
-	/* TSSOLVER_GLOBAL */
-	boost::program_options::options_description opt_tssolver_global("TSSOLVER_GLOBAL", console_nmb_cols);
+	/* TSSOLVER */
+	boost::program_options::options_description opt_tssolver_global("TSSOLVER", console_nmb_cols);
 	opt_tssolver_global.add_options()
-		("tssolver_global_maxit", boost::program_options::value<int>(), "maximum number of iterations")
-		("tssolver_global_eps", boost::program_options::value<double>(), "precision")
-		("tssolver_global_debug_mode", boost::program_options::value<int>(), "debug mode");
+		("tssolver_maxit", boost::program_options::value<int>(), "maximum number of iterations")
+		("tssolver_eps", boost::program_options::value<double>(), "precision")
+		("tssolver_debug_mode", boost::program_options::value<int>(), "debug mode");
 	description->add(opt_tssolver_global);
 
 	/* MULTICG */
@@ -62,11 +62,6 @@ static void add_options(boost::program_options::options_description *description
 		("spgqpsolver_stop_difff", boost::program_options::value<bool>(), "stopping criteria based on difference of object function");
 	description->add(opt_spgqpsolver);
 
-	/* VARXH1FEMMODEL */
-	boost::program_options::options_description opt_tsmodel_global("TSMODEL_GLOBAL", console_nmb_cols);
-	opt_tsmodel_global.add_options()
-		("tsmodel_global_t_scatter", boost::program_options::value<int>(), "scatter size in assembling Gamma problem, how long time-series to scatter to all processors");
-	description->add(opt_tsmodel_global);
 
 
 }

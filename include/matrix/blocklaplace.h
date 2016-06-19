@@ -37,7 +37,7 @@ class BlockLaplaceMatrix: public GeneralMatrix<PetscVector> {
 		IS right_overlap_is;
 		
 	public:
-		BlockLaplaceMatrix(const PetscVector &x, int K, double alpha=1.0);
+		BlockLaplaceMatrix(PetscVector &x, int K, double alpha=1.0);
 		~BlockLaplaceMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -66,7 +66,7 @@ std::string BlockLaplaceMatrix::get_name() const {
 	return "BlockLaplaceMatrix";
 }
 
-BlockLaplaceMatrix::BlockLaplaceMatrix(const PetscVector &x, int K, double alpha){
+BlockLaplaceMatrix::BlockLaplaceMatrix(PetscVector &x, int K, double alpha){
 	LOG_FUNC_BEGIN
 
 	this->K = K;

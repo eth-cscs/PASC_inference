@@ -141,23 +141,28 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit:      " << this->maxit << std::endl;
-	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_global <<  " - maxit:       " << this->maxit << std::endl;
+	output_global <<  " - eps:         " << this->eps << std::endl;
+	output_global <<  " - debug_mode:  " << this->debug_mode << std::endl;
 
+	output_global <<  " - child solver: " << std::endl;
+	output_global.push();
+	if(child_solver){
+		child_solver->printstatus(output_local);
+	} else {
+		output_local <<  " - not set yet." << std::endl; 
+	}
+	output_local.synchronize();	
+	output_global.pop();
+	
 	/* print data */
 	if(qpdata){
 		output_global.push();
-		qpdata->print(output_global);
+		qpdata->print(output_global, output_local);
 		output_global.pop();
 	}
 	
-	/* if child solver is specified, then print also info about it */	
-	if(child_solver){
-		output_global.push();
-		child_solver->print(output_global, output_local);
-		output_global.pop();
-	}	
+	output_global.synchronize();
 
 	LOG_FUNC_END
 }

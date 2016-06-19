@@ -41,10 +41,11 @@ include(printsetting)
 
 # prepare directories
 make_directory("results")
+make_directory("data")
 
 # --------- include test cmake functions --------
 include("test_kmeans/test_kmeans.cmake")
-include("test_varx/test_varx.cmake")
+#include("test_varx/test_varx.cmake")
 include("test_other/test_other.cmake")
 include("test_edf/test_edf.cmake")
 message("\n----------------------------------------------------------\n")
