@@ -47,6 +47,9 @@ class BGM_Graph {
 		double get_threshold();
 		int *get_neighbor_nmbs();
 		int **get_neighbor_ids();
+
+		int *get_neighbor_nmbs_gpu();
+		int **get_neighbor_ids_gpu();
 		
 		void process(double threshold);
 
@@ -580,8 +583,8 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 	double *x_arr;
 	double *x_aux_arr;
 	
-	int* neighbor_nmbs = graph->get_neighbor_nmbs();
-	int **neightbor_ids = graph->get_neighbor_ids();
+	int* neighbor_nmbs = graph->get_neighbor_nmbs_gpu();
+	int **neightbor_ids = graph->get_neighbor_ids_gpu();
 			
 	/* get array */
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
@@ -682,6 +685,22 @@ int *BGM_Graph::get_neighbor_nmbs(){
 
 int **BGM_Graph::get_neighbor_ids(){
 	return neighbor_ids;
+}
+
+int *BGM_Graph::get_neighbor_nmbs_gpu(){
+	#ifdef USE_GPU
+		return neighbor_nmbs_gpu;
+	#else
+		return neighbor_nmbs;
+	#endif
+}
+
+int **BGM_Graph::get_neighbor_ids(){
+	#ifdef USE_GPU
+		return neighbor_ids_gpu;
+	#else
+		return neighbor_ids;
+	#endif
 }
 
 void BGM_Graph::process(double threshold) {
