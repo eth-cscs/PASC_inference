@@ -112,7 +112,7 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 
 #ifdef USE_GPU
 __global__ void kernel_BlockGraphMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
-__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_arr_aux, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
+__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
 #endif
 
 
@@ -532,7 +532,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 	TRY( VecRestoreSubVector(x.get_vector(),right_overlap_is,&right_overlap_vec) );
 }
 
-__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_arr_aux, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
+__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
 {
 	/* compute my id */
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
