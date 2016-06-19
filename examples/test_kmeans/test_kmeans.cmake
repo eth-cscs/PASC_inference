@@ -2,23 +2,23 @@ include_directories("${CMAKE_SOURCE_DIR}/test_kmeans/")
 include_directories("${CMAKE_SOURCE_DIR}/test_kmeans/include")
 
 # decide which example to compile
-option(TEST_KMEANS_LARGE "TEST_KMEANS_LARGE" OFF)
+option(TEST_KMEANS "TEST_KMEANS" OFF)
 option(TEST_KMEANS_LOAD "TEST_KMEANS_LOAD" OFF)
 option(TEST_KMEANS_GENERATE "TEST_KMEANS_GENERATE" OFF)
 
 # print info
-printinfo_onoff("TEST_KMEANS_LARGE\t\t\t" "${TEST_KMEANS_LARGE}")
+printinfo_onoff("TEST_KMEANS\t\t\t\t" "${TEST_KMEANS}")
 printinfo_onoff("TEST_KMEANS_LOAD\t\t\t" "${TEST_KMEANS_LOAD}")
 printinfo_onoff("TEST_KMEANS_GENERATE\t\t\t" "${TEST_KMEANS_GENERATE}")
 
 # add example executable files
-if(${TEST_KMEANS_LARGE})
+if(${TEST_KMEANS})
 	if(${USE_CUDA})
 		# if we know how to compile .cu, then include .cu
-		pascadd_executable("test_kmeans/test_kmeans_large.cu" "test_kmeans_large")
+		pascadd_executable("test_kmeans/test_kmeans.cu" "test_kmeans")
 	else()
 		# otherwise compile as .cpp
-		pascadd_executable("test_kmeans/test_kmeans_large.cpp" "test_kmeans_large")
+		pascadd_executable("test_kmeans/test_kmeans.cpp" "test_kmeans")
 	endif()
 endif()
 

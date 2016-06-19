@@ -254,9 +254,7 @@ void KmeansH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamma
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-//	GeneralMatrix<PetscVector> *A = new BlockLaplaceMatrix(*(gammadata->get_x0()), this->K, this->epssqr*this->epssqr);
-//	GeneralMatrix<PetscVector> *A = new BlockDiagLaplaceVectorMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->T, this->epssqr);
-	gammadata->set_A(new BlockLaplaceMatrix(*(gammadata->get_x0()), this->K, this->epssqr*this->epssqr)); 
+	gammadata->set_A(new BlockLaplaceMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->epssqr*this->epssqr)); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
