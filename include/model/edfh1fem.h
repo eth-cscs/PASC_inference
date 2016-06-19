@@ -1,8 +1,8 @@
-#ifndef PASC_KMEANSH1FEMMODEL_H
-#define	PASC_KMEANSH1FEMMODEL_H
+#ifndef PASC_EDFH1FEMMODEL_H
+#define	PASC_EDFH1FEMMODEL_H
 
 #ifndef USE_PETSCVECTOR
- #error 'KMEANSH1FEMMODEL is for PETSCVECTOR'
+ #error 'EDFH1FEMMODEL is for PETSCVECTOR'
 #endif
 
 typedef petscvector::PetscVector PetscVector;
@@ -13,35 +13,36 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 /* gamma problem */
-#include "matrix/blocklaplace.h"
-//#include "matrix/blockdiaglaplace_vector.h"
+#include "matrix/blockgraph.h"
 
 #include "feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
 /* theta problem */
-#include "solver/diagsolver.h"
-#include "data/diagdata.h"
+#include "solver/simplesolver.h"
+#include "data/simpledata.h"
 
-#include "data/kmeansdata.h"
+#include "data/edfdata.h"
 
 
 namespace pascinference {
 
 template<class VectorBase>
-class KmeansH1FEMModel: public TSModel<VectorBase> {
+class EdfH1FEMModel: public TSModel<VectorBase> {
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
-	 	DiagData<VectorBase> *thetadata; /**< QP with diagonal matrix of dimension xdim*K, will be solved by diagsolver  */
+	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
 
 		/* model specific variables */
+		BGM_Graph *graph; /**< graph with stucture of the matrix */
+		int R; /**< number of nodes of the graph */
 		double epssqr; /**< penalty coeficient */
 		
 	public:
 	
-		KmeansH1FEMModel(KmeansData<VectorBase> &tsdata, int xdim, int K, double epssqr);
-		~KmeansH1FEMModel();
+		EdfH1FEMModel(EdfData<VectorBase> &tsdata, BGM_Graph &new_graph, int K, double epssqr);
+		~EdfH1FEMModel();
 
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
@@ -61,7 +62,7 @@ class KmeansH1FEMModel: public TSModel<VectorBase> {
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata);
 
 		QPData<VectorBase> *get_gammadata() const;
-		DiagData<VectorBase> *get_thetadata() const;
+		SimpleData<VectorBase> *get_thetadata() const;
 
 };
 
@@ -75,28 +76,33 @@ namespace pascinference {
 
 /* constructor */
 template<>
-KmeansH1FEMModel<PetscVector>::KmeansH1FEMModel(KmeansData<PetscVector> &tsdata, int xdim, int K, double epssqr) {
+EdfH1FEMModel<PetscVector>::EdfH1FEMModel(EdfData<PetscVector> &tsdata, BGM_Graph &new_graph, int K, double epssqr) {
 	LOG_FUNC_BEGIN
+
+	this->xdim = 1; // TODO: now I can compute only 1D problem, sorry
+	this->R = tsdata.get_R();
+
+	/* set graph */
+	this->graph = &new_graph;	
 
 	/* get original PETSc Vec from data vector */
 	Vec data_Vec = tsdata.get_datavector()->get_vector();
 
 	/* get T from data */
 	TRY( VecGetSize(data_Vec, &(this->datavectorlength_global)) );
-	this->T = this->datavectorlength_global/(double)xdim;
+	this->T = this->datavectorlength_global/(double)(R*xdim);
 
 	/* get Tlocal from data */
 	TRY( VecGetLocalSize(data_Vec, &(this->datavectorlength_local)) );
-	this->Tlocal = this->datavectorlength_local/(double)xdim;
+	this->Tlocal = this->datavectorlength_local/(double)(R*xdim);
 
 	/* get T ranges from data */
 	int low, high;
 	TRY( VecGetOwnershipRange(data_Vec, &low, &high) );
-	this->Tbegin = low/(double)xdim;
-	this->Tend = high/(double)xdim;
+	this->Tbegin = low/(double)(R*xdim);
+	this->Tend = high/(double)(R*xdim);
 
 	/* set given parameters */
-	this->xdim = xdim;
 	this->K = K;
 	this->epssqr = epssqr;
 
@@ -105,11 +111,11 @@ KmeansH1FEMModel<PetscVector>::KmeansH1FEMModel(KmeansData<PetscVector> &tsdata,
 	/* compute vector lengths */
 
 	/* prepage global vectors with gamma */
-	this->gammavectorlength_local = K*this->Tlocal;
-	this->gammavectorlength_global = K*this->T;
+	this->gammavectorlength_local = K*R*this->Tlocal;
+	this->gammavectorlength_global = K*R*this->T;
 
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
-	this->thetavectorlength_local = xdim*K; 
+	this->thetavectorlength_local = K;
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
 
 	/* set this model to data */
@@ -120,7 +126,7 @@ KmeansH1FEMModel<PetscVector>::KmeansH1FEMModel(KmeansData<PetscVector> &tsdata,
 
 /* destructor */
 template<class VectorBase>
-KmeansH1FEMModel<VectorBase>::~KmeansH1FEMModel(){
+EdfH1FEMModel<VectorBase>::~EdfH1FEMModel(){
 	LOG_FUNC_BEGIN
 	
 	/* destroy auxiliary vectors */
@@ -131,7 +137,7 @@ KmeansH1FEMModel<VectorBase>::~KmeansH1FEMModel(){
 
 /* print info about model */
 template<class VectorBase>
-void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
+void EdfH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -141,7 +147,13 @@ void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - xdim:    " << this->xdim << std::endl;
 
 	output <<  " - K:       " << this->K << std::endl;
+	output <<  " - R:       " << this->R << std::endl;
 	output <<  " - epssqr:  " << this->epssqr << std::endl;
+
+	output <<  " - Graph:       " << std::endl;
+	output.push();
+	graph->print(output);
+	output.pop();
 
 	output <<  " - datalength:  " << this->datavectorlength_global << std::endl;
 	output <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
@@ -154,7 +166,7 @@ void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 
 /* print info about model */
 template<class VectorBase>
-void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void EdfH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -165,7 +177,12 @@ void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOu
 	output_global <<  "  - xdim:    " << this->xdim << std::endl;
 
 	output_global <<  " - K:       " << this->K << std::endl;
+	output_global <<  " - R:       " << this->R << std::endl;
 	output_global <<  " - epssqr:  " << this->epssqr << std::endl;
+
+	output_global.push();
+	graph->print(output_global);
+	output_global.pop();
 
 	output_global <<  " - datalength:  " << this->datavectorlength_global << std::endl;
 	output_global <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
@@ -189,7 +206,7 @@ void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOu
 
 /* print model solution */
 template<>
-void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void EdfH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -212,7 +229,7 @@ void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, 
 
 		/* mu */
 		output_local.push();
-		output_local <<  "- mu = [";
+		output_local <<  "- theta = [";
 		for(n=0;n<xdim;n++){
 			temp << theta[k*xdim + n];
 			output_local << temp.str();
@@ -236,13 +253,13 @@ void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, 
 
 /* get name of the model */
 template<class VectorBase>
-std::string KmeansH1FEMModel<VectorBase>::get_name() const {
-	return "Kmeans-H1-FEM Time-Series Model";	
+std::string EdfH1FEMModel<VectorBase>::get_name() const {
+	return "EDF-H1-FEM Time-Series Model";	
 }
 
 /* prepare gamma solver */
 template<>
-void KmeansH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver, const TSData<PetscVector> *tsdata){
+void EdfH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* in this case, gamma problem is QP with simplex feasible set */
@@ -254,7 +271,7 @@ void KmeansH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamma
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	gammadata->set_A(new BlockLaplaceMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->epssqr*this->epssqr)); 
+	gammadata->set_A(new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr*this->epssqr)); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
@@ -271,24 +288,22 @@ void KmeansH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamma
 
 /* prepare theta solver */
 template<>
-void KmeansH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<PetscVector> *tsdata){
+void EdfH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 	
 	/* create data */
-	thetadata = new DiagData<PetscVector>();
+	thetadata = new SimpleData<PetscVector>();
 	thetadata->set_x(tsdata->get_thetavector()); /* the solution of QP problem is gamma */
-	thetadata->set_a(new GeneralVector<PetscVector>(*thetadata->get_x())); /* create new diagonal of matrix */
-	thetadata->set_b(new GeneralVector<PetscVector>(*thetadata->get_x())); /* create new rhs */
 
 	/* create solver */
-	*thetasolver = new DiagSolver<PetscVector>(*thetadata);
+	*thetasolver = new SimpleSolver<PetscVector>(*thetadata);
 	
 	LOG_FUNC_END
 }
 
 /* destroy gamma solver */
 template<class VectorBase>
-void KmeansH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
+void EdfH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
@@ -307,14 +322,12 @@ void KmeansH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasol
 
 /* destroy theta solver */
 template<class VectorBase>
-void KmeansH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
+void EdfH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
 
 	/* destroy data */
-	free(thetadata->get_a());
-	free(thetadata->get_b());
 	free(thetadata);
 
 	/* destroy solver */
@@ -324,23 +337,23 @@ void KmeansH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasol
 }
 
 template<class VectorBase>
-double KmeansH1FEMModel<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+double EdfH1FEMModel<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
 	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
 }
 
 template<class VectorBase>
-QPData<VectorBase>* KmeansH1FEMModel<VectorBase>::get_gammadata() const {
+QPData<VectorBase>* EdfH1FEMModel<VectorBase>::get_gammadata() const {
 	return gammadata;
 }
 
 template<class VectorBase>
-DiagData<VectorBase>* KmeansH1FEMModel<VectorBase>::get_thetadata() const {
+SimpleData<VectorBase>* EdfH1FEMModel<VectorBase>::get_thetadata() const {
 	return thetadata;
 }
 
 template<>
-void KmeansH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<PetscVector> *tsdata){
+void EdfH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* update gamma_solver data - prepare new linear term */
@@ -375,62 +388,9 @@ void KmeansH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolve
 
 /* update theta solver */
 template<>
-void KmeansH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<PetscVector> *tsdata){
+void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 
-	Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
-	Vec data_Vec = tsdata->get_datavector()->get_vector();
-
-	/* get arrays from problem objects */
-	double *a_arr;
-	double *b_arr;
-	TRY( VecGetArray(thetadata->get_a()->get_vector(), &a_arr) );
-	TRY( VecGetArray(thetadata->get_b()->get_vector(), &b_arr) );
-
-	Vec gammak_Vec;
-	IS gammak_is;
-
-	Vec datan_Vec;
-	IS datan_is;
-	
-	int k,n;	
-	double sum_gammak, gammaTx;
-	/* through clusters */
-	for(k=0;k<K;k++){ 
-		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, k*Tlocal, 1, &gammak_is) );
-		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-
-		/* compute sum of gammak */
-		TRY( VecSum( gammak_Vec, &sum_gammak) );
-
-		/* through dimensions */
-		for(n=0;n<xdim;n++){
-			/* get datan */
-			TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, n, xdim, &datan_is) );
-			TRY( VecGetSubVector(data_Vec, datan_is, &datan_Vec) );
-			
-			/* compute dot product */
-			TRY( VecDot(datan_Vec,gammak_Vec, &gammaTx) );
-			
-			/* store values to problem objects */
-			a_arr[k*xdim+n] = sum_gammak;
-			b_arr[k*xdim+n] = gammaTx;
-
-			/* restore datan */
-			TRY( VecRestoreSubVector(data_Vec, datan_is, &datan_Vec) );
-			TRY( ISDestroy(&datan_is) );
-		}
-
-		/* restore gammak */
-		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-		TRY( ISDestroy(&gammak_is) );
-
-	}	
-
-	/* restore arrays to problem objects */
-	TRY( VecRestoreArray(thetadata->get_a()->get_vector(), &a_arr) );
-	TRY( VecRestoreArray(thetadata->get_b()->get_vector(), &b_arr) );
 
 	LOG_FUNC_END
 }

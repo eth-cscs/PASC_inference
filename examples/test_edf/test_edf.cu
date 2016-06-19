@@ -7,15 +7,17 @@
  */
 
 #include "pascinference.h"
-#include "solver/tssolver_global.h"
+#include "solver/tssolver.h"
 #include "data/edfdata.h"
-#include "model/varxh1fem_global.h"
+#include "model/edfh1fem.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
 #endif
  
 using namespace pascinference;
+
+typedef petscvector::PetscVector PetscVector;
 
 extern int pascinference::DEBUG_MODE;
 
@@ -39,15 +41,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 
-	std::cout << "K       = " << K << " (number of clusters)" << std::endl;
-	std::cout << "epssqrt = " << epssqr << " (penalty)" << std::endl;
-
-	/* print info about environment */
-	coutMaster << "---------------------" << std::endl;
-	coutMaster << " nproc:   " << GlobalManager.get_size() << std::endl;
-	coutAll <<    " my_rank: " << GlobalManager.get_rank() << std::endl;
-	coutAll.synchronize();
-	coutMaster << "---------------------" << std::endl << std::endl;
+	coutMaster << "K       = " << K << " (number of clusters)" << std::endl;
+	coutMaster << "epssqrt = " << epssqr << " (penalty)" << std::endl;
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -57,43 +52,43 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
-	/* parameters of the model */
-	int xdim = 3; /* data dimension */
-
-	/* solution - for generating the problem */
-	int solution_K = 3;
-	int solution_xmem = 0;
-
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
-	EdfData mydata("S001R01.edf.txt");
+	EdfData<PetscVector> mydata("data/S001R01.edf.txt");
 
-//	mydata.print(coutMaster);
+//	mydata.print(coutMaster,coutAll);
 
 	/* prepare model */
-//	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-//	VarxH1FEMModel_Global mymodel(T, xdim, K, xmem, epssqr);
+	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	BGM_Graph mygraph("data/Koordinaten_EEG_P.bin");
+	mygraph.process(2.5);
+	EdfH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);
+
+	mymodel.print(coutMaster,coutAll);
 
 	/* prepare time-series solver */
-//	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-//	TSSolver_Global mysolver(mydata);
+	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	TSSolver<PetscVector> mysolver(mydata);
 
 //	mysolver.maxit = 1000;
 //	mysolver.debug_mode = 2;
-//	mysolver.print(coutMaster,coutAll);
+	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
-//	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 //	mysolver.solve();
 
 	/* save results into CSV file */
+//	coutMaster << "--- SAVING VTK ---" << std::endl;
+//	mydata.saveCSV("results/edf.vtk");
+
+	/* save results into CSV file */
 //	coutMaster << "--- SAVING CSV ---" << std::endl;
-//	mymodel.saveCSV("results/kmeans",&mydata);
-//	coutAll.synchronize();
+//	mydata.saveCSV("results/edf.csv");
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;
-//	mysolver.printtimer(coutAll);
+	mysolver.printtimer(coutAll);
 	coutAll.synchronize();
 
 	/* say bye */	

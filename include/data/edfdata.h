@@ -18,23 +18,24 @@ extern int DEBUG_MODE;
 
 #include <iostream>
 #include "common/common.h"
-#include "data/tsdata_global.h"
-#include "model/tsmodel_global.h"
+#include "data/tsdata.h"
+#include "model/tsmodel.h"
 
 namespace pascinference {
 
-class EdfData: public TSData_Global {
+template<class VectorBase>
+class EdfData: public TSData<VectorBase> {
 	protected:
 		/* informations from EDF file */
 		struct Record {
-			std::string hdr_label;
-			std::string hdr_transducer;
-			std::string hdr_units;
+			std::string *hdr_label;
+			std::string *hdr_transducer;
+			std::string *hdr_units;
 			double hdr_physicalMin; // TODO: double or int?
 			double hdr_physicalMax;
 			double hdr_digitalMin;
 			double hdr_digitalMax;
-			std::string hdr_prefilter;
+			std::string *hdr_prefilter;
 			int hdr_samples;
 		};
 		int hdr_ver;
@@ -53,15 +54,9 @@ class EdfData: public TSData_Global {
 		int T;
 		int Tlocal;
 		
-		void read_from_file(std::ifstream &myfile, char *outchar, int length){
-			myfile.read(outchar, length);
-		};
-
 		void edfRead(std::string filename);
 	public:
-//		EdfData();
-//		EdfData(TSModel_Global &tsmodel) {};
-		EdfData(std::string filename);
+		EdfData(std::string filename_data);
 		~EdfData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -71,6 +66,7 @@ class EdfData: public TSData_Global {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
+		int get_R() const;
 
 };
 
@@ -81,27 +77,8 @@ class EdfData: public TSData_Global {
 
 namespace pascinference {
 
-/*EdfData::EdfData(){
-	LOG_FUNC_BEGIN
-
-	this->tsmodel = NULL;
-
-	this->datavector = NULL;
-	destroy_datavector = false;
-
-	this->gammavector = NULL;
-	destroy_gammavector = false;
-
-	this->thetavector = NULL;
-	destroy_thetavector = false;
-
-	free_hdr_records_detail = false;
-	
-	LOG_FUNC_END
-}
-*/
-
-void EdfData::edfRead(std::string filename){
+template<>
+void EdfData<PetscVector>::edfRead(std::string filename){
 	LOG_FUNC_BEGIN
 
 	/* open file */
@@ -113,87 +90,87 @@ void EdfData::edfRead(std::string filename){
 	char buffer[100];
 
 	/* ------ HEADER ------ */
-	read_from_file(myfile, buffer, 8);
+	myfile.read(buffer, 8);
 	hdr_ver = atoi(buffer);
 
-	read_from_file(myfile, buffer, 80);
+	myfile.read(buffer, 80);
 	hdr_patientID = std::string(buffer);
 
-	read_from_file(myfile, buffer, 80);
+	myfile.read(buffer, 80);
 	hdr_recordID = std::string(buffer);
 
-	read_from_file(myfile, buffer, 8);
+	myfile.read(buffer, 8);
 	hdr_startdate = std::string(buffer);
 
-	read_from_file(myfile, buffer, 8);
+	myfile.read(buffer, 8);
 	hdr_starttime = std::string(buffer);
 
-	read_from_file(myfile, buffer, 8);
+	myfile.read(buffer, 8);
 	hdr_bytes = atoi(buffer);
 
-	read_from_file(myfile, buffer, 44);
+	myfile.read(buffer, 44);
 	/* reserved */
 	
-	read_from_file(myfile, buffer, 8);
+	myfile.read(buffer, 8);
 	hdr_records = atoi(buffer);
 
-	read_from_file(myfile, buffer, 8);
+	myfile.read(buffer, 8);
 	hdr_duration = atoi(buffer);
 
-	read_from_file(myfile, buffer, 4);
+	myfile.read(buffer, 4);
 	hdr_ns = atoi(buffer);
 
 	/* arrays */
 	hdr_records_detail = (Record*)malloc(sizeof(Record)*hdr_ns);
 	free_hdr_records_detail = true;
-
+	
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 16);
-		hdr_records_detail[i].hdr_label = std::string(buffer);
+		myfile.read(buffer, 16);
+		hdr_records_detail[i].hdr_label = new std::string(buffer);
 	}
 			
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 80);
-		hdr_records_detail[i].hdr_transducer = std::string(buffer);
+		myfile.read(buffer, 80);
+		hdr_records_detail[i].hdr_transducer = new std::string(buffer);
 	}
 
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 8);
-		hdr_records_detail[i].hdr_units = std::string(buffer);
+		myfile.read(buffer, 8);
+		hdr_records_detail[i].hdr_units = new std::string(buffer);
 	}
 	
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 8);
+		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_physicalMin = atof(buffer);
 	}
 	
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 8);
+		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_physicalMax = atof(buffer);
 	}
 
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 8);
+		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_digitalMin = atof(buffer);
 	}
 
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 8);
+		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_digitalMax = atof(buffer);
 	}
 
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 80);
-		hdr_records_detail[i].hdr_prefilter = std::string(buffer);
+		myfile.read(buffer, 80);
+		hdr_records_detail[i].hdr_prefilter = new std::string(buffer);
 	}
 
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 8);
+		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_samples = atoi(buffer);
 	}	
 
 	for(i=0;i<hdr_ns;i++){
-		read_from_file(myfile, buffer, 32);
+		myfile.read(buffer, 32);
 		/* reserved */
 	}	
 
@@ -212,7 +189,7 @@ void EdfData::edfRead(std::string filename){
 	/* get the ownership range - now I know how much I will calculate from the time-series */
 	TRY( VecGetLocalSize(layout,&(this->Tlocal)) );
 	TRY( VecDestroy(&layout) ); /* destroy testing vector - it is useless now */
-	
+
 	Vec datavector_Vec;
 	TRY( VecCreate(PETSC_COMM_WORLD,&datavector_Vec) );
 	TRY( VecSetSizes(datavector_Vec,this->Tlocal*R,T*R) );
@@ -226,18 +203,15 @@ void EdfData::edfRead(std::string filename){
 	t_begin = ((double)t_begin)/((double)R);
 	t_end = ((double)t_end)/((double)R);			
 	t_length = t_end - t_begin;
-		
+
 	/* ------ RECORDS ------ */
 	int recnum, ii, samplei, index;
 	double scalefac, dc;
     
 	int16_t value;
 
-//    read_from_file(myfile, &value, sizeof(uint16_t));
-//	value = atoi(buffer);
-
     for(recnum = 0; recnum < hdr_records; recnum++){
-        for(ii = 0; ii < R; ii++){
+		for(ii = 0; ii < R; ii++){
 			scalefac = (hdr_records_detail[ii].hdr_physicalMax - hdr_records_detail[ii].hdr_physicalMin)/(double)(hdr_records_detail[ii].hdr_digitalMax - hdr_records_detail[ii].hdr_digitalMin);
 			dc = hdr_records_detail[ii].hdr_physicalMax - scalefac*hdr_records_detail[ii].hdr_digitalMax;
 
@@ -255,25 +229,6 @@ void EdfData::edfRead(std::string filename){
 	TRY( VecAssemblyBegin(datavector_Vec) );
 	TRY( VecAssemblyEnd(datavector_Vec) );
 
-/*    
-    record = zeros(hdr.ns, hdr.samples(1)*hdr.records);
-    
-    for ii = 1:numel(hdr.label)
-        ctr = 1;
-        for jj = 1:hdr.records
-            try
-                record(ii, ctr : ctr + hdr.samples(ii) - 1) = tmpdata(jj).data{ii};
-            end
-            ctr = ctr + length(tmpdata(jj).data{ii});
-        end
-    end
-*/
-
-//	coutMaster << "size of int16:" << sizeof(int16_t) << std::endl;
-
-	this->destroy_gammavector = false;
-	this->destroy_thetavector = false;
-
 	/* close file */
     myfile.close();		
 
@@ -281,17 +236,22 @@ void EdfData::edfRead(std::string filename){
 }
 
 /* from filename */
-EdfData::EdfData(std::string filename){
+template<class VectorBase>
+EdfData<VectorBase>::EdfData(std::string filename_data){
 	LOG_FUNC_BEGIN
 
 	/* read data from input file */
-	edfRead(filename);
+	edfRead(filename_data);
+
+	this->destroy_gammavector = false;
+	this->destroy_thetavector = false;
 
 	LOG_FUNC_END
 }
 
 /* destructor */
-EdfData::~EdfData(){
+template<class VectorBase>
+EdfData<VectorBase>::~EdfData(){
 	LOG_FUNC_BEGIN
 	
 	/* if I created a datavector, then I should also be able to destroy it */
@@ -304,7 +264,8 @@ EdfData::~EdfData(){
 
 
 /* print info about data */
-void EdfData::print(ConsoleOutput &output) const {
+template<class VectorBase>
+void EdfData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -319,27 +280,33 @@ void EdfData::print(ConsoleOutput &output) const {
 	output <<  " - number of data records (-1 if unknown): " << hdr_records << std::endl;
 	output <<  " - duration of a data record, in seconds:  " << hdr_duration << std::endl;
 	output <<  " - number of signals (ns) in data record:  " << hdr_ns << std::endl;
-
+/*
 	output <<  " - record details:" << std::endl;
 	for(int i=0;i<hdr_ns;i++){
 		output <<  "   - id:                 " << i << std::endl;
-		output <<  "     label:              " << hdr_records_detail[i].hdr_label << std::endl;
-		output <<  "     transducer type:    " << hdr_records_detail[i].hdr_transducer << std::endl;
-		output <<  "     physical dimension: " << hdr_records_detail[i].hdr_units << std::endl;
+		output <<  "     label:              " << *hdr_records_detail[i].hdr_label << std::endl;
+		output <<  "     transducer type:    " << *hdr_records_detail[i].hdr_transducer << std::endl;
+		output <<  "     physical dimension: " << *hdr_records_detail[i].hdr_units << std::endl;
 		output <<  "     physical minimum:   " << hdr_records_detail[i].hdr_physicalMin << std::endl;
 		output <<  "     physical maximum:   " << hdr_records_detail[i].hdr_physicalMax << std::endl;
 		output <<  "     digital minimum:    " << hdr_records_detail[i].hdr_digitalMin << std::endl;
 		output <<  "     digital maximum:    " << hdr_records_detail[i].hdr_digitalMax << std::endl;
-		output <<  "     prefiltering:       " << hdr_records_detail[i].hdr_prefilter << std::endl;
+		output <<  "     prefiltering:       " << *hdr_records_detail[i].hdr_prefilter << std::endl;
 		output <<  "     nr of samples:      " << hdr_records_detail[i].hdr_samples << std::endl;
 	}
-
+*/
 	output <<  "----------------------------------------------------------------" << std::endl;
 
-/*	output <<  " - T:           " << this->get_T() << std::endl;
-	output <<  " - xdim:        " << this->get_xdim() << std::endl;
-	output <<  " - K:           " << this->tsmodel->get_K() << std::endl;
-	output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+	if(this->tsmodel){
+		output <<  " - T:           " << this->get_T() << std::endl;
+		output <<  " - xdim:        " << this->get_xdim() << std::endl;
+		output <<  " - K:           " << this->tsmodel->get_K() << std::endl;
+		output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+	} else {
+		output <<  " - model:       NO" << std::endl;
+	}
+	output <<  " - R:           " << this->get_R() << std::endl;
+	
 	output <<  " - datavector:  ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -358,25 +325,60 @@ void EdfData::print(ConsoleOutput &output) const {
 	} else {
 		output << "NO" << std::endl;
 	}
-*/
+
 	output.synchronize();
 
 	LOG_FUNC_END
 }
 
 /* print info about data */
-void EdfData::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+template<class VectorBase>
+void EdfData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
+
+	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output_global <<  " - T:           " << this->get_T() << std::endl;
-	output_local  <<  "  - Tlocal:     " << this->tsmodel->get_Tlocal() << std::endl;
-	output_local.synchronize();
+	output_global <<  " - version of this data format:            " << hdr_ver << std::endl;
+	output_global <<  " - local patient identification:           " << hdr_patientID << std::endl;
+	output_global <<  " - local recording identification:         " << hdr_recordID << std::endl;
+	output_global <<  " - startdate of recording (dd.mm.yy):      " << hdr_startdate << std::endl;
+	output_global <<  " - starttime of recording (hh.mm.ss):      " << hdr_starttime << std::endl;
+	output_global <<  " - number of bytes in header record:       " << hdr_bytes << std::endl;
+	output_global <<  " - number of data records (-1 if unknown): " << hdr_records << std::endl;
+	output_global <<  " - duration of a data record, in seconds:  " << hdr_duration << std::endl;
+	output_global <<  " - number of signals (ns) in data record:  " << hdr_ns << std::endl;
+/*
+	output_global <<  " - record details:" << std::endl;
+	for(int i=0;i<hdr_ns;i++){
+		output_global <<  "   - id:                 " << i << std::endl;
+		output_global <<  "     label:              " << *hdr_records_detail[i].hdr_label << std::endl;
+		output_global <<  "     transducer type:    " << *hdr_records_detail[i].hdr_transducer << std::endl;
+		output_global <<  "     physical dimension: " << *hdr_records_detail[i].hdr_units << std::endl;
+		output_global <<  "     physical minimum:   " << hdr_records_detail[i].hdr_physicalMin << std::endl;
+		output_global <<  "     physical maximum:   " << hdr_records_detail[i].hdr_physicalMax << std::endl;
+		output_global <<  "     digital minimum:    " << hdr_records_detail[i].hdr_digitalMin << std::endl;
+		output_global <<  "     digital maximum:    " << hdr_records_detail[i].hdr_digitalMax << std::endl;
+		output_global <<  "     prefiltering:       " << *hdr_records_detail[i].hdr_prefilter << std::endl;
+		output_global <<  "     nr of samples:      " << hdr_records_detail[i].hdr_samples << std::endl;
+	}
+*/
+	output_global <<  "----------------------------------------------------------------" << std::endl;
+	
+	/* give information about presence of the data */
+	if(this->tsmodel){
+		output_global <<  " - T:           " << this->get_T() << std::endl;
+		output_local  <<  "  - Tlocal:     " << this->tsmodel->get_Tlocal() << std::endl;
+		output_local.synchronize();
 
-	output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
-	output_global <<  " - K:           " << this->tsmodel->get_K() << std::endl;
+		output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
+		output_global <<  " - K:           " << this->tsmodel->get_K() << std::endl;
 
-	output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+		output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+	} else {
+		output_global <<  " - model:       NO" << std::endl;
+	}
+	output_global <<  " - R:           " << this->get_R() << std::endl;
 	
 	output_global <<  " - datavector:  ";
 	if(this->datavector){
@@ -411,7 +413,8 @@ void EdfData::print(ConsoleOutput &output_global, ConsoleOutput &output_local) c
 }
 
 /* print content of all data */
-void EdfData::printcontent(ConsoleOutput &output) const {
+template<class VectorBase>
+void EdfData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -442,7 +445,8 @@ void EdfData::printcontent(ConsoleOutput &output) const {
 }
 
 /* print content of all data */
-void EdfData::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
+template<class VectorBase>
+void EdfData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -477,11 +481,15 @@ void EdfData::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_lo
 	LOG_FUNC_END
 }
 
-std::string EdfData::get_name() const {
+template<class VectorBase>
+std::string EdfData<VectorBase>::get_name() const {
 	return "EDF Time-series Data";
 }
 
-
+template<class VectorBase>
+int EdfData<VectorBase>::get_R() const{
+	return this->R;
+}
 
 
 
