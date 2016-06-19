@@ -695,7 +695,7 @@ int *BGM_Graph::get_neighbor_nmbs_gpu(){
 	#endif
 }
 
-int **BGM_Graph::get_neighbor_ids(){
+int **BGM_Graph::get_neighbor_ids_gpu(){
 	#ifdef USE_GPU
 		return neighbor_ids_gpu;
 	#else
