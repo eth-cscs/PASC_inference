@@ -15,7 +15,8 @@ typedef petscvector::PetscVector PetscVector;
 
 namespace pascinference {
 
-class BlockLaplaceMatrix: public GeneralMatrix<PetscVector> {
+template<class VectorBase>
+class BlockLaplaceMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		int T; /**< dimension of each block */
 		int Tlocal; /**< local dimension of each block */
@@ -32,12 +33,14 @@ class BlockLaplaceMatrix: public GeneralMatrix<PetscVector> {
 		#endif	
 
 		/* stuff for 3diag mult */
-		int left_overlap, right_overlap;
-		IS left_overlap_is;
-		IS right_overlap_is;
+		#ifdef USE_PETSCVECTOR
+			int left_overlap, right_overlap;
+			IS left_overlap_is;
+			IS right_overlap_is;
+		#endif
 		
 	public:
-		BlockLaplaceMatrix(PetscVector &x, int K, double alpha=1.0);
+		BlockLaplaceMatrix(VectorBase &x, int K, double alpha=1.0);
 		~BlockLaplaceMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -46,7 +49,7 @@ class BlockLaplaceMatrix: public GeneralMatrix<PetscVector> {
 		void printcontent(ConsoleOutput &output) const;
 		std::string get_name() const;
 		
-		void matmult(PetscVector &y, const PetscVector &x) const; /* y = A*x */
+		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
 		int get_K() const;
 		int get_T() const;
@@ -62,11 +65,13 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 
 /* --------------- IMPLEMENTATION -------------------- */
 // TODO: move to implementation
-std::string BlockLaplaceMatrix::get_name() const {
+template<class VectorBase>
+std::string BlockLaplaceMatrix<VectorBase>::get_name() const {
 	return "BlockLaplaceMatrix";
 }
 
-BlockLaplaceMatrix::BlockLaplaceMatrix(PetscVector &x, int K, double alpha){
+template<>
+BlockLaplaceMatrix<PetscVector>::BlockLaplaceMatrix(PetscVector &x, int K, double alpha){
 	LOG_FUNC_BEGIN
 
 	this->K = K;
@@ -113,7 +118,8 @@ BlockLaplaceMatrix::BlockLaplaceMatrix(PetscVector &x, int K, double alpha){
 	LOG_FUNC_END
 }	
 
-BlockLaplaceMatrix::~BlockLaplaceMatrix(){
+template<class VectorBase>
+BlockLaplaceMatrix<VectorBase>::~BlockLaplaceMatrix(){
 	LOG_FUNC_BEGIN
 	
 	/* destroy aux vector */
@@ -127,7 +133,8 @@ BlockLaplaceMatrix::~BlockLaplaceMatrix(){
 }
 
 /* print matrix */
-void BlockLaplaceMatrix::print(ConsoleOutput &output) const		
+template<class VectorBase>
+void BlockLaplaceMatrix<VectorBase>::print(ConsoleOutput &output) const		
 {
 	LOG_FUNC_BEGIN
 
@@ -147,7 +154,8 @@ void BlockLaplaceMatrix::print(ConsoleOutput &output) const
 	LOG_FUNC_END	
 }
 
-void BlockLaplaceMatrix::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+template<class VectorBase>
+void BlockLaplaceMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
@@ -176,7 +184,8 @@ void BlockLaplaceMatrix::print(ConsoleOutput &output_global, ConsoleOutput &outp
 }
 
 /* print matrix */
-void BlockLaplaceMatrix::printcontent(ConsoleOutput &output) const		
+template<class VectorBase>
+void BlockLaplaceMatrix<VectorBase>::printcontent(ConsoleOutput &output) const		
 {
 	LOG_FUNC_BEGIN
 	
@@ -184,26 +193,31 @@ void BlockLaplaceMatrix::printcontent(ConsoleOutput &output) const
 	LOG_FUNC_END
 }
 
-int BlockLaplaceMatrix::get_K() const { 
+template<class VectorBase>
+int BlockLaplaceMatrix<VectorBase>::get_K() const { 
 	return this->K;
 }
 
-int BlockLaplaceMatrix::get_T() const { 
+template<class VectorBase>
+int BlockLaplaceMatrix<VectorBase>::get_T() const { 
 	return this->T;
 }
 
-int BlockLaplaceMatrix::get_Tlocal() const { 
+template<class VectorBase>
+int BlockLaplaceMatrix<VectorBase>::get_Tlocal() const { 
 	return this->Tlocal;
 }
 
-double BlockLaplaceMatrix::get_alpha() const { 
+template<class VectorBase>
+double BlockLaplaceMatrix<VectorBase>::get_alpha() const { 
 	return this->alpha;
 }
 
 
 #ifndef USE_GPU
 /* A*x using openmp */
-void BlockLaplaceMatrix::matmult(PetscVector &y, const PetscVector &x) const { 
+template<>
+void BlockLaplaceMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
 	double *y_arr;
 	const double *x_arr;
 	
@@ -342,7 +356,8 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 
 }
 
-void BlockLaplaceMatrix::matmult(PetscVector &y, const PetscVector &x) const {
+template<>
+void BlockLaplaceMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const {
 	double *y_arr;
 	double *x_arr;
 	

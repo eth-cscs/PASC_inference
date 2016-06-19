@@ -65,7 +65,7 @@ int main( int argc, char *argv[] )
 
 	const double coordinates[3] = {1,2,5};
 	BGM_Graph graph(coordinates,3,1);
-	graph.process_cpu(2);
+	graph.process(2.5);
 
 
 //	const double coordinates[1] = {1};

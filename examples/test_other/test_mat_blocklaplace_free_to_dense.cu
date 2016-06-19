@@ -84,7 +84,7 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
 	/* create matrix */
-	BlockLaplaceMatrix A(x, K);
+	BlockLaplaceMatrix<PetscVector> A(x, K);
 	A.print(coutMaster,coutAll);
 	coutAll.synchronize();
 

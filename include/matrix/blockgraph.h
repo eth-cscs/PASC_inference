@@ -21,8 +21,13 @@ class BGM_Graph {
 		double threshold; /**< the value used for processing the graph */
 		
 		bool processed; /**< there was process with threshold value called? */
-		int *neighbor_nmbs;
-		int **neighbor_ids;
+		int *neighbor_nmbs; /**< number of neighbors for each node */
+		int **neighbor_ids; /**< indexes of neighbors for each node */
+
+		#ifdef USE_GPU
+			int *neighbor_nmbs_gpu; /**< copy of values on GPU */
+			int **neighbor_ids_gpu; /**< copy of values on GPU */
+		#endif	
 
 		double compute_norm(const double *values, int idx1, int idx2);
 		
@@ -39,7 +44,7 @@ class BGM_Graph {
 		int *get_neighbor_nmbs();
 		int **get_neighbor_ids();
 		
-		void process_cpu(double threshold);
+		void process(double threshold);
 
 		void print(ConsoleOutput &output) const;
 		void print_content(ConsoleOutput &output) const;
@@ -61,19 +66,25 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 		BGM_Graph *graph; /**< graph with stucture of the matrix */
 		
 		#ifdef USE_GPU
-			int blockSize; /**< block size returned by the launch configurator */
-			int minGridSize; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
-			int gridSize; /**< the actual grid size needed, based on input size */
-		#endif	
+			int blockSize1; /**< block size returned by the launch configurator for 3diag mult */
+			int minGridSize1; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch for 3diag mult */
+			int gridSize1; /**< the actual grid size needed, based on input size for 3diag mult */
+
+			int blockSize2; /**< block size returned by the launch configurator for graph mult */
+			int minGridSize2; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch for graph mult */
+			int gridSize2; /**< the actual grid size needed, based on input size for graph mult */
+		#endif
 
 		void matmult_tridiag(const VectorBase &x) const; /* x_aux = 3diag(1,1,1)*x */
 		void matmult_graph(VectorBase &y, const VectorBase &x) const; /* y = Wgraph *kr* x_aux */
 		
 		/* stuff for 3diag mult */
-		Vec x_aux;
-		int left_overlap, right_overlap;
-		IS left_overlap_is;
-		IS right_overlap_is;
+		#ifdef USE_PETSCVECTOR
+			Vec x_aux;
+			int left_overlap, right_overlap;
+			IS left_overlap_is;
+			IS right_overlap_is;
+		#endif
 		
 	public:
 		BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha=1.0);
@@ -94,6 +105,14 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 		double get_alpha() const;
 
 };
+
+#ifdef USE_GPU
+__global__ void kernel_BlockGraphMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
+__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_arr_aux, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
+#endif
+
+
+/* ---------------- INPLEMENTATION -------------------- */
 
 template<class VectorBase>
 std::string BlockGraphMatrix<VectorBase>::get_name() const {
@@ -123,11 +142,11 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 	this->Tend = high/(double)(R*K);
 
 	#ifdef USE_GPU
-		//gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_mult, 0, 0) );
-		//gridSize = (K*T + blockSize - 1)/ blockSize;
-		minGridSize = 0;
-		gridSize = 0;
-		blockSize = 0;
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize1, &blockSize1,kernel_BlockGraphMatrix_mult_tridiag, 0, 0) );
+		gridSize1 = (Tlocal*K*R + blockSize - 1)/ blockSize1;
+
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize2, &blockSize2,kernel_BlockGraphMatrix_mult_graph, 0, 0) );
+		gridSize2 = (Tlocal*K*R + blockSize - 1)/ blockSize2;
 	#endif
 
 	/* unfortunatelly, we need additional aux vector */
@@ -279,8 +298,10 @@ double BlockGraphMatrix<VectorBase>::get_alpha() const {
 	return this->alpha;
 }
 
-template<class VectorBase>
-void BlockGraphMatrix<VectorBase>::matmult_tridiag(const VectorBase &x) const {
+#ifndef USE_GPU
+/* A*x using openmp */
+template<>
+void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const {
 	Vec x_sub;
 	double *y_arr;
 	const double *x_arr;
@@ -362,8 +383,8 @@ void BlockGraphMatrix<VectorBase>::matmult_tridiag(const VectorBase &x) const {
 
 }
 
-template<class VectorBase>
-void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase &x) const {
+template<>
+void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVector &x) const {
 	double *y_arr;
 	const double *x_arr;
 	const double *x_aux_arr;
@@ -396,7 +417,7 @@ void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase
 		}
 
 		/* diagonal entry */
-		y_arr[y_arr_idx] = Wsum*x_arr[x_arr_idx];
+		y_arr[y_arr_idx] = alpha*Wsum*x_arr[x_arr_idx];
 
 		/* non-diagonal entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
@@ -412,6 +433,162 @@ void BlockGraphMatrix<VectorBase>::matmult_graph(VectorBase &y, const VectorBase
 
 }
 
+#else
+
+/* A*x using CUDA kernel */
+__global__ void kernel_BlockGraphMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
+{
+	/* compute my id */
+	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if(y_arr_idx < K*Tlocal*R){
+		int k = floor(y_arr_idx/(double)(Tlocal*R));
+		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
+		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
+		int tglobal = Tbegin+tlocal;
+		int x_arr_idx = tlocal + (k*R+r)*Tlocal;
+		int overlap_id = k*R+r;
+		
+		double value;
+		double right_value;
+		double left_value;
+
+		/* first row */
+		if(tglobal == 0){
+			if(tlocal+1 >= Tlocal){
+				right_value = right_overlap_arr[overlap_id];
+			} else {
+				right_value = x_arr[x_arr_idx+1];
+			}
+			value = alpha*x_arr[x_arr_idx] - alpha*right_value;
+		}
+		/* common row */
+		if(tglobal > 0 && tglobal < T-1){
+			if(tlocal+1 >= Tlocal){
+				right_value = right_overlap_arr[overlap_id];
+			} else {
+				right_value = x_arr[x_arr_idx+1];
+			}
+			if(tlocal-1 < 0){
+				left_value = left_overlap_arr[overlap_id];
+			} else {
+				left_value = x_arr[x_arr_idx-1];
+			}
+			value = -alpha*left_value + 2*alpha*x_arr[x_arr_idx] - alpha*right_value;
+		}
+		/* last row */
+		if(tglobal == T-1){
+			if(tlocal-1 < 0){
+				left_value = left_overlap_arr[overlap_id];
+			} else {
+				left_value = x_arr[x_arr_idx-1];
+			}
+			value = -alpha*left_value + alpha*x_arr[x_arr_idx];
+		}
+		
+		y_arr[y_arr_idx] = value; 
+	}
+
+	/* if id_row >= K*T*R then relax and do nothing */	
+
+}
+
+template<>
+void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const {
+	double *y_arr;
+	double *x_arr;
+	
+	Vec left_overlap_vec;
+	Vec right_overlap_vec;
+	double *left_overlap_arr;
+	double *right_overlap_arr;
+
+	/* get subvector and array */
+	TRY( VecGetSubVector(x.get_vector(),left_overlap_is,&left_overlap_vec) );
+	TRY( VecCUDAGetArrayReadWrite(left_overlap_vec,&left_overlap_arr) );
+
+	TRY( VecGetSubVector(x.get_vector(),right_overlap_is,&right_overlap_vec) );
+	TRY( VecCUDAGetArrayReadWrite(right_overlap_vec,&right_overlap_arr) );
+	
+	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
+	TRY( VecCUDAGetArrayReadWrite(x_aux,&y_arr) );
+
+	/* call kernel */
+	kernel_BlockGraphMatrix_mult_tridiag<<<gridSize1, blockSize1>>>(y_arr,x_arr,left_overlap_arr,right_overlap_arr,T,Tlocal,Tbegin,R,K,alpha);
+	gpuErrchk( cudaDeviceSynchronize() );
+	
+	/* restore subvector and array */
+	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
+	TRY( VecCUDARestoreArrayReadWrite(x_aux,&y_arr) );
+
+	TRY( VecCUDARestoreArrayReadWrite(left_overlap_vec,&left_overlap_arr) );
+	TRY( VecRestoreSubVector(x.get_vector(),left_overlap_is,&left_overlap_vec) );
+
+	TRY( VecCUDARestoreArrayReadWrite(right_overlap_vec,&right_overlap_arr) );
+	TRY( VecRestoreSubVector(x.get_vector(),right_overlap_is,&right_overlap_vec) );
+}
+
+__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_arr_aux, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
+{
+	/* compute my id */
+	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if(y_arr_idx < K*Tlocal*R){
+		int k = floor(y_arr_idx/(double)(Tlocal*R));
+		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
+		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
+		int tglobal = Tbegin+tlocal;
+		int x_arr_idx = tlocal + (k*R+r)*(Tlocal);
+
+		double value;
+		int Wsum;
+
+		/* compute sum of W entries in row */
+		if(tglobal == 0 || tglobal == T-1){
+			Wsum = 2*neighbor_nmbs[r];
+		} else {
+			Wsum = 3*neighbor_nmbs[r];
+		}
+
+		/* diagonal entry */
+		y_arr[y_arr_idx] = alpha*Wsum*x_arr[x_arr_idx];
+
+		/* non-diagonal entries */
+		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
+			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
+		}
+	}
+
+	/* if id_row >= K*T*R then relax and do nothing */	
+
+}
+
+template<>
+void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVector &x) const {
+	double *y_arr;
+	double *x_arr;
+	double *x_aux_arr;
+	
+	int* neighbor_nmbs = graph->get_neighbor_nmbs();
+	int **neightbor_ids = graph->get_neighbor_ids();
+			
+	/* get array */
+	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
+	TRY( VecCUDAGetArrayReadWrite(x_aux,&x_aux_arr) );
+	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
+
+	/* call kernel */
+	kernel_BlockGraphMatrix_mult_graph<<<gridSize2, blockSize2>>>(y_arr, x_arr, x_arr_aux, neighbor_nmbs, neightbor_ids, T, Tlocal, Tbegin, R, K, alpha);
+	gpuErrchk( cudaDeviceSynchronize() );
+
+	/* restore array */
+	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
+	TRY( VecCUDARestoreArrayReadWrite(x_aux,&x_aux_arr) );
+	TRY( VecCUDARestoreArrayReadWrite(y.get_vector(),&y_arr) );
+
+}
+
+#endif
 
 /* ----------------- BGM_Graph implementation ------------- */
 
@@ -458,6 +635,21 @@ BGM_Graph::~BGM_Graph(){
 	/* if the graph was processed, then free memory */
 	if(processed){
 		free(neighbor_nmbs);
+		int i;
+		for(i=0;i<n;i++){
+			free(neighbor_ids[i]);
+		}
+		free(neighbor_ids);
+
+		#ifdef USE_GPU
+			gpuErrchk( cudaFree(neighbor_nmbs_gpu) );
+			int i;
+			for(i=0;i<n;i++){
+				gpuErrchk( cudaFree(neighbor_ids_gpu[i]) );
+			}
+			gpuErrchk( cudaFree(neighbor_ids_gpu) );
+		#endif
+
 	}
 	
 }
@@ -482,7 +674,7 @@ int **BGM_Graph::get_neighbor_ids(){
 	return neighbor_ids;
 }
 
-void BGM_Graph::process_cpu(double threshold) {
+void BGM_Graph::process(double threshold) {
 	this->threshold = threshold;
 	
 	int i,j,d;
@@ -536,6 +728,20 @@ void BGM_Graph::process_cpu(double threshold) {
 	/* restore array */
 	TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 	
+	#ifdef USE_GPU
+		/* copy data to gpu */
+		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
+		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
+		
+		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int)) );	
+		for(i=0;i<n;i++){
+			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_gpu[i]), neighbor_nmbs[i]*sizeof(int)) );
+			gpuErrchk( cudaMemcpy( neighbor_ids_gpu[i], neighbor_ids[i], n*sizeof(int), cudaMemcpyHostToDevice) );
+		}
+
+		gpuErrchk( cudaDeviceSynchronize() );
+	#endif
+	
 	processed = true;
 }
 
@@ -580,6 +786,7 @@ void BGM_Graph::print_content(ConsoleOutput &output) const {
 	}
 	output.pop();
 }
+
 
 
 } /* end of namespace */
