@@ -211,9 +211,13 @@ void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output) const
 	output << " - alpha: " << alpha << std::endl;
 
 	#ifdef USE_GPU
-		output <<  " - blockSize:   " << blockSize << std::endl;
-		output <<  " - gridSize:    " << gridSize << std::endl;
-		output <<  " - minGridSize: " << minGridSize << std::endl;
+		output_global <<  " - blockSize1:   " << blockSize1 << std::endl;
+		output_global <<  " - gridSize1:    " << gridSize1 << std::endl;
+		output_global <<  " - minGridSize1: " << minGridSize1 << std::endl;
+
+		output_global <<  " - blockSize2:   " << blockSize2 << std::endl;
+		output_global <<  " - gridSize2:    " << gridSize2 << std::endl;
+		output_global <<  " - minGridSize2: " << minGridSize2 << std::endl;
 	#endif
 	
 	LOG_FUNC_END	
@@ -241,9 +245,13 @@ void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOu
 	output_global << " - alpha: " << alpha << std::endl;
 
 	#ifdef USE_GPU
-		output_global <<  " - blockSize:   " << blockSize << std::endl;
-		output_global <<  " - gridSize:    " << gridSize << std::endl;
-		output_global <<  " - minGridSize: " << minGridSize << std::endl;
+		output_global <<  " - blockSize1:   " << blockSize1 << std::endl;
+		output_global <<  " - gridSize1:    " << gridSize1 << std::endl;
+		output_global <<  " - minGridSize1: " << minGridSize1 << std::endl;
+
+		output_global <<  " - blockSize2:   " << blockSize2 << std::endl;
+		output_global <<  " - gridSize2:    " << gridSize2 << std::endl;
+		output_global <<  " - minGridSize2: " << minGridSize2 << std::endl;
 	#endif
 
 	LOG_FUNC_END	
@@ -544,7 +552,6 @@ __global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr,
 		int tglobal = Tbegin+tlocal;
 		int x_arr_idx = tlocal + (k*R+r)*(Tlocal);
 
-		double value;
 		int Wsum;
 
 		/* compute sum of W entries in row */
@@ -582,7 +589,7 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 
 	/* call kernel */
-	kernel_BlockGraphMatrix_mult_graph<<<gridSize2, blockSize2>>>(y_arr, x_arr, x_arr_aux, neighbor_nmbs, neightbor_ids, T, Tlocal, Tbegin, R, K, alpha);
+	kernel_BlockGraphMatrix_mult_graph<<<gridSize2, blockSize2>>>(y_arr, x_arr, x_aux_arr, neighbor_nmbs, neightbor_ids, T, Tlocal, Tbegin, R, K, alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	/* restore array */
