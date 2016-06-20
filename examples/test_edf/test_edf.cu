@@ -79,8 +79,8 @@ int main( int argc, char *argv[] )
 //	mysolver.solve();
 
 	/* save results into CSV file */
-//	coutMaster << "--- SAVING VTK ---" << std::endl;
-//	mydata.saveCSV("results/edf.vtk");
+	coutMaster << "--- SAVING VTK ---" << std::endl;
+	mydata.saveVTK("edf_ascii");
 
 	/* save results into CSV file */
 //	coutMaster << "--- SAVING CSV ---" << std::endl;

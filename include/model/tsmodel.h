@@ -71,6 +71,9 @@ class TSModel: public GeneralModel {
 		int get_Tend() const;
 		int get_xdim() const;
 		int get_xmem() const;
+		virtual GeneralVector<VectorBase> *get_coordinatesVTK() const;
+		virtual int get_coordinatesVTK_dim() const;
+
 
 		int get_K() const;
 		
@@ -252,6 +255,17 @@ template<class VectorBase>
 int TSModel<VectorBase>::get_thetavectorlength_local(){
 	return this->thetavectorlength_local;
 }
+
+template<class VectorBase>
+GeneralVector<VectorBase> *TSModel<VectorBase>::get_coordinatesVTK() const{
+	return NULL;
+}
+
+template<class VectorBase>
+int TSModel<VectorBase>::get_coordinatesVTK_dim() const{
+	return 0;
+}
+
 
 
 } /* end namespace */

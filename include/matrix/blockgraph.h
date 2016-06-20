@@ -50,6 +50,7 @@ class BGM_Graph {
 
 		int *get_neighbor_nmbs_gpu();
 		int **get_neighbor_ids_gpu();
+		GeneralVector<PetscVector> *get_coordinates();
 		
 		void process(double threshold);
 
@@ -701,6 +702,10 @@ int **BGM_Graph::get_neighbor_ids_gpu(){
 	#else
 		return neighbor_ids;
 	#endif
+}
+
+GeneralVector<PetscVector> *BGM_Graph::get_coordinates(){
+	return coordinates;
 }
 
 void BGM_Graph::process(double threshold) {

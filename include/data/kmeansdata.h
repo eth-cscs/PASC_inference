@@ -35,8 +35,8 @@ class KmeansData: public TSData<VectorBase> {
 
 		virtual std::string get_name() const;
 
-		void saveCSV(std::string name_of_file);
-		void saveVTK(std::string name_of_file);
+		void saveCSV(std::string name_of_file) const;
+		void saveVTK(std::string name_of_file) const;
 		
 		void generate(int K_solution, double *theta_solution, int (*get_cluster_id)(int, int), bool scale_or_not=false);
 		void add_noise(double *diag_covariance);
@@ -56,7 +56,7 @@ std::string KmeansData<VectorBase>::get_name() const {
 }
 
 template<>
-void KmeansData<PetscVector>::saveCSV(std::string name_of_file){
+void KmeansData<PetscVector>::saveCSV(std::string name_of_file) const {
 	LOG_FUNC_STATIC_BEGIN
 
 	Timer timer_saveCSV; 
@@ -218,7 +218,7 @@ void KmeansData<PetscVector>::add_noise(double *diag_covariance){
 }
 
 template<>
-void KmeansData<PetscVector>::saveVTK(std::string name_of_file){
+void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 	Timer timer_saveVTK; 
 	timer_saveVTK.restart();
 	timer_saveVTK.start();

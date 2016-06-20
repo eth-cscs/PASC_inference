@@ -18,8 +18,9 @@ extern int DEBUG_MODE;
 
 #include <iostream>
 #include "common/common.h"
-#include "data/tsdata.h"
+#include "matrix/blockgraph.h"
 #include "model/tsmodel.h"
+#include "data/tsdata.h"
 
 namespace pascinference {
 
@@ -65,6 +66,8 @@ class EdfData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output) const;
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
+
+		void saveVTK(std::string filename) const;
 
 		int get_R() const;
 
@@ -491,6 +494,121 @@ int EdfData<VectorBase>::get_R() const{
 	return this->R;
 }
 
+template<>
+void EdfData<PetscVector>::saveVTK(std::string filename) const{
+	Timer timer_saveVTK; 
+	timer_saveVTK.restart();
+	timer_saveVTK.start();
+
+	int t,k,r,n;
+	int T = get_T();
+	int Tlocal = get_Tlocal();
+	int K = get_K();
+	int xdim = get_xdim();
+
+	int prank = GlobalManager.get_rank();
+	int psize = GlobalManager.get_size();
+
+	/* to manipulate with filename */
+	std::ostringstream oss_filename;
+
+	/* to manipulate with file */
+	std::ofstream myfile;
+
+	/* master writes the main file */
+	if(prank == 0){
+		/* write to the name of file */
+		oss_filename << "results/" << filename << ".pvd";
+		myfile.open(oss_filename.str().c_str());
+		oss_filename.str("");
+
+		/* write header to file */
+		myfile << "<?xml version=\"1.0\"?>\n";
+		myfile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
+		myfile << "<Collection>\n";
+		for(t=0;t<T;t++){
+			myfile << " <DataSet timestep=\"" << t << "\" group=\"\" part=\"0\" file=\"" << filename << "_" << t <<".vtu\"/>\n";
+		}
+
+		myfile << "</Collection>\n";
+		myfile << "</VTKFile>";
+		
+		myfile.close();
+	}
+
+	TRY( PetscBarrier(NULL));
+
+	double *data_arr;
+	TRY( VecGetArray(datavector->get_vector(), &data_arr) );
+
+	int coordinates_dim = tsmodel->get_coordinatesVTK_dim();
+	double *coordinates_arr;
+	TRY( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
+
+	/* each processor writes its own portion of data */
+	for(t=0;t < Tlocal;t++){
+		oss_filename << "results/" << filename << "_" << get_Tbegin() + t << ".vtu";
+		myfile.open(oss_filename.str().c_str());
+		oss_filename.str("");
+
+		myfile << "<?xml version=\"1.0\"?>\n";
+		myfile << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
+		myfile << "  <UnstructuredGrid>\n";
+		myfile << "	  <Piece NumberOfPoints=\"" << get_R() << "\" NumberOfCells=\"0\" >\n";
+		myfile << "      <PointData Scalars=\"scalars\">\n";
+		myfile << "        <DataArray type=\"Float32\" Name=\"scalars\" format=\"ascii\">\n";
+		for(r=0;r<get_R();r++){
+			myfile << data_arr[r*Tlocal+t] << "\n";
+		}
+		myfile << "        </DataArray>\n";
+
+		myfile << "      </PointData>\n";
+		myfile << "      <CellData Scalars=\"scalars\">\n";
+		myfile << "      </CellData>\n";
+		myfile << "      <Points>\n";
+		myfile << "        <DataArray type=\"Float32\" NumberOfComponents=\"3\" format=\"ascii\">\n";
+		for(r=0;r<get_R();r++){
+			/* 1D */
+			if(coordinates_dim == 1){
+				myfile << coordinates_arr[r] << " 0 0\n";
+			}
+
+			/* 2D */
+			if(coordinates_dim == 2){
+				myfile << coordinates_arr[r] << " " << coordinates_arr[r+R] << " 0\n";
+			}
+
+			/* 3D */
+			if(coordinates_dim == 3){
+				myfile << coordinates_arr[r] << coordinates_arr[r+R] << " " << coordinates_arr[r+2*R] << "\n";
+			}
+
+		}
+		myfile << "        </DataArray>\n";
+
+		myfile << "      </Points>\n";
+		myfile << "      <Cells>\n";
+		myfile << "        <DataArray type=\"Int32\" Name=\"connectivity\" format=\"ascii\">\n";
+		myfile << "        </DataArray>\n";
+		myfile << "		<DataArray type=\"Int32\" Name=\"offsets\" format=\"ascii\">\n";
+		myfile << "        </DataArray>\n";
+		myfile << "		<DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n";
+		myfile << "        </DataArray>\n";
+		myfile << "      </Cells>\n";
+		myfile << "    </Piece>\n";
+		myfile << "  </UnstructuredGrid>\n";
+		myfile << "</VTKFile>\n";
+		
+		myfile.close();
+	}
+
+	TRY( VecRestoreArray(datavector->get_vector(), &data_arr) );
+	TRY( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
+
+	timer_saveVTK.stop();
+	coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+	coutAll.synchronize();
+}
 
 
 } /* end namespace */

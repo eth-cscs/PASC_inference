@@ -25,7 +25,6 @@ extern int DEBUG_MODE;
 
 #include "data/edfdata.h"
 
-
 namespace pascinference {
 
 template<class VectorBase>
@@ -63,7 +62,11 @@ class EdfH1FEMModel: public TSModel<VectorBase> {
 
 		QPData<VectorBase> *get_gammadata() const;
 		SimpleData<VectorBase> *get_thetadata() const;
+		BGM_Graph *get_graph() const;
 
+		GeneralVector<VectorBase> *get_coordinatesVTK() const;
+		int get_coordinatesVTK_dim() const;
+		
 };
 
 } // end of namespace
@@ -352,6 +355,11 @@ SimpleData<VectorBase>* EdfH1FEMModel<VectorBase>::get_thetadata() const {
 	return thetadata;
 }
 
+template<class VectorBase>
+BGM_Graph *EdfH1FEMModel<VectorBase>::get_graph() const {
+	return graph;
+}
+
 template<>
 void EdfH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
@@ -395,6 +403,15 @@ void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, 
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+GeneralVector<VectorBase> *EdfH1FEMModel<VectorBase>::get_coordinatesVTK() const{
+	return graph->get_coordinates();
+}
+
+template<class VectorBase>
+int EdfH1FEMModel<VectorBase>::get_coordinatesVTK_dim() const{
+	return graph->get_dim();
+}
 
 
 } /* end namespace */
