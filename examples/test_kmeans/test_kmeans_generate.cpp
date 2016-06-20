@@ -4,6 +4,10 @@
  *  @author Lukas Pospisil
  */
 
+#include <iostream>
+#include <list>
+#include <algorithm>
+
 #include "pascinference.h"
 #include "data/kmeansdata.h"
 #include "model/kmeansh1fem.h"
@@ -39,12 +43,8 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("test_Tbegin", boost::program_options::value<int>(), "dimension of the problem")
-		("test_Tstep", boost::program_options::value<int>(), "dimension of the problem")
-		("test_Tend", boost::program_options::value<int>(), "dimension of the problem")
-		("test_Kbegin", boost::program_options::value<int>(), "number of clusters")
-		("test_Kstep", boost::program_options::value<int>(), "number of clusters")
-		("test_Kend", boost::program_options::value<int>(), "number of clusters");
+		("test_T", boost::program_options::value<std::vector<int> >()->multitoken(), "dimensions of the problem")
+		("test_K", boost::program_options::value<std::vector<int> >()->multitoken(), "numbers of clusters");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -53,27 +53,51 @@ int main( int argc, char *argv[] )
 	} 
 
 	/* which times to generate */
-	int T_begin,T_step, T_end;
-	if(!consoleArg.set_option_value("test_Tbegin", &T_begin)){
-		std::cout << "test_Tbegin has to be set! Call application with parameter -h to see all parameters" << std::endl;
+	int T;
+	std::vector<int> T_list;
+	if(!consoleArg.set_option_value("test_T", &T_list)){
+		std::cout << "test_T has to be set! Call application with parameter -h to see all parameters" << std::endl;
 		return 0;
 	}
-	consoleArg.set_option_value("test_Tend", &T_end, T_begin);
-	consoleArg.set_option_value("test_Tstep", &T_step, 1);
 
 	/* gamma0 to which K to generate */
-	int K_begin,K_step, K_end;
-	if(!consoleArg.set_option_value("test_Kbegin", &K_begin)){
-		std::cout << "test_Kbegin has to be set! Call application with parameter -h to see all parameters" << std::endl;
+	int K;
+	std::vector<int> K_list;
+	if(!consoleArg.set_option_value("test_K", &K_list)){
+		std::cout << "test_K has to be set! Call application with parameter -h to see all parameters" << std::endl;
 		return 0;
 	}
-	consoleArg.set_option_value("test_Kend", &K_end, K_begin);
-	consoleArg.set_option_value("test_Kstep", &K_step, 1);
 
+	int i;
+	int T_size = T_list.size();
+	int K_size = K_list.size();
+	std::ostringstream oss;
+	int T_max = 0;
 
+	/* print info about what we will compute */
 	coutMaster << "- PROBLEM INFO --------------------------------------------------" << std::endl;
-	coutMaster << " T_begin:T_step:T_end      = " << std::setw(7) << T_begin << std::setw(7) << T_step << std::setw(7) << T_end << " (length of time-series)" << std::endl;
-	coutMaster << " K_begin:K_step:K_end      = " << std::setw(7) << K_begin << std::setw(7) << K_step << std::setw(7) << K_end << " (number of clusters)" << std::endl;
+	coutMaster << " T      = ";
+	for(i=0;i<T_size;i++){
+		coutMaster << T_list[i];
+		if(i < T_size-1){ 
+				coutMaster << ", ";
+		}
+		/* store maximum value */
+		if(T_list[i] > T_max){
+			T_max = T_list[i];
+		}
+	}
+	coutMaster << " (length of time-series)" << std::endl;
+
+	coutMaster << " K      = ";
+	for(i=0;i<K_size;i++){
+		coutMaster << K_list[i];
+		if(i < K_size-1){ 
+				coutMaster << ", ";
+		}
+	}
+	coutMaster << " (number of clusters)" << std::endl;
+
 	coutMaster << "------------------------------------------------------------------" << std::endl;
 	
 	/* start logging */
@@ -117,59 +141,43 @@ int main( int argc, char *argv[] )
 	TRY( PetscRandomSetSeed(rnd,13) );
 
 	/* ---- GENERATE THE LARGEST PROBLEM ---- */
-	/* prepare data */
-	coutMaster << "- generating largest problem: T = " << T_end << std::endl;
-	KmeansData<PetscVector> mydata(T_end,xdim);
+	coutMaster << "- generating largest problem: T = " << T_max << std::endl;
+	KmeansData<PetscVector> mydata(T_max,xdim);
 	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, solution_K, 0);
 	mydata.set_model(mymodel);
 
 	mydata.generate(solution_K, solution_theta, &solution_get_cluster_id, false);
 	mydata.add_noise(noise_covariance);
 
-	/* save data */
-	oss_name_of_file << "results/data_kmeans_T" << T_end << ".bin";
-	coutMaster << "- saving: " << oss_name_of_file.str() << std::endl;
-	mydata.save_datavector(oss_name_of_file.str());
-	oss_name_of_file.str("");
-
-	/* generate gamma0 vector for all K */
+	/* we will generate gamma0 vector for all K */
 	SimplexFeasibleSet_Local *feasibleset;
 	Vec *gamma0s_Vec; /* array of vectors */
 	GeneralVector<PetscVector> *gamma0; /* temp general vector for projection */
-	int K_num = (K_end - K_begin)/(double)K_step;
-	gamma0s_Vec = (Vec *)(malloc(K_num*sizeof(Vec)));
+	gamma0s_Vec = (Vec *)(malloc(K_size*sizeof(Vec)));
 
 	PetscViewer viewer_out;
 	Vec data_Vec = mydata.get_datavector()->get_vector();
 
-	int k, ki;
-	for(ki = 0; ki <= K_num; ki++){
-		k = K_begin + ki*K_step;
+	int ki;
+	for(ki = 0; ki < K_size; ki++){
+		K = K_list[ki];
 
-		coutMaster << "- getting subgamma: K = " << k << std::endl;
+		coutMaster << "- getting subgamma: K = " << K << std::endl;
 
 		/* create feasible set - we will project */
-		feasibleset = new SimplexFeasibleSet_Local(T_end,k); 
+		feasibleset = new SimplexFeasibleSet_Local(T_max,K); 
 
-		/* create general vector */
-		TRY( VecCreateSeq(PETSC_COMM_SELF, k*T_end, &(gamma0s_Vec[ki])) );
+		///* create general vector */
+		TRY( VecCreateSeq(PETSC_COMM_SELF, K*T_max, &(gamma0s_Vec[ki])) );
 		gamma0 = new GeneralVector<PetscVector>(gamma0s_Vec[ki]);
 		
 		/* generate random gamma */
 		TRY( VecSetRandom(gamma0s_Vec[ki], rnd) );
 
-		/* project initial approximation to feasible set */
+		///* project initial approximation to feasible set */
 		feasibleset->project(*gamma0);
-
-		/* store initial approximation */
-		oss_name_of_file << "results/gamma0_kmeans_T" << T_end << "K" << k << ".bin";
-		coutMaster << "- saving: " << oss_name_of_file.str() << std::endl;
-		TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD,oss_name_of_file.str().c_str(),FILE_MODE_WRITE,&viewer_out) );
-		TRY( VecView( gamma0s_Vec[ki], viewer_out) );
-		TRY( PetscViewerDestroy(&viewer_out) );
-		oss_name_of_file.str("");
-		
-		/* destroy feasible set */
+	
+		///* destroy feasible set */
 		free(feasibleset);
 	}
 
@@ -183,13 +191,14 @@ int main( int argc, char *argv[] )
 	IS *gamma0sub_ISs;
 	IS gamma0sub_IS;
 
-	int t,i;
-	for(t=T_begin;t<T_end;t+=T_step){
-		coutMaster << "- getting subproblem: T = " << t << std::endl;
+	int ti;
+	for(ti=0;ti<T_size;ti++){
+		T = T_list[ti];
+		coutMaster << "- getting subproblem: T = " << T << std::endl;
 	
 		/* for every dimension of data create stride */
 		for(i=0;i<xdim;i++){
-			TRY( ISCreateStride(PETSC_COMM_WORLD, t, i*T_end, T_end/(double)(t), &(subdata_ISs[i])) );
+			TRY( ISCreateStride(PETSC_COMM_WORLD, T, i*T_max, T_max/(double)(T), &(subdata_ISs[i])) );
 		}
 		TRY( ISConcatenate(PETSC_COMM_WORLD, xdim, subdata_ISs, &subdata_IS) );
 
@@ -197,7 +206,7 @@ int main( int argc, char *argv[] )
 		TRY( VecGetSubVector(data_Vec, subdata_IS, &subdata_Vec) );
 		
 		/* save data */
-		oss_name_of_file << "results/data_kmeans_T" << t << ".bin";
+		oss_name_of_file << "results/data_kmeans_T" << T << ".bin";
 		coutMaster << "- saving: " << oss_name_of_file.str() << std::endl;
 		TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD,oss_name_of_file.str().c_str(),FILE_MODE_WRITE,&viewer_out) );
 		TRY( VecView( subdata_Vec, viewer_out) );
@@ -214,23 +223,23 @@ int main( int argc, char *argv[] )
 		TRY( ISDestroy(&subdata_IS) );
 
 		/* subvectors from gamma0 */
-		for(ki = 0; ki <= K_num; ki++){
-			k = K_begin + ki*K_step;
+		for(ki = 0; ki < K_size; ki++){
+			K = K_list[K];
 
-			coutMaster << "- getting subgamma: K = " << k << std::endl;
+			coutMaster << "- getting subgamma: K = " << K << std::endl;
 
 			/* get subvectors from gamma0 */
-			gamma0sub_ISs = (IS*)malloc(k*sizeof(IS));
-			for(i=0;i<k;i++){
-				TRY( ISCreateStride(PETSC_COMM_WORLD, t, i*T_end, T_end/(double)(t), &(gamma0sub_ISs[i])) );
+			gamma0sub_ISs = (IS*)malloc(K*sizeof(IS));
+			for(i=0;i<K;i++){
+				TRY( ISCreateStride(PETSC_COMM_WORLD, T, i*T_max, T_max/(double)(T), &(gamma0sub_ISs[i])) );
 			}
-			TRY( ISConcatenate(PETSC_COMM_WORLD, k, gamma0sub_ISs, &gamma0sub_IS) );
+			TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma0sub_ISs, &gamma0sub_IS) );
 			
 			/* get subvector */
 			TRY( VecGetSubVector(gamma0s_Vec[ki], gamma0sub_IS, &gamma0sum_Vec) );
 		
 			/* save data */
-			oss_name_of_file << "results/gamma0_kmeans_T" << t << "K" << k << ".bin";
+			oss_name_of_file << "results/gamma0_kmeans_T" << T << "K" << K << ".bin";
 			coutMaster << "- saving: " << oss_name_of_file.str() << std::endl;
 			TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD,oss_name_of_file.str().c_str(),FILE_MODE_WRITE,&viewer_out) );
 			TRY( VecView( gamma0sum_Vec, viewer_out) );
@@ -240,7 +249,7 @@ int main( int argc, char *argv[] )
 			/* restore subvector */
 			TRY( VecRestoreSubVector(gamma0s_Vec[ki], gamma0sub_IS, &gamma0sum_Vec) );
 
-			for(i=0;i<k;i++){
+			for(i=0;i<K;i++){
 				TRY( ISDestroy(&(gamma0sub_ISs[i])) );
 			}
 			free(gamma0sub_ISs);
