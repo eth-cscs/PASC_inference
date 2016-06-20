@@ -41,6 +41,7 @@ if(${TEST_KMEANS_LOAD})
 		 
 endif()
 
+# mpiexec -n 1 ./test_kmeans_generate --test_T=10 --test_T=50 --test_T=100 --test_T=500 --test_T=1000 --test_T=5000 --test_T=10000 --test_T=50000 --test_T=100000 --test_T=500000 --test_T=1000000 --test_T=5000000 --test_T=10000000 --test_K=1 --test_K=2 --test_K=3 --test_K=4 --test_K=5
 if(${TEST_KMEANS_GENERATE})
 	pascadd_executable("test_kmeans/test_kmeans_generate.cpp" "test_kmeans_generate")
 endif()

@@ -162,7 +162,7 @@ int main( int argc, char *argv[] )
 	for(ki = 0; ki < K_size; ki++){
 		K = K_list[ki];
 
-		coutMaster << "- getting subgamma: K = " << K << std::endl;
+		coutMaster << "- computing gamma: K = " << K << std::endl;
 
 		/* create feasible set - we will project */
 		feasibleset = new SimplexFeasibleSet_Local(T_max,K); 
@@ -198,7 +198,7 @@ int main( int argc, char *argv[] )
 	
 		/* for every dimension of data create stride */
 		for(i=0;i<xdim;i++){
-			TRY( ISCreateStride(PETSC_COMM_WORLD, T, i*T_max, T_max/(double)(T), &(subdata_ISs[i])) );
+			TRY( ISCreateStride(PETSC_COMM_WORLD, T, i, T_max/(double)(T), &(subdata_ISs[i])) );
 		}
 		TRY( ISConcatenate(PETSC_COMM_WORLD, xdim, subdata_ISs, &subdata_IS) );
 
@@ -224,14 +224,14 @@ int main( int argc, char *argv[] )
 
 		/* subvectors from gamma0 */
 		for(ki = 0; ki < K_size; ki++){
-			K = K_list[K];
+			K = K_list[ki];
 
 			coutMaster << "- getting subgamma: K = " << K << std::endl;
 
 			/* get subvectors from gamma0 */
 			gamma0sub_ISs = (IS*)malloc(K*sizeof(IS));
 			for(i=0;i<K;i++){
-				TRY( ISCreateStride(PETSC_COMM_WORLD, T, i*T_max, T_max/(double)(T), &(gamma0sub_ISs[i])) );
+				TRY( ISCreateStride(PETSC_COMM_WORLD, T, i, T_max/(double)(T), &(gamma0sub_ISs[i])) );
 			}
 			TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma0sub_ISs, &gamma0sub_IS) );
 			
