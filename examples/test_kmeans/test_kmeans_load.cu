@@ -6,14 +6,9 @@
 
 #include "pascinference.h"
 
-#include "solver/tssolver.h"
-#include "model/tsmodel.h"
-#include "data/tsdata.h"
-
+#include "solver/kmeanssolver.h"
 #include "data/kmeansdata.h"
 #include "model/kmeansh1fem.h"
-
-#include "kmeans3D.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
@@ -83,7 +78,7 @@ int main( int argc, char *argv[] )
 	
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-	TSSolver<PetscVector> mysolver(mydata);
+	KmeansSolver<PetscVector> mysolver(mydata);
 
 	mysolver.debug_mode = 2;
 

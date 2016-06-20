@@ -7,7 +7,7 @@
  */
 
 #include "pascinference.h"
-#include "solver/tssolver.h"
+#include "solver/kmeanssolver.h"
 #include "data/kmeansdata.h"
 #include "model/kmeansh1fem.h"
 
@@ -108,7 +108,7 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-	TSSolver<PetscVector> mysolver(mydata);
+	KmeansSolver<PetscVector> mysolver(mydata);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;

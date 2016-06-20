@@ -52,17 +52,17 @@ class TSSolver: public GeneralSolver {
 
 		virtual void solve();
 		
-		void print(ConsoleOutput &output) const;
-		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		virtual void print(ConsoleOutput &output) const;
+		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		
-		void printstatus(ConsoleOutput &output) const;
-		void printtimer(ConsoleOutput &output) const;
-		std::string get_name() const;
+		virtual void printstatus(ConsoleOutput &output) const;
+		virtual void printtimer(ConsoleOutput &output) const;
+		virtual std::string get_name() const;
 
-		TSData<VectorBase> *get_data() const;
+		virtual TSData<VectorBase> *get_data() const;
 
-		GeneralSolver *get_gammasolver() const;
-		GeneralSolver *get_thetasolver() const;
+		virtual GeneralSolver *get_gammasolver() const;
+		virtual GeneralSolver *get_thetasolver() const;
 
 };
 
