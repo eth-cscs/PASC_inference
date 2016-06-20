@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
 	double epssqr;
 
 	consoleArg.set_option_value("test_data_filename", &data_filename, "data/data_kmeans_T100.bin");
-	consoleArg.set_option_value("test_gamma0_filename", &gamma0_filename, "gamma0_kmeans_T100K3.bin");
+	consoleArg.set_option_value("test_gamma0_filename", &gamma0_filename, "data/gamma0_kmeans_T100K3.bin");
 	consoleArg.set_option_value("test_xdim", &xdim, 3);
 	consoleArg.set_option_value("test_K", &K, 3);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
@@ -59,9 +59,9 @@ int main( int argc, char *argv[] )
 	coutMaster << "---------------------------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */
-	std::ostringstream oss_name_of_file_log;
-	oss_name_of_file_log << "results/test_kmeans_load_log_p" << GlobalManager.get_rank() << ".txt";
-	logging.begin(oss_name_of_file_log.str());
+	std::ostringstream oss_filename_log;
+	oss_filename_log << "results/test_kmeans_load_log_p" << GlobalManager.get_rank() << ".txt";
+	logging.begin(oss_filename_log.str());
 		
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
@@ -80,11 +80,14 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	KmeansSolver<PetscVector> mysolver(mydata);
 
+	/* load gammavector from file */
+	mydata.load_gammavector(gamma0_filename);
+
 	mysolver.debug_mode = 2;
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-//	mysolver.solve();
+	mysolver.solve();
 
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
@@ -96,7 +99,7 @@ int main( int argc, char *argv[] )
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;
-//	mysolver.printtimer(coutAll);
+	mysolver.printtimer(coutAll);
 	coutAll.synchronize();
 
 	/* say bye */	

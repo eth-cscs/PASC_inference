@@ -35,12 +35,13 @@ class KmeansData: public TSData<VectorBase> {
 
 		virtual std::string get_name() const;
 
-		void saveCSV(std::string name_of_file) const;
-		void saveVTK(std::string name_of_file) const;
+		void saveCSV(std::string filename) const;
+		void saveVTK(std::string filename) const;
 		
 		void generate(int K_solution, double *theta_solution, int (*get_cluster_id)(int, int), bool scale_or_not=false);
 		void add_noise(double *diag_covariance);
 		
+		void load_gammavector(std::string filename) const;
 };
 
 } // end of namespace
@@ -56,7 +57,7 @@ std::string KmeansData<VectorBase>::get_name() const {
 }
 
 template<>
-void KmeansData<PetscVector>::saveCSV(std::string name_of_file) const {
+void KmeansData<PetscVector>::saveCSV(std::string filename) const {
 	LOG_FUNC_STATIC_BEGIN
 
 	Timer timer_saveCSV; 
@@ -78,7 +79,7 @@ void KmeansData<PetscVector>::saveCSV(std::string name_of_file) const {
 						
 	/* first processor write header */
 	if(GlobalManager.get_rank() == 0){
-		myfile.open(name_of_file.c_str());
+		myfile.open(filename.c_str());
 
 		/* write header to file */
 		for(n=0; n<xdim; n++){
@@ -115,7 +116,7 @@ void KmeansData<PetscVector>::saveCSV(std::string name_of_file) const {
 	for(proc_id=0; proc_id < GlobalManager.get_size();proc_id++){
 		if(GlobalManager.get_rank() == proc_id){
 			/* open file - append to the end local data */
-			myfile.open(name_of_file.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+			myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 			/* write local portion of data */
 			for(t=0;t<Tlocal;t++){
 				/* original time_serie */
@@ -160,7 +161,7 @@ void KmeansData<PetscVector>::saveCSV(std::string name_of_file) const {
 
 template<>
 void KmeansData<PetscVector>::generate(int K_solution, double *theta_solution, int (*get_cluster_id)(int, int), bool scale_or_not){
-	LOG_FUNC_STATIC_BEGIN
+	LOG_FUNC_BEGIN
 			
 	/* get local data array */
 	double *data_arr;
@@ -187,11 +188,13 @@ void KmeansData<PetscVector>::generate(int K_solution, double *theta_solution, i
 		coutAll.synchronize();
 	}
 
-	LOG_FUNC_STATIC_END
+	LOG_FUNC_END
 }
 
 template<>
 void KmeansData<PetscVector>::add_noise(double *diag_covariance){
+	LOG_FUNC_BEGIN
+	
 	int n,t;
 	
 	/* prepare mu */
@@ -214,11 +217,14 @@ void KmeansData<PetscVector>::add_noise(double *diag_covariance){
 		}
 	}
 	TRY( VecRestoreArray(datavector->get_vector(),&data_arr) );
-	
+
+	LOG_FUNC_END	
 }
 
 template<>
-void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
+void KmeansData<PetscVector>::saveVTK(std::string filename) const{
+	LOG_FUNC_BEGIN
+	
 	Timer timer_saveVTK; 
 	timer_saveVTK.restart();
 	timer_saveVTK.start();
@@ -237,7 +243,7 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 
 	/* master writes the header */
 	if(prank == 0){
-		myfile.open(name_of_file.c_str());
+		myfile.open(filename.c_str());
 
 		/* write header to file */
 		myfile << "# vtk DataFile Version 3.1\n";
@@ -258,7 +264,7 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 	/* each processor writes its own portion of data */
 	for(id_proc=0;id_proc<psize;id_proc++){
 		if(id_proc == prank){
-			myfile.open(name_of_file.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+			myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
 			for(t=0;t < Tlocal;t++){
 				if(xdim == 1){ 
@@ -293,7 +299,7 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 
 	/* master writes the header */
 	if(prank == 0){
-		myfile.open(name_of_file.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+		myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 	
 		myfile << "\n";
 		myfile << "POINT_DATA " <<  T << "\n";
@@ -319,7 +325,7 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 	for(k=0;k<K;k++){
 		/* master writes header */
 		if(prank == 0){
-			myfile.open(name_of_file.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+			myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
 			myfile << "\n";
 			myfile << "SCALARS gamma_" << k << " float 1\n";
@@ -332,7 +338,7 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 		/* each processor writes its own portion of data */
 		for(id_proc=0;id_proc<psize;id_proc++){
 			if(id_proc == prank){
-				myfile.open(name_of_file.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+				myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
 				for(t=0;t < Tlocal;t++){
 					myfile << gamma_arr[k*Tlocal + t] << "\n";
@@ -356,7 +362,7 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 	/* store gamma values */
 	/* master writes the header */
 	if(prank == 0){
-		myfile.open(name_of_file.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+		myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 	
 		myfile << "\n";
 		myfile << "SCALARS gamma_max_id float 1\n";
@@ -369,7 +375,7 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 	/* each processor writes its own portion of data */
 	for(id_proc=0;id_proc<psize;id_proc++){
 		if(id_proc == prank){
-				myfile.open(name_of_file.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+				myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
 				for(t=0;t < Tlocal;t++){
 					myfile << gamma_max_id[t] << "\n";
@@ -384,7 +390,74 @@ void KmeansData<PetscVector>::saveVTK(std::string name_of_file) const{
 
 	timer_saveVTK.stop();
 	coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+
+	LOG_FUNC_END	
+}
+
+template<>
+void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
 	
+	//TODO: control existence of file
+	
+	/* variables */
+	int K = this->get_K();
+	int T = this->get_T();
+	int Tlocal = this->get_Tlocal();
+	int Tbegin = this->get_Tbegin();
+	int xdim = this->get_xdim();
+
+	/* aux vector, we first oad data and then distribute values to procs */
+	Vec gamma_preload;
+	TRY( VecCreate(PETSC_COMM_WORLD, &gamma_preload) );
+
+	/* prepare viewer to load from file */
+	PetscViewer mviewer;
+	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	
+	/* load vector from viewer */
+	TRY( VecLoad(gamma_preload, mviewer) );
+
+	/* destroy the viewer */
+	TRY( PetscViewerDestroy(&mviewer) );	
+
+	/* prepare IS with my indexes */
+	IS *gamma_sub_ISs;
+	gamma_sub_ISs = (IS*)malloc(K*sizeof(IS));
+	IS gamma_sub_IS;
+
+	Vec gamma_sub;
+	
+	/* prepare local vector */
+	Vec gamma_local;
+	TRY( VecCreateSeq(MPI_COMM_SELF, K*Tlocal, &gamma_local) );
+	
+	int i;
+	for(i=0;i<K;i++){
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin + i*Tlocal, 1, &(gamma_sub_ISs[i])) );
+	}
+	TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma_sub_ISs, &gamma_sub_IS) );
+
+	/* now get subvector and copy values */
+	TRY( VecGetSubVector(gamma_preload, gamma_sub_IS, &gamma_sub) );
+	TRY( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
+		
+	TRY( VecCopy(gamma_sub, gamma_local) );
+
+	/* restore subvector */
+	TRY( VecRestoreLocalVector(gammavector->get_vector(), gamma_local) );
+	TRY( VecRestoreSubVector(gamma_preload, gamma_sub_IS, &gamma_sub) );
+
+	for(i=0;i<K;i++){
+		TRY( ISDestroy(&(gamma_sub_ISs[i])) );
+	}
+	free(gamma_sub_ISs);
+	TRY( ISDestroy(&gamma_sub_IS) );
+
+	TRY( VecDestroy(&gamma_preload) );
+	
+	LOG_FUNC_END
 }
 
 

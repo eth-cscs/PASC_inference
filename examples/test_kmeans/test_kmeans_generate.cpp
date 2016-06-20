@@ -201,6 +201,7 @@ int main( int argc, char *argv[] )
 			TRY( ISCreateStride(PETSC_COMM_WORLD, T, i, T_max/(double)(T), &(subdata_ISs[i])) );
 		}
 		TRY( ISConcatenate(PETSC_COMM_WORLD, xdim, subdata_ISs, &subdata_IS) );
+		TRY( ISSort(subdata_IS) );
 
 		/* get subvector */
 		TRY( VecGetSubVector(data_Vec, subdata_IS, &subdata_Vec) );
@@ -231,7 +232,7 @@ int main( int argc, char *argv[] )
 			/* get subvectors from gamma0 */
 			gamma0sub_ISs = (IS*)malloc(K*sizeof(IS));
 			for(i=0;i<K;i++){
-				TRY( ISCreateStride(PETSC_COMM_WORLD, T, i, T_max/(double)(T), &(gamma0sub_ISs[i])) );
+				TRY( ISCreateStride(PETSC_COMM_WORLD, T, i*T_max, T_max/(double)(T), &(gamma0sub_ISs[i])) );
 			}
 			TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma0sub_ISs, &gamma0sub_IS) );
 			
