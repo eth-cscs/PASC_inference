@@ -198,7 +198,7 @@ int main( int argc, char *argv[] )
 	
 		/* for every dimension of data create stride */
 		for(i=0;i<xdim;i++){
-			TRY( ISCreateStride(PETSC_COMM_WORLD, T, i, T_max/(double)(T), &(subdata_ISs[i])) );
+			TRY( ISCreateStride(PETSC_COMM_WORLD, T, i, (T_max/(double)(T))*xdim, &(subdata_ISs[i])) );
 		}
 		TRY( ISConcatenate(PETSC_COMM_WORLD, xdim, subdata_ISs, &subdata_IS) );
 		TRY( ISSort(subdata_IS) );

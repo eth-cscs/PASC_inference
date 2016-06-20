@@ -435,7 +435,7 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 	
 	int i;
 	for(i=0;i<K;i++){
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin + i*Tlocal, 1, &(gamma_sub_ISs[i])) );
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin + i*T, 1, &(gamma_sub_ISs[i])) );
 	}
 	TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma_sub_ISs, &gamma_sub_IS) );
 
