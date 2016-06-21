@@ -7,7 +7,7 @@
  */
 
 #include "pascinference.h"
-#include "solver/tssolver.h"
+#include "solver/edfsolver.h"
 #include "data/edfdata.h"
 #include "model/edfh1fem.h"
 
@@ -68,7 +68,7 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-	TSSolver<PetscVector> mysolver(mydata);
+	EdfSolver<PetscVector> mysolver(mydata);
 
 //	mysolver.maxit = 1000;
 //	mysolver.debug_mode = 2;
