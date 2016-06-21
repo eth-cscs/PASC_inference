@@ -5,11 +5,13 @@ include_directories("${CMAKE_SOURCE_DIR}/test_kmeans/include")
 option(TEST_KMEANS "TEST_KMEANS" OFF)
 option(TEST_KMEANS_LOAD "TEST_KMEANS_LOAD" OFF)
 option(TEST_KMEANS_GENERATE "TEST_KMEANS_GENERATE" OFF)
+option(TEST_KMEANS_SIMPLIFY "TEST_KMEANS_SIMPLIFY" OFF)
 
 # print info
 printinfo_onoff("TEST_KMEANS\t\t\t\t" "${TEST_KMEANS}")
 printinfo_onoff("TEST_KMEANS_LOAD\t\t\t" "${TEST_KMEANS_LOAD}")
 printinfo_onoff("TEST_KMEANS_GENERATE\t\t\t" "${TEST_KMEANS_GENERATE}")
+printinfo_onoff("TEST_KMEANS_SIMPLIFY\t\t\t" "${TEST_KMEANS_SIMPLIFY}")
 
 # add example executable files
 if(${TEST_KMEANS})
@@ -44,4 +46,8 @@ endif()
 # mpiexec -n 1 ./test_kmeans_generate --test_T=10 --test_T=50 --test_T=100 --test_T=500 --test_T=1000 --test_T=5000 --test_T=10000 --test_T=50000 --test_T=100000 --test_T=500000 --test_T=1000000 --test_T=5000000 --test_T=10000000 --test_K=1 --test_K=2 --test_K=3 --test_K=4 --test_K=5
 if(${TEST_KMEANS_GENERATE})
 	pascadd_executable("test_kmeans/test_kmeans_generate.cpp" "test_kmeans_generate")
+endif()
+
+if(${TEST_KMEANS_SIMPLIFY})
+	pascadd_executable("test_kmeans/test_kmeans_simplify.cpp" "test_kmeans_simplify")
 endif()
