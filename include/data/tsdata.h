@@ -251,7 +251,7 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 		#else
 			/* CudaMPI vector */
 			TRY( VecCreate(PETSC_COMM_WORLD,&gammavector_Vec) );
-			TRY( VecSetType(x_Vec, VECMPICUDA) );
+			TRY( VecSetType(gammavector_Vec, VECMPICUDA) );
 			TRY( VecSetSizes(gammavector_Vec,this->tsmodel->get_gammavectorlength_local(),this->tsmodel->get_gammavectorlength_global()) );
 			TRY( VecSetFromOptions(gammavector_Vec) );
 		#endif
