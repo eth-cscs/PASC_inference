@@ -202,7 +202,7 @@ void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, 
 	double *theta;
 	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
 	
-	int k,i,n;
+	int k,n;
 
 	output_local.push();
 	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;

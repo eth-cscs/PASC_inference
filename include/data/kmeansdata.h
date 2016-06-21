@@ -431,7 +431,11 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 	
 	/* prepare local vector */
 	Vec gamma_local;
-	TRY( VecCreateSeq(MPI_COMM_SELF, K*Tlocal, &gamma_local) );
+	#ifndef USE_CUDA
+		TRY( VecCreateSeq(MPI_COMM_SELF, K*Tlocal, &gamma_local) );
+	#else
+		TRY( VecCreateSeqCUDA(MPI_COMM_SELF, K*Tlocal, &gamma_local) );
+	#endif
 	
 	int i;
 	for(i=0;i<K;i++){
