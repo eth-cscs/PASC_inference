@@ -254,7 +254,7 @@ void KmeansH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamma
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	gammadata->set_A(new BlockLaplaceMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->epssqr*this->epssqr)); 
+	gammadata->set_A(new BlockLaplaceMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->epssqr)); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
@@ -398,7 +398,7 @@ void KmeansH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolve
 	/* through clusters */
 	for(k=0;k<K;k++){ 
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, k*Tlocal, 1, &gammak_is) );
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin*K + k*Tlocal, 1, &gammak_is) );
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 
 		/* compute sum of gammak */
@@ -407,7 +407,7 @@ void KmeansH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolve
 		/* through dimensions */
 		for(n=0;n<xdim;n++){
 			/* get datan */
-			TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, n, xdim, &datan_is) );
+			TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin*xdim + n, xdim, &datan_is) );
 			TRY( VecGetSubVector(data_Vec, datan_is, &datan_Vec) );
 			
 			/* compute dot product */

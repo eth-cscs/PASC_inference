@@ -52,6 +52,11 @@ int main( int argc, char *argv[] )
 		return 0;
 	} 
 
+	if(GlobalManager.get_size() > 1){
+		coutMaster << "The generator works only on one processor, sorry." << std::endl;
+		return 0;		
+	}
+
 	/* which times to generate */
 	int T;
 	std::vector<int> T_list;

@@ -344,10 +344,10 @@ void TSSolver<VectorBase>::solve() {
 		if(this->debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " theta solver:" << std::endl;
-			coutAll << "  - ";
-			coutAll << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
-			coutAll << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
-			coutAll << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
+			coutMaster << "  - ";
+			coutMaster << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
+			coutMaster << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
+			coutMaster << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
 			if(this->debug_mode >= 10){
 				coutMaster.push();
 				thetasolver->printstatus(coutAll);
@@ -370,7 +370,6 @@ void TSSolver<VectorBase>::solve() {
 			coutMaster.pop();
 		}
 
-
 		/* --- COMPUTE gamma --- */
 		this->timer_gamma_update.start();
 		 model->update_gammasolver(gammasolver, tsdata);
@@ -386,10 +385,10 @@ void TSSolver<VectorBase>::solve() {
 		if(this->debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " gamma solver:" << std::endl;
-			coutAll << "  - ";
-			coutAll << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
-			coutAll << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
-			coutAll << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
+			coutMaster << "  - ";
+			coutMaster << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
+			coutMaster << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
+			coutMaster << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
 			if(this->debug_mode >= 10){
 				coutMaster.push();
 				gammasolver->printstatus(coutAll);
@@ -422,11 +421,10 @@ void TSSolver<VectorBase>::solve() {
 		if(this->debug_mode >= 2){
 			/* print info about cost function */
 			coutMaster << " outer loop status:" << std::endl;			
-			coutAll << "  - ";
-			coutAll << "L_old = " << std::setw(12) << L_old << ", ";
-			coutAll << "L = " << std::setw(12) << L << ", ";
-			coutAll << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
-			coutAll.synchronize();
+			coutMaster << "  - ";
+			coutMaster << "L_old = " << std::setw(12) << L_old << ", ";
+			coutMaster << "L = " << std::setw(12) << L << ", ";
+			coutMaster << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
 		}
 
 		/* global stopping criteria */

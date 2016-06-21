@@ -47,7 +47,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_gamma0_filename", &gamma0_filename, "data/gamma0_kmeans_T100K3.bin");
 	consoleArg.set_option_value("test_xdim", &xdim, 3);
 	consoleArg.set_option_value("test_K", &K, 3);
-	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
+	consoleArg.set_option_value("test_epssqr", &epssqr, 1);
 
 	coutMaster << "----------------------- PROBLEM INFO --------------------------" << std::endl << std::endl;
 	coutMaster << " test_data_filename    = " << std::setw(30) << data_filename << " (name of file with data)" << std::endl;
@@ -99,8 +99,7 @@ int main( int argc, char *argv[] )
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;
-	mysolver.printtimer(coutAll);
-	coutAll.synchronize();
+	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

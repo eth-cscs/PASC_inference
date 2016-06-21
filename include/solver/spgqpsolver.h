@@ -476,7 +476,6 @@ void SPGQPSolver<VectorBase>::solve() {
 		 qpdata->get_feasibleset()->project(d);
 		this->timer_projection.stop();
 
-
 		/* d = d - x */
 		this->timer_update.start();
 		 d -= x;
@@ -492,6 +491,9 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* dAd = dot(Ad,d) */
 		/* gd = dot(g,d) */
 		this->timer_dot.start();
+//		 dd = dot(d,d);
+//		 dAd = dot(d,Ad);
+//		 gd = dot(d,g);
 		 compute_dots(&dd, &dAd, &gd);
 		this->timer_dot.stop();
 
@@ -538,14 +540,14 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.stop();
 
 		/* stopping criteria */
-		this->gP = std::sqrt(dAd);
+		this->gP = dAd;
 		if( this->stop_difff && abs(fx - fx_old) < this->eps){
 			break;
 		}
-		if(this->stop_normgp_normb && this->gP < this->eps*normb){
+		if(this->stop_normgp_normb && this->gP < this->eps*normb*this->eps*normb){
 			break;
 		}
-		if(this->stop_normgp && this->gP < this->eps){
+		if(this->stop_normgp && this->gP < this->eps*this->eps){
 			break;
 		}
 
@@ -597,9 +599,9 @@ void SPGQPSolver<VectorBase>::solve() {
 	this->timer_solve.stop();
 
 	/* very short info */
-	if(this->debug_mode >= 3 || false){
-		coutAll <<  " - it    = " << it << std::endl;
-		coutAll <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
+	if(this->debug_mode >= 2){
+		coutMaster <<  " - it    = " << it << std::endl;
+		coutMaster <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
 
 	}
 

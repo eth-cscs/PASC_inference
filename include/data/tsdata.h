@@ -242,18 +242,32 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 
 	if(!this->gammavector){
 		Vec gammavector_Vec;
-		TRY( VecCreate(PETSC_COMM_WORLD,&gammavector_Vec) );
-		TRY( VecSetSizes(gammavector_Vec,this->tsmodel->get_gammavectorlength_local(),this->tsmodel->get_gammavectorlength_global()) );
-		TRY( VecSetFromOptions(gammavector_Vec) );
+
+		#ifndef USE_CUDA
+			/* classic MPI vector */
+			TRY( VecCreate(PETSC_COMM_WORLD,&gammavector_Vec) );
+			TRY( VecSetSizes(gammavector_Vec,this->tsmodel->get_gammavectorlength_local(),this->tsmodel->get_gammavectorlength_global()) );
+			TRY( VecSetFromOptions(gammavector_Vec) );
+		#else
+			/* CudaMPI vector */
+			TRY( VecCreate(PETSC_COMM_WORLD,&gammavector_Vec) );
+			TRY( VecSetType(x_Vec, VECMPICUDA) );
+			TRY( VecSetSizes(gammavector_Vec,this->tsmodel->get_gammavectorlength_local(),this->tsmodel->get_gammavectorlength_global()) );
+			TRY( VecSetFromOptions(gammavector_Vec) );
+		#endif
+
 		this->gammavector = new GeneralVector<PetscVector>(gammavector_Vec);
 		this->destroy_gammavector = true;
 	}
 
 	if(!this->thetavector){
 		Vec thetavector_Vec;
+
+		/* classic MPI vector */
 		TRY( VecCreate(PETSC_COMM_WORLD,&thetavector_Vec) );
 		TRY( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),this->tsmodel->get_thetavectorlength_global()) );
 		TRY( VecSetFromOptions(thetavector_Vec) );
+		
 		this->thetavector = new GeneralVector<PetscVector>(thetavector_Vec);
 		this->destroy_thetavector = true;
 	}
