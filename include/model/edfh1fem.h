@@ -38,6 +38,10 @@ class EdfH1FEMModel: public TSModel<VectorBase> {
 		int R; /**< number of nodes of the graph */
 		double epssqr; /**< penalty coeficient */
 		
+		/* for theta problem */
+		BlockGraphMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
+		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
+
 	public:
 	
 		EdfH1FEMModel(EdfData<VectorBase> &tsdata, BGM_Graph &new_graph, int K, double epssqr);
@@ -274,7 +278,8 @@ void EdfH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasol
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	gammadata->set_A(new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr*this->epssqr)); 
+	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
+	gammadata->set_A(A_shared); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
@@ -300,6 +305,11 @@ void EdfH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasol
 
 	/* create solver */
 	*thetasolver = new SimpleSolver<PetscVector>(*thetadata);
+	
+	/* create aux vector for gamma^T A gamma */
+	Vec Agamma_Vec;
+	TRY( VecDuplicate(tsdata->get_gammavector()->get_vector(),&Agamma_Vec) );
+	Agamma = new GeneralVector<PetscVector>(Agamma_Vec);
 	
 	LOG_FUNC_END
 }
@@ -331,6 +341,7 @@ void EdfH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver
 	/* I created this objects, I should destroy them */
 
 	/* destroy data */
+	free(Agamma);
 	free(thetadata);
 
 	/* destroy solver */
@@ -374,17 +385,16 @@ void EdfH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, 
 	double *b_arr;
 	TRY( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
 
-	int k,t,n;
-	double mydot;
+	int k,t,r;
 	for(t=0;t<Tlocal;t++){
 		for(k=0;k<K;k++){
-			mydot = 0;
-			for(n=0;n<xdim;n++){
-				mydot += (data_arr[t*xdim+n] - theta_arr[k*xdim+n])*(data_arr[t*xdim+n] - theta_arr[k*xdim+n]); 
+			for(r=0;r<R;r++){
+				b_arr[(k*R+r)*Tlocal + t] = (-1)*pow(data_arr[r*Tlocal+t] - theta_arr[k]*data_arr[r*Tlocal+t],2.0); 
 			}
-			b_arr[k*Tlocal+t] = -mydot;
 		}
 	}
+
+	/* coeffs of A_shared are updated via computation of Theta :) */
 
 	/* restore arrays */
 	TRY( VecRestoreArray(gammadata->get_b()->get_vector(), &b_arr) );
@@ -399,6 +409,78 @@ template<>
 void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 
+	Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
+	Vec theta_Vec = tsdata->get_thetavector()->get_vector();
+	Vec data_Vec = tsdata->get_datavector()->get_vector();
+
+	/* I will use A_shared with coefficients equal to 1, therefore I set Theta=1 */
+	TRY( VecSet(tsdata->get_thetavector()->get_vector(),1.0) );
+
+	/* now compute A*gamma */
+	*Agamma = (*A_shared)*(*(tsdata->get_gammavector()));
+	Vec Agamma_Vec = Agamma->get_vector();
+
+	/* subvectors */
+	Vec gammak_Vec;
+	Vec Agammak_Vec;
+	IS gammak_is;
+	
+	int k;
+	double gammaAgamma;
+	double gammaxsqr;
+	
+	/* get arrays */
+	double *theta_arr;
+	TRY( VecGetArray(theta_Vec,&theta_arr) );
+	
+	/* square of components of data_Vec */ 
+	Vec x_sqr; // TODO: here is bottleneck :( these data could be computed in preprocess, but I don't know if I want to store them
+	TRY( VecDuplicate(data_Vec,&x_sqr) );
+	TRY( VecCopy(data_Vec,x_sqr) );
+	TRY( VecPow(x_sqr, 2.0) );
+	
+	double value;
+	
+	/* through clusters */
+	for(k=0;k<K;k++){ 
+		/* get gammak */
+		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k*Tlocal*R, 1, &gammak_is) );
+		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
+
+		/* compute gammaAgamma */
+		TRY( VecDot(gammak_Vec, Agammak_Vec, &gammaAgamma) );
+		
+		/* compute gammaxsqr */
+		TRY( VecDot(x_sqr, gammak_Vec, &gammaxsqr) );
+
+		if(gammaAgamma == 0){
+			theta_arr[k] = 0;
+		} else {
+			if(gammaxsqr == 0){
+				theta_arr[k]  = 0.5/gammaAgamma;
+			} else {
+				value = 1 - 0.5*(gammaAgamma/gammaxsqr);
+//				if(value >= 0){
+					theta_arr[k] = value;
+//				} else {
+//					theta_arr[k] = -sqrt(-value);
+//				}
+			}
+		}
+
+		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		TRY( VecRestoreSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
+		TRY( ISDestroy(&gammak_is) );
+	}	
+
+	/* destroy x_sqr */
+	TRY( VecDestroy(&x_sqr) );
+
+	/* restore arrays */
+	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
+
+	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) );
 
 	LOG_FUNC_END
 }

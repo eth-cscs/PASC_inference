@@ -251,8 +251,8 @@ void QPSolver<VectorBase>::solve() {
 	}
 
 	/* update settings of child solver */
-	child_solver->debug_mode = this->debug_mode;
-	child_solver->eps = this->eps;
+//	child_solver->debug_mode = this->debug_mode;
+//	child_solver->eps = this->eps;
 
 	/* call solve function to child solver */
 	child_solver->solve();

@@ -70,13 +70,11 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	EdfSolver<PetscVector> mysolver(mydata);
 
-//	mysolver.maxit = 1000;
-//	mysolver.debug_mode = 2;
 	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-//	mysolver.solve();
+	mysolver.solve();
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;

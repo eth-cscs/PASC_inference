@@ -94,8 +94,10 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 			IS right_overlap_is;
 		#endif
 		
+		GeneralVector<VectorBase> *coeffs; /**< vector of coefficient for each block */
+		
 	public:
-		BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha=1.0);
+		BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha=1.0, GeneralVector<VectorBase> *new_coeffs=NULL);
 		~BlockGraphMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -120,7 +122,7 @@ __global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr,
 #endif
 
 
-/* ---------------- INPLEMENTATION -------------------- */
+/* ---------------- IMPLEMENTATION -------------------- */
 
 template<class VectorBase>
 std::string BlockGraphMatrix<VectorBase>::get_name() const {
@@ -129,7 +131,7 @@ std::string BlockGraphMatrix<VectorBase>::get_name() const {
 
 
 template<class VectorBase>
-BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha){
+BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha, GeneralVector<VectorBase> *new_coeffs){
 	LOG_FUNC_BEGIN
 
 	this->graph = &new_graph;
@@ -137,6 +139,8 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 
 	this->K = K;
 	this->alpha = alpha;
+	
+	this->coeffs = new_coeffs;
 	
 	/* get informations from given vector */
 	int size, size_local, low, high;
@@ -214,6 +218,10 @@ void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output) const
 
 	output << " - alpha: " << alpha << std::endl;
 
+	if(coeffs){
+		output << " - coeffs: " << *coeffs << std::endl;
+	}
+
 	#ifdef USE_GPU
 		output <<  " - blockSize1:   " << blockSize1 << std::endl;
 		output <<  " - gridSize1:    " << gridSize1 << std::endl;
@@ -247,6 +255,11 @@ void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOu
 	output_global.pop();
 
 	output_global << " - alpha: " << alpha << std::endl;
+
+	if(coeffs){
+		output_local << " - coeffs: " << *coeffs << std::endl;
+		output_local.synchronize();
+	}
 
 	#ifdef USE_GPU
 		output_global <<  " - blockSize1:   " << blockSize1 << std::endl;
@@ -404,6 +417,7 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 	double *y_arr;
 	const double *x_arr;
 	const double *x_aux_arr;
+	const double *coeffs_arr;
 	
 	int* neighbor_nmbs = graph->get_neighbor_nmbs();
 	int **neightbor_ids = graph->get_neighbor_ids();
@@ -412,6 +426,9 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
 	TRY( VecGetArrayRead(x_aux,&x_aux_arr) );
 	TRY( VecGetArray(y.get_vector(),&y_arr) );
+	if(coeffs){
+		TRY( VecGetArrayRead(coeffs->get_vector(),&coeffs_arr) );
+	}
 
 	/* use openmp */
 	#pragma omp parallel for
@@ -439,6 +456,19 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
 			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
 		}
+		
+		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
+		if(coeffs){
+			y_arr[y_arr_idx] = coeffs_arr[k]*y_arr[y_arr_idx];
+
+			// temp: + Laplace
+/*			if(tglobal == 0 || tglobal == T){
+				y_arr[y_arr_idx] +=  alpha*(-x_aux_arr[x_arr_idx] + 2*x_arr[x_arr_idx]);
+			} else {
+				y_arr[y_arr_idx] +=  alpha*(-x_aux_arr[x_arr_idx] + 3*x_arr[x_arr_idx]);
+			}
+*/
+		}
 
 	}
 
@@ -446,6 +476,9 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
 	TRY( VecRestoreArrayRead(x_aux,&x_aux_arr) );
 	TRY( VecRestoreArray(y.get_vector(),&y_arr) );
+	if(coeffs){
+		TRY( VecRestoreArrayRead(coeffs->get_vector(),&coeffs_arr) );
+	}
 
 }
 

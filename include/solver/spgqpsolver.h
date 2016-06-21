@@ -81,7 +81,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		double alphainit;			/** initial step-size */
 		int dotfloor;				/** precision of floor operation after dot product */
 
-
 		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 		double gP; 					/**< norm of projected gradient */
 	
@@ -457,7 +456,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	while(it < this->maxit){
 		/* increase iteration counter */
 		it += 1;
-	
+
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
 		 d = x - alpha_bb*g;
@@ -473,7 +472,6 @@ void SPGQPSolver<VectorBase>::solve() {
 		 d -= x;
 		this->timer_update.stop();
 
-
 		/* Ad = A*d */
 		this->timer_matmult.start();
 		 Ad = A*d;
@@ -484,6 +482,9 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* dAd = dot(Ad,d) */
 		/* gd = dot(g,d) */
 		this->timer_dot.start();
+//		  dd = dot(d,d);
+//		  dAd = dot(Ad,d); 
+//		  gd = dot(g,d);
 		 compute_dots(&dd, &dAd, &gd);
 		this->timer_dot.stop();
 
@@ -529,24 +530,8 @@ void SPGQPSolver<VectorBase>::solve() {
 		 alpha_bb = dd/dAd;
 		this->timer_stepsize.stop();
 
-		/* stopping criteria */
 		this->gP = dd;
-		if( this->stop_difff && abs(fx - fx_old) < this->eps){
-			break;
-		}
-		if(this->stop_normgp && this->gP < this->eps*this->eps){
-			break;
-		}
-		if(this->stop_normgp_normb && this->gP < this->eps*normb*this->eps*normb){
-			break;
-		}
-		if(this->stop_Anormgp && dAd < this->eps*this->eps){
-			break;
-		}
-		if(this->stop_Anormgp_normb && dAd < this->eps*normb*this->eps*normb){
-			break;
-		}
-
+		
 		/* print qpdata */
 		if(this->debug_mode >= 10){
 			coutMaster << "x: " << x << std::endl;
@@ -582,6 +567,23 @@ void SPGQPSolver<VectorBase>::solve() {
 			coutMaster << "\033[36m beta = \033[0m" << beta << std::endl;
 			
 		}
+
+		/* stopping criteria */
+		if( this->stop_difff && abs(fx - fx_old) < this->eps){
+			break;
+		}
+		if(this->stop_normgp && this->gP < this->eps*this->eps){
+			break;
+		}
+		if(this->stop_normgp_normb && this->gP < this->eps*normb*this->eps*normb){
+			break;
+		}
+		if(this->stop_Anormgp && dAd < this->eps*this->eps){
+			break;
+		}
+		if(this->stop_Anormgp_normb && dAd < this->eps*normb*this->eps*normb){
+			break;
+		}
 		
 	} /* main cycle end */
 
@@ -592,13 +594,6 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	this->fx = fx;
 	this->timer_solve.stop();
-
-	/* very short info */
-	if(this->debug_mode >= 2){
-		coutMaster <<  " - it    = " << it << std::endl;
-		coutMaster <<  " - time  = " << this->timer_solve.get_value_last() << std::endl;
-
-	}
 
 	/* write info to log file */
 	LOG_IT(it)
@@ -736,9 +731,9 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 //	*gd = Mdots_val[2];
 
 	/* round the numbers because of the precision */
-	*dd = myround(Mdots_val[0],this->dotfloor);
-	*dAd = myround(Mdots_val[1],this->dotfloor);
-	*gd = myround(Mdots_val[2],this->dotfloor);
+	myround(Mdots_val[0],dd,this->dotfloor);
+	myround(Mdots_val[1],dAd,this->dotfloor);
+	myround(Mdots_val[2],gd,this->dotfloor);
 
 	LOG_FUNC_END
 }

@@ -504,6 +504,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	int T = get_T();
 	int Tlocal = get_Tlocal();
 	int K = get_K();
+	int R = get_R();
 	int xdim = get_xdim();
 
 	int prank = GlobalManager.get_rank();
@@ -541,6 +542,9 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	double *data_arr;
 	TRY( VecGetArray(datavector->get_vector(), &data_arr) );
 
+	double *gamma_arr;
+	TRY( VecGetArray(gammavector->get_vector(), &gamma_arr) );
+
 	int coordinates_dim = tsmodel->get_coordinatesVTK_dim();
 	double *coordinates_arr;
 	TRY( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
@@ -556,11 +560,22 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		myfile << "  <UnstructuredGrid>\n";
 		myfile << "	  <Piece NumberOfPoints=\"" << get_R() << "\" NumberOfCells=\"0\" >\n";
 		myfile << "      <PointData Scalars=\"scalars\">\n";
-		myfile << "        <DataArray type=\"Float32\" Name=\"scalars\" format=\"ascii\">\n";
-		for(r=0;r<get_R();r++){
+
+		/* original time-serie data */
+		myfile << "        <DataArray type=\"Float32\" Name=\"original\" format=\"ascii\">\n";
+		for(r=0;r<R;r++){
 			myfile << data_arr[r*Tlocal+t] << "\n";
 		}
 		myfile << "        </DataArray>\n";
+
+		/* value of gamma */
+		for(k=0;k<K;k++){
+			myfile << "        <DataArray type=\"Float32\" Name=\"gamma_" << k << "\" format=\"ascii\">\n";
+			for(r=0;r<R;r++){
+				myfile << gamma_arr[k*Tlocal*R + r*Tlocal +t] << "\n";
+			}
+			myfile << "        </DataArray>\n";
+		}
 
 		myfile << "      </PointData>\n";
 		myfile << "      <CellData Scalars=\"scalars\">\n";
@@ -602,8 +617,9 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		myfile.close();
 	}
 
+	TRY( VecRestoreArray(gammavector->get_vector(), &gamma_arr) );
 	TRY( VecRestoreArray(datavector->get_vector(), &data_arr) );
-	TRY( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
+	TRY( VecRestoreArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
 
 	timer_saveVTK.stop();
 	coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
