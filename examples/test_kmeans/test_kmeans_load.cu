@@ -47,7 +47,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_gamma0_filename", &gamma0_filename, "data/gamma0_kmeans_T100K3.bin");
 	consoleArg.set_option_value("test_xdim", &xdim, 3);
 	consoleArg.set_option_value("test_K", &K, 3);
-	consoleArg.set_option_value("test_epssqr", &epssqr, 1);
+	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 
 	coutMaster << "----------------------- PROBLEM INFO --------------------------" << std::endl << std::endl;
 	coutMaster << " test_data_filename    = " << std::setw(30) << data_filename << " (name of file with data)" << std::endl;
@@ -82,8 +82,6 @@ int main( int argc, char *argv[] )
 
 	/* load gammavector from file */
 	mydata.load_gammavector(gamma0_filename);
-
-	mysolver.debug_mode = 2;
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;

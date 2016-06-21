@@ -228,6 +228,10 @@ bool Timer::status() const {
 	return this->run_or_not;
 }
 
+double myround(double in,int nmb){
+	return ((int)(in*pow(10,nmb)))*pow(10,-nmb);
+}
+
 } /* end of namespace */
 
 #endif

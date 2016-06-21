@@ -10,8 +10,8 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define SPGQPSOLVER_DEFAULT_MAXIT 5000
-#define SPGQPSOLVER_DEFAULT_EPS 0.0001
+#define SPGQPSOLVER_DEFAULT_MAXIT 2000
+#define SPGQPSOLVER_DEFAULT_EPS 0.000001
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 3
 
 #define SPGQPSOLVER_DEFAULT_M 20
@@ -19,9 +19,12 @@
 #define SPGQPSOLVER_DEFAULT_SIGMA1 0.0001
 #define SPGQPSOLVER_DEFAULT_SIGMA2 0.9999
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0
+#define SPGQPSOLVER_DEFAULT_DOTFLOOR 3
 
-#define SPGQPSOLVER_STOP_NORMGP true
+#define SPGQPSOLVER_STOP_NORMGP false
+#define SPGQPSOLVER_STOP_ANORMGP true
 #define SPGQPSOLVER_STOP_NORMGP_NORMB false
+#define SPGQPSOLVER_STOP_ANORMGP_NORMB false
 #define SPGQPSOLVER_STOP_DIFFF false
 
 #ifdef USE_PETSCVECTOR
@@ -66,7 +69,9 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		/* settings */
 		bool stop_normgp; 			/**< stopping criteria based on norm of gP */
+		bool stop_Anormgp; 			/**< stopping criteria based on A-norm of gP */
 		bool stop_normgp_normb;		/**< stopping criteria based on norm of gP and norm of b */
+		bool stop_Anormgp_normb;	/**< stopping criteria based on A-norm of gP and norm of b */
 		bool stop_difff;			/**< stopping criteria based on size of decrease of f */
 
 		int m;						/**< size of fs */
@@ -74,6 +79,8 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		double sigma1;
 		double sigma2;
 		double alphainit;			/** initial step-size */
+		int dotfloor;				/** precision of floor operation after dot product */
+
 
 		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 		double gP; 					/**< norm of projected gradient */
@@ -94,6 +101,8 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		#ifdef USE_PETSCVECTOR
 			Vec *Mdots_vec;
 		#endif
+
+		void set_settings_from_console();
 		
 	public:
 		SPGQPSolver();
@@ -124,6 +133,27 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 namespace pascinference {
 
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::set_settings_from_console() {
+	consoleArg.set_option_value("spgqpsolver_maxit", &this->maxit, SPGQPSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("spgqpsolver_eps", &this->eps, SPGQPSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
+	
+	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_DEFAULT_M);	
+	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_DEFAULT_GAMMA);	
+	consoleArg.set_option_value("spgqpsolver_sigma1", &this->sigma1, SPGQPSOLVER_DEFAULT_SIGMA1);	
+	consoleArg.set_option_value("spgqpsolver_sigma2", &this->sigma2, SPGQPSOLVER_DEFAULT_SIGMA2);	
+	consoleArg.set_option_value("spgqpsolver_alphainit", &this->alphainit, SPGQPSOLVER_DEFAULT_ALPHAINIT);	
+
+	consoleArg.set_option_value("spgqpsolver_stop_normgp", &this->stop_normgp, SPGQPSOLVER_STOP_NORMGP);
+	consoleArg.set_option_value("spgqpsolver_stop_Anormgp", &this->stop_Anormgp, SPGQPSOLVER_STOP_ANORMGP);
+	consoleArg.set_option_value("spgqpsolver_stop_normgp_normb", &this->stop_normgp_normb, SPGQPSOLVER_STOP_NORMGP_NORMB);
+	consoleArg.set_option_value("spgqpsolver_stop_Anormgp_normb", &this->stop_Anormgp_normb, SPGQPSOLVER_STOP_ANORMGP_NORMB);
+	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
+
+	consoleArg.set_option_value("spgqpsolver_dotfloor", &this->dotfloor, SPGQPSOLVER_DEFAULT_DOTFLOOR);
+}
+
 
 /* ----- Solver ----- */
 /* constructor */
@@ -148,34 +178,8 @@ SPGQPSolver<VectorBase>::SPGQPSolver(){
 	this->gP = std::numeric_limits<double>::max();
 
 	/* settings */
-	consoleArg.set_option_value("spgqpsolver_maxit", &this->maxit, SPGQPSOLVER_DEFAULT_MAXIT);
-	consoleArg.set_option_value("spgqpsolver_eps", &this->eps, SPGQPSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
-	
-	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_DEFAULT_M);	
-	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_DEFAULT_GAMMA);	
-	consoleArg.set_option_value("spgqpsolver_sigma1", &this->sigma1, SPGQPSOLVER_DEFAULT_SIGMA1);	
-	consoleArg.set_option_value("spgqpsolver_sigma2", &this->sigma2, SPGQPSOLVER_DEFAULT_SIGMA2);	
-	consoleArg.set_option_value("spgqpsolver_alphainit", &this->alphainit, SPGQPSOLVER_DEFAULT_ALPHAINIT);	
+	set_settings_from_console();
 
-	consoleArg.set_option_value("spgqpsolver_stop_normgp", &this->stop_normgp, SPGQPSOLVER_STOP_NORMGP);
-	consoleArg.set_option_value("spgqpsolver_stop_normgp_normb", &this->stop_normgp_normb, SPGQPSOLVER_STOP_NORMGP_NORMB);
-	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
-/*	
-	this->maxit = SPGQPSOLVER_DEFAULT_MAXIT;
-	this->eps = SPGQPSOLVER_DEFAULT_EPS;
-	this->debug_mode = SPGQPSOLVER_DEFAULT_DEBUG_MODE;
-	
-	this->m = SPGQPSOLVER_DEFAULT_M;
-	this->gamma = SPGQPSOLVER_DEFAULT_GAMMA;
-	this->sigma1 = SPGQPSOLVER_DEFAULT_SIGMA1;
-	this->sigma2 = SPGQPSOLVER_DEFAULT_SIGMA2;
-	this->alphainit = SPGQPSOLVER_DEFAULT_ALPHAINIT;
-	
-	this->stop_normgp = SPGQPSOLVER_STOP_NORMGP;
-	this->stop_normgp_normb = SPGQPSOLVER_STOP_NORMGP_NORMB;
-	this->stop_difff = SPGQPSOLVER_STOP_DIFFF;
-	*/
 	/* prepare timers */
 	this->timer_solve.restart();	
 	this->timer_projection.restart();
@@ -206,19 +210,7 @@ SPGQPSolver<VectorBase>::SPGQPSolver(QPData<VectorBase> &new_qpdata){
 	this->gP = std::numeric_limits<double>::max();
 
 	/* settings */
-	consoleArg.set_option_value("spgqpsolver_maxit", &this->maxit, SPGQPSOLVER_DEFAULT_MAXIT);
-	consoleArg.set_option_value("spgqpsolver_eps", &this->eps, SPGQPSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
-	
-	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_DEFAULT_M);	
-	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_DEFAULT_GAMMA);	
-	consoleArg.set_option_value("spgqpsolver_sigma1", &this->sigma1, SPGQPSOLVER_DEFAULT_SIGMA1);	
-	consoleArg.set_option_value("spgqpsolver_sigma2", &this->sigma2, SPGQPSOLVER_DEFAULT_SIGMA2);	
-	consoleArg.set_option_value("spgqpsolver_alphainit", &this->alphainit, SPGQPSOLVER_DEFAULT_ALPHAINIT);	
-
-	consoleArg.set_option_value("spgqpsolver_stop_normgp", &this->stop_normgp, SPGQPSOLVER_STOP_NORMGP);
-	consoleArg.set_option_value("spgqpsolver_stop_normgp_normb", &this->stop_normgp_normb, SPGQPSOLVER_STOP_NORMGP_NORMB);
-	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
+	set_settings_from_console();
 
 	/* prepare timers */
 	this->timer_projection.restart();
@@ -465,7 +457,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	while(it < this->maxit){
 		/* increase iteration counter */
 		it += 1;
-		
+	
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
 		 d = x - alpha_bb*g;
@@ -481,6 +473,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		 d -= x;
 		this->timer_update.stop();
 
+
 		/* Ad = A*d */
 		this->timer_matmult.start();
 		 Ad = A*d;
@@ -491,9 +484,6 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* dAd = dot(Ad,d) */
 		/* gd = dot(g,d) */
 		this->timer_dot.start();
-//		 dd = dot(d,d);
-//		 dAd = dot(d,Ad);
-//		 gd = dot(d,g);
 		 compute_dots(&dd, &dAd, &gd);
 		this->timer_dot.stop();
 
@@ -540,14 +530,20 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.stop();
 
 		/* stopping criteria */
-		this->gP = dAd;
+		this->gP = dd;
 		if( this->stop_difff && abs(fx - fx_old) < this->eps){
+			break;
+		}
+		if(this->stop_normgp && this->gP < this->eps*this->eps){
 			break;
 		}
 		if(this->stop_normgp_normb && this->gP < this->eps*normb*this->eps*normb){
 			break;
 		}
-		if(this->stop_normgp && this->gP < this->eps*this->eps){
+		if(this->stop_Anormgp && dAd < this->eps*this->eps){
+			break;
+		}
+		if(this->stop_Anormgp_normb && dAd < this->eps*normb*this->eps*normb){
 			break;
 		}
 
@@ -557,7 +553,6 @@ void SPGQPSolver<VectorBase>::solve() {
 			coutMaster << "d: " << d << std::endl;
 			coutMaster << "g: " << g << std::endl;
 			coutMaster << "Ad: " << Ad << std::endl;
-			
 		}
 
 		/* print progress of algorithm */
@@ -568,7 +563,7 @@ void SPGQPSolver<VectorBase>::solve() {
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
-		if(this->debug_mode >= 3){
+		if(this->debug_mode >= 4){
 			coutAll << "\033[33m   it = \033[0m" << it << std::endl;
 		}
 
@@ -735,9 +730,15 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	LOG_FUNC_BEGIN
 
 	TRY(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
-	*dd = Mdots_val[0];
-	*dAd = Mdots_val[1];
-	*gd = Mdots_val[2];
+
+//	*dd = Mdots_val[0];
+//	*dAd = Mdots_val[1];
+//	*gd = Mdots_val[2];
+
+	/* round the numbers because of the precision */
+	*dd = myround(Mdots_val[0],this->dotfloor);
+	*dAd = myround(Mdots_val[1],this->dotfloor);
+	*gd = myround(Mdots_val[2],this->dotfloor);
 
 	LOG_FUNC_END
 }

@@ -461,6 +461,7 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 
 	TRY( VecDestroy(&gamma_preload) );
 	
+	
 	LOG_FUNC_END
 }
 

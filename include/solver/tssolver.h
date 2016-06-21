@@ -324,7 +324,7 @@ void TSSolver<VectorBase>::solve() {
 	/* main cycle */
 	coutMaster.push();
 	for(it=0;it < this->maxit;it++){
-		coutMaster <<  "it = " << it << std::endl;
+//		coutMaster <<  "it = " << it << std::endl;
 
 		/* --- COMPUTE Theta --- */
 		this->timer_theta_update.start();
