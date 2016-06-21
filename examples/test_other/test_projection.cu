@@ -15,7 +15,7 @@
  #error 'This example is for PETSCVECTOR'
 #endif
 
-#include "solver/tssolver_global.h"
+#include "solver/tssolver.h"
 
 typedef petscvector::PetscVector PetscVector;
 
