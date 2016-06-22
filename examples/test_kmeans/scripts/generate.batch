@@ -1,0 +1,21 @@
+#!/bin/bash -l
+
+## sbatch settings
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-core=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:0
+#SBATCH --time=00:10:00
+#SBATCH --partition=normal
+#SBATCH --output=test_kmeans_generate.%j.o
+#SBATCH --error=test_kmeans_generate.%j.e
+
+## load modules
+source ~/soft/PASC_inference/util/module_load_daint
+source ~/soft/PASC_inference/util/set_petsc_daint
+
+## set number of threads
+export OMP_NUM_THREADS=1
+
+## run the job
+srun -N 1 -n 1 -T 1 ./test_kmeans_generate --test_T=1000 -test_T=5000 --test_T=10000 -test_T=50000 --test_T=100000 -test_T=500000 --test_T=1000000 -test_T=5000000 --test_T=10000000 -test_T=50000000
