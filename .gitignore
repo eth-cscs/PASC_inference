@@ -29,6 +29,5 @@
 
 html
 build
-examples/build
-examples/build2
+examples/build*
 doxygen_sqlite3.db
