@@ -18,4 +18,4 @@ source ~/soft/PASC_inference/util/set_petsc_daint
 export OMP_NUM_THREADS=1
 
 ## run the job
-srun -N 1 -n 1 -T 1 ./test_kmeans_generate --test_T=1000 -test_T=5000 --test_T=10000 -test_T=50000 --test_T=100000 -test_T=500000 --test_T=1000000 -test_T=5000000 --test_T=10000000 -test_T=50000000
+srun -N 1 -n 1 -T 1 ./test_kmeans_generate --test_T=1000 --test_T=5000 --test_T=10000 --test_T=50000 --test_T=100000 --test_T=500000 --test_T=1000000 --test_T=5000000 --test_T=10000000 --test_T=50000000 --test_K=1 --test_K=2 --test_K=3 --test_K=4 --test_K=5
