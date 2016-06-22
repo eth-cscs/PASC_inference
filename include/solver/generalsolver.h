@@ -83,6 +83,8 @@ class GeneralSolver {
 		 */ 
 		virtual void printtimer(ConsoleOutput &output) const;
 
+		virtual void printshort(std::ostringstream &header, std::ostringstream &values) const;
+
 		/** @brief get the name of solver
 		 */ 
 		virtual std::string get_name() const;
@@ -131,6 +133,10 @@ void GeneralSolver::printcontent(ConsoleOutput &output) const {
 
 void GeneralSolver::printtimer(ConsoleOutput &output) const {
 	output << this->get_name() << ": timer" << std::endl;
+}
+
+void GeneralSolver::printshort(std::ostringstream &header, std::ostringstream &values) const{
+	
 }
 
 std::string GeneralSolver::get_name() const {

@@ -57,6 +57,7 @@ class TSSolver: public GeneralSolver {
 		
 		virtual void printstatus(ConsoleOutput &output) const;
 		virtual void printtimer(ConsoleOutput &output) const;
+		virtual void printshort(std::ostringstream &header, std::ostringstream &values) const;
 		virtual std::string get_name() const;
 
 		virtual TSData<VectorBase> *get_data() const;
@@ -284,6 +285,33 @@ void TSSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+void TSSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringstream &values) const {
+	LOG_FUNC_BEGIN
+
+	header << "it all, ";
+	values << this->it_sum << ", ";
+
+	header << "t all, ";
+	values << this->timer_solve.get_value_sum() << ", ";
+
+	header << "t gamma update, ";
+	values << this->timer_gamma_update.get_value_sum() << ", ";
+
+	header << "t gamma solve, ";
+	values << this->timer_gamma_solve.get_value_sum() << ", ";
+
+	header << "t theta update, ";
+	values << this->timer_theta_update.get_value_sum() << ", ";
+
+	header << "t theta solve, ";
+	values << this->timer_theta_solve.get_value_sum() << ", ";
+	
+	gammasolver->printshort(header, values);
+	thetasolver->printshort(header, values);
+
+	LOG_FUNC_END
+}
 
 template<class VectorBase>
 std::string TSSolver<VectorBase>::get_name() const {

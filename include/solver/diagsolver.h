@@ -35,6 +35,8 @@ class DiagSolver: public GeneralSolver {
 		void printstatus(ConsoleOutput &output) const;
 		void printcontent(ConsoleOutput &output) const;
 		void printtimer(ConsoleOutput &output) const;
+		void printshort(std::ostringstream &header, std::ostringstream &values) const;
+		
 		std::string get_name() const;
 
 		DiagData<VectorBase> *get_data() const;
@@ -177,6 +179,23 @@ void DiagSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 	LOG_FUNC_END
 }
+
+template<class VectorBase>
+void DiagSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringstream &values) const {
+	LOG_FUNC_BEGIN
+
+	header << "DIAG t all, ";
+	values << this->timer_solve.get_value_sum() << ", ";
+
+	header << "DIAG t dot, ";
+	values << this->timer_dot.get_value_sum() << ", ";
+
+	header << "DIAG t other, ";
+	values << this->timer_solve.get_value_sum() - (this->timer_dot.get_value_sum()) << ", ";
+
+	LOG_FUNC_END
+}
+
 
 template<class VectorBase>
 std::string DiagSolver<VectorBase>::get_name() const {

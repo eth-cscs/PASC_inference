@@ -120,6 +120,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		void printstatus(ConsoleOutput &output) const;
 		void printtimer(ConsoleOutput &output) const;
+		void printshort(std::ostringstream &header, std::ostringstream &values) const;
 
 		std::string get_name() const;
 
@@ -384,6 +385,42 @@ void SPGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringstream &values) const {
+	LOG_FUNC_BEGIN
+
+	header << "SPGQP it, ";
+	values << this->it_sum << ", ";
+
+	header << "SPGQP hessmult, ";
+	values << this->hessmult_sum << ", ";
+
+	header << "SPGQP t all, ";
+	values << this->timer_solve.get_value_sum() << ", ";
+
+	header << "SPGQP t project, ";
+	values << this->timer_projection.get_value_sum() << ", ";
+
+	header << "SPGQP t matmult, ";
+	values << this->timer_matmult.get_value_sum() << ", ";
+
+	header << "SPGQP t dot, ";
+	values << this->timer_dot.get_value_sum() << ", ";
+
+	header << "SPGQP t update, ";
+	values << this->timer_update.get_value_sum() << ", ";
+
+	header << "SPGQP t stepsize, ";
+	values << this->timer_stepsize.get_value_sum() << ", ";
+
+	header << "SPGQP t fs, ";
+	values << this->timer_fs.get_value_sum() << ", ";
+
+	header << "SPGQP t other, ";
+	values << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << ", ";
+
+	LOG_FUNC_END
+}
 
 template<class VectorBase>
 std::string SPGQPSolver<VectorBase>::get_name() const {
