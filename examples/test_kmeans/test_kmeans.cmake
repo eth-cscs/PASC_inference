@@ -40,6 +40,13 @@ if(${TEST_KMEANS_LOAD})
 	file(COPY "test_kmeans/data/" 
 		 DESTINATION "data"
 		 FILES_MATCHING PATTERN "gamma0_kmeans_*.bin")
+	
+	# copy scripts
+	make_directory("scripts")
+	file(COPY "test_kmeans/scripts/" 
+		 DESTINATION "scripts"
+		 FILES_MATCHING PATTERN "*")
+	
 		 
 endif()
 
