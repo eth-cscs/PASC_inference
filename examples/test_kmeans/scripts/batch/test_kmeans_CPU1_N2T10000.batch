@@ -1,0 +1,21 @@
+#!/bin/bash -l
+
+## sbatch settings
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-core=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:0
+#SBATCH --time=00:05:00
+#SBATCH --partition=normal
+#SBATCH --output=test_kmeans.%j.o
+#SBATCH --error=test_kmeans.%j.e
+
+## load modules
+source ~/soft/PASC_inference/util/module_load_daint
+source ~/soft/PASC_inference/util/set_petsc_daint
+
+## set number of threads
+export OMP_NUM_THREADS=1
+
+## run the job
+srun -N 2 -n 2 -T 1 ./test_kmeans_load --test_data_filename='data/data_kmeans_T10000.bin' --test_gamma0_filename='data/gamma0_kmeans_T10000K3.bin' --test_shortinfo_header='architecture,nodes,threads,T,K,' --test_shortinfo_values='CPU1,2,1,10000,3,' --test_K=3 --spgqpsolver_eps=0.00001 --spgqpsolver_stop_Anormgp=false --spgqpsolver_stop_normgp_normb=true --spgqpsolver_debug_mode=3 --tssolver_debug_mode=3 --spgqpsolver_dotfloor=2 --spgqpsolver_m=10 --test_epssqr=1 --test_shortinfo=true
