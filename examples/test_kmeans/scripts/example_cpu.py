@@ -20,12 +20,10 @@ problem_time = "00:05:00"
 # generate bash scripts
 write_batchfiles(Ts,Ns,problem_name, problem_time, problem_parameters, library_path, "CPU1", 0, 1)
 write_batchfiles(Ts,Ns,problem_name, problem_time, problem_parameters, library_path, "CPU8", 0, 8)
-write_batchfiles(Ts,Ns,problem_name, problem_time, problem_parameters, library_path, "GPU1", 1, 1)
 
 # run bash scripts
 commit_batchfiles(Ts,Ns,problem_name, "CPU1", "c11", "normal")
 commit_batchfiles(Ts,Ns,problem_name, "CPU8", "c11", "normal")
-commit_batchfiles(Ts,Ns,problem_name, "GPU1", "c11", "normal")
 
 # show the queue
 show_jobs("c11")
