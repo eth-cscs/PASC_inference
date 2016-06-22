@@ -1,0 +1,23 @@
+#
+# PASC_INFERENCE library
+# this script loads the right modules on CSCS DORA machine
+#
+
+module switch PrgEnv-cray/5.2.82 PrgEnv-gnu
+module load boost
+module load cmake
+#module load cray-netcdf-hdf5parallel
+#module load cray-hdf5-parallel
+module load cray-mpich
+
+# there was an issue with HDF5 and gcc 4.8.2, so I decided to use this one
+module swap gcc/4.9.1
+
+# we need the petsc module (we use $PETSC_DIR)
+#module load cray-petsc
+
+# we need the intel module for mkl (we use $MKLROOT)
+#module load intel
+
+# add ld library path
+#LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/14.0.1.106/composer_xe_2013_sp1.1.106/mkl/lib/intel64
