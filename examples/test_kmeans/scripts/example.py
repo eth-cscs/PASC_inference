@@ -6,7 +6,7 @@
 from myscripts import write_batchfiles
 
 # times to compute
-Ts = [100, 1000, 10000];
+Ts = [1000, 5000];
 
 # on how many nodes to compute
 Ns = [1, 2];
