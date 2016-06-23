@@ -281,6 +281,8 @@ void CGQPSolver<VectorBase>::solve() {
 	p = g; /* initial conjugate direction */
 
 	gg = dot(g,g);
+	myround(gg, &gg);
+
 	normg = std::sqrt(gg);
 
 	while(normg > this->eps && it < this->maxit){
@@ -290,6 +292,8 @@ void CGQPSolver<VectorBase>::solve() {
 
 		/* compute step-size */			
 		pAp = dot(Ap,p);
+		myround(pAp, &pAp);
+		
 		alpha = gg/pAp;
 
 		/* set new approximation, x = x - alpha*p */
@@ -299,6 +303,8 @@ void CGQPSolver<VectorBase>::solve() {
 		g -= alpha*Ap; 
 		gg_old = gg;
 		gg = dot(g,g);
+		myround(gg, &gg);
+
 		normg = std::sqrt(gg);
 			
 		/* compute new A-orthogonal vector, p = g + beta*p */

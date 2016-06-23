@@ -412,6 +412,7 @@ void KmeansH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolve
 			
 			/* compute dot product */
 			TRY( VecDot(datan_Vec,gammak_Vec, &gammaTx) );
+			myround(gammaTx, &gammaTx);
 			
 			/* store values to problem objects */
 			a_arr[k*xdim+n] = sum_gammak;

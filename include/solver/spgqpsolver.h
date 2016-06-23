@@ -11,7 +11,7 @@
 #include "data/qpdata.h"
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 2000
-#define SPGQPSOLVER_DEFAULT_EPS 0.000001
+#define SPGQPSOLVER_DEFAULT_EPS 0.0001
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 3
 
 #define SPGQPSOLVER_DEFAULT_M 20
@@ -464,6 +464,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	double dAd; /* dot(Ad,d) */
 	double alpha_bb; /* BB step-size */
 	double normb = norm(b); /* norm of linear term used in stopping criteria */
+	myround(normb,&normb);
 
 	/* initial step-size */
 	alpha_bb = this->alphainit;
@@ -609,16 +610,16 @@ void SPGQPSolver<VectorBase>::solve() {
 		if( this->stop_difff && abs(fx - fx_old) < this->eps){
 			break;
 		}
-		if(this->stop_normgp && this->gP < this->eps*this->eps){
+		if(this->stop_normgp && dd < this->eps){
 			break;
 		}
-		if(this->stop_normgp_normb && this->gP < this->eps*normb*this->eps*normb){
+		if(this->stop_normgp_normb && dd < this->eps*normb){
 			break;
 		}
-		if(this->stop_Anormgp && dAd < this->eps*this->eps){
+		if(this->stop_Anormgp && dAd < this->eps){
 			break;
 		}
-		if(this->stop_Anormgp_normb && dAd < this->eps*normb*this->eps*normb){
+		if(this->stop_Anormgp_normb && dAd < this->eps*normb){
 			break;
 		}
 		
@@ -657,7 +658,9 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 
 	/* use computed gradient in this->g to compute function value */
 	temp = g - b;
-	fx = 0.5*dot(temp,x);
+	double tempt = dot(temp,x);
+	myround(tempt, &tempt);
+	fx = 0.5*tempt;
 
 	LOG_FUNC_END
 	return fx;	
@@ -768,9 +771,9 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 //	*gd = Mdots_val[2];
 
 	/* round the numbers because of the precision */
-	myround(Mdots_val[0],dd,this->dotfloor);
-	myround(Mdots_val[1],dAd,this->dotfloor);
-	myround(Mdots_val[2],gd,this->dotfloor);
+	myround(Mdots_val[0],dd);
+	myround(Mdots_val[1],dAd);
+	myround(Mdots_val[2],gd);
 
 	LOG_FUNC_END
 }
