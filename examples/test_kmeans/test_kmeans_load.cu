@@ -61,7 +61,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_K", &K, 3);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 	consoleArg.set_option_value("test_savevtk", &savevtk, false);
-	consoleArg.set_option_value("test_savecsv", &savevtk, true);
+	consoleArg.set_option_value("test_savecsv", &savecsv, true);
 	consoleArg.set_option_value("test_shortinfo", &shortinfo, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
