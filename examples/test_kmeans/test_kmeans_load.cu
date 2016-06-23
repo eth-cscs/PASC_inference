@@ -30,6 +30,8 @@ int main( int argc, char *argv[] )
 		("test_xdim", boost::program_options::value<int>(), "data dimension [int]")
 		("test_K", boost::program_options::value<int>(), "number of clusters to test [int]")
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
+		("test_savevtk", boost::program_options::value<bool>(), "save results into vtk format [bool]")
+		("test_savecsv", boost::program_options::value<bool>(), "save results into csv format [bool]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
 		("test_shortinfo_values", boost::program_options::value< std::string >(), "additional values in shortinfo [string]")
@@ -48,6 +50,8 @@ int main( int argc, char *argv[] )
 	std::string shortinfo_header;
 	std::string shortinfo_values;
 	bool shortinfo;
+	bool savecsv;
+	bool savevtk;
 	int K, xdim; 
 	double epssqr;
 
@@ -56,6 +60,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_xdim", &xdim, 3);
 	consoleArg.set_option_value("test_K", &K, 3);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
+	consoleArg.set_option_value("test_savevtk", &savevtk, false);
+	consoleArg.set_option_value("test_savecsv", &savevtk, true);
 	consoleArg.set_option_value("test_shortinfo", &shortinfo, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
@@ -68,6 +74,8 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_xdim               = " << std::setw(30) << xdim << " (data dimension)" << std::endl;
 	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters to test)" << std::endl;
 	coutMaster << " test_epssqp             = " << std::setw(30) << epssqr << " (penalty parameter)" << std::endl;
+	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)" << std::endl;
+	coutMaster << " test_savecsv            = " << std::setw(30) << savecsv << " (save results into csv format)" << std::endl;
 	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)" << std::endl;
 	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
@@ -105,13 +113,17 @@ int main( int argc, char *argv[] )
 	mysolver.solve();
 
 	/* save results into VTK file */
-	coutMaster << "--- SAVING VTK ---" << std::endl;
-	mydata.saveVTK("results/test_kmeans.vtk");
+	if(savevtk){
+		coutMaster << "--- SAVING VTK ---" << std::endl;
+		mydata.saveVTK("results/test_kmeans.vtk");
+	}
 
 	/* save results into CSV file */
-	coutMaster << "--- SAVING CSV ---" << std::endl;
-	mydata.saveCSV("results/test_kmeans.csv");
-
+	if(savecsv){
+		coutMaster << "--- SAVING CSV ---" << std::endl;
+		mydata.saveCSV("results/test_kmeans.csv");
+	}
+	
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;
 	mysolver.printtimer(coutMaster);
