@@ -18,4 +18,4 @@ source ~/soft/PASC_inference/util/set_petsc_daint
 export OMP_NUM_THREADS=1
 
 ## run the job
-srun -N 2 -n 2 -T 1 ./test_projection --test_Tbegin=2 --test_Tstep=1 --test_Tend=7 --test_Kbegin=10 --test_Kstep=10 --test_Kend=40 --test_n=10
+srun -N 2 -n 2 -T 1 ./test_projection --test_Tbegin=2 --test_Tstep=1 --test_Tend=7 --test_Kbegin=3 --test_Kstep=2 --test_Kend=11 --test_n=10
