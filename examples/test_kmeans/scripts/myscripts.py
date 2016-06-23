@@ -22,7 +22,7 @@ def write_batchfiles(Ts,Ns,problem_name, problem_time, problem_parameters, libra
     for t in Ts:
         for n in Ns:
             print " - N = %d, T = %d" % (n,t);
-            write_batchfile(problem_name, problem_time, problem_parameters, library_path, architecture, n_gpu*n, n_threads, n, t)
+            write_batchfile(problem_name, problem_time, problem_parameters, library_path, architecture, n_gpu, n_threads, n, t)
     return
 
 # define function for writing a fun into file
