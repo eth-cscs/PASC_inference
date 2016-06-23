@@ -558,8 +558,8 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* compute new function value using gradient and update fs list */
 		this->timer_fs.start();
 		 fx_old = fx;
-		 fx = get_fx(fx_old,beta,gd,dAd);
-//		 fx = get_fx();
+//		 fx = get_fx(fx_old,beta,gd,dAd);
+		 fx = get_fx();
 		 fs.update(fx);
 		this->timer_fs.stop();
 
