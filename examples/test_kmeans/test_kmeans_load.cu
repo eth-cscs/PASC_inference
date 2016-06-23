@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
 		("test_xdim", boost::program_options::value<int>(), "data dimension [int]")
 		("test_K", boost::program_options::value<int>(), "number of clusters to test [int]")
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
-		("test_shortinfo", boost::program_options::value<int>(), "save shortinfo file after computation [bool]")
+		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
 		("test_shortinfo_values", boost::program_options::value< std::string >(), "additional values in shortinfo [string]")
 		("test_shortinfo_filename", boost::program_options::value< std::string >(), "name of shortinfo file [string]");
