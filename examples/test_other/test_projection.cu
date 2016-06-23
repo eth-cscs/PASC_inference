@@ -93,8 +93,12 @@ int main( int argc, char *argv[] )
 
 	GeneralVector<PetscVector> *x;
 
-	for(K=K_begin;K<=K_end;K+=K_step){
-	for(T=T_begin;T<=T_end;T+=T_step){
+	int Ti, Ki;
+	for(Ki=K_begin;Ki<=K_end;Ki+=K_step){
+	for(Ti=T_begin;Ti<=T_end;Ti+=T_step){
+
+		K = Ki;
+		T = pow(10,Ti);
 
 		timer1.restart();
 
