@@ -46,17 +46,11 @@ int main( int argc, char *argv[] )
 	int K_begin, K_step, K_end;
 	int n;
 	
-	if(!consoleArg.set_option_value("test_Tbegin", &T_begin)){
-		std::cout << "test_Tbegin has to be set! Call application with parameter -h to see all parameters" << std::endl;
-		return 0;
-	}
+	consoleArg.set_option_value("test_Tbegin", &T_begin, 2);
 	consoleArg.set_option_value("test_Tend", &T_end, T_begin);
 	consoleArg.set_option_value("test_Tstep", &T_step, 1);
 
-	if(!consoleArg.set_option_value("test_Kbegin", &K_begin)){
-		std::cout << "test_Kbegin has to be set! Call application with parameter -h to see all parameters" << std::endl;
-		return 0;
-	}
+	consoleArg.set_option_value("test_Kbegin", &K_begin, 3);
 	consoleArg.set_option_value("test_Kend", &K_end, K_begin);
 	consoleArg.set_option_value("test_Kstep", &K_step, 1);
 
@@ -102,7 +96,13 @@ int main( int argc, char *argv[] )
 
 		timer1.restart();
 
-		TRY( VecCreateMPI(PETSC_COMM_WORLD,K*T,PETSC_DETERMINE, &x_global) );
+		TRY( VecCreate(PETSC_COMM_WORLD, &x_global) );
+		TRY( VecSetSizes(x_global, K*T, PETSC_DETERMINE) );
+		TRY( VecSetType(x_global, VECMPI) );
+		TRY( VecSetFromOptions(x_global) );
+		TRY( VecAssemblyBegin(x_global) );
+		TRY( VecAssemblyEnd(x_global) );
+		
 		/* --- INITIALIZATION --- */
 
 		/* prepare feasible set */
