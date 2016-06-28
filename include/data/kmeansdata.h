@@ -29,6 +29,8 @@ class KmeansData: public TSData<VectorBase> {
 
 	public:
 		KmeansData() : TSData<VectorBase>() {};
+		KmeansData(VectorBase &datavector, VectorBase &gammavector, VectorBase &thetavector) : TSData<VectorBase>(datavector, gammavector, thetavector) {};
+
 		KmeansData(int T, int xdim=1) : TSData<VectorBase>(T,xdim) {};
 		KmeansData(std::string filename , int xdim=1) : TSData<VectorBase>(filename, xdim) {};
 		~KmeansData() {};
@@ -42,6 +44,8 @@ class KmeansData: public TSData<VectorBase> {
 		void add_noise(double *diag_covariance);
 		
 		void load_gammavector(std::string filename) const;
+		void load_gammavector(VectorBase &gamma0) const;
+
 };
 
 } // end of namespace
@@ -395,10 +399,10 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 }
 
 template<>
-void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
+void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	LOG_FUNC_BEGIN
 	
-	//TODO: control existence of file
+	Vec gamma0_Vec = gamma0.get_vector();
 	
 	/* variables */
 	int K = this->get_K();
@@ -406,21 +410,6 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 	int Tlocal = this->get_Tlocal();
 	int Tbegin = this->get_Tbegin();
 	int xdim = this->get_xdim();
-
-	/* aux vector, we first oad data and then distribute values to procs */
-	Vec gamma_preload;
-	TRY( VecCreate(PETSC_COMM_WORLD, &gamma_preload) );
-
-	/* prepare viewer to load from file */
-	PetscViewer mviewer;
-	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
-	
-	/* load vector from viewer */
-	TRY( VecLoad(gamma_preload, mviewer) );
-
-	/* destroy the viewer */
-	TRY( PetscViewerDestroy(&mviewer) );	
 
 	/* prepare IS with my indexes */
 	IS *gamma_sub_ISs;
@@ -444,14 +433,14 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 	TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma_sub_ISs, &gamma_sub_IS) );
 
 	/* now get subvector and copy values */
-	TRY( VecGetSubVector(gamma_preload, gamma_sub_IS, &gamma_sub) );
+	TRY( VecGetSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
 	TRY( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
 		
 	TRY( VecCopy(gamma_sub, gamma_local) );
 
 	/* restore subvector */
 	TRY( VecRestoreLocalVector(gammavector->get_vector(), gamma_local) );
-	TRY( VecRestoreSubVector(gamma_preload, gamma_sub_IS, &gamma_sub) );
+	TRY( VecRestoreSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
 
 	for(i=0;i<K;i++){
 		TRY( ISDestroy(&(gamma_sub_ISs[i])) );
@@ -459,11 +448,39 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 	free(gamma_sub_ISs);
 	TRY( ISDestroy(&gamma_sub_IS) );
 
-	TRY( VecDestroy(&gamma_preload) );
-	
 	
 	LOG_FUNC_END
 }
+
+template<>
+void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+	
+	//TODO: control existence of file
+
+	/* aux vector, we first oad data and then distribute values to procs */
+	Vec gamma_preload_Vec;
+	TRY( VecCreate(PETSC_COMM_WORLD, &gamma_preload_Vec) );
+
+	/* prepare viewer to load from file */
+	PetscViewer mviewer;
+	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	
+	/* load vector from viewer */
+	TRY( VecLoad(gamma_preload_Vec, mviewer) );
+
+	/* destroy the viewer */
+	TRY( PetscViewerDestroy(&mviewer) );	
+
+	PetscVector gamma_preload(gamma_preload_Vec);
+	this->load_gammavector(gamma_preload);
+
+	TRY( VecDestroy(&gamma_preload_Vec) );
+	
+	LOG_FUNC_END
+}
+
 
 
 } /* end namespace */

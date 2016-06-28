@@ -4,11 +4,13 @@ include_directories("${CMAKE_SOURCE_DIR}/test_other/")
 option(TEST_PROJECTION "TEST_PROJECTION" OFF)
 option(TEST_MAT_BLOCKGRAPH_FREE_TO_DENSE "TEST_MAT_BLOCKGRAPH_FREE_TO_DENSE" OFF)
 option(TEST_MAT_BLOCKLAPLACE_FREE_TO_DENSE "TEST_MAT_BLOCKLAPLACE_FREE_TO_DENSE" OFF)
+option(TEST_MAT_SEQ_VS_MPI "TEST_MAT_SEQ_VS_MPI" OFF)
 
 # print info
 printinfo_onoff("TEST_PROJECTION\t\t\t" "${TEST_PROJECTION}")
 printinfo_onoff("TEST_MAT_BLOCKGRAPH_FREE_TO_DENSE\t" "${TEST_MAT_BLOCKGRAPH_FREE_TO_DENSE}")
 printinfo_onoff("TEST_MAT_BLOCKLAPLACE_FREE_TO_DENSE\t" "${TEST_MAT_BLOCKLAPLACE_FREE_TO_DENSE}")
+printinfo_onoff("TEST_MAT_SEQ_VS_MPI\t\t\t" "${TEST_MAT_SEQ_VS_MPI}")
 
 if(${TEST_PROJECTION})
 	# this is projection test
@@ -37,3 +39,10 @@ if(${TEST_MAT_BLOCKLAPLACE_FREE_TO_DENSE})
 	endif()
 endif()
 
+if(${TEST_MAT_SEQ_VS_MPI})
+	if(${USE_CUDA})
+		pascadd_executable("test_other/test_mat_seq_vs_mpi.cu" "test_mat_seq_vs_mpi")
+	else()
+		pascadd_executable("test_other/test_mat_seq_vs_mpi.cpp" "test_mat_seq_vs_mpi")
+	endif()
+endif()

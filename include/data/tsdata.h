@@ -41,9 +41,11 @@ class TSData: public GeneralData {
 		bool destroy_thetavector;
 
 	public:
-		TSData();
+		TSData(VectorBase &datavector, VectorBase &gammavector, VectorBase &thetavector);
 		TSData(int T, int block_size);
 		TSData(std::string filename , int block_size=1);
+		TSData();
+
 		~TSData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -102,6 +104,37 @@ TSData<VectorBase>::TSData(){
 
 	LOG_FUNC_END
 }
+
+template<class VectorBase>
+TSData<VectorBase>::TSData(VectorBase &datavector_new, VectorBase &gammavector_new, VectorBase &thetavector_new){
+	LOG_FUNC_BEGIN
+
+	this->tsmodel = NULL;
+
+	if(datavector_new){
+		this->datavector = NULL;
+	} else {
+		this->datavector = new GeneralVector<VectorBase>(datavector_new);
+	}
+	destroy_datavector = false;
+
+	if(gammavector_new){
+		this->gammavector = NULL;
+	} else {
+		this->gammavector = new GeneralVector<VectorBase>(gammavector_new);
+	}
+	destroy_gammavector = false;
+
+	if(thetavector_new){
+		this->thetavector = NULL;
+	} else {
+		this->thetavector = new GeneralVector<VectorBase>(thetavector_new);
+	}
+	destroy_gammavector = false;
+
+	LOG_FUNC_END
+}
+
 
 /* no datavector provided - prepare own data vector */
 template<>
