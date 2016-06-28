@@ -1,0 +1,21 @@
+#!/bin/bash -l
+
+## sbatch settings
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-core=1
+#SBATCH --ntasks=2
+#SBATCH --gres=gpu:0
+#SBATCH --time=00:10:00
+#SBATCH --partition=normal
+#SBATCH --output=test_projection.%j.o
+#SBATCH --error=test_projection.%j.e
+
+## load modules
+source ~/soft/PASC_inference/util/module_load_daint
+source ~/soft/PASC_inference/util/set_petsc_daint
+
+## set number of threads
+export OMP_NUM_THREADS=8
+
+## run the job
+srun -N 2 -n 2 -T 1 ./test_projection --test_Tbegin=2 --test_Tstep=1 --test_Tend=7 --test_Kbegin=3 --test_Kstep=2 --test_Kend=11 --test_n=10

@@ -228,12 +228,17 @@ bool Timer::status() const {
 	return this->run_or_not;
 }
 
-void myround(double in, double *out, int nmb){
-	if (in < 1000000){
-		*out = ((int)(in*pow(10,nmb)))*pow(0.1,nmb);
-	} else {
-		*out = in;
-	}
+void myround(double in, double *out){
+	union myUnion {
+		double dValue;
+		uint64_t iValue;
+	} myValue;
+	myValue.dValue=in;
+
+	myValue.iValue = myValue.iValue*0.1;
+	myValue.iValue = myValue.iValue*10;
+
+	*out = myValue.dValue;
 }
 
 } /* end of namespace */
