@@ -155,6 +155,9 @@ int main( int argc, char *argv[] )
 		myfile.close();
 	}
 
+	coutMaster << "solution: " << std::endl;
+	coutAll << *(mydata.get_thetavector()) << std::endl;
+	coutAll.synchronize();
 
 	logging.end();
 	Finalize();

@@ -40,9 +40,16 @@ class TSData: public GeneralData {
 		GeneralVector<VectorBase> *thetavector; /**< parameters of models */
 		bool destroy_thetavector;
 
+		// TODO: move variables from model here
+		int T;
+		int Tlocal;
+		int Tbegin;
+		int Tend;
+		int blocksize;
+
 	public:
-		TSData(VectorBase &datavector, VectorBase &gammavector, VectorBase &thetavector);
-		TSData(int T, int block_size);
+		TSData(GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new, int T);
+		TSData(int T, int block_size=1);
 		TSData(std::string filename , int block_size=1);
 		TSData();
 
@@ -102,33 +109,52 @@ TSData<VectorBase>::TSData(){
 	this->thetavector = NULL;
 	destroy_thetavector = false;
 
+	this->T = 0;
+	this->Tlocal = 0;
+	this->Tbegin = 0;
+	this->Tend = 0;
+	this->blocksize = 0;
+
 	LOG_FUNC_END
 }
 
-template<class VectorBase>
-TSData<VectorBase>::TSData(VectorBase &datavector_new, VectorBase &gammavector_new, VectorBase &thetavector_new){
+template<>
+TSData<PetscVector>::TSData(GeneralVector<PetscVector> *datavector_new, GeneralVector<PetscVector> *gammavector_new, GeneralVector<PetscVector> *thetavector_new, int T){
 	LOG_FUNC_BEGIN
 
 	this->tsmodel = NULL;
+	this->T = T;
 
 	if(datavector_new){
-		this->datavector = NULL;
+		this->datavector = datavector_new;
 	} else {
-		this->datavector = new GeneralVector<VectorBase>(datavector_new);
+		this->datavector = NULL;
 	}
 	destroy_datavector = false;
 
 	if(gammavector_new){
-		this->gammavector = NULL;
+		this->gammavector = gammavector_new;
+		
+		/* compute distribution of gamma from gamma */
+		int global_size, local_size, low, high;
+		TRY( VecGetSize(this->gammavector->get_vector(), &global_size) );
+		TRY( VecGetLocalSize(this->gammavector->get_vector(), &local_size) );
+		TRY( VecGetOwnershipRange(this->gammavector->get_vector(),&low,&high) );
+	
+		this->blocksize = global_size/(double)T;
+		this->Tlocal = local_size/(double)this->blocksize;
+		this->Tbegin = low/(double)this->blocksize;
+		this->Tend = high/(double)this->blocksize;
+
 	} else {
-		this->gammavector = new GeneralVector<VectorBase>(gammavector_new);
+		this->gammavector = NULL;
 	}
 	destroy_gammavector = false;
 
 	if(thetavector_new){
-		this->thetavector = NULL;
+		this->thetavector = thetavector_new;
 	} else {
-		this->thetavector = new GeneralVector<VectorBase>(thetavector_new);
+		this->thetavector = NULL;
 	}
 	destroy_gammavector = false;
 
@@ -146,6 +172,9 @@ TSData<PetscVector>::TSData(int T, int block_size){
 	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
 	TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
 	TRY( VecSetFromOptions(layout) );
+
+	int Tbegin, Tend;
+	TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
 	
 	/* get Tlocal */
 	int Tlocal;
@@ -176,6 +205,13 @@ TSData<PetscVector>::TSData(int T, int block_size){
 
 	/* we don't know anything about model */
 	this->tsmodel = NULL;
+
+	/* store provided values */
+	this->T = T;
+	this->Tlocal = Tlocal;
+	this->Tbegin = Tbegin;
+	this->Tend = Tend;
+	this->blocksize = blocksize;
 
 	LOG_FUNC_END
 }
@@ -214,6 +250,9 @@ TSData<PetscVector>::TSData(std::string filename, int block_size){
 	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
 	TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
 	TRY( VecSetFromOptions(layout) );
+
+	int Tbegin, Tend;
+	TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
 	
 	/* get Tlocal */
 	int Tlocal;
@@ -252,6 +291,13 @@ TSData<PetscVector>::TSData(std::string filename, int block_size){
 	destroy_thetavector = false;
 
 	this->tsmodel = NULL;
+
+	/* store provided values */
+	this->T = T;
+	this->Tlocal = Tlocal;
+	this->Tbegin = Tbegin;
+	this->Tend = Tend;
+	this->blocksize = blocksize;
 	
 	LOG_FUNC_END
 }
@@ -505,7 +551,7 @@ int TSData<VectorBase>::get_T() const{
 	if(this->tsmodel){
 		return this->tsmodel->get_T();
 	} else {
-		return 0;
+		return this->T;
 	}
 }
 
@@ -514,7 +560,7 @@ int TSData<VectorBase>::get_Tlocal() const{
 	if(this->tsmodel){
 		return this->tsmodel->get_Tlocal();
 	} else {
-		return 0;
+		return this->Tlocal;
 	}
 }
 
@@ -523,7 +569,7 @@ int TSData<VectorBase>::get_Tbegin() const{
 	if(this->tsmodel){
 		return this->tsmodel->get_Tbegin();
 	} else {
-		return 0;
+		return this->Tbegin;
 	}
 }
 
@@ -532,7 +578,7 @@ int TSData<VectorBase>::get_Tend() const{
 	if(this->tsmodel){
 		return this->tsmodel->get_Tend();
 	} else {
-		return 0;
+		return this->Tend;
 	}
 }
 

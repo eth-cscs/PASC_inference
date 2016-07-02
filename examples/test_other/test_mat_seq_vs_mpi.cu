@@ -42,7 +42,7 @@ int main( int argc, char *argv[] )
 	
 	consoleArg.set_option_value("test_T", &T, 10);
 	consoleArg.set_option_value("test_K", &K, 2);
-	consoleArg.set_option_value("test_n", &n, 10);
+	consoleArg.set_option_value("test_n", &n, 1);
 
 	coutMaster << " T        = " << std::setw(7) << T << " (length of time-series)" << std::endl;
 	coutMaster << " K        = " << std::setw(7) << K << " (number of clusters)" << std::endl;
@@ -58,24 +58,14 @@ int main( int argc, char *argv[] )
 
 	/* create base vector */
 	/* try to make a global vector of length T and then get size of local portion */
-	Vec x_mpi_Vec, x_seq_Vec, y_mpi_Vec, y_seq_Vec;
-	int Tlocal, Tbegin, Tend;
-	
-	Vec layout;
-	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
-	TRY( VecSetSizes(layout,PETSC_DECIDE,T) );
-	TRY( VecSetFromOptions(layout) );
-	/* get the ownership range - now I know how much I will calculate from the time-series */
-	TRY( VecGetLocalSize(layout,&Tlocal) );
-	TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
-	TRY( VecDestroy(&layout) ); /* destroy testing vector - it is useless now */
+	Vec x_mpi_Vec, x_seq_Vec, y_mpi_Vec, y_seq_Vec, values_Vec;
 
 	#ifndef USE_GPU
 		/* kmeans data will help us with distribution of SEQ to MPI */
-		KmeansData<PetscVector> mydata(T,K);
-		x_mpi_Vec = mydata.get_datavector()->get_vector();
-
-		TRY( VecDuplicate(x_mpi_Vec, &y_mpi_Vec) );
+		KmeansData<PetscVector> data_values(T,K);
+		values_Vec = data_values.get_datavector()->get_vector();
+		TRY( VecDuplicate(values_Vec, &x_mpi_Vec) );
+		TRY( VecDuplicate(values_Vec, &y_mpi_Vec) );
 
 		TRY( VecCreateSeq(PETSC_COMM_SELF,K*T, &x_seq_Vec) );
 		TRY( VecDuplicate(x_seq_Vec, &y_seq_Vec) );
@@ -99,14 +89,12 @@ int main( int argc, char *argv[] )
 	Timer timer1;
 	timer1.restart();
 
-	if(GlobalManager.get_rank == 0){
-		GeneralVector<PetscVector> x_seq(x_seq_Vec);
-		GeneralVector<PetscVector> y_seq(y_seq_Vec);
-		BlockLaplaceMatrix<PetscVector> A_seq(x_seq, K);
+	GeneralVector<PetscVector> x_seq(x_seq_Vec);
+	GeneralVector<PetscVector> y_seq(y_seq_Vec);
+	BlockLaplaceMatrix<PetscVector> A_seq(x_seq, K);
 
-		Timer timer2;
-		timer2.restart();
-	}
+	Timer timer2;
+	timer2.restart();
 	
 	/* prepare random generator */
 	PetscRandom rnd;
@@ -116,45 +104,109 @@ int main( int argc, char *argv[] )
 
 	TRY( PetscRandomSetSeed(rnd,13) );
 
-	coutMaster << "running main fun" << std::endl;
+	double *x_seq_arr, *x_mpi_arr;
+	double *y_seq_arr, *y_mpi_arr;
+
 	int ni;
 	double mynorm_seq;
 	double mynorm_mpi;
-	
+
+	KmeansData<PetscVector> data_mpi(NULL, &x_mpi, NULL, T);
+	KmeansData<PetscVector> data_seq(NULL, &x_seq, NULL, T);
+
+	coutMaster << "running main fun" << std::endl;
+
+	GeneralVector<PetscVector> values(values_Vec);
+
+	int Tlocal = data_values.get_Tlocal();
+	int Tbegin = data_values.get_Tbegin();
+	int Tend = data_values.get_Tend();
+
+	coutMaster << " Tlocal   = " << std::setw(7) << Tlocal << std::endl;
+	coutMaster << " Tbegin   = " << std::setw(7) << Tbegin << std::endl;
+	coutMaster << " Tend     = " << std::setw(7) << Tend << std::endl;
+
 	for(ni = 0; ni < n; ni++){
-		if(GlobalManager.get_rank()==0){
-			TRY( VecSetRandom(x_seq_Vec, rnd) );
-		}
+		TRY( VecSetRandom(values_Vec, rnd) );
+		TRY( VecAssemblyBegin(values_Vec) );
+		TRY( VecAssemblyEnd(values_Vec) );
 
-//		TRY( VecAssemblyBegin(x_Vec) );
-//		TRY( VecAssemblyEnd(x_Vec) );
-
+		/* scatter global values to local */
+		data_mpi.load_gammavector(values);
+		data_seq.load_gammavector(values);
+		
 		timer1.start();
 			y_seq = A_seq*x_seq;
 		timer1.stop();
 
 		timer2.start();
-//			y_mpi = A_mpi*x_mpi;
+			y_mpi = A_mpi*x_mpi;
 		timer2.stop();
 
+		/* get arrays for print */
+		TRY( VecGetArray(x_mpi_Vec, &x_mpi_arr) );
+		TRY( VecGetArray(x_seq_Vec, &x_seq_arr) );
+		TRY( VecGetArray(y_mpi_Vec, &y_mpi_arr) );
+		TRY( VecGetArray(y_seq_Vec, &y_seq_arr) );
+
+		coutMaster << "y_seq (master): " << std::endl;
+		for(int t=0; t<T; t++){
+			coutMaster << " t = " << t << ": x = [";
+			for(int k=0;k<K;k++){
+				coutMaster << x_seq_arr[k*T+t];
+				if(k < K-1){
+					coutMaster << ",";
+				}
+			}
+			coutMaster << "], y = [";
+			for(int k=0;k<K;k++){
+				coutMaster << y_seq_arr[k*T+t];
+				if(k < K-1){
+					coutMaster << ",";
+				}
+			}
+			coutMaster << "]" << std::endl;
+			coutMaster.synchronize();
+		}
+		
+		coutMaster << "y_mpi: " << std::endl;
+		for(int t=0; t<Tlocal; t++){
+			coutAll << " t = " << Tbegin+t << ": x = [";
+			for(int k=0;k<K;k++){
+				coutAll << x_mpi_arr[k*Tlocal+t];
+				if(k < K-1){
+					coutAll << ",";
+				}
+			}
+			coutAll << "], y = [";
+			for(int k=0;k<K;k++){
+				coutAll << y_mpi_arr[k*Tlocal+t];
+				if(k < K-1){
+					coutAll << ",";
+				}
+			}
+			coutAll << "]" << std::endl;
+		}
+		coutAll.synchronize();
+
+
+		/* restore arrays for print */
+		TRY( VecRestoreArray(y_mpi_Vec, &y_mpi_arr) );
+		TRY( VecRestoreArray(y_seq_Vec, &y_seq_arr) );
+		TRY( VecRestoreArray(x_mpi_Vec, &x_mpi_arr) );
+		TRY( VecRestoreArray(x_seq_Vec, &x_seq_arr) );
+	
 		TRY( VecDot(y_seq_Vec,y_seq_Vec,&mynorm_seq) );
-//		TRY( VecDot(y_mpi_Vec,y_mpi_Vec,&mynorm_mpi) );
+		TRY( VecDot(y_mpi_Vec,y_mpi_Vec,&mynorm_mpi) );
 
 		coutMaster << "n=" << ni << ": ";
 		coutMaster << "mpi=" << mynorm_mpi << ", ";
 		coutMaster << "seq=" << mynorm_seq;
 		coutMaster << std::endl;
-		
+
 	}
 
-	/* destroy the random generator */
-	TRY( PetscRandomDestroy(&rnd) );
-
-
-	coutMaster << "T=" << std::setw(9) << T << ", K="<< std::setw(4) << K << ", time_mpi=" << std::setw(10) << timer2.get_value_sum() << ", time_seq=";
-	coutAll << std::setw(10) << timer1.get_value_sum();
-	coutAll.synchronize();
-	coutMaster << std::endl;
+	coutMaster << "T=" << std::setw(9) << T << ", K="<< std::setw(4) << K << ", time_mpi=" << std::setw(10) << timer2.get_value_sum() << ", time_seq=" << std::setw(10) << timer1.get_value_sum() << std::endl;
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

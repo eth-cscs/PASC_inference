@@ -10,18 +10,18 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define SPGQPSOLVER_DEFAULT_MAXIT 2000
+#define SPGQPSOLVER_DEFAULT_MAXIT 1000
 #define SPGQPSOLVER_DEFAULT_EPS 0.0001
 #define SPGQPSOLVER_DEFAULT_DEBUG_MODE 3
 
 #define SPGQPSOLVER_DEFAULT_M 20
 #define SPGQPSOLVER_DEFAULT_GAMMA 0.9
-#define SPGQPSOLVER_DEFAULT_SIGMA1 0.0001
-#define SPGQPSOLVER_DEFAULT_SIGMA2 0.9999
+#define SPGQPSOLVER_DEFAULT_SIGMA1 0.000
+#define SPGQPSOLVER_DEFAULT_SIGMA2 1.0
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0
 #define SPGQPSOLVER_DEFAULT_DOTFLOOR 2
 
-#define SPGQPSOLVER_STOP_NORMGP false
+#define SPGQPSOLVER_STOP_NORMGP true
 #define SPGQPSOLVER_STOP_ANORMGP true
 #define SPGQPSOLVER_STOP_NORMGP_NORMB false
 #define SPGQPSOLVER_STOP_ANORMGP_NORMB false
@@ -535,7 +535,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.start();
 		 xi = (fx_max - fx)/dAd;
 		 beta_bar = -gd/dAd;
-		 beta_hat = this->gamma*beta_bar + std::sqrt(this->gamma*this->gamma*beta_bar*beta_bar + 2*xi);
+		 beta_hat = this->gamma*beta_bar + PetscSqrtReal(this->gamma*this->gamma*beta_bar*beta_bar + 2*xi);
 
 		 /* beta = max(sigma1,min(sigma2,beta_hat)) */
 		 if(beta_hat < this->sigma1){
@@ -586,12 +586,12 @@ void SPGQPSolver<VectorBase>::solve() {
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 
-		if(this->debug_mode >= 4){
+		if(this->debug_mode == 4){
 			coutAll << "\033[33m   it = \033[0m" << it << std::endl;
 		}
 
 
-		if(this->debug_mode >= 5){
+		if(this->debug_mode == 5){
 			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			coutMaster << "\033[36m dAd = \033[0m" << dAd << ",";
 			coutMaster << "\033[36m gd = \033[0m" << gd << std::endl;

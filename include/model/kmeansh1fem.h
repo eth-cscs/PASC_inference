@@ -403,7 +403,7 @@ void KmeansH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolve
 
 		/* compute sum of gammak */
 		TRY( VecSum( gammak_Vec, &sum_gammak) );
-		myround(sum_gammak,&sum_gammak,1);
+		myround(sum_gammak,&sum_gammak);
 
 		/* through dimensions */
 		for(n=0;n<xdim;n++){

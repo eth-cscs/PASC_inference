@@ -237,9 +237,9 @@ void BlockLaplaceMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector 
 	TRY( VecGetArray(y.get_vector(),&y_arr) );
 
 	/* use openmp */
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K;y_arr_idx++){
-		int k = floor(y_arr_idx/(double)Tlocal);
+		int k = (y_arr_idx)/(double)(Tlocal);
 		int tlocal = y_arr_idx - k*Tlocal;
 		int tglobal = Tbegin+tlocal;
 		int x_arr_idx = tlocal + k*Tlocal;
@@ -281,8 +281,10 @@ void BlockLaplaceMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector 
 			}
 			value = -alpha*left_value + alpha*x_arr[x_arr_idx];
 		}
-		
+
 		y_arr[y_arr_idx] = value;
+//		y_arr[x_arr_idx] = k;
+
 	}
 
 	/* restore subvector and array */

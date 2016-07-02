@@ -235,8 +235,8 @@ void myround(double in, double *out){
 	} myValue;
 	myValue.dValue=in;
 
-	myValue.iValue = myValue.iValue*0.1;
-	myValue.iValue = myValue.iValue*10;
+//	myValue.iValue = myValue.iValue*0.001;
+//	myValue.iValue = myValue.iValue*1000;
 
 	*out = myValue.dValue;
 }

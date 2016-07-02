@@ -29,9 +29,9 @@ class KmeansData: public TSData<VectorBase> {
 
 	public:
 		KmeansData() : TSData<VectorBase>() {};
-		KmeansData(VectorBase &datavector, VectorBase &gammavector, VectorBase &thetavector) : TSData<VectorBase>(datavector, gammavector, thetavector) {};
+		KmeansData(GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new, int T) : TSData<VectorBase>(datavector_new, gammavector_new, thetavector_new, T) {};
 
-		KmeansData(int T, int xdim=1) : TSData<VectorBase>(T,xdim) {};
+		KmeansData(int T, int blocksize=1) : TSData<VectorBase>(T,blocksize) {};
 		KmeansData(std::string filename , int xdim=1) : TSData<VectorBase>(filename, xdim) {};
 		~KmeansData() {};
 
@@ -136,7 +136,6 @@ void KmeansData<PetscVector>::saveCSV(std::string filename) const {
 				for(n=0;n<xdim;n++){
 					xmodel_n = 0;
 					for(k=0;k<K;k++){
-//						xmodel_n += gamma_arr[k*Tlocal+t]*theta_arr[k*xdim+n];
 						xmodel_n += gamma_arr[k*Tlocal+t]*theta_arr[k*xdim+n];
 					}
 					myfile << xmodel_n;
@@ -402,6 +401,7 @@ template<>
 void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	LOG_FUNC_BEGIN
 	
+	/* get petsc Vec from provided vector - this vector is stride */
 	Vec gamma0_Vec = gamma0.get_vector();
 	
 	/* variables */
@@ -411,44 +411,47 @@ void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	int Tbegin = this->get_Tbegin();
 	int xdim = this->get_xdim();
 
-	/* prepare IS with my indexes */
+	/* prepare IS with my indexes in provided vector */
 	IS *gamma_sub_ISs;
 	gamma_sub_ISs = (IS*)malloc(K*sizeof(IS));
 	IS gamma_sub_IS;
-
-	Vec gamma_sub;
 	
-	/* prepare local vector */
-	Vec gamma_local;
-	#ifndef USE_CUDA
-		TRY( VecCreateSeq(MPI_COMM_SELF, K*Tlocal, &gamma_local) );
-	#else
-		TRY( VecCreateSeqCUDA(MPI_COMM_SELF, K*Tlocal, &gamma_local) );
-	#endif
-	
-	int i;
-	for(i=0;i<K;i++){
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin + i*T, 1, &(gamma_sub_ISs[i])) );
+	/* fill the index sets */
+	int k;
+	for(k=0;k<K;k++){
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin + k*T, 1, &(gamma_sub_ISs[k])) );
 	}
 	TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma_sub_ISs, &gamma_sub_IS) );
 
-	/* now get subvector and copy values */
+	/* now get subvector with my local values from provided stride vector */
+	Vec gamma_sub;
 	TRY( VecGetSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
+
+	/* prepare local vector */
+	Vec gamma_local;
+	#ifndef USE_CUDA
+		TRY( VecCreateSeq(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
+	#else
+		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
+	#endif
+
+	/* get the vector where I will store my values */
 	TRY( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
-		
+
+	/* now copy values from subvector to local vector */
 	TRY( VecCopy(gamma_sub, gamma_local) );
 
 	/* restore subvector */
 	TRY( VecRestoreLocalVector(gammavector->get_vector(), gamma_local) );
 	TRY( VecRestoreSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
 
-	for(i=0;i<K;i++){
-		TRY( ISDestroy(&(gamma_sub_ISs[i])) );
+	/* destroy auxiliary index sets */
+	for(k=0;k<K;k++){
+		TRY( ISDestroy(&(gamma_sub_ISs[k])) );
 	}
 	free(gamma_sub_ISs);
 	TRY( ISDestroy(&gamma_sub_IS) );
 
-	
 	LOG_FUNC_END
 }
 
@@ -476,7 +479,7 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 	PetscVector gamma_preload(gamma_preload_Vec);
 	this->load_gammavector(gamma_preload);
 
-	TRY( VecDestroy(&gamma_preload_Vec) );
+//	TRY( VecDestroy(&gamma_preload_Vec) );
 	
 	LOG_FUNC_END
 }

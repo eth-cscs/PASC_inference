@@ -96,6 +96,7 @@ int main( int argc, char *argv[] )
 
 		timer1.restart();
 
+		/* create global vector */
 		TRY( VecCreate(PETSC_COMM_WORLD, &x_global) );
 		TRY( VecSetSizes(x_global, K*T, PETSC_DETERMINE) );
 		TRY( VecSetType(x_global, VECMPI) );
