@@ -42,6 +42,7 @@ int main( int argc, char *argv[] )
 	opt_problem.add_options()
 		("test_T", boost::program_options::value<int>(), "dimension of the problem")
 		("test_K", boost::program_options::value<int>(), "number of clusters")
+		("test_annealing", boost::program_options::value<int>(), "number of annealing steps")
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter");
 	consoleArg.get_description()->add(opt_problem);
 
@@ -50,17 +51,19 @@ int main( int argc, char *argv[] )
 		return 0;
 	} 
 
-	int T, K; 
+	int T, K, annealing;
 	double epssqr; 
 
 	consoleArg.set_option_value("test_T", &T, 1000);
 	consoleArg.set_option_value("test_K", &K, 3);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
+	consoleArg.set_option_value("test_annealing", &annealing, 1);
 
 	coutMaster << "- PROBLEM INFO -----------------" << std::endl;
-	coutMaster << " T      = " << T << " (length of time-series)" << std::endl;
-	coutMaster << " K      = " << K << " (number of clusters)" << std::endl;
-	coutMaster << " epssqr = " << epssqr << " (penalty)" << std::endl;
+	coutMaster << " T         = " << T << " (length of time-series)" << std::endl;
+	coutMaster << " K         = " << K << " (number of clusters)" << std::endl;
+	coutMaster << " epssqr    = " << epssqr << " (penalty)" << std::endl;
+	coutMaster << " annealing = " << annealing << " (number of annealing steps)" << std::endl;
 	coutMaster << "------------------------------" << std::endl << std::endl;
 
 	/* start logging */
@@ -99,7 +102,7 @@ int main( int argc, char *argv[] )
 
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, solution_K, epssqr);
+	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, K, epssqr);
 
 	/* generate some values to data */
 	coutMaster << "--- GENERATING DATA ---" << std::endl;
@@ -108,7 +111,7 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-	KmeansSolver<PetscVector> mysolver(mydata);
+	KmeansSolver<PetscVector> mysolver(mydata, annealing);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;

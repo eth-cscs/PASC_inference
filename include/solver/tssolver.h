@@ -36,6 +36,7 @@ class TSSolver: public GeneralSolver {
 
 		int it_sum; /**< sum of all iterations */
 		int it_last; /**< number of interations in last solution */
+		int annealing; /**< nuber of annealing steps */
 
 		double L; /**< function value */
 
@@ -45,9 +46,16 @@ class TSSolver: public GeneralSolver {
 		Timer timer_gamma_update; /**< timer for updating gamma problem */
 		Timer timer_theta_update; /**< timer for updating theta problem */
 
+		/* temp vectors for annealing */
+		GeneralVector<VectorBase> *gammavector_temp;
+		GeneralVector<VectorBase> *thetavector_temp;
+
+		void prepare_temp_annealing();
+		void destroy_temp_annealing();
+		
 	public:
 		TSSolver();
-		TSSolver(TSData<VectorBase> &new_tsdata); 
+		TSSolver(TSData<VectorBase> &new_tsdata, int annealing=1);
 		~TSSolver();
 
 		virtual void solve();
@@ -86,6 +94,7 @@ TSSolver<VectorBase>::TSSolver(){
 
 	this->it_sum = 0;
 	this->it_last = 0;
+	this->annealing = 1;
 
 	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
@@ -103,7 +112,7 @@ TSSolver<VectorBase>::TSSolver(){
 }
 
 template<class VectorBase>
-TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata){
+TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	LOG_FUNC_BEGIN
 
 	/* set provided data and model */
@@ -122,6 +131,7 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata){
 	/* iteration counters */
 	this->it_sum = 0;
 	this->it_last = 0;
+	this->annealing = annealing;
 
 	/* initial value of object function */
 	this->L = std::numeric_limits<double>::max();
@@ -148,7 +158,7 @@ TSSolver<VectorBase>::~TSSolver(){
 	if(thetasolver){
 		model->finalize_thetasolver(&thetasolver, tsdata);	
 	}
-	
+
 	LOG_FUNC_END
 }
 
@@ -162,6 +172,7 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - annealing:  " << this->annealing << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
 	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
@@ -205,6 +216,7 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_global <<  " - maxit:      " << this->maxit << std::endl;
 	output_global <<  " - eps:        " << this->eps << std::endl;
 	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_global <<  " - annealing:  " << this->annealing << std::endl;
 
 	/* print data */
 	if(tsdata){
@@ -257,6 +269,8 @@ void TSSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - it all =          " << this->it_sum << std::endl;
+	output <<  " - AIC =             " << tsdata->get_aic() << std::endl;
+	output <<  " - annealing =       " << this->annealing << std::endl;
 	output <<  " - timers" << std::endl;
 	output <<  "  - t_solve =        " << this->timer_solve.get_value_sum() << std::endl;
 	output <<  "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << std::endl;
@@ -342,130 +356,181 @@ void TSSolver<VectorBase>::solve() {
 	double L; /* object function value */
 	double L_old;
 	double deltaL;
+	double aic;
 
-	/* initialize value of object function */
-	L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
-	deltaL = L;
-	
-	int it; 
+	int it, it_annealing, it_gammasolver, it_thetasolver;
 
-	/* main cycle */
-	coutMaster.push();
-	for(it=0;it < this->maxit;it++){
-//		coutMaster <<  "it = " << it << std::endl;
-
-		/* --- COMPUTE Theta --- */
-		this->timer_theta_update.start();
-		 model->update_thetasolver(thetasolver, tsdata);
-		this->timer_theta_update.stop();
-
-		/* barrier  - everything has to be synchronized now */
-		TRY(PetscBarrier(NULL));
-
-		this->timer_theta_solve.start();
-		 thetasolver->solve();
-		this->timer_theta_solve.stop();
-
-		TRY(PetscBarrier(NULL));
-
-		/* print info about theta solver */
-		if(this->debug_mode >= 2){
-			/* print info about cost function */
-			coutMaster << " theta solver:" << std::endl;
-			coutMaster << "  - ";
-			coutMaster << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
-			coutMaster << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
-			coutMaster << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
-			if(this->debug_mode >= 10){
-				coutMaster.push();
-				thetasolver->printstatus(coutAll);
-				coutMaster.pop();
-			}
-			coutAll.synchronize();
-
-		}
-					
-		if(this->debug_mode >= 100){
-			coutMaster <<  "- thetasolver info:" << std::endl;
-			coutMaster.push();
-			thetasolver->print(coutMaster);
-			coutMaster.pop();
-		}
-		if(this->debug_mode >= 101){
-			coutMaster <<  "- thetasolver content:" << std::endl;
-			coutMaster.push();
-			thetasolver->printcontent(coutMaster);
-			coutMaster.pop();
-		}
-
-		/* --- COMPUTE gamma --- */
-		this->timer_gamma_update.start();
-		 model->update_gammasolver(gammasolver, tsdata);
-		this->timer_gamma_update.stop();
-
-		TRY(PetscBarrier(NULL));
-
-		this->timer_gamma_solve.start();
-		 gammasolver->solve();
-		this->timer_gamma_solve.stop();
-
-		/* print info about gammasolver */
-		if(this->debug_mode >= 2){
-			/* print info about cost function */
-			coutMaster << " gamma solver:" << std::endl;
-			coutMaster << "  - ";
-			coutMaster << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
-			coutMaster << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
-			coutMaster << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
-			if(this->debug_mode >= 10){
-				coutMaster.push();
-				gammasolver->printstatus(coutAll);
-				coutMaster.pop();
-			}
-			coutAll.synchronize();
-		}
-		if(this->debug_mode >= 100){
-			coutMaster <<  "- gammasolver info:" << std::endl;
-			coutMaster.push();
-			gammasolver->print(coutMaster);
-			coutMaster.pop();
-		}
-		if(this->debug_mode >= 101){
-			coutMaster <<  "- gammasolver content:" << std::endl;
-			coutMaster.push();
-			gammasolver->printcontent(coutMaster);
-			coutMaster.pop();
-		}
-
-		/* compute stopping criteria if the problem was not solved yet */
-		L_old = L;
-		L = model->get_L(gammasolver,thetasolver,tsdata);
-		deltaL = std::abs(L - L_old);
-
-		/* log L */
-		LOG_FX2(L,"L")
-		LOG_FX2(deltaL,"deltaL")
-
-		if(this->debug_mode >= 2){
-			/* print info about cost function */
-			coutMaster << " outer loop status:" << std::endl;			
-			coutMaster << "  - ";
-			coutMaster << "L_old = " << std::setw(12) << L_old << ", ";
-			coutMaster << "L = " << std::setw(12) << L << ", ";
-			coutMaster << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
-		}
-
-		/* global stopping criteria */
-		if(deltaL < this->eps){
-			break;
-		}
-
+	/* prepare temp vectors for gamma and theta if there is more annealing steps */
+	if(annealing > 1){
+		prepare_temp_annealing();
 	}
-	coutMaster.pop();
 
-	this->it_sum += it;
-	this->it_last = it;
-	this->L = L;
+	/* annealing cycle */
+	coutMaster.push();
+	for(it_annealing=0;it_annealing < this->annealing;it_annealing++){
+		coutMaster <<  "- annealing = " << it_annealing << std::endl;
+		
+		/* couter for iterations inside annealing */
+		it_gammasolver = 0;
+		it_thetasolver = 0;
+
+		/* initialize value of object function */
+		L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
+		deltaL = L;
+
+		/* set random initial values to gamma */
+		tsdata->get_gammavector()->set_random();
+//		gammadata->get_feasibleset()->project(*gammadata->get_x0());
+		
+		/* main cycle */
+		coutMaster.push();
+		for(it=0;it < this->maxit;it++){
+//			coutMaster <<  "it = " << it << std::endl;
+
+			/* --- COMPUTE Theta --- */
+			this->timer_theta_update.start();
+			 model->update_thetasolver(thetasolver, tsdata);
+			this->timer_theta_update.stop();
+
+			/* barrier  - everything has to be synchronized now */
+			TRY(PetscBarrier(NULL));
+
+			this->timer_theta_solve.start();
+			 thetasolver->solve();
+			this->timer_theta_solve.stop();
+
+			TRY(PetscBarrier(NULL));
+
+			/* print info about theta solver */
+			if(this->debug_mode >= 2){
+				/* print info about cost function */
+				coutMaster << " theta solver:" << std::endl;
+				coutMaster << "  - ";
+				coutMaster << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
+				coutMaster << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
+				coutMaster << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
+				if(this->debug_mode >= 10){
+					coutMaster.push();
+					thetasolver->printstatus(coutAll);
+					coutMaster.pop();
+				}
+				coutAll.synchronize();
+
+			}
+
+			if(this->debug_mode >= 100){
+				coutMaster <<  "- thetasolver info:" << std::endl;
+				coutMaster.push();
+				 thetasolver->print(coutMaster);
+				coutMaster.pop();
+			}
+			if(this->debug_mode >= 101){
+				coutMaster <<  "- thetasolver content:" << std::endl;
+				coutMaster.push();
+				 thetasolver->printcontent(coutMaster);
+				coutMaster.pop();
+			}
+
+			/* --- COMPUTE gamma --- */
+			this->timer_gamma_update.start();
+			 model->update_gammasolver(gammasolver, tsdata);
+			this->timer_gamma_update.stop();
+
+			TRY(PetscBarrier(NULL));
+
+			this->timer_gamma_solve.start();
+			 gammasolver->solve();
+			this->timer_gamma_solve.stop();
+
+			/* print info about gammasolver */
+			if(this->debug_mode >= 2){
+				/* print info about cost function */
+				coutMaster << " gamma solver:" << std::endl;
+				coutMaster << "  - ";
+				coutMaster << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
+				coutMaster << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
+				coutMaster << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
+				if(this->debug_mode >= 10){
+					coutMaster.push();
+					gammasolver->printstatus(coutAll);
+					coutMaster.pop();
+				}
+				coutAll.synchronize();
+			}
+			if(this->debug_mode >= 100){
+				coutMaster <<  "- gammasolver info:" << std::endl;
+				coutMaster.push();
+				gammasolver->print(coutMaster);
+				coutMaster.pop();
+			}
+			if(this->debug_mode >= 101){
+				coutMaster <<  "- gammasolver content:" << std::endl;
+				coutMaster.push();
+				gammasolver->printcontent(coutMaster);
+				coutMaster.pop();
+			}
+
+			/* compute stopping criteria if the problem was not solved yet */
+			L_old = L;
+			L = model->get_L(gammasolver,thetasolver,tsdata);
+			deltaL = std::abs(L - L_old);
+
+			/* log L */
+			LOG_FX2(L,"L")
+			LOG_FX2(deltaL,"deltaL")
+
+			if(this->debug_mode >= 2){
+				/* print info about cost function */
+				coutMaster << " outer loop status:" << std::endl;			
+				coutMaster << "  - ";
+				coutMaster << "L_old = " << std::setw(12) << L_old << ", ";
+				coutMaster << "L = " << std::setw(12) << L << ", ";
+				coutMaster << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
+			}
+
+			/* global stopping criteria */
+			if(deltaL < this->eps){
+				break;
+			}
+
+			/* update counter for outer annealing iterations */
+			it_gammasolver += gammasolver->get_it();
+			it_thetasolver += thetasolver->get_it();
+
+		}
+		coutMaster.pop();
+
+		this->it_sum += it;
+		this->it_last = it;
+
+		/* compute AIC */ 
+		aic = model->get_aic(L);
+
+		coutMaster << "  AIC=" << std::setw(12) << aic;
+		coutMaster << ", L=" << std::setw(7) << L;
+		coutMaster << ", it=" << std::setw(6) << it;
+		coutMaster << ", it_gamma=" << std::setw(6) << it_gammasolver;
+//		coutMaster << ", it_theta=" << std::setw(6) << it_thetasolver;
+		coutMaster << std::endl;
+		
+		/* if this value is smaller then previous, then store it */
+		if(aic < tsdata->get_aic()){
+			tsdata->set_aic(aic);
+			this->L = L;
+			
+			*gammavector_temp = *(tsdata->get_gammavector());
+			*thetavector_temp = *(tsdata->get_thetavector());
+		}
+		
+	}
+		
+	/* destroy temp vectors for gamma and theta if there is more annealing steps */
+	if(annealing > 1){
+		*(tsdata->get_gammavector()) = *gammavector_temp;
+		*(tsdata->get_thetavector()) = *thetavector_temp;
+
+		destroy_temp_annealing();
+	}
 
 	this->timer_solve.stop(); /* stop this timer in the end of solution */
 
@@ -488,6 +553,26 @@ GeneralSolver *TSSolver<VectorBase>::get_gammasolver() const {
 template<class VectorBase>
 GeneralSolver *TSSolver<VectorBase>::get_thetasolver() const {
 	return thetasolver;
+}
+
+template<class VectorBase>
+void TSSolver<VectorBase>::prepare_temp_annealing(){
+	LOG_FUNC_BEGIN
+
+	gammavector_temp = new GeneralVector<VectorBase>();
+	thetavector_temp = new GeneralVector<VectorBase>();
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void TSSolver<VectorBase>::destroy_temp_annealing(){
+	LOG_FUNC_BEGIN
+
+	free(gammavector_temp);
+	free(thetavector_temp);
+
+	LOG_FUNC_END
 }
 
 

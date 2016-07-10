@@ -31,7 +31,7 @@ class KmeansSolver: public TSSolver<VectorBase> {
 
 	public:
 		KmeansSolver() : TSSolver<VectorBase> () {};
-		KmeansSolver(KmeansData<VectorBase> &new_tsdata) : TSSolver<VectorBase> (new_tsdata) {}; 
+		KmeansSolver(KmeansData<VectorBase> &new_tsdata, int annealing = 1) : TSSolver<VectorBase> (new_tsdata, annealing) {}; 
 
 		std::string get_name() const;
 

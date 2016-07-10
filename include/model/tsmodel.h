@@ -73,9 +73,9 @@ class TSModel: public GeneralModel {
 		int get_xmem() const;
 		virtual GeneralVector<VectorBase> *get_coordinatesVTK() const;
 		virtual int get_coordinatesVTK_dim() const;
-
-
 		int get_K() const;
+
+		virtual double get_aic(double L) const;
 		
 		/** @brief alloc memory for gamma solver
 		 *  
@@ -266,6 +266,10 @@ int TSModel<VectorBase>::get_coordinatesVTK_dim() const{
 	return 0;
 }
 
+template<class VectorBase>
+double TSModel<VectorBase>::get_aic(double L) const{
+	return std::numeric_limits<double>::max();
+}
 
 
 } /* end namespace */

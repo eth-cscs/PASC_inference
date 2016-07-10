@@ -40,6 +40,8 @@ class TSData: public GeneralData {
 		GeneralVector<VectorBase> *thetavector; /**< parameters of models */
 		bool destroy_thetavector;
 
+		double aic_solution; /**< AIC value in solution */
+
 		// TODO: move variables from model here
 		int T;
 		int Tlocal;
@@ -66,6 +68,7 @@ class TSData: public GeneralData {
 
 		/* SET functions */
 		void set_model(TSModel<VectorBase> &tsmodel);
+		void set_aic(double new_aic);
 
 		/* GET functions */
 		int get_T() const;
@@ -75,6 +78,7 @@ class TSData: public GeneralData {
 		int get_xdim() const;
 		int get_xmem() const;
 		int get_K() const;
+		double get_aic() const;
 		
 		TSModel<VectorBase> *get_model() const;
 		GeneralVector<VectorBase> *get_datavector() const;
@@ -114,6 +118,9 @@ TSData<VectorBase>::TSData(){
 	this->Tbegin = 0;
 	this->Tend = 0;
 	this->blocksize = 0;
+
+	/* set initial aic */
+	this->aic_solution = std::numeric_limits<double>::max();
 
 	LOG_FUNC_END
 }
@@ -157,6 +164,9 @@ TSData<PetscVector>::TSData(GeneralVector<PetscVector> *datavector_new, GeneralV
 		this->thetavector = NULL;
 	}
 	destroy_gammavector = false;
+
+	/* set initial aic */
+	this->aic_solution = std::numeric_limits<double>::max();
 
 	LOG_FUNC_END
 }
@@ -212,6 +222,9 @@ TSData<PetscVector>::TSData(int T, int block_size){
 	this->Tbegin = Tbegin;
 	this->Tend = Tend;
 	this->blocksize = blocksize;
+
+	/* set initial aic */
+	this->aic_solution = std::numeric_limits<double>::max();
 
 	LOG_FUNC_END
 }
@@ -627,6 +640,16 @@ GeneralVector<VectorBase> *TSData<VectorBase>::get_gammavector() const{
 template<class VectorBase>
 GeneralVector<VectorBase> *TSData<VectorBase>::get_thetavector() const{
 	return this->thetavector;
+}
+
+template<class VectorBase>
+double TSData<VectorBase>::get_aic() const{
+	return this->aic_solution;
+}
+
+template<class VectorBase>
+void TSData<VectorBase>::set_aic(double new_aic) {
+	this->aic_solution = new_aic;
 }
 
 template<>

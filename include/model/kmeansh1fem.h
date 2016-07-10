@@ -63,6 +63,8 @@ class KmeansH1FEMModel: public TSModel<VectorBase> {
 		QPData<VectorBase> *get_gammadata() const;
 		DiagData<VectorBase> *get_thetadata() const;
 
+		double get_aic(double L) const;
+
 };
 
 } // end of namespace
@@ -437,7 +439,23 @@ void KmeansH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolve
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+double KmeansH1FEMModel<VectorBase>::get_aic(double L) const{
+/*	double L;
+	Vec b = gammadata->get_b()->get_vector();
+	Vec x = gammadata->get_x()->get_vector();
+	
+	TRY( VecDot(b,x,&L) );
+*/
+/*
+	coutMaster << "L:     " << L << std::endl;
+	coutMaster << "log:   " << log(L) << std::endl;
+	coutMaster << "log10: " << log10(L) << std::endl;
+	coutMaster << "K:     " << this->K << std::endl;
+*/
+	return 2*log(L) + this->K;
 
+}
 
 } /* end namespace */
 

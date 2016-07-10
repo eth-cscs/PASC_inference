@@ -11,7 +11,6 @@
 #define	PASC_GENERALVECTOR_H
 
 namespace pascinference {
-
 	/** @class General_all_type
 	*  @brief deal with vector(all)
 	* 
@@ -48,19 +47,36 @@ namespace pascinference {
 	*/ 
 	template<class VectorBase>
 	class GeneralVector : public VectorBase {
+		private:
+			/* random vector generator */
+			#ifdef USE_PETSCVECTOR
+				PetscRandom rnd;
+			#endif
 
 		public:
 			/** @brief call original constructors
 			*
 			*/
-			GeneralVector(): VectorBase() {}
+			GeneralVector(): VectorBase() {
+				#ifdef USE_PETSCVECTOR
+					this->rnd=NULL;
+				#endif
+			}
 
 			/** @brief call original constructors
 			*
 			* @todo for general number of arguments
 			*/
-			template<class ArgType> GeneralVector(ArgType arg): VectorBase(arg) {}
-			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2): VectorBase(arg1,arg2) {}
+			template<class ArgType> GeneralVector(ArgType arg): VectorBase(arg) {
+				#ifdef USE_PETSCVECTOR
+					this->rnd=NULL;
+				#endif
+			}
+			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2): VectorBase(arg1,arg2) {
+				#ifdef USE_PETSCVECTOR
+					this->rnd=NULL;
+				#endif
+			}
 			
 			/** @brief matrix vector multiplication
 			*
@@ -93,24 +109,24 @@ typedef petscvector::PetscVector PetscVector;
 
 template<>
 void GeneralVector<PetscVector>::set_random() { 
-	PetscRandom rnd;
-	Vec vec = this->get_vector();
-	
-	/* prepare random generator */
-	TRY( PetscRandomCreate(PETSC_COMM_WORLD,&rnd) );
-	TRY( PetscRandomSetType(rnd,PETSCRAND) );
-	TRY( PetscRandomSetFromOptions(rnd) );
+	if(!this->rnd){
+		/* prepare random generator */
+		TRY( PetscRandomCreate(PETSC_COMM_WORLD,&(this->rnd)) );
+		TRY( PetscRandomSetType(this->rnd,PETSCRAND) );
+		TRY( PetscRandomSetFromOptions(this->rnd) );
 
-	TRY( PetscRandomSetSeed(rnd,13) );
+		TRY( PetscRandomSetSeed(this->rnd,13) );
+	}
+
+	Vec vec = this->get_vector();
 
 	/* generate random data to gamma */
-	TRY( VecSetRandom(vec, rnd) );
+	TRY( VecSetRandom(vec, this->rnd) );
 
 	/* destroy the random generator */
-	TRY( PetscRandomDestroy(&rnd) );
+//	TRY( PetscRandomDestroy(&rnd) );
 
 	this->valuesUpdate();
-
 }
 
 #endif
