@@ -435,6 +435,20 @@ void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
 	#endif
 
+	int size1, size2, size3, size4;
+	TRY(VecGetSize(gammavector->get_vector(),&size1) );
+	TRY(VecGetSize(gamma_local,&size2) );
+	TRY(VecGetLocalSize(gammavector->get_vector(),&size3) );
+	TRY(VecGetLocalSize(gamma_local,&size4) );
+
+	coutAll << "size(gammavector) = " << size1 << std::endl;
+	coutAll << "sizelocal(gammavector) = " << size3 << std::endl;
+	coutAll << "size(gamma_local) = " << size2 << std::endl;
+	coutAll << "sizelocal(gamma_local) = " << size4 << std::endl;
+	coutAll << "K = " << K << std::endl;
+	coutAll << "Tlocal = " << Tlocal << std::endl;
+	coutAll.synchronize();
+
 	/* get the vector where I will store my values */
 	TRY( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
 

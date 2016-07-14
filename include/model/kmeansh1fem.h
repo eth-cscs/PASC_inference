@@ -194,7 +194,7 @@ template<>
 void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output_global <<  "theta:" << std::endl;

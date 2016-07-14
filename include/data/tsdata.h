@@ -609,7 +609,7 @@ int TSData<VectorBase>::get_K() const{
 	if(this->tsmodel){
 		return this->tsmodel->get_K();
 	} else {
-		return 0;
+		return this->blocksize;
 	}
 }
 
