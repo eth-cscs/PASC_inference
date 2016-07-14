@@ -82,7 +82,7 @@ int main( int argc, char *argv[] )
 		}
 	}
 	coutMaster << " (number of clusters)" << std::endl;
-	coutMaster << "n = " << std::setw(7) << n << " (number of tests)" << std::endl;
+	coutMaster << " n      = " << n << " (number of tests)" << std::endl;
 	coutMaster << "------------------------------------------------------------------" << std::endl;	
 
 
@@ -98,7 +98,6 @@ int main( int argc, char *argv[] )
 	timer1.restart();	
 
 	Vec x_global;
-	Vec x_local;
 
 	SimplexFeasibleSet_Local *feasibleset;  	
 
@@ -109,6 +108,8 @@ int main( int argc, char *argv[] )
 	TRY( PetscRandomSetFromOptions(rnd) );
 	TRY( PetscRandomSetSeed(rnd,13) );
 
+	Vec layout;
+	int Tlocal;
 	GeneralVector<PetscVector> *x;
 
 	int Ti, Ki;
@@ -117,27 +118,38 @@ int main( int argc, char *argv[] )
 		for(Ti = 0; Ti < T_size; Ti++){
 			T = T_list[Ti];
 
-			timer1.restart();
+			/* try to make a global vector of length T and then get size of local portion */
+			TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
+			TRY( VecSetSizes(layout,PETSC_DECIDE,T) );
+			TRY( VecSetFromOptions(layout) );
+			/* get the ownership range - now I know how much I will calculate from the time-series */
+			TRY( VecGetLocalSize(layout,&Tlocal) );
+			TRY( VecDestroy(&layout) ); /* destroy testing vector - it is useless now */
 
 			/* create global vector */
-			TRY( VecCreate(PETSC_COMM_WORLD, &x_global) );
-			TRY( VecSetSizes(x_global, K*T, PETSC_DETERMINE) );
-			TRY( VecSetType(x_global, VECMPI) );
-			TRY( VecSetFromOptions(x_global) );
-			TRY( VecAssemblyBegin(x_global) );
-			TRY( VecAssemblyEnd(x_global) );
+			#ifdef USE_CUDA
+				TRY( VecCreate(PETSC_COMM_WORLD, &x_global) );
+				TRY( VecSetSizes(x_global, K*Tlocal, PETSC_DETERMINE) );
+				TRY( VecSetType(x_global, VECMPICUDA) );
+				TRY( VecSetFromOptions(x_global) );
+				TRY( VecAssemblyBegin(x_global) );
+				TRY( VecAssemblyEnd(x_global) );
+			#else
+				TRY( VecCreate(PETSC_COMM_WORLD, &x_global) );
+				TRY( VecSetSizes(x_global, K*Tlocal, PETSC_DETERMINE) );
+				TRY( VecSetType(x_global, VECMPI) );
+				TRY( VecSetFromOptions(x_global) );
+				TRY( VecAssemblyBegin(x_global) );
+				TRY( VecAssemblyEnd(x_global) );
+			#endif
+
+			/* create general vector from PETSc vector */
+			x = new GeneralVector<PetscVector>(x_global);
 		
-			/* --- INITIALIZATION --- */
+			timer1.restart();
 
 			/* prepare feasible set */
-			feasibleset =  new SimplexFeasibleSet_Local(T,K);  	
-
-			#ifdef USE_CUDA
-				TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*T, &x_local) );
-				gpuErrchk(cudaDeviceSynchronize());
-			#else
-				TRY( VecCreateSeq(PETSC_COMM_SELF, K*T, &x_local)  );
-			#endif
+			feasibleset =  new SimplexFeasibleSet_Local(Tlocal,K);
 
 			/* log */
 			std::ostringstream oss_print_to_log;
@@ -147,28 +159,23 @@ int main( int argc, char *argv[] )
 			for(j=0;j<n;j++){
 				/* --- SET RANDOM VALUES TO GLOBAL VECTOR --- */
 				TRY( VecSetRandom(x_global, rnd) );
-		
-				/* --- GET LOCAL VECTOR --- */
-				TRY( VecGetLocalVector(x_global,x_local) );
-
-				x = new GeneralVector<PetscVector>(x_local);
 
 				/* --- COMPUTE PROJECTION --- */
 				timer1.start();
 					feasibleset->project(*x);
 				timer1.stop();
-	
-				/* --- RESTORE GLOBAL VECTOR --- */
-				TRY( VecRestoreLocalVector(x_global,x_local) );
+
 			}
+
+			
 
 			/* --- PRINT INFO ABOUT TIMERS --- */
 			coutMaster << "K = "<< std::setw(4) << K << ", T = " << std::setw(9) << T << ", time = " << std::setw(10) << timer1.get_value_sum() << std::endl;
 
 			#ifdef USE_CUDA
-				oss_print_to_log << "TIME_PETSCVECSEQ|";
+				oss_print_to_log << "TIME_PETSCVECMPI|";
 			#else
-				oss_print_to_log << "TIME_PETSCVECSEQCUDA|";
+				oss_print_to_log << "TIME_PETSCVECMPICUDA|";
 			#endif
 			oss_print_to_log  << K << "|" << T << "|" << timer1.get_value_sum();
 
@@ -177,8 +184,6 @@ int main( int argc, char *argv[] )
 
 			/* destroy feasible set */
 			free(feasibleset);
-	
-			TRY( VecDestroy(&x_local) );
 	
 			/* destroy used vectors */
 			TRY( VecDestroy(&x_global) );
