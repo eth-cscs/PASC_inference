@@ -27,7 +27,7 @@ class EdfSolver: public TSSolver<VectorBase> {
 
 	public:
 		EdfSolver() : TSSolver<VectorBase> () {};
-		EdfSolver(EdfData<VectorBase> &new_tsdata) : TSSolver<VectorBase> (new_tsdata) {}; 
+		EdfSolver(EdfData<VectorBase> &new_tsdata, int annealing = 1) : TSSolver<VectorBase> (new_tsdata, annealing) {}; 
 
 		std::string get_name() const;
 

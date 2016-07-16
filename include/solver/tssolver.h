@@ -514,7 +514,7 @@ void TSSolver<VectorBase>::solve() {
 		coutMaster << std::endl;
 		
 		/* if this value is smaller then previous, then store it */
-		if(aic < tsdata->get_aic()){
+		if(aic < tsdata->get_aic() && annealing > 1){
 			tsdata->set_aic(aic);
 			this->L = L;
 			

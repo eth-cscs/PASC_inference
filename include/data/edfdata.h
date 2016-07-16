@@ -55,9 +55,9 @@ class EdfData: public TSData<VectorBase> {
 		int T;
 		int Tlocal;
 		
-		void edfRead(std::string filename);
+		void edfRead(std::string filename, int max_record_nmb = -1);
 	public:
-		EdfData(std::string filename_data);
+		EdfData(std::string filename_data, int max_record_nmb = -1);
 		~EdfData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -81,7 +81,7 @@ class EdfData: public TSData<VectorBase> {
 namespace pascinference {
 
 template<>
-void EdfData<PetscVector>::edfRead(std::string filename){
+void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	LOG_FUNC_BEGIN
 
 	/* open file */
@@ -116,6 +116,11 @@ void EdfData<PetscVector>::edfRead(std::string filename){
 	
 	myfile.read(buffer, 8);
 	hdr_records = atoi(buffer);
+
+	/* cut the dataset if user provided max number of records */
+	if(max_record_nmb > 0 && hdr_records > max_record_nmb){
+		hdr_records = max_record_nmb;
+	}
 
 	myfile.read(buffer, 8);
 	hdr_duration = atoi(buffer);
@@ -240,11 +245,11 @@ void EdfData<PetscVector>::edfRead(std::string filename){
 
 /* from filename */
 template<class VectorBase>
-EdfData<VectorBase>::EdfData(std::string filename_data){
+EdfData<VectorBase>::EdfData(std::string filename_data, int max_record_nmb){
 	LOG_FUNC_BEGIN
 
 	/* read data from input file */
-	edfRead(filename_data);
+	edfRead(filename_data, max_record_nmb);
 
 	this->destroy_gammavector = false;
 	this->destroy_thetavector = false;
@@ -549,6 +554,9 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	double *coordinates_arr;
 	TRY( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
 
+	double gamma_max;
+	int gamma_maxk;
+
 	/* each processor writes its own portion of data */
 	for(t=0;t < Tlocal;t++){
 		oss_filename << "results/" << filename << "_" << get_Tbegin() + t << ".vtu";
@@ -577,6 +585,21 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 			myfile << "        </DataArray>\n";
 		}
 
+		/* cluster affiliation */
+		myfile << "        <DataArray type=\"Float32\" Name=\"gamma_max\" format=\"ascii\">\n";
+		for(r=0;r<R;r++){
+			gamma_max = 0.0;
+			gamma_maxk = 0;
+			for(k=0;k<K;k++){
+				if(gamma_arr[k*Tlocal*R + r*Tlocal +t] > gamma_max){
+					gamma_max = gamma_arr[k*Tlocal*R + r*Tlocal +t];
+					gamma_maxk = k;
+				}
+			}
+			myfile << gamma_maxk << "\n";
+		}
+		myfile << "        </DataArray>\n";
+		
 		myfile << "      </PointData>\n";
 		myfile << "      <CellData Scalars=\"scalars\">\n";
 		myfile << "      </CellData>\n";

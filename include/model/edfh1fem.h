@@ -70,6 +70,8 @@ class EdfH1FEMModel: public TSModel<VectorBase> {
 
 		GeneralVector<VectorBase> *get_coordinatesVTK() const;
 		int get_coordinatesVTK_dim() const;
+
+		double get_aic(double L) const;
 		
 };
 
@@ -280,7 +282,7 @@ void EdfH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasol
 
 	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
 	gammadata->set_A(A_shared); 
-	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal,this->K)); /* the feasible set of QP is simplex */ 	
+	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal*this->R,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
 	*gammasolver = new QPSolver<PetscVector>(*gammadata);
@@ -462,7 +464,7 @@ void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, 
 			} else {
 				value = 1 - 0.5*(gammaAgamma/gammaxsqr);
 //				if(value >= 0){
-					theta_arr[k] = value;
+					theta_arr[k] = sqrt(value);
 //				} else {
 //					theta_arr[k] = -sqrt(-value);
 //				}
@@ -480,7 +482,7 @@ void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, 
 	/* restore arrays */
 	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
 
-	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+//	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) );
 
 	LOG_FUNC_END
 }
@@ -495,6 +497,11 @@ int EdfH1FEMModel<VectorBase>::get_coordinatesVTK_dim() const{
 	return graph->get_dim();
 }
 
+template<class VectorBase>
+double EdfH1FEMModel<VectorBase>::get_aic(double L) const{
+	return 2*log(L) + this->K;
+
+}
 
 } /* end namespace */
 
