@@ -459,7 +459,7 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 		
 		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
 		if(coeffs){
-			y_arr[y_arr_idx] = coeffs_arr[k]*y_arr[y_arr_idx];
+			y_arr[y_arr_idx] = coeffs_arr[k]*coeffs_arr[k]*y_arr[y_arr_idx];
 
 			// temp: + Laplace
 /*			if(tglobal == 0 || tglobal == T){

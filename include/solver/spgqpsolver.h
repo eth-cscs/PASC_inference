@@ -581,7 +581,10 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* print progress of algorithm */
 		if(this->debug_mode >= 3){
 			coutMaster << "\033[33m   it = \033[0m" << it;
-			coutMaster << ", \t\033[36mfx = \033[0m" << fx;
+			
+			std::streamsize ss = std::cout.precision();
+			coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
+
 			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}

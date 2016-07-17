@@ -550,6 +550,9 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	double *gamma_arr;
 	TRY( VecGetArray(gammavector->get_vector(), &gamma_arr) );
 
+	double *theta_arr;
+	TRY( VecGetArray(thetavector->get_vector(), &theta_arr) );
+
 	int coordinates_dim = tsmodel->get_coordinatesVTK_dim();
 	double *coordinates_arr;
 	TRY( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
@@ -599,6 +602,18 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 			myfile << gamma_maxk << "\n";
 		}
 		myfile << "        </DataArray>\n";
+
+		/* recovered data */
+		myfile << "        <DataArray type=\"Float32\" Name=\"recovered\" format=\"ascii\">\n";
+		for(r=0;r<R;r++){
+			gamma_max = 0.0;
+			for(k=0;k<K;k++){
+				gamma_max += gamma_arr[k*Tlocal*R + r*Tlocal +t]*theta_arr[k];
+			}
+			myfile << gamma_maxk << "\n";
+		}
+		myfile << "        </DataArray>\n";
+
 		
 		myfile << "      </PointData>\n";
 		myfile << "      <CellData Scalars=\"scalars\">\n";
@@ -641,6 +656,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	}
 
 	TRY( VecRestoreArray(gammavector->get_vector(), &gamma_arr) );
+	TRY( VecRestoreArray(thetavector->get_vector(), &theta_arr) );
 	TRY( VecRestoreArray(datavector->get_vector(), &data_arr) );
 	TRY( VecRestoreArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
 

@@ -280,7 +280,8 @@ void EdfH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasol
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
+//	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
+	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
 	gammadata->set_A(A_shared); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal*this->R,this->K)); /* the feasible set of QP is simplex */ 	
 
@@ -387,11 +388,14 @@ void EdfH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, 
 	double *b_arr;
 	TRY( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
 
+//	double coeff = (-1);
+	double coeff = (-1.0)/((double)(R*T));
+
 	int k,t,r;
 	for(t=0;t<Tlocal;t++){
 		for(k=0;k<K;k++){
 			for(r=0;r<R;r++){
-				b_arr[(k*R+r)*Tlocal + t] = (-1)*pow(data_arr[r*Tlocal+t] - theta_arr[k]*data_arr[r*Tlocal+t],2.0); 
+				b_arr[(k*R+r)*Tlocal + t] = coeff*(data_arr[r*Tlocal+t] - theta_arr[k])*(data_arr[r*Tlocal+t] - theta_arr[k]);; 
 			}
 		}
 	}
@@ -417,6 +421,8 @@ void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, 
 
 	/* I will use A_shared with coefficients equal to 1, therefore I set Theta=1 */
 	TRY( VecSet(tsdata->get_thetavector()->get_vector(),1.0) );
+	TRY( VecAssemblyBegin(tsdata->get_thetavector()->get_vector()) );
+	TRY( VecAssemblyEnd(tsdata->get_thetavector()->get_vector()) );
 
 	/* now compute A*gamma */
 	*Agamma = (*A_shared)*(*(tsdata->get_gammavector()));
@@ -428,18 +434,13 @@ void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, 
 	IS gammak_is;
 	
 	int k;
-	double gammaAgamma;
-	double gammaxsqr;
+	double gammakAgammak;
+	double gammakx;
+	double gammaksum;
 	
 	/* get arrays */
 	double *theta_arr;
 	TRY( VecGetArray(theta_Vec,&theta_arr) );
-	
-	/* square of components of data_Vec */ 
-	Vec x_sqr; // TODO: here is bottleneck :( these data could be computed in preprocess, but I don't know if I want to store them
-	TRY( VecDuplicate(data_Vec,&x_sqr) );
-	TRY( VecCopy(data_Vec,x_sqr) );
-	TRY( VecPow(x_sqr, 2.0) );
 	
 	double value;
 	
@@ -450,39 +451,27 @@ void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, 
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 
-		/* compute gammaAgamma */
-		TRY( VecDot(gammak_Vec, Agammak_Vec, &gammaAgamma) );
+		/* compute gammakAgammak */
+		TRY( VecDot(gammak_Vec, Agammak_Vec, &gammakAgammak) );
 		
-		/* compute gammaxsqr */
-		TRY( VecDot(x_sqr, gammak_Vec, &gammaxsqr) );
+		/* compute gammakx */
+		TRY( VecDot(data_Vec, gammak_Vec, &gammakx) );
 
-		if(gammaAgamma == 0){
-			theta_arr[k] = 0;
-		} else {
-			if(gammaxsqr == 0){
-				theta_arr[k]  = 0.5/gammaAgamma;
-			} else {
-				value = 1 - 0.5*(gammaAgamma/gammaxsqr);
-//				if(value >= 0){
-					theta_arr[k] = sqrt(value);
-//				} else {
-//					theta_arr[k] = -sqrt(-value);
-//				}
-			}
-		}
+		/* compute gammaksum */
+		TRY( VecSum(gammak_Vec, &gammaksum) );
 
+//		theta_arr[k] = gammakx/(gammaksum + gammakAgammak);
+		theta_arr[k] = gammakx/(gammaksum + R*T*gammakAgammak);
+	
 		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		TRY( VecRestoreSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 		TRY( ISDestroy(&gammak_is) );
 	}	
 
-	/* destroy x_sqr */
-	TRY( VecDestroy(&x_sqr) );
-
 	/* restore arrays */
 	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
 
-//	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) );
 
 	LOG_FUNC_END
 }
