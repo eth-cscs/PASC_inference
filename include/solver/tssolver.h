@@ -39,6 +39,8 @@ class TSSolver: public GeneralSolver {
 		int annealing; /**< nuber of annealing steps */
 
 		double L; /**< function value */
+		std::ostringstream gammasolver_status; /**< status of gammasolver in the best annealing state */
+		std::ostringstream thetasolver_status; /**< status of thetasolver in the best annealing state */
 
 		Timer timer_solve; /**< total solution time of algorithm */
 		Timer timer_gamma_solve; /**< timer for solving gamma problem */
@@ -101,6 +103,8 @@ TSSolver<VectorBase>::TSSolver(){
 	consoleArg.set_option_value("tssolver_debug_mode", &this->debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
 
 	this->L = std::numeric_limits<double>::max();
+	gammasolver_status.str("");
+	thetasolver_status.str("");
 
 	this->timer_solve.restart();	
 	this->timer_gamma_solve.restart();
@@ -135,6 +139,8 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 
 	/* initial value of object function */
 	this->L = std::numeric_limits<double>::max();
+	gammasolver_status.str("");
+	thetasolver_status.str("");
 
 	/* initialize timers */
 	this->timer_solve.restart();	
@@ -257,7 +263,15 @@ void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - it:          " << this->it_last << std::endl;
-	output <<  " - L:           " << this->L << std::endl;	
+	output <<  " - L:           " << this->L << std::endl;
+	output <<  " - gammasolver_status:" << std::endl;
+	output.push();
+	output << gammasolver_status.str() << std::endl;
+	output.pop();
+	output <<  " - thetasolver_status:" << std::endl;
+	output.push();
+	output << thetasolver_status.str() << std::endl;
+	output.pop();
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 	
 	LOG_FUNC_END
@@ -517,9 +531,26 @@ void TSSolver<VectorBase>::solve() {
 		if(aic < tsdata->get_aic() && annealing > 1){
 			tsdata->set_aic(aic);
 			this->L = L;
+			/* update status strings */
+			gammasolver_status.str("");
+			gammasolver->printstatus(gammasolver_status);
+			thetasolver_status.str("");
+			thetasolver->printstatus(thetasolver_status);
 			
 			*gammavector_temp = *(tsdata->get_gammavector());
 			*thetavector_temp = *(tsdata->get_thetavector());
+		}
+
+		if(annealing <= 1){
+			tsdata->set_aic(aic);
+			this->L = L;
+
+			/* update status strings */
+			gammasolver_status.str("");
+			gammasolver->printstatus(gammasolver_status);
+			thetasolver_status.str("");
+			thetasolver->printstatus(thetasolver_status);
+
 		}
 		
 	}

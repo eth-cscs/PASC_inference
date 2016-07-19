@@ -371,7 +371,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 			} else {
 				right_value = x_arr[x_arr_idx+1];
 			}
-			value = alpha*x_arr[x_arr_idx] + alpha*right_value;
+			value = x_arr[x_arr_idx] + right_value;
 		}
 		/* common row */
 		if(tglobal > 0 && tglobal < T-1){
@@ -385,7 +385,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 			} else {
 				left_value = x_arr[x_arr_idx-1];
 			}
-			value = alpha*left_value + alpha*x_arr[x_arr_idx] + alpha*right_value;
+			value = left_value + alpha*x_arr[x_arr_idx] + right_value;
 		}
 		/* last row */
 		if(tglobal == T-1){
@@ -394,7 +394,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 			} else {
 				left_value = x_arr[x_arr_idx-1];
 			}
-			value = alpha*left_value + alpha*x_arr[x_arr_idx];
+			value = left_value + x_arr[x_arr_idx];
 		}
 		
 		y_arr[y_arr_idx] = value; /* = (k+1)*1000+(r+1)*100+(tglobal+1); test */
@@ -444,30 +444,34 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 
 		/* compute sum of W entries in row */
 		if(tglobal == 0 || tglobal == T-1){
-			Wsum = 2*neighbor_nmbs[r];
+			Wsum = 2*(neighbor_nmbs[r]);
+//			Wsum = 2*(neighbor_nmbs[r])+1; /* +1 denotes plus my nondiagonal entries */
 		} else {
-			Wsum = 3*neighbor_nmbs[r];
+			Wsum = 3*(neighbor_nmbs[r]);
+//			Wsum = 3*(neighbor_nmbs[r])+2; /* +2 denotes plus my nondiagonal entries */
 		}
 
 		/* diagonal entry */
-		y_arr[y_arr_idx] = alpha*Wsum*x_arr[x_arr_idx];
+		y_arr[y_arr_idx] = Wsum*x_arr[x_arr_idx];
 
-		/* non-diagonal entries */
+		/* my nondiagonal entries */
+/*		if(tglobal == 0 || tglobal == T-1){
+			y_arr[y_arr_idx] -=  alpha*x_aux_arr[x_arr_idx];
+		} else {
+			y_arr[y_arr_idx] -=  alpha*x_aux_arr[x_arr_idx];
+		}
+*/
+		/* non-diagonal neighbor entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
 			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
 		}
 		
+		/* apply alpha */
+		y_arr[y_arr_idx] = alpha*y_arr[y_arr_idx];
+		
 		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
 		if(coeffs){
 			y_arr[y_arr_idx] = coeffs_arr[k]*coeffs_arr[k]*y_arr[y_arr_idx];
-
-			// temp: + Laplace
-/*			if(tglobal == 0 || tglobal == T){
-				y_arr[y_arr_idx] +=  alpha*(-x_aux_arr[x_arr_idx] + 2*x_arr[x_arr_idx]);
-			} else {
-				y_arr[y_arr_idx] +=  alpha*(-x_aux_arr[x_arr_idx] + 3*x_arr[x_arr_idx]);
-			}
-*/
 		}
 
 	}

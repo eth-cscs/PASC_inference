@@ -79,7 +79,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		double sigma1;
 		double sigma2;
 		double alphainit;			/** initial step-size */
-		int dotfloor;				/** precision of floor operation after dot product */
 
 		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 		double gP; 					/**< norm of projected gradient */
@@ -119,6 +118,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
 		void printstatus(ConsoleOutput &output) const;
+		void printstatus(std::ostringstream &output) const;
 		void printtimer(ConsoleOutput &output) const;
 		void printshort(std::ostringstream &header, std::ostringstream &values) const;
 
@@ -151,7 +151,6 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("spgqpsolver_stop_Anormgp_normb", &this->stop_Anormgp_normb, SPGQPSOLVER_STOP_ANORMGP_NORMB);
 	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
 
-	consoleArg.set_option_value("spgqpsolver_dotfloor", &this->dotfloor, SPGQPSOLVER_DEFAULT_DOTFLOOR);
 }
 
 
@@ -361,6 +360,41 @@ void SPGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 //	output <<  "t_stepsize = " << std::setw(10) << this->timer_stepsize.get_value_last() << ", ";
 //	output <<  "t_fs = " << std::setw(10) << this->timer_fs.get_value_last() << ", ";
 	output <<  "t_other = " << std::setw(10) << this->timer_solve.get_value_last() - (this->timer_projection.get_value_last() + this->timer_matmult.get_value_last() + this->timer_dot.get_value_last() + this->timer_update.get_value_last() + this->timer_stepsize.get_value_last() + this->timer_fs.get_value_last()) << std::endl;
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
+	LOG_FUNC_BEGIN
+
+	double fx_linear, fx_quadratic, fx_quadratic2;
+
+	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
+	typedef GeneralVector<VectorBase> (&pVector);
+	typedef GeneralMatrix<VectorBase> (&pMatrix);
+
+	/* pointers to qpdata */
+	pMatrix A = *(qpdata->get_A());
+	pVector b = *(qpdata->get_b());
+
+	/* pointer to solution */
+	pVector x = *(qpdata->get_x());
+
+	/* auxiliary vectors */
+	pVector Ad = *(this->Ad); /* A*p */
+
+	Ad = A*x;
+	fx_quadratic = 0.5*dot(Ad,x);
+	fx_linear = -dot(b,x);
+
+	std::streamsize ss = std::cout.precision();
+
+	output <<  "      - fx:           " << std::setw(10) << std::setprecision(17) << this->fx << std::endl;
+	output <<  "      - fx_control:   " << std::setw(10) << fx_quadratic+fx_linear << std::endl;
+	output <<  "      - fx_linear:    " << std::setw(10) << fx_linear << std::endl;
+	output <<  "      - fx_quadratic: " << std::setw(10) << fx_quadratic2 << std::endl;
+	output <<  "      - norm(gP):     " << std::setw(10) << this->gP << std::setprecision(ss) << std::endl;
 
 	LOG_FUNC_END
 }

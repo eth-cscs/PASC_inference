@@ -39,6 +39,7 @@ class QPSolver: public GeneralSolver {
 		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual void printcontent(ConsoleOutput &output) const;
 		virtual void printstatus(ConsoleOutput &output) const;
+		virtual void printstatus(std::ostringstream &output) const;
 		virtual void printtimer(ConsoleOutput &output) const;
 		virtual void printshort(std::ostringstream &header, std::ostringstream &values) const;
 		virtual std::string get_name() const;
@@ -189,6 +190,19 @@ void QPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 /* print status */
 template<class VectorBase>
 void QPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	if(child_solver){
+		child_solver->printstatus(output);
+	} else {
+		output << this->get_name() << ": status" << std::endl;
+	}
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void QPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	LOG_FUNC_BEGIN
 
 	if(child_solver){

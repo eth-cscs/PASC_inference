@@ -610,7 +610,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 			for(k=0;k<K;k++){
 				gamma_max += gamma_arr[k*Tlocal*R + r*Tlocal +t]*theta_arr[k];
 			}
-			myfile << gamma_maxk << "\n";
+			myfile << gamma_max << "\n";
 		}
 		myfile << "        </DataArray>\n";
 

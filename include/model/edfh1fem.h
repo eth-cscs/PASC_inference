@@ -63,7 +63,8 @@ class EdfH1FEMModel: public TSModel<VectorBase> {
 		void update_thetasolver(GeneralSolver *theta_solver, const TSData<VectorBase> *tsdata);
 	
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata);
-
+		void get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata);
+		
 		QPData<VectorBase> *get_gammadata() const;
 		SimpleData<VectorBase> *get_thetadata() const;
 		BGM_Graph *get_graph() const;
@@ -357,6 +358,12 @@ template<class VectorBase>
 double EdfH1FEMModel<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
 	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
+}
+
+template<class VectorBase>
+void EdfH1FEMModel<VectorBase>::get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+	linearL = -13;
+	quadraticL = 57;
 }
 
 template<class VectorBase>

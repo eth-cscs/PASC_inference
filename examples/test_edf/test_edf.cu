@@ -106,6 +106,10 @@ int main( int argc, char *argv[] )
 	mysolver.printtimer(coutAll);
 	coutAll.synchronize();
 
+	/* print short info */
+	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	mysolver.printstatus(coutMaster);
+
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
 

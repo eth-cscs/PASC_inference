@@ -69,6 +69,8 @@ class GeneralSolver {
 		 */ 
 		virtual void printstatus(ConsoleOutput &output) const;
 
+		virtual void printstatus(std::ostringstream &output) const;
+
 		/** @brief print content of all solver data
 		 * 
 		 * @param output where to print
@@ -124,6 +126,10 @@ void GeneralSolver::print(ConsoleOutput &output_global, ConsoleOutput &output_lo
 }
 
 void GeneralSolver::printstatus(ConsoleOutput &output) const {
+	output << this->get_name() << ": status" << std::endl;
+}
+
+void GeneralSolver::printstatus(std::ostringstream &output) const {
 	output << this->get_name() << ": status" << std::endl;
 }
 
