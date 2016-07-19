@@ -6,7 +6,7 @@
 
 #include "pascinference.h"
 
-#include "solver/kmeanssolver.h"
+#include "solver/tssolver.h"
 #include "data/kmeansdata.h"
 #include "model/kmeansh1fem.h"
 
@@ -103,7 +103,7 @@ int main( int argc, char *argv[] )
 	
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-	KmeansSolver<PetscVector> mysolver(mydata);
+	TSSolver<PetscVector> mysolver(mydata);
 
 	/* load gammavector from file */
 	mydata.load_gammavector(gamma0_filename);

@@ -48,5 +48,6 @@ include("test_kmeans/test_kmeans.cmake")
 #include("test_varx/test_varx.cmake")
 include("test_other/test_other.cmake")
 include("test_edf/test_edf.cmake")
+include("test_image/test_image.cmake")
 message("\n----------------------------------------------------------\n")
 

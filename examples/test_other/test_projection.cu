@@ -167,8 +167,6 @@ int main( int argc, char *argv[] )
 
 			}
 
-			
-
 			/* --- PRINT INFO ABOUT TIMERS --- */
 			coutMaster << "K = "<< std::setw(4) << K << ", T = " << std::setw(9) << T << ", time = " << std::setw(10) << timer1.get_value_sum() << std::endl;
 

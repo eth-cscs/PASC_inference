@@ -1,8 +1,8 @@
-#ifndef PASC_EDFH1FEMMODEL_H
-#define	PASC_EDFH1FEMMODEL_H
+#ifndef PASC_GRAPHH1FEMMODEL_H
+#define	PASC_GRAPHH1FEMMODEL_H
 
 #ifndef USE_PETSCVECTOR
- #error 'EDFH1FEMMODEL is for PETSCVECTOR'
+ #error 'GRAPHH1FEMMODEL is for PETSCVECTOR'
 #endif
 
 typedef petscvector::PetscVector PetscVector;
@@ -23,12 +23,12 @@ extern int DEBUG_MODE;
 #include "solver/simplesolver.h"
 #include "data/simpledata.h"
 
-#include "data/edfdata.h"
+#include "data/tsdata.h"
 
 namespace pascinference {
 
 template<class VectorBase>
-class EdfH1FEMModel: public TSModel<VectorBase> {
+class GraphH1FEMModel: public TSModel<VectorBase> {
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
 	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
@@ -44,8 +44,8 @@ class EdfH1FEMModel: public TSModel<VectorBase> {
 
 	public:
 	
-		EdfH1FEMModel(EdfData<VectorBase> &tsdata, BGM_Graph &new_graph, int K, double epssqr);
-		~EdfH1FEMModel();
+		GraphH1FEMModel(TSData<VectorBase> &tsdata, BGM_Graph &new_graph, int K, double epssqr);
+		~GraphH1FEMModel();
 
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
@@ -86,11 +86,11 @@ namespace pascinference {
 
 /* constructor */
 template<>
-EdfH1FEMModel<PetscVector>::EdfH1FEMModel(EdfData<PetscVector> &tsdata, BGM_Graph &new_graph, int K, double epssqr) {
+GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &tsdata, BGM_Graph &new_graph, int K, double epssqr) {
 	LOG_FUNC_BEGIN
 
 	this->xdim = 1; // TODO: now I can compute only 1D problem, sorry
-	this->R = tsdata.get_R();
+	this->R = new_graph.get_n();
 
 	/* set graph */
 	this->graph = &new_graph;	
@@ -136,7 +136,7 @@ EdfH1FEMModel<PetscVector>::EdfH1FEMModel(EdfData<PetscVector> &tsdata, BGM_Grap
 
 /* destructor */
 template<class VectorBase>
-EdfH1FEMModel<VectorBase>::~EdfH1FEMModel(){
+GraphH1FEMModel<VectorBase>::~GraphH1FEMModel(){
 	LOG_FUNC_BEGIN
 	
 	/* destroy auxiliary vectors */
@@ -147,7 +147,7 @@ EdfH1FEMModel<VectorBase>::~EdfH1FEMModel(){
 
 /* print info about model */
 template<class VectorBase>
-void EdfH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
+void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -176,7 +176,7 @@ void EdfH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 
 /* print info about model */
 template<class VectorBase>
-void EdfH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -216,7 +216,7 @@ void EdfH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutpu
 
 /* print model solution */
 template<>
-void EdfH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -263,13 +263,13 @@ void EdfH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, Con
 
 /* get name of the model */
 template<class VectorBase>
-std::string EdfH1FEMModel<VectorBase>::get_name() const {
-	return "EDF-H1-FEM Time-Series Model";	
+std::string GraphH1FEMModel<VectorBase>::get_name() const {
+	return "Graph-H1-FEM Time-Series Model";	
 }
 
 /* prepare gamma solver */
 template<>
-void EdfH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver, const TSData<PetscVector> *tsdata){
+void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* in this case, gamma problem is QP with simplex feasible set */
@@ -300,7 +300,7 @@ void EdfH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasol
 
 /* prepare theta solver */
 template<>
-void EdfH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<PetscVector> *tsdata){
+void GraphH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 	
 	/* create data */
@@ -320,7 +320,7 @@ void EdfH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasol
 
 /* destroy gamma solver */
 template<class VectorBase>
-void EdfH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
+void GraphH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver, const TSData<VectorBase> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
@@ -339,7 +339,7 @@ void EdfH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver
 
 /* destroy theta solver */
 template<class VectorBase>
-void EdfH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
+void GraphH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver, const TSData<VectorBase> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
@@ -355,34 +355,34 @@ void EdfH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver
 }
 
 template<class VectorBase>
-double EdfH1FEMModel<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+double GraphH1FEMModel<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	// TODO: not suitable in every situation - I suppose that g was computed from actual x,b */
 	return ((QPSolver<VectorBase> *)gammasolver)->get_fx();
 }
 
 template<class VectorBase>
-void EdfH1FEMModel<VectorBase>::get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
+void GraphH1FEMModel<VectorBase>::get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
 	linearL = -13;
 	quadraticL = 57;
 }
 
 template<class VectorBase>
-QPData<VectorBase>* EdfH1FEMModel<VectorBase>::get_gammadata() const {
+QPData<VectorBase>* GraphH1FEMModel<VectorBase>::get_gammadata() const {
 	return gammadata;
 }
 
 template<class VectorBase>
-SimpleData<VectorBase>* EdfH1FEMModel<VectorBase>::get_thetadata() const {
+SimpleData<VectorBase>* GraphH1FEMModel<VectorBase>::get_thetadata() const {
 	return thetadata;
 }
 
 template<class VectorBase>
-BGM_Graph *EdfH1FEMModel<VectorBase>::get_graph() const {
+BGM_Graph *GraphH1FEMModel<VectorBase>::get_graph() const {
 	return graph;
 }
 
 template<>
-void EdfH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<PetscVector> *tsdata){
+void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 
 	/* update gamma_solver data - prepare new linear term */
@@ -419,7 +419,7 @@ void EdfH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver, 
 
 /* update theta solver */
 template<>
-void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<PetscVector> *tsdata){
+void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, const TSData<PetscVector> *tsdata){
 	LOG_FUNC_BEGIN
 
 	Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
@@ -484,17 +484,17 @@ void EdfH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver, 
 }
 
 template<class VectorBase>
-GeneralVector<VectorBase> *EdfH1FEMModel<VectorBase>::get_coordinatesVTK() const{
+GeneralVector<VectorBase> *GraphH1FEMModel<VectorBase>::get_coordinatesVTK() const{
 	return graph->get_coordinates();
 }
 
 template<class VectorBase>
-int EdfH1FEMModel<VectorBase>::get_coordinatesVTK_dim() const{
+int GraphH1FEMModel<VectorBase>::get_coordinatesVTK_dim() const{
 	return graph->get_dim();
 }
 
 template<class VectorBase>
-double EdfH1FEMModel<VectorBase>::get_aic(double L) const{
+double GraphH1FEMModel<VectorBase>::get_aic(double L) const{
 	return 2*log(L) + this->K;
 
 }

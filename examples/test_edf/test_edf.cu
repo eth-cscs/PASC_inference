@@ -7,9 +7,9 @@
  */
 
 #include "pascinference.h"
-#include "solver/edfsolver.h"
+#include "solver/tssolver.h"
 #include "data/edfdata.h"
-#include "model/edfh1fem.h"
+#include "model/graphh1fem.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
@@ -68,19 +68,17 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	EdfData<PetscVector> mydata("data/S001R01.edf.txt", max_record_nmb);
 
-//	mydata.print(coutMaster,coutAll);
-
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	BGM_Graph mygraph("data/Koordinaten_EEG_P.bin");
 	mygraph.process(2.5);
-	EdfH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);
+	GraphH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);
 
 	mymodel.print(coutMaster,coutAll);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
-	EdfSolver<PetscVector> mysolver(mydata, annealing);
+	TSSolver<PetscVector> mysolver(mydata, annealing);
 
 	mysolver.print(coutMaster,coutAll);
 

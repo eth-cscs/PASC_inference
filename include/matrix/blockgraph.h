@@ -21,7 +21,7 @@ class BGM_Graph {
 	private:
 		GeneralVector<PetscVector> *coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
 		int dim; /**< dimension of coordinates */	
-		int n; /**< number of vertices */
+		int n; /**< number of nodes */
 		double threshold; /**< the value used for processing the graph */
 		
 		bool processed; /**< there was process with threshold value called? */
@@ -832,7 +832,7 @@ void BGM_Graph::print_content(ConsoleOutput &output) const {
 	
 	output.push();
 	output << " - dim:       " << this->dim << std::endl;
-	output << " - vertices:  " << this->n << std::endl;
+	output << " - nodes:     " << this->n << std::endl;
 	output << " - threshold: " << this->threshold << std::endl;
 	output << " - processed: " << this->processed << std::endl;
 

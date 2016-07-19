@@ -51,9 +51,9 @@ class EdfData: public TSData<VectorBase> {
 		Record *hdr_records_detail;
 		bool free_hdr_records_detail;
 
-		int R;
-		int T;
-		int Tlocal;
+		int R; 
+//		int T; //TODO: remove - defined in TSData?
+//		int Tlocal;
 		
 		void edfRead(std::string filename, int max_record_nmb = -1);
 	public:
