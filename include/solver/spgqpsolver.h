@@ -368,7 +368,7 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	LOG_FUNC_BEGIN
 
-	double fx_linear, fx_quadratic, fx_quadratic2;
+	double fx_linear, fx_quadratic;
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
@@ -393,7 +393,7 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	output <<  "      - fx:           " << std::setw(10) << std::setprecision(17) << this->fx << std::endl;
 	output <<  "      - fx_control:   " << std::setw(10) << fx_quadratic+fx_linear << std::endl;
 	output <<  "      - fx_linear:    " << std::setw(10) << fx_linear << std::endl;
-	output <<  "      - fx_quadratic: " << std::setw(10) << fx_quadratic2 << std::endl;
+	output <<  "      - fx_quadratic: " << std::setw(10) << fx_quadratic << std::endl;
 	output <<  "      - norm(gP):     " << std::setw(10) << this->gP << std::setprecision(ss) << std::endl;
 
 	LOG_FUNC_END

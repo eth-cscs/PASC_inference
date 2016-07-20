@@ -352,7 +352,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 	TRY( VecGetArray(x_aux,&y_arr) );
 
 	/* use openmp */
-//	#pragma omp parallel for
+	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
 		int k = floor(y_arr_idx/(double)(Tlocal*R));
 		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
@@ -449,31 +449,37 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 
 		/* compute sum of W entries in row */
 		if(tglobal == 0 || tglobal == T-1){
-			Wsum = 2*(neighbor_nmbs[r]);
-//			Wsum = 2*(neighbor_nmbs[r])+1; /* +1 denotes plus my nondiagonal entries */
+			if(T > 1){
+//				Wsum = 2*neighbor_nmbs[r];
+				Wsum = 2*neighbor_nmbs[r]+2;
+			} else {
+//				Wsum = (neighbor_nmbs[r]);
+				Wsum = (neighbor_nmbs[r])+1;
+			}
 		} else {
-			Wsum = 3*(neighbor_nmbs[r]);
-//			Wsum = 3*(neighbor_nmbs[r])+2; /* +2 denotes plus my nondiagonal entries */
+			if(T > 1){
+//				Wsum = 3*neighbor_nmbs[r];
+				Wsum = 3*neighbor_nmbs[r]+3;
+			} else {
+//				Wsum = (neighbor_nmbs[r]);
+				Wsum = (neighbor_nmbs[r])+2;
+			}
 		}
 
 		/* diagonal entry */
 		y_arr[y_arr_idx] = Wsum*x_arr[x_arr_idx];
 
 		/* my nondiagonal entries */
-/*		if(tglobal == 0 || tglobal == T-1){
-			y_arr[y_arr_idx] -=  alpha*x_aux_arr[x_arr_idx];
-		} else {
-			y_arr[y_arr_idx] -=  alpha*x_aux_arr[x_arr_idx];
-		}
-*/
+		y_arr[y_arr_idx] -=  x_aux_arr[x_arr_idx];
+
 		/* non-diagonal neighbor entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
 			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
 		}
-		
+
 		/* apply alpha */
 		y_arr[y_arr_idx] = alpha*y_arr[y_arr_idx];
-		
+
 		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
 		if(coeffs){
 			y_arr[y_arr_idx] = coeffs_arr[k]*coeffs_arr[k]*y_arr[y_arr_idx];

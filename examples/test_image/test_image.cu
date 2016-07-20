@@ -52,9 +52,9 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
-	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
-	consoleArg.set_option_value("test_image_out", &image_out, "image1");
-	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph1.bin");
+	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image2.bin");
+	consoleArg.set_option_value("test_image_out", &image_out, "image2");
+	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph2.bin");
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
 	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
@@ -82,7 +82,7 @@ int main( int argc, char *argv[] )
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	BGM_Graph mygraph(graph_filename);
-	mygraph.process(1.0);
+	mygraph.process(1.1);
 //	mygraph.print(coutMaster);
 
 	GraphH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);

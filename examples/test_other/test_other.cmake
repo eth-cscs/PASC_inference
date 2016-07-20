@@ -28,6 +28,11 @@ if(${TEST_MAT_BLOCKGRAPH_FREE_TO_DENSE})
 	else()
 		pascadd_executable("test_other/test_mat_blockgraph_free_to_dense.cpp" "test_mat_blockgraph_free_to_dense")
 	endif()
+
+	# copy data
+	file(COPY "test_other/data/" 
+		 DESTINATION "data"
+		 FILES_MATCHING PATTERN "*")
 endif()
 
 if(${TEST_MAT_BLOCKLAPLACE_FREE_TO_DENSE})
