@@ -297,6 +297,7 @@ void BlockGraphMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase &x) c
 	/* now perform kronecker product with graph matrix */
 	matmult_graph(y, x);
 
+	/* for testing 3-diag, comment matmult_graph and uncomment following */
 //	TRY(VecCopy(x_aux,y.get_vector()));
 
 	LOG_FUNC_END	
@@ -351,7 +352,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 	TRY( VecGetArray(x_aux,&y_arr) );
 
 	/* use openmp */
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
 		int k = floor(y_arr_idx/(double)(Tlocal*R));
 		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
@@ -364,41 +365,45 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 		double right_value;
 		double left_value;
 
-		/* first row */
-		if(tglobal == 0){
-			if(tlocal+1 >= Tlocal){
-				right_value = right_overlap_arr[overlap_id];
-			} else {
-				right_value = x_arr[x_arr_idx+1];
+		value = x_arr[x_arr_idx];
+		if(T > 1){
+			/* first row */
+			if(tglobal == 0){
+				if(tlocal+1 >= Tlocal){
+					right_value = right_overlap_arr[overlap_id];
+				} else {
+					right_value = x_arr[x_arr_idx+1];
+				}
+				value += right_value;
 			}
-			value = x_arr[x_arr_idx] + right_value;
+			/* common row */
+			if(tglobal > 0 && tglobal < T-1){
+				if(tlocal+1 >= Tlocal){
+					right_value = right_overlap_arr[overlap_id];
+				} else {
+					right_value = x_arr[x_arr_idx+1];
+				}
+				if(tlocal-1 < 0){
+					left_value = left_overlap_arr[overlap_id];
+				} else {
+					left_value = x_arr[x_arr_idx-1];
+				}
+				value += left_value + right_value;
+			}
+			/* last row */
+			if(tglobal == T-1){
+				if(tlocal-1 < 0){
+					left_value = left_overlap_arr[overlap_id];
+				} else {
+					left_value = x_arr[x_arr_idx-1];
+				}
+				value += left_value;
+			}
 		}
-		/* common row */
-		if(tglobal > 0 && tglobal < T-1){
-			if(tlocal+1 >= Tlocal){
-				right_value = right_overlap_arr[overlap_id];
-			} else {
-				right_value = x_arr[x_arr_idx+1];
-			}
-			if(tlocal-1 < 0){
-				left_value = left_overlap_arr[overlap_id];
-			} else {
-				left_value = x_arr[x_arr_idx-1];
-			}
-			value = left_value + alpha*x_arr[x_arr_idx] + right_value;
-		}
-		/* last row */
-		if(tglobal == T-1){
-			if(tlocal-1 < 0){
-				left_value = left_overlap_arr[overlap_id];
-			} else {
-				left_value = x_arr[x_arr_idx-1];
-			}
-			value = left_value + x_arr[x_arr_idx];
-		}
-		
+
 		y_arr[y_arr_idx] = value; /* = (k+1)*1000+(r+1)*100+(tglobal+1); test */
 	}
+
 
 	/* restore subvector and array */
 	TRY( VecRestoreArrayRead(x.get_vector(),&x_arr) );
@@ -506,42 +511,45 @@ __global__ void kernel_BlockGraphMatrix_mult_tridiag(double* y_arr, double* x_ar
 		double right_value;
 		double left_value;
 
-		/* first row */
-		if(tglobal == 0){
-			if(tlocal+1 >= Tlocal){
-				right_value = right_overlap_arr[overlap_id];
-			} else {
-				right_value = x_arr[x_arr_idx+1];
+		value = x_arr[x_arr_idx];
+		if(T > 1){
+			/* first row */
+			if(tglobal == 0){
+				if(tlocal+1 >= Tlocal){
+					right_value = right_overlap_arr[overlap_id];
+				} else {
+					right_value = x_arr[x_arr_idx+1];
+				}
+				value += right_value;
 			}
-			value = alpha*x_arr[x_arr_idx] - alpha*right_value;
-		}
-		/* common row */
-		if(tglobal > 0 && tglobal < T-1){
-			if(tlocal+1 >= Tlocal){
-				right_value = right_overlap_arr[overlap_id];
-			} else {
-				right_value = x_arr[x_arr_idx+1];
+			/* common row */
+			if(tglobal > 0 && tglobal < T-1){
+				if(tlocal+1 >= Tlocal){
+					right_value = right_overlap_arr[overlap_id];
+				} else {
+					right_value = x_arr[x_arr_idx+1];
+				}
+				if(tlocal-1 < 0){
+					left_value = left_overlap_arr[overlap_id];
+				} else {
+					left_value = x_arr[x_arr_idx-1];
+				}
+				value += left_value + right_value;
 			}
-			if(tlocal-1 < 0){
-				left_value = left_overlap_arr[overlap_id];
-			} else {
-				left_value = x_arr[x_arr_idx-1];
+			/* last row */
+			if(tglobal == T-1){
+				if(tlocal-1 < 0){
+					left_value = left_overlap_arr[overlap_id];
+				} else {
+					left_value = x_arr[x_arr_idx-1];
+				}
+				value += left_value;
 			}
-			value = -alpha*left_value + 2*alpha*x_arr[x_arr_idx] - alpha*right_value;
-		}
-		/* last row */
-		if(tglobal == T-1){
-			if(tlocal-1 < 0){
-				left_value = left_overlap_arr[overlap_id];
-			} else {
-				left_value = x_arr[x_arr_idx-1];
-			}
-			value = -alpha*left_value + alpha*x_arr[x_arr_idx];
-		}
 		
+		}
+
 		y_arr[y_arr_idx] = value; 
 	}
-
 	/* if id_row >= K*T*R then relax and do nothing */	
 
 }
@@ -603,11 +611,19 @@ __global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr,
 		}
 
 		/* diagonal entry */
-		y_arr[y_arr_idx] = alpha*Wsum*x_arr[x_arr_idx];
+		y_arr[y_arr_idx] = Wsum*x_arr[x_arr_idx];
 
 		/* non-diagonal entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
 			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
+		}
+		
+		/* apply alpha */
+		y_arr[y_arr_idx] = alpha*y_arr[y_arr_idx];
+		
+		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
+		if(coeffs){
+			y_arr[y_arr_idx] = coeffs_arr[k]*coeffs_arr[k]*y_arr[y_arr_idx];
 		}
 	}
 

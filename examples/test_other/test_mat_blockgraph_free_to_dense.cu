@@ -21,8 +21,9 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates")
-		("test_K", boost::program_options::value<int>(), "number of clusters")
 		("test_T", boost::program_options::value<int>(), "dimension of the problem")
+		("test_K", boost::program_options::value<int>(), "number of clusters")
+		("test_alpha", boost::program_options::value<double>(), "coefficient of the matrix")
 		("test_view_graph", boost::program_options::value<bool>(), "print content of graph or not")
 		("test_view_matrix", boost::program_options::value<bool>(), "print dense matrix or not");
 	consoleArg.get_description()->add(opt_problem);
@@ -36,15 +37,18 @@ int main( int argc, char *argv[] )
 	int T, K, R;
 	std::string filename;
 	bool test_view_matrix, test_view_graph;
+	double alpha;
 	
 	consoleArg.set_option_value("test_T", &T, 10);
 	consoleArg.set_option_value("test_K", &K, 2);
+	consoleArg.set_option_value("test_alpha", &alpha, 1.0);
 	consoleArg.set_option_value("test_graph_filename", &filename, "../data/Koordinaten_EEG_P.bin");
 	consoleArg.set_option_value("test_view_matrix", &test_view_matrix, true);
 	consoleArg.set_option_value("test_view_graph", &test_view_graph, false);
 
 	coutMaster << " T        = " << std::setw(7) << T << " (length of time-series)" << std::endl;
 	coutMaster << " K        = " << std::setw(7) << K << " (number of clusters)" << std::endl;
+	coutMaster << " alpha    = " << std::setw(7) << alpha << " (coeficient of the matrix)" << std::endl;
 	coutMaster << " filename = " << std::setw(7) << filename << " (name of file with coordinates)" << std::endl;
 
 	/* start logging */
@@ -56,16 +60,16 @@ int main( int argc, char *argv[] )
 	coutMaster << "- start program" << std::endl;
 
 	/* create graph */
-//	BGM_Graph graph(filename);
-//	graph.process_cpu(2.5);
+	BGM_Graph graph(filename);
+	graph.process(1.1);
 
 //	const double coordinates[2] = {1,2};
 //	BGM_Graph graph(coordinates,2,1);
-//	graph.process_cpu(100);
+//	graph.process(100);
 
-	const double coordinates[3] = {1,2,5};
-	BGM_Graph graph(coordinates,3,1);
-	graph.process(2.5);
+//	const double coordinates[3] = {1,2,5};
+//	BGM_Graph graph(coordinates,3,1);
+//	graph.process(2.5);
 
 
 //	const double coordinates[1] = {1};
@@ -100,7 +104,7 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
 	/* create matrix */
-	BlockGraphMatrix<PetscVector> A(x, graph, K);
+	BlockGraphMatrix<PetscVector> A(x, graph, K, alpha);
 	A.print(coutMaster,coutAll);
 	coutAll.synchronize();
 
@@ -111,6 +115,11 @@ int main( int argc, char *argv[] )
 	double *values;
 	double *gamma_arr;
 	int k,r,t,tlocal,idx;
+
+	if(test_view_matrix){
+		coutMaster << "------------------------- A -------------------------" << std::endl;
+	}
+
 	for(int row_idx = 0; row_idx < T*R*K; row_idx++){
 		k = floor(row_idx/(double)(T*R));
 		r = floor((row_idx-k*T*R)/(double)(T));
@@ -130,9 +139,9 @@ int main( int argc, char *argv[] )
 		TRY( VecAssemblyBegin(x_Vec) );
 		TRY( VecAssemblyEnd(x_Vec) );
 
-	timer1.start();
-		y = A*x;
-	timer1.stop();
+		timer1.start();
+			y = A*x;
+		timer1.stop();
 		
 		if(test_view_matrix){
 			/* get array of values */
@@ -162,6 +171,9 @@ int main( int argc, char *argv[] )
 		}
 	}
 
+	if(test_view_matrix){
+		coutMaster << "-----------------------------------------------------" << std::endl;
+	}
 
 	coutMaster << "T = " << std::setw(9) << T << ", K = "<< std::setw(4) << K << ", R = "<< std::setw(4) << R << ", time = " << std::setw(10) << timer1.get_value_sum()/(double)(R*K) << std::endl;
 
