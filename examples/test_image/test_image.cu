@@ -29,10 +29,11 @@ int main( int argc, char *argv[] )
 		("test_image_filename", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
 		("test_image_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
 		("test_graph_filename", boost::program_options::value< std::string >(), "name of input file with graph data (vector in PETSc format) [string]")
-		("test_K", boost::program_options::value<int>(), "number of clusters")
-		("test_epssqr", boost::program_options::value<double>(), "penalty parameter")
-		("test_annealing", boost::program_options::value<int>(), "number of annealing steps")
-		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1}");
+		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
+		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
+		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
+		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
+		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1} [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -41,7 +42,7 @@ int main( int argc, char *argv[] )
 	} 
 
 	int K, annealing; 
-	double epssqr; 
+	double epssqr, graph_coeff; 
 	bool cutgamma;
 
 	std::string image_filename;
@@ -50,6 +51,7 @@ int main( int argc, char *argv[] )
 
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
+	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image2.bin");
@@ -60,10 +62,11 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
 	coutMaster << " test_image_out       = " << std::setw(30) << image_out << " (part of name of output file)" << std::endl;
 	coutMaster << " test_graph_filename  = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
-	coutMaster << " K                    = " << K << " (number of clusters)" << std::endl;
-	coutMaster << " epssqr               = " << epssqr << " (penalty)" << std::endl;
-	coutMaster << " annealing            = " << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " cutgamma             = " << cutgamma << " (cut gamma to {0,1})" << std::endl;
+	coutMaster << " test_K               = " << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_graph_coeff     = " << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_epssqr          = " << epssqr << " (penalty)" << std::endl;
+	coutMaster << " test_annealing       = " << annealing << " (number of annealing steps)" << std::endl;
+	coutMaster << " test_cutgamma        = " << cutgamma << " (cut gamma to {0,1})" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */
@@ -82,8 +85,12 @@ int main( int argc, char *argv[] )
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	BGM_Graph mygraph(graph_filename);
-	mygraph.process(1.1);
-//	mygraph.print(coutMaster);
+
+	coutMaster << " - processing graph" << std::endl;
+	mygraph.process(graph_coeff);
+	coutMaster << " - graph processed" << std::endl;
+
+	mygraph.print(coutMaster);
 
 	GraphH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);
 	mymodel.print(coutMaster,coutAll);
@@ -92,7 +99,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<PetscVector> mysolver(mydata, annealing);
 
-//	mysolver.print(coutMaster,coutAll);
+	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;

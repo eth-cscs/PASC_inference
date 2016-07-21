@@ -783,8 +783,9 @@ void BGM_Graph::process(double threshold) {
 	TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
 	
 	/* go throught graph - compute number of neighbors */
-	for(i=0;i<n;i++){
-		for(j=i+1;j<n;j++){
+	#pragma omp parallel for
+	for(int i=0;i<n;i++){
+		for(int j=i+1;j<n;j++){
 			if(compute_norm(coordinates_arr, i, j) < threshold){
 				neighbor_nmbs[i] += 1;
 				neighbor_nmbs[j] += 1;
@@ -794,18 +795,23 @@ void BGM_Graph::process(double threshold) {
 
 	/* prepare storages for neightbors ids */
 	neighbor_ids = (int**)malloc(n*sizeof(int*));
-	for(i=0;i<n;i++){
+	#pragma omp parallel for
+	for(int i=0;i<n;i++){
 		neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
 	}
 
 	/* go throught graph - fill indexes of neighbors */
 	int *counters;
 	counters = (int*)malloc(n*sizeof(int));
-	for(i=0;i<n;i++){
+
+	#pragma omp parallel for
+	for(int i=0;i<n;i++){
 		counters[i] = 0;
 	}
-	for(i=0;i<n;i++){
-		for(j=i+1;j<n;j++){
+
+	#pragma omp parallel for
+	for(int i=0;i<n;i++){
+		for(int j=i+1;j<n;j++){
 			if(compute_norm(coordinates_arr, i, j) < threshold){
 				neighbor_ids[i][counters[i]] = j;
 				neighbor_ids[j][counters[j]] = i;

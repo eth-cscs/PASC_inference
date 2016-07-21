@@ -269,7 +269,62 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 	timer_saveImage.restart();
 	timer_saveImage.start();
 
-	//TODO
+	std::ostringstream oss_name_of_file;
+
+	/* save datavector - just for fun; to see if it was loaded in a right way */
+	oss_name_of_file << "results/" << filename << "_original.bin";
+	datavector->save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	/* save gammas and compute recovered image */
+	Vec gamma_Vec = gammavector->get_vector();
+	Vec gammak_Vec;
+	GeneralVector<PetscVector> *gammak;
+	IS gammak_is;
+
+	Vec data_recovered_Vec;
+	TRY( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
+	TRY( VecSet(data_recovered_Vec,0.0));
+	GeneralVector<PetscVector> data_recovered(data_recovered_Vec);
+
+	double *theta_arr;
+	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
+
+	int K = get_K();
+	int Tlocal = get_Tlocal();
+	int k;
+	for(k=0;k<K;k++){ 
+		/* get gammak */
+		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k*Tlocal*R, 1, &gammak_is) );
+		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+
+		gammak = new GeneralVector<PetscVector>(gammak_Vec);
+
+		/* save gammak */
+		oss_name_of_file << "results/" << filename << "_gamma" << k << ".bin";
+		gammak->save_binary(oss_name_of_file.str());
+		oss_name_of_file.str("");
+
+		oss_name_of_file << "results/" << filename << "_gamma" << k << ".txt";
+		gammak->save_ascii(oss_name_of_file.str());
+		oss_name_of_file.str("");
+
+
+		/* add to recovered image */
+		TRY( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
+
+		free(gammak);
+	
+		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		TRY( ISDestroy(&gammak_is) );
+	}	
+
+	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
+
+	/* save recovered data */
+	oss_name_of_file << "results/" << filename << "_recovered.bin";
+	data_recovered.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
 
 	timer_saveImage.stop();
 	coutAll <<  " - problem saved in: " << timer_saveImage.get_value_sum() << std::endl;
