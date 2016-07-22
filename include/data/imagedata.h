@@ -45,6 +45,21 @@ class ImageData: public TSData<VectorBase> {
 
 };
 
+/* for simplier manipulation with graph */
+class BGM_GraphImage: public BGM_Graph {
+	protected:
+		int width;
+		int height;
+	public:
+		BGM_GraphImage(int width, int height);
+		BGM_GraphImage(std::string filename, int dim=2) : BGM_Graph(filename, dim) {};
+		BGM_GraphImage(const double *coordinates_array, int n, int dim) : BGM_Graph(coordinates_array, n, dim) {};
+
+		~BGM_GraphImage();
+		
+		virtual void process_grid();
+};
+
 } // end of namespace
 
 /* ------------- implementation ----------- */
@@ -331,6 +346,106 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 	coutAll.synchronize();
 }
 
+
+/* --------------- GraphImage implementation -------------- */
+BGM_GraphImage::BGM_GraphImage(int width, int height) : BGM_Graph(){
+	this->width = width;
+	this->height = height;
+
+	this->dim = 2;
+	this->n = width*height;
+	
+	/* fill coordinates */
+	Vec coordinates_Vec;
+	TRY( VecCreateSeq(PETSC_COMM_SELF, this->n*this->dim, &coordinates_Vec) );
+	
+	double *coordinates_arr;
+	TRY( VecGetArray(coordinates_Vec, &coordinates_arr) );
+	for(int j=0;j<height;j++){
+		for(int i=0;i<width;i++){
+			coordinates_arr[j*width + i] = i;
+			coordinates_arr[j*width + i + this->n] = j;
+		}
+	}
+	TRY( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
+	
+	this->coordinates = new GeneralVector<PetscVector>(coordinates_Vec);
+
+	this->threshold = -1;
+	processed = false;
+}
+
+BGM_GraphImage::~BGM_GraphImage(){
+	
+}
+
+void BGM_GraphImage::process_grid(){
+	this->threshold = 1.1;
+
+	/* prepare array for number of neighbors */
+	neighbor_nmbs = (int*)malloc(n*sizeof(int));
+	neighbor_ids = (int**)malloc(n*sizeof(int*));
+
+//	#pragma omp parallel for
+	for(int j=0;j<height;j++){
+		for(int i=0;i<width;i++){
+			int idx = j*width+i;
+
+			/* compute number of neighbors */
+			int nmb = 0;
+			if(i>0){
+				nmb+=1;				
+			}
+			if(i<width-1){
+				nmb+=1;				
+			}
+			if(j>0){
+				nmb+=1;				
+			}
+			if(j<height-1){
+				nmb+=1;				
+			}
+			neighbor_nmbs[idx] = nmb;
+			neighbor_ids[idx] = (int*)malloc(neighbor_nmbs[idx]*sizeof(int));
+			
+			/* fill neighbors */
+			nmb = 0;
+			if(i>0){ /* left */
+				neighbor_ids[idx][nmb] = idx-1;
+				nmb++;
+			}
+			if(i<width-1){ /* right */
+				neighbor_ids[idx][nmb] = idx+1;
+				nmb++;
+			}
+			if(j>0){ /* down */
+				neighbor_ids[idx][nmb] = idx-width;
+				nmb++;
+			}
+			if(j<height-1){ /* up */
+				neighbor_ids[idx][nmb] = idx+width;
+				nmb++;
+			}
+
+		}
+	}
+
+	#ifdef USE_GPU
+		/* copy data to gpu */
+		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
+		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
+		
+		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int)) );	
+		for(i=0;i<n;i++){
+			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_gpu[i]), neighbor_nmbs[i]*sizeof(int)) );
+			gpuErrchk( cudaMemcpy( neighbor_ids_gpu[i], neighbor_ids[i], n*sizeof(int), cudaMemcpyHostToDevice) );
+		}
+
+		gpuErrchk( cudaDeviceSynchronize() );
+	#endif
+	
+	processed = true;
+}
 
 } /* end namespace */
 

@@ -18,7 +18,7 @@
 namespace pascinference {
 
 class BGM_Graph {
-	private:
+	protected:
 		GeneralVector<PetscVector> *coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
 		int dim; /**< dimension of coordinates */	
 		int n; /**< number of nodes */
@@ -36,8 +36,8 @@ class BGM_Graph {
 		double compute_norm(const double *values, int idx1, int idx2);
 		
 	public:
+		BGM_Graph();
 		BGM_Graph(std::string filename, int dim=2);
-
 		BGM_Graph(const double *coordinates_array, int n, int dim);
 
 		~BGM_Graph();
@@ -52,7 +52,7 @@ class BGM_Graph {
 		int **get_neighbor_ids_gpu();
 		GeneralVector<PetscVector> *get_coordinates();
 		
-		void process(double threshold);
+		virtual void process(double threshold);
 
 		void print(ConsoleOutput &output) const;
 		void print_content(ConsoleOutput &output) const;
@@ -678,7 +678,7 @@ double BGM_Graph::compute_norm(const double *values, int idx1, int idx2){
 BGM_Graph::BGM_Graph(std::string filename, int dim){
 	coordinates = new GeneralVector<PetscVector>();
 	
-	/* load vertices from file */
+	/* load nodes from file */
 	coordinates->load_local(filename);
 
 	this->dim = dim;
@@ -698,6 +698,12 @@ BGM_Graph::BGM_Graph(const double *coordinates_array, int n, int dim){
 	this->dim = dim;
 	this->n = n;
 
+	threshold = -1;
+	processed = false;
+}
+
+BGM_Graph::BGM_Graph(){
+	this->n = 0;
 	threshold = -1;
 	processed = false;
 }
