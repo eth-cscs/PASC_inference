@@ -13,7 +13,7 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 /* gamma problem */
-#include "matrix/blockgraph.h"
+#include "matrix/blockgraphfree.h"
 
 #include "feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"

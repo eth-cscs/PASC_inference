@@ -1,10 +1,11 @@
-#ifndef BLOCKGRAPHMATRIX_H
-#define	BLOCKGRAPHMATRIX_H
+#ifndef PASC_BLOCKGRAPHFREEMATRIX_H
+#define	PASC_BLOCKGRAPHFREEMATRIX_H
 
 #include "pascinference.h"
+#include "common/bgmgraph.h"
 
 #ifndef USE_PETSCVECTOR
- #error 'BLOCKGRAPH is for PETSCVECTOR only, sorry'
+ #error 'BLOCKGRAPHFREEMATRIX is for PETSCVECTOR only, sorry'
 #endif
 
 #ifdef USE_CUDA
@@ -17,50 +18,8 @@
 
 namespace pascinference {
 
-class BGM_Graph {
-	protected:
-		GeneralVector<PetscVector> *coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
-		int dim; /**< dimension of coordinates */	
-		int n; /**< number of nodes */
-		double threshold; /**< the value used for processing the graph */
-		
-		bool processed; /**< there was process with threshold value called? */
-		int *neighbor_nmbs; /**< number of neighbors for each node */
-		int **neighbor_ids; /**< indexes of neighbors for each node */
-
-		#ifdef USE_GPU
-			int *neighbor_nmbs_gpu; /**< copy of values on GPU */
-			int **neighbor_ids_gpu; /**< copy of values on GPU */
-		#endif	
-
-		double compute_norm(const double *values, int idx1, int idx2);
-		
-	public:
-		BGM_Graph();
-		BGM_Graph(std::string filename, int dim=2);
-		BGM_Graph(const double *coordinates_array, int n, int dim);
-
-		~BGM_Graph();
-		
-		int get_n();
-		int get_dim();
-		double get_threshold();
-		int *get_neighbor_nmbs();
-		int **get_neighbor_ids();
-
-		int *get_neighbor_nmbs_gpu();
-		int **get_neighbor_ids_gpu();
-		GeneralVector<PetscVector> *get_coordinates();
-		
-		virtual void process(double threshold);
-
-		void print(ConsoleOutput &output) const;
-		void print_content(ConsoleOutput &output) const;
-		
-};
-
 template<class VectorBase>
-class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
+class BlockGraphFreeMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		int T; /**< dimension of each block */
 		int Tlocal; /**< local dimension of each block */
@@ -71,7 +30,7 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 		int K; /**< number of diagonal blocks */
 		double alpha; /**< general matrix multiplicator */
 		
-		BGM_Graph *graph; /**< graph with stucture of the matrix */
+		BGMGraph *graph; /**< graph with stucture of the matrix */
 		
 		#ifdef USE_GPU
 			int blockSize1; /**< block size returned by the launch configurator for 3diag mult */
@@ -97,8 +56,8 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 		GeneralVector<VectorBase> *coeffs; /**< vector of coefficient for each block */
 		
 	public:
-		BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha=1.0, GeneralVector<VectorBase> *new_coeffs=NULL);
-		~BlockGraphMatrix(); /* destructor - destroy inner matrix */
+		BlockGraphFreeMatrix(const VectorBase &x, BGMGraph &new_graph, int K, double alpha=1.0, GeneralVector<VectorBase> *new_coeffs=NULL);
+		~BlockGraphFreeMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
@@ -117,21 +76,21 @@ class BlockGraphMatrix: public GeneralMatrix<VectorBase> {
 };
 
 #ifdef USE_GPU
-__global__ void kernel_BlockGraphMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
-__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
+__global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
+__global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
 #endif
 
 
 /* ---------------- IMPLEMENTATION -------------------- */
 
 template<class VectorBase>
-std::string BlockGraphMatrix<VectorBase>::get_name() const {
-	return "BlockGraphMatrix";
+std::string BlockGraphFreeMatrix<VectorBase>::get_name() const {
+	return "BlockGraphFreeMatrix";
 }
 
 
 template<class VectorBase>
-BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &new_graph, int K, double alpha, GeneralVector<VectorBase> *new_coeffs){
+BlockGraphFreeMatrix<VectorBase>::BlockGraphFreeMatrix(const VectorBase &x, BGMGraph &new_graph, int K, double alpha, GeneralVector<VectorBase> *new_coeffs){
 	LOG_FUNC_BEGIN
 
 	this->graph = &new_graph;
@@ -154,10 +113,10 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 	this->Tend = high/(double)(R*K);
 
 	#ifdef USE_GPU
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize1, &blockSize1,kernel_BlockGraphMatrix_mult_tridiag, 0, 0) );
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize1, &blockSize1,kernel_BlockGraphFreeMatrix_mult_tridiag, 0, 0) );
 		gridSize1 = (Tlocal*K*R + blockSize1 - 1)/ blockSize1;
 
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize2, &blockSize2,kernel_BlockGraphMatrix_mult_graph, 0, 0) );
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize2, &blockSize2,kernel_BlockGraphFreeMatrix_mult_graph, 0, 0) );
 		gridSize2 = (Tlocal*K*R + blockSize2 - 1)/ blockSize2;
 	#endif
 
@@ -191,7 +150,7 @@ BlockGraphMatrix<VectorBase>::BlockGraphMatrix(const VectorBase &x, BGM_Graph &n
 
 
 template<class VectorBase>
-BlockGraphMatrix<VectorBase>::~BlockGraphMatrix(){
+BlockGraphFreeMatrix<VectorBase>::~BlockGraphFreeMatrix(){
 	LOG_FUNC_BEGIN
 	
 	/* destroy aux vector */
@@ -206,7 +165,7 @@ BlockGraphMatrix<VectorBase>::~BlockGraphMatrix(){
 
 /* print matrix */
 template<class VectorBase>
-void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output) const		
+void BlockGraphFreeMatrix<VectorBase>::print(ConsoleOutput &output) const		
 {
 	LOG_FUNC_BEGIN
 
@@ -236,7 +195,7 @@ void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output) const
 }
 
 template<class VectorBase>
-void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void BlockGraphFreeMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
@@ -276,7 +235,7 @@ void BlockGraphMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOu
 
 /* print matrix */
 template<class VectorBase>
-void BlockGraphMatrix<VectorBase>::printcontent(ConsoleOutput &output) const		
+void BlockGraphFreeMatrix<VectorBase>::printcontent(ConsoleOutput &output) const		
 {
 	LOG_FUNC_BEGIN
 	
@@ -286,7 +245,7 @@ void BlockGraphMatrix<VectorBase>::printcontent(ConsoleOutput &output) const
 
 /* matrix-vector multiplication */
 template<class VectorBase>
-void BlockGraphMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase &x) const { 
+void BlockGraphFreeMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase &x) const { 
 	LOG_FUNC_BEGIN
 	
 	// TODO: maybe y is not initialized, who knows
@@ -304,34 +263,34 @@ void BlockGraphMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase &x) c
 }
 
 template<class VectorBase>
-int BlockGraphMatrix<VectorBase>::get_R() const { 
+int BlockGraphFreeMatrix<VectorBase>::get_R() const { 
 	return this->R;
 }
 
 template<class VectorBase>
-int BlockGraphMatrix<VectorBase>::get_K() const { 
+int BlockGraphFreeMatrix<VectorBase>::get_K() const { 
 	return this->K;
 }
 
 template<class VectorBase>
-int BlockGraphMatrix<VectorBase>::get_T() const { 
+int BlockGraphFreeMatrix<VectorBase>::get_T() const { 
 	return this->T;
 }
 
 template<class VectorBase>
-int BlockGraphMatrix<VectorBase>::get_Tlocal() const { 
+int BlockGraphFreeMatrix<VectorBase>::get_Tlocal() const { 
 	return this->Tlocal;
 }
 
 template<class VectorBase>
-double BlockGraphMatrix<VectorBase>::get_alpha() const { 
+double BlockGraphFreeMatrix<VectorBase>::get_alpha() const { 
 	return this->alpha;
 }
 
 #ifndef USE_GPU
 /* A*x using openmp */
 template<>
-void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const {
+void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const {
 	Vec x_sub;
 	double *y_arr;
 	const double *x_arr;
@@ -418,7 +377,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 }
 
 template<>
-void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVector &x) const {
+void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVector &x) const {
 	double *y_arr;
 	const double *x_arr;
 	const double *x_aux_arr;
@@ -500,7 +459,7 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 #else
 
 /* A*x using CUDA kernel */
-__global__ void kernel_BlockGraphMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
+__global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
 {
 	/* compute my id */
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -561,7 +520,7 @@ __global__ void kernel_BlockGraphMatrix_mult_tridiag(double* y_arr, double* x_ar
 }
 
 template<>
-void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const {
+void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const {
 	double *y_arr;
 	double *x_arr;
 	
@@ -581,7 +540,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 	TRY( VecCUDAGetArrayReadWrite(x_aux,&y_arr) );
 
 	/* call kernel */
-	kernel_BlockGraphMatrix_mult_tridiag<<<gridSize1, blockSize1>>>(y_arr,x_arr,left_overlap_arr,right_overlap_arr,T,Tlocal,Tbegin,R,K,alpha);
+	kernel_BlockGraphFreeMatrix_mult_tridiag<<<gridSize1, blockSize1>>>(y_arr,x_arr,left_overlap_arr,right_overlap_arr,T,Tlocal,Tbegin,R,K,alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 	
 	/* restore subvector and array */
@@ -595,7 +554,7 @@ void BlockGraphMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const 
 	TRY( VecRestoreSubVector(x.get_vector(),right_overlap_is,&right_overlap_vec) );
 }
 
-__global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
+__global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
 {
 	/* compute my id */
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -638,7 +597,7 @@ __global__ void kernel_BlockGraphMatrix_mult_graph(double* y_arr, double* x_arr,
 }
 
 template<>
-void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVector &x) const {
+void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVector &x) const {
 	double *y_arr;
 	double *x_arr;
 	double *x_aux_arr;
@@ -652,7 +611,7 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 
 	/* call kernel */
-	kernel_BlockGraphMatrix_mult_graph<<<gridSize2, blockSize2>>>(y_arr, x_arr, x_aux_arr, neighbor_nmbs, neightbor_ids, T, Tlocal, Tbegin, R, K, alpha);
+	kernel_BlockGraphFreeMatrix_mult_graph<<<gridSize2, blockSize2>>>(y_arr, x_arr, x_aux_arr, neighbor_nmbs, neightbor_ids, T, Tlocal, Tbegin, R, K, alpha);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	/* restore array */
@@ -663,234 +622,6 @@ void BlockGraphMatrix<PetscVector>::matmult_graph(PetscVector &y, const PetscVec
 }
 
 #endif
-
-/* ----------------- BGM_Graph implementation ------------- */
-
-double BGM_Graph::compute_norm(const double *values, int idx1, int idx2){
-	int d;
-	double mynorm = 0;
-	for(d=0;d<dim;d++){
-		mynorm += (values[idx1+d*n] - values[idx2+d*n])*(values[idx1+d*n] - values[idx2+d*n]);
-	}
-	return mynorm;
-}
-
-BGM_Graph::BGM_Graph(std::string filename, int dim){
-	coordinates = new GeneralVector<PetscVector>();
-	
-	/* load nodes from file */
-	coordinates->load_local(filename);
-
-	this->dim = dim;
-	n = coordinates->size()/(double)dim;
-
-	threshold = -1;
-	processed = false;
-}
-
-BGM_Graph::BGM_Graph(const double *coordinates_array, int n, int dim){
-	/* prepare vector from values */
-	Vec vec_arr;
-	TRY( VecCreateSeqWithArray(PETSC_COMM_SELF,1,n*dim,coordinates_array,&vec_arr) );
-
-	coordinates = new GeneralVector<PetscVector>(vec_arr);
-
-	this->dim = dim;
-	this->n = n;
-
-	threshold = -1;
-	processed = false;
-}
-
-BGM_Graph::BGM_Graph(){
-	this->n = 0;
-	threshold = -1;
-	processed = false;
-}
-
-BGM_Graph::~BGM_Graph(){
-//	TRY( VecDestroy(&coordinates.get_vector()));
-//	free(coordinates);
-
-	/* if the graph was processed, then free memory */
-	if(processed){
-		free(neighbor_nmbs);
-		int i;
-		for(i=0;i<n;i++){
-			free(neighbor_ids[i]);
-		}
-		free(neighbor_ids);
-
-		#ifdef USE_GPU
-			gpuErrchk( cudaFree(neighbor_nmbs_gpu) );
-			for(i=0;i<n;i++){
-				gpuErrchk( cudaFree(neighbor_ids_gpu[i]) );
-			}
-			gpuErrchk( cudaFree(neighbor_ids_gpu) );
-		#endif
-
-	}
-	
-}
-
-int BGM_Graph::get_n(){
-	return this->n;
-}
-
-int BGM_Graph::get_dim(){
-	return this->dim;
-}
-
-double BGM_Graph::get_threshold(){
-	return this->threshold;
-}
-
-int *BGM_Graph::get_neighbor_nmbs(){
-	return neighbor_nmbs;
-}
-
-int **BGM_Graph::get_neighbor_ids(){
-	return neighbor_ids;
-}
-
-int *BGM_Graph::get_neighbor_nmbs_gpu(){
-	#ifdef USE_GPU
-		return neighbor_nmbs_gpu;
-	#else
-		return neighbor_nmbs;
-	#endif
-}
-
-int **BGM_Graph::get_neighbor_ids_gpu(){
-	#ifdef USE_GPU
-		return neighbor_ids_gpu;
-	#else
-		return neighbor_ids;
-	#endif
-}
-
-GeneralVector<PetscVector> *BGM_Graph::get_coordinates(){
-	return coordinates;
-}
-
-void BGM_Graph::process(double threshold) {
-	this->threshold = threshold;
-	
-	int i,j;
-
-	/* prepare array for number of neighbors */
-	neighbor_nmbs = (int*)malloc(n*sizeof(int));
-	for(i=0;i<n;i++){
-		neighbor_nmbs[i] = 0;
-	}
-	
-	/* get local array and work with it */
-	const double *coordinates_arr;
-	TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
-	
-	/* go throught graph - compute number of neighbors */
-	#pragma omp parallel for
-	for(int i=0;i<n;i++){
-		for(int j=i+1;j<n;j++){
-			if(compute_norm(coordinates_arr, i, j) < threshold){
-				neighbor_nmbs[i] += 1;
-				neighbor_nmbs[j] += 1;
-			}
-		}
-	}
-
-	/* prepare storages for neightbors ids */
-	neighbor_ids = (int**)malloc(n*sizeof(int*));
-	#pragma omp parallel for
-	for(int i=0;i<n;i++){
-		neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
-	}
-
-	/* go throught graph - fill indexes of neighbors */
-	int *counters;
-	counters = (int*)malloc(n*sizeof(int));
-
-	#pragma omp parallel for
-	for(int i=0;i<n;i++){
-		counters[i] = 0;
-	}
-
-	#pragma omp parallel for
-	for(int i=0;i<n;i++){
-		for(int j=i+1;j<n;j++){
-			if(compute_norm(coordinates_arr, i, j) < threshold){
-				neighbor_ids[i][counters[i]] = j;
-				neighbor_ids[j][counters[j]] = i;
-
-				counters[i] += 1;
-				counters[j] += 1;
-			}
-		}
-	}
-	free(counters);
-	
-	/* restore array */
-	TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
-	
-	#ifdef USE_GPU
-		/* copy data to gpu */
-		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
-		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
-		
-		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int)) );	
-		for(i=0;i<n;i++){
-			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_gpu[i]), neighbor_nmbs[i]*sizeof(int)) );
-			gpuErrchk( cudaMemcpy( neighbor_ids_gpu[i], neighbor_ids[i], n*sizeof(int), cudaMemcpyHostToDevice) );
-		}
-
-		gpuErrchk( cudaDeviceSynchronize() );
-	#endif
-	
-	processed = true;
-}
-
-void BGM_Graph::print(ConsoleOutput &output) const {
-	output << "Graph" << std::endl;
-	
-	output.push();
-	output << " - dim:       " << this->dim << std::endl;
-	output << " - vertices:  " << this->n << std::endl;
-	output << " - threshold: " << this->threshold << std::endl;
-	output << " - processed: " << this->processed << std::endl;
-	output.pop();
-	
-}
-
-void BGM_Graph::print_content(ConsoleOutput &output) const {
-	output << "Graph" << std::endl;
-	
-	output.push();
-	output << " - dim:       " << this->dim << std::endl;
-	output << " - nodes:     " << this->n << std::endl;
-	output << " - threshold: " << this->threshold << std::endl;
-	output << " - processed: " << this->processed << std::endl;
-
-	output << " - coordinates: " << *coordinates << std::endl;
-
-	int i,j;
-	if(this->processed){
-		output << " - processed arrays: " << std::endl;
-		output.push();
-		for(i=0;i<n;i++){
-			output << i << ": " << "(" << neighbor_nmbs[i] << "): ";
-			for(j=0;j<neighbor_nmbs[i];j++){
-				output << neighbor_ids[i][j];
-				if(j < neighbor_nmbs[i]-1){
-					output << ", ";
-				}
-			}
-			output << std::endl;
-			}
-		output.pop();
-	}
-	output.pop();
-}
-
 
 
 } /* end of namespace */

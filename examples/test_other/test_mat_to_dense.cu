@@ -5,7 +5,7 @@
  */
 
 #include "pascinference.h"
-#include "matrix/blockgraph.h"
+#include "matrix/blockgraphfree.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
@@ -63,19 +63,19 @@ int main( int argc, char *argv[] )
 	coutMaster << "- start program" << std::endl;
 
 	/* create graph */
-	BGM_Graph graph(graph_filename);
+	BGMGraph graph(graph_filename);
 	graph.process(1.1);
 
 //	const double coordinates[2] = {1,2};
-//	BGM_Graph graph(coordinates,2,1);
+//	BGMGraph graph(coordinates,2,1);
 //	graph.process(100);
 
 //	const double coordinates[3] = {1,2,5};
-//	BGM_Graph graph(coordinates,3,1);
+//	BGMGraph graph(coordinates,3,1);
 //	graph.process(2.5);
 
 //	const double coordinates[1] = {1};
-//	BGM_Graph graph(coordinates,1,1);
+//	BGMGraph graph(coordinates,1,1);
 //	graph.process_cpu(100);
 
 	R = graph.get_n();
@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
 	/* create matrix */
-	BlockGraphMatrix<PetscVector> A(x, graph, K, alpha);
+	BlockGraphFreeMatrix<PetscVector> A(x, graph, K, alpha);
 	A.print(coutMaster,coutAll);
 	coutAll.synchronize();
 
@@ -163,7 +163,7 @@ int main( int argc, char *argv[] )
 				for(r=0;r<R;r++){
 					for(t=0;t<Tlocal;t++){
 						idx = t+(k*R+r)*Tlocal;
-						if(abs(values[idx]) > 0.0001){
+						if(abs(values[idx]) > 0.000001){
 							TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[idx]) );
 						} else {
 							TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
