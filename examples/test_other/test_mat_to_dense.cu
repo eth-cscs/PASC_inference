@@ -20,12 +20,12 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates")
-		("test_T", boost::program_options::value<int>(), "dimension of the problem")
-		("test_K", boost::program_options::value<int>(), "number of clusters")
-		("test_alpha", boost::program_options::value<double>(), "coefficient of the matrix")
-		("test_view_graph", boost::program_options::value<bool>(), "print content of graph or not")
-		("test_view_matrix", boost::program_options::value<bool>(), "print dense matrix or not");
+		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
+		("test_T", boost::program_options::value<int>(), "dimension of the problem [int]")
+		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
+		("test_alpha", boost::program_options::value<double>(), "coefficient of the matrix [double]")
+		("test_view_graph", boost::program_options::value<bool>(), "print content of graph or not [bool]")
+		("test_view_matrix", boost::program_options::value<bool>(), "print dense matrix or not [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -35,32 +35,35 @@ int main( int argc, char *argv[] )
 
 	/* load console arguments */
 	int T, K, R;
-	std::string filename;
-	bool test_view_matrix, test_view_graph;
+	std::string graph_filename;
+	bool view_matrix, view_graph;
 	double alpha;
 	
-	consoleArg.set_option_value("test_T", &T, 10);
-	consoleArg.set_option_value("test_K", &K, 2);
+	consoleArg.set_option_value("test_T", &T, 1);
+	consoleArg.set_option_value("test_K", &K, 1);
 	consoleArg.set_option_value("test_alpha", &alpha, 1.0);
-	consoleArg.set_option_value("test_graph_filename", &filename, "../data/Koordinaten_EEG_P.bin");
-	consoleArg.set_option_value("test_view_matrix", &test_view_matrix, true);
-	consoleArg.set_option_value("test_view_graph", &test_view_graph, false);
+	consoleArg.set_option_value("test_graph_filename", &graph_filename, "../data/graph_two_nodes.bin");
+	consoleArg.set_option_value("test_view_matrix", &view_matrix, true);
+	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
-	coutMaster << " T        = " << std::setw(7) << T << " (length of time-series)" << std::endl;
-	coutMaster << " K        = " << std::setw(7) << K << " (number of clusters)" << std::endl;
-	coutMaster << " alpha    = " << std::setw(7) << alpha << " (coeficient of the matrix)" << std::endl;
-	coutMaster << " filename = " << std::setw(7) << filename << " (name of file with coordinates)" << std::endl;
+	/* print settings */
+	coutMaster << " test_T              = " << std::setw(10) << T << " (length of time-series)" << std::endl;
+	coutMaster << " test_K              = " << std::setw(10) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_alpha          = " << std::setw(10) << alpha << " (coeficient of the matrix)" << std::endl;
+	coutMaster << " test_graph_filename = " << std::setw(10) << graph_filename << " (name of file with coordinates)" << std::endl;
+	coutMaster << " test_view_graph     = " << std::setw(10) << view_graph << " (print content of graph or not)" << std::endl;
+	coutMaster << " test_view_matrix    = " << std::setw(10) << view_matrix << " (print matrix or not)" << std::endl;
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
-	oss_name_of_file_log << "results/test_mat_blockgraph_free_to_dense_log_p" << GlobalManager.get_rank() << ".txt";
+	oss_name_of_file_log << "results/test_mat_to_dense_log_p" << GlobalManager.get_rank() << ".txt";
 	logging.begin(oss_name_of_file_log.str());
 
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
 	/* create graph */
-	BGM_Graph graph(filename);
+	BGM_Graph graph(graph_filename);
 	graph.process(1.1);
 
 //	const double coordinates[2] = {1,2};
@@ -71,7 +74,6 @@ int main( int argc, char *argv[] )
 //	BGM_Graph graph(coordinates,3,1);
 //	graph.process(2.5);
 
-
 //	const double coordinates[1] = {1};
 //	BGM_Graph graph(coordinates,1,1);
 //	graph.process_cpu(100);
@@ -79,7 +81,7 @@ int main( int argc, char *argv[] )
 	R = graph.get_n();
 
 	/* print info about graph */
-	if(!test_view_graph){
+	if(!view_graph){
 		graph.print(coutMaster);
 	} else {
 		graph.print_content(coutMaster);
@@ -108,6 +110,7 @@ int main( int argc, char *argv[] )
 	A.print(coutMaster,coutAll);
 	coutAll.synchronize();
 
+	/* prepare timer */
 	Timer timer1;
 	timer1.restart();
 	
@@ -116,11 +119,14 @@ int main( int argc, char *argv[] )
 	double *gamma_arr;
 	int k,r,t,tlocal,idx;
 
-	if(test_view_matrix){
+	/* print header of matrix print */
+	if(view_matrix){
 		coutMaster << "------------------------- A -------------------------" << std::endl;
 	}
 
+	/* go through rows and multiply with vector of standart basis */
 	for(int row_idx = 0; row_idx < T*R*K; row_idx++){
+		/* ompute position in matrix */
 		k = floor(row_idx/(double)(T*R));
 		r = floor((row_idx-k*T*R)/(double)(T));
 		t = row_idx - (k*R+r)*T;
@@ -139,11 +145,13 @@ int main( int argc, char *argv[] )
 		TRY( VecAssemblyBegin(x_Vec) );
 		TRY( VecAssemblyEnd(x_Vec) );
 
+		/* perform multiplication */
 		timer1.start();
 			y = A*x;
 		timer1.stop();
-		
-		if(test_view_matrix){
+
+		/* print row (in fact, it is column, but matrix is symmetric) */
+		if(view_matrix){
 			/* get array of values */
 			TRY( VecGetArray(y.get_vector(), &values) );
 		
@@ -171,11 +179,13 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-	if(test_view_matrix){
+	/* print footer of matrix print */
+	if(view_matrix){
 		coutMaster << "-----------------------------------------------------" << std::endl;
 	}
 
-	coutMaster << "T = " << std::setw(9) << T << ", K = "<< std::setw(4) << K << ", R = "<< std::setw(4) << R << ", time = " << std::setw(10) << timer1.get_value_sum()/(double)(R*K) << std::endl;
+	/* print final info */
+	coutMaster << "T = " << std::setw(9) << T << ", K = "<< std::setw(4) << K << ", R = "<< std::setw(4) << R << ", time = " << std::setw(10) << timer1.get_value_sum()/(double)(T*R*K) << std::endl;
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
