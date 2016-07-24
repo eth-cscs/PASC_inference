@@ -281,8 +281,8 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
-//	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
+//	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
+	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
 	gammadata->set_A(A_shared); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal*this->R,this->K)); /* the feasible set of QP is simplex */ 	
 
@@ -395,8 +395,8 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	double *b_arr;
 	TRY( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
 
-	double coeff = (-1);
-//	double coeff = (-1.0)/((double)(R*T));
+//	double coeff = (-1);
+	double coeff = (-1.0)/((double)(R*T));
 	
 	int k,t,r;
 	for(t=0;t<Tlocal;t++){
@@ -449,6 +449,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	double *theta_arr;
 	TRY( VecGetArray(theta_Vec,&theta_arr) );
 	
+	double coeff = 1.0/((double)R*T);
 	double value;
 	
 	/* through clusters */
@@ -467,8 +468,9 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		/* compute gammaksum */
 		TRY( VecSum(gammak_Vec, &gammaksum) );
 
-		theta_arr[k] = gammakx/(gammaksum + gammakAgammak);
-//		theta_arr[k] = gammakx/(gammaksum + T*gammakAgammak);
+
+//		theta_arr[k] = gammakx/(gammaksum + gammakAgammak);
+		theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + gammakAgammak);
 //		theta_arr[k] = gammakx/(gammaksum + R*T*gammakAgammak);
 	
 		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
