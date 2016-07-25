@@ -409,19 +409,15 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 		/* compute sum of W entries in row */
 		if(tglobal == 0 || tglobal == T-1){
 			if(T > 1){
-//				Wsum = 2*neighbor_nmbs[r];
-				Wsum = 2*neighbor_nmbs[r]+2;
+				Wsum = 2*neighbor_nmbs[r]+2; /* +2 for diagonal block */
 			} else {
-//				Wsum = (neighbor_nmbs[r]);
-				Wsum = (neighbor_nmbs[r])+1;
+				Wsum = (neighbor_nmbs[r])+1; /* +1 for diagonal block */
 			}
 		} else {
 			if(T > 1){
-//				Wsum = 3*neighbor_nmbs[r];
-				Wsum = 3*neighbor_nmbs[r]+3;
+				Wsum = 3*neighbor_nmbs[r]+3; /* +3 for diagonal block */
 			} else {
-//				Wsum = (neighbor_nmbs[r]);
-				Wsum = (neighbor_nmbs[r])+2;
+				Wsum = (neighbor_nmbs[r])+2; /* +2 for diagonal block */
 			}
 		}
 
@@ -570,26 +566,38 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_
 
 		/* compute sum of W entries in row */
 		if(tglobal == 0 || tglobal == T-1){
-			Wsum = 2*neighbor_nmbs[r];
+			if(T > 1){
+				Wsum = 2*neighbor_nmbs[r]+2; /* +2 for diagonal block */
+			} else {
+				Wsum = (neighbor_nmbs[r])+1; /* +1 for diagonal block */
+			}
 		} else {
-			Wsum = 3*neighbor_nmbs[r];
+			if(T > 1){
+				Wsum = 3*neighbor_nmbs[r]+3; /* +3 for diagonal block */
+			} else {
+				Wsum = (neighbor_nmbs[r])+2; /* +2 for diagonal block */
+			}
 		}
 
 		/* diagonal entry */
 		y_arr[y_arr_idx] = Wsum*x_arr[x_arr_idx];
 
-		/* non-diagonal entries */
+		/* my nondiagonal entries */
+		y_arr[y_arr_idx] -=  x_aux_arr[x_arr_idx];
+
+		/* non-diagonal neighbor entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
 			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
 		}
-		
+
 		/* apply alpha */
 		y_arr[y_arr_idx] = alpha*y_arr[y_arr_idx];
-		
+
 		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
 		if(coeffs){
 			y_arr[y_arr_idx] = coeffs_arr[k]*coeffs_arr[k]*y_arr[y_arr_idx];
 		}
+
 	}
 
 	/* if id_row >= K*T*R then relax and do nothing */	

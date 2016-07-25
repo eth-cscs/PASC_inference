@@ -14,7 +14,6 @@ extern int DEBUG_MODE;
 
 /* gamma problem */
 #include "matrix/blocklaplace.h"
-//#include "matrix/blockdiaglaplace_vector.h"
 
 #include "feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"

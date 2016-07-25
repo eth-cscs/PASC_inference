@@ -92,10 +92,10 @@ int main( int argc, char *argv[] )
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 
-	BGM_GraphImage mygraph(width, height);
+	BGMGraphImage mygraph(width, height);
 	mygraph.process_grid();
 
-//	BGM_Graph mygraph(graph_filename);
+//	BGMGraph mygraph(graph_filename);
 //	mygraph.process(1.1);
 
 	mygraph.print(coutMaster);

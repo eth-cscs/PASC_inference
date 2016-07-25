@@ -18,7 +18,8 @@ extern int DEBUG_MODE;
 
 #include <iostream>
 #include "common/common.h"
-#include "matrix/blockgraph.h"
+#include "common/bgmgraph.h"
+#include "matrix/blockgraphfree.h"
 #include "model/tsmodel.h"
 #include "data/tsdata.h"
 
@@ -46,16 +47,16 @@ class ImageData: public TSData<VectorBase> {
 };
 
 /* for simplier manipulation with graph */
-class BGM_GraphImage: public BGM_Graph {
+class BGMGraphImage: public BGMGraph {
 	protected:
 		int width;
 		int height;
 	public:
-		BGM_GraphImage(int width, int height);
-		BGM_GraphImage(std::string filename, int dim=2) : BGM_Graph(filename, dim) {};
-		BGM_GraphImage(const double *coordinates_array, int n, int dim) : BGM_Graph(coordinates_array, n, dim) {};
+		BGMGraphImage(int width, int height);
+		BGMGraphImage(std::string filename, int dim=2) : BGMGraph(filename, dim) {};
+		BGMGraphImage(const double *coordinates_array, int n, int dim) : BGMGraph(coordinates_array, n, dim) {};
 
-		~BGM_GraphImage();
+		~BGMGraphImage();
 		
 		virtual void process_grid();
 };
@@ -348,7 +349,7 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 
 
 /* --------------- GraphImage implementation -------------- */
-BGM_GraphImage::BGM_GraphImage(int width, int height) : BGM_Graph(){
+BGMGraphImage::BGMGraphImage(int width, int height) : BGMGraph(){
 	this->width = width;
 	this->height = height;
 
@@ -375,11 +376,11 @@ BGM_GraphImage::BGM_GraphImage(int width, int height) : BGM_Graph(){
 	processed = false;
 }
 
-BGM_GraphImage::~BGM_GraphImage(){
+BGMGraphImage::~BGMGraphImage(){
 	
 }
 
-void BGM_GraphImage::process_grid(){
+void BGMGraphImage::process_grid(){
 	this->threshold = 1.1;
 
 	/* prepare array for number of neighbors */

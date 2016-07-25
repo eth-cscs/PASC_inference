@@ -34,17 +34,17 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
 
 		/* model specific variables */
-		BGM_Graph *graph; /**< graph with stucture of the matrix */
+		BGMGraph *graph; /**< graph with stucture of the matrix */
 		int R; /**< number of nodes of the graph */
 		double epssqr; /**< penalty coeficient */
 		
 		/* for theta problem */
-		BlockGraphMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
+		BlockGraphFreeMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
 
 	public:
 	
-		GraphH1FEMModel(TSData<VectorBase> &tsdata, BGM_Graph &new_graph, int K, double epssqr);
+		GraphH1FEMModel(TSData<VectorBase> &tsdata, BGMGraph &new_graph, int K, double epssqr);
 		~GraphH1FEMModel();
 
 		void print(ConsoleOutput &output) const;
@@ -67,7 +67,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		
 		QPData<VectorBase> *get_gammadata() const;
 		SimpleData<VectorBase> *get_thetadata() const;
-		BGM_Graph *get_graph() const;
+		BGMGraph *get_graph() const;
 
 		GeneralVector<VectorBase> *get_coordinatesVTK() const;
 		int get_coordinatesVTK_dim() const;
@@ -86,7 +86,7 @@ namespace pascinference {
 
 /* constructor */
 template<>
-GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &tsdata, BGM_Graph &new_graph, int K, double epssqr) {
+GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &tsdata, BGMGraph &new_graph, int K, double epssqr) {
 	LOG_FUNC_BEGIN
 
 	this->xdim = 1; // TODO: now I can compute only 1D problem, sorry
@@ -282,7 +282,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
 //	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
-	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
+	A_shared = new BlockGraphFreeMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
 	gammadata->set_A(A_shared); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal*this->R,this->K)); /* the feasible set of QP is simplex */ 	
 
@@ -377,7 +377,7 @@ SimpleData<VectorBase>* GraphH1FEMModel<VectorBase>::get_thetadata() const {
 }
 
 template<class VectorBase>
-BGM_Graph *GraphH1FEMModel<VectorBase>::get_graph() const {
+BGMGraph *GraphH1FEMModel<VectorBase>::get_graph() const {
 	return graph;
 }
 
