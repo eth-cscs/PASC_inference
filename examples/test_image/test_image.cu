@@ -86,7 +86,7 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
-	ImageData<PetscVector> mydata(image_filename);
+	ImageData<PetscVector> mydata(image_filename, width, height, 1);
 	mydata.print(coutMaster);
 
 	/* prepare model */

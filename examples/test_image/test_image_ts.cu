@@ -78,15 +78,14 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
-	ImageData<PetscVector> mydata(image_filename, height);
-	mydata.print(coutMaster);
+	ImageData<PetscVector> mydata(image_filename, width, height, height);
+	mydata.print(coutMaster, coutAll);
 
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 
 	BGMGraphGrid1D mygraph(width);
 	mygraph.process_grid();
-
 	mygraph.print(coutMaster);
 
 	GraphH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);
@@ -95,8 +94,6 @@ int main( int argc, char *argv[] )
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<PetscVector> mysolver(mydata, annealing);
-
-//	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;

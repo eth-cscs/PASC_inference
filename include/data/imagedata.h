@@ -28,9 +28,11 @@ namespace pascinference {
 template<class VectorBase>
 class ImageData: public TSData<VectorBase> {
 	protected:
+		int width;
+		int height;
 		int R;
 	public:
-		ImageData(std::string filename_data, int T=1);
+		ImageData(std::string filename_data, int width, int height, int T=1);
 		~ImageData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -83,12 +85,30 @@ namespace pascinference {
 
 /* from filename */
 template<class VectorBase>
-ImageData<VectorBase>::ImageData(std::string filename_data, int T){
+ImageData<VectorBase>::ImageData(std::string filename_data, int width, int height, int T){
 	LOG_FUNC_BEGIN
 
+	this->width = width;
+	this->height = height;
+	this->R = (width*height)/(double)T;
+
+	/* prepare new layout */
+	Vec layout;
+	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
+	TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
+	TRY( VecSetFromOptions(layout) );
+
+	/* get Tlocal */
+	int Tlocal;
+	TRY( VecGetLocalSize(layout,&Tlocal) );
+	
+	/* destroy layout vector - now we know everything what is necessary */
+	TRY( VecDestroy(&layout) );
+	
 	/* ------ PREPARE DATAVECTOR ------ */
 	Vec datavector_Vec;
 	TRY( VecCreate(PETSC_COMM_WORLD,&datavector_Vec) );
+	TRY( VecSetSizes(datavector_Vec, Tlocal*R, T*R ) );
 	TRY( VecSetFromOptions(datavector_Vec) );
 
 	this->datavector = new GeneralVector<PetscVector>(datavector_Vec);
@@ -102,11 +122,6 @@ ImageData<VectorBase>::ImageData(std::string filename_data, int T){
 
 	/* compute vector lengths */
 	this->T = T;
-
-	/* compute R from length of input data and T */
-	int datalength;
-	TRY(VecGetSize(datavector_Vec,&datalength));
-	this->R = datalength/(double)T;
 
 	LOG_FUNC_END
 }

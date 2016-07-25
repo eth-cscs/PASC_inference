@@ -130,15 +130,15 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 		}
 
 		/* diagonal entry */
-		TRY( MatSetValue(A_petsc, diag_idx, diag_idx, Wsum*alpha, INSERT_VALUES) );
+		TRY( MatSetValue(A_petsc, diag_idx, diag_idx, Wsum, INSERT_VALUES) );
 
 		/* my nondiagonal entries */
 		if(T>1){
 			if(tglobal > 0) {
-				TRY( MatSetValue(A_petsc, diag_idx, diag_idx-1, -alpha, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, diag_idx, diag_idx-1, -1.0, INSERT_VALUES) );
 			}
 			if(tglobal < T-1) {
-				TRY( MatSetValue(A_petsc, diag_idx, diag_idx+1, -alpha, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, diag_idx, diag_idx+1, -1.0, INSERT_VALUES) );
 			}
 		}
 
@@ -146,12 +146,12 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 		int neighbor;
 		for(neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
 			int idx2 = k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal;
-			TRY( MatSetValue(A_petsc, diag_idx, idx2, -alpha, INSERT_VALUES) );
+			TRY( MatSetValue(A_petsc, diag_idx, idx2, -1.0, INSERT_VALUES) );
 			if(tglobal > 0) {
-				TRY( MatSetValue(A_petsc, diag_idx, idx2-1, -alpha, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, diag_idx, idx2-1, -1.0, INSERT_VALUES) );
 			}
 			if(tglobal < T-1) {
-				TRY( MatSetValue(A_petsc, diag_idx, idx2+1, -alpha, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, diag_idx, idx2+1, -1.0, INSERT_VALUES) );
 			}
 		}
 
@@ -169,7 +169,8 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 	TRY( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
 	TRY( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
 
-	TRY( PetscBarrier(NULL) );
+	/* apply alpha */
+	TRY( MatScale(A_petsc,alpha) );
 
 	/* get ranges of all processors - necessary to compute overlaping indexes */
 //	const int *ranges;
