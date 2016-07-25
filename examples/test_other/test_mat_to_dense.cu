@@ -5,7 +5,7 @@
  */
 
 #include "pascinference.h"
-#include "matrix/blockgraphfree.h"
+#include "matrix/blockgraphsparse.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
 	/* create matrix */
-	BlockGraphFreeMatrix<PetscVector> A(x, graph, K, alpha);
+	BlockGraphSparseMatrix<PetscVector> A(x, graph, K, alpha);
 	A.print(coutMaster,coutAll);
 	coutAll.synchronize();
 

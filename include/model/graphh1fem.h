@@ -13,7 +13,8 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 /* gamma problem */
-#include "matrix/blockgraphfree.h"
+//#include "matrix/blockgraphfree.h"
+#include "matrix/blockgraphsparse.h"
 
 #include "feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"
@@ -39,7 +40,8 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		double epssqr; /**< penalty coeficient */
 		
 		/* for theta problem */
-		BlockGraphFreeMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
+//		BlockGraphFreeMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
+		BlockGraphSparseMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
 
 	public:
@@ -281,8 +283,8 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-//	A_shared = new BlockGraphMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, this->epssqr, tsdata->get_thetavector());
-	A_shared = new BlockGraphFreeMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
+//	A_shared = new BlockGraphFreeMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
+	A_shared = new BlockGraphSparseMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
 	gammadata->set_A(A_shared); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal*this->R,this->K)); /* the feasible set of QP is simplex */ 	
 

@@ -53,15 +53,15 @@ int main( int argc, char *argv[] )
 	std::string graph_filename;
 
 	consoleArg.set_option_value("test_K", &K, 2);
-	consoleArg.set_option_value("test_width", &width, -1);
-	consoleArg.set_option_value("test_height", &height, -1);
+	consoleArg.set_option_value("test_width", &width, 100);
+	consoleArg.set_option_value("test_height", &height, 100);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 //	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
-	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image2.bin");
-	consoleArg.set_option_value("test_image_out", &image_out, "image2");
-	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph2.bin");
+	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
+	consoleArg.set_option_value("test_image_out", &image_out, "image1");
+	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph1.bin");
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
 	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;

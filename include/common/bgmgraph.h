@@ -170,7 +170,7 @@ void BGMGraph::process(double threshold) {
 	TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
 	
 	/* go throught graph - compute number of neighbors */
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		for(int j=i+1;j<n;j++){
 			if(compute_norm(coordinates_arr, i, j) < threshold){
@@ -182,7 +182,7 @@ void BGMGraph::process(double threshold) {
 
 	/* prepare storages for neightbors ids */
 	neighbor_ids = (int**)malloc(n*sizeof(int*));
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
 	}
@@ -191,12 +191,12 @@ void BGMGraph::process(double threshold) {
 	int *counters;
 	counters = (int*)malloc(n*sizeof(int));
 
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		counters[i] = 0;
 	}
 
-	#pragma omp parallel for
+//	#pragma omp parallel for // TODO: here is a problem, cannot be used, maybe because of couter arrays?
 	for(int i=0;i<n;i++){
 		for(int j=i+1;j<n;j++){
 			if(compute_norm(coordinates_arr, i, j) < threshold){
