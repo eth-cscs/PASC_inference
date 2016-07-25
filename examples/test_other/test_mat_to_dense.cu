@@ -20,10 +20,11 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
 		("test_T", boost::program_options::value<int>(), "dimension of the problem [int]")
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_alpha", boost::program_options::value<double>(), "coefficient of the matrix [double]")
+		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
+		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
 		("test_view_graph", boost::program_options::value<bool>(), "print content of graph or not [bool]")
 		("test_view_matrix", boost::program_options::value<bool>(), "print dense matrix or not [bool]");
 	consoleArg.get_description()->add(opt_problem);
@@ -37,22 +38,24 @@ int main( int argc, char *argv[] )
 	int T, K, R;
 	std::string graph_filename;
 	bool view_matrix, view_graph;
-	double alpha;
+	double alpha, graph_coeff;
 	
 	consoleArg.set_option_value("test_T", &T, 1);
 	consoleArg.set_option_value("test_K", &K, 1);
 	consoleArg.set_option_value("test_alpha", &alpha, 1.0);
-	consoleArg.set_option_value("test_graph_filename", &graph_filename, "../data/graph_two_nodes.bin");
+	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph_twonodes.bin");
+	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_view_matrix", &view_matrix, true);
 	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
 	/* print settings */
-	coutMaster << " test_T              = " << std::setw(10) << T << " (length of time-series)" << std::endl;
-	coutMaster << " test_K              = " << std::setw(10) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_alpha          = " << std::setw(10) << alpha << " (coeficient of the matrix)" << std::endl;
-	coutMaster << " test_graph_filename = " << std::setw(10) << graph_filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_view_graph     = " << std::setw(10) << view_graph << " (print content of graph or not)" << std::endl;
-	coutMaster << " test_view_matrix    = " << std::setw(10) << view_matrix << " (print matrix or not)" << std::endl;
+	coutMaster << " test_T              = " << std::setw(20) << T << " (length of time-series)" << std::endl;
+	coutMaster << " test_K              = " << std::setw(20) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_alpha          = " << std::setw(20) << alpha << " (coeficient of the matrix)" << std::endl;
+	coutMaster << " test_graph_filename = " << std::setw(20) << graph_filename << " (name of file with coordinates)" << std::endl;
+	coutMaster << " test_graph_coeff    = " << std::setw(20) << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_view_graph     = " << std::setw(20) << view_graph << " (print content of graph or not)" << std::endl;
+	coutMaster << " test_view_matrix    = " << std::setw(20) << view_matrix << " (print matrix or not)" << std::endl;
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -64,7 +67,7 @@ int main( int argc, char *argv[] )
 
 	/* create graph */
 	BGMGraph graph(graph_filename);
-	graph.process(1.1);
+	graph.process(graph_coeff);
 
 //	const double coordinates[2] = {1,2};
 //	BGMGraph graph(coordinates,2,1);
