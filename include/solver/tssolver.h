@@ -17,8 +17,8 @@
 #include "solver/diagsolver.h"
 #include "solver/qpsolver.h"
 
-#define TSSOLVER_DEFAULT_MAXIT 200
-#define TSSOLVER_DEFAULT_EPS 0.000001
+#define TSSOLVER_DEFAULT_MAXIT 300
+#define TSSOLVER_DEFAULT_EPS 1e-9
 #define TSSOLVER_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {

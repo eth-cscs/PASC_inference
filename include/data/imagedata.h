@@ -30,7 +30,7 @@ class ImageData: public TSData<VectorBase> {
 	protected:
 		int R;
 	public:
-		ImageData(std::string filename_data);
+		ImageData(std::string filename_data, int T=1);
 		~ImageData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -46,17 +46,30 @@ class ImageData: public TSData<VectorBase> {
 
 };
 
-/* for simplier manipulation with graph */
-class BGMGraphImage: public BGMGraph {
+/* for simplier manipulation with graph of image */
+class BGMGraphGrid2D: public BGMGraph {
 	protected:
 		int width;
 		int height;
 	public:
-		BGMGraphImage(int width, int height);
-		BGMGraphImage(std::string filename, int dim=2) : BGMGraph(filename, dim) {};
-		BGMGraphImage(const double *coordinates_array, int n, int dim) : BGMGraph(coordinates_array, n, dim) {};
+		BGMGraphGrid2D(int width, int height);
+		BGMGraphGrid2D(std::string filename, int dim=2) : BGMGraph(filename, dim) {};
+		BGMGraphGrid2D(const double *coordinates_array, int n, int dim) : BGMGraph(coordinates_array, n, dim) {};
 
-		~BGMGraphImage();
+		~BGMGraphGrid2D();
+		
+		virtual void process_grid();
+};
+
+class BGMGraphGrid1D: public BGMGraph {
+	protected:
+		int width;
+	public:
+		BGMGraphGrid1D(int width);
+		BGMGraphGrid1D(std::string filename, int dim=2) : BGMGraph(filename, dim) {};
+		BGMGraphGrid1D(const double *coordinates_array, int n, int dim) : BGMGraph(coordinates_array, n, dim) {};
+
+		~BGMGraphGrid1D();
 		
 		virtual void process_grid();
 };
@@ -70,7 +83,7 @@ namespace pascinference {
 
 /* from filename */
 template<class VectorBase>
-ImageData<VectorBase>::ImageData(std::string filename_data){
+ImageData<VectorBase>::ImageData(std::string filename_data, int T){
 	LOG_FUNC_BEGIN
 
 	/* ------ PREPARE DATAVECTOR ------ */
@@ -88,8 +101,12 @@ ImageData<VectorBase>::ImageData(std::string filename_data){
 	this->destroy_thetavector = false;
 
 	/* compute vector lengths */
-	this->T = 1;
-	TRY(VecGetSize(datavector_Vec,&(this->R)));
+	this->T = T;
+
+	/* compute R from length of input data and T */
+	int datalength;
+	TRY(VecGetSize(datavector_Vec,&datalength));
+	this->R = datalength/(double)T;
 
 	LOG_FUNC_END
 }
@@ -307,8 +324,11 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
 	int K = get_K();
+	int R = get_R();
 	int Tlocal = get_Tlocal();
+	int Tbegin = get_Tbegin();
 	int k;
+
 	for(k=0;k<K;k++){ 
 		/* get gammak */
 		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k*Tlocal*R, 1, &gammak_is) );
@@ -349,7 +369,7 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 
 
 /* --------------- GraphImage implementation -------------- */
-BGMGraphImage::BGMGraphImage(int width, int height) : BGMGraph(){
+BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
 	this->width = width;
 	this->height = height;
 
@@ -376,11 +396,11 @@ BGMGraphImage::BGMGraphImage(int width, int height) : BGMGraph(){
 	processed = false;
 }
 
-BGMGraphImage::~BGMGraphImage(){
+BGMGraphGrid2D::~BGMGraphGrid2D(){
 	
 }
 
-void BGMGraphImage::process_grid(){
+void BGMGraphGrid2D::process_grid(){
 	this->threshold = 1.1;
 
 	/* prepare array for number of neighbors */
@@ -447,6 +467,86 @@ void BGMGraphImage::process_grid(){
 	
 	processed = true;
 }
+
+BGMGraphGrid1D::BGMGraphGrid1D(int width) : BGMGraph(){
+	this->width = width;
+
+	this->dim = 2;
+	this->n = width;
+	
+	/* fill coordinates */
+	Vec coordinates_Vec;
+	TRY( VecCreateSeq(PETSC_COMM_SELF, this->n*this->dim, &coordinates_Vec) );
+	
+	double *coordinates_arr;
+	TRY( VecGetArray(coordinates_Vec, &coordinates_arr) );
+	for(int i=0;i<width;i++){
+		coordinates_arr[i] = i;
+		coordinates_arr[i + this->n] = 0;
+	}
+	TRY( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
+	
+	this->coordinates = new GeneralVector<PetscVector>(coordinates_Vec);
+
+	this->threshold = -1;
+	processed = false;
+}
+
+BGMGraphGrid1D::~BGMGraphGrid1D(){
+	
+}
+
+void BGMGraphGrid1D::process_grid(){
+	this->threshold = 1.1;
+
+	/* prepare array for number of neighbors */
+	neighbor_nmbs = (int*)malloc(n*sizeof(int));
+	neighbor_ids = (int**)malloc(n*sizeof(int*));
+
+//	#pragma omp parallel for
+	for(int i=0;i<width;i++){
+		int idx = i;
+
+		/* compute number of neighbors */
+		int nmb = 0;
+		if(i>0){
+			nmb+=1;				
+		}
+		if(i<width-1){
+			nmb+=1;				
+		}
+		neighbor_nmbs[idx] = nmb;
+		neighbor_ids[idx] = (int*)malloc(neighbor_nmbs[idx]*sizeof(int));
+			
+		/* fill neighbors */
+		nmb = 0;
+		if(i>0){ /* left */
+			neighbor_ids[idx][nmb] = idx-1;
+			nmb++;
+		}
+		if(i<width-1){ /* right */
+			neighbor_ids[idx][nmb] = idx+1;
+			nmb++;
+		}
+	}
+
+	#ifdef USE_GPU
+		/* copy data to gpu */
+		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
+		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
+		
+		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int)) );	
+		for(i=0;i<n;i++){
+			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_gpu[i]), neighbor_nmbs[i]*sizeof(int)) );
+			gpuErrchk( cudaMemcpy( neighbor_ids_gpu[i], neighbor_ids[i], n*sizeof(int), cudaMemcpyHostToDevice) );
+		}
+
+		gpuErrchk( cudaDeviceSynchronize() );
+	#endif
+	
+	processed = true;
+}
+
 
 } /* end namespace */
 
