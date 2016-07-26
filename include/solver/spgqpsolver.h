@@ -1,3 +1,9 @@
+/** @file spgqpsolver.h
+ *  @brief Spectral Projected Gradient method for solving Quadratic Programs
+ *
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASC_SPGQPSOLVER_H
 #define	PASC_SPGQPSOLVER_H
 
@@ -18,7 +24,6 @@
 #define SPGQPSOLVER_DEFAULT_SIGMA1 0.000
 #define SPGQPSOLVER_DEFAULT_SIGMA2 1.0
 #define SPGQPSOLVER_DEFAULT_ALPHAINIT 2.0
-#define SPGQPSOLVER_DEFAULT_DOTFLOOR 2
 
 #define SPGQPSOLVER_STOP_NORMGP true
 #define SPGQPSOLVER_STOP_ANORMGP false
@@ -36,25 +41,60 @@
 
 namespace pascinference {
 
-/* for manipulation with fs - function values for generalized Armijo condition */
+/** \class SPGQPSolver_fs
+ *  \brief generalized Armijo condition
+ *
+ *  For manipulation with fs - function values for generalized Armijo condition used in SPGQP.
+*/
 class SPGQPSolver_fs {
 	private:
-		int m; /* the length of list */
-		std::list<double> fs_list; /* the list with function values */
+		int m; /**< the length of list */
+		std::list<double> fs_list; /**< the list with function values */
 
 	public: 
+		/** @brief constructor
+		*
+		* @param length of lists
+		*/
 		SPGQPSolver_fs(int new_m);
+
+		/** @brief set all values to given one
+		*
+		* At the begining of computation, all values are the same, set them using this function.
+		* 
+		* @param fx function value
+		*/
 		void init(double fx);
+
+		/** @brief return maximum value from the list
+		*
+		*/
 		double get_max();		
+
+		/** @brief return length of lists
+		*
+		*/
 		int get_size();
+		
+		/** @brief update list - add new value and remove oldest one
+		*
+		*/
 		void update(double new_fx);
 		
+		/** @brief print content of the lists
+		*
+		* @param output where to print
+		*/
 		void print(ConsoleOutput &output);
 };
 
 
 
-/* SPGQPSolver */ 
+/** \class SPGQPSolver
+ *  \brief Spectral Projected Gradient method for Quadratic Programs
+ *
+ *  For solving QP on closed convex set using projections.
+*/
 template<class VectorBase>
 class SPGQPSolver: public QPSolver<VectorBase> {
 	private:
@@ -66,44 +106,71 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		Timer timer_stepsize;	 	/**< total time of step-size computation */
 		Timer timer_fs; 			/**< total time of manipulation with fs vector during iterations */
 
-		/* settings */
 		bool stop_normgp; 			/**< stopping criteria based on norm of gP */
 		bool stop_Anormgp; 			/**< stopping criteria based on A-norm of gP */
 		bool stop_normgp_normb;		/**< stopping criteria based on norm of gP and norm of b */
 		bool stop_Anormgp_normb;	/**< stopping criteria based on A-norm of gP and norm of b */
 		bool stop_difff;			/**< stopping criteria based on size of decrease of f */
 
-		int m;						/**< size of fs */
-		double gamma; 
-		double sigma1;
-		double sigma2;
+		int m;						/**< size of SPGQPSolver_fs */
+		double gamma;				/**< parameter of Armijo condition */
+		double sigma1;				/**< to enforce progress */
+		double sigma2;				/**< to enforce progress */
 		double alphainit;			/** initial step-size */
 
 		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 		double gP; 					/**< norm of projected gradient */
 	
 		/* temporary vectors used during the solution process */
+		/** @brief allocate storage for auxiliary vectors used in computation
+		* 
+		*/
 		void allocate_temp_vectors();
+
+		/** @brief deallocate storage for auxiliary vectors used in computation
+		* 
+		*/
 		void free_temp_vectors();
+
 		GeneralVector<VectorBase> *g; 		/**< gradient */
 		GeneralVector<VectorBase> *d; 		/**< projected gradient */
 		GeneralVector<VectorBase> *Ad; 		/**< A*d */
 		GeneralVector<VectorBase> *temp;	/**< general temp vector */
 
+		/** @brief compute multiple dot products
+		* 
+		* @param dd result of dot(d,d)
+		* @param dAd result of dot(Ad,d)
+		* @param gd result of dot(g,d)
+		*/
 		void compute_dots(double *dd, double *dAd, double *gd) const;
 
-		/* for manipulation with mdot */
-		double *Mdots_val;
+		double *Mdots_val; /**< for manipulation with mdot */
 
 		#ifdef USE_PETSCVECTOR
-			Vec *Mdots_vec;
+			Vec *Mdots_vec; /**< for manipulation with mdot */
 		#endif
 
+		/** @brief set settings of algorithm from arguments in console
+		* 
+		*/
 		void set_settings_from_console();
 		
 	public:
+		/** @brief general constructor
+		* 
+		*/
 		SPGQPSolver();
+
+		/** @brief constructor based on provided data of problem
+		* 
+		* @param new_qpdata data of quadratic program
+		*/
 		SPGQPSolver(QPData<VectorBase> &new_qpdata); 
+
+		/** @brief destructor
+		* 
+		*/
 		~SPGQPSolver();
 
 		void solve();
@@ -115,12 +182,10 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-
 		void printstatus(ConsoleOutput &output) const;
 		void printstatus(std::ostringstream &output) const;
 		void printtimer(ConsoleOutput &output) const;
 		void printshort(std::ostringstream &header, std::ostringstream &values) const;
-
 		std::string get_name() const;
 
 };

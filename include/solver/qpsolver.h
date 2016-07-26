@@ -1,3 +1,9 @@
+/** @file qpsolver.h
+ *  @brief class for manipulation with quadratic programming solvers
+ *
+ *  @author Lukas Pospisil
+ */
+ 
 #ifndef PASC_QPSOLVER_H
 #define	PASC_QPSOLVER_H
 
@@ -17,9 +23,9 @@ namespace pascinference {
 template<class VectorBase>
 class QPSolver: public GeneralSolver {
 	protected:
-		QPData<VectorBase> *qpdata; /* data on which the solver operates */
+		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 
-		QPSolver *child_solver; /* child of this solver, which actually solve the problem */
+		QPSolver *child_solver; /**< child of this solver, which actually solves the problem */
 		
 		double fx; /**< function value in actual iteration */
 		int it_sum; /**< number of all iterations */
@@ -27,10 +33,26 @@ class QPSolver: public GeneralSolver {
 		int hessmult_sum; /**< number of all Hessian multiplication */
 		int hessmult_last; /**< number of Hessian multiplication */
 
-		SolverType child_solvertype;		
+		SolverType child_solvertype;	
 	public:
+		/** @brief default constructor
+		 * 
+		 * Set inner data to null.
+		 * 
+		 */ 
 		QPSolver();
+		
+		/** @brief constructor from data
+		 * 
+		 * Set inner pointer to data on which the solver operates to given data.
+		 * 
+		 * @param new_data input data for solver
+		 */ 		
 		QPSolver(QPData<VectorBase> &new_qpdata); 
+
+		/** @brief destructor
+		 * 
+		 */ 
 		~QPSolver();
 
 		virtual void solve();
@@ -45,8 +67,20 @@ class QPSolver: public GeneralSolver {
 		virtual std::string get_name() const;
 
 		virtual QPData<VectorBase> *get_data() const;
+		
+		/** @brief return function value in last computed iteration
+		* 
+		*/		
 		virtual double get_fx() const;
+
+		/** @brief return number of iterations during last solve()
+		* 
+		*/		
 		virtual int get_it() const;
+
+		/** @brief return number of Hessian multiplication during last solve()
+		* 
+		*/		
 		virtual int get_hessmult() const;
 
 };
