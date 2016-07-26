@@ -392,9 +392,8 @@ void TSSolver<VectorBase>::solve() {
 		L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
 		deltaL = L;
 
-		/* set random initial values to gamma */
-		tsdata->get_gammavector()->set_random();
-//		gammadata->get_feasibleset()->project(*gammadata->get_x0());
+		/* project init approximation to feasible set */
+//		gammasolver->get_data()->get_feasibleset()->project(*gammadata->get_x0());
 		
 		/* main cycle */
 		coutMaster.push();
@@ -552,7 +551,11 @@ void TSSolver<VectorBase>::solve() {
 			thetasolver->printstatus(thetasolver_status);
 
 		}
-		
+
+		/* if there are more annealing steps, then prepare new initial guess */
+		if(it_annealing < this->annealing-1){
+				tsdata->get_gammavector()->set_random();
+		}
 	}
 		
 	/* destroy temp vectors for gamma and theta if there is more annealing steps */

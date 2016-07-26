@@ -13,7 +13,8 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 /* gamma problem */
-#include "matrix/blocklaplace.h"
+#include "matrix/blocklaplacefree.h"
+#include "matrix/blocklaplacesparse.h"
 
 #include "feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"
@@ -25,6 +26,7 @@ extern int DEBUG_MODE;
 
 #include "data/kmeansdata.h"
 
+#define KMEANSH1FEMMODEL_DEFAULT_MATRIX_TYPE 0
 
 namespace pascinference {
 
@@ -36,6 +38,8 @@ class KmeansH1FEMModel: public TSModel<VectorBase> {
 
 		/* model specific variables */
 		double epssqr; /**< penalty coeficient */
+
+		int matrix_type; /**< type of used matrix 0=FREE/1=SPARSE */
 		
 	public:
 	
@@ -79,6 +83,8 @@ template<>
 KmeansH1FEMModel<PetscVector>::KmeansH1FEMModel(KmeansData<PetscVector> &tsdata, int xdim, int K, double epssqr) {
 	LOG_FUNC_BEGIN
 
+	consoleArg.set_option_value("kmeansh1femmodel_matrix_type", &this->matrix_type, KMEANSH1FEMMODEL_DEFAULT_MATRIX_TYPE);
+	
 	/* get original PETSc Vec from data vector */
 	Vec data_Vec = tsdata.get_datavector()->get_vector();
 
@@ -143,6 +149,7 @@ void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 
 	output <<  " - K:       " << this->K << std::endl;
 	output <<  " - epssqr:  " << this->epssqr << std::endl;
+	output <<  " - matrix type: " << this->matrix_type << std::endl;
 
 	output <<  " - datalength:  " << this->datavectorlength_global << std::endl;
 	output <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
@@ -162,11 +169,12 @@ void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOu
 	
 	/* give information about presence of the data */
 	output_global <<  " - global info:  " << std::endl;
-	output_global <<  "  - T:       " << this->T << std::endl;
-	output_global <<  "  - xdim:    " << this->xdim << std::endl;
+	output_global <<  "  - T:           " << this->T << std::endl;
+	output_global <<  "  - xdim:        " << this->xdim << std::endl;
 
-	output_global <<  " - K:       " << this->K << std::endl;
-	output_global <<  " - epssqr:  " << this->epssqr << std::endl;
+	output_global <<  " - K:           " << this->K << std::endl;
+	output_global <<  " - epssqr:      " << this->epssqr << std::endl;
+	output_global <<  " - matrix type: " << this->matrix_type << std::endl;
 
 	output_global <<  " - datalength:  " << this->datavectorlength_global << std::endl;
 	output_global <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
@@ -255,7 +263,15 @@ void KmeansH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamma
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	gammadata->set_A(new BlockLaplaceMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->epssqr)); 
+	if(this->matrix_type == 0){
+		/* FREE */
+		gammadata->set_A(new BlockLaplaceFreeMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->epssqr)); 
+	}
+	if(this->matrix_type == 1){
+		/* SPARSE */
+		gammadata->set_A(new BlockLaplaceSparseMatrix<PetscVector>(*(gammadata->get_x0()), this->K, this->epssqr)); 
+	}
+
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal,this->K)); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */

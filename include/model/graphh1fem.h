@@ -189,13 +189,13 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	
 	/* give information about presence of the data */
 	output_global <<  " - global info:  " << std::endl;
-	output_global <<  "  - T:       " << this->T << std::endl;
-	output_global <<  "  - xdim:    " << this->xdim << std::endl;
+	output_global <<  "  - T:          " << this->T << std::endl;
+	output_global <<  "  - xdim:       " << this->xdim << std::endl;
 
-	output_global <<  " - K:       " << this->K << std::endl;
-	output_global <<  " - R:       " << this->R << std::endl;
-	output_global <<  " - epssqr:  " << this->epssqr << std::endl;
-	output_global <<  " - matrix type:  " << this->matrix_type << std::endl;
+	output_global <<  " - K:           " << this->K << std::endl;
+	output_global <<  " - R:           " << this->R << std::endl;
+	output_global <<  " - epssqr:      " << this->epssqr << std::endl;
+	output_global <<  " - matrix type: " << this->matrix_type << std::endl;
 
 	output_global.push();
 	graph->print(output_global);

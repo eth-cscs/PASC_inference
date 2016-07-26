@@ -551,9 +551,6 @@ void SPGQPSolver<VectorBase>::solve() {
 		 hessmult += 1;
 		this->timer_matmult.stop();
 
-		/* dd = dot(d,d) */
-		/* dAd = dot(Ad,d) */
-		/* gd = dot(g,d) */
 		this->timer_dot.start();
 //		  dd = dot(d,d);
 //		  dAd = dot(Ad,d); 
@@ -606,7 +603,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->gP = dd;
 		
 		/* print qpdata */
-		if(this->debug_mode >= 10){
+		if(this->debug_mode == 10){
 			coutMaster << "x: " << x << std::endl;
 			coutMaster << "d: " << d << std::endl;
 			coutMaster << "g: " << g << std::endl;
@@ -614,7 +611,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		}
 
 		/* print progress of algorithm */
-		if(this->debug_mode >= 3){
+		if(this->debug_mode == 3){
 			coutMaster << "\033[33m   it = \033[0m" << it;
 			
 			std::streamsize ss = std::cout.precision();
