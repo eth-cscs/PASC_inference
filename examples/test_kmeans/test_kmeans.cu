@@ -127,8 +127,7 @@ int main( int argc, char *argv[] )
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;
-	mysolver.printtimer(coutAll);
-	coutAll.synchronize();
+	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

@@ -18,7 +18,7 @@ extern int DEBUG_MODE;
 
 #include <iostream>
 #include "common/common.h"
-#include "matrix/blockgraph.h"
+#include "common/bgmgraph.h"
 #include "model/tsmodel.h"
 #include "data/tsdata.h"
 

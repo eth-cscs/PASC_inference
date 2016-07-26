@@ -39,6 +39,7 @@ class TSSolver: public GeneralSolver {
 		int annealing; /**< nuber of annealing steps */
 
 		double L; /**< function value */
+		double deltaL; /**< value of stopping criteria */
 		std::ostringstream gammasolver_status; /**< status of gammasolver in the best annealing state */
 		std::ostringstream thetasolver_status; /**< status of thetasolver in the best annealing state */
 
@@ -103,6 +104,7 @@ TSSolver<VectorBase>::TSSolver(){
 	consoleArg.set_option_value("tssolver_debug_mode", &this->debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
 
 	this->L = std::numeric_limits<double>::max();
+	this->deltaL = std::numeric_limits<double>::max();
 	gammasolver_status.str("");
 	thetasolver_status.str("");
 
@@ -139,6 +141,7 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 
 	/* initial value of object function */
 	this->L = std::numeric_limits<double>::max();
+	this->deltaL = std::numeric_limits<double>::max();
 	gammasolver_status.str("");
 	thetasolver_status.str("");
 
@@ -264,6 +267,7 @@ void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	output <<  " - it:          " << this->it_last << std::endl;
 	output <<  " - L:           " << this->L << std::endl;
+	output <<  " - deltaL:      " << this->deltaL << std::endl;
 	output <<  " - gammasolver_status:" << std::endl;
 	output.push();
 	output << gammasolver_status.str() << std::endl;
@@ -530,6 +534,7 @@ void TSSolver<VectorBase>::solve() {
 		if(aic < tsdata->get_aic() && annealing > 1){
 			tsdata->set_aic(aic);
 			this->L = L;
+			this->deltaL = deltaL;
 			/* update status strings */
 			gammasolver_status.str("");
 			gammasolver->printstatus(gammasolver_status);
@@ -540,9 +545,11 @@ void TSSolver<VectorBase>::solve() {
 			*thetavector_temp = *(tsdata->get_thetavector());
 		}
 
+		/* if there is no other annealing steps, we are not using temp storage and store results directly */
 		if(annealing <= 1){
 			tsdata->set_aic(aic);
 			this->L = L;
+			this->deltaL = deltaL;
 
 			/* update status strings */
 			gammasolver_status.str("");

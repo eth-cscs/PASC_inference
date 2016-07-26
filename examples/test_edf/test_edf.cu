@@ -70,7 +70,7 @@ int main( int argc, char *argv[] )
 
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	BGM_Graph mygraph("data/Koordinaten_EEG_P.bin");
+	BGMGraph mygraph("data/Koordinaten_EEG_P.bin");
 	mygraph.process(2.5);
 	GraphH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);
 
