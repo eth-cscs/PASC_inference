@@ -96,20 +96,36 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 	int* neighbor_nmbs = graph->get_neighbor_nmbs();
 	int **neightbor_ids = graph->get_neighbor_ids();
 
+	/* get ranges of all processors - necessary to compute overlaping indexes */
+	const int *ranges;
+	ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
+	TRY( VecGetOwnershipRanges(x.get_vector(),&ranges) );
+	int myrank = GlobalManager.get_rank();
+
+	/* create matrix */
 	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
 	TRY( MatSetSizes(A_petsc,n,n,N,N) );
-	TRY( MatSetFromOptions(A_petsc) ); 
-//	TRY( MatSetType(A,MATMPIAIJ) ); 
-	TRY( MatMPIAIJSetPreallocation(A_petsc,50,NULL,50,NULL) ); 
-	TRY( MatSeqAIJSetPreallocation(A_petsc,50,NULL) );
 
+	#ifndef USE_GPU
+		TRY( MatSetType(A_petsc,MATMPIAIJ) ); 
+	#else
+		TRY( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
+	#endif
+
+	/* compute preallocation of number of non-zero elements in matrix */
+	TRY( MatMPIAIJSetPreallocation(A_petsc,3*(1+2*this->graph->get_m_max()),NULL,2*(this->graph->get_m_max()+1),NULL) ); 
+	TRY( MatSeqAIJSetPreallocation(A_petsc,3*(1+2*this->graph->get_m_max()),NULL) );
+
+	TRY( MatSetFromOptions(A_petsc) ); 
+	
 //	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
 		int k = floor(y_arr_idx/(double)(Tlocal*R));
 		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
 		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
 		int tglobal = Tbegin+tlocal;
-		int diag_idx = tlocal + (k*R+r)*(Tlocal);
+		int diag_idx = Tbegin*R*K + tlocal + (k*R+r)*(Tlocal);
+		int row_idx = Tbegin*R*K + y_arr_idx;
 
 		double value;
 		int Wsum;
@@ -130,35 +146,52 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 		}
 
 		/* diagonal entry */
-		TRY( MatSetValue(A_petsc, diag_idx, diag_idx, Wsum, INSERT_VALUES) );
+		TRY( MatSetValue(A_petsc, row_idx, diag_idx, Wsum, INSERT_VALUES) );
 
 		/* my nondiagonal entries */
 		if(T>1){
-			if(tglobal > 0) {
-				TRY( MatSetValue(A_petsc, diag_idx, diag_idx-1, -1.0, INSERT_VALUES) );
+			if(tlocal > 0) {
+				TRY( MatSetValue(A_petsc, row_idx, diag_idx-1, -1.0, INSERT_VALUES) );
 			}
-			if(tglobal < T-1) {
-				TRY( MatSetValue(A_petsc, diag_idx, diag_idx+1, -1.0, INSERT_VALUES) );
+			if(tlocal < Tlocal-1) {
+				TRY( MatSetValue(A_petsc, row_idx, diag_idx+1, -1.0, INSERT_VALUES) );
 			}
+			
+			/* deal with overlaps */
+			if(tlocal == 0 && tglobal > 0){
+				/* to left */
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + r + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1, INSERT_VALUES) );
+			}
+			if(tlocal == Tlocal-1 && tglobal < T-1){
+				/* to right */
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + r)*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1, INSERT_VALUES) );
+			}
+
 		}
 
 		/* non-diagonal neighbor entries */
 		int neighbor;
 		for(neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
-			int idx2 = k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal;
-			TRY( MatSetValue(A_petsc, diag_idx, idx2, -1.0, INSERT_VALUES) );
-			if(tglobal > 0) {
-				TRY( MatSetValue(A_petsc, diag_idx, idx2-1, -1.0, INSERT_VALUES) );
+			int idx2 = Tbegin*K*R + k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal;
+			TRY( MatSetValue(A_petsc, row_idx, idx2, -1.0, INSERT_VALUES) );
+			if(tlocal > 0) {
+				TRY( MatSetValue(A_petsc, row_idx, idx2-1, -1.0, INSERT_VALUES) );
 			}
-			if(tglobal < T-1) {
-				TRY( MatSetValue(A_petsc, diag_idx, idx2+1, -1.0, INSERT_VALUES) );
+			if(tlocal < Tlocal-1) {
+				TRY( MatSetValue(A_petsc, row_idx, idx2+1, -1.0, INSERT_VALUES) );
 			}
-		}
 
-		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
-//		if(coeffs){
-//			y_arr[y_arr_idx] = coeffs_arr[k]*coeffs_arr[k]*y_arr[y_arr_idx];
-//		}
+			/* deal with overlaps */
+			if(tlocal == 0 && tglobal > 0){
+				/* to left */
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + neightbor_ids[r][neighbor] + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1, INSERT_VALUES) );
+			}
+			if(tlocal == Tlocal-1 && tglobal < T-1){
+				/* to right */
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + neightbor_ids[r][neighbor])*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1, INSERT_VALUES) );
+			}
+
+		}
 
 	}
 
@@ -171,12 +204,6 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 
 	/* apply alpha */
 	TRY( MatScale(A_petsc,alpha) );
-
-	/* get ranges of all processors - necessary to compute overlaping indexes */
-//	const int *ranges;
-//	ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
-//   TRY( VecGetOwnershipRanges(x_aux,&ranges) );
-//	int myrank = GlobalManager.get_rank();
 
 	LOG_FUNC_END
 }	

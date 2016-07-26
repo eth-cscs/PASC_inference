@@ -8,6 +8,8 @@ class BGMGraph {
 		GeneralVector<PetscVector> *coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
 		int dim; /**< dimension of coordinates */	
 		int n; /**< number of nodes */
+		int m; /**< number of edges */
+		int m_max; /**< maximum degree of vertices */
 		double threshold; /**< the value used for processing the graph */
 		
 		bool processed; /**< there was process with threshold value called? */
@@ -29,6 +31,8 @@ class BGMGraph {
 		~BGMGraph();
 		
 		int get_n();
+		int get_m();
+		int get_m_max();
 		int get_dim();
 		double get_threshold();
 		int *get_neighbor_nmbs();
@@ -65,6 +69,8 @@ BGMGraph::BGMGraph(std::string filename, int dim){
 	this->dim = dim;
 	n = coordinates->size()/(double)dim;
 
+	m = 0;
+	m_max = 0;
 	threshold = -1;
 	processed = false;
 }
@@ -79,12 +85,16 @@ BGMGraph::BGMGraph(const double *coordinates_array, int n, int dim){
 	this->dim = dim;
 	this->n = n;
 
+	m = 0;
+	m_max = 0;
 	threshold = -1;
 	processed = false;
 }
 
 BGMGraph::BGMGraph(){
 	this->n = 0;
+	this->m = 0;
+	this->m_max = 0;
 	threshold = -1;
 	processed = false;
 }
@@ -116,6 +126,14 @@ BGMGraph::~BGMGraph(){
 
 int BGMGraph::get_n(){
 	return this->n;
+}
+
+int BGMGraph::get_m(){
+	return this->m;
+}
+
+int BGMGraph::get_m_max(){
+	return this->m_max;
 }
 
 int BGMGraph::get_dim(){
@@ -205,14 +223,21 @@ void BGMGraph::process(double threshold) {
 
 				counters[i] += 1;
 				counters[j] += 1;
+				
+				this->m += 1;
 			}
+		}
+
+		/* compute m_max (max degree of vertex) */
+		if(neighbor_nmbs[i] > m_max){
+			this->m_max = neighbor_nmbs[i];
 		}
 	}
 	free(counters);
 	
 	/* restore array */
 	TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
-	
+
 	#ifdef USE_GPU
 		/* copy data to gpu */
 		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
@@ -234,10 +259,12 @@ void BGMGraph::print(ConsoleOutput &output) const {
 	output << "Graph" << std::endl;
 	
 	output.push();
-	output << " - dim:       " << this->dim << std::endl;
-	output << " - vertices:  " << this->n << std::endl;
-	output << " - threshold: " << this->threshold << std::endl;
-	output << " - processed: " << this->processed << std::endl;
+	output << " - dim:        " << this->dim << std::endl;
+	output << " - vertices:   " << this->n << std::endl;
+	output << " - edges:      " << this->m << std::endl;
+	output << " - max_degree: " << this->m_max << std::endl;
+	output << " - threshold:  " << this->threshold << std::endl;
+	output << " - processed:  " << this->processed << std::endl;
 	output.pop();
 	
 }
@@ -246,10 +273,12 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 	output << "Graph" << std::endl;
 	
 	output.push();
-	output << " - dim:       " << this->dim << std::endl;
-	output << " - nodes:     " << this->n << std::endl;
-	output << " - threshold: " << this->threshold << std::endl;
-	output << " - processed: " << this->processed << std::endl;
+	output << " - dim:        " << this->dim << std::endl;
+	output << " - vertices:   " << this->n << std::endl;
+	output << " - edges:      " << this->m << std::endl;
+	output << " - max_degree: " << this->m_max << std::endl;
+	output << " - threshold:  " << this->threshold << std::endl;
+	output << " - processed:  " << this->processed << std::endl;
 
 	output << " - coordinates: " << *coordinates << std::endl;
 

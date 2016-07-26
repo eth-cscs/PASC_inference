@@ -5,6 +5,8 @@
  */
 
 #include "pascinference.h"
+
+#include "matrix/blockgraphfree.h"
 #include "matrix/blockgraphsparse.h"
 
 #ifndef USE_PETSCVECTOR
@@ -26,7 +28,8 @@ int main( int argc, char *argv[] )
 		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
 		("test_view_graph", boost::program_options::value<bool>(), "print content of graph or not [bool]")
-		("test_view_matrix", boost::program_options::value<bool>(), "print dense matrix or not [bool]");
+		("test_view_matrix", boost::program_options::value<bool>(), "print dense matrix or not [bool]")
+		("test_view_matrix_unsorted", boost::program_options::value<bool>(), "print dense matrix in original unsorted form or not [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -37,7 +40,7 @@ int main( int argc, char *argv[] )
 	/* load console arguments */
 	int T, K, R;
 	std::string graph_filename;
-	bool view_matrix, view_graph;
+	bool view_matrix, view_graph, view_matrix_unsorted;
 	double alpha, graph_coeff;
 	
 	consoleArg.set_option_value("test_T", &T, 1);
@@ -46,16 +49,18 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph_twonodes.bin");
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_view_matrix", &view_matrix, true);
+	consoleArg.set_option_value("test_view_matrix_unsorted", &view_matrix_unsorted, false);
 	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
 	/* print settings */
-	coutMaster << " test_T              = " << std::setw(20) << T << " (length of time-series)" << std::endl;
-	coutMaster << " test_K              = " << std::setw(20) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_alpha          = " << std::setw(20) << alpha << " (coeficient of the matrix)" << std::endl;
-	coutMaster << " test_graph_filename = " << std::setw(20) << graph_filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_graph_coeff    = " << std::setw(20) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_view_graph     = " << std::setw(20) << view_graph << " (print content of graph or not)" << std::endl;
-	coutMaster << " test_view_matrix    = " << std::setw(20) << view_matrix << " (print matrix or not)" << std::endl;
+	coutMaster << " test_T                    = " << std::setw(20) << T << " (length of time-series)" << std::endl;
+	coutMaster << " test_K                    = " << std::setw(20) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_alpha                = " << std::setw(20) << alpha << " (coeficient of the matrix)" << std::endl;
+	coutMaster << " test_graph_filename       = " << std::setw(20) << graph_filename << " (name of file with coordinates)" << std::endl;
+	coutMaster << " test_graph_coeff          = " << std::setw(20) << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_view_graph           = " << std::setw(20) << view_graph << " (print content of graph or not)" << std::endl;
+	coutMaster << " test_view_matrix          = " << std::setw(20) << view_matrix << " (print matrix or not)" << std::endl;
+	coutMaster << " test_view_matrix_unsorted = " << std::setw(20) << view_matrix_unsorted << " (print matrix in unsorted form or not)" << std::endl;
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -109,9 +114,13 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
 	/* create matrix */
+//	BlockGraphFreeMatrix<PetscVector> A(x, graph, K, alpha);
 	BlockGraphSparseMatrix<PetscVector> A(x, graph, K, alpha);
 	A.print(coutMaster,coutAll);
 	coutAll.synchronize();
+
+	A.printcontent(coutMaster);
+	
 
 	/* prepare timer */
 	Timer timer1;
@@ -129,7 +138,7 @@ int main( int argc, char *argv[] )
 
 	/* go through rows and multiply with vector of standart basis */
 	for(int row_idx = 0; row_idx < T*R*K; row_idx++){
-		/* ompute position in matrix */
+		/* compute position in matrix */
 		k = floor(row_idx/(double)(T*R));
 		r = floor((row_idx-k*T*R)/(double)(T));
 		t = row_idx - (k*R+r)*T;
@@ -140,9 +149,14 @@ int main( int argc, char *argv[] )
 		TRY( VecAssemblyEnd(x_Vec) );
 
 		TRY( VecGetArray(x_Vec,&gamma_arr) );
-		if(t >= Tbegin && t < Tend){
-			tlocal = t - Tbegin;
-			gamma_arr[tlocal + (k*R+r)*Tlocal] = 1;
+		if(!view_matrix_unsorted){
+			if(t >= Tbegin && t < Tend){
+				tlocal = t - Tbegin;
+				gamma_arr[tlocal + (k*R+r)*Tlocal] = 1;
+			}
+		} else {
+			tlocal = row_idx - Tbegin*R*K;
+			gamma_arr[tlocal] = 1.0;
 		}
 		TRY( VecRestoreArray(x_Vec,&gamma_arr) );
 		TRY( VecAssemblyBegin(x_Vec) );
@@ -161,19 +175,30 @@ int main( int argc, char *argv[] )
 			/* print row */
 			TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, row_idx) );
 
-			/* interpret results from new layout to standart one */
-			for(k=0;k<K;k++){
-				for(r=0;r<R;r++){
-					for(t=0;t<Tlocal;t++){
-						idx = t+(k*R+r)*Tlocal;
-						if(abs(values[idx]) > 0.000001){
-							TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[idx]) );
-						} else {
-							TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+			if(!view_matrix_unsorted){
+				/* interpret results from new layout to standart one */
+				for(k=0;k<K;k++){
+					for(r=0;r<R;r++){
+						for(t=0;t<Tlocal;t++){
+							idx = t+(k*R+r)*Tlocal;
+							if(abs(values[idx]) > 0.000001){
+								TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[idx]) );
+							} else {
+								TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+							}
 						}
+						TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
 					}
-					TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
 				}
+			} else {
+				for(idx=0;idx<Tlocal*K*R;idx++){
+					if(abs(values[idx]) > 0.000001){
+						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[idx]) );
+					} else {
+						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+					}
+				}
+				TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
 			}
 			TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
 

@@ -14,7 +14,7 @@ extern int DEBUG_MODE;
 
 /* gamma problem */
 #include "matrix/blockgraphfree.h"
-//#include "matrix/blockgraphsparse.h"
+#include "matrix/blockgraphsparse.h"
 
 #include "feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"
@@ -25,6 +25,8 @@ extern int DEBUG_MODE;
 #include "data/simpledata.h"
 
 #include "data/tsdata.h"
+
+#define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 0
 
 namespace pascinference {
 
@@ -40,10 +42,11 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		double epssqr; /**< penalty coeficient */
 		
 		/* for theta problem */
-		BlockGraphFreeMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
-//		BlockGraphSparseMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
+		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
 
+		int matrix_type; /**< type of used matrix 0=FREE/1=SPARSE */
+		
 	public:
 	
 		GraphH1FEMModel(TSData<VectorBase> &tsdata, BGMGraph &new_graph, int K, double epssqr);
@@ -90,6 +93,8 @@ namespace pascinference {
 template<>
 GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &tsdata, BGMGraph &new_graph, int K, double epssqr) {
 	LOG_FUNC_BEGIN
+
+	consoleArg.set_option_value("graphh1femmodel_matrix_type", &this->matrix_type, GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE);
 
 	this->xdim = 1; // TODO: now I can compute only 1D problem, sorry
 	this->R = new_graph.get_n();
@@ -153,12 +158,13 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T:       " << this->T << std::endl;
-	output <<  " - xdim:    " << this->xdim << std::endl;
+	output <<  " - T:           " << this->T << std::endl;
+	output <<  " - xdim:        " << this->xdim << std::endl;
 
-	output <<  " - K:       " << this->K << std::endl;
-	output <<  " - R:       " << this->R << std::endl;
-	output <<  " - epssqr:  " << this->epssqr << std::endl;
+	output <<  " - K:           " << this->K << std::endl;
+	output <<  " - R:           " << this->R << std::endl;
+	output <<  " - epssqr:      " << this->epssqr << std::endl;
+	output <<  " - matrix type: " << this->matrix_type << std::endl;
 
 	output <<  " - Graph:       " << std::endl;
 	output.push();
@@ -189,6 +195,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  " - K:       " << this->K << std::endl;
 	output_global <<  " - R:       " << this->R << std::endl;
 	output_global <<  " - epssqr:  " << this->epssqr << std::endl;
+	output_global <<  " - matrix type:  " << this->matrix_type << std::endl;
 
 	output_global.push();
 	graph->print(output_global);
@@ -281,8 +288,15 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	A_shared = new BlockGraphFreeMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
-//	A_shared = new BlockGraphSparseMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
+	if(this->matrix_type == 0){
+		/* FREE */
+		A_shared = new BlockGraphFreeMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
+	}
+	if(this->matrix_type == 1){
+		/* SPARSE */
+		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(gammadata->get_x0()), *(this->graph), this->K, (1.0/((double)(R*T)))*this->epssqr, tsdata->get_thetavector());
+	}
+	
 	gammadata->set_A(A_shared); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(this->Tlocal*this->R,this->K)); /* the feasible set of QP is simplex */ 	
 

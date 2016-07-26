@@ -64,7 +64,11 @@ static void add_options(boost::program_options::options_description *description
 		("spgqpsolver_stop_difff", boost::program_options::value<bool>(), "stopping criteria based on difference of object function [bool]");
 	description->add(opt_spgqpsolver);
 
-
+	/* GRAPHH1FEMMODEL */
+	boost::program_options::options_description opt_grahph1femmodel("GRAPHH1FEMMODEL", console_nmb_cols);
+	opt_grahph1femmodel.add_options()
+		("graphh1femmodel_matrix_type", boost::program_options::value<int>(), "type of used matrix [0=FREE/1=SPARSE]"); //TODO: enum?
+	description->add(opt_grahph1femmodel);
 
 }
 

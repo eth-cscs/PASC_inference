@@ -417,6 +417,8 @@ BGMGraphGrid2D::~BGMGraphGrid2D(){
 
 void BGMGraphGrid2D::process_grid(){
 	this->threshold = 1.1;
+	this->m = height*(width-1) + width*(height-1);
+	this->m_max = 4;
 
 	/* prepare array for number of neighbors */
 	neighbor_nmbs = (int*)malloc(n*sizeof(int));
@@ -513,6 +515,8 @@ BGMGraphGrid1D::~BGMGraphGrid1D(){
 
 void BGMGraphGrid1D::process_grid(){
 	this->threshold = 1.1;
+	this->m = width-1;
+	this->m_max = 2;
 
 	/* prepare array for number of neighbors */
 	neighbor_nmbs = (int*)malloc(n*sizeof(int));
