@@ -281,7 +281,6 @@ void CGQPSolver<VectorBase>::solve() {
 	p = g; /* initial conjugate direction */
 
 	gg = dot(g,g);
-	myround(gg, &gg);
 
 	normg = std::sqrt(gg);
 
@@ -292,7 +291,6 @@ void CGQPSolver<VectorBase>::solve() {
 
 		/* compute step-size */			
 		pAp = dot(Ap,p);
-		myround(pAp, &pAp);
 		
 		alpha = gg/pAp;
 
@@ -303,7 +301,6 @@ void CGQPSolver<VectorBase>::solve() {
 		g -= alpha*Ap; 
 		gg_old = gg;
 		gg = dot(g,g);
-		myround(gg, &gg);
 
 		normg = std::sqrt(gg);
 			

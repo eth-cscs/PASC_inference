@@ -1,8 +1,20 @@
+/** @file bgmgraph.h
+ *  @brief class for manipulation with graphs
+ *
+ *  Defines some basic functions for manipulaton with graphs, especially for BLOCKGRAPHMATRIX.
+ *
+ *  @author Lukas Pospisil
+ */
+ 
 #ifndef PASC_COMMON_BGMGRAPH_H
 #define	PASC_COMMON_BGMGRAPH_H
 
 namespace pascinference {
-	
+
+/** \class BGMGraph
+ *  \brief General class for manipulation with graphs.
+ *
+*/
 class BGMGraph {
 	protected:
 		GeneralVector<PetscVector> *coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
@@ -21,6 +33,12 @@ class BGMGraph {
 			int **neighbor_ids_gpu; /**< copy of values on GPU */
 		#endif	
 
+		/** @brief compute distance between two vertices
+		*
+		*  @param values array with coordinates of vertices
+		*  @param idx1 index of vertex
+		*  @param idx2 index of vertex
+		*/
 		double compute_norm(const double *values, int idx1, int idx2);
 		
 	public:
@@ -30,21 +48,56 @@ class BGMGraph {
 
 		~BGMGraph();
 		
+		/** @brief return number of vertices
+		*/
 		int get_n();
+
+		/** @brief return number of edges
+		*/
 		int get_m();
+
+		/** @brief return degree of vertex with max degree 
+		*/
 		int get_m_max();
+
+		/** @brief return dimension of coordinates of vertices
+		*/
 		int get_dim();
+
+		/** @brief return value used for filling graph with edges
+		*/
 		double get_threshold();
+
+		/** @brief return array containing number of neighbors of vertices
+		*/
 		int *get_neighbor_nmbs();
+
+		/** @brief return array of arrays containing indexes of neighbors of vertices
+		*/
 		int **get_neighbor_ids();
 
+		/** @brief return array containing number of neighbors of vertices stored on GPU
+		*/
 		int *get_neighbor_nmbs_gpu();
+
+		/** @brief return array of arrays containing indexes of neighbors of vertices stored on GPU
+		*/
 		int **get_neighbor_ids_gpu();
+
+		/** @brief return vector with coordinates of vertices
+		*/
 		GeneralVector<PetscVector> *get_coordinates();
 		
+		/** @brief fill graph with edges based on given length of edge
+		*/
 		virtual void process(double threshold);
 
+		/** @brief print basic informations of graph
+		*/
 		void print(ConsoleOutput &output) const;
+
+		/** @brief print all vertices, edges, neighbors
+		*/
 		void print_content(ConsoleOutput &output) const;
 		
 };

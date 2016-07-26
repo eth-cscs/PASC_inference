@@ -50,11 +50,11 @@ namespace pascinference {
 		private:
 			/* random vector generator */
 			#ifdef USE_PETSCVECTOR
-				PetscRandom rnd;
+				PetscRandom rnd; /**< PETSc random generator */
 			#endif
 
 		public:
-			/** @brief call original constructors
+			/** @brief call original constructor without arguments
 			*
 			*/
 			GeneralVector(): VectorBase() {
@@ -63,7 +63,7 @@ namespace pascinference {
 				#endif
 			}
 
-			/** @brief call original constructors
+			/** @brief call original constructor with one argument
 			*
 			* @todo for general number of arguments
 			*/
@@ -72,6 +72,11 @@ namespace pascinference {
 					this->rnd=NULL;
 				#endif
 			}
+
+			/** @brief call original constructor with two arguments
+			*
+			* @todo for general number of arguments
+			*/
 			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2): VectorBase(arg1,arg2) {
 				#ifdef USE_PETSCVECTOR
 					this->rnd=NULL;

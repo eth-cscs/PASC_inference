@@ -1,8 +1,22 @@
+/** @file arrayoperation.h
+ *  @brief class for manipulation with arrays
+ *
+ *  Defines some basic functions for manipulaton with arrays.
+ *
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASC_COMMON_ARRAYOPERATION_H
 #define	PASC_COMMON_ARRAYOPERATION_H
 
 namespace pascinference {
-	
+
+/** @brief print content of array
+*
+*  @param output where to print
+*  @param my_size the size of array (number of elements)
+*  @param my_array pointer to array
+*/
 template<class MyType>
 void print_array(std::ostream &output, int my_size, MyType *my_array){
 	output << "[";
@@ -13,6 +27,11 @@ void print_array(std::ostream &output, int my_size, MyType *my_array){
 	output << "]";
 }
 
+/** @brief compute sum of elements in array
+*
+*  @param my_size the size of array (number of elements)
+*  @param my_array pointer to array
+*/
 template<class MyType>
 MyType sum_array(int my_size, const MyType *my_array){
 	MyType sum = 0;
@@ -22,6 +41,11 @@ MyType sum_array(int my_size, const MyType *my_array){
 	return sum;
 }
 
+/** @brief find largest elements in array
+*
+*  @param my_size the size of array (number of elements)
+*  @param my_array pointer to array
+*/
 template<class MyType>
 MyType max_array(int my_size, const MyType *my_array){
 	MyType return_value = my_array[0];
@@ -33,6 +57,12 @@ MyType max_array(int my_size, const MyType *my_array){
 	return return_value;
 }
 
+/** @brief compute sum of some elements in array
+*
+*  @param start index of starting element of subarray
+*  @param end index of ending element of subarray
+*  @param my_array pointer to array
+*/
 template<class MyType>
 MyType sum_subarray(int start, int end, const MyType *my_array){
 	MyType sum = 0;
@@ -42,6 +72,12 @@ MyType sum_subarray(int start, int end, const MyType *my_array){
 	return sum;
 }
 
+/** @brief compute dot product of two arrays
+*
+*  @param size the size of arrays (number of elements)
+*  @param my_array1 pointer to array
+*  @param my_array2 pointer to array
+*/
 template<class MyType>
 MyType dot_arrays(int size, const MyType *my_array1, const MyType *my_array2){
 	MyType sum = 0;
@@ -51,6 +87,11 @@ MyType dot_arrays(int size, const MyType *my_array1, const MyType *my_array2){
 	return sum;
 }
 
+/** @brief compare two object and return larger one
+*
+*  @param a1 object
+*  @param a2 object
+*/
 template<class MyType>
 MyType max(const MyType a1, const MyType a2){
 	MyType return_value = a1;
@@ -60,6 +101,11 @@ MyType max(const MyType a1, const MyType a2){
 	return return_value;
 }
 
+/** @brief compare two object and return smaller one
+*
+*  @param a1 object
+*  @param a2 object
+*/
 template<class MyType>
 MyType min(const MyType a1, const MyType a2){
 	MyType return_value = a1;
@@ -69,8 +115,15 @@ MyType min(const MyType a1, const MyType a2){
 	return return_value;
 }
 
-
-/* my_array[i] = my_array1[i]*my_array2[i] */
+/** @brief compute point-wise multiplication of two arrays
+*
+*  my_array[i] = my_array1[i]*my_array2[i]
+* 
+*  @param my_size the size of arrays (number of elements)
+*  @param my_array pointer to output array
+*  @param my_array1 pointer to input array
+*  @param my_array2 pointer to input array
+*/
 template<class MyType>
 void mult_pw_array(int my_size, MyType *my_array, const MyType *my_array1, const MyType *my_array2){
 	for(int i=0;i<my_size;i++){

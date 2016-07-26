@@ -1,7 +1,6 @@
 #ifndef PASC_SPGQPSOLVER_H
 #define	PASC_SPGQPSOLVER_H
 
-
 #include <iostream>
 #include <list>
 #include <algorithm>
@@ -499,7 +498,6 @@ void SPGQPSolver<VectorBase>::solve() {
 	double dAd; /* dot(Ad,d) */
 	double alpha_bb; /* BB step-size */
 	double normb = norm(b); /* norm of linear term used in stopping criteria */
-	myround(normb,&normb);
 
 	/* initial step-size */
 	alpha_bb = this->alphainit;
@@ -694,7 +692,6 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 	/* use computed gradient in this->g to compute function value */
 	temp = g - b;
 	double tempt = dot(temp,x);
-	myround(tempt, &tempt);
 	fx = 0.5*tempt;
 
 	LOG_FUNC_END
@@ -801,14 +798,9 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 
 	TRY(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
 
-//	*dd = Mdots_val[0];
-//	*dAd = Mdots_val[1];
-//	*gd = Mdots_val[2];
-
-	/* round the numbers because of the precision */
-	myround(Mdots_val[0],dd);
-	myround(Mdots_val[1],dAd);
-	myround(Mdots_val[2],gd);
+	*dd = Mdots_val[0];
+	*dAd = Mdots_val[1];
+	*gd = Mdots_val[2];
 
 	LOG_FUNC_END
 }

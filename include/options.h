@@ -1,3 +1,12 @@
+/** @file options.h
+ *  @brief defines command line options
+ *
+ *  Includes the definition of all command line options with description.
+ *  Call program with --help to see these options.
+ *
+ *  @author Lukas Pospisil
+ */
+ 
 #ifndef PASC_OPTIONS_H
 #define	PASC_OPTIONS_H
 

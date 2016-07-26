@@ -34,16 +34,21 @@ class GeneralMatrix {
 
 	public:
 
-		/** @brief print the matrix
+		/** @brief print informations of matrix
 		 * 
-		 *  Print the content of matrix.
+		 *  Print the basic informations of matrix.
 		 * 
 		 * @param output where to print
 		 */ 
 		virtual void print(ConsoleOutput &output) const {};
 
+		/** @brief print the content of matrix
+		 * 
+		 *  Print the content of matrix.
+		 * 
+		 * @param output where to print
+		 */ 
 		virtual void printcontent(ConsoleOutput &output) const {};
-
 
 		/** @brief get the type name of matrix
 		 */ 
