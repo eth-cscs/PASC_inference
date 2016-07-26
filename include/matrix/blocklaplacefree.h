@@ -1,10 +1,10 @@
-#ifndef BLOCKLAPLACEMATRIX_H
-#define	BLOCKLAPLACEMATRIX_H
+#ifndef BLOCKLAPLACEFREEMATRIX_H
+#define	BLOCKLAPLACEFREEMATRIX_H
 
 #include "pascinference.h"
 
 #ifndef USE_PETSCVECTOR
- #error 'BLOCKLAPLACE is for PETSCVECTOR only, sorry'
+ #error 'BLOCKLAPLACEFREEMATRIX is for PETSCVECTOR only, sorry'
 #endif
 
 #ifdef USE_CUDA
@@ -16,7 +16,7 @@ typedef petscvector::PetscVector PetscVector;
 namespace pascinference {
 
 template<class VectorBase>
-class BlockLaplaceMatrix: public GeneralMatrix<VectorBase> {
+class BlockLaplaceFreeMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		int T; /**< dimension of each block */
 		int Tlocal; /**< local dimension of each block */
@@ -40,8 +40,8 @@ class BlockLaplaceMatrix: public GeneralMatrix<VectorBase> {
 		#endif
 		
 	public:
-		BlockLaplaceMatrix(VectorBase &x, int K, double alpha=1.0);
-		~BlockLaplaceMatrix(); /* destructor - destroy inner matrix */
+		BlockLaplaceFreeMatrix(VectorBase &x, int K, double alpha=1.0);
+		~BlockLaplaceFreeMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
@@ -66,12 +66,12 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 /* --------------- IMPLEMENTATION -------------------- */
 // TODO: move to implementation
 template<class VectorBase>
-std::string BlockLaplaceMatrix<VectorBase>::get_name() const {
-	return "BlockLaplaceMatrix";
+std::string BlockLaplaceFreeMatrix<VectorBase>::get_name() const {
+	return "BlockLaplaceFreeMatrix";
 }
 
 template<>
-BlockLaplaceMatrix<PetscVector>::BlockLaplaceMatrix(PetscVector &x, int K, double alpha){
+BlockLaplaceFreeMatrix<PetscVector>::BlockLaplaceFreeMatrix(PetscVector &x, int K, double alpha){
 	LOG_FUNC_BEGIN
 
 	this->K = K;
@@ -119,7 +119,7 @@ BlockLaplaceMatrix<PetscVector>::BlockLaplaceMatrix(PetscVector &x, int K, doubl
 }	
 
 template<class VectorBase>
-BlockLaplaceMatrix<VectorBase>::~BlockLaplaceMatrix(){
+BlockLaplaceFreeMatrix<VectorBase>::~BlockLaplaceFreeMatrix(){
 	LOG_FUNC_BEGIN
 	
 	/* destroy aux vector */
@@ -134,7 +134,7 @@ BlockLaplaceMatrix<VectorBase>::~BlockLaplaceMatrix(){
 
 /* print matrix */
 template<class VectorBase>
-void BlockLaplaceMatrix<VectorBase>::print(ConsoleOutput &output) const		
+void BlockLaplaceFreeMatrix<VectorBase>::print(ConsoleOutput &output) const		
 {
 	LOG_FUNC_BEGIN
 
@@ -155,7 +155,7 @@ void BlockLaplaceMatrix<VectorBase>::print(ConsoleOutput &output) const
 }
 
 template<class VectorBase>
-void BlockLaplaceMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void BlockLaplaceFreeMatrix<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
@@ -185,7 +185,7 @@ void BlockLaplaceMatrix<VectorBase>::print(ConsoleOutput &output_global, Console
 
 /* print matrix */
 template<class VectorBase>
-void BlockLaplaceMatrix<VectorBase>::printcontent(ConsoleOutput &output) const		
+void BlockLaplaceFreeMatrix<VectorBase>::printcontent(ConsoleOutput &output) const		
 {
 	LOG_FUNC_BEGIN
 	
@@ -194,22 +194,22 @@ void BlockLaplaceMatrix<VectorBase>::printcontent(ConsoleOutput &output) const
 }
 
 template<class VectorBase>
-int BlockLaplaceMatrix<VectorBase>::get_K() const { 
+int BlockLaplaceFreeMatrix<VectorBase>::get_K() const { 
 	return this->K;
 }
 
 template<class VectorBase>
-int BlockLaplaceMatrix<VectorBase>::get_T() const { 
+int BlockLaplaceFreeMatrix<VectorBase>::get_T() const { 
 	return this->T;
 }
 
 template<class VectorBase>
-int BlockLaplaceMatrix<VectorBase>::get_Tlocal() const { 
+int BlockLaplaceFreeMatrix<VectorBase>::get_Tlocal() const { 
 	return this->Tlocal;
 }
 
 template<class VectorBase>
-double BlockLaplaceMatrix<VectorBase>::get_alpha() const { 
+double BlockLaplaceFreeMatrix<VectorBase>::get_alpha() const { 
 	return this->alpha;
 }
 
@@ -217,7 +217,7 @@ double BlockLaplaceMatrix<VectorBase>::get_alpha() const {
 #ifndef USE_GPU
 /* A*x using openmp */
 template<>
-void BlockLaplaceMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
+void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
 	double *y_arr;
 	const double *x_arr;
 	
@@ -359,7 +359,7 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 }
 
 template<>
-void BlockLaplaceMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const {
+void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const {
 	double *y_arr;
 	double *x_arr;
 	

@@ -6,6 +6,9 @@
 
 #include "pascinference.h"
 
+#include "matrix/blocklaplacefree.h"
+#include "matrix/blocklaplacesparse.h"
+
 #include "matrix/blockgraphfree.h"
 #include "matrix/blockgraphsparse.h"
 
@@ -22,6 +25,7 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
+		("test_matrix_type", boost::program_options::value<int>(), "which matrix type to test [0=BLOCKGRAPHFREE/1=BLOCKGRAPHSPARSE/2=BLOCKLAPLACEFREE/3=BLOCKLAPLACESPARSE]")
 		("test_T", boost::program_options::value<int>(), "dimension of the problem [int]")
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_alpha", boost::program_options::value<double>(), "coefficient of the matrix [double]")
@@ -38,11 +42,12 @@ int main( int argc, char *argv[] )
 	} 
 
 	/* load console arguments */
-	int T, K, R;
+	int T, K, R, matrix_type;
 	std::string graph_filename;
 	bool view_matrix, view_graph, view_matrix_unsorted;
 	double alpha, graph_coeff;
 	
+	consoleArg.set_option_value("test_matrix_type", &matrix_type, 0);
 	consoleArg.set_option_value("test_T", &T, 1);
 	consoleArg.set_option_value("test_K", &K, 1);
 	consoleArg.set_option_value("test_alpha", &alpha, 1.0);
@@ -53,6 +58,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
 	/* print settings */
+	coutMaster << " test_matrix_type          = " << std::setw(20) << matrix_type << " (which matrix type to test)" << std::endl;
 	coutMaster << " test_T                    = " << std::setw(20) << T << " (length of time-series)" << std::endl;
 	coutMaster << " test_K                    = " << std::setw(20) << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_alpha                = " << std::setw(20) << alpha << " (coeficient of the matrix)" << std::endl;
@@ -86,14 +92,23 @@ int main( int argc, char *argv[] )
 //	BGMGraph graph(coordinates,1,1);
 //	graph.process_cpu(100);
 
-	R = graph.get_n();
+	if(matrix_type==0 || matrix_type==1){
+		/* graph matrix */
 
-	/* print info about graph */
-	if(!view_graph){
-		graph.print(coutMaster);
-	} else {
-		graph.print_content(coutMaster);
+		/* print info about graph */
+		if(!view_graph){
+			graph.print(coutMaster);
+		} else {
+			graph.print_content(coutMaster);
+		}
+
+		R = graph.get_n();
 	}
+	if(matrix_type==2 || matrix_type==3){
+		/* laplace matrix */
+		R = 1;
+	}
+
 
 	/* create base vector */
 	/* try to make a global vector of length T and then get size of local portion */
@@ -114,13 +129,22 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
 	/* create matrix */
-//	BlockGraphFreeMatrix<PetscVector> A(x, graph, K, alpha);
-	BlockGraphSparseMatrix<PetscVector> A(x, graph, K, alpha);
-	A.print(coutMaster,coutAll);
-	coutAll.synchronize();
+	GeneralMatrix<PetscVector> *A;
+	if(matrix_type==0){
+		A = new BlockGraphFreeMatrix<PetscVector>(x, graph, K, alpha);
+	}
+	if(matrix_type==1){
+		A = new BlockGraphSparseMatrix<PetscVector>(x, graph, K, alpha);
+	}
+	if(matrix_type==2){
+		A = new BlockLaplaceFreeMatrix<PetscVector>(x, K, alpha);
+	}
+	if(matrix_type==3){
+		A = new BlockLaplaceSparseMatrix<PetscVector>(x, K, alpha);
+	}
 
-	A.printcontent(coutMaster);
-	
+//	A->print(coutMaster);
+	A->printcontent(coutMaster);
 
 	/* prepare timer */
 	Timer timer1;
@@ -164,7 +188,7 @@ int main( int argc, char *argv[] )
 
 		/* perform multiplication */
 		timer1.start();
-			y = A*x;
+			y = (*A)*x;
 		timer1.stop();
 
 		/* print row (in fact, it is column, but matrix is symmetric) */

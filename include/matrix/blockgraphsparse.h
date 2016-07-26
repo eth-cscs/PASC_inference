@@ -90,7 +90,7 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 	this->Tend = high/(double)(R*K);
 
 	int N, n;
-	N = x.size(); /* length of whole matrix N = K*T */
+	N = x.size(); /* length of whole matrix N = K*T*R */
 	n = x.local_size();
 
 	int* neighbor_nmbs = graph->get_neighbor_nmbs();
@@ -237,16 +237,6 @@ void BlockGraphSparseMatrix<VectorBase>::print(ConsoleOutput &output) const
 	if(coeffs){
 		output << " - coeffs: " << *coeffs << std::endl;
 	}
-
-	#ifdef USE_GPU
-		output <<  " - blockSize1:   " << blockSize1 << std::endl;
-		output <<  " - gridSize1:    " << gridSize1 << std::endl;
-		output <<  " - minGridSize1: " << minGridSize1 << std::endl;
-
-		output <<  " - blockSize2:   " << blockSize2 << std::endl;
-		output <<  " - gridSize2:    " << gridSize2 << std::endl;
-		output <<  " - minGridSize2: " << minGridSize2 << std::endl;
-	#endif
 	
 	LOG_FUNC_END	
 }
@@ -277,16 +267,6 @@ void BlockGraphSparseMatrix<VectorBase>::print(ConsoleOutput &output_global, Con
 		output_local.synchronize();
 	}
 
-	#ifdef USE_GPU
-		output_global <<  " - blockSize1:   " << blockSize1 << std::endl;
-		output_global <<  " - gridSize1:    " << gridSize1 << std::endl;
-		output_global <<  " - minGridSize1: " << minGridSize1 << std::endl;
-
-		output_global <<  " - blockSize2:   " << blockSize2 << std::endl;
-		output_global <<  " - gridSize2:    " << gridSize2 << std::endl;
-		output_global <<  " - minGridSize2: " << minGridSize2 << std::endl;
-	#endif
-
 	LOG_FUNC_END	
 }
 
@@ -315,7 +295,6 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 
 	/* multiply with constant part of matrix */
 	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
-//	TRY( VecScale(x.get_vector(), alpha) );
 
 	/* multiply with coeffs */
 	if(coeffs){
