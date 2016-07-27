@@ -206,11 +206,10 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	this->destroy_datavector = true;
 
 	/* get ownership range */
-	int t_begin, t_end, t_length; 
+	int t_begin, t_end; 
 	TRY( VecGetOwnershipRange(datavector_Vec, &t_begin, &t_end) );
 	t_begin = ((double)t_begin)/((double)R);
 	t_end = ((double)t_end)/((double)R);			
-	t_length = t_end - t_begin;
 
 	/* ------ RECORDS ------ */
 	int recnum, ii, samplei, index;
@@ -505,7 +504,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	timer_saveVTK.restart();
 	timer_saveVTK.start();
 
-	int t,k,r,n;
+	int t,k,r;
 	int T = get_T();
 	int Tlocal = get_Tlocal();
 	int K = get_K();

@@ -44,6 +44,7 @@ class CGQPSolver: public QPSolver<VectorBase> {
 
 		void printcontent(ConsoleOutput &output) const;
 		void printstatus(ConsoleOutput &output) const;
+		void printstatus(std::ostringstream &output) const;
 		void printtimer(ConsoleOutput &output) const;
 		
 		std::string get_name() const;
@@ -215,6 +216,19 @@ void CGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output <<  " - hess mult:   " << this->hessmult_last << std::endl;
 	output <<  " - fx:          " << this->fx << std::endl;	
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void CGQPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
+	LOG_FUNC_BEGIN
+
+	std::streamsize ss = std::cout.precision();
+
+	output << std::setprecision(17);
+	output <<  "      - fx:           " << std::setw(25) << this->fx << std::endl;
+	output << std::setprecision(ss);
 
 	LOG_FUNC_END
 }

@@ -454,7 +454,8 @@ void SPGQPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 
 	std::streamsize ss = std::cout.precision();
 
-	output <<  "      - fx:           " << std::setw(25) << std::setprecision(17) << this->fx << std::endl;
+	output << std::setprecision(17);
+	output <<  "      - fx:           " << std::setw(25) << this->fx << std::endl;
 	output <<  "      - fx_control:   " << std::setw(25) << fx_quadratic+fx_linear << ", log: " << std::setw(25) << log(fx_quadratic+fx_linear)/log(10) << std::endl;
 	output <<  "      - fx_linear:    " << std::setw(25) << fx_linear << ", log: " << std::setw(25) << log(fx_linear)/log(10) << std::endl;
 	output <<  "      - fx_quadratic: " << std::setw(25) << fx_quadratic << ", log: " << std::setw(25) << log(fx_quadratic)/log(10) << std::endl;

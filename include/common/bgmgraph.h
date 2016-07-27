@@ -228,8 +228,6 @@ GeneralVector<PetscVector> *BGMGraph::get_coordinates(){
 void BGMGraph::process(double threshold) {
 	this->threshold = threshold;
 	
-	int i,j;
-
 	/* prepare array for number of neighbors */
 	neighbor_nmbs = (int*)malloc(n*sizeof(int));
 	for(i=0;i<n;i++){
@@ -297,7 +295,7 @@ void BGMGraph::process(double threshold) {
 		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
 		
 		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int)) );	
-		for(i=0;i<n;i++){
+		for(int i=0;i<n;i++){
 			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_gpu[i]), neighbor_nmbs[i]*sizeof(int)) );
 			gpuErrchk( cudaMemcpy( neighbor_ids_gpu[i], neighbor_ids[i], n*sizeof(int), cudaMemcpyHostToDevice) );
 		}

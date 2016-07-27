@@ -69,6 +69,12 @@ class GeneralSolver {
 		 */ 
 		virtual void printstatus(ConsoleOutput &output) const;
 
+		/** @brief print status of solver into stream
+		 * 
+		 *  Print the values of inner couters of the solver (for example iteration counter).
+		 * 
+		 * @param output stream where to print
+		 */ 
 		virtual void printstatus(std::ostringstream &output) const;
 
 		/** @brief print content of all solver data

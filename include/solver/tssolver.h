@@ -67,6 +67,7 @@ class TSSolver: public GeneralSolver {
 		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		
 		virtual void printstatus(ConsoleOutput &output) const;
+		virtual void printstatus(std::ostringstream &output) const;
 		virtual void printtimer(ConsoleOutput &output) const;
 		virtual void printshort(std::ostringstream &header, std::ostringstream &values) const;
 		virtual std::string get_name() const;
@@ -259,7 +260,6 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	LOG_FUNC_END
 }
 
-
 template<class VectorBase>
 void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
@@ -278,6 +278,21 @@ void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output.pop();
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 	
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void TSSolver<VectorBase>::printstatus(std::ostringstream &output) const {
+	LOG_FUNC_BEGIN
+
+	std::streamsize ss = std::cout.precision();
+
+	output << std::setprecision(17);
+	output <<  "      - it:      " << std::setw(25) << this->it_last << std::endl;
+	output <<  "      - L:       " << std::setw(25) << this->L << std::endl;
+	output <<  "      - deltaL:  " << std::setw(25) << this->deltaL << std::endl;
+	output << std::setprecision(ss);
+
 	LOG_FUNC_END
 }
 

@@ -28,8 +28,8 @@ class SimpleSolver: public GeneralSolver {
 
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		
 		void printstatus(ConsoleOutput &output) const;
+		void printstatus(std::ostringstream &output) const;
 		void printcontent(ConsoleOutput &output) const;
 		void printtimer(ConsoleOutput &output) const;
 		std::string get_name() const;
@@ -139,6 +139,18 @@ void SimpleSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void SimpleSolver<VectorBase>::printstatus(std::ostringstream &output) const {
+	LOG_FUNC_BEGIN
+
+	std::streamsize ss = std::cout.precision();
+
+	output << std::setprecision(17);
+	output << std::setprecision(ss);
 
 	LOG_FUNC_END
 }
