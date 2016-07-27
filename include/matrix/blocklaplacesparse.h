@@ -152,10 +152,6 @@ BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(PetscVector &x, 
 	TRY( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
 	TRY( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
 
-	/* apply alpha */
-	TRY( MatScale(A_petsc,alpha) );
-
-
 	LOG_FUNC_END
 }	
 
@@ -254,6 +250,7 @@ void BlockLaplaceSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBa
 
 	/* multiply with constant part of matrix */
 	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
+	TRY( VecScale(y.get_vector(),this->alpha) );
 
 	LOG_FUNC_END	
 }

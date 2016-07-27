@@ -462,9 +462,9 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	/* get arrays */
 	double *theta_arr;
 	TRY( VecGetArray(theta_Vec,&theta_arr) );
-	
+
 	double coeff = 1.0/((double)R*T);
-	
+
 	/* through clusters */
 	for(k=0;k<K;k++){ 
 		/* get gammak */
@@ -491,9 +491,9 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	}	
 
 	/* restore arrays */
-	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
+        TRY( VecRestoreArray(theta_Vec,&theta_arr) );
 
-	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) ); // TODO: give debug option in TSSolver?
 
 	LOG_FUNC_END
 }

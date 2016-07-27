@@ -159,11 +159,11 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 			/* deal with overlaps */
 			if(tlocal == 0 && tglobal > 0){
 				/* to left */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + r + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + r + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1.0, INSERT_VALUES) );
 			}
 			if(tlocal == Tlocal-1 && tglobal < T-1){
 				/* to right */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + r)*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + r)*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1.0, INSERT_VALUES) );
 			}
 
 		}
@@ -183,11 +183,11 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 			/* deal with overlaps */
 			if(tlocal == 0 && tglobal > 0){
 				/* to left */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + neightbor_ids[r][neighbor] + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + neightbor_ids[r][neighbor] + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1.0, INSERT_VALUES) );
 			}
 			if(tlocal == Tlocal-1 && tglobal < T-1){
 				/* to right */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + neightbor_ids[r][neighbor])*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + neightbor_ids[r][neighbor])*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1.0, INSERT_VALUES) );
 			}
 
 		}
@@ -200,9 +200,6 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 	/* assemble matrix */
 	TRY( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
 	TRY( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
-
-	/* apply alpha */
-	TRY( MatScale(A_petsc,alpha) );
 
 	LOG_FUNC_END
 }	
@@ -297,8 +294,8 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 
 	/* multiply with coeffs */
 	if(coeffs){
-		const double *coeffs_arr;
-		TRY( VecGetArrayRead(coeffs->get_vector(),&coeffs_arr) );
+		double *coeffs_arr;
+		TRY( VecGetArray(coeffs->get_vector(),&coeffs_arr) );
 
 		Vec xk_Vec;
 		Vec x_Vec = y.get_vector();
@@ -310,17 +307,19 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 			TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k*Tlocal*R, 1, &xk_is) );
 			TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
 			
-			coeff = coeffs_arr[k]*coeffs_arr[k];
+			coeff = alpha*coeffs_arr[k]*coeffs_arr[k];
 			TRY( VecScale(xk_Vec, coeff) );
 			
 			TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
 			TRY( ISDestroy(&xk_is) );
 		}
 
-		TRY( VecRestoreArrayRead(coeffs->get_vector(),&coeffs_arr) );
+		TRY( VecRestoreArray(coeffs->get_vector(),&coeffs_arr) );
+	} else {
+	    TRY( VecScale(y.get_vector(), this->alpha) );
 	}
 
-	LOG_FUNC_END	
+	LOG_FUNC_END
 }
 
 template<class VectorBase>
