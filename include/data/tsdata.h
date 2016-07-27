@@ -51,8 +51,8 @@ class TSData: public GeneralData {
 
 	public:
 		TSData(GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new, int T);
-		TSData(int T, int block_size=1);
-		TSData(std::string filename , int block_size=1);
+		TSData(int T, int blocksize=1);
+		TSData(std::string filename , int blocksize=1);
 		TSData();
 
 		~TSData();
@@ -89,6 +89,11 @@ class TSData: public GeneralData {
 		void save_thetavector(std::string filename) const;
 		void save_gammavector(std::string filename, int blocksize) const;
 
+		/** @brief print basic statistics about data
+		* 
+		* @param output where to print
+		*/
+		void printstats(ConsoleOutput &output) const;
 };
 
 } // end of namespace
@@ -174,7 +179,7 @@ TSData<PetscVector>::TSData(GeneralVector<PetscVector> *datavector_new, GeneralV
 
 /* no datavector provided - prepare own data vector */
 template<>
-TSData<PetscVector>::TSData(int T, int block_size){
+TSData<PetscVector>::TSData(int T, int blocksize){
 	LOG_FUNC_BEGIN
 
 	/* prepare new layout */
@@ -196,7 +201,7 @@ TSData<PetscVector>::TSData(int T, int block_size){
 	/* we are ready to prepare real datavector */
 	Vec data_Vec;
 	TRY( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
-	TRY( VecSetSizes(data_Vec, Tlocal*block_size, T*block_size ) );
+	TRY( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
 	TRY( VecSetFromOptions(data_Vec) );	
 
 	TRY( VecAssemblyBegin(data_Vec) );
@@ -230,7 +235,7 @@ TSData<PetscVector>::TSData(int T, int block_size){
 }
 
 template<>
-TSData<PetscVector>::TSData(std::string filename, int block_size){
+TSData<PetscVector>::TSData(std::string filename, int blocksize){
 	LOG_FUNC_BEGIN
 
 	//TODO: check if file exists
@@ -253,7 +258,7 @@ TSData<PetscVector>::TSData(std::string filename, int block_size){
 	/* get T */
 	int vec_size;
 	TRY( VecGetSize(dataPreLoad_Vec,&vec_size) );
-	int T = vec_size/(double)block_size;
+	int T = vec_size/(double)blocksize;
 
 	/* now we know the length of vector, we will load it again on right layout */
 	TRY( VecDestroy(&dataPreLoad_Vec) );
@@ -277,7 +282,7 @@ TSData<PetscVector>::TSData(std::string filename, int block_size){
 	/* we are ready to prepare real datavector */
 	Vec data_Vec;
 	TRY( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
-	TRY( VecSetSizes(data_Vec, Tlocal*block_size, T*block_size ) );
+	TRY( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
 	TRY( VecSetFromOptions(data_Vec) );	
 
 	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
@@ -716,6 +721,74 @@ void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize) 
 	
 }
 
+template<>
+void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	std::streamsize ss = std::cout.precision();
+	output << std::setprecision(17);
+
+	output <<  "STATS: " << this->get_name() << std::endl;
+	output.push();
+		int x_size = this->datavector->size();
+		output << " - total length:    " << x_size << std::endl;
+		output << " - nmb of blocks:   " << blocksize << std::endl;
+		output << " - length of block: " << T << std::endl;
+		
+		/* compute basic statistics: */
+		Vec x_Vec = datavector->get_vector();
+
+		double x_sum;
+		double x_max;
+		double x_min;
+		double x_avg;
+
+		TRY( VecSum(x_Vec, &x_sum) );
+		TRY( VecMax(x_Vec, NULL, &x_max) );
+		TRY( VecMin(x_Vec, NULL, &x_min) );
+		x_avg = x_sum/(double)x_size;
+
+		output <<  " - sum:    " << std::setw(25) << x_sum << std::endl;
+		output <<  " - max:    " << std::setw(25) << x_max << std::endl;
+		output <<  " - min:    " << std::setw(25) << x_min << std::endl;
+		output <<  " - avg:    " << std::setw(25) << x_avg << std::endl;
+
+		/* for each dimension compute basic statistics: */
+		Vec xk_Vec;
+		IS xk_is;
+		int xk_size = T;
+		
+		double xk_sum;
+		double xk_max;
+		double xk_min;
+		double xk_avg;
+		
+		for(int k=0;k<blocksize;k++){
+			output << "x_" << k << std::endl;
+			output.push();
+				TRY( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, 1, &xk_is) );
+				TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
+
+				TRY( VecSum(xk_Vec, &xk_sum) );
+				TRY( VecMax(xk_Vec, NULL, &xk_max) );
+				TRY( VecMin(xk_Vec, NULL, &xk_min) );
+				xk_avg = xk_sum/(double)xk_size;
+
+				output <<  " - length: " << std::setw(25) << xk_size << std::endl;
+				output <<  " - sum:    " << std::setw(25) << xk_sum << std::endl;
+				output <<  " - max:    " << std::setw(25) << xk_max << std::endl;
+				output <<  " - min:    " << std::setw(25) << xk_min << std::endl;
+				output <<  " - avg:    " << std::setw(25) << xk_avg << std::endl;
+
+				TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
+				TRY( ISDestroy(&xk_is) );
+			output.pop();
+		}
+	output.pop();
+	output << std::setprecision(ss);
+		
+	LOG_FUNC_END
+}
 
 } /* end namespace */
 

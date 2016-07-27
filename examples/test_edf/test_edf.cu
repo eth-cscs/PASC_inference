@@ -31,7 +31,8 @@ int main( int argc, char *argv[] )
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1}")
 		("test_max_record_nmb", boost::program_options::value<int>(), "maximum nuber of loaded records")
-		("test_savevtk", boost::program_options::value<bool>(), "save results into vtk format [bool]");
+		("test_savevtk", boost::program_options::value<bool>(), "save results into vtk format [bool]")
+		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -41,7 +42,7 @@ int main( int argc, char *argv[] )
 
 	int K, max_record_nmb, annealing; 
 	double epssqr; 
-	bool cutgamma, savevtk;
+	bool cutgamma, savevtk, printstats;
 
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
@@ -49,6 +50,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_savevtk", &savevtk, true);
+	consoleArg.set_option_value("test_printstats", &printstats, false);
 
 	coutMaster << "----------------------- PROBLEM INFO --------------------------" << std::endl << std::endl;
 	coutMaster << " K                       = " << std::setw(30) << K << " (number of clusters)" << std::endl;
@@ -57,6 +59,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " cutgamma                = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})" << std::endl;
 	coutMaster << " max_record_nmb          = " << std::setw(30) << max_record_nmb << " (max number of loaded time-steps)" << std::endl;
 	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)" << std::endl;
+	coutMaster << " test_printstats         = " << std::setw(30) << printstats << " (print basic statistics of data)" << std::endl;
 	coutMaster << "---------------------------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */
@@ -71,6 +74,10 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	EdfData<PetscVector> mydata("data/S001R01.edf.txt", max_record_nmb);
 
+	if(printstats){
+		mydata.printstats(coutMaster);
+	}
+	
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	BGMGraph mygraph("data/Koordinaten_EEG_P.bin");
