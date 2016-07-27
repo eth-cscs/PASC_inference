@@ -165,7 +165,7 @@ BGMGraph::~BGMGraph(){
 		}
 		free(neighbor_ids);
 
-		#ifdef USE_GPU
+		#ifdef USE_CUDA
 			gpuErrchk( cudaFree(neighbor_nmbs_gpu) );
 			for(i=0;i<n;i++){
 				gpuErrchk( cudaFree(neighbor_ids_gpu[i]) );
@@ -289,7 +289,7 @@ void BGMGraph::process(double threshold) {
 	/* restore array */
 	TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		/* copy data to gpu */
 		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
 		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
