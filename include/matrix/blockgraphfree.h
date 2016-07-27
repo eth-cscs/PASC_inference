@@ -77,7 +77,7 @@ class BlockGraphFreeMatrix: public GeneralMatrix<VectorBase> {
 
 #ifdef USE_GPU
 __global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
-__global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
+__global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha, bool use_coeffs, double *coeffs_arr);
 #endif
 
 
@@ -550,7 +550,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) co
 	TRY( VecRestoreSubVector(x.get_vector(),right_overlap_is,&right_overlap_vec) );
 }
 
-__global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha)
+__global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha, bool use_coeffs, double *coeffs_arr)
 {
 	/* compute my id */
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -594,7 +594,7 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_
 		y_arr[y_arr_idx] = alpha*y_arr[y_arr_idx];
 
 		/* if coeffs are provided, then multiply with coefficient corresponding to this block */
-		if(coeffs){
+		if(use_coeffs){
 			y_arr[y_arr_idx] = coeffs_arr[k]*coeffs_arr[k]*y_arr[y_arr_idx];
 		}
 
@@ -609,6 +609,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 	double *y_arr;
 	double *x_arr;
 	double *x_aux_arr;
+	bool use_coeffs;
 	
 	int* neighbor_nmbs = graph->get_neighbor_nmbs_gpu();
 	int **neightbor_ids = graph->get_neighbor_ids_gpu();
@@ -617,15 +618,24 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 	TRY( VecCUDAGetArrayReadWrite(x_aux,&x_aux_arr) );
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
+	if(coeffs){
+		TRY( VecGetArrayRead(coeffs->get_vector(),&coeffs_arr) );
+		use_coeffs = true;
+	} else {
+		use_coeffs = false;
+	}
 
 	/* call kernel */
-	kernel_BlockGraphFreeMatrix_mult_graph<<<gridSize2, blockSize2>>>(y_arr, x_arr, x_aux_arr, neighbor_nmbs, neightbor_ids, T, Tlocal, Tbegin, R, K, alpha);
+	kernel_BlockGraphFreeMatrix_mult_graph<<<gridSize2, blockSize2>>>(y_arr, x_arr, x_aux_arr, neighbor_nmbs, neightbor_ids, T, Tlocal, Tbegin, R, K, alpha, use_coeffs, coeffs_arr);
 	gpuErrchk( cudaDeviceSynchronize() );
 
 	/* restore array */
 	TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
 	TRY( VecCUDARestoreArrayReadWrite(x_aux,&x_aux_arr) );
 	TRY( VecCUDARestoreArrayReadWrite(y.get_vector(),&y_arr) );
+	if(coeffs){
+		TRY( VecRestoreArrayRead(coeffs->get_vector(),&coeffs_arr) );
+	}
 
 }
 

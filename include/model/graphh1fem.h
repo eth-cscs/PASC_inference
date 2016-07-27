@@ -236,7 +236,7 @@ void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, C
 	double *theta;
 	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
 	
-	int k,i,n;
+	int k,n;
 
 	output_local.push();
 	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
@@ -464,7 +464,6 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	TRY( VecGetArray(theta_Vec,&theta_arr) );
 	
 	double coeff = 1.0/((double)R*T);
-	double value;
 	
 	/* through clusters */
 	for(k=0;k<K;k++){ 

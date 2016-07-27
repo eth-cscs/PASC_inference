@@ -230,7 +230,7 @@ void BGMGraph::process(double threshold) {
 	
 	/* prepare array for number of neighbors */
 	neighbor_nmbs = (int*)malloc(n*sizeof(int));
-	for(i=0;i<n;i++){
+	for(int i=0;i<n;i++){
 		neighbor_nmbs[i] = 0;
 	}
 	

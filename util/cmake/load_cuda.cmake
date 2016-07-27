@@ -21,7 +21,7 @@ endif()
 macro(PRINTSETTING_CUDA)
 	printinfo_onoff("USE_CUDA\t\t\t" "${USE_CUDA}")
 	if(${USE_CUDA})
-		printinfo(" - CUDA_CXX_FLAGS\t" "${CUDA_CXX_FLAGS}")
+		printinfo(" - CUDA_CXX_FLAGS\t\t" "${CUDA_CXX_FLAGS}")
 	endif()
 
 endmacro()
