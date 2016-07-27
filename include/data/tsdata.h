@@ -731,9 +731,9 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
 	output <<  "STATS: " << this->get_name() << std::endl;
 	output.push();
 		int x_size = this->datavector->size();
-		output << " - total length:    " << x_size << std::endl;
-		output << " - nmb of blocks:   " << blocksize << std::endl;
-		output << " - length of block: " << T << std::endl;
+		output << " - total length:    " << std::setw(25) << x_size << std::endl;
+		output << " - nmb of blocks:   " << std::setw(25) << blocksize << std::endl;
+		output << " - length of block: " << std::setw(25) << T << std::endl;
 		
 		/* compute basic statistics: */
 		Vec x_Vec = datavector->get_vector();
@@ -748,10 +748,10 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
 		TRY( VecMin(x_Vec, NULL, &x_min) );
 		x_avg = x_sum/(double)x_size;
 
-		output <<  " - sum:    " << std::setw(25) << x_sum << std::endl;
-		output <<  " - max:    " << std::setw(25) << x_max << std::endl;
-		output <<  " - min:    " << std::setw(25) << x_min << std::endl;
-		output <<  " - avg:    " << std::setw(25) << x_avg << std::endl;
+		output <<  " - sum:             " << std::setw(25) << x_sum << std::endl;
+		output <<  " - max:             " << std::setw(25) << x_max << std::endl;
+		output <<  " - min:             " << std::setw(25) << x_min << std::endl;
+		output <<  " - avg:             " << std::setw(25) << x_avg << std::endl;
 
 		/* for each dimension compute basic statistics: */
 		Vec xk_Vec;
