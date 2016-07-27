@@ -620,7 +620,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 	TRY( VecCUDAGetArrayReadWrite(x_aux,&x_aux_arr) );
 	TRY( VecCUDAGetArrayReadWrite(y.get_vector(),&y_arr) );
 	if(coeffs){
-		TRY( VecGetArray(coeffs->get_vector(),&coeffs_arr) );
+		TRY( VecCUDAGetArrayReadWrite(coeffs->get_vector(),&coeffs_arr) );
 		use_coeffs = true;
 	} else {
 		use_coeffs = false;
@@ -635,7 +635,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 	TRY( VecCUDARestoreArrayReadWrite(x_aux,&x_aux_arr) );
 	TRY( VecCUDARestoreArrayReadWrite(y.get_vector(),&y_arr) );
 	if(coeffs){
-		TRY( VecRestoreArray(coeffs->get_vector(),&coeffs_arr) );
+		TRY( VecCUDARestoreArrayReadWrite(coeffs->get_vector(),&coeffs_arr) );
 	}
 
 }
