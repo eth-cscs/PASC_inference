@@ -609,6 +609,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 	double *y_arr;
 	double *x_arr;
 	double *x_aux_arr;
+	double *coeffs_arr;
 	bool use_coeffs;
 	
 	int* neighbor_nmbs = graph->get_neighbor_nmbs_gpu();

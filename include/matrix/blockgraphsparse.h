@@ -127,7 +127,6 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 		int diag_idx = Tbegin*R*K + tlocal + (k*R+r)*(Tlocal);
 		int row_idx = Tbegin*R*K + y_arr_idx;
 
-		double value;
 		int Wsum;
 
 		/* compute sum of W entries in row */
