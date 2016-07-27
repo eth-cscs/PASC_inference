@@ -20,7 +20,13 @@ static void add_options(boost::program_options::options_description *description
 	opt_tssolver_global.add_options()
 		("tssolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 		("tssolver_eps", boost::program_options::value<double>(), "precision [double]")
-		("tssolver_debug_mode", boost::program_options::value<int>(), "debug mode [int]");
+		("tssolver_debug_mode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2/3]")
+		("tssolver_debug_print_annealing", boost::program_options::value<bool>(), "print info about annealing steps")
+		("tssolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
+		("tssolver_debug_print_theta", boost::program_options::value<bool>(), "print theta solver info")
+		("tssolver_debug_print_theta_solution", boost::program_options::value<bool>(), "print solution of theta problem in each iteration")
+		("tssolver_debug_print_gamma", boost::program_options::value<bool>(), "print gamma solver info")
+		("tssolver_debug_print_gamma_solution", boost::program_options::value<bool>(), "print solution of gamma problem in each iteration");
 	description->add(opt_tssolver_global);
 
 	/* MULTICG */
@@ -60,7 +66,6 @@ static void add_options(boost::program_options::options_description *description
 	opt_spgqpsolver.add_options()
 		("spgqpsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 		("spgqpsolver_eps", boost::program_options::value<double>(), "precision [double]")
-		("spgqpsolver_debug_mode", boost::program_options::value<int>(), "debug mode [int]")
 		("spgqpsolver_m", boost::program_options::value<int>(), "parameter of generalized Armijo condition [int]")
 		("spgqpsolver_gamma", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
 		("spgqpsolver_sigma1", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
@@ -70,8 +75,14 @@ static void add_options(boost::program_options::options_description *description
 		("spgqpsolver_stop_Anormgp", boost::program_options::value<bool>(), "stopping criteria based on A-norm(gp) [bool]")
 		("spgqpsolver_stop_normgp_normb", boost::program_options::value<bool>(), "stopping criteria based on norm(gp) and norm(b) [bool]")
 		("spgqpsolver_stop_Anormgp_normb", boost::program_options::value<bool>(), "stopping criteria based on A-norm(gp) and norm(b) [bool]")
-		("spgqpsolver_stop_difff", boost::program_options::value<bool>(), "stopping criteria based on difference of object function [bool]");
+		("spgqpsolver_stop_difff", boost::program_options::value<bool>(), "stopping criteria based on difference of object function [bool]")
+		("spgqpsolver_debug_mode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
+		("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
+		("spgqpsolver_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations")
+		("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
 	description->add(opt_spgqpsolver);
+
+
 
 	/* GRAPHH1FEMMODEL */
 	boost::program_options::options_description opt_graphh1femmodel("GRAPHH1FEMMODEL", console_nmb_cols);

@@ -80,7 +80,6 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
-	
 	coutMaster << "---------------------------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */

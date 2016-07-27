@@ -156,6 +156,11 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		*/
 		void set_settings_from_console();
 		
+		int debug_mode;				/**< basic debug mode schema [0/1/2] */
+		bool debug_print_it;		/**< print simple info about outer iterations */
+		bool debug_print_vectors;	/**< print content of vectors during iterations */
+		bool debug_print_scalars;	/**< print values of computed scalars during iterations */ 
+		
 	public:
 		/** @brief general constructor
 		* 
@@ -201,7 +206,6 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("spgqpsolver_maxit", &this->maxit, SPGQPSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("spgqpsolver_eps", &this->eps, SPGQPSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
 	
 	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_DEFAULT_M);	
 	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_DEFAULT_GAMMA);	
@@ -214,6 +218,26 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("spgqpsolver_stop_normgp_normb", &this->stop_normgp_normb, SPGQPSOLVER_STOP_NORMGP_NORMB);
 	consoleArg.set_option_value("spgqpsolver_stop_Anormgp_normb", &this->stop_Anormgp_normb, SPGQPSOLVER_STOP_ANORMGP_NORMB);
 	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
+
+	/* set debug mode */
+	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
+	
+	debug_print_it = false;
+	debug_print_vectors = false;
+	debug_print_scalars = false; 
+
+	if(debug_mode == 1){
+		debug_print_it = true;
+	}
+
+	if(debug_mode == 2){
+		debug_print_it = true;
+		debug_print_scalars = true;
+	}
+
+	consoleArg.set_option_value("tssolver_debug_print_it",		&debug_print_it, 		debug_print_it);
+	consoleArg.set_option_value("tssolver_debug_print_vectors", &debug_print_vectors,	debug_print_vectors);
+	consoleArg.set_option_value("tssolver_debug_print_scalars", &debug_print_scalars, 	debug_print_scalars);
 
 }
 
@@ -665,17 +689,9 @@ void SPGQPSolver<VectorBase>::solve() {
 		this->timer_stepsize.stop();
 
 		this->gP = dd;
-		
-		/* print qpdata */
-		if(this->debug_mode == 10){
-			coutMaster << "x: " << x << std::endl;
-			coutMaster << "d: " << d << std::endl;
-			coutMaster << "g: " << g << std::endl;
-			coutMaster << "Ad: " << Ad << std::endl;
-		}
 
 		/* print progress of algorithm */
-		if(this->debug_mode == 3){
+		if(debug_print_it){
 			coutMaster << "\033[33m   it = \033[0m" << it;
 			
 			std::streamsize ss = std::cout.precision();
@@ -684,13 +700,16 @@ void SPGQPSolver<VectorBase>::solve() {
 			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
-
-		if(this->debug_mode == 4){
-			coutAll << "\033[33m   it = \033[0m" << it << std::endl;
+		
+		/* print qpdata */
+		if(debug_print_vectors){
+			coutMaster << "x: " << x << std::endl;
+			coutMaster << "d: " << d << std::endl;
+			coutMaster << "g: " << g << std::endl;
+			coutMaster << "Ad: " << Ad << std::endl;
 		}
 
-
-		if(this->debug_mode == 5){
+		if(debug_print_scalars){
 			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			coutMaster << "\033[36m dAd = \033[0m" << dAd << ",";
 			coutMaster << "\033[36m gd = \033[0m" << gd << std::endl;

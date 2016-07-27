@@ -19,6 +19,7 @@
 
 #define TSSOLVER_DEFAULT_MAXIT 300
 #define TSSOLVER_DEFAULT_EPS 1e-9
+
 #define TSSOLVER_DEFAULT_DEBUG_MODE 0
 
 namespace pascinference {
@@ -49,12 +50,21 @@ class TSSolver: public GeneralSolver {
 		Timer timer_gamma_update; /**< timer for updating gamma problem */
 		Timer timer_theta_update; /**< timer for updating theta problem */
 
+		int debug_mode;						/**< basic debug mode schema [0/1/2/3] */
+		bool debug_print_annealing;			/**< print info about annealing steps */
+		bool debug_print_it;				/**< print simple info about outer iterations */
+		bool debug_print_theta;				/**< print theta solver info */
+		bool debug_print_theta_solution;	/**< print solution of theta problem in each iteration */ 
+		bool debug_print_gamma;				/**< print gamma solver info */
+		bool debug_print_gamma_solution;	/**< print solution of gamma problem in each iteration */
+
 		/* temp vectors for annealing */
 		GeneralVector<VectorBase> *gammavector_temp;
 		GeneralVector<VectorBase> *thetavector_temp;
 
 		void prepare_temp_annealing();
 		void destroy_temp_annealing();
+		void set_settings_from_console();
 		
 	public:
 		TSSolver();
@@ -86,6 +96,50 @@ class TSSolver: public GeneralSolver {
 
 namespace pascinference {
 
+/* set predefined debug mode schema */
+template<class VectorBase>
+void TSSolver<VectorBase>::set_settings_from_console(){
+	LOG_FUNC_BEGIN
+	
+	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
+
+	/* set debug mode */
+	consoleArg.set_option_value("tssolver_debug_mode", &debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
+
+	debug_print_annealing = false;
+	debug_print_it = false;
+	debug_print_theta = false;
+	debug_print_theta_solution = false; 
+	debug_print_gamma = false;
+	debug_print_gamma_solution = false; 
+
+	if(debug_mode == 1){
+		debug_print_annealing = true;
+	}
+
+	if(debug_mode == 2){
+		debug_print_annealing = true;
+		debug_print_it = true;
+	}
+
+	if(debug_mode == 3){
+		debug_print_annealing = true;
+		debug_print_it = true;
+		debug_print_theta = true;
+		debug_print_gamma = true;
+	}
+
+	consoleArg.set_option_value("tssolver_debug_print_annealing", 		&debug_print_annealing, 		debug_print_annealing);
+	consoleArg.set_option_value("tssolver_debug_print_it",				&debug_print_it, 				debug_print_it);
+	consoleArg.set_option_value("tssolver_debug_print_theta", 			&debug_print_theta, 			debug_print_theta);
+	consoleArg.set_option_value("tssolver_debug_print_theta_solution", 	&debug_print_theta_solution, 	debug_print_theta_solution);
+	consoleArg.set_option_value("tssolver_debug_print_gamma", 			&debug_print_gamma, 			debug_print_gamma);
+	consoleArg.set_option_value("tssolver_debug_print_gamma_solution", 	&debug_print_gamma_solution, 	debug_print_gamma_solution);
+
+	LOG_FUNC_END
+}
+
 /* constructor */
 template<class VectorBase>
 TSSolver<VectorBase>::TSSolver(){
@@ -100,9 +154,7 @@ TSSolver<VectorBase>::TSSolver(){
 	this->it_last = 0;
 	this->annealing = 1;
 
-	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
-	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("tssolver_debug_mode", &this->debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
+	set_settings_from_console();
 
 	this->L = std::numeric_limits<double>::max();
 	this->deltaL = std::numeric_limits<double>::max();
@@ -131,9 +183,7 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	model->initialize_thetasolver(&thetasolver, tsdata);	
 
 	/* set settings */
-	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
-	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("tssolver_debug_mode", &this->debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
+	set_settings_from_console();
 
 	/* iteration counters */
 	this->it_sum = 0;
@@ -220,7 +270,7 @@ template<class VectorBase>
 void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global << this->get_name() << std::endl;
 
 	/* print settings */
 	output_global <<  " - maxit:      " << this->maxit << std::endl;
@@ -380,9 +430,6 @@ void TSSolver<VectorBase>::solve() {
 		coutMaster << "Warning: gammasolver or thetasolver is not set yet!" << std::endl;
 	}
 
-	/* update settings of child solvers */ //TODO: this is not working at all
-	gammasolver->debug_mode = this->debug_mode;
-
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
 	/* variables */
@@ -401,7 +448,9 @@ void TSSolver<VectorBase>::solve() {
 	/* annealing cycle */
 	coutMaster.push();
 	for(it_annealing=0;it_annealing < this->annealing;it_annealing++){
-		coutMaster <<  "- annealing = " << it_annealing << std::endl;
+		if(debug_print_annealing){
+			coutMaster <<  "- annealing = " << it_annealing << std::endl;
+		}
 		
 		/* couter for iterations inside annealing */
 		it_gammasolver = 0;
@@ -417,7 +466,9 @@ void TSSolver<VectorBase>::solve() {
 		/* main cycle */
 		coutMaster.push();
 		for(it=0;it < this->maxit;it++){
-//			coutMaster <<  "it = " << it << std::endl;
+			if(debug_print_it){
+				coutMaster <<  "it = " << it << std::endl;
+			}
 
 			/* --- COMPUTE Theta --- */
 			this->timer_theta_update.start();
@@ -434,7 +485,7 @@ void TSSolver<VectorBase>::solve() {
 			TRY(PetscBarrier(NULL));
 
 			/* print info about theta solver */
-			if(this->debug_mode >= 2){
+			if(debug_print_theta){
 				/* print info about cost function */
 				coutMaster << " theta solver:" << std::endl;
 				coutMaster << "  - ";
@@ -450,13 +501,7 @@ void TSSolver<VectorBase>::solve() {
 
 			}
 
-			if(this->debug_mode >= 100){
-				coutMaster <<  "- thetasolver info:" << std::endl;
-				coutMaster.push();
-				 thetasolver->print(coutMaster);
-				coutMaster.pop();
-			}
-			if(this->debug_mode >= 101){
+			if(debug_print_theta_solution){
 				coutMaster <<  "- thetasolver content:" << std::endl;
 				coutMaster.push();
 				 thetasolver->printcontent(coutMaster);
@@ -475,7 +520,7 @@ void TSSolver<VectorBase>::solve() {
 			this->timer_gamma_solve.stop();
 
 			/* print info about gammasolver */
-			if(this->debug_mode >= 2){
+			if(debug_print_gamma){
 				/* print info about cost function */
 				coutMaster << " gamma solver:" << std::endl;
 				coutMaster << "  - ";
@@ -489,13 +534,7 @@ void TSSolver<VectorBase>::solve() {
 				}
 				coutAll.synchronize();
 			}
-			if(this->debug_mode >= 100){
-				coutMaster <<  "- gammasolver info:" << std::endl;
-				coutMaster.push();
-				gammasolver->print(coutMaster);
-				coutMaster.pop();
-			}
-			if(this->debug_mode >= 101){
+			if(debug_print_gamma_solution){
 				coutMaster <<  "- gammasolver content:" << std::endl;
 				coutMaster.push();
 				gammasolver->printcontent(coutMaster);
@@ -511,7 +550,7 @@ void TSSolver<VectorBase>::solve() {
 			LOG_FX2(L,"L")
 			LOG_FX2(deltaL,"deltaL")
 
-			if(this->debug_mode >= 2){
+			if(debug_print_it){
 				/* print info about cost function */
 				coutMaster << " outer loop status:" << std::endl;			
 				coutMaster << "  - ";
@@ -538,12 +577,14 @@ void TSSolver<VectorBase>::solve() {
 		/* compute AIC */ 
 		aic = model->get_aic(L);
 
-		coutMaster << "  AIC=" << std::setw(12) << aic;
-		coutMaster << ", L=" << std::setw(7) << L;
-		coutMaster << ", it=" << std::setw(6) << it;
-		coutMaster << ", it_gamma=" << std::setw(6) << it_gammasolver;
+		if(debug_print_annealing){
+			coutMaster << "  AIC=" << std::setw(12) << aic;
+			coutMaster << ", L=" << std::setw(7) << L;
+			coutMaster << ", it=" << std::setw(6) << it;
+			coutMaster << ", it_gamma=" << std::setw(6) << it_gammasolver;
 //		coutMaster << ", it_theta=" << std::setw(6) << it_thetasolver;
-		coutMaster << std::endl;
+			coutMaster << std::endl;
+		}
 		
 		/* if this value is smaller then previous, then store it */
 		if(aic < tsdata->get_aic() && annealing > 1){

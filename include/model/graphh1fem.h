@@ -491,9 +491,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	}	
 
 	/* restore arrays */
-        TRY( VecRestoreArray(theta_Vec,&theta_arr) );
-
-	TRY( VecView(theta_Vec, PETSC_VIEWER_STDOUT_WORLD) ); // TODO: give debug option in TSSolver?
+	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
 
 	LOG_FUNC_END
 }

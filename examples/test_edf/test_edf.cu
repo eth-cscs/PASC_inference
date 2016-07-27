@@ -30,7 +30,8 @@ int main( int argc, char *argv[] )
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1}")
-		("test_max_record_nmb", boost::program_options::value<int>(), "maximum nuber of loaded records");
+		("test_max_record_nmb", boost::program_options::value<int>(), "maximum nuber of loaded records")
+		("test_savevtk", boost::program_options::value<bool>(), "save results into vtk format [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -40,21 +41,23 @@ int main( int argc, char *argv[] )
 
 	int K, max_record_nmb, annealing; 
 	double epssqr; 
-	bool cutgamma;
+	bool cutgamma, savevtk;
 
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 	consoleArg.set_option_value("test_max_record_nmb", &max_record_nmb, -1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
+	consoleArg.set_option_value("test_savevtk", &savevtk, true);
 
-	coutMaster << "- PROBLEM INFO -----------------" << std::endl;
-	coutMaster << " K              = " << K << " (number of clusters)" << std::endl;
-	coutMaster << " epssqr         = " << epssqr << " (penalty)" << std::endl;
-	coutMaster << " annealing      = " << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " cutgamma       = " << cutgamma << " (cut gamma to {0,1})" << std::endl;
-	coutMaster << " max_record_nmb = " << max_record_nmb << " (max number of loaded time-steps)" << std::endl;
-	coutMaster << "------------------------------" << std::endl << std::endl;
+	coutMaster << "----------------------- PROBLEM INFO --------------------------" << std::endl << std::endl;
+	coutMaster << " K                       = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	coutMaster << " epssqr                  = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
+	coutMaster << " annealing               = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
+	coutMaster << " cutgamma                = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})" << std::endl;
+	coutMaster << " max_record_nmb          = " << std::setw(30) << max_record_nmb << " (max number of loaded time-steps)" << std::endl;
+	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)" << std::endl;
+	coutMaster << "---------------------------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
