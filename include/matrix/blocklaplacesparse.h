@@ -110,7 +110,6 @@ BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(PetscVector &x, 
 		int diag_idx = Tbegin*K + tlocal + k*(Tlocal);
 		int row_idx = Tbegin*K + y_arr_idx;
 
-		double value;
 		int Wsum;
 
 		/* compute sum of W entries in row */

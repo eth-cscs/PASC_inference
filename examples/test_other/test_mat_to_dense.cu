@@ -7,10 +7,10 @@
 #include "pascinference.h"
 
 #include "matrix/blocklaplacefree.h"
-//#include "matrix/blocklaplacesparse.h"
+#include "matrix/blocklaplacesparse.h"
 
 #include "matrix/blockgraphfree.h"
-//#include "matrix/blockgraphsparse.h"
+#include "matrix/blockgraphsparse.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
@@ -134,13 +134,13 @@ int main( int argc, char *argv[] )
 		A = new BlockGraphFreeMatrix<PetscVector>(x, graph, K, alpha);
 	}
 	if(matrix_type==1){
-//		A = new BlockGraphSparseMatrix<PetscVector>(x, graph, K, alpha);
+		A = new BlockGraphSparseMatrix<PetscVector>(x, graph, K, alpha);
 	}
 	if(matrix_type==2){
 		A = new BlockLaplaceFreeMatrix<PetscVector>(x, K, alpha);
 	}
 	if(matrix_type==3){
-//		A = new BlockLaplaceSparseMatrix<PetscVector>(x, K, alpha);
+		A = new BlockLaplaceSparseMatrix<PetscVector>(x, K, alpha);
 	}
 
 //	A->print(coutMaster);

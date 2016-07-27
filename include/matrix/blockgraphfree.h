@@ -613,8 +613,8 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 	bool use_coeffs;
 	
 	int* neighbor_nmbs = graph->get_neighbor_nmbs_gpu();
-	int **neightbor_ids = graph->get_neighbor_ids_gpu();
-			
+	int** neightbor_ids = graph->get_neighbor_ids_gpu();
+	
 	/* get array */
 	TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 	TRY( VecCUDAGetArrayReadWrite(x_aux,&x_aux_arr) );

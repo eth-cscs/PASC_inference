@@ -1,5 +1,5 @@
 #ifndef PASC_GRAPHH1FEMMODEL_H
-#define	PASC_GRAPHH1FEMMODEL_H
+#define PASC_GRAPHH1FEMMODEL_H
 
 #ifndef USE_PETSCVECTOR
  #error 'GRAPHH1FEMMODEL is for PETSCVECTOR'
@@ -480,7 +480,6 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 
 		/* compute gammaksum */
 		TRY( VecSum(gammak_Vec, &gammaksum) );
-
 
 //		theta_arr[k] = gammakx/(gammaksum + gammakAgammak);
 		theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + gammakAgammak);
