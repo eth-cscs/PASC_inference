@@ -376,8 +376,8 @@ double GraphH1FEMModel<VectorBase>::get_L(GeneralSolver *gammasolver, GeneralSol
 
 template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver, const TSData<VectorBase> *tsdata){
-	linearL = 0;
-	quadraticL = 0;
+	*linearL = 0;
+	*quadraticL = 0;
 }
 
 template<class VectorBase>
