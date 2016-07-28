@@ -49,6 +49,10 @@ class TSData: public GeneralData {
 		int Tend;
 		int blocksize;
 
+		/* scaling variables */
+		double scale_max;
+		double scale_min;
+		
 	public:
 		TSData(GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new, int T);
 		TSData(int T, int blocksize=1);
@@ -101,6 +105,16 @@ class TSData: public GeneralData {
 		* @param threshold_up upper threshold
 		*/
 		void cutdata(double threshold_down, double threshold_up);
+
+		/** @brief scale data to 0,1
+		* 
+		*/
+		void scaledata();
+
+		/** @brief scale data back to original interval
+		* 
+		*/
+		void unscaledata();
 
 };
 
@@ -774,7 +788,7 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
 		for(int k=0;k<blocksize;k++){
 			output << "x_" << k << std::endl;
 			output.push();
-				TRY( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, 1, &xk_is) );
+				TRY( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, blocksize, &xk_is) );
 				TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
 
 				TRY( VecSum(xk_Vec, &xk_sum) );
@@ -829,6 +843,58 @@ void TSData<PetscVector>::cutdata(double threshold_down, double threshold_up){
 	}
 
 	TRY( VecRestoreArray(datavector->get_vector(), &x_arr) );	
+	
+	LOG_FUNC_END
+}
+
+template<>
+void TSData<PetscVector>::scaledata(){
+	LOG_FUNC_BEGIN
+
+	Vec x_Vec = datavector->get_vector();
+
+	/* compute max and min for scaling */
+	TRY( VecMax(x_Vec, NULL, &scale_max) );
+	TRY( VecMin(x_Vec, NULL, &scale_min) );
+
+	/* compute x = (x-scale_min)/(scale_max-scale_min) */
+	TRY( VecShift(x_Vec, -scale_min) );
+	TRY( VecScale(x_Vec, 1.0/((double)(scale_max-scale_min))) );
+	
+	TRY( VecAssemblyBegin(x_Vec) );
+	TRY( VecAssemblyEnd(x_Vec) );
+	
+	LOG_FUNC_END
+}
+
+template<>
+void TSData<PetscVector>::unscaledata(){
+	LOG_FUNC_BEGIN
+
+	Vec x_Vec = datavector->get_vector();
+
+	/* compute x = (scale_max-scale_min)*x + scale_min */
+	TRY( VecScale(x_Vec, scale_max-scale_min) );
+	TRY( VecShift(x_Vec, scale_min) );
+
+	TRY( VecAssemblyBegin(x_Vec) );
+	TRY( VecAssemblyEnd(x_Vec) );
+
+	/* scale also computed Theta */
+	if(thetavector){
+		int theta_size = this->tsmodel->get_thetavectorlength_local();
+		double *theta_arr;
+		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		
+		for(int i=0;i<theta_size;i++){
+			theta_arr[i] = (scale_max-scale_min)*theta_arr[i] + scale_min;
+		}
+		
+		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+
+		TRY( VecAssemblyBegin(thetavector) );
+		TRY( VecAssemblyEnd(thetavector) );
+	}
 	
 	LOG_FUNC_END
 }

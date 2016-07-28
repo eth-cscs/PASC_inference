@@ -33,6 +33,7 @@ int main( int argc, char *argv[] )
 		("test_cutdata", boost::program_options::value<bool>(), "cut data to given interval [bool]")
 		("test_cutdata_down", boost::program_options::value<double>(), "lower bound used for cutting data [double]")
 		("test_cutdata_up", boost::program_options::value<double>(), "upper bound used for cutting data [double]")
+		("test_scaledata", boost::program_options::value<bool>(), "scale data to interval 0,1 [bool]")
 		("test_max_record_nmb", boost::program_options::value<int>(), "maximum nuber of loaded records")
 		("test_savevtk", boost::program_options::value<bool>(), "save results into vtk format [bool]")
 		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]");
@@ -45,9 +46,8 @@ int main( int argc, char *argv[] )
 
 	int K, max_record_nmb, annealing; 
 	double epssqr; 
-	bool cutgamma, savevtk, printstats, cutdata;
-	double cutdata_up;
-	double cutdata_down;
+	bool cutgamma, savevtk, printstats, cutdata, scaledata;
+	double cutdata_up, cutdata_down;
 
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
@@ -56,6 +56,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_cutdata", &cutdata, true);
 	consoleArg.set_option_value("test_cutdata_down", &cutdata_down, -200);
 	consoleArg.set_option_value("test_cutdata_up", &cutdata_up, 200);
+	consoleArg.set_option_value("test_scaledata", &scaledata, true);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_savevtk", &savevtk, true);
 	consoleArg.set_option_value("test_printstats", &printstats, false);
@@ -68,6 +69,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to given interval)" << std::endl;
 	coutMaster << " test_cutdata_down       = " << std::setw(30) << cutdata_down << " (lower bound used for cutting data)" << std::endl;
 	coutMaster << " test_cutdata_up         = " << std::setw(30) << cutdata_up << " (upper bound used for cutting data)" << std::endl;
+	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to interval 0,1)" << std::endl;
 	coutMaster << " test_max_record_nmb     = " << std::setw(30) << max_record_nmb << " (max number of loaded time-steps)" << std::endl;
 	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)" << std::endl;
 	coutMaster << " test_printstats         = " << std::setw(30) << printstats << " (print basic statistics of data)" << std::endl;
@@ -85,14 +87,21 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	EdfData<PetscVector> mydata("data/S001R01.edf.txt", max_record_nmb);
 
+	/* cut data to given interval [cutdata_down,cutdata_up] */
 	if(cutdata){
 		mydata.cutdata(cutdata_down,cutdata_up);
 	}
 
+	/* print basic stats about loaded data */
 	if(printstats){
 		mydata.printstats(coutMaster);
 	}
 	
+	/* scale data to interval [0,1] */
+	if(scaledata){
+		mydata.scaledata();
+	}
+
 	/* prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 	BGMGraph mygraph("data/Koordinaten_EEG_P.bin");
@@ -114,6 +123,11 @@ int main( int argc, char *argv[] )
 	/* cut gamma */
 	if(cutgamma){
 		mydata.cut_gamma();
+	}
+
+	/* unscale data to original interval */
+	if(scaledata){
+		mydata.unscaledata();
 	}
 
 	/* save results into CSV file */
