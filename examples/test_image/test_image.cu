@@ -96,7 +96,7 @@ int main( int argc, char *argv[] )
 	mygraph.process_grid();
 
 //	BGMGraph mygraph(graph_filename);
-//	mygraph.process(1.1);
+//	mygraph.process(graph_coeff);
 
 	mygraph.print(coutMaster);
 
@@ -117,6 +117,10 @@ int main( int argc, char *argv[] )
 	if(cutgamma){
 		mydata.cut_gamma();
 	}
+
+	/* print solution */
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	mydata.print_thetavector(coutMaster);
 
 	/* save results into CSV file */
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;

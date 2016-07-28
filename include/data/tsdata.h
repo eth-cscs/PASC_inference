@@ -90,7 +90,10 @@ class TSData: public GeneralData {
 		GeneralVector<VectorBase> *get_thetavector() const;
 
 		void save_datavector(std::string filename) const;
+
 		void save_thetavector(std::string filename) const;
+		void print_thetavector() const;
+
 		void save_gammavector(std::string filename, int blocksize) const;
 
 		/** @brief print basic statistics about data
@@ -735,12 +738,40 @@ void TSData<PetscVector>::save_datavector(std::string filename) const {
 
 template<>
 void TSData<PetscVector>::save_thetavector(std::string filename) const {
-	
+	LOG_FUNC_BEGIN
+
+	LOG_FUNC_END
+}
+
+template<>
+void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	output << "Theta:" << std::std::endl;
+
+	int theta_size = this->tsmodel->get_thetavectorlength_local();
+	double *theta_arr;
+	TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		
+	for(int i=0;i<theta_size;i++){
+		output << theta_arr[i];
+		if(i < theta_size-1){
+			output << ", "
+		}
+	}
+	output << std::endl;
+		
+	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+
+
+	LOG_FUNC_END
 }
 
 template<>
 void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize) const {
-	
+	LOG_FUNC_BEGIN
+
+	LOG_FUNC_END
 }
 
 template<>
