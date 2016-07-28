@@ -88,8 +88,6 @@ class SPGQPSolver_fs {
 		void print(ConsoleOutput &output);
 };
 
-
-
 /** \class SPGQPSolver
  *  \brief Spectral Projected Gradient method for Quadratic Programs
  *

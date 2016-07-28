@@ -1,3 +1,9 @@
+/** @file blockgraphsparse.h
+ *  @brief block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix-vector multiplication implemented as sparse-matrix operation
+ *
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASC_BLOCKGRAPHSPARSEMATRIX_H
 #define	PASC_BLOCKGRAPHSPARSEMATRIX_H
 

@@ -9,7 +9,6 @@
 #ifndef PASCINFERENCE_H
 #define	PASCINFERENCE_H
 
-
 /* include common c++ header files */
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -20,7 +19,6 @@
 #include <sstream>
 #include <stack>
 #include <limits>
-
 
 /* include MINLIN */ 
 #ifdef USE_MINLIN

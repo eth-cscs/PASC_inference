@@ -1,8 +1,11 @@
+/** @file cgqpsolver.h
+ *  @brief Conjugate Gradient method for solving Quadratic Programs
+ *
+ *  @author Lukas Pospisil
+ */
+ 
 #ifndef PASC_CGQPSOLVER_H
 #define	PASC_CGQPSOLVER_H
-
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
 
 #include "pascinference.h"
 #include "solver/qpsolver.h"
@@ -14,25 +17,38 @@ extern int DEBUG_MODE;
 
 namespace pascinference {
 
-/* CGQPSolver */ 
+/** \class CGQPSolver
+ *  \brief Conjugate Gradient method for solving Quadratic Programs
+ *
+ *  For solving QP without constraints.
+*/
+
 template<class VectorBase>
 class CGQPSolver: public QPSolver<VectorBase> {
 	protected:
-		const QPData<VectorBase> *qpdata; /* data on which the solver operates */
-	
-		/* temporary vectors used during the solution process */
-		void allocate_temp_vectors();
+		void allocate_temp_vectors(); 
 		void free_temp_vectors();
-		GeneralVector<VectorBase> *g; /* gradient */
-		GeneralVector<VectorBase> *p; /* A-conjugate vector */
-		GeneralVector<VectorBase> *Ap; /* A*p */
+
+		GeneralVector<VectorBase> *g; /**< auxiliary vector used to store gradient */
+		GeneralVector<VectorBase> *p; /**< auxiliary vector used to store A-conjugated vector */
+		GeneralVector<VectorBase> *Ap; /**< auxiliary vector used to store A times gradient */
 	
 	public:
-
+		/** @brief general constructor
+		* 
+		*/
 		CGQPSolver();
-		CGQPSolver(const QPData<VectorBase> &new_qpdata); 
-		~CGQPSolver();
 
+		/** @brief constructor based on provided data of problem
+		* 
+		* @param new_qpdata data of quadratic program
+		*/
+		CGQPSolver(const QPData<VectorBase> &new_qpdata); 
+
+		/** @brief destructor
+		* 
+		*/
+		~CGQPSolver();
 
 		void solve();
 		double get_fx() const;
@@ -48,8 +64,6 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		void printtimer(ConsoleOutput &output) const;
 		
 		std::string get_name() const;
-
-
 
 };
 
