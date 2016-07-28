@@ -94,6 +94,14 @@ class TSData: public GeneralData {
 		* @param output where to print
 		*/
 		void printstats(ConsoleOutput &output) const;
+
+		/** @brief cut data into given interval
+		* 
+		* @param threshold_down lower threshold
+		* @param threshold_up upper threshold
+		*/
+		void cutdata(double threshold_down, double threshold_up);
+
 };
 
 } // end of namespace
@@ -789,6 +797,42 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
 		
 	LOG_FUNC_END
 }
+
+template<>
+void TSData<PetscVector>::cutdata(double threshold_down, double threshold_up){
+	LOG_FUNC_BEGIN
+
+	int x_size = this->datavector->local_size();
+	double *x_arr;
+	TRY( VecGetArray(datavector->get_vector(), &x_arr) );	
+
+	double value;
+	for(int i=0; i<x_size; i++){
+		if(x_arr[i] < threshold_down || x_arr[i] > threshold_up){
+			if(x_arr[i] < threshold_down){
+				value = threshold_down;
+			}
+			if(x_arr[i] > threshold_up){
+				value = threshold_up;
+			}
+
+			if(i>0){
+				x_arr[i] = x_arr[i-1]; 
+			} else {
+				if(i<x_size-1){
+					x_arr[i] = x_arr[i+1]; 
+				} else {
+					x_arr[i] = value;
+				}
+			}
+		}
+	}
+
+	TRY( VecRestoreArray(datavector->get_vector(), &x_arr) );	
+	
+	LOG_FUNC_END
+}
+
 
 } /* end namespace */
 
