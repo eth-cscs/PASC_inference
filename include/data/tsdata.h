@@ -892,8 +892,8 @@ void TSData<PetscVector>::unscaledata(){
 		
 		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
-		TRY( VecAssemblyBegin(thetavector) );
-		TRY( VecAssemblyEnd(thetavector) );
+		TRY( VecAssemblyBegin(thetavector->get_vector()) );
+		TRY( VecAssemblyEnd(thetavector->get_vector()) );
 	}
 	
 	LOG_FUNC_END

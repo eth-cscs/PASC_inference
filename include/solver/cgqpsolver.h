@@ -43,7 +43,7 @@ class CGQPSolver: public QPSolver<VectorBase> {
 		* 
 		* @param new_qpdata data of quadratic program
 		*/
-		CGQPSolver(const QPData<VectorBase> &new_qpdata); 
+		CGQPSolver(QPData<VectorBase> &new_qpdata); 
 
 		/** @brief destructor
 		* 
@@ -79,7 +79,7 @@ template<class VectorBase>
 CGQPSolver<VectorBase>::CGQPSolver(){
 	LOG_FUNC_BEGIN
 
-	qpdata = NULL;
+	this->qpdata = NULL;
 	
 	/* temp vectors */
 	g = NULL;
@@ -106,10 +106,10 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 }
 
 template<class VectorBase>
-CGQPSolver<VectorBase>::CGQPSolver(const QPData<VectorBase> &new_qpdata){
+CGQPSolver<VectorBase>::CGQPSolver(QPData<VectorBase> &new_qpdata){
 	LOG_FUNC_BEGIN
 
-	qpdata = &new_qpdata;
+	this->qpdata = &new_qpdata;
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
@@ -149,7 +149,7 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::allocate_temp_vectors(){
 	LOG_FUNC_BEGIN
 
-	GeneralVector<VectorBase> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
+	GeneralVector<VectorBase> *pattern = this->qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
 
 	g = new GeneralVector<VectorBase>(*pattern);
 	p = new GeneralVector<VectorBase>(*pattern);
@@ -184,9 +184,9 @@ void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - debug_mode: " << this->debug_mode << std::endl;
 
 	/* print settings */
-	if(qpdata){
+	if(this->qpdata){
 		coutMaster.push();
-		qpdata->print(output);
+		this->qpdata->print(output);
 		coutMaster.pop();
 	}
 		
@@ -198,7 +198,7 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global << this->get_name() << std::endl;
 		
 	LOG_FUNC_END
 }
@@ -211,10 +211,10 @@ void CGQPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 	
 	/* print content of data */
-	if(qpdata){
+	if(this->qpdata){
 		output << "- data:" << std::endl;
 		coutMaster.push();
-		qpdata->printcontent(output);
+		this->qpdata->printcontent(output);
 		coutMaster.pop();
 	}
 		
@@ -285,12 +285,12 @@ void CGQPSolver<VectorBase>::solve() {
 	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
 	/* pointers to qpdata */
-	pMatrix A = *(qpdata->get_A());
-	pVector b = *(qpdata->get_b());
-	pVector x0 = *(qpdata->get_x0());
+	pMatrix A = *(this->qpdata->get_A());
+	pVector b = *(this->qpdata->get_b());
+	pVector x0 = *(this->qpdata->get_x0());
 
 	/* pointer to solution */
-	pVector x = *(qpdata->get_x());
+	pVector x = *(this->qpdata->get_x());
 
 	/* auxiliary vectors */
 	pVector g = *(this->g); /* gradient */
@@ -414,9 +414,9 @@ void CGQPSolver<PetscVector>::allocate_temp_vectors(){
 	Vec p_vec;
 	Vec Ap_vec;
 
-	TRY( VecDuplicate(qpdata->get_b()->get_vector(),&g_vec) );
-	TRY( VecDuplicate(qpdata->get_b()->get_vector(),&p_vec) );
-	TRY( VecDuplicate(qpdata->get_b()->get_vector(),&Ap_vec) );
+	TRY( VecDuplicate(this->qpdata->get_b()->get_vector(),&g_vec) );
+	TRY( VecDuplicate(this->qpdata->get_b()->get_vector(),&p_vec) );
+	TRY( VecDuplicate(this->qpdata->get_b()->get_vector(),&Ap_vec) );
 
 	g = new GeneralVector<PetscVector>(g_vec);
 	p = new GeneralVector<PetscVector>(p_vec);
