@@ -22,8 +22,7 @@ namespace pascinference {
 static void add_options(boost::program_options::options_description *description, int console_nmb_cols){
 
 	/* ----- SOLVERS ------ */
-	boost::program_options::options_description opt_solvers("--- SOLVERS ---------------------", console_nmb_cols);
-	description->add(opt_solvers);
+	boost::program_options::options_description opt_solvers("#### SOLVERS ########################", console_nmb_cols);
 
 		/* TSSOLVER */
 		boost::program_options::options_description opt_tssolver("TSSOLVER", console_nmb_cols);
@@ -84,9 +83,11 @@ static void add_options(boost::program_options::options_description *description
 			("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
 		opt_solvers.add(opt_spgqpsolver);
 
+	description->add(opt_solvers);
+
+
 	/* ----- MODELS ------ */
-	boost::program_options::options_description opt_models("--- MODELS ---------------------", console_nmb_cols);
-	description->add(opt_models);
+	boost::program_options::options_description opt_models("#### MODELS ########################", console_nmb_cols);
 
 		/* GRAPHH1FEMMODEL */
 		boost::program_options::options_description opt_graphh1femmodel("GRAPHH1FEMMODEL", console_nmb_cols);
@@ -100,6 +101,7 @@ static void add_options(boost::program_options::options_description *description
 			("kmeansh1femmodel_matrix_type", boost::program_options::value<int>(), "type of used matrix [0=FREE/1=SPARSE]"); //TODO: enum?
 		opt_models.add(opt_kmeansh1femmodel);
 
+	description->add(opt_models);
 
 }
 
