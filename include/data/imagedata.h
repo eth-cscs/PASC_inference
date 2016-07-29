@@ -115,7 +115,7 @@ ImageData<VectorBase>::ImageData(std::string filename_data, int width, int heigh
 	this->destroy_datavector = true;
 
 	/* load image from file */
-	this->datavector->load_local(filename_data);
+	this->datavector->load_global(filename_data);
 
 	this->destroy_gammavector = false;
 	this->destroy_thetavector = false;

@@ -80,7 +80,7 @@ static void add_options(boost::program_options::options_description *description
 			("spgqpsolver_debug_mode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
 			("spgqpsolver_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations")
-			("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
+			("spgqpsolver_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
 		opt_solvers.add(opt_spgqpsolver);
 
 	description->add(opt_solvers);

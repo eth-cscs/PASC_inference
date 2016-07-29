@@ -416,7 +416,7 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	for(t=0;t<Tlocal;t++){
 		for(k=0;k<K;k++){
 			for(r=0;r<R;r++){
-				b_arr[(k*R+r)*Tlocal + t] = coeff*(data_arr[r*Tlocal+t] - theta_arr[k])*(data_arr[r*Tlocal+t] - theta_arr[k]);; 
+				b_arr[(k*R+r)*Tlocal + t] = coeff*(data_arr[r*Tlocal+t] - theta_arr[k])*(data_arr[r*Tlocal+t] - theta_arr[k]);
 			}
 		}
 	}
@@ -482,7 +482,11 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		TRY( VecSum(gammak_Vec, &gammaksum) );
 
 //		theta_arr[k] = gammakx/(gammaksum + gammakAgammak);
-		theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + gammakAgammak);
+		if(coeff*gammaksum + gammakAgammak > 0){
+			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + gammakAgammak);
+		} else {
+			theta_arr[k] = 0;
+		}
 //		theta_arr[k] = gammakx/(gammaksum + R*T*gammakAgammak);
 	
 		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );

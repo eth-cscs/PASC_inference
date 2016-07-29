@@ -104,6 +104,10 @@ int main( int argc, char *argv[] )
 		mydata.cut_gamma();
 	}
 
+	/* print solution */
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	mydata.print_thetavector(coutMaster);
+	
 	/* save results into CSV file */
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	mydata.saveImage(image_out);
