@@ -117,6 +117,10 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.solve();
 
+	/* print solution */
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	mydata.print_thetavector(coutMaster);
+
 	/* save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
 	mydata.saveVTK("results/test_kmeans.vtk");
