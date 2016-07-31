@@ -138,14 +138,14 @@ BlockGraphFreeMatrix<VectorBase>::BlockGraphFreeMatrix(const VectorBase &x, BGMG
 	/* create IS for 3diag mult */
 	if(this->Tbegin > 0){
 		left_overlap = 1;
-		TRY( ISCreateStride(PETSC_COMM_SELF, R*K, ranges[myrank-1] + (ranges[myrank]-ranges[myrank-1])/(double)(R*K)-1 ,(ranges[myrank]-ranges[myrank-1])/(double)(R*K), &left_overlap_is) );
+		TRY( ISCreateStride(PETSC_COMM_SELF, R*K, (Tbegin-1)*R*K ,1, &left_overlap_is) );
 	} else {
 		left_overlap = 0;
 		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &left_overlap_is) );
 	}
 	if(this->Tend < T){
 		right_overlap = 1;
-		TRY( ISCreateStride(PETSC_COMM_SELF, R*K, ranges[myrank+1], (ranges[myrank+2]-ranges[myrank+1])/(double)(R*K), &right_overlap_is) );
+		TRY( ISCreateStride(PETSC_COMM_SELF, R*K, Tend*R*K, 1, &right_overlap_is) );
 	} else {
 		right_overlap = 0;
 		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &right_overlap_is) );
@@ -319,12 +319,13 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) co
 	/* use openmp */
 	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
-		int k = floor(y_arr_idx/(double)(Tlocal*R));
-		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
-		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
+		int tlocal = floor(y_arr_idx/(double)(K*R));
+		int r = floor((y_arr_idx-tlocal*K*R)/(double)(K));
+		int k = y_arr_idx - (tlocal*R + r)*K;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = tlocal + (k*R+r)*Tlocal;
-		int overlap_id = k*R+r;
+		int x_arr_idx = tlocal*R*K + r*K + k;
+
+		int overlap_id = r*K+k;
 
 		double value;
 		double right_value;
@@ -337,7 +338,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) co
 				if(tlocal+1 >= Tlocal){
 					right_value = right_overlap_arr[overlap_id];
 				} else {
-					right_value = x_arr[x_arr_idx+1];
+					right_value = x_arr[x_arr_idx+K*R];
 				}
 				value += right_value;
 			}
@@ -346,12 +347,12 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) co
 				if(tlocal+1 >= Tlocal){
 					right_value = right_overlap_arr[overlap_id];
 				} else {
-					right_value = x_arr[x_arr_idx+1];
+					right_value = x_arr[x_arr_idx+K*R];
 				}
 				if(tlocal-1 < 0){
 					left_value = left_overlap_arr[overlap_id];
 				} else {
-					left_value = x_arr[x_arr_idx-1];
+					left_value = x_arr[x_arr_idx-K*R];
 				}
 				value += left_value + right_value;
 			}
@@ -360,7 +361,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) co
 				if(tlocal-1 < 0){
 					left_value = left_overlap_arr[overlap_id];
 				} else {
-					left_value = x_arr[x_arr_idx-1];
+					left_value = x_arr[x_arr_idx-K*R];
 				}
 				value += left_value;
 			}
@@ -403,11 +404,11 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 	/* use openmp */
 	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
-		int k = floor(y_arr_idx/(double)(Tlocal*R));
-		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
-		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
+		int tlocal = floor(y_arr_idx/(double)(K*R));
+		int r = floor((y_arr_idx-tlocal*K*R)/(double)(K));
+		int k = y_arr_idx - (tlocal*R + r)*K;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = tlocal + (k*R+r)*(Tlocal);
+		int x_arr_idx = tlocal*R*K + r*K + k;
 
 		double value;
 		int Wsum;
@@ -435,7 +436,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 
 		/* non-diagonal neighbor entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
-			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
+			y_arr[y_arr_idx] -= x_aux_arr[tlocal*R*K + (neightbor_ids[r][neighbor])*K + k];
 		}
 
 		/* apply alpha */
@@ -467,13 +468,13 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* 
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(y_arr_idx < K*Tlocal*R){
-		int k = floor(y_arr_idx/(double)(Tlocal*R));
-		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
-		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
+		int tlocal = floor(y_arr_idx/(double)(K*R));
+		int r = floor((y_arr_idx-tlocal*K*R)/(double)(K));
+		int k = y_arr_idx - (tlocal*R + r)*K;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = tlocal + (k*R+r)*Tlocal;
-		int overlap_id = k*R+r;
-		
+		int x_arr_idx = tlocal*R*K + r*K + k;
+		int overlap_id = r*K+k;
+				
 		double value;
 		double right_value;
 		double left_value;
@@ -485,7 +486,7 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* 
 				if(tlocal+1 >= Tlocal){
 					right_value = right_overlap_arr[overlap_id];
 				} else {
-					right_value = x_arr[x_arr_idx+1];
+					right_value = x_arr[x_arr_idx+K*R];
 				}
 				value += right_value;
 			}
@@ -494,12 +495,12 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* 
 				if(tlocal+1 >= Tlocal){
 					right_value = right_overlap_arr[overlap_id];
 				} else {
-					right_value = x_arr[x_arr_idx+1];
+					right_value = x_arr[x_arr_idx+K*R];
 				}
 				if(tlocal-1 < 0){
 					left_value = left_overlap_arr[overlap_id];
 				} else {
-					left_value = x_arr[x_arr_idx-1];
+					left_value = x_arr[x_arr_idx-K*R];
 				}
 				value += left_value + right_value;
 			}
@@ -508,7 +509,7 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* 
 				if(tlocal-1 < 0){
 					left_value = left_overlap_arr[overlap_id];
 				} else {
-					left_value = x_arr[x_arr_idx-1];
+					left_value = x_arr[x_arr_idx-K*R];
 				}
 				value += left_value;
 			}
@@ -562,12 +563,12 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(y_arr_idx < K*Tlocal*R){
-		int k = floor(y_arr_idx/(double)(Tlocal*R));
-		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
-		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
+		int tlocal = floor(y_arr_idx/(double)(K*R));
+		int r = floor((y_arr_idx-tlocal*K*R)/(double)(K));
+		int k = y_arr_idx - (tlocal*R + r)*K;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = tlocal + (k*R+r)*(Tlocal);
-
+		int x_arr_idx = tlocal*R*K + r*K + k;
+		
 		int Wsum;
 
 		/* compute sum of W entries in row */
@@ -593,7 +594,7 @@ __global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_
 
 		/* non-diagonal neighbor entries */
 		for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
-			y_arr[y_arr_idx] -= x_aux_arr[k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal];
+			y_arr[y_arr_idx] -= x_aux_arr[tlocal*R*K + (neightbor_ids[r][neighbor])*K + k];
 		}
 
 		/* apply alpha */

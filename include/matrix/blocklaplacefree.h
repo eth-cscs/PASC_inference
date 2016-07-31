@@ -102,14 +102,14 @@ BlockLaplaceFreeMatrix<PetscVector>::BlockLaplaceFreeMatrix(PetscVector &x, int 
 	/* create IS for 3diag mult */
 	if(this->Tbegin > 0){
 		left_overlap = 1;
-		TRY( ISCreateStride(PETSC_COMM_SELF, K, ranges[myrank-1] + (ranges[myrank]-ranges[myrank-1])/(double)K - 1 ,(ranges[myrank]-ranges[myrank-1])/(double)K, &left_overlap_is) );
+		TRY( ISCreateStride(PETSC_COMM_SELF, K, (Tbegin-1)*K , 1, &left_overlap_is) );
 	} else {
 		left_overlap = 0;
 		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &left_overlap_is) );
 	}
 	if(this->Tend < T){
 		right_overlap = 1;
-		TRY( ISCreateStride(PETSC_COMM_SELF, K, ranges[myrank+1], (ranges[myrank+2]-ranges[myrank+1])/(double)K, &right_overlap_is) );
+		TRY( ISCreateStride(PETSC_COMM_SELF, K, Tend*K, 1, &right_overlap_is) );
 	} else {
 		right_overlap = 0;
 		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &right_overlap_is) );
@@ -239,10 +239,11 @@ void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 	/* use openmp */
 //	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K;y_arr_idx++){
-		int k = (y_arr_idx)/(double)(Tlocal);
-		int tlocal = y_arr_idx - k*Tlocal;
+		int tlocal = floor(y_arr_idx/(double)(K));
+		int k = y_arr_idx - tlocal*K;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = tlocal + k*Tlocal;
+		int x_arr_idx = tlocal*K + k;
+		
 		int overlap_id = k;
 
 		double value;
@@ -254,7 +255,7 @@ void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 			if(tlocal+1 >= Tlocal){
 				right_value = right_overlap_arr[overlap_id];
 			} else {
-				right_value = x_arr[x_arr_idx+1];
+				right_value = x_arr[x_arr_idx+K];
 			}
 			value = alpha*x_arr[x_arr_idx] - alpha*right_value;
 		}
@@ -263,12 +264,12 @@ void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 			if(tlocal+1 >= Tlocal){
 				right_value = right_overlap_arr[overlap_id];
 			} else {
-				right_value = x_arr[x_arr_idx+1];
+				right_value = x_arr[x_arr_idx+K];
 			}
 			if(tlocal-1 < 0){
 				left_value = left_overlap_arr[overlap_id];
 			} else {
-				left_value = x_arr[x_arr_idx-1];
+				left_value = x_arr[x_arr_idx-K];
 			}
 			value = -alpha*left_value + 2*alpha*x_arr[x_arr_idx] - alpha*right_value;
 		}
@@ -277,7 +278,7 @@ void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 			if(tlocal-1 < 0){
 				left_value = left_overlap_arr[overlap_id];
 			} else {
-				left_value = x_arr[x_arr_idx-1];
+				left_value = x_arr[x_arr_idx-K];
 			}
 			value = -alpha*left_value + alpha*x_arr[x_arr_idx];
 		}
@@ -308,10 +309,10 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 	int y_arr_idx = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(y_arr_idx < K*Tlocal){
-		int k = floor(y_arr_idx/(double)Tlocal);
-		int tlocal = y_arr_idx - k*Tlocal;
+		int tlocal = floor(y_arr_idx/(double)(K));
+		int k = y_arr_idx - tlocal*K;
 		int tglobal = Tbegin+tlocal;
-		int x_arr_idx = tlocal + k*Tlocal;
+		int x_arr_idx = tlocal*K + k;		
 		int overlap_id = k;
 
 		double value;
@@ -323,7 +324,7 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 			if(tlocal+1 >= Tlocal){
 				right_value = right_overlap_arr[overlap_id];
 			} else {
-				right_value = x_arr[x_arr_idx+1];
+				right_value = x_arr[x_arr_idx+K];
 			}
 			value = alpha*x_arr[x_arr_idx] - alpha*right_value;
 		}
@@ -332,12 +333,12 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 			if(tlocal+1 >= Tlocal){
 				right_value = right_overlap_arr[overlap_id];
 			} else {
-				right_value = x_arr[x_arr_idx+1];
+				right_value = x_arr[x_arr_idx+K];
 			}
 			if(tlocal-1 < 0){
 				left_value = left_overlap_arr[overlap_id];
 			} else {
-				left_value = x_arr[x_arr_idx-1];
+				left_value = x_arr[x_arr_idx-K];
 			}
 			value = -alpha*left_value + 2*alpha*x_arr[x_arr_idx] - alpha*right_value;
 		}
@@ -346,7 +347,7 @@ __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_a
 			if(tlocal-1 < 0){
 				left_value = left_overlap_arr[overlap_id];
 			} else {
-				left_value = x_arr[x_arr_idx-1];
+				left_value = x_arr[x_arr_idx-K];
 			}
 			value = -alpha*left_value + alpha*x_arr[x_arr_idx];
 		}
