@@ -103,42 +103,38 @@ BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(PetscVector &x, 
 	TRY( MatSetFromOptions(A_petsc) ); 
 	
 //	#pragma omp parallel for
-	for(int y_arr_idx=0;y_arr_idx<Tlocal*K;y_arr_idx++){
-		int k = floor(y_arr_idx/(double)(Tlocal));
-		int tlocal = y_arr_idx - k*Tlocal;
-		int tglobal = Tbegin+tlocal;
-		int diag_idx = Tbegin*K + tlocal + k*(Tlocal);
-		int row_idx = Tbegin*K + y_arr_idx;
+	for(int k=0; k < K; k++){
+		for(int t=0;t<Tlocal;t++){
+			int tglobal = this->Tbegin+t;
+			int diag_idx = tglobal*K + k;
+			int row_idx =  tglobal*K + k;
 
-		int Wsum;
+			int Wsum;
 
-		/* compute sum of W entries in row */
-		if(T > 1){
-			Wsum = 2;
-		} else {
-			Wsum = 1;
-		}
-
-		/* diagonal entry */
-		TRY( MatSetValue(A_petsc, row_idx, diag_idx, Wsum, INSERT_VALUES) );
-
-		/* my nondiagonal entries */
-		if(T>1){
-			if(tlocal > 0) {
-				TRY( MatSetValue(A_petsc, row_idx, diag_idx-1, -1.0, INSERT_VALUES) );
-			}
-			if(tlocal < Tlocal-1) {
-				TRY( MatSetValue(A_petsc, row_idx, diag_idx+1, -1.0, INSERT_VALUES) );
+			/* compute sum of W entries in row */
+			if(T > 1){
+				if(tglobal > 0 && tglobal < T-1){
+					Wsum = 2;
+				} else {
+					Wsum = 1;
+				}
+			} else {
+				Wsum = 1;
 			}
 			
-			/* deal with overlaps */
-			if(tlocal == 0 && tglobal > 0){
-				/* to left */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k + 1)*((ranges[myrank]-ranges[myrank-1])/(double)K) -1, -1, INSERT_VALUES) );
-			}
-			if(tlocal == Tlocal-1 && tglobal < T-1){
-				/* to right */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + k*((ranges[myrank+2]-ranges[myrank+1])/(double)K), -1, INSERT_VALUES) );
+			/* diagonal entry */
+			TRY( MatSetValue(A_petsc, row_idx, diag_idx, Wsum, INSERT_VALUES) );
+
+			/* my nondiagonal entries */
+			if(T>1){
+				if(tglobal > 0) {
+					/* t - 1 */
+					TRY( MatSetValue(A_petsc, row_idx, diag_idx-K, -1.0, INSERT_VALUES) );
+				}
+				if(tglobal < T-1) {
+					/* t + 1 */
+					TRY( MatSetValue(A_petsc, row_idx, diag_idx+K, -1.0, INSERT_VALUES) );
+				}
 			}
 
 		}

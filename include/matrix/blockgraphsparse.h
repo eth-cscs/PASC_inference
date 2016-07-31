@@ -125,75 +125,59 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 	TRY( MatSetFromOptions(A_petsc) ); 
 	
 //	#pragma omp parallel for
-	for(int y_arr_idx=0;y_arr_idx<Tlocal*K*R;y_arr_idx++){
-		int k = floor(y_arr_idx/(double)(Tlocal*R));
-		int r = floor((y_arr_idx-k*Tlocal*R)/(double)(Tlocal));
-		int tlocal = y_arr_idx - (k*R + r)*Tlocal;
-		int tglobal = Tbegin+tlocal;
-		int diag_idx = Tbegin*R*K + tlocal + (k*R+r)*(Tlocal);
-		int row_idx = Tbegin*R*K + y_arr_idx;
+	for(int k=0; k < K; k++){
+		for(int r=0; r < R; r++){
+			for(int t=0;t<Tlocal;t++){
+				int tglobal = this->Tbegin+t;
+				int diag_idx = tglobal*R*K + r*K + k;
+				int row_idx =  tglobal*R*K + r*K + k;
 
-		int Wsum;
+				int Wsum;
 
-		/* compute sum of W entries in row */
-		if(tglobal == 0 || tglobal == T-1){
-			if(T > 1){
-				Wsum = 2*neighbor_nmbs[r]+1; /* +1 for diagonal block */
-			} else {
-				Wsum = neighbor_nmbs[r];
-			}
-		} else {
-			if(T > 1){
-				Wsum = 3*neighbor_nmbs[r]+2; /* +2 for diagonal block */
-			} else {
-				Wsum = (neighbor_nmbs[r])+1; /* +1 for diagonal block */
-			}
-		}
+				/* compute sum of W entries in row */
+				if(tglobal == 0 || tglobal == T-1){
+					if(T > 1){
+						Wsum = 2*neighbor_nmbs[r]+1; /* +1 for diagonal block */
+					} else {
+						Wsum = neighbor_nmbs[r];
+					}
+				} else {
+					if(T > 1){
+						Wsum = 3*neighbor_nmbs[r]+2; /* +2 for diagonal block */
+					} else {
+						Wsum = (neighbor_nmbs[r])+1; /* +1 for diagonal block */
+					}
+				}
+				
+				/* diagonal entry */
+				TRY( MatSetValue(A_petsc, row_idx, diag_idx, Wsum, INSERT_VALUES) );
 
-		/* diagonal entry */
-		TRY( MatSetValue(A_petsc, row_idx, diag_idx, Wsum, INSERT_VALUES) );
+				/* my nondiagonal entries */
+				if(T>1){
+					if(tglobal > 0) {
+						/* t - 1 */
+						TRY( MatSetValue(A_petsc, row_idx, diag_idx-R*K, -1.0, INSERT_VALUES) );
+					}
+					if(tglobal < T-1) {
+						/* t + 1 */
+						TRY( MatSetValue(A_petsc, row_idx, diag_idx+R*K, -1.0, INSERT_VALUES) );
+					}
+				}
 
-		/* my nondiagonal entries */
-		if(T>1){
-			if(tlocal > 0) {
-				TRY( MatSetValue(A_petsc, row_idx, diag_idx-1, -1.0, INSERT_VALUES) );
-			}
-			if(tlocal < Tlocal-1) {
-				TRY( MatSetValue(A_petsc, row_idx, diag_idx+1, -1.0, INSERT_VALUES) );
-			}
-			
-			/* deal with overlaps */
-			if(tlocal == 0 && tglobal > 0){
-				/* to left */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + r + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1.0, INSERT_VALUES) );
-			}
-			if(tlocal == Tlocal-1 && tglobal < T-1){
-				/* to right */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + r)*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1.0, INSERT_VALUES) );
-			}
+				/* non-diagonal neighbor entries */
+				int neighbor;
+				for(neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
+//					int idx2 = Tbegin*K*R + k*Tlocal*R + *Tlocal + t;
+					int idx2 = tglobal*R*K + (neightbor_ids[r][neighbor])*K + k;
 
-		}
-
-		/* non-diagonal neighbor entries */
-		int neighbor;
-		for(neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
-			int idx2 = Tbegin*K*R + k*Tlocal*R + (neightbor_ids[r][neighbor])*Tlocal + tlocal;
-			TRY( MatSetValue(A_petsc, row_idx, idx2, -1.0, INSERT_VALUES) );
-			if(tlocal > 0) {
-				TRY( MatSetValue(A_petsc, row_idx, idx2-1, -1.0, INSERT_VALUES) );
-			}
-			if(tlocal < Tlocal-1) {
-				TRY( MatSetValue(A_petsc, row_idx, idx2+1, -1.0, INSERT_VALUES) );
-			}
-
-			/* deal with overlaps */
-			if(tlocal == 0 && tglobal > 0){
-				/* to left */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank-1] + (k*R + neightbor_ids[r][neighbor] + 1)*((ranges[myrank]-ranges[myrank-1])/(double)(R*K)) -1, -1.0, INSERT_VALUES) );
-			}
-			if(tlocal == Tlocal-1 && tglobal < T-1){
-				/* to right */
-				TRY( MatSetValue(A_petsc, row_idx, ranges[myrank+1] + (k*R + neightbor_ids[r][neighbor])*((ranges[myrank+2]-ranges[myrank+1])/(double)(R*K)), -1.0, INSERT_VALUES) );
+					TRY( MatSetValue(A_petsc, row_idx, idx2, -1.0, INSERT_VALUES) );
+					if(tglobal > 0) {
+						TRY( MatSetValue(A_petsc, row_idx, idx2-R*K, -1.0, INSERT_VALUES) );
+					}
+					if(tglobal < T-1) {
+						TRY( MatSetValue(A_petsc, row_idx, idx2+R*K, -1.0, INSERT_VALUES) );
+					}
+				}
 			}
 
 		}

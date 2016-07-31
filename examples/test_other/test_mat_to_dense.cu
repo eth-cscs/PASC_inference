@@ -153,7 +153,7 @@ int main( int argc, char *argv[] )
 	/* print full matrix as a multiplication A*e_n */
 	double *values;
 	double *gamma_arr;
-	int k,r,t,tlocal,idx;
+	int k,r,t,col;
 
 	/* print header of matrix print */
 	if(view_matrix){
@@ -161,73 +161,95 @@ int main( int argc, char *argv[] )
 	}
 
 	/* go through rows and multiply with vector of standart basis */
-	for(int row_idx = 0; row_idx < T*R*K; row_idx++){
-		/* compute position in matrix */
-		k = floor(row_idx/(double)(T*R));
-		r = floor((row_idx-k*T*R)/(double)(T));
-		t = row_idx - (k*R+r)*T;
+	if(!view_matrix_unsorted){
+		for(k=0; k < K; k++){
+			for(r=0; r < R; r++){
+				for(t=0;t < T; t++){
+					/* prepare e_k in layout */
+					TRY( VecSet(x_Vec,0) );
+
+					TRY( VecGetArray(x_Vec,&gamma_arr) );
+					if(t >= Tbegin && t < Tend){
+						gamma_arr[(t*R + r)*K + k - Tbegin*R*K] = 1.0;
+					}
+					TRY( VecRestoreArray(x_Vec,&gamma_arr) );
+					TRY( VecAssemblyBegin(x_Vec) );
+					TRY( VecAssemblyEnd(x_Vec) );
+
+					/* perform multiplication */
+					timer1.start();
+						y = (*A)*x;
+					timer1.stop();
+
+					/* print row (in fact, it is column, but matrix is symmetric) */
+					if(view_matrix){
+						/* get array of values */
+						TRY( VecGetArray(y.get_vector(), &values) );
 		
-		/* prepare e_k in layout */
-		TRY( VecSet(x_Vec,0) );
-		TRY( VecAssemblyBegin(x_Vec) );
-		TRY( VecAssemblyEnd(x_Vec) );
+						/* print row */
+						TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, k*R*T + r*T + t) );
 
-		TRY( VecGetArray(x_Vec,&gamma_arr) );
-		if(!view_matrix_unsorted){
-			if(t >= Tbegin && t < Tend){
-				tlocal = t - Tbegin;
-				gamma_arr[tlocal + (k*R+r)*Tlocal] = 1;
-			}
-		} else {
-			tlocal = row_idx - Tbegin*R*K;
-			gamma_arr[tlocal] = 1.0;
-		}
-		TRY( VecRestoreArray(x_Vec,&gamma_arr) );
-		TRY( VecAssemblyBegin(x_Vec) );
-		TRY( VecAssemblyEnd(x_Vec) );
-
-		/* perform multiplication */
-		timer1.start();
-			y = (*A)*x;
-		timer1.stop();
-
-		/* print row (in fact, it is column, but matrix is symmetric) */
-		if(view_matrix){
-			/* get array of values */
-			TRY( VecGetArray(y.get_vector(), &values) );
-		
-			/* print row */
-			TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, row_idx) );
-
-			if(!view_matrix_unsorted){
-				/* interpret results from new layout to standart one */
-				for(k=0;k<K;k++){
-					for(r=0;r<R;r++){
-						for(t=0;t<Tlocal;t++){
-							idx = t+(k*R+r)*Tlocal;
-							if(abs(values[idx]) > 0.000001){
-								TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[idx]) );
-							} else {
-								TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+						/* interpret results from new layout to standart one */
+						for(int k_col = 0; k_col < K; k_col++){
+							for(int r_col = 0; r_col < R; r_col++){
+								for(int t_col = 0; t_col < Tlocal; t_col++){
+									col = t_col*R*K + r_col*K + k_col;
+									if(abs(values[col]) > 0.000001){
+										TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[col]) );
+									} else {
+										TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+									}
+								}
+								TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
 							}
 						}
-						TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+						TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
+					
+						/* restore array with values */
+						TRY( VecRestoreArray(y.get_vector(), &values) );
 					}
 				}
-			} else {
-				for(idx=0;idx<Tlocal*K*R;idx++){
-					if(abs(values[idx]) > 0.000001){
-						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[idx]) );
+			}
+		}
+	} else {
+		for(col=0; col < K*T*R; col++){
+			/* prepare e_k in layout */
+			TRY( VecSet(x_Vec,0) );
+
+			TRY( VecGetArray(x_Vec,&gamma_arr) );
+			if(col >= Tbegin*R*K && col < Tend*R*K){
+				gamma_arr[col - Tbegin*R*K] = 1.0;
+			}
+			TRY( VecRestoreArray(x_Vec,&gamma_arr) );
+			TRY( VecAssemblyBegin(x_Vec) );
+			TRY( VecAssemblyEnd(x_Vec) );
+
+			/* perform multiplication */
+			timer1.start();
+				y = (*A)*x;
+			timer1.stop();
+
+			/* print row (in fact, it is column, but matrix is symmetric) */
+			if(view_matrix){
+				/* get array of values */
+				TRY( VecGetArray(y.get_vector(), &values) );
+		
+				/* print row */
+				TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, col) );
+
+				for(int loccol = 0; loccol < K*R*Tlocal; loccol++){
+					if(abs(values[loccol]) > 0.000001){
+						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[loccol]) );
 					} else {
 						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
 					}
 				}
 				TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+				TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
+					
+				/* restore array with values */
+				TRY( VecRestoreArray(y.get_vector(), &values) );
 			}
-			TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
-
-			/* restore array with values */
-			TRY( VecRestoreArray(y.get_vector(), &values) );
 		}
 	}
 
