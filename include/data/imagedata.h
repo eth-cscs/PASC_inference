@@ -346,7 +346,7 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 
 	for(k=0;k<K;k++){ 
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k*Tlocal*R, 1, &gammak_is) );
+		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k, K, &gammak_is) );
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 
 		gammak = new GeneralVector<PetscVector>(gammak_Vec);

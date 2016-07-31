@@ -582,7 +582,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		for(k=0;k<K;k++){
 			myfile << "        <DataArray type=\"Float32\" Name=\"gamma_" << k << "\" format=\"ascii\">\n";
 			for(r=0;r<R;r++){
-				myfile << gamma_arr[k*Tlocal*R + r*Tlocal +t] << "\n";
+				myfile << gamma_arr[t*K*R + r*K + k] << "\n";
 			}
 			myfile << "        </DataArray>\n";
 		}
@@ -593,8 +593,8 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 			gamma_max = 0.0;
 			gamma_maxk = 0;
 			for(k=0;k<K;k++){
-				if(gamma_arr[k*Tlocal*R + r*Tlocal +t] > gamma_max){
-					gamma_max = gamma_arr[k*Tlocal*R + r*Tlocal +t];
+				if(gamma_arr[t*K*R + r*K + k] > gamma_max){
+					gamma_max = gamma_arr[t*K*R + r*K + k];
 					gamma_maxk = k;
 				}
 			}
@@ -607,7 +607,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		for(r=0;r<R;r++){
 			gamma_max = 0.0;
 			for(k=0;k<K;k++){
-				gamma_max += gamma_arr[k*Tlocal*R + r*Tlocal +t]*theta_arr[k];
+				gamma_max += gamma_arr[t*K*R + r*K + k]*theta_arr[k];
 			}
 			myfile << gamma_max << "\n";
 		}

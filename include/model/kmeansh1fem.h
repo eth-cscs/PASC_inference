@@ -378,7 +378,7 @@ void KmeansH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolve
 			for(n=0;n<xdim;n++){
 				mydot += (data_arr[t*xdim+n] - theta_arr[k*xdim+n])*(data_arr[t*xdim+n] - theta_arr[k*xdim+n]); 
 			}
-			b_arr[k*Tlocal+t] = -mydot;
+			b_arr[t*K+k] = -mydot;
 		}
 	}
 
@@ -415,7 +415,7 @@ void KmeansH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolve
 	/* through clusters */
 	for(k=0;k<K;k++){ 
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin*K + k*Tlocal, 1, &gammak_is) );
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin*K + k, K, &gammak_is) );
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 
 		/* compute sum of gammak */

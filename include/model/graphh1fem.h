@@ -26,7 +26,7 @@ extern int DEBUG_MODE;
 
 #include "data/tsdata.h"
 
-#define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 0
+#define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 1
 
 namespace pascinference {
 
@@ -416,7 +416,8 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	for(t=0;t<Tlocal;t++){
 		for(k=0;k<K;k++){
 			for(r=0;r<R;r++){
-				b_arr[(k*R+r)*Tlocal + t] = coeff*(data_arr[r*Tlocal+t] - theta_arr[k])*(data_arr[r*Tlocal+t] - theta_arr[k]);
+//				b_arr[t*K*R + r*K + k] = coeff*(data_arr[r*Tlocal+t] - theta_arr[k])*(data_arr[r*Tlocal+t] - theta_arr[k]);
+				b_arr[t*K*R + r*K + k] = coeff*(data_arr[t*R+r] - theta_arr[k])*(data_arr[t*R+r] - theta_arr[k]);
 			}
 		}
 	}
@@ -466,9 +467,10 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	double coeff = 1.0/((double)R*T);
 
 	/* through clusters */
-	for(k=0;k<K;k++){ 
+	for(k=0;k<K;k++){
+		
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k*Tlocal*R, 1, &gammak_is) );
+		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k, K, &gammak_is) );
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 

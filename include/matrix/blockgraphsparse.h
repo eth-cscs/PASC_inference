@@ -294,7 +294,7 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 		
 		/* get vector corresponding to coeff */
 		for(int k=0;k<K;k++){
-			TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k*Tlocal*R, 1, &xk_is) );
+			TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k, K, &xk_is) );
 			TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
 			
 			coeff = alpha*coeffs_arr[k]*coeffs_arr[k];

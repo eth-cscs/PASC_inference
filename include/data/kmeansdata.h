@@ -129,14 +129,14 @@ void KmeansData<PetscVector>::saveCSV(std::string filename) const {
 				}
 				/* write gamma vectors */
 				for(k=0;k<K;k++){
-					myfile << gamma_arr[k*Tlocal+t] << ",";
+					myfile << gamma_arr[t*K+k] << ",";
 				}
 				
 				/* compute model value and write it */
 				for(n=0;n<xdim;n++){
 					xmodel_n = 0;
 					for(k=0;k<K;k++){
-						xmodel_n += gamma_arr[k*Tlocal+t]*theta_arr[k*xdim+n];
+						xmodel_n += gamma_arr[t*K+k]*theta_arr[k*xdim+n];
 					}
 					myfile << xmodel_n;
 					if(n+1 < xdim){
@@ -344,11 +344,11 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 				myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
 				for(t=0;t < Tlocal;t++){
-					myfile << gamma_arr[k*Tlocal + t] << "\n";
+					myfile << gamma_arr[t*K+k] << "\n";
 
 					/* update maximum */
-					if(gamma_arr[k*Tlocal + t] > gamma_max[t]){
-						gamma_max[t] = gamma_arr[k*Tlocal + t];
+					if(gamma_arr[t*K+k] > gamma_max[t]){
+						gamma_max[t] = gamma_arr[t*K+k];
 						gamma_max_id[t] = k;
 					}
 				}
