@@ -63,8 +63,9 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		 * K - number of clusters (2 - 10^2)
 		 * T - length of time-series (10^5 - 10^9) 
 		 * 
-		 * @param t where my subvector starts
 		 * @param x values of whole vector in array
+		 * @param t where my subvector starts
+		 * @param T number of local disjoint simplex subsets
 		 * @param K size of subvector
 		*/ 		
 		void project_sub(double *x, int t, int T, int K);
@@ -76,13 +77,13 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 			int gridSize; /**< the actual grid size needed, based on input size */
 		#endif
 
-		int T; /**< number of disjoint simplex subsets */
-		int K_local; /**< size of each simplex subset */
+		int T; /**< number of local disjoint simplex subsets */
+		int K; /**< size of each simplex subset */
 				
 	public:
 		/** @brief default constructor
 		*/ 	
-		SimplexFeasibleSet_Local(int T, int K_local);
+		SimplexFeasibleSet_Local(int T, int K);
 		
 		/** @brief default destructor
 		 */ 
@@ -127,7 +128,7 @@ __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
  * 
  * @param x values of whole vector in array
  * @param x_sorted allocated vector for manipulating with sorted x
- * @param T parameter of vector length
+ * @param Tlocal parameter of vector length
  * @param K parameter of vector length
  */ 
 __global__ void kernel_project(double *x, double *x_sorted, int T, int K);
@@ -141,16 +142,16 @@ __global__ void kernel_project(double *x, double *x_sorted, int T, int K);
 namespace pascinference {
 
 /* constructor */
-SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int Tnew, int Knew){
+SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int T, int K){
 	LOG_FUNC_BEGIN
 
 	/* set initial content */
-	this->T = Tnew;
-	this->K_local = Knew;
+	this->T = T;
+	this->K = K;
 
 	#ifdef USE_GPU
 		/* allocate space for sorting */
-		gpuErrchk( cudaMalloc((void **)&x_sorted,K_local*T*sizeof(double)) );
+		gpuErrchk( cudaMalloc((void **)&x_sorted,K*T*sizeof(double)) );
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_project, 0, 0) );
 		gridSize = (T + blockSize - 1)/ blockSize;
 	#endif
@@ -178,7 +179,7 @@ void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
 	
 	/* give information about presence of the data */
 	output <<  " - T:           " << T << std::endl;
-	output <<  " - K_local:     " << K_local << std::endl;
+	output <<  " - K:           " << K << std::endl;
 
 	#ifdef USE_GPU
 		output <<  " - blockSize:   " << blockSize << std::endl;
@@ -204,7 +205,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 
 		/* use kernel to compute projection */
 		//TODO: here should be actually the comparison of Vec type! not simple use_gpu
-		kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K_local);
+		kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K);
 		gpuErrchk( cudaDeviceSynchronize() );
 
 		TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
@@ -214,7 +215,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 		/* use openmp */
 		#pragma omp parallel for
 		for(int t=0;t<T;t++){
-			project_sub(x_arr,t,T,K_local);
+			project_sub(x_arr,t,T,K);
 		}
 
 		TRY( VecRestoreArray(x.get_vector(),&x_arr) );
@@ -255,10 +256,10 @@ void SimplexFeasibleSet_Local::project_sub(double *x, int t, int T, int K){
 	
 		/* control inequality constraints */
 		for(k = 0; k < K; k++){ // TODO: could be performed parallely  
-			if(x[k*T+t] < 0.0){
+			if(x[t*K+k] < 0.0){
 				is_inside = false;
 			}
-			sum += x[k*T+t];
+			sum += x[t*K+k];
 		}
 
 		/* control equality constraints */
@@ -273,7 +274,7 @@ void SimplexFeasibleSet_Local::project_sub(double *x, int t, int T, int K){
 			double *y = new double[K];
 			double sum_y;
 			for(k=0;k<K;k++){
-				y[k] = x[k*T+t]; 
+				y[k] = x[t*K+k]; 
 			}
 			sort_bubble(y,K);
 
@@ -304,11 +305,11 @@ void SimplexFeasibleSet_Local::project_sub(double *x, int t, int T, int K){
     
 			for(k = 0; k < K; k++){ // TODO: could be performed parallely  
 				/* (*x_sub)(i) = max(*x_sub-t_hat,0); */
-				ti = x[k*T+t] - t_hat;	
+				ti = x[t*K+k] - t_hat;	
 				if(ti > 0.0){
-					x[k*T+t] = ti;
+					x[t*K+k] = ti;
 				} else {
-					x[k*T+t] = 0.0;
+					x[t*K+k] = 0.0;
 				}
 			}
 			
@@ -337,10 +338,10 @@ __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K){
 		mnew = 0;
 		for(i=1;i<m;i++){
 			/* Swap elements in wrong order */
-			if (x_sorted[i*T+t] < x_sorted[(i - 1)*T+t]){
-				swap = x_sorted[i*T+t];
-				x_sorted[i*T+t] = x_sorted[(i-1)*T+t];
-				x_sorted[(i-1)*T+t] = swap;
+			if (x_sorted[t*K+i] < x_sorted[t*K + (i - 1)]){
+				swap = x_sorted[t*K + i];
+				x_sorted[t*K + i] = x_sorted[t*K + (i - 1)];
+				x_sorted[t*K + (i - 1)] = swap;
 				mnew = i;
 			}
 	        }
@@ -358,12 +359,12 @@ __global__ void kernel_project(double *x, double *x_sorted, int T, int K){
 	
 		/* control inequality constraints */
 		for(k = 0; k < K; k++){ // TODO: could be performed parallely  
-			if(x[k*T+t] < 0.0){
+			if(x[t*K+k] < 0.0){
 				is_inside = false;
 			}
-			sum += x[k*T+t];
+			sum += x[t*K + k];
 			
-			x_sorted[k*T+t] = x[k*T+t];
+			x_sorted[t*K + k] = x[t*K + k];
 		}
 
 		/* control equality constraints */
@@ -387,11 +388,11 @@ __global__ void kernel_project(double *x, double *x_sorted, int T, int K){
 				/* compute sum(y) */
 				sum_y = 0.0;
 				for(j=i;j<K;j++){ /* sum(y(i,n-1)) */
-					sum_y += x_sorted[j*T+t];
+					sum_y += x_sorted[t*K + j];
 				}
 				
 				ti = (sum_y - 1.0)/(double)(K-i);
-				if(ti >= x_sorted[(i-1)*T+t]){
+				if(ti >= x_sorted[t*K + (i-1)]){
 					t_hat = ti;
 					i = -1; /* break */
 				} else {
@@ -405,11 +406,11 @@ __global__ void kernel_project(double *x, double *x_sorted, int T, int K){
     
 			for(k = 0; k < K; k++){ // TODO: could be performed parallely  
 				/* (*x_sub)(i) = max(*x_sub-t_hat,0); */
-				ti = x[k*T+t] - t_hat;	
+				ti = x[t*K + k] - t_hat;	
 				if(ti > 0.0){
-					x[k*T+t] = ti;
+					x[t*K + k] = ti;
 				} else {
-					x[k*T+t] = 0.0;
+					x[t*K + k] = 0.0;
 				}
 			}
 		}
