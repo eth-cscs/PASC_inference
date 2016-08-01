@@ -172,17 +172,17 @@ int main( int argc, char *argv[] )
 		/* create feasible set - we will project */
 		feasibleset = new SimplexFeasibleSet_Local(T_max,K); 
 
-		///* create general vector */
+		/* create general vector */
 		TRY( VecCreateSeq(PETSC_COMM_SELF, K*T_max, &(gamma0s_Vec[ki])) );
 		gamma0 = new GeneralVector<PetscVector>(gamma0s_Vec[ki]);
 		
 		/* generate random gamma */
 		TRY( VecSetRandom(gamma0s_Vec[ki], rnd) );
 
-		///* project initial approximation to feasible set */
+		/* project initial approximation to feasible set */
 		feasibleset->project(*gamma0);
 	
-		///* destroy feasible set */
+		/* destroy feasible set */
 		free(feasibleset);
 	}
 
@@ -237,7 +237,7 @@ int main( int argc, char *argv[] )
 			/* get subvectors from gamma0 */
 			gamma0sub_ISs = (IS*)malloc(K*sizeof(IS));
 			for(i=0;i<K;i++){
-				TRY( ISCreateStride(PETSC_COMM_WORLD, T, i*T_max, T_max/(double)(T), &(gamma0sub_ISs[i])) );
+				TRY( ISCreateStride(PETSC_COMM_WORLD, T, i, (T_max/(double)(T))*K, &(gamma0sub_ISs[i])) );
 			}
 			TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma0sub_ISs, &gamma0sub_IS) );
 			

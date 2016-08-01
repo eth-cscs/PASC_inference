@@ -415,7 +415,7 @@ void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	IS gamma_sub_IS;
 	
 	/* fill the index sets */
-	TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin*K, 1, &(gamma_sub_IS)) );
+	TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal*K, Tbegin*K, 1, &(gamma_sub_IS)) );
 
 	/* now get subvector with my local values from provided stride vector */
 	Vec gamma_sub;
@@ -428,12 +428,6 @@ void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	#else
 		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
 	#endif
-
-	int size1, size2, size3, size4;
-	TRY(VecGetSize(gammavector->get_vector(),&size1) );
-	TRY(VecGetSize(gamma_local,&size2) );
-	TRY(VecGetLocalSize(gammavector->get_vector(),&size3) );
-	TRY(VecGetLocalSize(gamma_local,&size4) );
 
 	/* get the vector where I will store my values */
 	TRY( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
