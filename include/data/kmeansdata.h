@@ -412,16 +412,10 @@ void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	int xdim = this->get_xdim();
 
 	/* prepare IS with my indexes in provided vector */
-	IS *gamma_sub_ISs;
-	gamma_sub_ISs = (IS*)malloc(K*sizeof(IS));
 	IS gamma_sub_IS;
 	
 	/* fill the index sets */
-	int k;
-	for(k=0;k<K;k++){
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin + k*T, 1, &(gamma_sub_ISs[k])) );
-	}
-	TRY( ISConcatenate(PETSC_COMM_WORLD, K, gamma_sub_ISs, &gamma_sub_IS) );
+	TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal, Tbegin*K, 1, &(gamma_sub_IS)) );
 
 	/* now get subvector with my local values from provided stride vector */
 	Vec gamma_sub;
@@ -452,10 +446,6 @@ void KmeansData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	TRY( VecRestoreSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
 
 	/* destroy auxiliary index sets */
-	for(k=0;k<K;k++){
-		TRY( ISDestroy(&(gamma_sub_ISs[k])) );
-	}
-	free(gamma_sub_ISs);
 	TRY( ISDestroy(&gamma_sub_IS) );
 
 	LOG_FUNC_END

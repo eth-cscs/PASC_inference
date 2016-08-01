@@ -85,19 +85,15 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(const VectorBase &x, 
 	this->coeffs = new_coeffs;
 	
 	/* get informations from given vector */
-	int size, size_local, low, high;
-	TRY( VecGetSize(x.get_vector(), &size) );
-	TRY( VecGetLocalSize(x.get_vector(), &size_local) );
+	int N, n, low, high;
+	TRY( VecGetSize(x.get_vector(), &N) );
+	TRY( VecGetLocalSize(x.get_vector(), &n) );
 	TRY( VecGetOwnershipRange(x.get_vector(), &low, &high) );
 
-	this->T = size/(double)(R*K);
-	this->Tlocal = size_local/(double)(R*K);
+	this->T = N/(double)(R*K);
+	this->Tlocal = n/(double)(R*K);
 	this->Tbegin = low/(double)(R*K);
 	this->Tend = high/(double)(R*K);
-
-	int N, n;
-	N = x.size(); /* length of whole matrix N = K*T*R */
-	n = x.local_size();
 
 	int* neighbor_nmbs = graph->get_neighbor_nmbs();
 	int **neightbor_ids = graph->get_neighbor_ids();

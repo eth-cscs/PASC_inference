@@ -39,4 +39,9 @@ if(${TEST_MAT_SEQ_VS_MPI})
 	else()
 		pascadd_executable("test_other/test_mat_seq_vs_mpi.cpp" "test_mat_seq_vs_mpi")
 	endif()
+
+	# copy data
+	file(COPY "test_other/data/" 
+		 DESTINATION "data"
+		 FILES_MATCHING PATTERN "*")	
 endif()

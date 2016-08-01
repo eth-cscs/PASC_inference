@@ -66,13 +66,13 @@ BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(PetscVector &x, 
 	this->alpha = alpha;
 	
 	/* get informations from given vector */
-	int size, size_local, low, high;
-	TRY( VecGetSize(x.get_vector(), &size) );
-	TRY( VecGetLocalSize(x.get_vector(), &size_local) );
+	int N,n, low, high;
+	TRY( VecGetSize(x.get_vector(), &N) );
+	TRY( VecGetLocalSize(x.get_vector(), &n) );
 	TRY( VecGetOwnershipRange(x.get_vector(), &low, &high) );
 
-	this->T = size/(double)K;
-	this->Tlocal = size_local/(double)K;
+	this->T = N/(double)K;
+	this->Tlocal = n/(double)K;
 	this->Tbegin = low/(double)K;
 	this->Tend = high/(double)K;
 
@@ -81,10 +81,6 @@ BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(PetscVector &x, 
 	ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
     TRY( VecGetOwnershipRanges(x.get_vector(),&ranges) );
 	int myrank = GlobalManager.get_rank();
-
-	int N, n;
-	N = x.size(); /* length of whole matrix N = K*T */
-	n = x.local_size();
 
 	/* create matrix */
 	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
