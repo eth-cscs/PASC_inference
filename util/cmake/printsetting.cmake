@@ -48,6 +48,8 @@ printsetting_minlin()
 # EDFlib
 printsetting_edflib()
 
+# Metis
+printsetting_metis()
 
 # PASCInference
 #printsetting_pascinference()
