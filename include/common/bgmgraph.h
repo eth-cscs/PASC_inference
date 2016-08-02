@@ -28,6 +28,10 @@ class BGMGraph {
 		int *neighbor_nmbs; /**< number of neighbors for each node */
 		int **neighbor_ids; /**< indexes of neighbors for each node */
 
+		bool decomposed; /**< the decomposition was computed? */
+		int nmb_domains; /**< number of domains for decomposition */
+		int *domain; /**< domain affiliation of vertices */
+		
 		#ifdef USE_CUDA
 			int *neighbor_nmbs_gpu; /**< copy of values on GPU */
 			int **neighbor_ids_cpugpu; /**< pointers to GPU arrays on CPU */
@@ -93,6 +97,10 @@ class BGMGraph {
 		*/
 		virtual void process(double threshold);
 
+		/** @brief decompose graph to given number of domains using METIS
+		*/
+		virtual void decompose(int nmb_domains);
+
 		/** @brief print basic informations of graph
 		*/
 		void print(ConsoleOutput &output) const;
@@ -101,6 +109,9 @@ class BGMGraph {
 		*/
 		void print_content(ConsoleOutput &output) const;
 		
+		/** @brief save content of graph to VTK
+		*/
+		void saveVTK(std::string filename) const;
 };
 
 /* ----------------- BGMGraph implementation ------------- */
@@ -127,6 +138,8 @@ BGMGraph::BGMGraph(std::string filename, int dim){
 	m_max = 0;
 	threshold = -1;
 	processed = false;
+
+	decomposed = false;
 }
 
 BGMGraph::BGMGraph(const double *coordinates_array, int n, int dim){
@@ -143,6 +156,8 @@ BGMGraph::BGMGraph(const double *coordinates_array, int n, int dim){
 	m_max = 0;
 	threshold = -1;
 	processed = false;
+
+	decomposed = false;
 }
 
 BGMGraph::BGMGraph(){
@@ -177,6 +192,9 @@ BGMGraph::~BGMGraph(){
 
 	}
 	
+	if(decomposed){
+		free(domain);
+	}
 }
 
 int BGMGraph::get_n(){
@@ -227,7 +245,55 @@ GeneralVector<PetscVector> *BGMGraph::get_coordinates(){
 	return coordinates;
 }
 
+void BGMGraph::decompose(int nmb_domains){
+	LOG_FUNC_BEGIN
+	
+	if(nmb_domains > 1){
+		this->decomposed = true;
+		this->nmb_domains = nmb_domains;
+
+		/* allocate array for domain affiliation */
+		domain = (int*)malloc(n*sizeof(int));
+	
+		/* ---- METIS STUFF ---- */
+		int *xadj; /* Indexes of starting points in adjacent array */
+		xadj = (int*)malloc((n+1)*sizeof(int));
+	
+		int *adjncy; /* Adjacent vertices in consecutive index order */
+		adjncy = (int*)malloc(2*m*sizeof(int));
+
+		/* fill aux metis stuff */
+		int counter = 0;
+		for(int i=0;i<n;i++){
+			xadj[i] = counter;
+			for(int j=0;j<neighbor_nmbs[i];j++){
+				adjncy[counter] = neighbor_ids[i][j];
+				counter++;
+			}
+		}	
+		xadj[n] = counter;
+
+		int objval;
+		int nWeights = 1; /* something with weights of graph, I really don't know, sorry */
+
+		/* run decomposition */
+		int metis_ret = METIS_PartGraphKway(&n,&nWeights, xadj, adjncy,
+						   NULL, NULL, NULL, &nmb_domains, NULL,
+						   NULL, NULL, &objval, domain);
+
+		/* free aux stuff */
+		free(xadj);
+		free(adjncy);
+		/* --------------------- */
+
+	}
+	
+	LOG_FUNC_END
+}
+
 void BGMGraph::process(double threshold) {
+	LOG_FUNC_BEGIN
+	
 	this->threshold = threshold;
 	
 	/* prepare array for number of neighbors */
@@ -314,6 +380,8 @@ void BGMGraph::process(double threshold) {
 	#endif
 	
 	processed = true;
+
+	LOG_FUNC_END
 }
 
 void BGMGraph::print(ConsoleOutput &output) const {
@@ -326,6 +394,14 @@ void BGMGraph::print(ConsoleOutput &output) const {
 	output << " - max_degree: " << this->m_max << std::endl;
 	output << " - threshold:  " << this->threshold << std::endl;
 	output << " - processed:  " << this->processed << std::endl;
+
+	output << " - decomposed: " << this->decomposed << std::endl;
+	output.push();
+	if(decomposed){
+		output << " - nmb of domains: " << this->nmb_domains << std::endl;
+	}
+	output.pop();
+	
 	output.pop();
 	
 }
@@ -340,6 +416,13 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 	output << " - max_degree: " << this->m_max << std::endl;
 	output << " - threshold:  " << this->threshold << std::endl;
 	output << " - processed:  " << this->processed << std::endl;
+
+	output << " - decomposed:  " << this->decomposed << std::endl;
+	output.push();
+	if(decomposed){
+		output << " - nmb of domains: " << this->nmb_domains << std::endl;
+	}
+	output.pop();
 
 	output << " - coordinates: " << *coordinates << std::endl;
 
@@ -356,11 +439,97 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 				}
 			}
 			output << std::endl;
-			}
+		}
 		output.pop();
 	}
 	output.pop();
 }
+
+void BGMGraph::saveVTK(std::string filename) const {
+	LOG_FUNC_BEGIN
+	
+	Timer timer_saveVTK; 
+	timer_saveVTK.restart();
+	timer_saveVTK.start();
+	
+	/* to manipulate with file */
+	std::ofstream myfile;	
+	
+	/* master writes the file */
+	if(GlobalManager.get_rank() == 0){
+		myfile.open(filename.c_str());
+
+		/* write header to file */
+		myfile << "# vtk DataFile Version 3.1\n";
+		myfile << "PASCInference: Graph\n";
+		myfile << "ASCII\n";
+		myfile << "DATASET UNSTRUCTURED_GRID\n";
+
+		/* write points - coordinates */
+		myfile << "POINTS " << n << " FLOAT\n";
+		const double *coordinates_arr;
+		TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
+		for(int i=0;i<n;i++){
+			if(dim == 1){ 
+				/* 1D sample */
+				myfile << coordinates_arr[i] << " 0 0\n"; /* x */
+			}
+
+			if(dim == 2){ 
+				/* 2D sample */
+				myfile << coordinates_arr[i] << " "; /* x */
+				myfile << coordinates_arr[n+i] << " 0\n"; /* y */
+			}
+
+			if(dim == 3){ 
+				/* 3D sample */
+				myfile << coordinates_arr[i] << " "; /* x */
+				myfile << coordinates_arr[n+i] << " "; /* y */
+				myfile << coordinates_arr[2*n+i] << "\n"; /* z */
+			}
+
+			if(dim > 3){
+				//TODO ???
+			}
+		}
+		TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
+		
+		/* write edges */
+		myfile << "\nCELLS " << 2*m << " " << 2*m*3 << "\n"; /* actually, edges are here twice */
+		for(int i=0;i<n;i++){
+			for(int j=0;j<neighbor_nmbs[i];j++){
+				myfile << "2 " << i << " " << neighbor_ids[i][j] << "\n";
+			}
+		}
+		myfile << "\nCELL_TYPES " << 2*m << "\n";
+		for(int i=0;i<2*m;i++){
+			myfile << "3\n";
+		}
+		
+		/* write domain affiliation */
+		myfile << "\nPOINT_DATA " << n << "\n";
+		myfile << "SCALARS domain float 1\n";
+		myfile << "LOOKUP_TABLE default\n";
+		for(int i=0;i<n;i++){
+			if(decomposed){
+				myfile << domain[i] << "\n";
+			} else {
+				myfile << "-1\n";
+			}
+		}
+		
+		myfile.close();
+	}
+	TRY( PetscBarrier(NULL) );
+	
+	
+	
+	timer_saveVTK.stop();
+	coutMaster <<  " - graph saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+
+	LOG_FUNC_END
+}
+
 
 
 }

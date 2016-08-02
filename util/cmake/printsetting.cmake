@@ -46,7 +46,7 @@ printsetting_mkl()
 printsetting_minlin()
 
 # EDFlib
-printsetting_edflib()
+#printsetting_edflib()
 
 # Metis
 printsetting_metis()

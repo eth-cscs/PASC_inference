@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(METIS)
 
-set(GKLIB_PATH "GKlib" CACHE PATH "path to GKlib")
+set(GKLIB_PATH "${CMAKE_SOURCE_DIR}/GKlib" CACHE PATH "path to GKlib") # Pospisil: fix
 set(SHARED FALSE CACHE BOOL "build a shared library")
 
 if(MSVC)
@@ -17,7 +17,10 @@ else()
   set(METIS_LIBRARY_TYPE STATIC)
 endif(SHARED)
 
+set(GKLIB_PATH "${CMAKE_SOURCE_DIR}/GKlib" CACHE PATH "path to GKlib")
 include(${GKLIB_PATH}/GKlibSystem.cmake)
+
+
 # Add include directories.
 include_directories(${GKLIB_PATH})
 include_directories(include)

@@ -64,6 +64,11 @@
 
 #endif
 
+/* include metis */
+#ifdef USE_METIS
+	#include "metis.h"
+#endif
+
 /* include pascinference stuff */
 #include "common/common.h"
 #include "algebra/algebra.h"
