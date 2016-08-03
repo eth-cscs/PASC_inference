@@ -72,6 +72,7 @@
 /* include pascinference stuff */
 #include "common/common.h"
 #include "algebra/algebra.h"
+#include "common/decomposition.h"
 
 #include "data/generaldata.h"
 #include "solver/list.h"

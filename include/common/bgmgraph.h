@@ -28,9 +28,12 @@ class BGMGraph {
 		int *neighbor_nmbs; /**< number of neighbors for each node */
 		int **neighbor_ids; /**< indexes of neighbors for each node */
 
-		bool decomposed; /**< the decomposition was computed? */
-		int nmb_domains; /**< number of domains for decomposition */
-		int *domain; /**< domain affiliation of vertices */
+		bool DD_decomposed; /**< the decomposition was computed? */
+		int DD_size; /**< number of domains for decomposition */
+		int *DD_affiliation; /**< domain affiliation of vertices */
+		int *DD_permutation; /**< permutation of global indexes */
+		int *DD_lengths; /**< array of local lengths */
+		int *DD_ranges; /**< ranges in permutation array */
 		
 		#ifdef USE_CUDA
 			int *neighbor_nmbs_gpu; /**< copy of values on GPU */
@@ -55,43 +58,50 @@ class BGMGraph {
 		
 		/** @brief return number of vertices
 		*/
-		int get_n();
+		int get_n() const;
 
 		/** @brief return number of edges
 		*/
-		int get_m();
+		int get_m() const;
 
 		/** @brief return degree of vertex with max degree 
 		*/
-		int get_m_max();
+		int get_m_max() const;
 
 		/** @brief return dimension of coordinates of vertices
 		*/
-		int get_dim();
+		int get_dim() const;
 
 		/** @brief return value used for filling graph with edges
 		*/
-		double get_threshold();
+		double get_threshold() const;
 
 		/** @brief return array containing number of neighbors of vertices
 		*/
-		int *get_neighbor_nmbs();
+		int *get_neighbor_nmbs() const;
 
 		/** @brief return array of arrays containing indexes of neighbors of vertices
 		*/
-		int **get_neighbor_ids();
+		int **get_neighbor_ids() const;
 
 		/** @brief return array containing number of neighbors of vertices stored on GPU
 		*/
-		int *get_neighbor_nmbs_gpu();
+		int *get_neighbor_nmbs_gpu() const;
 
 		/** @brief return array of arrays containing indexes of neighbors of vertices stored on GPU
 		*/
-		int **get_neighbor_ids_gpu();
+		int **get_neighbor_ids_gpu() const;
 
 		/** @brief return vector with coordinates of vertices
 		*/
-		GeneralVector<PetscVector> *get_coordinates();
+		GeneralVector<PetscVector> *get_coordinates() const;
+
+		bool get_DD_decomposed() const;
+		int get_DD_size() const;
+		int *get_DD_affiliation() const;
+		int *get_DD_permutation() const;
+		int *get_DD_lengths() const;
+		int *get_DD_ranges() const;
 		
 		/** @brief fill graph with edges based on given length of edge
 		*/
@@ -139,7 +149,7 @@ BGMGraph::BGMGraph(std::string filename, int dim){
 	threshold = -1;
 	processed = false;
 
-	decomposed = false;
+	DD_decomposed = false;
 }
 
 BGMGraph::BGMGraph(const double *coordinates_array, int n, int dim){
@@ -157,7 +167,7 @@ BGMGraph::BGMGraph(const double *coordinates_array, int n, int dim){
 	threshold = -1;
 	processed = false;
 
-	decomposed = false;
+	DD_decomposed = false;
 }
 
 BGMGraph::BGMGraph(){
@@ -166,6 +176,7 @@ BGMGraph::BGMGraph(){
 	this->m_max = 0;
 	threshold = -1;
 	processed = false;
+	DD_decomposed = false;
 }
 
 BGMGraph::~BGMGraph(){
@@ -192,100 +203,168 @@ BGMGraph::~BGMGraph(){
 
 	}
 	
-	if(decomposed){
-		free(domain);
+	if(DD_decomposed){
+		free(DD_affiliation);
+		free(DD_permutation);
+		free(DD_lengths);
+		free(DD_ranges);
 	}
 }
 
-int BGMGraph::get_n(){
+int BGMGraph::get_n() const {
 	return this->n;
 }
 
-int BGMGraph::get_m(){
+int BGMGraph::get_m() const {
 	return this->m;
 }
 
-int BGMGraph::get_m_max(){
+int BGMGraph::get_m_max() const {
 	return this->m_max;
 }
 
-int BGMGraph::get_dim(){
+int BGMGraph::get_dim() const {
 	return this->dim;
 }
 
-double BGMGraph::get_threshold(){
+double BGMGraph::get_threshold() const {
 	return this->threshold;
 }
 
-int *BGMGraph::get_neighbor_nmbs(){
-	return neighbor_nmbs;
+int *BGMGraph::get_neighbor_nmbs() const {
+	return this->neighbor_nmbs;
 }
 
-int **BGMGraph::get_neighbor_ids(){
-	return neighbor_ids;
+int **BGMGraph::get_neighbor_ids() const {
+	return this->neighbor_ids;
 }
 
-int *BGMGraph::get_neighbor_nmbs_gpu(){
+int *BGMGraph::get_neighbor_nmbs_gpu() const {
 	#ifdef USE_GPU
-		return neighbor_nmbs_gpu;
+		return this->neighbor_nmbs_gpu;
 	#else
-		return neighbor_nmbs;
+		return this->neighbor_nmbs;
 	#endif
 }
 
-int **BGMGraph::get_neighbor_ids_gpu(){
+int **BGMGraph::get_neighbor_ids_gpu() const {
 	#ifdef USE_GPU
-		return neighbor_ids_gpu;
+		return this->neighbor_ids_gpu;
 	#else
-		return neighbor_ids;
+		return this->neighbor_ids;
 	#endif
 }
 
-GeneralVector<PetscVector> *BGMGraph::get_coordinates(){
-	return coordinates;
+GeneralVector<PetscVector> *BGMGraph::get_coordinates() const {
+	return this->coordinates;
+}
+
+bool BGMGraph::get_DD_decomposed() const {
+	return this->DD_decomposed;
+}
+
+int BGMGraph::get_DD_size() const {
+	return this->DD_size;
+}
+
+int *BGMGraph::get_DD_affiliation() const {
+	return this->DD_affiliation;
+}
+
+int *BGMGraph::get_DD_permutation() const {
+	return this->DD_permutation;
+}
+
+int *BGMGraph::get_DD_lengths() const {
+	return this->DD_lengths;
+}
+
+int *BGMGraph::get_DD_ranges() const {
+	return this->DD_ranges;
 }
 
 void BGMGraph::decompose(int nmb_domains){
 	LOG_FUNC_BEGIN
 	
-	if(nmb_domains > 1){
-		this->decomposed = true;
-		this->nmb_domains = nmb_domains;
+	if(!this->DD_decomposed){ /* there wasn't decompose called yet */
+		this->DD_decomposed = true;
+		this->DD_size = nmb_domains;
 
-		/* allocate array for domain affiliation */
-		domain = (int*)malloc(n*sizeof(int));
-	
-		/* ---- METIS STUFF ---- */
-		int *xadj; /* Indexes of starting points in adjacent array */
-		xadj = (int*)malloc((n+1)*sizeof(int));
-	
-		int *adjncy; /* Adjacent vertices in consecutive index order */
-		adjncy = (int*)malloc(2*m*sizeof(int));
+		/* allocate arrays */
+		DD_affiliation = (int*)malloc(n*sizeof(int));
+		DD_permutation = (int*)malloc(n*sizeof(int));
+		DD_lengths = (int*)malloc(DD_size*sizeof(int));
+		DD_ranges = (int*)malloc((DD_size+1)*sizeof(int));
 
-		/* fill aux metis stuff */
-		int counter = 0;
-		for(int i=0;i<n;i++){
-			xadj[i] = counter;
-			for(int j=0;j<neighbor_nmbs[i];j++){
-				adjncy[counter] = neighbor_ids[i][j];
-				counter++;
+		if(nmb_domains > 1){
+			/* ---- METIS STUFF ---- */
+			int *xadj; /* Indexes of starting points in adjacent array */
+			xadj = (int*)malloc((n+1)*sizeof(int));
+		
+			int *adjncy; /* Adjacent vertices in consecutive index order */
+			adjncy = (int*)malloc(2*m*sizeof(int));
+
+			/* fill aux metis stuff */
+			int counter = 0;
+			for(int i=0;i<n;i++){
+				xadj[i] = counter;
+				for(int j=0;j<neighbor_nmbs[i];j++){
+					adjncy[counter] = neighbor_ids[i][j];
+					counter++;
+				}
+			}	
+			xadj[n] = counter;
+
+			int objval;
+			int nWeights = 1; /* something with weights of graph, I really don't know, sorry */
+
+			/* run decomposition */
+			int metis_ret = METIS_PartGraphKway(&n,&nWeights, xadj, adjncy,
+							   NULL, NULL, NULL, &DD_size, NULL,
+							   NULL, NULL, &objval, DD_affiliation);
+
+			/* free aux stuff */
+			free(xadj);
+			free(adjncy);
+			/* --------------------- */
+
+			/* compute local lengths and permutation of global indexes */
+			for(int i=0;i<DD_size;i++){ /* use DD_length as counters */
+				DD_lengths[i] = 0;
 			}
-		}	
-		xadj[n] = counter;
+			for(int i=0;i<n;i++){
+				DD_permutation[i] = DD_lengths[DD_affiliation[i]]; /* set index as a value of counter */
+				DD_lengths[DD_affiliation[i]] += 1;
+			}
 
-		int objval;
-		int nWeights = 1; /* something with weights of graph, I really don't know, sorry */
+			/* compute ranges */
+			DD_ranges[0] = 0;
+			for(int i=0;i<DD_size;i++){
+				DD_ranges[i+1] = DD_ranges[i] + DD_lengths[i];
+			}
+			for(int i=0;i<n;i++){
+				DD_permutation[i] += DD_ranges[DD_affiliation[i]]; /* shift local indexes to global */
+			}
 
-		/* run decomposition */
-		int metis_ret = METIS_PartGraphKway(&n,&nWeights, xadj, adjncy,
-						   NULL, NULL, NULL, &nmb_domains, NULL,
-						   NULL, NULL, &objval, domain);
+		} else {
+			/* nmb_domains <= 1 */
+			/* fill arrays manually, METIS is not able to do it with number of domains equal to 1 */
+			for(int i=0;i<n;i++){
+				DD_affiliation[i] = 0;
+			}
 
-		/* free aux stuff */
-		free(xadj);
-		free(adjncy);
-		/* --------------------- */
+			for(int i=0;i<n;i++){
+				DD_permutation[i] = i;
+			}
 
+			DD_lengths[0] = n;
+
+			DD_ranges[0] = 0;
+			DD_ranges[1] = n;
+		}
+	
+	} else {
+		// TODO: give error that decompose was already called, or clean stuff and make it again?
 	}
 	
 	LOG_FUNC_END
@@ -395,10 +474,18 @@ void BGMGraph::print(ConsoleOutput &output) const {
 	output << " - threshold:  " << this->threshold << std::endl;
 	output << " - processed:  " << this->processed << std::endl;
 
-	output << " - decomposed: " << this->decomposed << std::endl;
+	output << " - decomposed: " << this->DD_decomposed << std::endl;
 	output.push();
-	if(decomposed){
-		output << " - nmb of domains: " << this->nmb_domains << std::endl;
+	if(DD_decomposed){
+		output << " - nmb of domains: " << this->DD_size << std::endl;
+		output << " - lengths:        ";
+		for(int i=0;i<DD_size;i++){ /* use DD_length as counters */
+			output << DD_lengths[i];
+			if(i < DD_size-1){
+				output << ", ";
+			}
+		}
+		output << std::endl;
 	}
 	output.pop();
 	
@@ -410,29 +497,60 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 	output << "Graph" << std::endl;
 	
 	output.push();
-	output << " - dim:        " << this->dim << std::endl;
-	output << " - vertices:   " << this->n << std::endl;
-	output << " - edges:      " << this->m << std::endl;
-	output << " - max_degree: " << this->m_max << std::endl;
-	output << " - threshold:  " << this->threshold << std::endl;
-	output << " - processed:  " << this->processed << std::endl;
+	output << " - dim         : " << this->dim << std::endl;
+	output << " - vertices    : " << this->n << std::endl;
+	output << " - edges       : " << this->m << std::endl;
+	output << " - max_degree  : " << this->m_max << std::endl;
+	output << " - threshold   : " << this->threshold << std::endl;
+	output << " - coordinates : " << *coordinates << std::endl;
 
-	output << " - decomposed:  " << this->decomposed << std::endl;
+	output << " - decomposed  : " << this->DD_decomposed << std::endl;
 	output.push();
-	if(decomposed){
-		output << " - nmb of domains: " << this->nmb_domains << std::endl;
+	if(DD_decomposed){
+		output << " - DD_size: " << this->DD_size << std::endl;
+		output << " - DD_lengths:        ";
+		for(int i=0;i<DD_size;i++){
+			output << DD_lengths[i];
+			if(i < DD_size-1){
+				output << ", ";
+			}
+		}
+		output << std::endl;	
+		output << " - DD_ranges:        ";
+		for(int i=0;i<DD_size+1;i++){
+			output << DD_ranges[i];
+			if(i < DD_size){
+				output << ", ";
+			}
+		}
+		output << std::endl;	
+		output << " - DD_affiliation: ";
+		for(int i=0;i<n;i++){
+			output << DD_affiliation[i];
+			if(i < n-1){
+				output << ", ";
+			}
+		}
+		output << std::endl;	
+		output << " - DD_permutation: ";
+		for(int i=0;i<n;i++){
+			output << DD_permutation[i];
+			if(i < n-1){
+				output << ", ";
+			}
+		}
+		output << std::endl;	
+			
 	}
 	output.pop();
 
-	output << " - coordinates: " << *coordinates << std::endl;
-
-	int i,j;
+	output << " - processed:  " << this->processed << std::endl;
 	if(this->processed){
-		output << " - processed arrays: " << std::endl;
+		output << " - arrays of neighbors: " << std::endl;
 		output.push();
-		for(i=0;i<n;i++){
+		for(int i=0;i<n;i++){
 			output << i << ": " << "(" << neighbor_nmbs[i] << "): ";
-			for(j=0;j<neighbor_nmbs[i];j++){
+			for(int j=0;j<neighbor_nmbs[i];j++){
 				output << neighbor_ids[i][j];
 				if(j < neighbor_nmbs[i]-1){
 					output << ", ";
@@ -511,8 +629,8 @@ void BGMGraph::saveVTK(std::string filename) const {
 		myfile << "SCALARS domain float 1\n";
 		myfile << "LOOKUP_TABLE default\n";
 		for(int i=0;i<n;i++){
-			if(decomposed){
-				myfile << domain[i] << "\n";
+			if(DD_decomposed){
+				myfile << DD_affiliation[i] << "\n";
 			} else {
 				myfile << "-1\n";
 			}

@@ -27,12 +27,24 @@ template<class VectorBase>
 class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		int T; /**< dimension of each block */
+		int R; /**< number of vertices = number of blocks in row,col */
+		int K; /**< number of diagonal blocks */
+
+		/* T decomposition */
+		int DD_T_size; /**< time - number of domains for decomposition */
+		int DD_T_ranges; /**< time - local ownership */
+
+		/* R decomposition */
+		int DD_R_size; /**< space - number of domains for decomposition */
+		int *DD_R_affiliation; /**< space - domain affiliation of vertices */
+		int *DD_R_local_idx; /**< space - local indexes of vertices */
+		int *DD_R_lengths; /**< space - array of local lengths */
+
+
 		int Tlocal; /**< local dimension of each block */
 		int Tbegin; /**< ownership begin */
 		int Tend; /**< ownership end */
 		
-		int R; /**< number of vertices = number of blocks in row,col */
-		int K; /**< number of diagonal blocks */
 		double alpha; /**< general matrix multiplicator */
 		
 		BGMGraph *graph; /**< graph with stucture of the matrix */

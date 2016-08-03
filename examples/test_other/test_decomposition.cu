@@ -1,5 +1,5 @@
-/** @file test_metis.cu
- *  @brief test graph decomposition using metis
+/** @file test_decomposition.cu
+ *  @brief test decoposition in time and space
  *
  *  @author Lukas Pospisil
  */
@@ -26,6 +26,9 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
+		("test_T", boost::program_options::value<int>(), "length of time-series [int]")
+		("test_DDT", boost::program_options::value<int>(), "decomposition in time [int]")
+		("test_DDR", boost::program_options::value<int>(), "decomposition in space [int]")
 		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
 		("test_graph_out", boost::program_options::value< std::string >(), "part of name of output file with graph [string]")
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
@@ -48,8 +51,12 @@ int main( int argc, char *argv[] )
 	std::string graph_filename, graph_out;
 	double graph_coeff;
 	bool view_graph;
-	int graph_nmb_domains;
+	int T, graph_nmb_domains, DDT_size, DDR_size;
+	int nproc = GlobalManager.get_size();
 
+	consoleArg.set_option_value("test_T", &T, 10);
+	consoleArg.set_option_value("test_DDT", &DDT_size, nproc);
+	consoleArg.set_option_value("test_DDR", &DDR_size, 1);
 	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph_square_10.bin");
 	consoleArg.set_option_value("test_graph_out", &graph_out, "graph_square_10");
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
@@ -57,15 +64,27 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
 	/* print settings */
+	coutMaster << " test_T                    = " << std::setw(30) << graph_filename << " (length of time-series)" << std::endl;
 	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)" << std::endl;
 	coutMaster << " test_graph_out            = " << std::setw(30) << graph_filename << " (part of name of output file with graph)" << std::endl;
 	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
 	coutMaster << " test_graph_nmb_domains    = " << std::setw(30) << graph_nmb_domains << " (number of domains for decomposition)" << std::endl;
 	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)" << std::endl;
+	coutMaster << " test_DDT                  = " << std::setw(30) << DDT_size << " (decomposition in time)" << std::endl;
+	coutMaster << " test_DDR                  = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
+
+	if(DDT_size*DDR_size != nproc){
+		coutMaster << "Sorry, DDT*DDR != nproc" << std::endl;
+		coutMaster << " DDT = " << DDT_size << std::endl;
+		coutMaster << " DDR = " << DDR_size << std::endl;
+		coutMaster << " nproc    = " << nproc << std::endl;
+		
+		return 0;
+	}
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
-	oss_name_of_file_log << "results/test_metis_log_p" << GlobalManager.get_rank() << ".txt";
+	oss_name_of_file_log << "results/test_decomposition_log_p" << GlobalManager.get_rank() << ".txt";
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
@@ -77,9 +96,6 @@ int main( int argc, char *argv[] )
 	/* process graph */
 	graph.process(graph_coeff);
 
-	/* call domain decomposition */
-	graph.decompose(graph_nmb_domains);
-
 	/* print info about graph */
 	if(!view_graph){
 		graph.print(coutMaster);
@@ -87,10 +103,12 @@ int main( int argc, char *argv[] )
 		graph.print_content(coutMaster);
 	}
 
-	/* save graph into VTK */
-	std::ostringstream oss_graph_out_filename;
-	oss_graph_out_filename << "results/" << graph_out << ".vtk";
-	graph.saveVTK(oss_graph_out_filename.str());
+	/* decomposition */
+//	Decomposition decomposition(T, DDT_size); /* pure time */
+//	Decomposition decomposition(T, graph, DDR_size); /* pure space */
+	Decomposition decomposition(T, DDT_size, graph, DDR_size); /* pure space */
+
+	decomposition.print_content(coutMaster, coutAll);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
