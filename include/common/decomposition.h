@@ -9,6 +9,9 @@
 
 #include "common/bgmgraph.h"
 
+/* this class is for petscvector */
+typedef petscvector::PetscVector PetscVector;
+
 namespace pascinference {
 
 class Decomposition {
@@ -20,6 +23,8 @@ class Decomposition {
 		bool destroy_DDT_arrays; /**< if decomposition of T was not provided, I have to create and destroy arrays here */
 
 		/* R decomposition */
+		BGMGraph *graph; /**< graph with stucture of the matrix */
+
 		int R;
 		int DDR_size; /**< space - number of domains for decomposition */
 		int *DDR_affiliation; /**< space - domain affiliation of vertices */
@@ -54,15 +59,22 @@ class Decomposition {
 		~Decomposition();
 		
 		int get_T() const;
+		int get_Tlocal() const;
+		int get_Tbegin() const;
+		int get_Tend() const;
 		int get_DDT_size() const;
 		const int *get_DDT_ranges() const;
 
 		int get_R() const;
+		int get_Rbegin() const;
+		int get_Rend() const;
+		int get_Rlocal() const;
 		int get_DDR_size() const;
 		int *get_DDR_affiliation() const;
 		int *get_DDR_permutation() const;
 		int *get_DDR_lengths() const;
 		int *get_DDR_ranges() const;
+		BGMGraph *get_graph() const;
 	
 		int get_DDT_rank() const;
 		int get_DDR_rank() const;
@@ -75,6 +87,7 @@ class Decomposition {
 		*/
 		void print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details=true) const;
 
+		void createGlobalVec(Vec *x_Vec, int blocksize=1) const;
 };
 
 /* ----------------- Decomposition implementation ------------- */
@@ -127,6 +140,8 @@ Decomposition::Decomposition(int T, int DDT_size, int R){
 	DDR_ranges[0] = 0;
 	DDR_ranges[1] = R;
 
+	graph = NULL;
+
 	compute_rank();
 
 	LOG_FUNC_END
@@ -137,6 +152,7 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int DDR_size){
 
 	this->T = T;
 	this->R = new_graph.get_n();
+	this->graph = &new_graph;
 
 	/* decompose graph */
 	new_graph.decompose(DDR_size);
@@ -168,6 +184,7 @@ Decomposition::Decomposition(int T, int DDT_size, BGMGraph &new_graph, int DDR_s
 
 	this->T = T;
 	this->R = new_graph.get_n();
+	this->graph = &new_graph;
 
 	/* decompose graph */
 	new_graph.decompose(DDR_size);
@@ -245,6 +262,21 @@ int Decomposition::get_T() const{
 	return T;
 }
 
+int Decomposition::get_Tlocal() const{
+	int rank = GlobalManager.get_rank();
+	return DDT_ranges[rank+1] - DDT_ranges[rank];
+}
+
+int Decomposition::get_Tbegin() const{
+	int rank = GlobalManager.get_rank();
+	return DDT_ranges[rank];
+}
+
+int Decomposition::get_Tend() const{
+	int rank = GlobalManager.get_rank();
+	return DDT_ranges[rank+1];
+}
+
 int Decomposition::get_DDT_size() const{
 	return DDT_size;
 }
@@ -255,6 +287,21 @@ const int *Decomposition::get_DDT_ranges() const{
 
 int Decomposition::get_R() const{
 	return R;
+}
+
+int Decomposition::get_Rlocal() const{
+	int rank = GlobalManager.get_rank();
+	return DDR_ranges[rank+1] - DDR_ranges[rank];
+}
+
+int Decomposition::get_Rbegin() const{
+	int rank = GlobalManager.get_rank();
+	return DDR_ranges[rank];
+}
+
+int Decomposition::get_Rend() const{
+	int rank = GlobalManager.get_rank();
+	return DDR_ranges[rank+1];
 }
 
 int Decomposition::get_DDR_size() const{
@@ -275,6 +322,10 @@ int *Decomposition::get_DDR_lengths() const{
 
 int *Decomposition::get_DDR_ranges() const{
 	return DDR_ranges;
+}
+
+BGMGraph *Decomposition::get_graph() const{
+	return graph;
 }
 
 int Decomposition::get_DDT_rank() const{
@@ -374,11 +425,27 @@ void Decomposition::print(ConsoleOutput &output) const {
 			output << ", ";
 		}
 	}
+	output << std::endl;
 	output.pop();
 	
 }
 
+void Decomposition::createGlobalVec(Vec *x_Vec, int blocksize) const { //TODO: how about call it with GeneralVector<PetscVector> ?
+	LOG_FUNC_BEGIN
 
+	int T = this->get_T();
+	int R = this->get_R();
+	int Tlocal = this->get_Tlocal();
+	int Rlocal = this->get_Rlocal();
+
+	/* create MPI vector */
+	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*blocksize,T*R*blocksize) );
+	TRY( VecSetFromOptions(*x_Vec) );
+
+	LOG_FUNC_END
 }
+
+} /* end of namespace */
 
 #endif

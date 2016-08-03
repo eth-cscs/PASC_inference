@@ -32,7 +32,6 @@ int main( int argc, char *argv[] )
 		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
 		("test_graph_out", boost::program_options::value< std::string >(), "part of name of output file with graph [string]")
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
-		("test_graph_nmb_domains", boost::program_options::value<int>(), "number of domains for decomposition [int]")
 		("test_view_graph", boost::program_options::value<bool>(), "print content of graph or not [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
@@ -51,7 +50,7 @@ int main( int argc, char *argv[] )
 	std::string graph_filename, graph_out;
 	double graph_coeff;
 	bool view_graph;
-	int T, graph_nmb_domains, DDT_size, DDR_size;
+	int T, DDT_size, DDR_size;
 	int nproc = GlobalManager.get_size();
 
 	consoleArg.set_option_value("test_T", &T, 10);
@@ -60,7 +59,6 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph_square_10.bin");
 	consoleArg.set_option_value("test_graph_out", &graph_out, "graph_square_10");
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
-	consoleArg.set_option_value("test_graph_nmb_domains", &graph_nmb_domains, 3);
 	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
 	/* print settings */
@@ -68,7 +66,6 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)" << std::endl;
 	coutMaster << " test_graph_out            = " << std::setw(30) << graph_filename << " (part of name of output file with graph)" << std::endl;
 	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_graph_nmb_domains    = " << std::setw(30) << graph_nmb_domains << " (number of domains for decomposition)" << std::endl;
 	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)" << std::endl;
 	coutMaster << " test_DDT                  = " << std::setw(30) << DDT_size << " (decomposition in time)" << std::endl;
 	coutMaster << " test_DDR                  = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
@@ -106,7 +103,7 @@ int main( int argc, char *argv[] )
 	/* decomposition */
 //	Decomposition decomposition(T, DDT_size); /* pure time */
 //	Decomposition decomposition(T, graph, DDR_size); /* pure space */
-	Decomposition decomposition(T, DDT_size, graph, DDR_size); /* pure space */
+	Decomposition decomposition(T, DDT_size, graph, DDR_size); /* time and space */
 
 	decomposition.print_content(coutMaster, coutAll);
 
