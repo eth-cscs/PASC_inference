@@ -26,13 +26,13 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
+		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_image_filename", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
 		("test_image_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
-		("test_graph_filename", boost::program_options::value< std::string >(), "name of input file with graph data (vector in PETSc format) [string]")
-		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
-//		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
+		("test_graph_filename", boost::program_options::value< std::string >(), "name of input file with graph data (vector in PETSc format) [string]")
+		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1} [bool]");
@@ -45,7 +45,7 @@ int main( int argc, char *argv[] )
 
 	int K, annealing, width, height; 
 	double epssqr;
-//	double graph_coeff; 
+	double graph_coeff; 
 	bool cutgamma;
 
 	std::string image_filename;
@@ -56,21 +56,25 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_width", &width, 100);
 	consoleArg.set_option_value("test_height", &height, 100);
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
-//	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
+	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
 	consoleArg.set_option_value("test_image_out", &image_out, "image1");
 	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph1.bin");
 
+	/* set decomposition in space */
+	int DDR_size = GlobalManager.get_size();
+
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
+	coutMaster << " DDR_size             = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
 	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
 	coutMaster << " test_image_out       = " << std::setw(30) << image_out << " (part of name of output file)" << std::endl;
-	coutMaster << " test_graph_filename  = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
-	coutMaster << " test_K               = " << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_width           = " << width << " (width of image)" << std::endl;
 	coutMaster << " test_height          = " << height << " (height of image)" << std::endl;
-//	coutMaster << " test_graph_coeff     = " << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_K               = " << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_graph_filename  = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
+	coutMaster << " test_graph_coeff     = " << graph_coeff << " (threshold of the graph)" << std::endl;
 	coutMaster << " test_epssqr          = " << epssqr << " (penalty)" << std::endl;
 	coutMaster << " test_annealing       = " << annealing << " (number of annealing steps)" << std::endl;
 	coutMaster << " test_cutgamma        = " << cutgamma << " (cut gamma to {0,1})" << std::endl;
@@ -84,56 +88,62 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
-	/* prepare time-series data */
-	coutMaster << "--- PREPARING DATA ---" << std::endl;
-	ImageData<PetscVector> mydata(image_filename, width, height, 1);
-	mydata.print(coutMaster);
-
-	/* prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-
-	BGMGraphGrid2D mygraph(width, height);
-	mygraph.process_grid();
+/* 1.) prepare graph of image */
+	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
+	BGMGraphGrid2D graph(width, height);
+	graph.process_grid();
 
 //	BGMGraph mygraph(graph_filename);
 //	mygraph.process(graph_coeff);
 
-	mygraph.print(coutMaster);
+	graph.print(coutMaster);
+	
+/* 2.) prepare decomposition */
+	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
+	Decomposition decomposition(1, graph, K, 1, DDR_size);
 
-	GraphH1FEMModel<PetscVector> mymodel(mydata, mygraph, K, epssqr);
+	decomposition.print(coutMaster);
+
+/* 3.) prepare time-series data */
+	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	ImageData<PetscVector> mydata(decomposition, image_filename, width, height);
+	mydata.print(coutMaster);
+
+/* 4.) prepare model */
+	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr);
 	mymodel.print(coutMaster,coutAll);
 
 	/* prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<PetscVector> mysolver(mydata, annealing);
+//	mysolver.print(coutMaster,coutAll);
 
-	mysolver.print(coutMaster,coutAll);
+	///* solve the problem */
+	//coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	//mysolver.solve();
 
-	/* solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-	mysolver.solve();
+	///* cut gamma */
+	//if(cutgamma){
+		//mydata.cut_gamma();
+	//}
 
-	/* cut gamma */
-	if(cutgamma){
-		mydata.cut_gamma();
-	}
+	///* print solution */
+	//coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	//mydata.print_thetavector(coutMaster);
 
-	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---" << std::endl;
-	mydata.print_thetavector(coutMaster);
+	///* save results into CSV file */
+	//coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	//mydata.saveImage(image_out);
 
-	/* save results into CSV file */
-	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-	mydata.saveImage(image_out);
+	///* print timers */
+	//coutMaster << "--- TIMERS INFO ---" << std::endl;
+	//mysolver.printtimer(coutAll);
+	//coutAll.synchronize();
 
-	/* print timers */
-	coutMaster << "--- TIMERS INFO ---" << std::endl;
-	mysolver.printtimer(coutAll);
-	coutAll.synchronize();
-
-	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
-	mysolver.printstatus(coutMaster);
+	///* print short info */
+	//coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	//mysolver.printstatus(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

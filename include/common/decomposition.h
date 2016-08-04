@@ -97,6 +97,10 @@ class Decomposition {
 		void print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details=true) const;
 
 		void createGlobalVec_gamma(Vec *x_Vec) const;
+		void createGlobalCudaVec_gamma(Vec *x_Vec) const;
+		void createGlobalVec_data(Vec *x_Vec) const;
+		void createGlobalCudaVec_data(Vec *x_Vec) const;
+
 		int get_idxglobal(int t_global, int r_global, int k) const;
 		int get_invPr(int r_global) const;
 		int get_Pr(int r_global) const;
@@ -475,7 +479,62 @@ void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const { //TODO: how about 
 
 	/* create MPI vector */
 	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+//	TRY( VecSetType(*x_Vec, VECMPI) );
 	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
+	TRY( VecSetFromOptions(*x_Vec) );
+
+	LOG_FUNC_END
+}
+
+void Decomposition::createGlobalCudaVec_gamma(Vec *x_Vec) const { //TODO: how about call it with GeneralVector<PetscVector> ?
+	LOG_FUNC_BEGIN
+
+	int T = this->get_T();
+	int R = this->get_R();
+	int K = this->get_K();
+	int Tlocal = this->get_Tlocal();
+	int Rlocal = this->get_Rlocal();
+
+	/* create MPI vector */
+	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	TRY( VecSetType(*x_Vec, VECMPICUDA) );
+	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
+	TRY( VecSetFromOptions(*x_Vec) );
+
+	LOG_FUNC_END
+}
+
+void Decomposition::createGlobalVec_data(Vec *x_Vec) const { //TODO: how about call it with GeneralVector<PetscVector> ?
+	LOG_FUNC_BEGIN
+
+	int T = this->get_T();
+	int R = this->get_R();
+	int xdim = this->get_xdim();
+	int Tlocal = this->get_Tlocal();
+	int Rlocal = this->get_Rlocal();
+
+	/* create MPI vector */
+	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+//	TRY( VecSetType(*x_Vec, VECMPI) );
+	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
+	TRY( VecSetFromOptions(*x_Vec) );
+
+	LOG_FUNC_END
+}
+
+void Decomposition::createGlobalCudaVec_data(Vec *x_Vec) const { //TODO: how about call it with GeneralVector<PetscVector> ?
+	LOG_FUNC_BEGIN
+
+	int T = this->get_T();
+	int R = this->get_R();
+	int xdim = this->get_xdim();
+	int Tlocal = this->get_Tlocal();
+	int Rlocal = this->get_Rlocal();
+
+	/* create CUDAMPI vector */
+	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	TRY( VecSetType(*x_Vec, VECMPICUDA) );
+	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
 	TRY( VecSetFromOptions(*x_Vec) );
 
 	LOG_FUNC_END

@@ -30,9 +30,8 @@ class ImageData: public TSData<VectorBase> {
 	protected:
 		int width;
 		int height;
-		int R;
 	public:
-		ImageData(std::string filename_data, int width, int height, int T=1);
+		ImageData(Decomposition &decomposition, std::string filename_data, int width, int height);
 		~ImageData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -43,8 +42,6 @@ class ImageData: public TSData<VectorBase> {
 		virtual std::string get_name() const;
 
 		void saveImage(std::string filename) const;
-
-		int get_R() const;
 
 };
 
@@ -85,33 +82,17 @@ namespace pascinference {
 
 /* from filename */
 template<class VectorBase>
-ImageData<VectorBase>::ImageData(std::string filename_data, int width, int height, int T){
+ImageData<VectorBase>::ImageData(Decomposition &new_decomposition, std::string filename_data, int width, int height){
 	LOG_FUNC_BEGIN
 
 	this->width = width;
 	this->height = height;
-	this->R = (width*height)/(double)T;
+	this->decomposition = &new_decomposition;
 
-	/* prepare new layout */
-	Vec layout;
-	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
-	TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
-	TRY( VecSetFromOptions(layout) );
-
-	/* get Tlocal */
-	int Tlocal;
-	TRY( VecGetLocalSize(layout,&Tlocal) );
-	
-	/* destroy layout vector - now we know everything what is necessary */
-	TRY( VecDestroy(&layout) );
-	
-	/* ------ PREPARE DATAVECTOR ------ */
-	Vec datavector_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD,&datavector_Vec) );
-	TRY( VecSetSizes(datavector_Vec, Tlocal*R, T*R ) );
-	TRY( VecSetFromOptions(datavector_Vec) );
-
-	this->datavector = new GeneralVector<PetscVector>(datavector_Vec);
+	/* prepare datavector */
+	Vec data_Vec;
+	this->decomposition->createGlobalVec_data(&data_Vec);
+	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 	this->destroy_datavector = true;
 
 	/* load image from file */
@@ -119,9 +100,6 @@ ImageData<VectorBase>::ImageData(std::string filename_data, int width, int heigh
 
 	this->destroy_gammavector = false;
 	this->destroy_thetavector = false;
-
-	/* compute vector lengths */
-	this->T = T;
 
 	LOG_FUNC_END
 }
@@ -147,7 +125,7 @@ void ImageData<VectorBase>::print(ConsoleOutput &output) const {
 	if(this->tsmodel){
 		output <<  " - T:           " << this->get_T() << std::endl;
 		output <<  " - xdim:        " << this->get_xdim() << std::endl;
-		output <<  " - K:           " << this->tsmodel->get_K() << std::endl;
+		output <<  " - K:           " << this->get_K() << std::endl;
 		output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	} else {
 		output <<  " - model:       NO" << std::endl;
@@ -188,11 +166,11 @@ void ImageData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &o
 	/* give information about presence of the data */
 	if(this->tsmodel){
 		output_global <<  " - T:           " << this->get_T() << std::endl;
-		output_local  <<  "  - Tlocal:     " << this->tsmodel->get_Tlocal() << std::endl;
+		output_local  <<  "  - Tlocal:     " << this->get_Tlocal() << std::endl;
 		output_local.synchronize();
 
 		output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
-		output_global <<  " - K:           " << this->tsmodel->get_K() << std::endl;
+		output_global <<  " - K:           " << this->get_K() << std::endl;
 
 		output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	} else {
@@ -306,11 +284,6 @@ std::string ImageData<VectorBase>::get_name() const {
 	return "Image Time-series Data";
 }
 
-template<class VectorBase>
-int ImageData<VectorBase>::get_R() const{
-	return this->R;
-}
-
 template<>
 void ImageData<PetscVector>::saveImage(std::string filename) const{
 	Timer timer_saveImage; 
@@ -338,10 +311,10 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 	double *theta_arr;
 	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
-	int K = get_K();
-	int R = get_R();
-	int Tlocal = get_Tlocal();
-	int Tbegin = get_Tbegin();
+	int K = this->get_K();
+	int R = this->get_R();
+	int Tlocal = this->get_Tlocal();
+	int Tbegin = this->get_Tbegin();
 	int k;
 
 	for(k=0;k<K;k++){ 

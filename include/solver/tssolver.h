@@ -179,8 +179,8 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	model = tsdata->get_model(); 
 
 	/* we can initialize solvers - based on model */
-	model->initialize_gammasolver(&gammasolver, tsdata);	
-	model->initialize_thetasolver(&thetasolver, tsdata);	
+	model->initialize_gammasolver(&gammasolver);	
+	model->initialize_thetasolver(&thetasolver);	
 
 	/* set settings */
 	set_settings_from_console();
@@ -213,10 +213,10 @@ TSSolver<VectorBase>::~TSSolver(){
 
 	/* destroy child solvers - based on model */
 	if(gammasolver){
-		model->finalize_gammasolver(&gammasolver, tsdata);	
+		model->finalize_gammasolver(&gammasolver);	
 	}
 	if(thetasolver){
-		model->finalize_thetasolver(&thetasolver, tsdata);	
+		model->finalize_thetasolver(&thetasolver);	
 	}
 
 	LOG_FUNC_END
@@ -472,7 +472,7 @@ void TSSolver<VectorBase>::solve() {
 
 			/* --- COMPUTE Theta --- */
 			this->timer_theta_update.start();
-			 model->update_thetasolver(thetasolver, tsdata);
+			 model->update_thetasolver(thetasolver);
 			this->timer_theta_update.stop();
 
 			/* barrier  - everything has to be synchronized now */
@@ -510,7 +510,7 @@ void TSSolver<VectorBase>::solve() {
 
 			/* --- COMPUTE gamma --- */
 			this->timer_gamma_update.start();
-			 model->update_gammasolver(gammasolver, tsdata);
+			 model->update_gammasolver(gammasolver);
 			this->timer_gamma_update.stop();
 
 			TRY(PetscBarrier(NULL));
@@ -543,7 +543,7 @@ void TSSolver<VectorBase>::solve() {
 
 			/* compute stopping criteria if the problem was not solved yet */
 			L_old = L;
-			L = model->get_L(gammasolver,thetasolver,tsdata);
+			L = model->get_L(gammasolver,thetasolver);
 			deltaL = std::abs(L - L_old);
 
 			/* log L */

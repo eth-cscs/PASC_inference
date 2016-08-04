@@ -42,21 +42,16 @@ class TSData: public GeneralData {
 
 		double aic_solution; /**< AIC value in solution */
 
-		// TODO: move variables from model here
-		int T;
-		int Tlocal;
-		int Tbegin;
-		int Tend;
-		int blocksize;
+		Decomposition *decomposition;
 
 		/* scaling variables */
 		double scale_max;
 		double scale_min;
 		
 	public:
-		TSData(GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new, int T);
-		TSData(int T, int blocksize=1);
-		TSData(std::string filename , int blocksize=1);
+		TSData(Decomposition &decomposition, GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new);
+		TSData(Decomposition &decomposition);
+		TSData(Decomposition &decomposition, std::string filename);
 		TSData();
 
 		~TSData();
@@ -79,12 +74,20 @@ class TSData: public GeneralData {
 		int get_Tlocal() const;
 		int get_Tbegin() const;
 		int get_Tend() const;
+
+		int get_R() const;
+		int get_Rlocal() const;
+		int get_Rbegin() const;
+		int get_Rend() const;
+
 		int get_xdim() const;
-		int get_xmem() const;
 		int get_K() const;
+
 		double get_aic() const;
 		
 		TSModel<VectorBase> *get_model() const;
+		Decomposition *get_decomposition() const;
+
 		GeneralVector<VectorBase> *get_datavector() const;
 		GeneralVector<VectorBase> *get_gammavector() const;
 		GeneralVector<VectorBase> *get_thetavector() const;
@@ -132,6 +135,7 @@ template<class VectorBase>
 TSData<VectorBase>::TSData(){
 	LOG_FUNC_BEGIN
 
+	this->decomposition = NULL;
 	this->tsmodel = NULL;
 
 	this->datavector = NULL;
@@ -143,12 +147,6 @@ TSData<VectorBase>::TSData(){
 	this->thetavector = NULL;
 	destroy_thetavector = false;
 
-	this->T = 0;
-	this->Tlocal = 0;
-	this->Tbegin = 0;
-	this->Tend = 0;
-	this->blocksize = 0;
-
 	/* set initial aic */
 	this->aic_solution = std::numeric_limits<double>::max();
 
@@ -156,11 +154,11 @@ TSData<VectorBase>::TSData(){
 }
 
 template<>
-TSData<PetscVector>::TSData(GeneralVector<PetscVector> *datavector_new, GeneralVector<PetscVector> *gammavector_new, GeneralVector<PetscVector> *thetavector_new, int T){
+TSData<PetscVector>::TSData(Decomposition &new_decomposition, GeneralVector<PetscVector> *datavector_new, GeneralVector<PetscVector> *gammavector_new, GeneralVector<PetscVector> *thetavector_new){
 	LOG_FUNC_BEGIN
 
+	this->decomposition = &new_decomposition;
 	this->tsmodel = NULL;
-	this->T = T;
 
 	if(datavector_new){
 		this->datavector = datavector_new;
@@ -171,18 +169,6 @@ TSData<PetscVector>::TSData(GeneralVector<PetscVector> *datavector_new, GeneralV
 
 	if(gammavector_new){
 		this->gammavector = gammavector_new;
-		
-		/* compute distribution of gamma from gamma */
-		int global_size, local_size, low, high;
-		TRY( VecGetSize(this->gammavector->get_vector(), &global_size) );
-		TRY( VecGetLocalSize(this->gammavector->get_vector(), &local_size) );
-		TRY( VecGetOwnershipRange(this->gammavector->get_vector(),&low,&high) );
-	
-		this->blocksize = global_size/(double)T;
-		this->Tlocal = local_size/(double)this->blocksize;
-		this->Tbegin = low/(double)this->blocksize;
-		this->Tend = high/(double)this->blocksize;
-
 	} else {
 		this->gammavector = NULL;
 	}
@@ -204,35 +190,14 @@ TSData<PetscVector>::TSData(GeneralVector<PetscVector> *datavector_new, GeneralV
 
 /* no datavector provided - prepare own data vector */
 template<>
-TSData<PetscVector>::TSData(int T, int blocksize){
+TSData<PetscVector>::TSData(Decomposition &new_decomposition){
 	LOG_FUNC_BEGIN
 
-	/* prepare new layout */
-	Vec layout;
-	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
-	TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
-	TRY( VecSetFromOptions(layout) );
-
-	int Tbegin, Tend;
-	TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
+	this->decomposition = &new_decomposition;
 	
-	/* get Tlocal */
-	int Tlocal;
-	TRY( VecGetLocalSize(layout,&Tlocal) );
-	
-	/* destroy layout vector - now we know everything what is necessary */
-	TRY( VecDestroy(&layout) );
-
-	/* we are ready to prepare real datavector */
+	/* we are ready to prepare datavector */
 	Vec data_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
-	TRY( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
-	TRY( VecSetFromOptions(data_Vec) );	
-
-	TRY( VecAssemblyBegin(data_Vec) );
-	TRY( VecAssemblyEnd(data_Vec) );
-
-	/* prepare general vector */
+	this->decomposition->createGlobalVec_data(&data_Vec);
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 	destroy_datavector = true;
 
@@ -246,13 +211,6 @@ TSData<PetscVector>::TSData(int T, int blocksize){
 	/* we don't know anything about model */
 	this->tsmodel = NULL;
 
-	/* store provided values */
-	this->T = T;
-	this->Tlocal = Tlocal;
-	this->Tbegin = Tbegin;
-	this->Tend = Tend;
-	this->blocksize = blocksize;
-
 	/* set initial aic */
 	this->aic_solution = std::numeric_limits<double>::max();
 
@@ -260,71 +218,73 @@ TSData<PetscVector>::TSData(int T, int blocksize){
 }
 
 template<>
-TSData<PetscVector>::TSData(std::string filename, int blocksize){
+TSData<PetscVector>::TSData(Decomposition &new_decomposition, std::string filename){
 	LOG_FUNC_BEGIN
 
 	//TODO: check if file exists
-
-	/* new data vector only for loading data */
-	Vec dataPreLoad_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD,&dataPreLoad_Vec) );
-
-	/* prepare viewer to load from file */
-	PetscViewer mviewer;
-	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	this->decomposition = &new_decomposition;
 	
-	/* load vector from viewer */
-	TRY( VecLoad(dataPreLoad_Vec, mviewer) );
+	//TODO: implement loader of vector into decomposition?
+	///* new data vector only for loading data */
+	//Vec dataPreLoad_Vec;
+	//TRY( VecCreate(PETSC_COMM_WORLD,&dataPreLoad_Vec) );
 
-	/* destroy the viewer */
-	TRY( PetscViewerDestroy(&mviewer) );
-
-	/* get T */
-	int vec_size;
-	TRY( VecGetSize(dataPreLoad_Vec,&vec_size) );
-	int T = vec_size/(double)blocksize;
-
-	/* now we know the length of vector, we will load it again on right layout */
-	TRY( VecDestroy(&dataPreLoad_Vec) );
-
-	/* now prepare new layout */
-	Vec layout;
-	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
-	TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
-	TRY( VecSetFromOptions(layout) );
-
-	int Tbegin, Tend;
-	TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
+	///* prepare viewer to load from file */
+	//PetscViewer mviewer;
+	//TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	//TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
 	
-	/* get Tlocal */
-	int Tlocal;
-	TRY( VecGetLocalSize(layout,&Tlocal) );
+	///* load vector from viewer */
+	//TRY( VecLoad(dataPreLoad_Vec, mviewer) );
+
+	///* destroy the viewer */
+	//TRY( PetscViewerDestroy(&mviewer) );
+
+	///* get T */
+	//int vec_size;
+	//TRY( VecGetSize(dataPreLoad_Vec,&vec_size) );
+	//int T = vec_size/(double)blocksize;
+
+	///* now we know the length of vector, we will load it again on right layout */
+	//TRY( VecDestroy(&dataPreLoad_Vec) );
+
+	///* now prepare new layout */
+	//Vec layout;
+	//TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
+	//TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
+	//TRY( VecSetFromOptions(layout) );
+
+	//int Tbegin, Tend;
+	//TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
 	
-	/* destroy layout vector - now we know everything what is necessary */
-	TRY( VecDestroy(&layout) );
+	///* get Tlocal */
+	//int Tlocal;
+	//TRY( VecGetLocalSize(layout,&Tlocal) );
 	
-	/* we are ready to prepare real datavector */
-	Vec data_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
-	TRY( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
-	TRY( VecSetFromOptions(data_Vec) );	
-
-	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
-
-	/* load data to vector with right layout */
-	TRY( VecLoad(data_Vec, mviewer) );
+	///* destroy layout vector - now we know everything what is necessary */
+	//TRY( VecDestroy(&layout) );
 	
-	TRY( VecAssemblyBegin(data_Vec) );
-	TRY( VecAssemblyEnd(data_Vec) );
+	///* we are ready to prepare real datavector */
+	//Vec data_Vec;
+	//TRY( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
+	//TRY( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
+	//TRY( VecSetFromOptions(data_Vec) );	
 
-	/* destroy the viewer */
-	TRY( PetscViewerDestroy(&mviewer) );
+	//TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	//TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
 
-	/* prepare general vector */
-	this->datavector = new GeneralVector<PetscVector>(data_Vec);
-	destroy_datavector = true;
+	///* load data to vector with right layout */
+	//TRY( VecLoad(data_Vec, mviewer) );
+	
+	//TRY( VecAssemblyBegin(data_Vec) );
+	//TRY( VecAssemblyEnd(data_Vec) );
+
+	///* destroy the viewer */
+	//TRY( PetscViewerDestroy(&mviewer) );
+
+	///* prepare general vector */
+	//this->datavector = new GeneralVector<PetscVector>(data_Vec);
+	//destroy_datavector = true;
 
 	/* gamma and theta vectors are not given */
 	this->gammavector = NULL;
@@ -334,13 +294,6 @@ TSData<PetscVector>::TSData(std::string filename, int blocksize){
 	destroy_thetavector = false;
 
 	this->tsmodel = NULL;
-
-	/* store provided values */
-	this->T = T;
-	this->Tlocal = Tlocal;
-	this->Tbegin = Tbegin;
-	this->Tend = Tend;
-	this->blocksize = blocksize;
 	
 	LOG_FUNC_END
 }
@@ -355,9 +308,7 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 	/* prepare new vectors based on model */
 	if(!this->datavector){
 		Vec datavector_Vec;
-		TRY( VecCreate(PETSC_COMM_WORLD,&datavector_Vec) );
-		TRY( VecSetSizes(datavector_Vec,this->tsmodel->get_datavectorlength_local(),this->tsmodel->get_datavectorlength_global()) );
-		TRY( VecSetFromOptions(datavector_Vec) );
+		decomposition->createGlobalVec_data(&datavector_Vec);
 		this->datavector = new GeneralVector<PetscVector>(datavector_Vec);
 		this->destroy_datavector = true;
 	}
@@ -367,15 +318,10 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 
 		#ifndef USE_CUDA
 			/* classic MPI vector */
-			TRY( VecCreate(PETSC_COMM_WORLD,&gammavector_Vec) );
-			TRY( VecSetSizes(gammavector_Vec,this->tsmodel->get_gammavectorlength_local(),this->tsmodel->get_gammavectorlength_global()) );
-			TRY( VecSetFromOptions(gammavector_Vec) );
+			decomposition->createGlobalVec_gamma(&gammavector_Vec);
 		#else
 			/* CudaMPI vector */
-			TRY( VecCreate(PETSC_COMM_WORLD,&gammavector_Vec) );
-			TRY( VecSetType(gammavector_Vec, VECMPICUDA) );
-			TRY( VecSetSizes(gammavector_Vec,this->tsmodel->get_gammavectorlength_local(),this->tsmodel->get_gammavectorlength_global()) );
-			TRY( VecSetFromOptions(gammavector_Vec) );
+			decomposition->createGlobalCudaVec_gamma(&gammavector_Vec);
 		#endif
 
 		this->gammavector = new GeneralVector<PetscVector>(gammavector_Vec);
@@ -429,10 +375,10 @@ void TSData<VectorBase>::print(ConsoleOutput &output) const {
 	
 	/* give information about presence of the data */
 	if(this->tsmodel){
-		output <<  " - T:           " << this->get_T() << std::endl;
-		output <<  " - xdim:        " << this->get_xdim() << std::endl;
-		output <<  " - K:           " << this->tsmodel->get_K() << std::endl;
-		output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+		output <<  " - T:           " << get_T() << std::endl;
+		output <<  " - xdim:        " << get_xdim() << std::endl;
+		output <<  " - K:           " << get_K() << std::endl;
+		output <<  " - model:       " << tsmodel->get_name() << std::endl;
 	} else {
 		output <<  " - model:       NO" << std::endl;
 	}
@@ -470,14 +416,14 @@ void TSData<PetscVector>::print(ConsoleOutput &output_global, ConsoleOutput &out
 
 	/* give information about presence of the data */
 	if(this->tsmodel){
-		output_global <<  " - T:           " << this->get_T() << std::endl;
-		output_local  <<  "  - Tlocal:     " << this->tsmodel->get_Tlocal() << std::endl;
+		output_global <<  " - T:           " << get_T() << std::endl;
+		output_local  <<  "  - Tlocal:     " << get_Tlocal() << std::endl;
 		output_local.synchronize();
 
-		output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
-		output_global <<  " - K:           " << this->tsmodel->get_K() << std::endl;
+		output_global <<  " - xdim:        " << get_xdim() << std::endl;
+		output_global <<  " - K:           " << get_K() << std::endl;
 
-		output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
+		output_global <<  " - model:       " << get_name() << std::endl;
 	} else {
 		output_global <<  " - model:       NO" << std::endl;
 	}
@@ -591,70 +537,62 @@ std::string TSData<VectorBase>::get_name() const {
 /* ---------- GET functions --------- */
 template<class VectorBase>
 int TSData<VectorBase>::get_T() const{
-	if(this->tsmodel){
-		return this->tsmodel->get_T();
-	} else {
-		return this->T;
-	}
+	return decomposition->get_T();
 }
 
 template<class VectorBase>
 int TSData<VectorBase>::get_Tlocal() const{
-	if(this->tsmodel){
-		return this->tsmodel->get_Tlocal();
-	} else {
-		return this->Tlocal;
-	}
+	return decomposition->get_Tlocal();
 }
 
 template<class VectorBase>
 int TSData<VectorBase>::get_Tbegin() const{
-	if(this->tsmodel){
-		return this->tsmodel->get_Tbegin();
-	} else {
-		return this->Tbegin;
-	}
+	return decomposition->get_Tbegin();
 }
 
 template<class VectorBase>
 int TSData<VectorBase>::get_Tend() const{
-	if(this->tsmodel){
-		return this->tsmodel->get_Tend();
-	} else {
-		return this->Tend;
-	}
+	return decomposition->get_Tend();
+}
+
+template<class VectorBase>
+int TSData<VectorBase>::get_R() const{
+	return decomposition->get_R();
+}
+
+template<class VectorBase>
+int TSData<VectorBase>::get_Rlocal() const{
+	return decomposition->get_Rlocal();
+}
+
+template<class VectorBase>
+int TSData<VectorBase>::get_Rbegin() const{
+	return decomposition->get_Rbegin();
+}
+
+template<class VectorBase>
+int TSData<VectorBase>::get_Rend() const{
+	return decomposition->get_Rend();
 }
 
 template<class VectorBase>
 int TSData<VectorBase>::get_xdim() const{
-	if(this->tsmodel){
-		return this->tsmodel->get_xdim();
-	} else {
-		return 0;
-	}
+	return decomposition->get_xdim();
 }
 
 template<class VectorBase>
 int TSData<VectorBase>::get_K() const{
-	if(this->tsmodel){
-		return this->tsmodel->get_K();
-	} else {
-		return this->blocksize;
-	}
-}
-
-template<class VectorBase>
-int TSData<VectorBase>::get_xmem() const{
-	if(this->tsmodel){
-		return this->tsmodel->get_xmem();
-	} else {
-		return 0;
-	}
+	return decomposition->get_K();
 }
 
 template<class VectorBase>
 TSModel<VectorBase> *TSData<VectorBase>::get_model() const{
 	return this->tsmodel;
+}
+
+template<class VectorBase>
+Decomposition *TSData<VectorBase>::get_decomposition() const {
+	return this->decomposition;
 }
 
 template<class VectorBase>
@@ -690,7 +628,7 @@ void TSData<PetscVector>::cut_gamma() const{
 	double max_value;
 	
 	int K = get_K();
-	int gamma_t = this->tsmodel->get_gammavectorlength_local()/(double)K;
+	int gamma_t = decomposition->get_Tlocal()*decomposition->get_Rlocal()*K;
 	
 	double *gamma_arr;
 	TRY( VecGetArray(gammavector->get_vector(),&gamma_arr) );
@@ -784,9 +722,10 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
 	output <<  "STATS: " << this->get_name() << std::endl;
 	output.push();
 		int x_size = this->datavector->size();
+		int blocksize = get_R()*get_K();
 		output << " - total length:    " << std::setw(25) << x_size << std::endl;
 		output << " - nmb of blocks:   " << std::setw(25) << blocksize << std::endl;
-		output << " - length of block: " << std::setw(25) << T << std::endl;
+		output << " - length of block: " << std::setw(25) << get_T() << std::endl;
 		
 		/* compute basic statistics: */
 		Vec x_Vec = datavector->get_vector();
@@ -809,7 +748,7 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
 		/* for each dimension compute basic statistics: */
 		Vec xk_Vec;
 		IS xk_is;
-		int xk_size = T;
+		int xk_size = get_T();
 		
 		double xk_sum;
 		double xk_max;
