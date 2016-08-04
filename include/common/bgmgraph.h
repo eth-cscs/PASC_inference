@@ -31,7 +31,8 @@ class BGMGraph {
 		bool DD_decomposed; /**< the decomposition was computed? */
 		int DD_size; /**< number of domains for decomposition */
 		int *DD_affiliation; /**< domain affiliation of vertices */
-		int *DD_permutation; /**< permutation of global indexes */
+		int *DD_permutation; /**< permutation of global indexes Rorig = P(Rnew) */
+		int *DD_invpermutation; /**< inverse permutation of global indexes Rnew = invP(Rorig) */
 		int *DD_lengths; /**< array of local lengths */
 		int *DD_ranges; /**< ranges in permutation array */
 		
@@ -100,6 +101,7 @@ class BGMGraph {
 		int get_DD_size() const;
 		int *get_DD_affiliation() const;
 		int *get_DD_permutation() const;
+		int *get_DD_invpermutation() const;
 		int *get_DD_lengths() const;
 		int *get_DD_ranges() const;
 		
@@ -206,6 +208,7 @@ BGMGraph::~BGMGraph(){
 	if(DD_decomposed){
 		free(DD_affiliation);
 		free(DD_permutation);
+		free(DD_invpermutation);
 		free(DD_lengths);
 		free(DD_ranges);
 	}
@@ -275,6 +278,10 @@ int *BGMGraph::get_DD_permutation() const {
 	return this->DD_permutation;
 }
 
+int *BGMGraph::get_DD_invpermutation() const {
+	return this->DD_invpermutation;
+}
+
 int *BGMGraph::get_DD_lengths() const {
 	return this->DD_lengths;
 }
@@ -293,6 +300,7 @@ void BGMGraph::decompose(int nmb_domains){
 		/* allocate arrays */
 		DD_affiliation = (int*)malloc(n*sizeof(int));
 		DD_permutation = (int*)malloc(n*sizeof(int));
+		DD_invpermutation = (int*)malloc(n*sizeof(int));
 		DD_lengths = (int*)malloc(DD_size*sizeof(int));
 		DD_ranges = (int*)malloc((DD_size+1)*sizeof(int));
 
@@ -344,8 +352,12 @@ void BGMGraph::decompose(int nmb_domains){
 			}
 			for(int i=0;i<n;i++){
 				DD_permutation[i] += DD_ranges[DD_affiliation[i]]; /* shift local indexes to global */
+
+				/* compute inverse permutation */
+				DD_invpermutation[DD_permutation[i]] = i;
 			}
 
+			
 		} else {
 			/* nmb_domains <= 1 */
 			/* fill arrays manually, METIS is not able to do it with number of domains equal to 1 */
@@ -355,6 +367,7 @@ void BGMGraph::decompose(int nmb_domains){
 
 			for(int i=0;i<n;i++){
 				DD_permutation[i] = i;
+				DD_invpermutation[i] = i;
 			}
 
 			DD_lengths[0] = n;
@@ -535,6 +548,14 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 		output << " - DD_permutation: ";
 		for(int i=0;i<n;i++){
 			output << DD_permutation[i];
+			if(i < n-1){
+				output << ", ";
+			}
+		}
+		output << std::endl;	
+		output << " - DD_invpermutation: ";
+		for(int i=0;i<n;i++){
+			output << DD_invpermutation[i];
 			if(i < n-1){
 				output << ", ";
 			}

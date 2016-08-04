@@ -45,7 +45,7 @@ int main( int argc, char *argv[] )
 	} 
 
 	/* load console arguments */
-	int T, K, R, matrix_type, DDT_size, DDR_size;
+	int T, K, matrix_type, DDT_size, DDR_size;
 	std::string graph_filename;
 	bool view_matrix, view_graph, view_matrix_unsorted, view_decomposition;
 	double alpha, graph_coeff;
@@ -100,16 +100,22 @@ int main( int argc, char *argv[] )
 	graph.process(graph_coeff);
 
 	/* create decomposition */
-	Decomposition decomposition(T, DDT_size, graph, DDR_size);
-
-	/* print info about decomposition */
-	if(!view_decomposition){
-		decomposition.print(coutMaster);
-	} else {
-		decomposition.print_content(coutMaster, coutAll);
-	}
+	Decomposition *decomposition;
 
 	if(matrix_type==0 || matrix_type==1){ /* graph matrix */
+		decomposition = new Decomposition(T, graph, K, 1, DDT_size, DDR_size);
+
+		/* print info about graph */
+		if(!view_graph){
+			graph.print(coutMaster);
+		} else {
+			graph.print_content(coutMaster);
+		}
+	}
+	
+	if(matrix_type==2 || matrix_type==3){ /* laplace matrix */
+		decomposition = new Decomposition(T, 1, K, 1, DDT_size);
+
 		/* print info about graph */
 		if(!view_graph){
 			graph.print(coutMaster);
@@ -118,27 +124,34 @@ int main( int argc, char *argv[] )
 		}
 	}
 
+	/* print info about decomposition */
+	if(!view_decomposition){
+		decomposition->print(coutMaster);
+	} else {
+		decomposition->print_content(coutMaster, coutAll);
+	}
+
 	/* create vector x */
 	Vec x_Vec;
-	decomposition.createGlobalVec(&x_Vec,K);
+	decomposition->createGlobalVec_gamma(&x_Vec);
 	GeneralVector<PetscVector> x(x_Vec);
 
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
-	///* create matrix */
+	/* create matrix */
 	GeneralMatrix<PetscVector> *A;
-	//if(matrix_type==0){
-		//A = new BlockGraphFreeMatrix<PetscVector>(x, graph, K, alpha);
-//	}
-	if(matrix_type==1){
-		A = new BlockGraphSparseMatrix<PetscVector>(decomposition, K, alpha);
+	if(matrix_type==0){
+//		A = new BlockGraphFreeMatrix<PetscVector>(*decomposition, alpha);
 	}
-	//if(matrix_type==2){
-		//A = new BlockLaplaceFreeMatrix<PetscVector>(x, K, alpha);
-	//}
-	//if(matrix_type==3){
-		//A = new BlockLaplaceSparseMatrix<PetscVector>(x, K, alpha);
-	//}
+	if(matrix_type==1){
+		A = new BlockGraphSparseMatrix<PetscVector>(*decomposition, alpha);
+	}
+	if(matrix_type==2){
+		A = new BlockLaplaceFreeMatrix<PetscVector>(*decomposition, alpha);
+	}
+	if(matrix_type==3){
+		A = new BlockLaplaceSparseMatrix<PetscVector>(*decomposition, alpha);
+	}
 
 //	A->print(coutMaster);
 	A->printcontent(coutMaster);
@@ -150,6 +163,7 @@ int main( int argc, char *argv[] )
 	/* print full matrix as a multiplication A*e_n */
 	double *values;
 	double *gamma_arr;
+	int R = decomposition->get_R();
 	int k,r,t,col;
 
 	/* print header of matrix print */
@@ -158,97 +172,95 @@ int main( int argc, char *argv[] )
 	}
 
 	/* go through rows and multiply with vector of standart basis */
-	//if(!view_matrix_unsorted){
-		//for(k=0; k < K; k++){
-			//for(r=0; r < R; r++){
-				//for(t=0;t < T; t++){
-					///* prepare e_k in layout */
-					//TRY( VecSet(x_Vec,0) );
+	if(!view_matrix_unsorted){
+		for(k=0; k < K; k++){
+			for(r=0; r < R; r++){
+				for(t=0;t < T; t++){
+					/* prepare e_k in layout */
+					TRY( VecSet(x_Vec,0) );
+					TRY( VecSetValue(x_Vec, decomposition->get_idxglobal(t,r,k), 1.0, INSERT_VALUES) );
+					TRY( VecAssemblyBegin(x_Vec) );
+					TRY( VecAssemblyEnd(x_Vec) );
 
-					//TRY( VecGetArray(x_Vec,&gamma_arr) );
-					//if(t >= Tbegin && t < Tend){
-						//gamma_arr[(t*R + r)*K + k - Tbegin*R*K] = 1.0;
-					//}
-					//TRY( VecRestoreArray(x_Vec,&gamma_arr) );
-					//TRY( VecAssemblyBegin(x_Vec) );
-					//TRY( VecAssemblyEnd(x_Vec) );
+					/* perform multiplication */
+					timer1.start();
+						y = (*A)*x;
+					timer1.stop();
 
-					///* perform multiplication */
-					//timer1.start();
-						//y = (*A)*x;
-					//timer1.stop();
-
-					///* print row (in fact, it is column, but matrix is symmetric) */
-					//if(view_matrix){
-						///* get array of values */
-						//TRY( VecGetArray(y.get_vector(), &values) );
+					/* print row (in fact, it is column, but matrix is symmetric) */
+					if(view_matrix){
+						/* get array of values */
+						TRY( VecGetArray(y.get_vector(), &values) );
 		
-						///* print row */
-						//TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, k*R*T + r*T + t) );
+						/* print row */
+						TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, k*R*T + r*T + t) );
 
-						///* interpret results from new layout to standart one */
-						//for(int k_col = 0; k_col < K; k_col++){
-							//for(int r_col = 0; r_col < R; r_col++){
-								//for(int t_col = 0; t_col < Tlocal; t_col++){
-									//col = t_col*R*K + r_col*K + k_col;
-									//if(abs(values[col]) > 0.000001){
-										//TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[col]) );
-									//} else {
-										//TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
-									//}
-								//}
-								//TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-							//}
-						//}
-						//TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
+						/* interpret results from new layout to standart one */
+						for(int k_col = 0; k_col < K; k_col++){
+							for(int r_col = 0; r_col < R; r_col++){
+								for(int t_col = 0; t_col < T; t_col++){
+									/* it is my element? */
+									int Pr_col = decomposition->get_Pr(r_col);
+									if( t_col >= decomposition->get_Tbegin() && t_col < decomposition->get_Tend()
+										&& Pr_col >= decomposition->get_Rbegin() && Pr_col < decomposition->get_Rend()){
+										int t_local = t_col - decomposition->get_Tbegin();
+										int r_local = Pr_col - decomposition->get_Rbegin();
+										double value = values[t_local*decomposition->get_Rlocal()*K + r_local*K + k_col];
+
+										if(abs(value) > 0.000001){
+											TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, value) );
+										} else {
+											TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+										}
+									}
+									TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+								}
+							}
+						}
+						TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
 					
-						///* restore array with values */
-						//TRY( VecRestoreArray(y.get_vector(), &values) );
-					//}
-				//}
-			//}
-		//}
-	//} else {
-		//for(col=0; col < K*T*R; col++){
-			///* prepare e_k in layout */
-			//TRY( VecSet(x_Vec,0) );
+						/* restore array with values */
+						TRY( VecRestoreArray(y.get_vector(), &values) );
+					}
+				} /* end T */
+			} /* end R */
+		} /* end K */
+	} else {
+		for(col=0; col < K*T*R; col++){
+			/* prepare e_k in layout */
+			TRY( VecSet(x_Vec,0) );
+			TRY( VecSetValue(x_Vec, col, 1.0, INSERT_VALUES) );
+			TRY( VecAssemblyBegin(x_Vec) );
+			TRY( VecAssemblyEnd(x_Vec) );
 
-			//TRY( VecGetArray(x_Vec,&gamma_arr) );
-			//if(col >= Tbegin*R*K && col < Tend*R*K){
-				//gamma_arr[col - Tbegin*R*K] = 1.0;
-			//}
-			//TRY( VecRestoreArray(x_Vec,&gamma_arr) );
-			//TRY( VecAssemblyBegin(x_Vec) );
-			//TRY( VecAssemblyEnd(x_Vec) );
+			/* perform multiplication */
+			timer1.start();
+				y = (*A)*x;
+			timer1.stop();
 
-			///* perform multiplication */
-			//timer1.start();
-				//y = (*A)*x;
-			//timer1.stop();
-
-			///* print row (in fact, it is column, but matrix is symmetric) */
-			//if(view_matrix){
-				///* get array of values */
-				//TRY( VecGetArray(y.get_vector(), &values) );
+			/* print row (in fact, it is column, but matrix is symmetric) */
+			if(view_matrix){
+				/* get array of values */
+				TRY( VecGetArray(y.get_vector(), &values) );
 		
-				///* print row */
-				//TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, col) );
+				/* print row */
+				TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, col) );
 
-				//for(int loccol = 0; loccol < K*R*Tlocal; loccol++){
-					//if(abs(values[loccol]) > 0.000001){
-						//TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[loccol]) );
-					//} else {
-						//TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
-					//}
-				//}
-				//TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-				//TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
+				for(int loccol = 0; loccol < K*decomposition->get_Rlocal()*decomposition->get_Tlocal(); loccol++){
+					if(abs(values[loccol]) > 0.000001){
+						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values[loccol]) );
+					} else {
+						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+					}
+				}
+				TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+				TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
 					
-				///* restore array with values */
-				//TRY( VecRestoreArray(y.get_vector(), &values) );
-			//}
-		//}
-	//}
+				/* restore array with values */
+				TRY( VecRestoreArray(y.get_vector(), &values) );
+			}
+		}
+	}
 
 	/* print footer of matrix print */
 	if(view_matrix){
@@ -256,7 +268,7 @@ int main( int argc, char *argv[] )
 	}
 
 	/* print final info */
-	coutMaster << " time = " << std::setw(10) << timer1.get_value_sum()/(double)(decomposition.get_T()*decomposition.get_R()*K) << std::endl;
+	coutMaster << " time = " << std::setw(10) << timer1.get_value_sum()/(double)(decomposition->get_T()*decomposition->get_R()*K) << std::endl;
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

@@ -19,12 +19,8 @@ namespace pascinference {
 template<class VectorBase>
 class BlockLaplaceSparseMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		int T; /**< dimension of each block */
-		int Tlocal; /**< local dimension of each block */
-		int Tbegin; /**< ownership begin */
-		int Tend; /**< ownership end */
+		Decomposition *decomposition;
 		
-		int K; /**< number of diagonal blocks */
 		double alpha; /**< general matrix multiplicator */
 		
 		#ifdef USE_PETSCVECTOR
@@ -33,7 +29,7 @@ class BlockLaplaceSparseMatrix: public GeneralMatrix<VectorBase> {
 		#endif
 		
 	public:
-		BlockLaplaceSparseMatrix(VectorBase &x, int K, double alpha=1.0);
+		BlockLaplaceSparseMatrix(Decomposition &decomposition, double alpha=1.0);
 		~BlockLaplaceSparseMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -59,32 +55,23 @@ std::string BlockLaplaceSparseMatrix<VectorBase>::get_name() const {
 }
 
 template<>
-BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(PetscVector &x, int K, double alpha){
+BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(Decomposition &new_decomposition, double alpha){
 	LOG_FUNC_BEGIN
 
-	this->K = K;
+	this->decomposition = &new_decomposition;
+
 	this->alpha = alpha;
+
+	int K = get_K();
 	
-	/* get informations from given vector */
-	int N,n, low, high;
-	TRY( VecGetSize(x.get_vector(), &N) );
-	TRY( VecGetLocalSize(x.get_vector(), &n) );
-	TRY( VecGetOwnershipRange(x.get_vector(), &low, &high) );
-
-	this->T = N/(double)K;
-	this->Tlocal = n/(double)K;
-	this->Tbegin = low/(double)K;
-	this->Tend = high/(double)K;
-
-	/* get ranges of all processors - necessary to compute overlaping indexes */
-	const int *ranges;
-	ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
-    TRY( VecGetOwnershipRanges(x.get_vector(),&ranges) );
-	int myrank = GlobalManager.get_rank();
+	int T = get_T();
+	int Tlocal = get_Tlocal();
+	int Tbegin = decomposition->get_Tbegin();
+	int Tend = decomposition->get_Tend();
 
 	/* create matrix */
 	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
-	TRY( MatSetSizes(A_petsc,n,n,N,N) );
+	TRY( MatSetSizes(A_petsc,K*Tlocal,K*Tlocal,K*T,K*T) );
 
 	#ifndef USE_GPU
 		TRY( MatSetType(A_petsc,MATMPIAIJ) ); 
@@ -98,44 +85,42 @@ BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(PetscVector &x, 
 
 	TRY( MatSetFromOptions(A_petsc) ); 
 	
-//	#pragma omp parallel for
+////	#pragma omp parallel for
 	for(int k=0; k < K; k++){
-		for(int t=0;t<Tlocal;t++){
-			int tglobal = this->Tbegin+t;
-			int diag_idx = tglobal*K + k;
-			int row_idx =  tglobal*K + k;
+		for(int t=Tbegin; t < Tend; t++){
+			int diag_idx = t*K + k;
 
 			int Wsum;
 
 			/* compute sum of W entries in row */
 			if(T > 1){
-				if(tglobal > 0 && tglobal < T-1){
-					Wsum = 2;
-				} else {
+				if(t == 0 || t == T-1){
 					Wsum = 1;
+				} else {
+					Wsum = 2;
 				}
 			} else {
 				Wsum = 1;
 			}
-			
+				
 			/* diagonal entry */
-			TRY( MatSetValue(A_petsc, row_idx, diag_idx, Wsum, INSERT_VALUES) );
+			TRY( MatSetValue(A_petsc, diag_idx, diag_idx, Wsum, INSERT_VALUES) );
 
 			/* my nondiagonal entries */
 			if(T>1){
-				if(tglobal > 0) {
+				if(t > 0) {
 					/* t - 1 */
-					TRY( MatSetValue(A_petsc, row_idx, diag_idx-K, -1.0, INSERT_VALUES) );
+					TRY( MatSetValue(A_petsc, diag_idx, diag_idx-K, -1.0, INSERT_VALUES) );
 				}
-				if(tglobal < T-1) {
+				if(t < T-1) {
 					/* t + 1 */
-					TRY( MatSetValue(A_petsc, row_idx, diag_idx+K, -1.0, INSERT_VALUES) );
+					TRY( MatSetValue(A_petsc, diag_idx, diag_idx+K, -1.0, INSERT_VALUES) );
 				}
 			}
 
-		}
+		} /* end T */
 
-	}
+	} /* end K */
 
 	/* finish all writting in matrix */
 	TRY( PetscBarrier(NULL) );
@@ -165,9 +150,9 @@ void BlockLaplaceSparseMatrix<VectorBase>::print(ConsoleOutput &output) const
 	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
-	output << " - T:     " << T << std::endl;
-	output << " - K:     " << K << std::endl;
-	output << " - size:  " << T*K << std::endl;
+	output << " - T:     " << get_T() << std::endl;
+	output << " - K:     " << get_K() << std::endl;
+	output << " - size:  " << get_T()*get_K() << std::endl;
 
 	output << " - alpha: " << alpha << std::endl;
 
@@ -179,16 +164,16 @@ void BlockLaplaceSparseMatrix<VectorBase>::print(ConsoleOutput &output_global, C
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
-	output_global << " - T:     " << T << std::endl;
+	output_global << " - T:     " << get_T() << std::endl;
 	output_global.push();
-		output_local << " - Tlocal:  " << Tlocal << " (" << Tbegin << "," << Tend << ")" << std::endl;
+		output_local << " - Tlocal:  " << get_Tlocal() << " (" << decomposition->get_Tbegin() << "," << decomposition->get_Tend() << ")" << std::endl;
 		output_local.synchronize();
 	output_global.pop();
 	
-	output_global << " - K:     " << K << std::endl;
-	output_global << " - size:  " << T*K << std::endl;
+	output_global << " - K:     " << get_K() << std::endl;
+	output_global << " - size:  " << get_T()*get_K() << std::endl;
 	output_global.push();
-		output_local << " - sizelocal:  " << Tlocal*K << std::endl;
+		output_local << " - sizelocal:  " << get_Tlocal()*get_K() << std::endl;
 		output_local.synchronize();
 	output_global.pop();
 
@@ -215,17 +200,17 @@ void BlockLaplaceSparseMatrix<VectorBase>::printcontent(ConsoleOutput &output) c
 
 template<class VectorBase>
 int BlockLaplaceSparseMatrix<VectorBase>::get_K() const { 
-	return this->K;
+	return decomposition->get_K();
 }
 
 template<class VectorBase>
 int BlockLaplaceSparseMatrix<VectorBase>::get_T() const { 
-	return this->T;
+	return decomposition->get_T();
 }
 
 template<class VectorBase>
 int BlockLaplaceSparseMatrix<VectorBase>::get_Tlocal() const { 
-	return this->Tlocal;
+	return decomposition->get_Tlocal();
 }
 
 template<class VectorBase>

@@ -18,12 +18,8 @@ namespace pascinference {
 template<class VectorBase>
 class BlockLaplaceFreeMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		int T; /**< dimension of each block */
-		int Tlocal; /**< local dimension of each block */
-		int Tbegin; /**< ownership begin */
-		int Tend; /**< ownership end */
-		
-		int K; /**< number of diagonal blocks */
+		Decomposition *decomposition;
+
 		double alpha; /**< general matrix multiplicator */
 		
 		#ifdef USE_GPU
@@ -40,7 +36,7 @@ class BlockLaplaceFreeMatrix: public GeneralMatrix<VectorBase> {
 		#endif
 		
 	public:
-		BlockLaplaceFreeMatrix(VectorBase &x, int K, double alpha=1.0);
+		BlockLaplaceFreeMatrix(Decomposition &decomposition, double alpha=1.0);
 		~BlockLaplaceFreeMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -71,45 +67,28 @@ std::string BlockLaplaceFreeMatrix<VectorBase>::get_name() const {
 }
 
 template<>
-BlockLaplaceFreeMatrix<PetscVector>::BlockLaplaceFreeMatrix(PetscVector &x, int K, double alpha){
+BlockLaplaceFreeMatrix<PetscVector>::BlockLaplaceFreeMatrix(Decomposition &new_decomposition, double alpha){
 	LOG_FUNC_BEGIN
 
-	this->K = K;
+	this->decomposition = &new_decomposition;
 	this->alpha = alpha;
 	
-	/* get informations from given vector */
-	int size, size_local, low, high;
-	TRY( VecGetSize(x.get_vector(), &size) );
-	TRY( VecGetLocalSize(x.get_vector(), &size_local) );
-	TRY( VecGetOwnershipRange(x.get_vector(), &low, &high) );
-
-	this->T = size/(double)K;
-	this->Tlocal = size_local/(double)K;
-	this->Tbegin = low/(double)K;
-	this->Tend = high/(double)K;
-
 	#ifdef USE_GPU
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_mult, 0, 0) );
-		gridSize = (K*Tlocal + blockSize - 1)/ blockSize;
+		gridSize = (get_K()*get_Tlocal() + blockSize - 1)/ blockSize;
 	#endif
 
-	/* get ranges of all processors - necessary to compute overlaping indexes */
-	const int *ranges;
-	ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
-    TRY( VecGetOwnershipRanges(x.get_vector(),&ranges) );
-	int myrank = GlobalManager.get_rank();
-
 	/* create IS for 3diag mult */
-	if(this->Tbegin > 0){
+	if(decomposition->get_Tbegin() > 0){
 		left_overlap = 1;
-		TRY( ISCreateStride(PETSC_COMM_SELF, K, (Tbegin-1)*K , 1, &left_overlap_is) );
+		TRY( ISCreateStride(PETSC_COMM_SELF, get_K(), (decomposition->get_Tbegin()-1)*get_K() , 1, &left_overlap_is) );
 	} else {
 		left_overlap = 0;
 		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &left_overlap_is) );
 	}
-	if(this->Tend < T){
+	if(decomposition->get_Tend() < get_T()){
 		right_overlap = 1;
-		TRY( ISCreateStride(PETSC_COMM_SELF, K, Tend*K, 1, &right_overlap_is) );
+		TRY( ISCreateStride(PETSC_COMM_SELF, get_K(), decomposition->get_Tend()*get_K(), 1, &right_overlap_is) );
 	} else {
 		right_overlap = 0;
 		TRY( ISCreateStride(PETSC_COMM_SELF, 0, 0, 0, &right_overlap_is) );
@@ -139,9 +118,9 @@ void BlockLaplaceFreeMatrix<VectorBase>::print(ConsoleOutput &output) const
 	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
-	output << " - T:     " << T << std::endl;
-	output << " - K:     " << K << std::endl;
-	output << " - size:  " << T*K << std::endl;
+	output << " - T:     " << get_T() << std::endl;
+	output << " - K:     " << get_K() << std::endl;
+	output << " - size:  " << get_T()*get_K() << std::endl;
 
 	output << " - alpha: " << alpha << std::endl;
 
@@ -159,16 +138,16 @@ void BlockLaplaceFreeMatrix<VectorBase>::print(ConsoleOutput &output_global, Con
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
-	output_global << " - T:     " << T << std::endl;
+	output_global << " - T:     " << get_T() << std::endl;
 	output_global.push();
-		output_local << " - Tlocal:  " << Tlocal << " (" << Tbegin << "," << Tend << ")" << std::endl;
+		output_local << " - Tlocal:  " << get_Tlocal() << " (" << decomposition->get_Tbegin() << "," << decomposition->get_Tend() << ")" << std::endl;
 		output_local.synchronize();
 	output_global.pop();
 	
-	output_global << " - K:     " << K << std::endl;
-	output_global << " - size:  " << T*K << std::endl;
+	output_global << " - K:     " << get_K() << std::endl;
+	output_global << " - size:  " << get_T()*get_K() << std::endl;
 	output_global.push();
-		output_local << " - sizelocal:  " << Tlocal*K << std::endl;
+		output_local << " - sizelocal:  " << get_Tlocal()*get_K() << std::endl;
 		output_local.synchronize();
 	output_global.pop();
 
@@ -195,24 +174,23 @@ void BlockLaplaceFreeMatrix<VectorBase>::printcontent(ConsoleOutput &output) con
 
 template<class VectorBase>
 int BlockLaplaceFreeMatrix<VectorBase>::get_K() const { 
-	return this->K;
+	return decomposition->get_K();
 }
 
 template<class VectorBase>
 int BlockLaplaceFreeMatrix<VectorBase>::get_T() const { 
-	return this->T;
+	return decomposition->get_T();
 }
 
 template<class VectorBase>
 int BlockLaplaceFreeMatrix<VectorBase>::get_Tlocal() const { 
-	return this->Tlocal;
+	return decomposition->get_Tlocal();
 }
 
 template<class VectorBase>
 double BlockLaplaceFreeMatrix<VectorBase>::get_alpha() const { 
 	return this->alpha;
 }
-
 
 #ifndef USE_GPU
 /* A*x using openmp */
@@ -236,8 +214,13 @@ void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 	TRY( VecGetArrayRead(x.get_vector(),&x_arr) );
 	TRY( VecGetArray(y.get_vector(),&y_arr) );
 
+	int T = get_T();
+	int Tlocal = get_Tlocal();
+	int Tbegin = decomposition->get_Tbegin();
+	int K = get_K();
+
 	/* use openmp */
-//	#pragma omp parallel for
+	#pragma omp parallel for
 	for(int y_arr_idx=0;y_arr_idx<Tlocal*K;y_arr_idx++){
 		int tlocal = floor(y_arr_idx/(double)(K));
 		int k = y_arr_idx - tlocal*K;
@@ -368,6 +351,11 @@ void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 	Vec right_overlap_vec;
 	double *left_overlap_arr;
 	double *right_overlap_arr;
+
+	int T = get_T();
+	int Tlocal = get_Tlocal();
+	int Tbegin = get_Tbegin();
+	int K = get_K();
 
 	/* get subvector and array */
 	TRY( VecGetSubVector(x.get_vector(),left_overlap_is,&left_overlap_vec) );

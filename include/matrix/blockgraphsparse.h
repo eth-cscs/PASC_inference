@@ -28,7 +28,6 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 	private:
 		Decomposition *decomposition;
 
-		int K; /**< number of diagonal blocks */
 		double alpha; /**< general matrix multiplicator */
 		
 		#ifdef USE_PETSCVECTOR
@@ -39,7 +38,7 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 		GeneralVector<VectorBase> *coeffs; /**< vector of coefficient for each block */
 
 	public:
-		BlockGraphSparseMatrix(Decomposition &decomposition, int K, double alpha=1.0, GeneralVector<VectorBase> *new_coeffs=NULL);
+		BlockGraphSparseMatrix(Decomposition &decomposition, double alpha=1.0, GeneralVector<VectorBase> *new_coeffs=NULL);
 		~BlockGraphSparseMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -51,6 +50,7 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 		void matmult(VectorBase &y, const VectorBase &x) const; /* y = A*x */
 
 		int get_R() const;
+		int get_Rlocal() const;
 		int get_K() const;
 		int get_T() const;
 		int get_Tlocal() const;
@@ -67,112 +67,109 @@ std::string BlockGraphSparseMatrix<VectorBase>::get_name() const {
 
 
 template<class VectorBase>
-BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_decomposition, int K, double alpha, GeneralVector<VectorBase> *new_coeffs){
+BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_decomposition, double alpha, GeneralVector<VectorBase> *new_coeffs){
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;
 	
-	this->K = K;
 	this->alpha = alpha;
 	this->coeffs = new_coeffs;
-	
-	int T = decomposition->get_T();
-	int Tlocal = decomposition->get_Tlocal();
 
-	int R = decomposition->get_R();
-	int Rlocal = decomposition->get_Rlocal();
+	int K = get_K();
+	
+	int T = get_T();
+	int Tlocal = get_Tlocal();
+	int Tbegin = decomposition->get_Tbegin();
+	int Tend = decomposition->get_Tend();
+
+	int R = get_R();
+	int Rlocal = get_Rlocal();
+	int Rbegin = decomposition->get_Rbegin();
+	int Rend = decomposition->get_Rend();
 
 	int* neighbor_nmbs = decomposition->get_graph()->get_neighbor_nmbs();
 	int **neightbor_ids = decomposition->get_graph()->get_neighbor_ids();
 
-	///* get ranges of all processors - necessary to compute overlaping indexes */
-	//const int *ranges;
-	//ranges = (int*)malloc((GlobalManager.get_size()+1)*sizeof(int));
-	//TRY( VecGetOwnershipRanges(x.get_vector(),&ranges) );
-	//int myrank = GlobalManager.get_rank();
+	/* create matrix */
+	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
+	TRY( MatSetSizes(A_petsc,K*Rlocal*Tlocal,K*Rlocal*Tlocal,K*R*T,K*R*T) );
 
-	///* create matrix */
-	//TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
-	//TRY( MatSetSizes(A_petsc,n,n,N,N) );
+	#ifndef USE_GPU
+		TRY( MatSetType(A_petsc,MATMPIAIJ) ); 
+	#else
+		TRY( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
+	#endif
 
-	//#ifndef USE_GPU
-		//TRY( MatSetType(A_petsc,MATMPIAIJ) ); 
-	//#else
-		//TRY( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
-	//#endif
+	/* compute preallocation of number of non-zero elements in matrix */
+	TRY( MatMPIAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL,2*(decomposition->get_graph()->get_m_max()+1),NULL) ); 
+	TRY( MatSeqAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL) );
 
-	///* compute preallocation of number of non-zero elements in matrix */
-	//TRY( MatMPIAIJSetPreallocation(A_petsc,3*(1+2*this->graph->get_m_max()),NULL,2*(this->graph->get_m_max()+1),NULL) ); 
-	//TRY( MatSeqAIJSetPreallocation(A_petsc,3*(1+2*this->graph->get_m_max()),NULL) );
-
-	//TRY( MatSetFromOptions(A_petsc) ); 
+	TRY( MatSetFromOptions(A_petsc) ); 
 	
 ////	#pragma omp parallel for
-	//for(int k=0; k < K; k++){
-		//for(int r=0; r < R; r++){
-			//for(int t=0;t<Tlocal;t++){
-				//int tglobal = this->Tbegin+t;
-				//int diag_idx = tglobal*R*K + r*K + k;
-				//int row_idx =  tglobal*R*K + r*K + k;
-
-				//int Wsum;
-
-				///* compute sum of W entries in row */
-				//if(tglobal == 0 || tglobal == T-1){
-					//if(T > 1){
-						//Wsum = 2*neighbor_nmbs[r]+1; /* +1 for diagonal block */
-					//} else {
-						//Wsum = neighbor_nmbs[r];
-					//}
-				//} else {
-					//if(T > 1){
-						//Wsum = 3*neighbor_nmbs[r]+2; /* +2 for diagonal block */
-					//} else {
-						//Wsum = (neighbor_nmbs[r])+1; /* +1 for diagonal block */
-					//}
-				//}
+	for(int k=0; k < K; k++){
+		for(int r=Rbegin; r < Rend; r++){
+			for(int t=Tbegin;t < Tend;t++){
+				int diag_idx = t*R*K + r*K + k;
+				int r_orig = decomposition->get_invPr(r);
 				
-				///* diagonal entry */
-				//TRY( MatSetValue(A_petsc, row_idx, diag_idx, Wsum, INSERT_VALUES) );
+				int Wsum;
 
-				///* my nondiagonal entries */
-				//if(T>1){
-					//if(tglobal > 0) {
-						///* t - 1 */
-						//TRY( MatSetValue(A_petsc, row_idx, diag_idx-R*K, -1.0, INSERT_VALUES) );
-					//}
-					//if(tglobal < T-1) {
-						///* t + 1 */
-						//TRY( MatSetValue(A_petsc, row_idx, diag_idx+R*K, -1.0, INSERT_VALUES) );
-					//}
-				//}
+				/* compute sum of W entries in row */
+				if(t == 0 || t == T-1){
+					if(T > 1){
+						Wsum = 2*neighbor_nmbs[r_orig]+1; /* +1 for diagonal block */
+					} else {
+						Wsum = neighbor_nmbs[r_orig];
+					}
+				} else {
+					if(T > 1){
+						Wsum = 3*neighbor_nmbs[r_orig]+2; /* +2 for diagonal block */
+					} else {
+						Wsum = (neighbor_nmbs[r_orig])+1; /* +1 for diagonal block */
+					}
+				}
+				
+				/* diagonal entry */
+				TRY( MatSetValue(A_petsc, diag_idx, diag_idx, Wsum, INSERT_VALUES) );
 
-				///* non-diagonal neighbor entries */
-				//int neighbor;
-				//for(neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
-////					int idx2 = Tbegin*K*R + k*Tlocal*R + *Tlocal + t;
-					//int idx2 = tglobal*R*K + (neightbor_ids[r][neighbor])*K + k;
+				/* my nondiagonal entries */
+				if(T>1){
+					if(t > 0) {
+						/* t - 1 */
+						TRY( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -1.0, INSERT_VALUES) );
+					}
+					if(t < T-1) {
+						/* t + 1 */
+						TRY( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -1.0, INSERT_VALUES) );
+					}
+				}
 
-					//TRY( MatSetValue(A_petsc, row_idx, idx2, -1.0, INSERT_VALUES) );
-					//if(tglobal > 0) {
-						//TRY( MatSetValue(A_petsc, row_idx, idx2-R*K, -1.0, INSERT_VALUES) );
-					//}
-					//if(tglobal < T-1) {
-						//TRY( MatSetValue(A_petsc, row_idx, idx2+R*K, -1.0, INSERT_VALUES) );
-					//}
-				//}
-			//}
+				/* non-diagonal neighbor entries */
+				for(int neighbor=0;neighbor<neighbor_nmbs[r_orig];neighbor++){
+					int r_new = decomposition->get_Pr(neightbor_ids[r_orig][neighbor]);
+					int idx2 = t*R*K + r_new*K + k;
 
-		//}
+					TRY( MatSetValue(A_petsc, diag_idx, idx2, -1.0, INSERT_VALUES) );
+					if(t > 0) {
+						TRY( MatSetValue(A_petsc, diag_idx, idx2-R*K, -1.0, INSERT_VALUES) );
+					}
+					if(t < T-1) {
+						TRY( MatSetValue(A_petsc, diag_idx, idx2+R*K, -1.0, INSERT_VALUES) );
+					}
+				}
+			} /* end T */
 
-	//}
+		} /* end R */
 
-	///* finish all writting in matrix */
-	//TRY( PetscBarrier(NULL) );
+	} /* end K */
 
-	///* assemble matrix */
-	//TRY( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
-	//TRY( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
+	/* finish all writting in matrix */
+	TRY( PetscBarrier(NULL) );
+
+	/* assemble matrix */
+	TRY( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
+	TRY( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
 
 	LOG_FUNC_END
 }	
@@ -196,10 +193,10 @@ void BlockGraphSparseMatrix<VectorBase>::print(ConsoleOutput &output) const
 	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
-	output << " - T:     " << decomposition->get_T() << std::endl;
-	output << " - R:     " << decomposition->get_R() << std::endl;
-	output << " - K:     " << K << std::endl;
-	output << " - size:  " << decomposition->get_T()*decomposition->get_R()*K << std::endl;
+	output << " - T:     " << get_T() << std::endl;
+	output << " - R:     " << get_R() << std::endl;
+	output << " - K:     " << get_K() << std::endl;
+	output << " - size:  " << get_T()*get_R()*get_K() << std::endl;
 	output << " - alpha: " << alpha << std::endl;
 
 	if(coeffs){
@@ -214,22 +211,22 @@ void BlockGraphSparseMatrix<VectorBase>::print(ConsoleOutput &output_global, Con
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
-	output_global << " - T:     " << decomposition->get_T() << std::endl;
+	output_global << " - T:     " << get_T() << std::endl;
 	output_global.push();
-		output_local << " - Tlocal:  " << decomposition->get_Tlocal() << " (" << decomposition->get_Tbegin() << "," << decomposition->get_Tend() << ")" << std::endl;
+		output_local << " - Tlocal:  " << get_Tlocal() << " (" << decomposition->get_Tbegin() << "," << decomposition->get_Tend() << ")" << std::endl;
 		output_local.synchronize();
 	output_global.pop();
 	
-	output_global << " - R:     " << decomposition->get_R() << std::endl;
+	output_global << " - R:     " << get_R() << std::endl;
 	output_global.push();
-		output_local << " - Rlocal:  " << decomposition->get_Rlocal() << " (" << decomposition->get_Rbegin() << "," << decomposition->get_Rend() << ")" << std::endl;
+		output_local << " - Rlocal:  " << get_Rlocal() << " (" << decomposition->get_Rbegin() << "," << decomposition->get_Rend() << ")" << std::endl;
 		output_local.synchronize();
 	output_global.pop();
 
-	output_global << " - K:     " << K << std::endl;
-	output_global << " - size:  " << decomposition->get_T()*decomposition->get_R()*K << std::endl;
+	output_global << " - K:     " << get_K() << std::endl;
+	output_global << " - size:  " << get_T()*get_R()*get_K() << std::endl;
 	output_global.push();
-		output_local << " - sizelocal:  " << decomposition->get_Tlocal()*decomposition->get_Rlocal()*K << std::endl;
+		output_local << " - sizelocal:  " << get_Tlocal()*get_Rlocal()*get_K() << std::endl;
 		output_local.synchronize();
 	output_global.pop();
 
@@ -306,7 +303,7 @@ int BlockGraphSparseMatrix<VectorBase>::get_R() const {
 
 template<class VectorBase>
 int BlockGraphSparseMatrix<VectorBase>::get_K() const { 
-	return this->K;
+	return decomposition->get_K();
 }
 
 template<class VectorBase>
@@ -317,6 +314,11 @@ int BlockGraphSparseMatrix<VectorBase>::get_T() const {
 template<class VectorBase>
 int BlockGraphSparseMatrix<VectorBase>::get_Tlocal() const { 
 	return decomposition->get_Tlocal();
+}
+
+template<class VectorBase>
+int BlockGraphSparseMatrix<VectorBase>::get_Rlocal() const { 
+	return decomposition->get_Rlocal();
 }
 
 template<class VectorBase>

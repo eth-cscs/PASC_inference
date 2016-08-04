@@ -29,9 +29,14 @@ class Decomposition {
 		int DDR_size; /**< space - number of domains for decomposition */
 		int *DDR_affiliation; /**< space - domain affiliation of vertices */
 		int *DDR_permutation; /**< space - permutation of global indexes */
+		int *DDR_invpermutation; /**< space - permutation of global indexes */
 		int *DDR_lengths; /**< space - array of local lengths */
 		int *DDR_ranges; /**< space - local ownership */
 		bool destroy_DDR_arrays; /**< if graph was not provided, I have to create and destroy arrays here */
+	
+		/* other stuff */
+		int K; /**< number of clusters */
+		int xdim; /**< data dimension */
 	
 		/* my coordinates */
 		int DDT_rank; /**< my coordinate in time decomposition */
@@ -44,15 +49,15 @@ class Decomposition {
 	public:
 		/** @brief decomposition only in time
 		*/
-		Decomposition(int T, int DDT_size, int R=1);
+		Decomposition(int T, int R, int K, int xdim, int DDT_size);
 
 		/** @brief decomposition only in space
 		*/
-		Decomposition(int T, BGMGraph &new_graph, int DDR_size);
+		Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DDR_size);
 
 		/** @brief decomposition in time and space
 		*/
-		Decomposition(int T, int DDT_size, BGMGraph &new_graph, int DDR_size);
+		Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DDT_size, int DDR_size);
 
 		/** @brief destructor
 		*/
@@ -72,12 +77,16 @@ class Decomposition {
 		int get_DDR_size() const;
 		int *get_DDR_affiliation() const;
 		int *get_DDR_permutation() const;
+		int *get_DDR_invpermutation() const;
 		int *get_DDR_lengths() const;
 		int *get_DDR_ranges() const;
 		BGMGraph *get_graph() const;
 	
 		int get_DDT_rank() const;
 		int get_DDR_rank() const;
+
+		int get_K() const;
+		int get_xdim() const;
 
 		/** @brief print informations of decomposition
 		*/
@@ -87,16 +96,23 @@ class Decomposition {
 		*/
 		void print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details=true) const;
 
-		void createGlobalVec(Vec *x_Vec, int blocksize=1) const;
+		void createGlobalVec_gamma(Vec *x_Vec) const;
+		int get_idxglobal(int t_global, int r_global, int k) const;
+		int get_invPr(int r_global) const;
+		int get_Pr(int r_global) const;
+
+		
 };
 
 /* ----------------- Decomposition implementation ------------- */
 
-Decomposition::Decomposition(int T, int DDT_size, int R){
+Decomposition::Decomposition(int T, int R, int K, int xdim, int DDT_size){
 	LOG_FUNC_BEGIN
 
 	this->T = T;
 	this->R = R;
+	this->K = K;
+	this->xdim = xdim;
 	
 	this->DDT_size = DDT_size;
 	this->DDR_size = 1;
@@ -123,14 +139,14 @@ Decomposition::Decomposition(int T, int DDT_size, int R){
 	/* prepare new layout for R */
 	/* no graph provided - allocate arrays */
 	destroy_DDR_arrays = true;
+
 	DDR_affiliation = (int *)malloc(R*sizeof(int));
+	DDR_permutation = (int *)malloc(R*sizeof(int));
+	DDR_invpermutation = (int *)malloc(R*sizeof(int));
 	for(int i=0;i<R;i++){
 		DDR_affiliation[i] = 0;
-	}
-
-	DDR_permutation = (int *)malloc(R*sizeof(int));
-	for(int i=0;i<R;i++){
 		DDR_permutation[i] = i;
+		DDR_invpermutation[i] = i;
 	}
 
 	DDR_lengths = (int *)malloc((this->DDR_size)*sizeof(int));
@@ -147,12 +163,14 @@ Decomposition::Decomposition(int T, int DDT_size, int R){
 	LOG_FUNC_END
 }
 
-Decomposition::Decomposition(int T, BGMGraph &new_graph, int DDR_size){
+Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DDR_size){
 	LOG_FUNC_BEGIN
 
 	this->T = T;
 	this->R = new_graph.get_n();
 	this->graph = &new_graph;
+	this->K = K;
+	this->xdim = xdim;
 
 	/* decompose graph */
 	new_graph.decompose(DDR_size);
@@ -171,6 +189,7 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int DDR_size){
 	destroy_DDR_arrays = false;
 	DDR_affiliation = new_graph.get_DD_affiliation();
 	DDR_permutation = new_graph.get_DD_permutation();
+	DDR_invpermutation = new_graph.get_DD_invpermutation();
 	DDR_lengths = new_graph.get_DD_lengths();
 	DDR_ranges = new_graph.get_DD_ranges();
 
@@ -179,12 +198,14 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int DDR_size){
 	LOG_FUNC_END
 }
 
-Decomposition::Decomposition(int T, int DDT_size, BGMGraph &new_graph, int DDR_size){
+Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DDT_size, int DDR_size){
 	LOG_FUNC_BEGIN
 
 	this->T = T;
 	this->R = new_graph.get_n();
 	this->graph = &new_graph;
+	this->K = K;
+	this->xdim = xdim;
 
 	/* decompose graph */
 	new_graph.decompose(DDR_size);
@@ -211,6 +232,7 @@ Decomposition::Decomposition(int T, int DDT_size, BGMGraph &new_graph, int DDR_s
 	destroy_DDR_arrays = false;
 	DDR_affiliation = new_graph.get_DD_affiliation();
 	DDR_permutation = new_graph.get_DD_permutation();
+	DDR_invpermutation = new_graph.get_DD_invpermutation();
 	DDR_lengths = new_graph.get_DD_lengths();
 	DDR_ranges = new_graph.get_DD_ranges();
 
@@ -229,6 +251,7 @@ Decomposition::~Decomposition(){
 	if(destroy_DDR_arrays){
 		free(DDR_affiliation);
 		free(DDR_permutation);
+		free(DDR_invpermutation);
 		free(DDR_lengths);
 		free(DDR_ranges);
 	}
@@ -263,18 +286,15 @@ int Decomposition::get_T() const{
 }
 
 int Decomposition::get_Tlocal() const{
-	int rank = GlobalManager.get_rank();
-	return DDT_ranges[rank+1] - DDT_ranges[rank];
+	return DDT_ranges[DDT_rank+1] - DDT_ranges[DDT_rank];
 }
 
 int Decomposition::get_Tbegin() const{
-	int rank = GlobalManager.get_rank();
-	return DDT_ranges[rank];
+	return DDT_ranges[DDT_rank];
 }
 
 int Decomposition::get_Tend() const{
-	int rank = GlobalManager.get_rank();
-	return DDT_ranges[rank+1];
+	return DDT_ranges[DDT_rank+1];
 }
 
 int Decomposition::get_DDT_size() const{
@@ -290,18 +310,16 @@ int Decomposition::get_R() const{
 }
 
 int Decomposition::get_Rlocal() const{
-	int rank = GlobalManager.get_rank();
-	return DDR_ranges[rank+1] - DDR_ranges[rank];
+	return DDR_ranges[DDR_rank+1] - DDR_ranges[DDR_rank];
 }
 
 int Decomposition::get_Rbegin() const{
-	int rank = GlobalManager.get_rank();
-	return DDR_ranges[rank];
+	return DDR_ranges[DDR_rank];
 }
 
 int Decomposition::get_Rend() const{
 	int rank = GlobalManager.get_rank();
-	return DDR_ranges[rank+1];
+	return DDR_ranges[DDR_rank+1];
 }
 
 int Decomposition::get_DDR_size() const{
@@ -314,6 +332,10 @@ int *Decomposition::get_DDR_affiliation() const{
 
 int *Decomposition::get_DDR_permutation() const{
 	return DDR_permutation;
+}
+
+int *Decomposition::get_DDR_invpermutation() const{
+	return DDR_invpermutation;
 }
 
 int *Decomposition::get_DDR_lengths() const{
@@ -336,10 +358,20 @@ int Decomposition::get_DDR_rank() const{
 	return DDR_rank;
 }
 
+int Decomposition::get_K() const{
+	return K;
+}
+
+int Decomposition::get_xdim() const{
+	return xdim;
+}
+
 void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details) const {
 	output_master << "Decomposition" << std::endl;
 	
 	output_master.push();
+	output_master << " Clusters              : " << this->K << std::endl;
+	output_master << " Data dimension        : " << this->xdim << std::endl;
 	output_master << " Time                  : " << this->T << std::endl;
 	output_master << " - DDT_size            : " << this->DDT_size << std::endl;
 	output_master << " - DDT_ranges          : ";
@@ -403,6 +435,8 @@ void Decomposition::print(ConsoleOutput &output) const {
 	output << "Decomposition" << std::endl;
 	
 	output.push();
+	output << " Clusters              : " << this->K << std::endl;
+	output << " Data dimension        : " << this->xdim << std::endl;
 	output << " Time                  : " << this->T << std::endl;
 	output << " - DDT_size            : " << this->DDT_size << std::endl;
 	output << " - DDT_ranges          : ";
@@ -430,20 +464,34 @@ void Decomposition::print(ConsoleOutput &output) const {
 	
 }
 
-void Decomposition::createGlobalVec(Vec *x_Vec, int blocksize) const { //TODO: how about call it with GeneralVector<PetscVector> ?
+void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const { //TODO: how about call it with GeneralVector<PetscVector> ?
 	LOG_FUNC_BEGIN
 
 	int T = this->get_T();
 	int R = this->get_R();
+	int K = this->get_K();
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
 	/* create MPI vector */
 	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*blocksize,T*R*blocksize) );
+	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
 	TRY( VecSetFromOptions(*x_Vec) );
 
 	LOG_FUNC_END
+}
+
+int Decomposition::get_idxglobal(int t_global, int r_global, int k) const {
+	int Pr = DDR_permutation[r_global];
+	return t_global*R*K + Pr*K + k;
+}
+
+int Decomposition::get_invPr(int r_global) const {
+	return DDR_invpermutation[r_global];
+}
+
+int Decomposition::get_Pr(int r_global) const {
+	return DDR_permutation[r_global];
 }
 
 } /* end of namespace */
