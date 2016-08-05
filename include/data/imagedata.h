@@ -89,15 +89,25 @@ ImageData<VectorBase>::ImageData(Decomposition &new_decomposition, std::string f
 	this->height = height;
 	this->decomposition = &new_decomposition;
 
-	/* prepare datavector */
+	/* prepare preliminary datavector and load data */
+	Vec datapreload_Vec;
+	this->decomposition->createGlobalVec_data(&datapreload_Vec);
+	GeneralVector<PetscVector> datapreload(datapreload_Vec);
+	datapreload.load_global(filename_data);
+	
+	/* prepare real datavector */
 	Vec data_Vec;
 	this->decomposition->createGlobalVec_data(&data_Vec);
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
+	
+	/* permute orig to new using parallel layout */
+	this->decomposition->permute_TRxdim(datapreload_Vec, data_Vec);
+	
+	/* destroy preloaded vector */
+//	TRY( VecDestroy(&datapreload_Vec) );
+	
+	/* other vectors will be prepared after setting the model */
 	this->destroy_datavector = true;
-
-	/* load image from file */
-	this->datavector->load_global(filename_data);
-
 	this->destroy_gammavector = false;
 	this->destroy_thetavector = false;
 
@@ -292,15 +302,33 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 
 	std::ostringstream oss_name_of_file;
 
+	/* prepare vectors to save as a permutation to original layout */
+	Vec datasave_Vec;
+	this->decomposition->createGlobalVec_data(&datasave_Vec);
+	GeneralVector<PetscVector> datasave(datasave_Vec);
+
+	Vec gammasave_Vec;
+	this->decomposition->createGlobalVec_gamma(&gammasave_Vec);
+	GeneralVector<PetscVector> gammasave(gammasave_Vec);
+
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	oss_name_of_file << "results/" << filename << "_original.bin";
-	datavector->save_binary(oss_name_of_file.str());
+	this->decomposition->permute_TRxdim(datasave_Vec, datavector->get_vector(), true);
+	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
-	/* save gammas and compute recovered image */
-	Vec gamma_Vec = gammavector->get_vector();
+	/* save gamma */
+	oss_name_of_file << "results/" << filename << "_gamma.bin";
+	this->decomposition->permute_TRK(gammasave_Vec, gammavector->get_vector(), true);
+	gammasave.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	oss_name_of_file << "results/" << filename << "_gamma.txt";
+	gammasave.save_ascii(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	/* compute recovered image */
 	Vec gammak_Vec;
-	GeneralVector<PetscVector> *gammak;
 	IS gammak_is;
 
 	Vec data_recovered_Vec;
@@ -313,33 +341,20 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 
 	int K = this->get_K();
 	int R = this->get_R();
+	int Rlocal = this->get_Rlocal();
 	int Tlocal = this->get_Tlocal();
 	int Tbegin = this->get_Tbegin();
 	int k;
 
 	for(k=0;k<K;k++){ 
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k, K, &gammak_is) );
-		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-
-		gammak = new GeneralVector<PetscVector>(gammak_Vec);
-
-		/* save gammak */
-		oss_name_of_file << "results/" << filename << "_gamma" << k << ".bin";
-		gammak->save_binary(oss_name_of_file.str());
-		oss_name_of_file.str("");
-
-		oss_name_of_file << "results/" << filename << "_gamma" << k << ".txt";
-		gammak->save_ascii(oss_name_of_file.str());
-		oss_name_of_file.str("");
-
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal*Rlocal, Tbegin*K*R + k, K, &gammak_is) );
+		TRY( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */
 		TRY( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
 
-		free(gammak);
-	
-		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		TRY( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 		TRY( ISDestroy(&gammak_is) );
 	}	
 
@@ -347,8 +362,14 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 
 	/* save recovered data */
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
-	data_recovered.save_binary(oss_name_of_file.str());
+	
+	/* but at first, permute recovered data, datasave can be used */
+	this->decomposition->permute_TRxdim(datasave_Vec, data_recovered_Vec, true);
+	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
+
+	/* destroy vectors with original layout */
+//	TRY( VecDestroy(&datasave_Vec) );
 
 	timer_saveImage.stop();
 	coutAll <<  " - problem saved in: " << timer_saveImage.get_value_sum() << std::endl;

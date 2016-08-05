@@ -178,8 +178,8 @@ void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T:           " << T << std::endl;
-	output <<  " - K:           " << K << std::endl;
+	output <<  " - nmb of subsets:     " << T << std::endl;
+	output <<  " - size of subset:     " << K << std::endl;
 
 	#ifdef USE_GPU
 		output <<  " - blockSize:   " << blockSize << std::endl;

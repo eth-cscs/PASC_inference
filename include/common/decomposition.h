@@ -105,7 +105,9 @@ class Decomposition {
 		int get_invPr(int r_global) const;
 		int get_Pr(int r_global) const;
 
-		
+		void permute_TRxdim(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
+		void permute_TRK(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
+		void permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 };
 
 /* ----------------- Decomposition implementation ------------- */
@@ -468,7 +470,7 @@ void Decomposition::print(ConsoleOutput &output) const {
 	
 }
 
-void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const { //TODO: how about call it with GeneralVector<PetscVector> ?
+void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const {
 	LOG_FUNC_BEGIN
 
 	int T = this->get_T();
@@ -477,9 +479,7 @@ void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const { //TODO: how about 
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	/* create MPI vector */
 	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-//	TRY( VecSetType(*x_Vec, VECMPI) );
 	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
 	TRY( VecSetFromOptions(*x_Vec) );
 
@@ -495,7 +495,6 @@ void Decomposition::createGlobalCudaVec_gamma(Vec *x_Vec) const { //TODO: how ab
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	/* create MPI vector */
 	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
 	TRY( VecSetType(*x_Vec, VECMPICUDA) );
 	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
@@ -513,9 +512,7 @@ void Decomposition::createGlobalVec_data(Vec *x_Vec) const { //TODO: how about c
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	/* create MPI vector */
 	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-//	TRY( VecSetType(*x_Vec, VECMPI) );
 	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
 	TRY( VecSetFromOptions(*x_Vec) );
 
@@ -531,11 +528,13 @@ void Decomposition::createGlobalCudaVec_data(Vec *x_Vec) const { //TODO: how abo
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	/* create CUDAMPI vector */
 	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
 	TRY( VecSetType(*x_Vec, VECMPICUDA) );
 	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
 	TRY( VecSetFromOptions(*x_Vec) );
+
+//	TRY( VecAssemblyBegin(*x_Vec));
+//	TRY( VecAssemblyEnd(*x_Vec));
 
 	LOG_FUNC_END
 }
@@ -552,6 +551,73 @@ int Decomposition::get_invPr(int r_global) const {
 int Decomposition::get_Pr(int r_global) const {
 	return DDR_permutation[r_global];
 }
+
+void Decomposition::permute_TRxdim(Vec orig_Vec, Vec new_Vec, bool invert) const {
+	permute_TRblocksize(orig_Vec, new_Vec, xdim, invert);
+}
+
+void Decomposition::permute_TRK(Vec orig_Vec, Vec new_Vec, bool invert) const {
+	permute_TRblocksize(orig_Vec, new_Vec, K, invert);
+}
+
+void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
+	LOG_FUNC_BEGIN
+
+	int Tbegin = get_Tbegin();
+	int Tend = get_Tend();
+	int Tlocal = get_Tlocal();
+	int Rbegin = get_Rbegin();
+	int Rlocal = get_Rlocal();
+	
+	int local_size = Tlocal*Rlocal*blocksize;
+
+	IS orig_local_is;
+	IS new_local_is;
+
+	Vec orig_local_Vec;
+	Vec new_local_Vec;
+
+	/* prepare index set with local data */
+	int orig_local_arr[local_size];
+	int j = 0;
+	for(int t=Tbegin;t<Tend;t++){
+		for(int i=0;i<R;i++){
+			if(DDR_affiliation[i] == DDR_rank){
+				for(int k=0;k<blocksize;k++){
+					orig_local_arr[j*blocksize+k] = t*R*blocksize + i*blocksize + k;
+				}
+				j++;
+			}
+		}
+	}
+	TRY( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
+//	TRY( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
+
+	TRY( ISCreateStride(PETSC_COMM_WORLD, local_size, Tbegin*R*blocksize + Rbegin*blocksize, 1, &new_local_is) );
+
+	/* get subvector with local values from original data */
+	TRY( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRY( VecGetSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+
+	/* copy values */
+	if(!invert){
+		TRY( VecCopy(orig_local_Vec, new_local_Vec) );
+	} else {
+		TRY( VecCopy(new_local_Vec, orig_local_Vec) );
+	}
+
+	/* restore subvector with local values from original data */
+	TRY( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRY( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+	
+	/* destroy used stuff */
+	TRY( ISDestroy(&orig_local_is) );
+	TRY( ISDestroy(&new_local_is) );
+
+	LOG_FUNC_END
+}
+
+
 
 } /* end of namespace */
 

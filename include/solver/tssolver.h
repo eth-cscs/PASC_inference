@@ -178,8 +178,12 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	tsdata = &new_tsdata;
 	model = tsdata->get_model(); 
 
+	/* maybe the implementation of model is wrong, so I rather set it at first to NULL */
+	gammasolver = NULL;
+	thetasolver = NULL;
+
 	/* we can initialize solvers - based on model */
-	model->initialize_gammasolver(&gammasolver);	
+	model->initialize_gammasolver(&gammasolver);
 	model->initialize_thetasolver(&thetasolver);	
 
 	/* set settings */

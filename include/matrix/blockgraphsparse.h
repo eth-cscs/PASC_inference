@@ -106,6 +106,8 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 
 	TRY( MatSetFromOptions(A_petsc) ); 
 	
+	double coeff = 1.0;
+	
 ////	#pragma omp parallel for
 	for(int k=0; k < K; k++){
 		for(int r=Rbegin; r < Rend; r++){
@@ -131,17 +133,17 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 				}
 				
 				/* diagonal entry */
-				TRY( MatSetValue(A_petsc, diag_idx, diag_idx, Wsum, INSERT_VALUES) );
+				TRY( MatSetValue(A_petsc, diag_idx, diag_idx, coeff*Wsum, INSERT_VALUES) );
 
 				/* my nondiagonal entries */
 				if(T>1){
 					if(t > 0) {
 						/* t - 1 */
-						TRY( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -1.0, INSERT_VALUES) );
+						TRY( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -coeff, INSERT_VALUES) );
 					}
 					if(t < T-1) {
 						/* t + 1 */
-						TRY( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -1.0, INSERT_VALUES) );
+						TRY( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -coeff, INSERT_VALUES) );
 					}
 				}
 
@@ -150,12 +152,12 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 					int r_new = decomposition->get_Pr(neightbor_ids[r_orig][neighbor]);
 					int idx2 = t*R*K + r_new*K + k;
 
-					TRY( MatSetValue(A_petsc, diag_idx, idx2, -1.0, INSERT_VALUES) );
+					TRY( MatSetValue(A_petsc, diag_idx, idx2, -coeff, INSERT_VALUES) );
 					if(t > 0) {
-						TRY( MatSetValue(A_petsc, diag_idx, idx2-R*K, -1.0, INSERT_VALUES) );
+						TRY( MatSetValue(A_petsc, diag_idx, idx2-R*K, -coeff, INSERT_VALUES) );
 					}
 					if(t < T-1) {
-						TRY( MatSetValue(A_petsc, diag_idx, idx2+R*K, -1.0, INSERT_VALUES) );
+						TRY( MatSetValue(A_petsc, diag_idx, idx2+R*K, -coeff, INSERT_VALUES) );
 					}
 				}
 			} /* end T */
@@ -180,7 +182,7 @@ BlockGraphSparseMatrix<VectorBase>::~BlockGraphSparseMatrix(){
 	LOG_FUNC_BEGIN
 	
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
-//		TRY( MatDestroy(&A_petsc) );
+		TRY( MatDestroy(&A_petsc) );
 	}
 	
 	LOG_FUNC_END	
@@ -267,31 +269,41 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
 
 	/* multiply with coeffs */
-	//if(coeffs){
-		//double *coeffs_arr;
-		//TRY( VecGetArray(coeffs->get_vector(),&coeffs_arr) );
-
-		//Vec xk_Vec;
-		//Vec x_Vec = y.get_vector();
-		//IS xk_is;
-		//double coeff;
+	if(coeffs){
+		int Tbegin = decomposition->get_Tbegin();
+		int Tlocal = decomposition->get_Tlocal();
+		int R = decomposition->get_R();
+		int Rlocal = decomposition->get_Rlocal();
+		int K = decomposition->get_K();
 		
-		///* get vector corresponding to coeff */
-		//for(int k=0;k<K;k++){
-			//TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k, K, &xk_is) );
-			//TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
-			
-			//coeff = alpha*coeffs_arr[k]*coeffs_arr[k];
-			//TRY( VecScale(xk_Vec, coeff) );
-			
-			//TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
-			//TRY( ISDestroy(&xk_is) );
-		//}
+		double *coeffs_arr;
+		TRY( VecGetArray(coeffs->get_vector(),&coeffs_arr) );
 
-		//TRY( VecRestoreArray(coeffs->get_vector(),&coeffs_arr) );
-	//} else {
-	    //TRY( VecScale(y.get_vector(), this->alpha) );
-	//}
+		Vec xk_Vec;
+		Vec x_Vec = y.get_vector();
+		IS xk_is;
+		double coeff;
+		
+		/* get vector corresponding to coeff */
+		for(int k=0;k<K;k++){
+			TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k, K, &xk_is) );
+			TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
+			
+//			coeff = coeffs_arr[k]*coeffs_arr[k];
+			coeff = alpha*coeffs_arr[k]*coeffs_arr[k];
+			TRY( VecScale(xk_Vec, coeff) );
+			
+			TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
+			TRY( ISDestroy(&xk_is) );
+		}
+
+		TRY( VecRestoreArray(coeffs->get_vector(),&coeffs_arr) );
+	} else {
+	    TRY( VecScale(y.get_vector(), this->alpha) );
+	}
+
+	TRY( VecAssemblyBegin(y.get_vector()) );
+	TRY( VecAssemblyEnd(y.get_vector()) );
 
 	LOG_FUNC_END
 }

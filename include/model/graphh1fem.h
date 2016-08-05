@@ -254,7 +254,8 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
 	if(this->matrix_type == 0){
 		/* FREE */
-//		A_shared = new BlockGraphFreeMatrix<PetscVector>(*(tsdata->get_decomposition(), (1.0/((double)(R*T)))*this->epssqr), tsdata->get_thetavector() );
+		//TODO: implement free matrix multiplication for decomposition in space?
+//		A_shared = new BlockGraphFreeMatrix<PetscVector>(*(tsdata->get_decomposition(), coeff, tsdata->get_thetavector() );
 	}
 	if(this->matrix_type == 1){
 		/* SPARSE */
@@ -262,7 +263,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	}
 	
 	gammadata->set_A(A_shared); 
-	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(tsdata->get_Tlocal()*tsdata->get_R(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
+	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
 	*gammasolver = new QPSolver<PetscVector>(*gammadata);
@@ -386,8 +387,8 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	int k,t,r;
 	for(t=0;t<Tlocal;t++){
 		for(k=0;k<K;k++){
-			for(r=0;r<R;r++){
-//TODO:				b_arr[t*K*R + r*K + k] = coeff*(data_arr[t*R+r] - theta_arr[k])*(data_arr[t*R+r] - theta_arr[k]);
+			for(r=0;r<Rlocal;r++){
+				b_arr[t*K*Rlocal + r*K + k] = coeff*(data_arr[t*Rlocal+r] - theta_arr[k])*(data_arr[t*Rlocal+r] - theta_arr[k]);
 			}
 		}
 	}

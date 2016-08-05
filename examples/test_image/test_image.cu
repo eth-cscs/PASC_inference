@@ -101,7 +101,6 @@ int main( int argc, char *argv[] )
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 	Decomposition decomposition(1, graph, K, 1, DDR_size);
-
 	decomposition.print(coutMaster);
 
 /* 3.) prepare time-series data */
@@ -114,42 +113,42 @@ int main( int argc, char *argv[] )
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr);
 	mymodel.print(coutMaster,coutAll);
 
-	/* prepare time-series solver */
+/* 5.) prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<PetscVector> mysolver(mydata, annealing);
-//	mysolver.print(coutMaster,coutAll);
+	mysolver.print(coutMaster,coutAll);
 
-	///* solve the problem */
-	//coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
-	//mysolver.solve();
+/* 6.) solve the problem */
+	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	mysolver.solve();
 
-	///* cut gamma */
-	//if(cutgamma){
-		//mydata.cut_gamma();
-	//}
+	/* cut gamma */
+	if(cutgamma){
+		mydata.cut_gamma();
+	}
 
-	///* print solution */
-	//coutMaster << "--- THETA SOLUTION ---" << std::endl;
-	//mydata.print_thetavector(coutMaster);
+	/* print solution */
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	mydata.print_thetavector(coutMaster);
 
-	///* save results into CSV file */
-	//coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-	//mydata.saveImage(image_out);
+/* 7.) save results */
+	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	mydata.saveImage(image_out);
 
-	///* print timers */
-	//coutMaster << "--- TIMERS INFO ---" << std::endl;
-	//mysolver.printtimer(coutAll);
-	//coutAll.synchronize();
+	/* print timers */
+	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	mysolver.printtimer(coutMaster);
 
-	///* print short info */
-	//coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
-	//mysolver.printstatus(coutMaster);
+	/* print short info */
+	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	mysolver.printstatus(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
 
 	logging.end();
 	Finalize();
+
 
 	return 0;
 }

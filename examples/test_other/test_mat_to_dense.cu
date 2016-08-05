@@ -51,7 +51,7 @@ int main( int argc, char *argv[] )
 	double alpha, graph_coeff;
 	int nproc = GlobalManager.get_size();
 	
-	consoleArg.set_option_value("test_matrix_type", &matrix_type, 0);
+	consoleArg.set_option_value("test_matrix_type", &matrix_type, 1);
 	consoleArg.set_option_value("test_T", &T, 1);
 	consoleArg.set_option_value("test_K", &K, 1);
 	consoleArg.set_option_value("test_DDT", &DDT_size, nproc);
@@ -135,7 +135,7 @@ int main( int argc, char *argv[] )
 	Vec x_Vec;
 	decomposition->createGlobalVec_gamma(&x_Vec);
 	GeneralVector<PetscVector> x(x_Vec);
-
+	
 	GeneralVector<PetscVector> y(x); /* result, i.e. y = A*x */
 
 	/* create matrix */
