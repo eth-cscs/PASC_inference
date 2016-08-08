@@ -32,8 +32,11 @@ class TSSolver: public GeneralSolver {
 		TSData<VectorBase> *tsdata; /**< tsdata on which the solver operates */
 
 		GeneralSolver *gammasolver; /**< to solve inner gamma problem */
-		GeneralSolver *thetasolver; /**< to solve inner theta problem */
+		bool gammasolved;			/**< when gamma is provided, this is true */
 
+		GeneralSolver *thetasolver; /**< to solve inner theta problem */
+		bool thetasolved;			/**< when theta is provided, this is true */
+		
 		TSModel<VectorBase> *model; /**< pointer to used time-series model */
 
 		int it_sum; /**< sum of all iterations */
@@ -90,6 +93,7 @@ class TSSolver: public GeneralSolver {
 		virtual GeneralSolver *get_gammasolver() const;
 		virtual GeneralSolver *get_thetasolver() const;
 
+		void set_solution_theta(double *Theta);
 };
 
 } // end of namespace
@@ -171,6 +175,9 @@ TSSolver<VectorBase>::TSSolver(){
 	this->timer_gamma_update.restart();
 	this->timer_theta_update.restart();
 
+	this->gammasolved = false;
+	this->thetasolved = false;
+
 	LOG_FUNC_END
 }
 
@@ -210,6 +217,9 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	this->timer_theta_solve.restart();
 	this->timer_gamma_update.restart();
 	this->timer_theta_update.restart();
+
+	this->gammasolved = false;
+	this->thetasolved = false;
 
 	LOG_FUNC_END
 }
@@ -487,13 +497,15 @@ void TSSolver<VectorBase>::solve() {
 			}
 
 			/* --- COMPUTE Theta --- */
-			this->timer_theta_update.start();
-			 model->update_thetasolver(thetasolver);
-			this->timer_theta_update.stop();
+			if(!thetasolved){
+				this->timer_theta_update.start();
+				 model->update_thetasolver(thetasolver);
+				this->timer_theta_update.stop();
 
-			this->timer_theta_solve.start();
-			 thetasolver->solve();
-			this->timer_theta_solve.stop();
+				this->timer_theta_solve.start();
+				 thetasolver->solve();
+				this->timer_theta_solve.stop();
+			}
 
 			/* print info about theta solver */
 			if(debug_print_theta){
@@ -520,13 +532,15 @@ void TSSolver<VectorBase>::solve() {
 			}
 
 			/* --- COMPUTE gamma --- */
-			this->timer_gamma_update.start();
-			 model->update_gammasolver(gammasolver);
-			this->timer_gamma_update.stop();
+			if(!gammasolved){
+				this->timer_gamma_update.start();
+				 model->update_gammasolver(gammasolver);
+				this->timer_gamma_update.stop();
 
-			this->timer_gamma_solve.start();
-			 gammasolver->solve();
-			this->timer_gamma_solve.stop();
+				this->timer_gamma_solve.start();
+				 gammasolver->solve();
+				this->timer_gamma_solve.stop();
+			}
 
 			/* print info about gammasolver */
 			if(debug_print_gamma){
@@ -696,6 +710,21 @@ void TSSolver<VectorBase>::gammavector_permute() const{
 	/* destroy new vector */
 	TRY( VecDestroy(&gammavector_new) );
 
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void TSSolver<VectorBase>::set_solution_theta(double *Theta) {
+	LOG_FUNC_BEGIN
+
+	double *theta_arr;
+	TRY(VecGetArray(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+	for(int k=0;k<this->model->get_thetavectorlength_local();k++){
+		theta_arr[k] = Theta[k];
+	}
+	TRY(VecRestoreArray(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+
+	this->thetasolved = true;
 	LOG_FUNC_END
 }
 

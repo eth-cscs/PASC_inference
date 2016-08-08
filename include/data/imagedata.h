@@ -312,16 +312,10 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
 	int K = this->get_K();
-	int R = this->get_R();
-	int Rlocal = this->get_Rlocal();
-	int Rbegin = this->get_Rbegin();
-	int Tlocal = this->get_Tlocal();
-	int Tbegin = this->get_Tbegin();
-	int k;
 
-	for(k=0;k<K;k++){ 
+	for(int k=0;k<K;k++){ 
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal*Rlocal, Tbegin*K*R + Rbegin*K + k, K, &gammak_is) );
+		this->decomposition->createIS_gammaK(&gammak_is, k);
 		TRY( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */

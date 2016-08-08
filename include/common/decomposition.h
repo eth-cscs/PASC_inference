@@ -108,6 +108,8 @@ class Decomposition {
 		void permute_TRxdim(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
 		void permute_TRK(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
 		void permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+		
+		void createIS_gammaK(IS *is, int k) const;
 };
 
 /* ----------------- Decomposition implementation ------------- */
@@ -619,6 +621,13 @@ void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize
 	LOG_FUNC_END
 }
 
+void Decomposition::createIS_gammaK(IS *is, int k) const {
+	LOG_FUNC_BEGIN
+	
+	TRY( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_Tbegin()*get_R()*get_K() + get_Rbegin()*get_K() + k, get_K(), is) );
+
+	LOG_FUNC_END
+}
 
 
 } /* end of namespace */

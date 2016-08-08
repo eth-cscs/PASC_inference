@@ -399,8 +399,6 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	TRY( VecRestoreArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
 	TRY( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 
-		 TRY( PetscBarrier(NULL));
-	
 	LOG_FUNC_END
 }
 
@@ -435,23 +433,15 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	double *theta_arr;
 	TRY( VecGetArray(theta_Vec,&theta_arr) );
 
-	int T = tsdata->get_T();
-	int Tlocal = tsdata->get_Tlocal();
-	int Tbegin = tsdata->get_Tbegin();
-
-	int R = tsdata->get_R();
-	int Rlocal = tsdata->get_Rlocal();
-	int Rbegin = tsdata->get_Rbegin();
-
 	int K = tsdata->get_K();
 
-	double coeff = 1.0/((double)R*T);
+	double coeff = 1.0/((double)tsdata->get_R()*tsdata->get_T());
 
 	/* through clusters */
 	for(int k=0;k<K;k++){
 		
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Rlocal*Tlocal, Tbegin*R*K + Rbegin*K + k, K, &gammak_is) );
+		this->tsdata->get_decomposition()->createIS_gammaK(&gammak_is, k);
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 

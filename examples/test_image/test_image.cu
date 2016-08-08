@@ -11,6 +11,8 @@
 #include "data/imagedata.h"
 #include "model/graphh1fem.h"
 
+#include <vector>
+
 #ifndef USE_PETSCVECTOR
  #error 'This example is for PETSCVECTOR'
 #endif
@@ -35,7 +37,9 @@ int main( int argc, char *argv[] )
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
-		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1} [bool]");
+		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1} [bool]")
+		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]");
+
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -62,6 +66,27 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
 	consoleArg.set_option_value("test_image_out", &image_out, "image1");
 	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph1.bin");
+
+	/* maybe theta is given in console parameters */
+	bool given_Theta;
+	std::vector<double> Theta_list;
+	double Theta_solution[K];
+	if(consoleArg.set_option_value("test_Theta", &Theta_list)){
+		given_Theta = true;
+		
+		/* control number of provided Theta */
+		if(Theta_list.size() != K){
+			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
+			return 0;
+		}
+
+		/* store solution in array */
+		for(int k=0;k < K;k++){
+			Theta_solution[k] = Theta_list[k];
+		}
+	} else {
+		given_Theta = false;
+	}	
 
 	/* set decomposition in space */
 	int DDR_size = GlobalManager.get_size();
@@ -119,6 +144,11 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver<PetscVector> mysolver(mydata, annealing);
 	mysolver.print(coutMaster,coutAll);
+
+	/* set solution if obtained from console */
+	if(given_Theta){
+		mysolver.set_solution_theta(Theta_solution);
+	}
 
 /* 6.) solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
