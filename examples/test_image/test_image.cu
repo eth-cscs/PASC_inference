@@ -103,6 +103,8 @@ int main( int argc, char *argv[] )
 	Decomposition decomposition(1, graph, K, 1, DDR_size);
 	decomposition.print(coutMaster);
 
+	graph.saveVTK("results/graph.vtk");
+
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	ImageData<PetscVector> mydata(decomposition, image_filename, width, height);

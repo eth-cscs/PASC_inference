@@ -99,6 +99,9 @@ int main( int argc, char *argv[] )
 	BGMGraph graph(graph_filename);
 	graph.process(graph_coeff);
 
+//	BGMGraphGrid2D graph(4,4);
+//	graph.process_grid();
+
 	/* create decomposition */
 	Decomposition *decomposition;
 

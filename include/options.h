@@ -29,6 +29,7 @@ static void add_options(boost::program_options::options_description *description
 		opt_tssolver.add_options()
 			("tssolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("tssolver_eps", boost::program_options::value<double>(), "precision [double]")
+			("tssolver_init_permute", boost::program_options::value<bool>(), "permute initial approximation subject to decomposition [bool]")
 			("tssolver_debug_mode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2/3]")
 			("tssolver_debug_print_annealing", boost::program_options::value<bool>(), "print info about annealing steps")
 			("tssolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")

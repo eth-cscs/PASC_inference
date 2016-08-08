@@ -384,10 +384,9 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 
 	double coeff = (-1.0)/((double)(R*T));
 	
-	int k,t,r;
-	for(t=0;t<Tlocal;t++){
-		for(k=0;k<K;k++){
-			for(r=0;r<Rlocal;r++){
+	for(int t=0;t<Tlocal;t++){
+		for(int k=0;k<K;k++){
+			for(int r=0;r<Rlocal;r++){
 				b_arr[t*K*Rlocal + r*K + k] = coeff*(data_arr[t*Rlocal+r] - theta_arr[k])*(data_arr[t*Rlocal+r] - theta_arr[k]);
 			}
 		}
@@ -399,6 +398,8 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	TRY( VecRestoreArray(gammadata->get_b()->get_vector(), &b_arr) );
 	TRY( VecRestoreArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
 	TRY( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+
+		 TRY( PetscBarrier(NULL));
 	
 	LOG_FUNC_END
 }
@@ -440,6 +441,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 
 	int R = tsdata->get_R();
 	int Rlocal = tsdata->get_Rlocal();
+	int Rbegin = tsdata->get_Rbegin();
 
 	int K = tsdata->get_K();
 
@@ -449,7 +451,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	for(int k=0;k<K;k++){
 		
 		/* get gammak */
-		TRY( ISCreateStride(PETSC_COMM_WORLD, Rlocal*Tlocal, Tbegin*K*R + k, K, &gammak_is) );
+		TRY( ISCreateStride(PETSC_COMM_WORLD, Rlocal*Tlocal, Tbegin*R*K + Rbegin*K + k, K, &gammak_is) );
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 
@@ -475,6 +477,8 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 
 	/* restore arrays */
 	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
+
+	 TRY( PetscBarrier(NULL));
 
 	LOG_FUNC_END
 }

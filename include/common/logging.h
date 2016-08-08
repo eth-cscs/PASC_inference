@@ -161,6 +161,7 @@ class LoggingClass {
 			}
 			
 			level--;
+
 		}
 		
 		void it(std::string name_algorithm, std::string file, int line, int it){

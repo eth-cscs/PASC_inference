@@ -19,6 +19,7 @@
 
 #define TSSOLVER_DEFAULT_MAXIT 300
 #define TSSOLVER_DEFAULT_EPS 1e-9
+#define TSSOLVER_DEFAULT_INIT_PERMUTE true
 
 #define TSSOLVER_DEFAULT_DEBUG_MODE 0
 
@@ -50,6 +51,7 @@ class TSSolver: public GeneralSolver {
 		Timer timer_gamma_update; /**< timer for updating gamma problem */
 		Timer timer_theta_update; /**< timer for updating theta problem */
 
+		bool init_permute;					/**< permute initial approximation or not */
 		int debug_mode;						/**< basic debug mode schema [0/1/2/3] */
 		bool debug_print_annealing;			/**< print info about annealing steps */
 		bool debug_print_it;				/**< print simple info about outer iterations */
@@ -66,6 +68,7 @@ class TSSolver: public GeneralSolver {
 		void destroy_temp_annealing();
 		void set_settings_from_console();
 		
+		void gammavector_permute() const;
 	public:
 		TSSolver();
 		TSSolver(TSData<VectorBase> &new_tsdata, int annealing=1);
@@ -103,6 +106,7 @@ void TSSolver<VectorBase>::set_settings_from_console(){
 	
 	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
+	consoleArg.set_option_value("tssolver_init_permute", &this->init_permute, TSSOLVER_DEFAULT_INIT_PERMUTE);
 
 	/* set debug mode */
 	consoleArg.set_option_value("tssolver_debug_mode", &debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
@@ -235,10 +239,11 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << std::endl;
-	output <<  " - annealing:  " << this->annealing << std::endl;
-	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - maxit:        " << this->maxit << std::endl;
+	output <<  " - annealing:    " << this->annealing << std::endl;
+	output <<  " - eps:          " << this->eps << std::endl;
+	output <<  " - debug_mode:   " << this->debug_mode << std::endl;
+	output <<  " - init_permute: " << this->init_permute << std::endl;
 
 	/* print data */
 	if(tsdata){
@@ -277,10 +282,11 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_global << this->get_name() << std::endl;
 
 	/* print settings */
-	output_global <<  " - maxit:      " << this->maxit << std::endl;
-	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
-	output_global <<  " - annealing:  " << this->annealing << std::endl;
+	output_global <<  " - maxit:        " << this->maxit << std::endl;
+	output_global <<  " - eps:          " << this->eps << std::endl;
+	output_global <<  " - debug_mode:   " << this->debug_mode << std::endl;
+	output_global <<  " - init_permute: " << this->init_permute << std::endl;
+	output_global <<  " - annealing:    " << this->annealing << std::endl;
 
 	/* print data */
 	if(tsdata){
@@ -358,6 +364,7 @@ void TSSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  " - it all =          " << this->it_sum << std::endl;
 	output <<  " - AIC =             " << tsdata->get_aic() << std::endl;
 	output <<  " - annealing =       " << this->annealing << std::endl;
+	output <<  " - init_permute =    " << this->init_permute << std::endl;
 	output <<  " - timers" << std::endl;
 	output <<  "  - t_solve =        " << this->timer_solve.get_value_sum() << std::endl;
 	output <<  "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << std::endl;
@@ -456,6 +463,11 @@ void TSSolver<VectorBase>::solve() {
 			coutMaster <<  "- annealing = " << it_annealing << std::endl;
 		}
 		
+		/* permute initial approximation subject to decomposition */
+		if(this->init_permute){
+			gammavector_permute();
+		}
+		
 		/* couter for iterations inside annealing */
 		it_gammasolver = 0;
 		it_thetasolver = 0;
@@ -479,14 +491,9 @@ void TSSolver<VectorBase>::solve() {
 			 model->update_thetasolver(thetasolver);
 			this->timer_theta_update.stop();
 
-			/* barrier  - everything has to be synchronized now */
-			TRY(PetscBarrier(NULL));
-
 			this->timer_theta_solve.start();
 			 thetasolver->solve();
 			this->timer_theta_solve.stop();
-
-			TRY(PetscBarrier(NULL));
 
 			/* print info about theta solver */
 			if(debug_print_theta){
@@ -516,8 +523,6 @@ void TSSolver<VectorBase>::solve() {
 			this->timer_gamma_update.start();
 			 model->update_gammasolver(gammasolver);
 			this->timer_gamma_update.stop();
-
-			TRY(PetscBarrier(NULL));
 
 			this->timer_gamma_solve.start();
 			 gammasolver->solve();
@@ -672,6 +677,24 @@ void TSSolver<VectorBase>::destroy_temp_annealing(){
 
 	free(gammavector_temp);
 	free(thetavector_temp);
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void TSSolver<VectorBase>::gammavector_permute() const{
+	LOG_FUNC_BEGIN
+
+	/* create new Vec and store into it permuted values */
+	Vec gammavector_new;
+	TRY( VecDuplicate(tsdata->get_gammavector()->get_vector(), &gammavector_new) );
+	this->tsdata->get_decomposition()->permute_TRK(tsdata->get_gammavector()->get_vector(), gammavector_new, false);
+
+	/* copy values to original vector */
+	TRY( VecCopy(gammavector_new, tsdata->get_gammavector()->get_vector()) );
+
+	/* destroy new vector */
+	TRY( VecDestroy(&gammavector_new) );
 
 	LOG_FUNC_END
 }

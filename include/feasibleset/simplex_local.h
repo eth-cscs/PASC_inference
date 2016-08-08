@@ -221,6 +221,8 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 		TRY( VecRestoreArray(x.get_vector(),&x_arr) );
 	#endif
 
+	TRY( PetscBarrier(NULL) );
+
 	LOG_FUNC_END
 }
 

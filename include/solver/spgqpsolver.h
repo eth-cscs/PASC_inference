@@ -8,8 +8,6 @@
 #define	PASC_SPGQPSOLVER_H
 
 #include <iostream>
-#include <list>
-#include <algorithm>
 
 #include "pascinference.h"
 #include "solver/qpsolver.h"
@@ -49,7 +47,8 @@ namespace pascinference {
 class SPGQPSolver_fs {
 	private:
 		int m; /**< the length of list */
-		std::list<double> fs_list; /**< the list with function values */
+		double *fs_list; /**< the list with function values */
+		int last_idx;
 
 	public: 
 		/** @brief constructor
@@ -57,6 +56,11 @@ class SPGQPSolver_fs {
 		* @param length of lists
 		*/
 		SPGQPSolver_fs(int new_m);
+
+		/** @brief deconstructor
+		*
+		*/
+		~SPGQPSolver_fs();
 
 		/** @brief set all values to given one
 		*
@@ -220,7 +224,6 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	/* set debug mode */
 	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
 	
-	debug_print_it = false;
 	debug_print_vectors = false;
 	debug_print_scalars = false; 
 
@@ -234,7 +237,7 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	}
 
 	consoleArg.set_option_value("tssolver_debug_print_it",		&debug_print_it, 		debug_print_it);
-	consoleArg.set_option_value("tssolver_debug_print_vectors", &debug_print_vectors,	debug_print_vectors);
+	consoleArg.set_option_value("tssolver_debug_print_vectors", &debug_print_vectors,	false);
 	consoleArg.set_option_value("tssolver_debug_print_scalars", &debug_print_scalars, 	debug_print_scalars);
 
 }
@@ -646,7 +649,7 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* fx_max = max(fs) */
 		this->timer_fs.start();
-		 fx_max = fs.get_max();	
+		 fx_max = fs.get_max();
 		this->timer_fs.stop();
 		
 		/* compute step-size from A-condition */
@@ -820,11 +823,23 @@ int SPGQPSolver<VectorBase>::get_hessmult() const {
 /* constructor */
 SPGQPSolver_fs::SPGQPSolver_fs(int new_m){
 	this->m = new_m;
+	this->fs_list = (double*)malloc(this->m*sizeof(double));
+}
+
+SPGQPSolver_fs::~SPGQPSolver_fs(){
+	free(this->fs_list);
 }
 
 /* init the list with function values using one initial fx */
 void SPGQPSolver_fs::init(double fx){
-	this->fs_list.resize(this->m, fx);
+	LOG_FUNC_BEGIN
+
+	for(int i=0; i<this->m;i++){
+		this->fs_list[i] = fx;
+	}
+	this->last_idx = 0;
+
+	LOG_FUNC_END
 }
 
 /* get the size of the list */
@@ -834,38 +849,50 @@ int SPGQPSolver_fs::get_size(){
 
 /* get the value of max value in the list */
 double SPGQPSolver_fs::get_max(){
-	std::list<double>::iterator it;
-	it = std::max_element(this->fs_list.begin(), this->fs_list.end());
-	return *it;
+	LOG_FUNC_BEGIN
+	
+	int max_idx = 0;
+	double max_value = this->fs_list[max_idx];
+	for(int i=0;i<this->m;i++){
+		if(this->fs_list[i] > max_value){
+			max_idx = i;
+			max_value = this->fs_list[max_idx];
+		}
+	}
+
+	LOG_FUNC_END
+
+	return max_value;
 }
 
 /* update the list by new value - pop the first and push the new value (FIFO) */
 void SPGQPSolver_fs::update(double new_fx){
-	this->fs_list.pop_back();
-	this->fs_list.push_front(new_fx);
+	LOG_FUNC_BEGIN
+
+	this->last_idx++;
+	if(this->last_idx >= this->m){
+		this->last_idx = 0;
+	}
+	
+	this->fs_list[this->last_idx] = new_fx;
+
+	LOG_FUNC_END
 }
 
 /* print the content of the list */
 void SPGQPSolver_fs::print(ConsoleOutput &output)
 {
-	int j, list_size;
-	std::list<double>::iterator it; /* iterator through list */
-
-	it = this->fs_list.begin();
-	list_size = this->fs_list.size(); /* = m? */
-	
-	std::ostringstream temp;
-	
 	output << "[ ";
 	/* for each component go throught the list */
-	for(j=0;j<list_size;j++){
-		temp << *it;
-		output << temp.str();
-		temp.str("");
-		if(j < list_size-1){ 
-				/* this is not the last node */
+	for(int i=this->last_idx;i<this->last_idx+this->m;i++){
+		if(i < this->m){
+			output << this->fs_list[i];
+		} else {
+			output << this->fs_list[i - this->m];
+		}
+		
+		if(i < this->last_idx+this->m-1){ /* this is not the last node */
 				output << ", ";
-				it++;
 		}
 	}
 	output << " ]";

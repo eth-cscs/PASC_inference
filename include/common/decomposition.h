@@ -614,6 +614,8 @@ void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize
 	TRY( ISDestroy(&orig_local_is) );
 	TRY( ISDestroy(&new_local_is) );
 
+	TRY( PetscBarrier(NULL));
+
 	LOG_FUNC_END
 }
 
