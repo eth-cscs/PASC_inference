@@ -226,6 +226,7 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	
 	debug_print_vectors = false;
 	debug_print_scalars = false; 
+	debug_print_it = false; 
 
 	if(debug_mode == 1){
 		debug_print_it = true;

@@ -455,7 +455,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		TRY( VecSum(gammak_Vec, &gammaksum) );
 
 		if(coeff*gammaksum + gammakAgammak > 0){
-			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + gammakAgammak);
+			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + 0.5*gammakAgammak);
 		} else {
 			theta_arr[k] = 0;
 		}
