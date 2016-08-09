@@ -103,24 +103,30 @@ class TSData: public GeneralData {
 		* 
 		* @param output where to print
 		*/
-		void printstats(ConsoleOutput &output) const;
+		void printstats(ConsoleOutput &output, bool printdetails=false) const;
 
-		/** @brief cut data into given interval
-		* 
-		* @param threshold_down lower threshold
-		* @param threshold_up upper threshold
-		*/
-		void cutdata(double threshold_down, double threshold_up);
-
-		/** @brief scale data to 0,1
+		/** @brief scale data to a,b
 		* 
 		*/
-		void scaledata();
+		void scaledata(double a, double b);
 
 		/** @brief scale data back to original interval
 		* 
 		*/
-		void unscaledata();
+		void unscaledata(double a, double b);
+
+		/** @brief cut data to a,b
+		* 
+		* @param a lower threshold
+		* @param b upper threshold 
+		*/
+		void cutdata(double a, double b);
+
+		/** @brief shift data by given coeficient
+		* 
+		* @param a shifting value
+		*/
+		void shiftdata(double a);
 
 };
 
@@ -713,7 +719,7 @@ void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize) 
 }
 
 template<>
-void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
+void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) const {
 	LOG_FUNC_BEGIN
 
 	std::streamsize ss = std::cout.precision();
@@ -746,42 +752,46 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output) const {
 		output <<  " - avg:             " << std::setw(25) << x_avg << std::endl;
 
 		/* for each dimension compute basic statistics: */
-		Vec xk_Vec;
-		IS xk_is;
-		int xk_size = get_T();
+		if(printdetails){
+			Vec xk_Vec;
+			IS xk_is;
+			int xk_size = get_T();
 		
-		double xk_sum;
-		double xk_max;
-		double xk_min;
-		double xk_avg;
+			double xk_sum;
+			double xk_max;
+			double xk_min;
+			double xk_avg;
 		
-		for(int k=0;k<blocksize;k++){
-			output << "x_" << k << std::endl;
-			output.push();
-				TRY( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, blocksize, &xk_is) );
-				TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
+			for(int k=0;k<blocksize;k++){
+				output << "x_" << k << std::endl;
+				output.push();
+					TRY( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, blocksize, &xk_is) );
+					TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
 
-				TRY( VecSum(xk_Vec, &xk_sum) );
-				TRY( VecMax(xk_Vec, NULL, &xk_max) );
-				TRY( VecMin(xk_Vec, NULL, &xk_min) );
-				xk_avg = xk_sum/(double)xk_size;
+					TRY( VecSum(xk_Vec, &xk_sum) );
+					TRY( VecMax(xk_Vec, NULL, &xk_max) );
+					TRY( VecMin(xk_Vec, NULL, &xk_min) );
+					xk_avg = xk_sum/(double)xk_size;
 
-				output <<  " - length: " << std::setw(25) << xk_size << std::endl;
-				output <<  " - sum:    " << std::setw(25) << xk_sum << std::endl;
-				output <<  " - max:    " << std::setw(25) << xk_max << std::endl;
-				output <<  " - min:    " << std::setw(25) << xk_min << std::endl;
-				output <<  " - avg:    " << std::setw(25) << xk_avg << std::endl;
+					output <<  " - length: " << std::setw(25) << xk_size << std::endl;
+					output <<  " - sum:    " << std::setw(25) << xk_sum << std::endl;
+					output <<  " - max:    " << std::setw(25) << xk_max << std::endl;
+					output <<  " - min:    " << std::setw(25) << xk_min << std::endl;
+					output <<  " - avg:    " << std::setw(25) << xk_avg << std::endl;
 
-				TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
-				TRY( ISDestroy(&xk_is) );
-			output.pop();
+					TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
+					TRY( ISDestroy(&xk_is) );
+				output.pop();
+			}
 		}
+		
 	output.pop();
 	output << std::setprecision(ss);
 		
 	LOG_FUNC_END
 }
 
+/*
 template<>
 void TSData<PetscVector>::cutdata(double threshold_down, double threshold_up){
 	LOG_FUNC_BEGIN
@@ -816,9 +826,10 @@ void TSData<PetscVector>::cutdata(double threshold_down, double threshold_up){
 	
 	LOG_FUNC_END
 }
+*/
 
 template<>
-void TSData<PetscVector>::scaledata(){
+void TSData<PetscVector>::scaledata(double a, double b){
 	LOG_FUNC_BEGIN
 
 	Vec x_Vec = datavector->get_vector();
@@ -827,9 +838,13 @@ void TSData<PetscVector>::scaledata(){
 	TRY( VecMax(x_Vec, NULL, &scale_max) );
 	TRY( VecMin(x_Vec, NULL, &scale_min) );
 
+	/* linear transformation y=k*x + q; */
+	double k = (b-a)/((double)(scale_max-scale_min));
+	double q = a-k*scale_min;
+
 	/* compute x = (x-scale_min)/(scale_max-scale_min) */
-	TRY( VecShift(x_Vec, -scale_min) );
-	TRY( VecScale(x_Vec, 1.0/((double)(scale_max-scale_min))) );
+	TRY( VecScale(x_Vec, k) );
+	TRY( VecShift(x_Vec, q) );
 	
 	TRY( VecAssemblyBegin(x_Vec) );
 	TRY( VecAssemblyEnd(x_Vec) );
@@ -838,14 +853,19 @@ void TSData<PetscVector>::scaledata(){
 }
 
 template<>
-void TSData<PetscVector>::unscaledata(){
+void TSData<PetscVector>::unscaledata(double a, double b){
 	LOG_FUNC_BEGIN
 
 	Vec x_Vec = datavector->get_vector();
 
-	/* compute x = (scale_max-scale_min)*x + scale_min */
-	TRY( VecScale(x_Vec, scale_max-scale_min) );
-	TRY( VecShift(x_Vec, scale_min) );
+	/* linear transformation y=k*x + q; */
+	/* inverse 1/k*(y - q) = x; */
+	double k = (b-a)/((double)(scale_max-scale_min));
+	double q = a-k*scale_min;
+
+	/* compute x = (x-scale_min)/(scale_max-scale_min) */
+	TRY( VecShift(x_Vec, -q) );
+	TRY( VecScale(x_Vec, 1.0/k) );
 
 	TRY( VecAssemblyBegin(x_Vec) );
 	TRY( VecAssemblyEnd(x_Vec) );
@@ -857,7 +877,7 @@ void TSData<PetscVector>::unscaledata(){
 		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
-			theta_arr[i] = (scale_max-scale_min)*theta_arr[i] + scale_min;
+			theta_arr[i] = (theta_arr[i] - q)/k;
 		}
 		
 		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
@@ -869,6 +889,55 @@ void TSData<PetscVector>::unscaledata(){
 	LOG_FUNC_END
 }
 
+template<>
+void TSData<PetscVector>::cutdata(double a, double b){
+	LOG_FUNC_BEGIN
+
+	double *data_arr;
+
+	TRY( VecGetArray(datavector->get_vector(),&data_arr));
+	for(int i=0;i<datavector->local_size();i++){
+		if(data_arr[i] > b){
+			data_arr[i] = b;
+		} 
+		if(data_arr[i] < a){
+			data_arr[i] = a;
+		} 
+	}
+	TRY( VecRestoreArray(datavector->get_vector(),&data_arr));
+	
+	LOG_FUNC_END
+}
+
+
+template<>
+void TSData<PetscVector>::shiftdata(double a){
+	LOG_FUNC_BEGIN
+
+	Vec x_Vec = datavector->get_vector();
+
+	TRY( VecShift(x_Vec, a) );
+	
+	TRY( VecAssemblyBegin(x_Vec) );
+	TRY( VecAssemblyEnd(x_Vec) );
+
+	/* scale also computed Theta */
+	if(thetavector){
+		int theta_size = this->tsmodel->get_thetavectorlength_local();
+		double *theta_arr;
+		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		
+		for(int i=0;i<theta_size;i++){
+			theta_arr[i] = theta_arr[i] + a;
+		}
+		
+		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+		TRY( VecAssemblyBegin(thetavector->get_vector()) );
+		TRY( VecAssemblyEnd(thetavector->get_vector()) );
+	}
+	
+	LOG_FUNC_END
+}
 
 } /* end namespace */
 

@@ -38,6 +38,11 @@ int main( int argc, char *argv[] )
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1} [bool]")
+		("test_scaledata", boost::program_options::value<bool>(), "scale to {-1,1} [bool]")
+		("test_cutdata", boost::program_options::value<bool>(), "cut data to {0,1} [bool]")
+		("test_shiftdata", boost::program_options::value<bool>(), "shift data with -0.5 [bool]")
+		("test_shiftdata_coeff", boost::program_options::value<double>(), "coeficient of data shift [double]")
+		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]")
 		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]");
 
 	consoleArg.get_description()->add(opt_problem);
@@ -49,8 +54,8 @@ int main( int argc, char *argv[] )
 
 	int K, annealing, width, height; 
 	double epssqr;
-	double graph_coeff; 
-	bool cutgamma;
+	double graph_coeff, shiftdata_coeff; 
+	bool cutgamma, scaledata, cutdata, printstats, shiftdata;
 
 	std::string image_filename;
 	std::string image_out;
@@ -62,10 +67,22 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
+	consoleArg.set_option_value("test_scaledata", &scaledata, false);
+	consoleArg.set_option_value("test_cutdata", &cutdata, false);
+	consoleArg.set_option_value("test_shiftdata", &shiftdata, false);
+	consoleArg.set_option_value("test_shiftdata_coeff", &shiftdata_coeff, -0.5);
+	consoleArg.set_option_value("test_printstats", &printstats, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
 	consoleArg.set_option_value("test_image_out", &image_out, "image1");
-	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph1.bin");
+	
+	/* use general graph or 2d grid? */
+	bool generalgraph;
+	if(consoleArg.set_option_value("test_graph_filename", &graph_filename)){
+		generalgraph = true;
+	} else {
+		generalgraph = false;
+	}
 
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
@@ -95,14 +112,18 @@ int main( int argc, char *argv[] )
 	coutMaster << " DDR_size             = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
 	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
 	coutMaster << " test_image_out       = " << std::setw(30) << image_out << " (part of name of output file)" << std::endl;
-	coutMaster << " test_width           = " << width << " (width of image)" << std::endl;
-	coutMaster << " test_height          = " << height << " (height of image)" << std::endl;
-	coutMaster << " test_K               = " << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_width           = " << std::setw(30) << width << " (width of image)" << std::endl;
+	coutMaster << " test_height          = " << std::setw(30) << height << " (height of image)" << std::endl;
+	coutMaster << " test_K               = " << std::setw(30) << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_graph_filename  = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
-	coutMaster << " test_graph_coeff     = " << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_epssqr          = " << epssqr << " (penalty)" << std::endl;
-	coutMaster << " test_annealing       = " << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma        = " << cutgamma << " (cut gamma to {0,1})" << std::endl;
+	coutMaster << " test_graph_coeff     = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_epssqr          = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
+	coutMaster << " test_annealing       = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
+	coutMaster << " test_cutgamma        = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})" << std::endl;
+	coutMaster << " test_cutdata         = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
+	coutMaster << " test_scaledata       = " << std::setw(30) << scaledata << " (scale data to {0,1})" << std::endl;
+	coutMaster << " test_shiftdata       = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
+	coutMaster << " test_shiftdata_coeff = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */
@@ -115,25 +136,48 @@ int main( int argc, char *argv[] )
 
 /* 1.) prepare graph of image */
 	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
-	BGMGraphGrid2D graph(width, height);
-	graph.process_grid();
 
-//	BGMGraph mygraph(graph_filename);
-//	mygraph.process(graph_coeff);
-
-	graph.print(coutMaster);
+	BGMGraph *graph;
+	if(generalgraph){
+		graph = new BGMGraph(graph_filename);
+		graph->process(graph_coeff);
+	} else {
+		graph = new BGMGraphGrid2D(width, height);
+		((BGMGraphGrid2D*)graph)->process_grid();
+	}
+	graph->print(coutMaster);
 	
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
-	Decomposition decomposition(1, graph, K, 1, DDR_size);
+	Decomposition decomposition(1, *graph, K, 1, DDR_size);
 	decomposition.print(coutMaster);
 
-	graph.saveVTK("results/graph.vtk");
+	graph->saveVTK("results/graph.vtk");
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	ImageData<PetscVector> mydata(decomposition, image_filename, width, height);
 	mydata.print(coutMaster);
+
+	/* print statistics */
+	if(printstats){
+		mydata.printstats(coutMaster);
+	}
+
+	/* cut data */
+	if(cutdata){
+		mydata.cutdata(0,1);
+	}
+
+	/* shift data */
+	if(shiftdata){
+		mydata.shiftdata(shiftdata_coeff);
+	}
+
+	/* scale data */
+	if(scaledata){
+		mydata.scaledata(-1,1);
+	}
 
 /* 4.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
@@ -157,6 +201,16 @@ int main( int argc, char *argv[] )
 	/* cut gamma */
 	if(cutgamma){
 		mydata.cut_gamma();
+	}
+
+	/* unscale data */
+	if(scaledata){
+		mydata.unscaledata(-1,1);
+	}
+
+	/* unshift data */
+	if(shiftdata){
+		mydata.shiftdata(-shiftdata_coeff);
 	}
 
 	/* print solution */
