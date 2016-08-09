@@ -101,6 +101,10 @@ namespace pascinference {
 			*/
 			virtual void set_random();
 
+			/** @brief set random values
+			*
+			*/
+			virtual void set_random2();
 	};
 
 }
@@ -128,7 +132,25 @@ void GeneralVector<PetscVector>::set_random() {
 	Vec vec = this->get_vector();
 
 	/* generate random data to gamma */
-//	TRY( VecSetRandom(vec, this->rnd) );
+	TRY( VecSetRandom(vec, this->rnd) );
+
+	this->valuesUpdate();
+}
+
+template<>
+void GeneralVector<PetscVector>::set_random2() { 
+	if(!this->rnd){
+		/* prepare random generator */
+//		TRY( PetscRandomCreate(PETSC_COMM_WORLD,&(this->rnd)) );
+		TRY( PetscRandomCreate(PETSC_COMM_SELF,&(this->rnd)) );
+
+		TRY( PetscRandomSetType(this->rnd,PETSCRAND) );
+		TRY( PetscRandomSetFromOptions(this->rnd) );
+
+		TRY( PetscRandomSetSeed(this->rnd,13) );
+	}
+
+	Vec vec = this->get_vector();
 
 	/* random generator based on one-processor generator */
 	Vec random_vec;

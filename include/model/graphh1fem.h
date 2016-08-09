@@ -284,7 +284,7 @@ void GraphH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetas
 	
 	/* create data */
 	thetadata = new SimpleData<PetscVector>();
-	thetadata->set_x(tsdata->get_thetavector()); /* the solution of QP problem is gamma */
+	thetadata->set_x(tsdata->get_thetavector());
 
 	/* create solver */
 	*thetasolver = new SimpleSolver<PetscVector>(*thetadata);
@@ -385,8 +385,8 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	double coeff = (-1.0)/((double)(R*T));
 	
 	for(int t=0;t<Tlocal;t++){
-		for(int k=0;k<K;k++){
-			for(int r=0;r<Rlocal;r++){
+		for(int r=0;r<Rlocal;r++){
+			for(int k=0;k<K;k++){
 				b_arr[t*K*Rlocal + r*K + k] = coeff*(data_arr[t*Rlocal+r] - theta_arr[k])*(data_arr[t*Rlocal+r] - theta_arr[k]);
 			}
 		}
@@ -435,7 +435,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 
 	int K = tsdata->get_K();
 
-	double coeff = 1.0/((double)tsdata->get_R()*tsdata->get_T());
+	double coeff = 1.0/((double)(tsdata->get_R()*tsdata->get_T()));
 
 	/* through clusters */
 	for(int k=0;k<K;k++){
@@ -455,7 +455,8 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		TRY( VecSum(gammak_Vec, &gammaksum) );
 
 		if(coeff*gammaksum + gammakAgammak > 0){
-			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + 0.5*gammakAgammak);
+			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + gammakAgammak);
+//			theta_arr[k] = (gammakx)/(gammaksum + 0.5*tsdata->get_R()*tsdata->get_T()*gammakAgammak);
 //			theta_arr[k] = gammakx/gammaksum;
 		} else {
 			theta_arr[k] = 0;

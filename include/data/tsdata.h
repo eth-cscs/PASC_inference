@@ -110,6 +110,8 @@ class TSData: public GeneralData {
 		*/
 		void scaledata(double a, double b);
 
+		void scaledata(double a, double b, double scale_min, double scale_max);
+		
 		/** @brief scale data back to original interval
 		* 
 		*/
@@ -848,6 +850,22 @@ void TSData<PetscVector>::scaledata(double a, double b){
 	
 	TRY( VecAssemblyBegin(x_Vec) );
 	TRY( VecAssemblyEnd(x_Vec) );
+
+	/* scale also Theta */
+	if(thetavector){
+		int theta_size = this->tsmodel->get_thetavectorlength_local();
+		double *theta_arr;
+		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		
+		for(int i=0;i<theta_size;i++){
+			theta_arr[i] = 15;//k*theta_arr[i] + q;
+		}
+		
+		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+
+		TRY( VecAssemblyBegin(thetavector->get_vector()) );
+		TRY( VecAssemblyEnd(thetavector->get_vector()) );
+	}
 	
 	LOG_FUNC_END
 }
@@ -877,7 +895,7 @@ void TSData<PetscVector>::unscaledata(double a, double b){
 		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
-			theta_arr[i] = (theta_arr[i] - q)/k;
+//			theta_arr[i] = (theta_arr[i] - q)/k;
 		}
 		
 		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
@@ -938,6 +956,45 @@ void TSData<PetscVector>::shiftdata(double a){
 	
 	LOG_FUNC_END
 }
+
+template<>
+void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double scale_max){
+	LOG_FUNC_BEGIN
+
+	Vec x_Vec = datavector->get_vector();
+	this->scale_max = scale_max;
+	this->scale_min = scale_min;
+
+	/* linear transformation y=k*x + q; */
+	double k = (b-a)/((double)(scale_max-scale_min));
+	double q = a-k*scale_min;
+
+	/* compute x = (x-scale_min)/(scale_max-scale_min) */
+	TRY( VecScale(x_Vec, k) );
+	TRY( VecShift(x_Vec, q) );
+	
+	TRY( VecAssemblyBegin(x_Vec) );
+	TRY( VecAssemblyEnd(x_Vec) );
+
+	/* scale also Theta */
+	if(thetavector){
+		int theta_size = this->tsmodel->get_thetavectorlength_local();
+		double *theta_arr;
+		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		
+		for(int i=0;i<theta_size;i++){
+			theta_arr[i] = 15;//k*theta_arr[i] + q;
+		}
+		
+		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+
+		TRY( VecAssemblyBegin(thetavector->get_vector()) );
+		TRY( VecAssemblyEnd(thetavector->get_vector()) );
+	}
+	
+	LOG_FUNC_END
+}
+
 
 } /* end namespace */
 

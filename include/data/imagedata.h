@@ -293,6 +293,7 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 	oss_name_of_file << "results/" << filename << "_gamma.bin";
 	this->decomposition->permute_TRK(gammasave_Vec, gammavector->get_vector(), true);
 	gammasave.save_binary(oss_name_of_file.str());
+//	gammavector->save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
 	oss_name_of_file << "results/" << filename << "_gamma.txt";

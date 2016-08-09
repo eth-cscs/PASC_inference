@@ -712,10 +712,10 @@ BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
 	
 	double *coordinates_arr;
 	TRY( VecGetArray(coordinates_Vec, &coordinates_arr) );
-	for(int j=0;j<height;j++){
-		for(int i=0;i<width;i++){
-			coordinates_arr[j*width + i] = i;
-			coordinates_arr[j*width + i + this->n] = j;
+	for(int i=0;i<height;i++){
+		for(int j=0;j<width;j++){
+			coordinates_arr[i*width + j] = i;
+			coordinates_arr[i*width + j + this->n] = j;
 		}
 	}
 	TRY( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
@@ -740,22 +740,22 @@ void BGMGraphGrid2D::process_grid(){
 	neighbor_ids = (int**)malloc(n*sizeof(int*));
 
 //	#pragma omp parallel for
-	for(int j=0;j<height;j++){
-		for(int i=0;i<width;i++){
-			int idx = j*width+i;
+	for(int i=0;i<height;i++){
+		for(int j=0;j<width;j++){
+			int idx = i*width+j;
 
 			/* compute number of neighbors */
 			int nmb = 0;
-			if(i>0){
-				nmb+=1;				
-			}
-			if(i<width-1){
-				nmb+=1;				
-			}
 			if(j>0){
 				nmb+=1;				
 			}
-			if(j<height-1){
+			if(j<width-1){
+				nmb+=1;				
+			}
+			if(i>0){
+				nmb+=1;				
+			}
+			if(i<height-1){
 				nmb+=1;				
 			}
 			neighbor_nmbs[idx] = nmb;
@@ -763,21 +763,21 @@ void BGMGraphGrid2D::process_grid(){
 			
 			/* fill neighbors */
 			nmb = 0;
-			if(i>0){ /* left */
+			if(j>0){ /* left */
 				neighbor_ids[idx][nmb] = idx-1;
-				nmb++;
+				nmb+=1;	
 			}
-			if(i<width-1){ /* right */
+			if(j<width-1){ /* right */
 				neighbor_ids[idx][nmb] = idx+1;
-				nmb++;
+				nmb+=1;	
 			}
-			if(j>0){ /* down */
+			if(i>0){ /* down */
 				neighbor_ids[idx][nmb] = idx-width;
-				nmb++;
+				nmb+=1;	
 			}
-			if(j<height-1){ /* up */
+			if(i<height-1){ /* up */
 				neighbor_ids[idx][nmb] = idx+width;
-				nmb++;
+				nmb+=1;	
 			}
 
 		}

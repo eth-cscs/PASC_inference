@@ -153,6 +153,7 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 					int idx2 = t*R*K + r_new*K + k;
 
 					TRY( MatSetValue(A_petsc, diag_idx, idx2, -coeff, INSERT_VALUES) );
+//					TRY( MatSetValue(A_petsc, idx2, diag_idx, -coeff, INSERT_VALUES) );
 					if(t > 0) {
 						TRY( MatSetValue(A_petsc, diag_idx, idx2-R*K, -coeff, INSERT_VALUES) );
 					}
@@ -270,10 +271,6 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 
 	/* multiply with coeffs */
 	if(coeffs){
-		int Tbegin = decomposition->get_Tbegin();
-		int Tlocal = decomposition->get_Tlocal();
-		int R = decomposition->get_R();
-		int Rlocal = decomposition->get_Rlocal();
 		int K = decomposition->get_K();
 		
 		double *coeffs_arr;
@@ -286,7 +283,7 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 		
 		/* get vector corresponding to coeff */
 		for(int k=0;k<K;k++){
-			TRY( ISCreateStride(PETSC_COMM_WORLD, R*Tlocal, Tbegin*K*R + k, K, &xk_is) );
+			this->decomposition->createIS_gammaK(&xk_is, k);
 			TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
 			
 //			coeff = coeffs_arr[k]*coeffs_arr[k];

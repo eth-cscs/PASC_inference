@@ -176,7 +176,7 @@ int main( int argc, char *argv[] )
 
 	/* scale data */
 	if(scaledata){
-		mydata.scaledata(-1,1);
+		mydata.scaledata(-1,1,0,1);
 	}
 
 /* 4.) prepare model */
