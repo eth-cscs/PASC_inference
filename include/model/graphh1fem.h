@@ -251,7 +251,13 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
+//	double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
+//	double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
+	double coeff = this->epssqr;
+//	double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
+//	double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
+
+
 	if(this->matrix_type == 0){
 		/* FREE */
 		//TODO: implement free matrix multiplication for decomposition in space?
@@ -383,6 +389,7 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	TRY( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
 
 	double coeff = (-1.0)/((double)(R*T));
+//	double coeff = (-1.0)/(sqrt((double)(R*T)));
 	
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
@@ -435,6 +442,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 
 	int K = tsdata->get_K();
 
+//	double coeff = 1.0;
 	double coeff = 1.0/((double)(tsdata->get_R()*tsdata->get_T()));
 
 	/* through clusters */
@@ -454,12 +462,13 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		/* compute gammaksum */
 		TRY( VecSum(gammak_Vec, &gammaksum) );
 
-		if(coeff*gammaksum + gammakAgammak > 0){
-			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + gammakAgammak);
+		if(coeff*gammaksum + 0.5*gammakAgammak != 0){
+			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + 0.5*gammakAgammak);
+//			theta_arr[k] = (gammakx)/(gammaksum + 0.5*gammakAgammak);
 //			theta_arr[k] = (gammakx)/(gammaksum + 0.5*tsdata->get_R()*tsdata->get_T()*gammakAgammak);
 //			theta_arr[k] = gammakx/gammaksum;
 		} else {
-			theta_arr[k] = 0;
+			theta_arr[k] = 0.0;
 		}
 	
 		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );

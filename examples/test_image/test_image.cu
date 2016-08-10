@@ -193,7 +193,7 @@ int main( int argc, char *argv[] )
 	if(given_Theta){
 		mysolver.set_solution_theta(Theta_solution);
 	}
-
+	
 /* 6.) solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.solve();
@@ -205,7 +205,7 @@ int main( int argc, char *argv[] )
 
 	/* unscale data */
 	if(scaledata){
-		mydata.unscaledata(-1,1);
+		mydata.scaledata(0,1,-1,1);
 	}
 
 	/* unshift data */

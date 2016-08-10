@@ -289,7 +289,7 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 //			coeff = coeffs_arr[k]*coeffs_arr[k];
 			coeff = alpha*coeffs_arr[k]*coeffs_arr[k];
 			TRY( VecScale(xk_Vec, coeff) );
-			
+
 			TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
 			TRY( ISDestroy(&xk_is) );
 		}

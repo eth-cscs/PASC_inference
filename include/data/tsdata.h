@@ -858,7 +858,7 @@ void TSData<PetscVector>::scaledata(double a, double b){
 		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
-			theta_arr[i] = 15;//k*theta_arr[i] + q;
+			theta_arr[i] = k*theta_arr[i] + q;
 		}
 		
 		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
@@ -895,7 +895,7 @@ void TSData<PetscVector>::unscaledata(double a, double b){
 		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
-//			theta_arr[i] = (theta_arr[i] - q)/k;
+			theta_arr[i] = (theta_arr[i] - q)/k;
 		}
 		
 		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
@@ -983,7 +983,7 @@ void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double
 		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
-			theta_arr[i] = 15;//k*theta_arr[i] + q;
+			theta_arr[i] = k*theta_arr[i] + q;
 		}
 		
 		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
