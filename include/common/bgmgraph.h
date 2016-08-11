@@ -419,6 +419,8 @@ void BGMGraph::process(double threshold) {
 	
 	/* prepare array for number of neighbors */
 	neighbor_nmbs = (int*)malloc(n*sizeof(int));
+
+	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		neighbor_nmbs[i] = 0;
 	}
@@ -440,7 +442,8 @@ void BGMGraph::process(double threshold) {
 
 	/* prepare storages for neightbors ids */
 	neighbor_ids = (int**)malloc(n*sizeof(int*));
-//	#pragma omp parallel for
+
+	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
 	}
@@ -449,7 +452,7 @@ void BGMGraph::process(double threshold) {
 	int *counters;
 	counters = (int*)malloc(n*sizeof(int));
 
-//	#pragma omp parallel for
+	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		counters[i] = 0;
 	}
@@ -712,12 +715,16 @@ BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
 	
 	double *coordinates_arr;
 	TRY( VecGetArray(coordinates_Vec, &coordinates_arr) );
-	for(int i=0;i<height;i++){
-		for(int j=0;j<width;j++){
-			coordinates_arr[i*width + j] = i;
-			coordinates_arr[i*width + j + this->n] = j;
-		}
+
+	#pragma omp parallel for
+	for(int idx=0;idx<width*height;idx++){
+		int i = idx/(double)width; /* index of row */
+		int j = idx - i*width; /* index of column */	
+
+		coordinates_arr[idx] = i;
+		coordinates_arr[idx + this->n] = j;
 	}
+
 	TRY( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
 	
 	this->coordinates = new GeneralVector<PetscVector>(coordinates_Vec);
@@ -740,7 +747,7 @@ void BGMGraphGrid2D::process_grid(){
 	neighbor_ids = (int**)malloc(n*sizeof(int*));
 
 	#pragma omp parallel for
-	for(int idx=0;idx<width*height;i++){
+	for(int idx=0;idx<width*height;idx++){
 		int i = idx/(double)width; /* index of row */
 		int j = idx - i*width; /* index of column */	
 
