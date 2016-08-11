@@ -43,6 +43,7 @@ include(printsetting)
 # prepare directories
 make_directory("results")
 make_directory("data")
+make_directory("scripts")
 
 # --------- include test cmake functions --------
 include("test_kmeans/test_kmeans.cmake")

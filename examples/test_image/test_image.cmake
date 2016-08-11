@@ -20,6 +20,12 @@ if(${TEST_IMAGE})
 	file(COPY "test_image/data/" 
 		 DESTINATION "data"
 		 FILES_MATCHING PATTERN "*")
+
+	# copy scripts
+	make_directory("scripts/test_image/")
+	file(COPY "test_image/scripts/" 
+		 DESTINATION "scripts/test_image/"
+		 FILES_MATCHING PATTERN "*")
 endif()
 
 if(${TEST_IMAGE_TS})
