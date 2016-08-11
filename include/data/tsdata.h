@@ -63,7 +63,7 @@ class TSData: public GeneralData {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void cut_gamma() const;
+		void cutgamma() const;
 
 		/* SET functions */
 		void set_model(TSModel<VectorBase> &tsmodel);
@@ -629,14 +629,14 @@ void TSData<VectorBase>::set_aic(double new_aic) {
 }
 
 template<>
-void TSData<PetscVector>::cut_gamma() const{
+void TSData<PetscVector>::cutgamma() const{
 	LOG_FUNC_BEGIN
 
 	int max_id;
 	double max_value;
 	
 	int K = get_K();
-	int gamma_t = decomposition->get_Tlocal()*decomposition->get_Rlocal()*K;
+	int gamma_t = decomposition->get_Tlocal()*decomposition->get_Rlocal();
 	
 	double *gamma_arr;
 	TRY( VecGetArray(gammavector->get_vector(),&gamma_arr) );
@@ -647,18 +647,18 @@ void TSData<PetscVector>::cut_gamma() const{
 		max_id = 0;
 		max_value = gamma_arr[t];
 		for(k = 1; k < K; k++){
-			if(gamma_arr[k*gamma_t + t] > max_value){
+			if(gamma_arr[t*K + k] > max_value){
 				max_id = k;
-				max_value = gamma_arr[k*gamma_t + t];
+				max_value = gamma_arr[t*K + k];
 			}
 		}
 		
 		/* set new values */
 		for(k = 0; k < K; k++){
 			if(k == max_id){
-				gamma_arr[k*gamma_t + t] = 1.0;
+				gamma_arr[t*K + k] = 1.0;
 			} else {
-				gamma_arr[k*gamma_t + t] = 0.0;
+				gamma_arr[t*K + k] = 0.0;
 			}
 		}
 

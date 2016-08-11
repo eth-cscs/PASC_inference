@@ -69,23 +69,23 @@ int main( int argc, char *argv[] )
 	std::string shortinfo_values;
 
 	consoleArg.set_option_value("test_K", &K, 2);
-	consoleArg.set_option_value("test_width", &width, 100);
-	consoleArg.set_option_value("test_height", &height, 100);
-	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
+	consoleArg.set_option_value("test_width", &width, 250);
+	consoleArg.set_option_value("test_height", &height, 150);
+	consoleArg.set_option_value("test_epssqr", &epssqr, 0.00001);
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
-	consoleArg.set_option_value("test_cutdata", &cutdata, false);
+	consoleArg.set_option_value("test_cutdata", &cutdata, true);
 	consoleArg.set_option_value("test_shiftdata", &shiftdata, false);
 	consoleArg.set_option_value("test_shiftdata_coeff", &shiftdata_coeff, -0.5);
 	consoleArg.set_option_value("test_printstats", &printstats, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
-	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
-	consoleArg.set_option_value("test_image_out", &image_out, "image1");
+	consoleArg.set_option_value("test_image_filename", &image_filename, "data/usi_text/usi_250_150_02.bin");
+	consoleArg.set_option_value("test_image_out", &image_out, "usi_test_250_150_02");
 	consoleArg.set_option_value("test_shortinfo", &shortinfo, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
-	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "results/kmeans_shortinfo.txt");
+	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/usi_250_150_02.txt");
 	
 	/* use general graph or 2d grid? */
 	bool generalgraph;
@@ -214,16 +214,19 @@ int main( int argc, char *argv[] )
 	mysolver.solve();
 
 	/* cut gamma */
+	coutMaster << "test1" << std::endl;
 	if(cutgamma){
-		mydata.cut_gamma();
+		mydata.cutgamma();
 	}
 
 	/* unscale data */
+	coutMaster << "test2" << std::endl;
 	if(scaledata){
 		mydata.scaledata(0,1,-1,1);
 	}
 
 	/* unshift data */
+	coutMaster << "test3" << std::endl;
 	if(shiftdata){
 		mydata.shiftdata(-shiftdata_coeff);
 	}
