@@ -539,6 +539,8 @@ void BGMGraph::print(ConsoleOutput &output) const {
 }
 
 void BGMGraph::print_content(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+	
 	output << "Graph" << std::endl;
 	
 	output.push();
@@ -614,6 +616,8 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 		output.pop();
 	}
 	output.pop();
+	
+	LOG_FUNC_END
 }
 
 void BGMGraph::saveVTK(std::string filename) const {
@@ -703,6 +707,8 @@ void BGMGraph::saveVTK(std::string filename) const {
 
 /* --------------- GraphImage implementation -------------- */
 BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
+	LOG_FUNC_BEGIN
+
 	this->width = width;
 	this->height = height;
 
@@ -731,13 +737,19 @@ BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
 
 	this->threshold = -1;
 	processed = false;
+
+	LOG_FUNC_END
 }
 
 BGMGraphGrid2D::~BGMGraphGrid2D(){
+	LOG_FUNC_BEGIN
 	
+	LOG_FUNC_END
 }
 
 void BGMGraphGrid2D::process_grid(){
+	LOG_FUNC_BEGIN
+
 	this->threshold = 1.1;
 	this->m = height*(width-1) + width*(height-1);
 	this->m_max = 4;
@@ -792,17 +804,27 @@ void BGMGraphGrid2D::process_grid(){
 		/* copy data to gpu */
 		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
 		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
+
+		/* allocate pointers on CPU */
+		neighbor_ids_cpugpu = (int**)malloc(n*sizeof(int*));
 		
-		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int)) );	
 		for(int i=0;i<n;i++){
-			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_gpu[i]), neighbor_nmbs[i]*sizeof(int)) );
-			gpuErrchk( cudaMemcpy( neighbor_ids_gpu[i], neighbor_ids[i], n*sizeof(int), cudaMemcpyHostToDevice) );
+			int mysize = neighbor_nmbs[i];
+
+			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_cpugpu[i]), mysize*sizeof(int)) );
+			gpuErrchk( cudaMemcpy( neighbor_ids_cpugpu[i], neighbor_ids[i], mysize*sizeof(int), cudaMemcpyHostToDevice) );
 		}
+
+		/* copy pointers to arrays from CPU to GPU */
+		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int*)) );
+		gpuErrchk( cudaMemcpy( neighbor_ids_gpu, neighbor_ids_cpugpu, n*sizeof(int*), cudaMemcpyHostToDevice) );
 
 		gpuErrchk( cudaDeviceSynchronize() );
 	#endif
 	
 	processed = true;
+
+	LOG_FUNC_END
 }
 
 BGMGraphGrid1D::BGMGraphGrid1D(int width) : BGMGraph(){
@@ -873,12 +895,20 @@ void BGMGraphGrid1D::process_grid(){
 		/* copy data to gpu */
 		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
 		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
+
+		/* allocate pointers on CPU */
+		neighbor_ids_cpugpu = (int**)malloc(n*sizeof(int*));
 		
-		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int)) );	
 		for(int i=0;i<n;i++){
-			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_gpu[i]), neighbor_nmbs[i]*sizeof(int)) );
-			gpuErrchk( cudaMemcpy( neighbor_ids_gpu[i], neighbor_ids[i], n*sizeof(int), cudaMemcpyHostToDevice) );
+			int mysize = neighbor_nmbs[i];
+
+			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_cpugpu[i]), mysize*sizeof(int)) );
+			gpuErrchk( cudaMemcpy( neighbor_ids_cpugpu[i], neighbor_ids[i], mysize*sizeof(int), cudaMemcpyHostToDevice) );
 		}
+
+		/* copy pointers to arrays from CPU to GPU */
+		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int*)) );
+		gpuErrchk( cudaMemcpy( neighbor_ids_gpu, neighbor_ids_cpugpu, n*sizeof(int*), cudaMemcpyHostToDevice) );
 
 		gpuErrchk( cudaDeviceSynchronize() );
 	#endif
