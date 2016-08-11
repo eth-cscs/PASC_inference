@@ -636,9 +636,15 @@ void TSSolver<VectorBase>::solve() {
 //		coutMaster << ", it_theta=" << std::setw(6) << it_thetasolver;
 			coutMaster << std::endl;
 		}
-		
+
 		/* if there is no other annealing steps, we are not using temp storage and store results directly */
-		if(annealing <= 1 || (aic < tsdata->get_aic() && annealing > 1)){
+		if((annealing <= 1) || (aic < tsdata->get_aic() && annealing > 1)){
+			/* if this value is smaller then previous, then store it */
+			if(aic < tsdata->get_aic() && annealing > 1){
+				*gammavector_temp = *(tsdata->get_gammavector());
+				*thetavector_temp = *(tsdata->get_thetavector());
+			}
+
 			tsdata->set_aic(aic);
 			this->L = L;
 			this->deltaL = deltaL;
@@ -655,13 +661,6 @@ void TSSolver<VectorBase>::solve() {
 			thetasolver_shortinfo_header.str("");
 			thetasolver_shortinfo_values.str("");
 			thetasolver->printshort(thetasolver_shortinfo_header,thetasolver_shortinfo_values);
-
-			/* if this value is smaller then previous, then store it */
-			if(aic < tsdata->get_aic() && annealing > 1){
-				*gammavector_temp = *(tsdata->get_gammavector());
-				*thetavector_temp = *(tsdata->get_thetavector());
-			}
-
 		}
 
 		/* if there are more annealing steps, then prepare new initial guess */

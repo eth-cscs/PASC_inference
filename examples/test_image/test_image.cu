@@ -214,19 +214,16 @@ int main( int argc, char *argv[] )
 	mysolver.solve();
 
 	/* cut gamma */
-	coutMaster << "test1" << std::endl;
 	if(cutgamma){
 		mydata.cutgamma();
 	}
 
 	/* unscale data */
-	coutMaster << "test2" << std::endl;
 	if(scaledata){
 		mydata.scaledata(0,1,-1,1);
 	}
 
 	/* unshift data */
-	coutMaster << "test3" << std::endl;
 	if(shiftdata){
 		mydata.shiftdata(-shiftdata_coeff);
 	}
