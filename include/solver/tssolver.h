@@ -448,10 +448,10 @@ void TSSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostri
 	values << this->timer_theta_solve.get_value_sum() << ", ";
 	
 	/* from best annealing step: */
-	header << gammasolver_shortinfo_header;
-	values << gammasolver_shortinfo_values;
-	header << thetasolver_shortinfo_header;
-	values << thetasolver_shortinfo_values;
+	header << gammasolver_shortinfo_header.str();
+	values << gammasolver_shortinfo_values.str();
+	header << thetasolver_shortinfo_header.str();
+	values << thetasolver_shortinfo_values.str();
 	
 	gammasolver->printshort_sum(header, values);
 	thetasolver->printshort_sum(header, values);
