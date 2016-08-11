@@ -37,9 +37,9 @@ int main( int argc, char *argv[] )
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
 		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
-		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to {0,1} [bool]")
-		("test_scaledata", boost::program_options::value<bool>(), "scale to {-1,1} [bool]")
-		("test_cutdata", boost::program_options::value<bool>(), "cut data to {0,1} [bool]")
+		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to set {0;1} [bool]")
+		("test_scaledata", boost::program_options::value<bool>(), "scale to interval {-1,1} [bool]")
+		("test_cutdata", boost::program_options::value<bool>(), "cut data to interval {0,1} [bool]")
 		("test_shiftdata", boost::program_options::value<bool>(), "shift data with -0.5 [bool]")
 		("test_shiftdata_coeff", boost::program_options::value<double>(), "coeficient of data shift [double]")
 		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]")
@@ -130,9 +130,9 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
 	coutMaster << " test_epssqr             = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
 	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})" << std::endl;
+	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
 	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
-	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {0,1})" << std::endl;
+	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
 	coutMaster << " test_shiftdata          = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
 	coutMaster << " test_shiftdata_coeff    = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
 	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)" << std::endl;
