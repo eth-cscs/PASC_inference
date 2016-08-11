@@ -22,7 +22,7 @@ class BlockLaplaceFreeMatrix: public GeneralMatrix<VectorBase> {
 
 		double alpha; /**< general matrix multiplicator */
 		
-		#ifdef USE_GPU
+		#ifdef USE_CUDA
 			int blockSize; /**< block size returned by the launch configurator */
 			int minGridSize; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
 			int gridSize; /**< the actual grid size needed, based on input size */
@@ -54,7 +54,7 @@ class BlockLaplaceFreeMatrix: public GeneralMatrix<VectorBase> {
 
 };
 
-#ifdef USE_GPU
+#ifdef USE_CUDA
 __global__ void kernel_mult(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int K, double alpha);
 #endif
 
@@ -73,7 +73,7 @@ BlockLaplaceFreeMatrix<PetscVector>::BlockLaplaceFreeMatrix(Decomposition &new_d
 	this->decomposition = &new_decomposition;
 	this->alpha = alpha;
 	
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_mult, 0, 0) );
 		gridSize = (get_K()*get_Tlocal() + blockSize - 1)/ blockSize;
 	#endif
@@ -124,7 +124,7 @@ void BlockLaplaceFreeMatrix<VectorBase>::print(ConsoleOutput &output) const
 
 	output << " - alpha: " << alpha << std::endl;
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		output <<  " - blockSize:   " << blockSize << std::endl;
 		output <<  " - gridSize:    " << gridSize << std::endl;
 		output <<  " - minGridSize: " << minGridSize << std::endl;
@@ -153,7 +153,7 @@ void BlockLaplaceFreeMatrix<VectorBase>::print(ConsoleOutput &output_global, Con
 
 	output_global << " - alpha: " << alpha << std::endl;
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		output_global <<  " - blockSize:   " << blockSize << std::endl;
 		output_global <<  " - gridSize:    " << gridSize << std::endl;
 		output_global <<  " - minGridSize: " << minGridSize << std::endl;
@@ -192,7 +192,7 @@ double BlockLaplaceFreeMatrix<VectorBase>::get_alpha() const {
 	return this->alpha;
 }
 
-#ifndef USE_GPU
+#ifndef USE_CUDA
 /* A*x using openmp */
 template<>
 void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 

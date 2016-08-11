@@ -38,7 +38,7 @@ class BlockGraphFreeMatrix: public GeneralMatrix<VectorBase> {
 		
 		BGMGraph *graph; /**< graph with stucture of the matrix */
 		
-		#ifdef USE_GPU
+		#ifdef USE_CUDA
 			int blockSize1; /**< block size returned by the launch configurator for 3diag mult */
 			int minGridSize1; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch for 3diag mult */
 			int gridSize1; /**< the actual grid size needed, based on input size for 3diag mult */
@@ -81,7 +81,7 @@ class BlockGraphFreeMatrix: public GeneralMatrix<VectorBase> {
 
 };
 
-#ifdef USE_GPU
+#ifdef USE_CUDA
 __global__ void kernel_BlockGraphFreeMatrix_mult_tridiag(double* y_arr, double* x_arr, double *left_overlap_arr, double *right_overlap_arr, int T, int Tlocal, int Tbegin, int R, int K, double alpha);
 __global__ void kernel_BlockGraphFreeMatrix_mult_graph(double* y_arr, double* x_arr, double *x_aux_arr, int *neighbor_nmbs, int **neightbor_ids, int T, int Tlocal, int Tbegin, int R, int K, double alpha, bool use_coeffs, double *coeffs_arr);
 #endif
@@ -118,7 +118,7 @@ BlockGraphFreeMatrix<VectorBase>::BlockGraphFreeMatrix(const VectorBase &x, BGMG
 	this->Tbegin = low/(double)(R*K);
 	this->Tend = high/(double)(R*K);
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize1, &blockSize1,kernel_BlockGraphFreeMatrix_mult_tridiag, 0, 0) );
 		gridSize1 = (Tlocal*K*R + blockSize1 - 1)/ blockSize1;
 
@@ -187,7 +187,7 @@ void BlockGraphFreeMatrix<VectorBase>::print(ConsoleOutput &output) const
 		output << " - coeffs: " << *coeffs << std::endl;
 	}
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		output <<  " - blockSize1:   " << blockSize1 << std::endl;
 		output <<  " - gridSize1:    " << gridSize1 << std::endl;
 		output <<  " - minGridSize1: " << minGridSize1 << std::endl;
@@ -226,7 +226,7 @@ void BlockGraphFreeMatrix<VectorBase>::print(ConsoleOutput &output_global, Conso
 		output_local.synchronize();
 	}
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		output_global <<  " - blockSize1:   " << blockSize1 << std::endl;
 		output_global <<  " - gridSize1:    " << gridSize1 << std::endl;
 		output_global <<  " - minGridSize1: " << minGridSize1 << std::endl;
@@ -293,7 +293,7 @@ double BlockGraphFreeMatrix<VectorBase>::get_alpha() const {
 	return this->alpha;
 }
 
-#ifndef USE_GPU
+#ifndef USE_CUDA
 /* A*x using openmp */
 template<>
 void BlockGraphFreeMatrix<PetscVector>::matmult_tridiag(const PetscVector &x) const {

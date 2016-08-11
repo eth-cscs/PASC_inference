@@ -70,7 +70,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
 		*/ 		
 		void project_sub(double *x, int t, int T, int K);
 
-		#ifdef USE_GPU
+		#ifdef USE_CUDA
 			double *x_sorted; /**< for manipulation with sorted data on GPU */
 			int blockSize; /**< block size returned by the launch configurator */
 			int minGridSize; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
@@ -149,7 +149,7 @@ SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int T, int K){
 	this->T = T;
 	this->K = K;
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		/* allocate space for sorting */
 		gpuErrchk( cudaMalloc((void **)&x_sorted,K*T*sizeof(double)) );
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_project, 0, 0) );
@@ -163,7 +163,7 @@ SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int T, int K){
 SimplexFeasibleSet_Local::~SimplexFeasibleSet_Local(){
 	LOG_FUNC_BEGIN
 	
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		/* destroy space for sorting */
 		gpuErrchk( cudaFree(&x_sorted) );
 	#endif	
@@ -181,7 +181,7 @@ void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
 	output <<  " - nmb of subsets:     " << T << std::endl;
 	output <<  " - size of subset:     " << K << std::endl;
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		output <<  " - blockSize:   " << blockSize << std::endl;
 		output <<  " - gridSize:    " << gridSize << std::endl;
 		output <<  " - minGridSize: " << minGridSize << std::endl;
@@ -200,7 +200,7 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	/* get local array */
 	double *x_arr;
 	
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
 		/* use kernel to compute projection */
@@ -327,7 +327,7 @@ void SimplexFeasibleSet_Local::project_sub(double *x, int t, int T, int K){
 
 
 /* kernels in cuda */
-#ifdef USE_GPU
+#ifdef USE_CUDA
 
 __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K){
 	int i;

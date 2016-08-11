@@ -94,7 +94,7 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
 	TRY( MatSetSizes(A_petsc,K*Rlocal*Tlocal,K*Rlocal*Tlocal,K*R*T,K*R*T) );
 
-	#ifndef USE_GPU
+	#ifndef USE_CUDA
 		TRY( MatSetType(A_petsc,MATMPIAIJ) ); 
 	#else
 		TRY( MatSetType(A_petsc,MATAIJCUSPARSE) ); 

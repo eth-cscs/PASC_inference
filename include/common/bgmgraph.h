@@ -272,7 +272,7 @@ int **BGMGraph::get_neighbor_ids() const {
 }
 
 int *BGMGraph::get_neighbor_nmbs_gpu() const {
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		return this->neighbor_nmbs_gpu;
 	#else
 		return this->neighbor_nmbs;
@@ -280,7 +280,7 @@ int *BGMGraph::get_neighbor_nmbs_gpu() const {
 }
 
 int **BGMGraph::get_neighbor_ids_gpu() const {
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		return this->neighbor_ids_gpu;
 	#else
 		return this->neighbor_ids;
@@ -739,51 +739,49 @@ void BGMGraphGrid2D::process_grid(){
 	neighbor_nmbs = (int*)malloc(n*sizeof(int));
 	neighbor_ids = (int**)malloc(n*sizeof(int*));
 
-//	#pragma omp parallel for
-	for(int i=0;i<height;i++){
-		for(int j=0;j<width;j++){
-			int idx = i*width+j;
+	#pragma omp parallel for
+	for(int idx=0;idx<width*height;i++){
+		int i = idx/(double)width; /* index of row */
+		int j = idx - i*width; /* index of column */	
 
-			/* compute number of neighbors */
-			int nmb = 0;
-			if(j>0){
-				nmb+=1;				
-			}
-			if(j<width-1){
-				nmb+=1;				
-			}
-			if(i>0){
-				nmb+=1;				
-			}
-			if(i<height-1){
-				nmb+=1;				
-			}
-			neighbor_nmbs[idx] = nmb;
-			neighbor_ids[idx] = (int*)malloc(neighbor_nmbs[idx]*sizeof(int));
+		/* compute number of neighbors */
+		int nmb = 0;
+		if(j>0){
+			nmb+=1;				
+		}
+		if(j<width-1){
+			nmb+=1;				
+		}
+		if(i>0){
+			nmb+=1;				
+		}
+		if(i<height-1){
+			nmb+=1;				
+		}
+		neighbor_nmbs[idx] = nmb;
+		neighbor_ids[idx] = (int*)malloc(neighbor_nmbs[idx]*sizeof(int));
 			
-			/* fill neighbors */
-			nmb = 0;
-			if(j>0){ /* left */
-				neighbor_ids[idx][nmb] = idx-1;
-				nmb+=1;	
-			}
-			if(j<width-1){ /* right */
-				neighbor_ids[idx][nmb] = idx+1;
-				nmb+=1;	
-			}
-			if(i>0){ /* down */
-				neighbor_ids[idx][nmb] = idx-width;
-				nmb+=1;	
-			}
-			if(i<height-1){ /* up */
-				neighbor_ids[idx][nmb] = idx+width;
-				nmb+=1;	
-			}
-
+		/* fill neighbors */
+		nmb = 0;
+		if(j>0){ /* left */
+			neighbor_ids[idx][nmb] = idx-1;
+			nmb+=1;	
+		}
+		if(j<width-1){ /* right */
+			neighbor_ids[idx][nmb] = idx+1;
+			nmb+=1;	
+		}
+		if(i>0){ /* down */
+			neighbor_ids[idx][nmb] = idx-width;
+			nmb+=1;	
+		}
+		if(i<height-1){ /* up */
+			neighbor_ids[idx][nmb] = idx+width;
+			nmb+=1;	
 		}
 	}
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		/* copy data to gpu */
 		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
 		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
@@ -864,7 +862,7 @@ void BGMGraphGrid1D::process_grid(){
 		}
 	}
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		/* copy data to gpu */
 		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
 		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );

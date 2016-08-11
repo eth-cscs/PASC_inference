@@ -73,7 +73,7 @@ BlockLaplaceSparseMatrix<PetscVector>::BlockLaplaceSparseMatrix(Decomposition &n
 	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
 	TRY( MatSetSizes(A_petsc,K*Tlocal,K*Tlocal,K*T,K*T) );
 
-	#ifndef USE_GPU
+	#ifndef USE_CUDA
 		TRY( MatSetType(A_petsc,MATMPIAIJ) ); 
 	#else
 		TRY( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
