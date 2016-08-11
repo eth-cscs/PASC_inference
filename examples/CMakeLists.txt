@@ -45,6 +45,7 @@ make_directory("results")
 make_directory("data")
 make_directory("scripts")
 make_directory("batch")
+make_directory("batch_out")
 make_directory("shortinfo")
 
 # --------- include test cmake functions --------
