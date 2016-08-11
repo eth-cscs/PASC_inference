@@ -33,13 +33,13 @@ Ns = [1];
 problem_name = "test_image";
 
 # common parameters
-problem_parameters = "--test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debug_mode=2 --spgqpsolver_maxit=2000 --tssolver_maxit=100 --spgqpsolver_debug_mode=0 --test_shortinfo=true --test_Theta=0.4 --test_Theta=0.5";
+problem_parameters = "--test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debug_mode=2 --spgqpsolver_maxit=1000 --tssolver_maxit=100 --spgqpsolver_debug_mode=0 --test_shortinfo=true --test_Theta=0.4 --test_Theta=0.5";
 
 # the upper estimation of computing time
 problem_time = "00:10:00"; 
 
 # generate bash scripts
-batchfile_list = write_batchfiles(image_dir, image_name, dimensions, noises, epssqrs, Ks, Ns, problem_name, problem_time, problem_parameters, library_path, "CPU8", 8, 0);
+batchfile_list = write_batchfiles(image_dir, image_name, dimensions, noises, epssqrs, Ks, Ns, problem_name, problem_time, problem_parameters, library_path, "GPU1", 1, 1);
 
 # run bash scripts
 commit_batchfiles(batchfile_list, "c11", "normal")
