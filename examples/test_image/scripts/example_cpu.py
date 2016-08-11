@@ -48,5 +48,5 @@ batchfile_list = write_batchfiles(image_dir, image_name, dimensions, noises, eps
 commit_batchfiles(batchfile_list, "c11", "normal")
 
 # show the queue
-#show_jobs("c11")
+show_jobs("c11")
 

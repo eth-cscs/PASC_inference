@@ -64,7 +64,7 @@ def commit_batchfiles(batchfile_list, account, partition):
     print "Commiting batch scripts: "
     for batchfile_name in batchfile_list:
         print  " - %s" % (batchfile_name);
-#        call(["sbatch", batchfile_name, "--account=%s" % (account), "--partition=%s" % (partition)])
+        call(["sbatch", batchfile_name, "--account=%s" % (account), "--partition=%s" % (partition)])
     return
 
 def show_jobs(account):
