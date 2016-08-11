@@ -92,6 +92,7 @@ class GeneralSolver {
 		virtual void printtimer(ConsoleOutput &output) const;
 
 		virtual void printshort(std::ostringstream &header, std::ostringstream &values) const;
+		virtual void printshort_sum(std::ostringstream &header, std::ostringstream &values) const;
 
 		/** @brief get the name of solver
 		 */ 
@@ -148,6 +149,10 @@ void GeneralSolver::printtimer(ConsoleOutput &output) const {
 }
 
 void GeneralSolver::printshort(std::ostringstream &header, std::ostringstream &values) const{
+	
+}
+
+void GeneralSolver::printshort_sum(std::ostringstream &header, std::ostringstream &values) const{
 	
 }
 

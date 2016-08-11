@@ -64,6 +64,7 @@ class QPSolver: public GeneralSolver {
 		virtual void printstatus(std::ostringstream &output) const;
 		virtual void printtimer(ConsoleOutput &output) const;
 		virtual void printshort(std::ostringstream &header, std::ostringstream &values) const;
+		virtual void printshort_sum(std::ostringstream &header, std::ostringstream &values) const;
 		virtual std::string get_name() const;
 
 		virtual QPData<VectorBase> *get_data() const;
@@ -268,6 +269,17 @@ void QPSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringst
 
 	if(child_solver){
 		child_solver->printshort(header,values);
+	}
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void QPSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostringstream &values) const {
+	LOG_FUNC_BEGIN
+
+	if(child_solver){
+		child_solver->printshort_sum(header,values);
 	}
 
 	LOG_FUNC_END

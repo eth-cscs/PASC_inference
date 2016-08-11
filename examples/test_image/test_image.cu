@@ -43,7 +43,11 @@ int main( int argc, char *argv[] )
 		("test_shiftdata", boost::program_options::value<bool>(), "shift data with -0.5 [bool]")
 		("test_shiftdata_coeff", boost::program_options::value<double>(), "coeficient of data shift [double]")
 		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]")
-		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]");
+		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]")
+		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
+		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
+		("test_shortinfo_values", boost::program_options::value< std::string >(), "additional values in shortinfo [string]")
+		("test_shortinfo_filename", boost::program_options::value< std::string >(), "name of shortinfo file [string]");
 
 	consoleArg.get_description()->add(opt_problem);
 
@@ -55,11 +59,14 @@ int main( int argc, char *argv[] )
 	int K, annealing, width, height; 
 	double epssqr;
 	double graph_coeff, shiftdata_coeff; 
-	bool cutgamma, scaledata, cutdata, printstats, shiftdata;
+	bool cutgamma, scaledata, cutdata, printstats, shiftdata, shortinfo;
 
 	std::string image_filename;
 	std::string image_out;
 	std::string graph_filename;
+	std::string shortinfo_filename;
+	std::string shortinfo_header;
+	std::string shortinfo_values;
 
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_width", &width, 100);
@@ -75,6 +82,10 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
 	consoleArg.set_option_value("test_image_out", &image_out, "image1");
+	consoleArg.set_option_value("test_shortinfo", &shortinfo, true);
+	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
+	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
+	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "results/kmeans_shortinfo.txt");
 	
 	/* use general graph or 2d grid? */
 	bool generalgraph;
@@ -109,21 +120,25 @@ int main( int argc, char *argv[] )
 	int DDR_size = GlobalManager.get_size();
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
-	coutMaster << " DDR_size             = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
-	coutMaster << " test_image_out       = " << std::setw(30) << image_out << " (part of name of output file)" << std::endl;
-	coutMaster << " test_width           = " << std::setw(30) << width << " (width of image)" << std::endl;
-	coutMaster << " test_height          = " << std::setw(30) << height << " (height of image)" << std::endl;
-	coutMaster << " test_K               = " << std::setw(30) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_graph_filename  = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
-	coutMaster << " test_graph_coeff     = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_epssqr          = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
-	coutMaster << " test_annealing       = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma        = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})" << std::endl;
-	coutMaster << " test_cutdata         = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
-	coutMaster << " test_scaledata       = " << std::setw(30) << scaledata << " (scale data to {0,1})" << std::endl;
-	coutMaster << " test_shiftdata       = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
-	coutMaster << " test_shiftdata_coeff = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
+	coutMaster << " DDR_size                = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
+	coutMaster << " test_image_filename     = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
+	coutMaster << " test_image_out          = " << std::setw(30) << image_out << " (part of name of output file)" << std::endl;
+	coutMaster << " test_width              = " << std::setw(30) << width << " (width of image)" << std::endl;
+	coutMaster << " test_height             = " << std::setw(30) << height << " (height of image)" << std::endl;
+	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_graph_filename     = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
+	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_epssqr             = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
+	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
+	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})" << std::endl;
+	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
+	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {0,1})" << std::endl;
+	coutMaster << " test_shiftdata          = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
+	coutMaster << " test_shiftdata_coeff    = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
+	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)" << std::endl;
+	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */
@@ -228,6 +243,30 @@ int main( int argc, char *argv[] )
 	/* print short info */
 	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
 	mysolver.printstatus(coutMaster);
+
+	/* write short output */
+	if(shortinfo){
+		std::ostringstream oss_short_output_values;
+		std::ostringstream oss_short_output_header;
+		
+		/* add provided strings from console parameters */
+		oss_short_output_header << shortinfo_header;
+		oss_short_output_values << shortinfo_values;
+		
+		mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
+		std::ofstream myfile;
+		myfile.open(shortinfo_filename.c_str());
+		
+		/* master writes the file with short info (used in batch script for quick computation) */
+		if( GlobalManager.get_rank() == 0){
+			myfile << oss_short_output_header.str() << std::endl;
+			myfile << oss_short_output_values.str() << std::endl;
+		}
+		TRY( PetscBarrier(NULL) );
+		
+		myfile.close();
+	}
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

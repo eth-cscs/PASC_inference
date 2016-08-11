@@ -193,6 +193,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		void printstatus(std::ostringstream &output) const;
 		void printtimer(ConsoleOutput &output) const;
 		void printshort(std::ostringstream &header, std::ostringstream &values) const;
+		void printshort_sum(std::ostringstream &header, std::ostringstream &values) const;
 		std::string get_name() const;
 
 };
@@ -515,34 +516,105 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringstream &values) const {
 	LOG_FUNC_BEGIN
 
+	double fx_linear, fx_quadratic;
+
+	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
+	typedef GeneralVector<VectorBase> (&pVector);
+	typedef GeneralMatrix<VectorBase> (&pMatrix);
+
+	/* pointers to qpdata */
+	pMatrix A = *(qpdata->get_A());
+	pVector b = *(qpdata->get_b());
+
+	/* pointer to solution */
+	pVector x = *(qpdata->get_x());
+
+	/* auxiliary vectors */
+	pVector Ad = *(this->Ad); /* A*p */
+
+	Ad = A*x;
+	fx_quadratic = 0.5*dot(Ad,x);
+	fx_linear = -dot(b,x);
+	std::streamsize ss = std::cout.precision();
+
+	values << std::setprecision(17);
+
 	header << "SPGQP it, ";
-	values << this->it_sum << ", ";
+	values << this->it_last << ", ";
 
 	header << "SPGQP hessmult, ";
-	values << this->hessmult_sum << ", ";
+	values << this->hessmult_last << ", ";
 
 	header << "SPGQP t all, ";
-	values << this->timer_solve.get_value_sum() << ", ";
+	values << this->timer_solve.get_value_last() << ", ";
 
 	header << "SPGQP t project, ";
-	values << this->timer_projection.get_value_sum() << ", ";
+	values << this->timer_projection.get_value_last() << ", ";
 
 	header << "SPGQP t matmult, ";
-	values << this->timer_matmult.get_value_sum() << ", ";
+	values << this->timer_matmult.get_value_last() << ", ";
 
 	header << "SPGQP t dot, ";
-	values << this->timer_dot.get_value_sum() << ", ";
+	values << this->timer_dot.get_value_last() << ", ";
 
 	header << "SPGQP t update, ";
-	values << this->timer_update.get_value_sum() << ", ";
+	values << this->timer_update.get_value_last() << ", ";
 
 	header << "SPGQP t stepsize, ";
-	values << this->timer_stepsize.get_value_sum() << ", ";
+	values << this->timer_stepsize.get_value_last() << ", ";
 
 	header << "SPGQP t fs, ";
-	values << this->timer_fs.get_value_sum() << ", ";
+	values << this->timer_fs.get_value_last() << ", ";
 
 	header << "SPGQP t other, ";
+	values << this->timer_solve.get_value_last() - (this->timer_projection.get_value_last() + this->timer_matmult.get_value_last() + this->timer_dot.get_value_last() + this->timer_update.get_value_last() + this->timer_stepsize.get_value_last() + this->timer_fs.get_value_last()) << ", ";
+
+	header << "SPGQP fx, ";
+	values << this->fx << ", ";
+
+	header << "SPGQP fx_linear, ";
+	values << fx_linear << ", ";
+
+	header << "SPGQP fx_quadratic, ";
+	values << fx_quadratic << ", ";
+
+	values << std::setprecision(ss);
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostringstream &values) const {
+	LOG_FUNC_BEGIN
+
+	header << "SPGQP_sum it, ";
+	values << this->it_sum << ", ";
+
+	header << "SPGQP_sum hessmult, ";
+	values << this->hessmult_sum << ", ";
+
+	header << "SPGQP_sum t all, ";
+	values << this->timer_solve.get_value_sum() << ", ";
+
+	header << "SPGQP_sum t project, ";
+	values << this->timer_projection.get_value_sum() << ", ";
+
+	header << "SPGQP_sum t matmult, ";
+	values << this->timer_matmult.get_value_sum() << ", ";
+
+	header << "SPGQP_sum t dot, ";
+	values << this->timer_dot.get_value_sum() << ", ";
+
+	header << "SPGQP_sum t update, ";
+	values << this->timer_update.get_value_sum() << ", ";
+
+	header << "SPGQP_sum t stepsize, ";
+	values << this->timer_stepsize.get_value_sum() << ", ";
+
+	header << "SPGQP_sum t fs, ";
+	values << this->timer_fs.get_value_sum() << ", ";
+
+	header << "SPGQP_sum t other, ";
 	values << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << ", ";
 
 	LOG_FUNC_END

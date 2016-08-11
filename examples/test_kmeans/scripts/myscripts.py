@@ -7,13 +7,6 @@ import os
 
 from subprocess import call
 
-# create folder
-if not os.path.exists("batch"):
-    os.makedirs("batch")
-
-if not os.path.exists("shortinfo"):
-    os.makedirs("shortinfo")
-
 # define function for writing a lot of batchscripts
 def write_batchfiles(Ts,Ns,problem_name, problem_time, problem_parameters, library_path, architecture, n_gpu, n_threads):
     "this function creates a lot of bash scripts"

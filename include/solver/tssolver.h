@@ -47,6 +47,10 @@ class TSSolver: public GeneralSolver {
 		double deltaL; /**< value of stopping criteria */
 		std::ostringstream gammasolver_status; /**< status of gammasolver in the best annealing state */
 		std::ostringstream thetasolver_status; /**< status of thetasolver in the best annealing state */
+		std::ostringstream gammasolver_shortinfo_header; /**< shortinfo of gammasolver in the best annealing state */
+		std::ostringstream gammasolver_shortinfo_values; /**< shortinfo of gammasolver in the best annealing state */
+		std::ostringstream thetasolver_shortinfo_header; /**< shortinfo of thetasolver in the best annealing state */
+		std::ostringstream thetasolver_shortinfo_values; /**< shortinfo of thetasolver in the best annealing state */
 
 		Timer timer_solve; /**< total solution time of algorithm */
 		Timer timer_gamma_solve; /**< timer for solving gamma problem */
@@ -86,6 +90,7 @@ class TSSolver: public GeneralSolver {
 		virtual void printstatus(std::ostringstream &output) const;
 		virtual void printtimer(ConsoleOutput &output) const;
 		virtual void printshort(std::ostringstream &header, std::ostringstream &values) const;
+		virtual void printshort_sum(std::ostringstream &header, std::ostringstream &values) const;
 		virtual std::string get_name() const;
 
 		virtual TSData<VectorBase> *get_data() const;
@@ -168,6 +173,10 @@ TSSolver<VectorBase>::TSSolver(){
 	this->deltaL = std::numeric_limits<double>::max();
 	gammasolver_status.str("");
 	thetasolver_status.str("");
+	gammasolver_shortinfo_header.str("");
+	gammasolver_shortinfo_values.str("");
+	thetasolver_shortinfo_header.str("");
+	thetasolver_shortinfo_values.str("");
 
 	this->timer_solve.restart();	
 	this->timer_gamma_solve.restart();
@@ -210,6 +219,10 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	this->deltaL = std::numeric_limits<double>::max();
 	gammasolver_status.str("");
 	thetasolver_status.str("");
+	gammasolver_shortinfo_header.str("");
+	gammasolver_shortinfo_values.str("");
+	thetasolver_shortinfo_header.str("");
+	thetasolver_shortinfo_values.str("");
 
 	/* initialize timers */
 	this->timer_solve.restart();	
@@ -407,6 +420,15 @@ template<class VectorBase>
 void TSSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringstream &values) const {
 	LOG_FUNC_BEGIN
 
+	printshort_sum(header,values);
+	
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void TSSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostringstream &values) const {
+	LOG_FUNC_BEGIN
+
 	header << "it all, ";
 	values << this->it_sum << ", ";
 
@@ -425,8 +447,14 @@ void TSSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringst
 	header << "t theta solve, ";
 	values << this->timer_theta_solve.get_value_sum() << ", ";
 	
-	gammasolver->printshort(header, values);
-	thetasolver->printshort(header, values);
+	/* from best annealing step: */
+	header << gammasolver_shortinfo_header;
+	values << gammasolver_shortinfo_values;
+	header << thetasolver_shortinfo_header;
+	values << thetasolver_shortinfo_values;
+	
+	gammasolver->printshort_sum(header, values);
+	thetasolver->printshort_sum(header, values);
 
 	LOG_FUNC_END
 }
@@ -609,23 +637,8 @@ void TSSolver<VectorBase>::solve() {
 			coutMaster << std::endl;
 		}
 		
-		/* if this value is smaller then previous, then store it */
-		if(aic < tsdata->get_aic() && annealing > 1){
-			tsdata->set_aic(aic);
-			this->L = L;
-			this->deltaL = deltaL;
-			/* update status strings */
-			gammasolver_status.str("");
-			gammasolver->printstatus(gammasolver_status);
-			thetasolver_status.str("");
-			thetasolver->printstatus(thetasolver_status);
-			
-			*gammavector_temp = *(tsdata->get_gammavector());
-			*thetavector_temp = *(tsdata->get_thetavector());
-		}
-
 		/* if there is no other annealing steps, we are not using temp storage and store results directly */
-		if(annealing <= 1){
+		if(annealing <= 1 || (aic < tsdata->get_aic() && annealing > 1)){
 			tsdata->set_aic(aic);
 			this->L = L;
 			this->deltaL = deltaL;
@@ -635,6 +648,19 @@ void TSSolver<VectorBase>::solve() {
 			gammasolver->printstatus(gammasolver_status);
 			thetasolver_status.str("");
 			thetasolver->printstatus(thetasolver_status);
+			/* update shortinfo strings */
+			gammasolver_shortinfo_header.str("");
+			gammasolver_shortinfo_values.str("");
+			gammasolver->printshort(gammasolver_shortinfo_header,gammasolver_shortinfo_values);
+			thetasolver_shortinfo_header.str("");
+			thetasolver_shortinfo_values.str("");
+			thetasolver->printshort(thetasolver_shortinfo_header,thetasolver_shortinfo_values);
+
+			/* if this value is smaller then previous, then store it */
+			if(aic < tsdata->get_aic() && annealing > 1){
+				*gammavector_temp = *(tsdata->get_gammavector());
+				*thetavector_temp = *(tsdata->get_thetavector());
+			}
 
 		}
 
