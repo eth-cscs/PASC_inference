@@ -23,7 +23,7 @@ using namespace pascinference;
 typedef petscvector::PetscVector Global;
 //typedef minlin::threx::HostVector<double> Host;
 
-extern int pascinference::DEBUG_MODE;
+extern int pascinference::DEBUGMODE;
 
 
 int main( int argc, char *argv[] )
@@ -74,7 +74,7 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.setting.maxit = 10;
-	mysolver.setting.debug_mode = 10;
+	mysolver.setting.debugmode = 10;
 	
 	/* test: give solution of gamma and see what will happen */
 //	*(mydata.get_gammavector()) = gamma_solution;

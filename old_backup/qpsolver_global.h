@@ -2,7 +2,7 @@
 #define	PASC_QPSOLVER_GLOBAL_H
 
 /* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
+extern int DEBUGMODE;
 
 #include "pascinference.h"
 #include "solver/qpsolver.h"
@@ -10,7 +10,7 @@ extern int DEBUG_MODE;
 
 #define QPSOLVER_GLOBAL_DEFAULT_MAXIT 1000;
 #define QPSOLVER_GLOBAL_DEFAULT_EPS 0.0001;
-#define QPSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0;
+#define QPSOLVER_GLOBAL_DEFAULT_DEBUGMODE 0;
 
 namespace pascinference {
 
@@ -68,7 +68,7 @@ QPSolver_Global::QPSolver_Global(const QPData<PetscVector> &new_qpdata){
 
 	this->maxit = QPSOLVER_GLOBAL_DEFAULT_MAXIT;
 	this->eps = QPSOLVER_GLOBAL_DEFAULT_EPS;
-	this->debug_mode = QPSOLVER_GLOBAL_DEFAULT_DEBUG_MODE;
+	this->debugmode = QPSOLVER_GLOBAL_DEFAULT_DEBUGMODE;
 
 	/* initialize local QP solver */
 	this->data_local = new QPData<PetscVector>();
@@ -151,7 +151,7 @@ void QPSolver_Global::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -172,7 +172,7 @@ void QPSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	/* print settings */
 	output_global <<  " - maxit:      " << this->maxit << std::endl;
 	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_global <<  " - debugmode: " << this->debugmode << std::endl;
 
 	output_global << " - local solver:" << std::endl;
 	output_global.push();

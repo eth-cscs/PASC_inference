@@ -17,7 +17,7 @@ Ns = [1, 2, 3, 4, 5, 6];
 
 # name of problem
 problem_name = "test_kmeans"
-problem_parameters = "--test_K=3 --spgqpsolver_eps=0.0001 --spgqpsolver_stop_Anormgp_normb=true --spgqpsolver_stop_normgp_normb=true --spgqpsolver_debug_mode=3 --spgqpsolver_maxit=500 --tssolver_debug_mode=3 --spgqpsolver_dotfloor=2 --spgqpsolver_m=20 --test_epssqr=10 --test_savecsv=false --test_savevtk=false"
+problem_parameters = "--test_K=3 --spgqpsolver_eps=0.0001 --spgqpsolver_stop_Anormgp_normb=true --spgqpsolver_stop_normgp_normb=true --spgqpsolver_debugmode=3 --spgqpsolver_maxit=500 --tssolver_debugmode=3 --spgqpsolver_dotfloor=2 --spgqpsolver_m=20 --test_epssqr=10 --test_savecsv=false --test_savevtk=false"
 library_path = "~/soft/PASC_inference"
 problem_time = "00:10:00"
 

@@ -23,7 +23,7 @@ using namespace pascinference;
 typedef petscvector::PetscVector Global;
 //typedef minlin::threx::HostVector<double> Global;
 
-extern int pascinference::DEBUG_MODE;
+extern int pascinference::DEBUGMODE;
 
 
 int main( int argc, char *argv[] )
@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
 	TSSolver<Global> mysolver(mydata);
 
 	mysolver.setting.maxit = 50;
-	mysolver.setting.debug_mode = 0;
+	mysolver.setting.debugmode = 0;
 
 	/* solve the problem */
 	/* gamma_solver = SOLVER_SPGQP, theta_solver = SOLVER_CG */

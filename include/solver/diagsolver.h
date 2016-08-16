@@ -2,12 +2,12 @@
 #define	PASC_DIAGSOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
+extern int DEBUGMODE;
 
 #include "pascinference.h"
 #include "data/diagdata.h"
 
-#define DIAGSOLVER_DEFAULT_DEBUG_MODE 0;
+#define DIAGSOLVER_DEFAULT_DEBUGMODE 0;
 
 namespace pascinference {
 
@@ -62,7 +62,7 @@ DiagSolver<VectorBase>::DiagSolver(){
 	/* settings */
 	this->maxit = 0;
 	this->eps = 0;
-	this->debug_mode = 0;
+	this->debugmode = 0;
 
 	/* prepare timers */
 	this->timer_solve.restart();	
@@ -80,7 +80,7 @@ DiagSolver<VectorBase>::DiagSolver(DiagData<VectorBase> &new_diagdata){
 	/* settings */
 	this->maxit = 0;
 	this->eps = 0;
-	this->debug_mode = 0;
+	this->debugmode = 0;
 
 	/* prepare timers */
 	this->timer_solve.restart();	
@@ -107,7 +107,7 @@ void DiagSolver<VectorBase>::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(diagdata){
@@ -129,7 +129,7 @@ void DiagSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &
 	/* print settings */
 	output_global <<  " - maxit:      " << this->maxit << std::endl;
 	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_global <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(diagdata){

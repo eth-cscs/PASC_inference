@@ -17,7 +17,7 @@
  
 using namespace pascinference;
 
-extern int pascinference::DEBUG_MODE;
+extern int pascinference::DEBUGMODE;
 
 int get_cluster_id_solution(int t, int T){
 	int id_cluster = 0;
@@ -115,7 +115,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 	TSSolver_Global mysolver(mydata);
 
-	mysolver.debug_mode = 2;
+	mysolver.debugmode = 2;
 //	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */

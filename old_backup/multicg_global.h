@@ -8,7 +8,7 @@
 typedef petscvector::PetscVector PetscVector;
 
 /* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
+extern int DEBUGMODE;
 
 #include "pascinference.h"
 
@@ -22,7 +22,7 @@ extern int DEBUG_MODE;
 
 #define MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT 1000
 #define MULTICGSOLVER_GLOBAL_DEFAULT_EPS 0.0001
-#define MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0
+#define MULTICGSOLVER_GLOBAL_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
 
@@ -85,7 +85,7 @@ MultiCGSolver_Global::MultiCGSolver_Global(const QPData<PetscVector> &new_qpdata
 
 	consoleArg.set_option_value("multicgsolver_global_maxit", &this->maxit, MULTICGSOLVER_GLOBAL_DEFAULT_MAXIT);
 	consoleArg.set_option_value("multicgsolver_global_eps", &this->eps, MULTICGSOLVER_GLOBAL_DEFAULT_EPS);
-	consoleArg.set_option_value("multicgsolver_global_debug_mode", &this->debug_mode, MULTICGSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("multicgsolver_global_debugmode", &this->debugmode, MULTICGSOLVER_GLOBAL_DEFAULT_DEBUGMODE);
 
 	/* initialize local QP solver */
 	this->data_local = new QPData<PetscVector>();
@@ -162,7 +162,7 @@ void MultiCGSolver_Global::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -184,7 +184,7 @@ void MultiCGSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	/* print settings */
 	output_global <<  " - maxit:      " << this->maxit << std::endl;
 	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_global <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(qpdata){

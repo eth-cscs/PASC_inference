@@ -18,7 +18,7 @@
 
 #define TSSOLVER_DEFAULT_MAXIT 1000;
 #define TSSOLVER_DEFAULT_EPS 0.001;
-#define TSSOLVER_DEFAULT_DEBUG_MODE 0;
+#define TSSOLVER_DEFAULT_DEBUGMODE 0;
 
 namespace pascinference {
 
@@ -33,7 +33,7 @@ class TSSolverSetting : public GeneralSolverSetting {
 		TSSolverSetting() {
 			this->maxit = TSSOLVER_DEFAULT_MAXIT;
 			this->eps = TSSOLVER_DEFAULT_EPS;
-			this->debug_mode = TSSOLVER_DEFAULT_DEBUG_MODE;
+			this->debugmode = TSSOLVER_DEFAULT_DEBUGMODE;
 
 			this->gammasolvertype = SOLVER_AUTO;
 			this->thetasolvertype = SOLVER_AUTO;
@@ -42,7 +42,7 @@ class TSSolverSetting : public GeneralSolverSetting {
 
 		void print(ConsoleOutput &output) const {
 			output <<  this->get_name() << std::endl;
-			output <<  " - debug mode: " << this->debug_mode << std::endl;
+			output <<  " - debug mode: " << this->debugmode << std::endl;
 			output <<  " - maxit: " << this->maxit << std::endl;
 			output <<  " - eps: " << this->eps << std::endl;
 
@@ -105,7 +105,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 TSSolver<VectorBase>::TSSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(TSSolver)CONSTRUCTOR" << std::endl;
+	if(setting.debugmode >= 100) coutMaster << "(TSSolver)CONSTRUCTOR" << std::endl;
 	
 	tsdata = NULL;
 	model = NULL;
@@ -149,7 +149,7 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata){
 /* destructor */
 template<class VectorBase>
 TSSolver<VectorBase>::~TSSolver(){
-	if(setting.debug_mode >= 100) coutMaster << "(TSSolver)DESTRUCTOR" << std::endl;
+	if(setting.debugmode >= 100) coutMaster << "(TSSolver)DESTRUCTOR" << std::endl;
 
 	/* destroy child solvers - based on model */
 	if(gammasolver){
@@ -201,7 +201,7 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 
 template<class VectorBase>
 void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
-	if(setting.debug_mode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
+	if(setting.debugmode >= 100) coutMaster << "(SPGQPSolver)FUNCTION: printstatus" << std::endl;
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - it:          " << this->it_last << std::endl;
@@ -249,7 +249,7 @@ std::string TSSolver<VectorBase>::get_name() const {
 /* solve the problem */
 template<class VectorBase>
 void TSSolver<VectorBase>::solve() {
-	if(setting.debug_mode >= 100) coutMaster << "(TSSolver)FUNCTION: solve" << std::endl;
+	if(setting.debugmode >= 100) coutMaster << "(TSSolver)FUNCTION: solve" << std::endl;
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
@@ -260,8 +260,8 @@ void TSSolver<VectorBase>::solve() {
 	}
 
 	/* update settings of child solvers */ //TODO: this is not working at all
-	gammasolver->setting.debug_mode = setting.debug_mode;
-	thetasolver->setting.debug_mode = setting.debug_mode;
+	gammasolver->setting.debugmode = setting.debugmode;
+	thetasolver->setting.debugmode = setting.debugmode;
 
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
@@ -288,19 +288,19 @@ void TSSolver<VectorBase>::solve() {
 		this->timer_theta_solve.stop();
 
 		/* print info about theta solver */
-		if(setting.debug_mode >= 10){
+		if(setting.debugmode >= 10){
 			coutMaster <<  "- thetasolver status:" << std::endl;
 			coutMaster.push();
 			thetasolver->printstatus(coutMaster);
 			coutMaster.pop();
 		}
-		if(setting.debug_mode >= 100){
+		if(setting.debugmode >= 100){
 			coutMaster <<  "- thetasolver info:" << std::endl;
 			coutMaster.push();
 			thetasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(setting.debug_mode >= 101){
+		if(setting.debugmode >= 101){
 			coutMaster <<  "- thetasolver content:" << std::endl;
 			coutMaster.push();
 			thetasolver->printcontent(coutMaster);
@@ -318,19 +318,19 @@ void TSSolver<VectorBase>::solve() {
 		this->timer_gamma_solve.stop();
 
 		/* print info about gammasolver */
-		if(setting.debug_mode >= 10){
+		if(setting.debugmode >= 10){
 			coutMaster <<  "- gammasolver status:" << std::endl;
 			coutMaster.push();
 			gammasolver->printstatus(coutMaster);
 			coutMaster.pop();
 		}
-		if(setting.debug_mode >= 100){
+		if(setting.debugmode >= 100){
 			coutMaster <<  "- gammasolver info:" << std::endl;
 			coutMaster.push();
 			gammasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(setting.debug_mode >= 101){
+		if(setting.debugmode >= 101){
 			coutMaster <<  "- gammasolver content:" << std::endl;
 			coutMaster.push();
 			gammasolver->printcontent(coutMaster);

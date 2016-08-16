@@ -20,7 +20,7 @@ typedef petscvector::PetscVector PetscVector;
 
 #define TSSOLVER_GLOBAL_DEFAULT_MAXIT 1000
 #define TSSOLVER_GLOBAL_DEFAULT_EPS 0.001
-#define TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE 0
+#define TSSOLVER_GLOBAL_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
 
@@ -87,7 +87,7 @@ TSSolver_Global::TSSolver_Global(){
 
 	consoleArg.set_option_value("tssolver_global_maxit", &this->maxit, TSSOLVER_GLOBAL_DEFAULT_MAXIT);
 	consoleArg.set_option_value("tssolver_global_eps", &this->eps, TSSOLVER_GLOBAL_DEFAULT_EPS);
-	consoleArg.set_option_value("tssolver_global_debug_mode", &this->debug_mode, TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("tssolver_global_debugmode", &this->debugmode, TSSOLVER_GLOBAL_DEFAULT_DEBUGMODE);
 
 	this->L = std::numeric_limits<double>::max();
 
@@ -117,7 +117,7 @@ TSSolver_Global::TSSolver_Global(TSData_Global &new_tsdata){
 	/* set settings */
 	consoleArg.set_option_value("tssolver_global_maxit", &this->maxit, TSSOLVER_GLOBAL_DEFAULT_MAXIT);
 	consoleArg.set_option_value("tssolver_global_eps", &this->eps, TSSOLVER_GLOBAL_DEFAULT_EPS);
-	consoleArg.set_option_value("tssolver_global_debug_mode", &this->debug_mode, TSSOLVER_GLOBAL_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("tssolver_global_debugmode", &this->debugmode, TSSOLVER_GLOBAL_DEFAULT_DEBUGMODE);
 
 	/* iteration counters */
 	this->it_sum = 0;
@@ -161,7 +161,7 @@ void TSSolver_Global::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(tsdata){
@@ -201,7 +201,7 @@ void TSSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	/* print settings */
 	output_global <<  " - maxit:      " << this->maxit << std::endl;
 	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_global <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(tsdata){
@@ -300,7 +300,7 @@ void TSSolver_Global::solve() {
 	}
 
 	/* update settings of child solvers */ //TODO: this is not working at all
-	gammasolver->debug_mode = this->debug_mode;
+	gammasolver->debugmode = this->debugmode;
 
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
@@ -351,14 +351,14 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		/* print info about theta solver */
-		if(this->debug_mode >= 2){
+		if(this->debugmode >= 2){
 			/* print info about cost function */
 			coutMaster << " theta solver:" << std::endl;
 			coutAll << "  - ";
 			coutAll << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
 			coutAll << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
 			coutAll << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
-			if(this->debug_mode >= 10){
+			if(this->debugmode >= 10){
 				coutMaster.push();
 				thetasolver->printstatus(coutAll);
 				coutMaster.pop();
@@ -367,13 +367,13 @@ void TSSolver_Global::solve() {
 
 		}
 					
-		if(this->debug_mode >= 100){
+		if(this->debugmode >= 100){
 			coutMaster <<  "- thetasolver info:" << std::endl;
 			coutMaster.push();
 			thetasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(this->debug_mode >= 101){
+		if(this->debugmode >= 101){
 			coutMaster <<  "- thetasolver content:" << std::endl;
 			coutMaster.push();
 			thetasolver->printcontent(coutMaster);
@@ -397,27 +397,27 @@ void TSSolver_Global::solve() {
 		TRY(PetscBarrier(NULL));
 
 		/* print info about gammasolver */
-		if(this->debug_mode >= 2){
+		if(this->debugmode >= 2){
 			/* print info about cost function */
 			coutMaster << " gamma solver:" << std::endl;
 			coutAll << "  - ";
 			coutAll << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
 			coutAll << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
 			coutAll << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
-			if(this->debug_mode >= 10){
+			if(this->debugmode >= 10){
 				coutMaster.push();
 				gammasolver->printstatus(coutAll);
 				coutMaster.pop();
 			}
 			coutAll.synchronize();
 		}
-		if(this->debug_mode >= 100){
+		if(this->debugmode >= 100){
 			coutMaster <<  "- gammasolver info:" << std::endl;
 			coutMaster.push();
 			gammasolver->print(coutMaster);
 			coutMaster.pop();
 		}
-		if(this->debug_mode >= 101){
+		if(this->debugmode >= 101){
 			coutMaster <<  "- gammasolver content:" << std::endl;
 			coutMaster.push();
 			gammasolver->printcontent(coutMaster);
@@ -446,7 +446,7 @@ void TSSolver_Global::solve() {
 		TRY( VecAssemblyBegin(solved_vec));
 		TRY( VecAssemblyEnd(solved_vec));
 
-		if(this->debug_mode >= 2){
+		if(this->debugmode >= 2){
 			/* print info about cost function */
 			coutMaster << " outer loop status:" << std::endl;			
 			coutAll << "  - ";

@@ -33,7 +33,7 @@ Ns = [1];
 problem_name = "test_image";
 
 # common parameters
-problem_parameters = "--test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debug_mode=2 --spgqpsolver_maxit=1000 --tssolver_maxit=100 --spgqpsolver_debug_mode=0 --test_shortinfo=true --test_Theta=0.4 --test_Theta=0.6";
+problem_parameters = "--test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debugmode=2 --spgqpsolver_maxit=1000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true --test_Theta=0.4 --test_Theta=0.6";
 
 # the upper estimation of computing time
 problem_time = "00:10:00"; 

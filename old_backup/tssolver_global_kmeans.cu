@@ -19,7 +19,7 @@
  
 using namespace pascinference;
 
-extern int pascinference::DEBUG_MODE;
+extern int pascinference::DEBUGMODE;
 
 int solution_get_cluster_id(int t, int T){
 	int id_cluster = 0;
@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
 	TSSolver_Global mysolver(mydata);
 
 	mysolver.setting.maxit = 1000;
-	mysolver.setting.debug_mode = 2;
+	mysolver.setting.debugmode = 2;
 //	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */

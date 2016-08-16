@@ -25,7 +25,7 @@ typedef minlin::threx::HostVector<double> Host;
 typedef minlin::threx::DeviceVector<double> Device;
 
 
-extern int pascinference::DEBUG_MODE;
+extern int pascinference::DEBUGMODE;
 
 int main( int argc, char *argv[] )
 {
@@ -81,7 +81,7 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver.setting.maxit = 100;
-	mysolver.setting.debug_mode = 10;
+	mysolver.setting.debugmode = 10;
 	
 	mysolver.solve();
 
@@ -128,7 +128,7 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver2.setting.maxit = mysolver.setting.maxit;
-	mysolver2.setting.debug_mode = mysolver.setting.debug_mode;
+	mysolver2.setting.debugmode = mysolver.setting.debugmode;
 	
 	mysolver2.solve();
 
@@ -174,7 +174,7 @@ int main( int argc, char *argv[] )
 	/* solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
 	mysolver3.setting.maxit = mysolver.setting.maxit;
-	mysolver3.setting.debug_mode = mysolver.setting.debug_mode;
+	mysolver3.setting.debugmode = mysolver.setting.debugmode;
 	
 	mysolver3.solve();
 

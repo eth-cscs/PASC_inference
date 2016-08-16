@@ -15,7 +15,7 @@
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 500
 #define SPGQPSOLVER_DEFAULT_EPS 1e-9
-#define SPGQPSOLVER_DEFAULT_DEBUG_MODE 0
+#define SPGQPSOLVER_DEFAULT_DEBUGMODE 0
 
 #define SPGQPSOLVER_DEFAULT_M 20
 #define SPGQPSOLVER_DEFAULT_GAMMA 0.9
@@ -158,7 +158,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		*/
 		void set_settings_from_console();
 		
-		int debug_mode;				/**< basic debug mode schema [0/1/2] */
+		int debugmode;				/**< basic debug mode schema [0/1/2] */
 		bool debug_print_it;		/**< print simple info about outer iterations */
 		bool debug_print_vectors;	/**< print content of vectors during iterations */
 		bool debug_print_scalars;	/**< print values of computed scalars during iterations */ 
@@ -223,17 +223,17 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
 
 	/* set debug mode */
-	consoleArg.set_option_value("spgqpsolver_debug_mode", &this->debug_mode, SPGQPSOLVER_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("spgqpsolver_debugmode", &this->debugmode, SPGQPSOLVER_DEFAULT_DEBUGMODE);
 	
 	debug_print_vectors = false;
 	debug_print_scalars = false; 
 	debug_print_it = false; 
 
-	if(debug_mode == 1){
+	if(debugmode == 1){
 		debug_print_it = true;
 	}
 
-	if(debug_mode == 2){
+	if(debugmode == 2){
 		debug_print_it = true;
 		debug_print_scalars = true;
 	}
@@ -383,7 +383,7 @@ void SPGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	output <<  " - m:          " << m << std::endl;
 	output <<  " - gamma:      " << gamma << std::endl;
@@ -412,7 +412,7 @@ void SPGQPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput 
 	/* print settings */
 	output_local <<  " - maxit:      " << this->maxit << std::endl;
 	output_local <<  " - eps:        " << this->eps << std::endl;
-	output_local <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_local <<  " - debugmode: " << this->debugmode << std::endl;
 
 	output_local <<  " - m:          " << m << std::endl;
 	output_local <<  " - gamma:      " << gamma << std::endl;

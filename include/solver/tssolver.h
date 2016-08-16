@@ -21,7 +21,7 @@
 #define TSSOLVER_DEFAULT_EPS 1e-9
 #define TSSOLVER_DEFAULT_INIT_PERMUTE true
 
-#define TSSOLVER_DEFAULT_DEBUG_MODE 0
+#define TSSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
 
@@ -59,7 +59,7 @@ class TSSolver: public GeneralSolver {
 		Timer timer_theta_update; /**< timer for updating theta problem */
 
 		bool init_permute;					/**< permute initial approximation or not */
-		int debug_mode;						/**< basic debug mode schema [0/1/2/3] */
+		int debugmode;						/**< basic debug mode schema [0/1/2/3] */
 		bool debug_print_annealing;			/**< print info about annealing steps */
 		bool debug_print_it;				/**< print simple info about outer iterations */
 		bool debug_print_theta;				/**< print theta solver info */
@@ -118,7 +118,7 @@ void TSSolver<VectorBase>::set_settings_from_console(){
 	consoleArg.set_option_value("tssolver_init_permute", &this->init_permute, TSSOLVER_DEFAULT_INIT_PERMUTE);
 
 	/* set debug mode */
-	consoleArg.set_option_value("tssolver_debug_mode", &debug_mode, TSSOLVER_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("tssolver_debugmode", &debugmode, TSSOLVER_DEFAULT_DEBUGMODE);
 
 	debug_print_annealing = false;
 	debug_print_it = false;
@@ -127,16 +127,16 @@ void TSSolver<VectorBase>::set_settings_from_console(){
 	debug_print_gamma = false;
 	debug_print_gamma_solution = false; 
 
-	if(debug_mode == 1){
+	if(debugmode == 1){
 		debug_print_annealing = true;
 	}
 
-	if(debug_mode == 2){
+	if(debugmode == 2){
 		debug_print_annealing = true;
 		debug_print_it = true;
 	}
 
-	if(debug_mode == 3){
+	if(debugmode == 3){
 		debug_print_annealing = true;
 		debug_print_it = true;
 		debug_print_theta = true;
@@ -265,7 +265,7 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - maxit:        " << this->maxit << std::endl;
 	output <<  " - annealing:    " << this->annealing << std::endl;
 	output <<  " - eps:          " << this->eps << std::endl;
-	output <<  " - debug_mode:   " << this->debug_mode << std::endl;
+	output <<  " - debugmode:   " << this->debugmode << std::endl;
 	output <<  " - init_permute: " << this->init_permute << std::endl;
 
 	/* print data */
@@ -307,7 +307,7 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	/* print settings */
 	output_global <<  " - maxit:        " << this->maxit << std::endl;
 	output_global <<  " - eps:          " << this->eps << std::endl;
-	output_global <<  " - debug_mode:   " << this->debug_mode << std::endl;
+	output_global <<  " - debugmode:   " << this->debugmode << std::endl;
 	output_global <<  " - init_permute: " << this->init_permute << std::endl;
 	output_global <<  " - annealing:    " << this->annealing << std::endl;
 
@@ -543,7 +543,7 @@ void TSSolver<VectorBase>::solve() {
 				coutMaster << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
 				coutMaster << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
 				coutMaster << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
-				if(this->debug_mode >= 10){
+				if(this->debugmode >= 10){
 					coutMaster.push();
 					thetasolver->printstatus(coutAll);
 					coutMaster.pop();
@@ -578,7 +578,7 @@ void TSSolver<VectorBase>::solve() {
 				coutMaster << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
 				coutMaster << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
 				coutMaster << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
-				if(this->debug_mode >= 10){
+				if(this->debugmode >= 10){
 					coutMaster.push();
 					gammasolver->printstatus(coutAll);
 					coutMaster.pop();

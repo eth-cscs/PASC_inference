@@ -13,7 +13,7 @@
 
 #define CGQPSOLVER_DEFAULT_MAXIT 1000
 #define CGQPSOLVER_DEFAULT_EPS 0.0001
-#define CGQPSOLVER_DEFAULT_DEBUG_MODE 0
+#define CGQPSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
 
@@ -95,7 +95,7 @@ CGQPSolver<VectorBase>::CGQPSolver(){
 	/* settings */
 	consoleArg.set_option_value("cgqpsolver_maxit", &this->maxit, CGQPSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("cgqpsolver_eps", &this->eps, CGQPSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("cgqpsolver_debug_mode", &this->debug_mode, CGQPSOLVER_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("cgqpsolver_debugmode", &this->debugmode, CGQPSOLVER_DEFAULT_DEBUGMODE);
 	
 	/* timers */
 	
@@ -123,7 +123,7 @@ CGQPSolver<VectorBase>::CGQPSolver(QPData<VectorBase> &new_qpdata){
 	/* settings */
 	consoleArg.set_option_value("cgqpsolver_maxit", &this->maxit, CGQPSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("cgqpsolver_eps", &this->eps, CGQPSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("cgqpsolver_debug_mode", &this->debug_mode, CGQPSOLVER_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("cgqpsolver_debugmode", &this->debugmode, CGQPSOLVER_DEFAULT_DEBUGMODE);
 	
 	/* timers */
 
@@ -181,7 +181,7 @@ void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print settings */
 	if(this->qpdata){
@@ -337,11 +337,11 @@ void CGQPSolver<VectorBase>::solve() {
 		p *= beta;
 		p += g;
 		
-		if(this->debug_mode >= 10){
+		if(this->debugmode >= 10){
 			coutMaster << "it " << it << ": ||g|| = " << normg << std::endl;
 		}
 
-		if(this->debug_mode >= 100){
+		if(this->debugmode >= 100){
 			coutMaster << "x = " << x << std::endl;
 			coutMaster << "g = " << g << std::endl;
 			coutMaster << "p = " << p << std::endl;
@@ -362,7 +362,7 @@ void CGQPSolver<VectorBase>::solve() {
 	}
 		
 	/* print output */
-	if(this->debug_mode >= 10){
+	if(this->debugmode >= 10){
 		coutMaster << "------------------------" << std::endl;
 		coutMaster << " it_cg = " << it << std::endl;
 		coutMaster << " norm_g = " << normg << std::endl;
@@ -385,7 +385,7 @@ void CGQPSolver<VectorBase>::solve() {
 
 template<class VectorBase>
 double CGQPSolver<VectorBase>::get_fx() const {
-	if(this->debug_mode >= 11) coutMaster << "(CGQPSolver)FUNCTION: get_fx()" << std::endl;
+	if(this->debugmode >= 11) coutMaster << "(CGQPSolver)FUNCTION: get_fx()" << std::endl;
 	
 	return this->fx;	
 }

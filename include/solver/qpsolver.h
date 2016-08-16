@@ -8,14 +8,14 @@
 #define	PASC_QPSOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
+extern int DEBUGMODE;
 
 #include "pascinference.h"
 #include "data/qpdata.h"
 
 #define QPSOLVER_DEFAULT_MAXIT 1000
 #define QPSOLVER_DEFAULT_EPS 0.0001
-#define QPSOLVER_DEFAULT_DEBUG_MODE 0
+#define QPSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
 
@@ -108,7 +108,7 @@ QPSolver<VectorBase>::QPSolver(){
 
 	consoleArg.set_option_value("qpsolver_maxit", &this->maxit, QPSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("qpsolver_eps", &this->eps, QPSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("qpsolver_debug_mode", &this->debug_mode, QPSOLVER_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("qpsolver_debugmode", &this->debugmode, QPSOLVER_DEFAULT_DEBUGMODE);
 
 	this->child_solvertype = SOLVER_AUTO;
 
@@ -125,7 +125,7 @@ QPSolver<VectorBase>::QPSolver(QPData<VectorBase> &new_qpdata){
 
 	consoleArg.set_option_value("qpsolver_maxit", &this->maxit, QPSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("qpsolver_eps", &this->eps, QPSOLVER_DEFAULT_EPS);
-	consoleArg.set_option_value("qpsolver_debug_mode", &this->debug_mode, QPSOLVER_DEFAULT_DEBUG_MODE);
+	consoleArg.set_option_value("qpsolver_debugmode", &this->debugmode, QPSOLVER_DEFAULT_DEBUGMODE);
 			
 	this->child_solvertype = SOLVER_AUTO;
 
@@ -154,7 +154,7 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -180,7 +180,7 @@ void QPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	/* print settings */
 	output_global <<  " - maxit:       " << this->maxit << std::endl;
 	output_global <<  " - eps:         " << this->eps << std::endl;
-	output_global <<  " - debug_mode:  " << this->debug_mode << std::endl;
+	output_global <<  " - debugmode:  " << this->debugmode << std::endl;
 
 	output_global <<  " - child solver: " << std::endl;
 	output_global.push();
@@ -323,7 +323,7 @@ void QPSolver<VectorBase>::solve() {
 	}
 
 	/* update settings of child solver */
-//	child_solver->debug_mode = this->debug_mode;
+//	child_solver->debugmode = this->debugmode;
 //	child_solver->eps = this->eps;
 
 	/* call solve function to child solver */

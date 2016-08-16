@@ -30,7 +30,7 @@ static void add_options(boost::program_options::options_description *description
 			("tssolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("tssolver_eps", boost::program_options::value<double>(), "precision [double]")
 			("tssolver_init_permute", boost::program_options::value<bool>(), "permute initial approximation subject to decomposition [bool]")
-			("tssolver_debug_mode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2/3]")
+			("tssolver_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2/3]")
 			("tssolver_debug_print_annealing", boost::program_options::value<bool>(), "print info about annealing steps")
 			("tssolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
 			("tssolver_debug_print_theta", boost::program_options::value<bool>(), "print theta solver info")
@@ -44,7 +44,7 @@ static void add_options(boost::program_options::options_description *description
 		opt_multicgsolver.add_options()
 			("multicgsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("multicgsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("multicgsolver_debug_mode", boost::program_options::value<int>(), "debug mode [int]");
+			("multicgsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
 		opt_solvers.add(opt_multicgsolver);
 
 		/* QPSOLVER */
@@ -52,7 +52,7 @@ static void add_options(boost::program_options::options_description *description
 		opt_qpsolver.add_options()
 			("qpsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("qpsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("qpsolver_debug_mode", boost::program_options::value<int>(), "debug mode [int]");
+			("qpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
 		opt_solvers.add(opt_qpsolver);
 
 		/* CGQPSOLVER */
@@ -60,7 +60,7 @@ static void add_options(boost::program_options::options_description *description
 		opt_cgqpsolver.add_options()
 			("cgqpsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("cgqpsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("cgqpsolver_debug_mode", boost::program_options::value<int>(), "debug mode [int]");
+			("cgqpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
 		opt_solvers.add(opt_cgqpsolver);
 
 		/* SPGQPSOLVER */
@@ -78,7 +78,7 @@ static void add_options(boost::program_options::options_description *description
 			("spgqpsolver_stop_normgp_normb", boost::program_options::value<bool>(), "stopping criteria based on norm(gp) and norm(b) [bool]")
 			("spgqpsolver_stop_Anormgp_normb", boost::program_options::value<bool>(), "stopping criteria based on A-norm(gp) and norm(b) [bool]")
 			("spgqpsolver_stop_difff", boost::program_options::value<bool>(), "stopping criteria based on difference of object function [bool]")
-			("spgqpsolver_debug_mode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
+			("spgqpsolver_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
 			("spgqpsolver_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations")
 			("spgqpsolver_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations");

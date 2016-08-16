@@ -23,7 +23,7 @@ class GeneralSolver {
 		GeneralData *data; /**< pointer to data on which the solver operates */
 	public:
 		/* settings */
-		int debug_mode; /**< print info about the progress */
+		int debugmode; /**< print info about the progress */
 		int maxit; /**< max number of iterations */
 		double eps; /**< precision */
 
@@ -114,11 +114,18 @@ class GeneralSolver {
 		 * 
 		 */ 
 		virtual int get_it() const;
+		
+		virtual int get_debugmode() const;
+		virtual void set_debugmode(int debugmode);
+
+		virtual int get_debugmode() const;
+		virtual void set_debugmode(int debugmode);
+		
 };
 
 /* general print, call virtual print() */
 ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralSolver &solver){
-	if(DEBUG_MODE >= 100) coutMaster << "(GeneralSolver)OPERATOR: <<" << std::endl;
+	if(DEBUGMODE >= 100) coutMaster << "(GeneralSolver)OPERATOR: <<" << std::endl;
 	output << solver.get_name();
 	return output;
 }

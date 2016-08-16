@@ -2,7 +2,7 @@
 #define	PASC_SIMPLESOLVER_H
 
 /* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
+extern int DEBUGMODE;
 
 #include "pascinference.h"
 #include "data/simpledata.h"
@@ -55,7 +55,7 @@ SimpleSolver<VectorBase>::SimpleSolver(){
 	/* settings */
 	this->maxit = 0;
 	this->eps = 0;
-	this->debug_mode = 0;
+	this->debugmode = 0;
 
 	/* prepare timers */
 	this->timer_solve.restart();	
@@ -72,7 +72,7 @@ SimpleSolver<VectorBase>::SimpleSolver(SimpleData<VectorBase> &new_simpledata){
 	/* settings */
 	this->maxit = 0;
 	this->eps = 0;
-	this->debug_mode = 0;
+	this->debugmode = 0;
 
 	/* prepare timers */
 	this->timer_solve.restart();	
@@ -98,7 +98,7 @@ void SimpleSolver<VectorBase>::print(ConsoleOutput &output) const {
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
 	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(simpledata){
@@ -120,7 +120,7 @@ void SimpleSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput
 	/* print settings */
 	output_global <<  " - maxit:      " << this->maxit << std::endl;
 	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debug_mode: " << this->debug_mode << std::endl;
+	output_global <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(simpledata){
