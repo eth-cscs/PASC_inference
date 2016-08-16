@@ -38,8 +38,25 @@ problem_parameters = "--test_cutdata=true --test_scaledata=false --test_annealin
 # the upper estimation of computing time
 problem_time = "00:10:00"; 
 
+# machine parameters
+architecture = "CPU8";
+Ngpu = 0;
+Nthreads = 8;
+
 # generate bash scripts
-batchfile_list = write_batchfiles(image_dir, image_name, dimensions, noises, epssqrs, Ks, Ns, problem_name, problem_time, problem_parameters, library_path, "CPU8", 8, 0);
+print "Preparing batch scripts: %s (Nthreads=%d, Ngpu=%d)" % (architecture,Nthreads,Ngpu)
+batchfile_list = [];
+for dimension in dimensions:
+    for noise in noises:
+        for epssqr in epssqrs:
+            for K in Ks:
+                for N in Ns:
+                    image_path = "%s/%s_%s_%s_%s.bin" % (image_dir,image_name,dimension[0],dimension[1],noise);
+                    problem_name_full = "%s_%s_w%s_h%s_noise%s_epssqr%f_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (problem_name,image_name,dimension[0],dimension[1],noise,epssqr,K,architecture,N,Nthreads,Ngpu)
+                    print " - %s: %s" % (problem_name, problem_name_full);
+                    problem_parameters_full = "%s --test_image_filename=\"%s\" --test_image_out=\"%s\" --test_width=%s --test_height=%s --test_epssqr=%f --test_K=%s --test_shortinfo_header='image_name,width,height,noise,epssqr,K,architecture,N,Nthreads,Ngpu,' --test_shortinfo_values='%s,%d,%d,%s,%f,%d,%s,%d,%d,%d,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, image_path, problem_name_full, dimension[0], dimension[1], epssqr, K, image_name, dimension[0], dimension[1], noise, epssqr, K, architecture, N, Nthreads, Ngpu, problem_name_full);
+                    batchfile_name = write_batchfile(problem_name, problem_name_full, problem_time, problem_parameters_full, library_path, architecture, N, Nthreads, Ngpu);
+                    batchfile_list.append(batchfile_name);
 
 # run bash scripts
 commit_batchfiles(batchfile_list, "c11", "normal")
