@@ -3,7 +3,7 @@
 #
 
 # import my stuff
-from myscripts import write_batchfiles
+from myscripts import write_batchfile
 from myscripts import commit_batchfiles
 from myscripts import show_jobs
 

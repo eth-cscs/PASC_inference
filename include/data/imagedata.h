@@ -296,9 +296,10 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 //	gammavector->save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
-	oss_name_of_file << "results/" << filename << "_gamma.txt";
-	gammasave.save_ascii(oss_name_of_file.str());
-	oss_name_of_file.str("");
+	/* save gamma as txt */
+//	oss_name_of_file << "results/" << filename << "_gamma.txt";
+//	gammasave.save_ascii(oss_name_of_file.str());
+//	oss_name_of_file.str("");
 
 	/* compute recovered image */
 	Vec gammak_Vec;
