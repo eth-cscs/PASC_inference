@@ -14,7 +14,7 @@ extern int DEBUGMODE;
 #include "data/qpdata.h"
 
 #define QPSOLVER_DEFAULT_MAXIT 1000
-#define QPSOLVER_DEFAULT_EPS 0.0001
+#define QPSOLVER_DEFAULT_EPS 1e-9
 #define QPSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
@@ -323,8 +323,9 @@ void QPSolver<VectorBase>::solve() {
 	}
 
 	/* update settings of child solver */
-//	child_solver->debugmode = this->debugmode;
-//	child_solver->eps = this->eps;
+	child_solver->set_debugmode(this->get_debugmode());
+	child_solver->set_maxit(this->get_maxit());
+	child_solver->set_eps(this->get_eps());
 
 	/* call solve function to child solver */
 	child_solver->solve();
