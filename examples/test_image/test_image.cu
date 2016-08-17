@@ -126,6 +126,16 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_width              = " << std::setw(30) << width << " (width of image)" << std::endl;
 	coutMaster << " test_height             = " << std::setw(30) << height << " (height of image)" << std::endl;
 	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	if(given_Theta){
+		coutMaster << " test_Theta              = " << std::setw(30) << "[";
+		for(int k=0;k<K;k++){
+			coutMaster << Theta_solution[k];
+			if(k<K-1){
+				coutMaster << ",";
+			}
+		}
+		coutMaster << "]" << std::endl;
+	}
 	coutMaster << " test_graph_filename     = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
 	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
 	coutMaster << " test_epssqr             = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
