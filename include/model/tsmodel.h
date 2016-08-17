@@ -51,7 +51,11 @@ class TSModel: public GeneralModel {
 
 		virtual GeneralVector<VectorBase> *get_coordinatesVTK() const;
 		virtual int get_coordinatesVTK_dim() const;
-	
+
+		/** @brief get value of AIC
+		 *  
+		 * @param L object function value
+		 */ 
 		virtual double get_aic(double L) const;
 		
 		/** @brief alloc memory for gamma solver

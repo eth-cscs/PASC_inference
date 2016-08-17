@@ -26,10 +26,16 @@ extern int DEBUG_MODE;
 
 #include "data/tsdata.h"
 
+/* default type of matrix: 0=FREE, 1=SPARSE */
 #define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 1
+
 
 namespace pascinference {
 
+/** \class GraphH1FEMModel
+ *  \brief time-series model with quadratic penalty time-space regularisation.
+ *
+*/
 template<class VectorBase>
 class GraphH1FEMModel: public TSModel<VectorBase> {
 	protected:
@@ -42,15 +48,39 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
 
-		int matrix_type; /**< type of used matrix 0=FREE/1=SPARSE */
+		int matrix_type; /**< type of used matrix 0=FREE,1=SPARSE */
 		
 	public:
-	
+
+		/** @brief constructor from data and regularisation constant
+		 * 
+		 * @param tsdata time-series data on which model operates
+		 * @param epssqr regularisation constant
+		 */ 	
 		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr);
+
+		/** @brief destructor 
+		 */ 
 		~GraphH1FEMModel();
 
+		/** @brief print info about model
+		 * 
+		 * @param output where to print
+		 */	
 		void print(ConsoleOutput &output) const;
+
+		/** @brief print info about model
+		 * 
+		 * @param output_global where to print global info
+		 * @param output_local where to print local info
+		 */	
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+
+		/** @brief print solution of the model
+		 * 
+		 * @param output_global where to print global part
+		 * @param output_local where to print local part
+		 */	
 		void printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		
 		std::string get_name() const;
