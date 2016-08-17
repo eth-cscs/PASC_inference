@@ -103,7 +103,7 @@ int main( int argc, char *argv[] )
 	/* decomposition */
 //	Decomposition decomposition(T, DDT_size); /* pure time */
 //	Decomposition decomposition(T, graph, DDR_size); /* pure space */
-	Decomposition decomposition(T, DDT_size, graph, DDR_size); /* time and space */
+	Decomposition decomposition(T, graph, 1, 1, DDT_size, DDR_size); /* time and space */
 
 	decomposition.print_content(coutMaster, coutAll);
 

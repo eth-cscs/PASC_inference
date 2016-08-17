@@ -47,6 +47,7 @@ make_directory("scripts")
 make_directory("batch")
 make_directory("batch_out")
 make_directory("shortinfo")
+make_directory("log")
 
 # --------- include test cmake functions --------
 include("test_kmeans/test_kmeans.cmake")

@@ -153,7 +153,7 @@ int main( int argc, char *argv[] )
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
-	oss_name_of_file_log << "results/image_p" << GlobalManager.get_rank() << ".txt";
+	oss_name_of_file_log << "log/" << image_out << "_w" << width << "_h" << height << "_K" << K << "_epssqr" << epssqr << "_p" << GlobalManager.get_rank() << ".txt";
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
@@ -177,7 +177,7 @@ int main( int argc, char *argv[] )
 	Decomposition decomposition(1, *graph, K, 1, DDR_size);
 	decomposition.print(coutMaster);
 
-	graph->saveVTK("results/graph.vtk");
+//	graph->saveVTK("results/graph.vtk");
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;

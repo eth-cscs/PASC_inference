@@ -13,9 +13,6 @@
 
 typedef petscvector::PetscVector PetscVector;
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
-
 #include <iostream>
 #include "common/common.h"
 #include "common/bgmgraph.h"
@@ -51,9 +48,12 @@ class EdfData: public TSData<VectorBase> {
 		Record *hdr_records_detail;
 		bool free_hdr_records_detail;
 
-		int R;
-		
 		void edfRead(std::string filename, int max_record_nmb = -1);
+
+		/* preliminary data */
+		int Tpreliminary;
+		GeneralVector<VectorBase> *datavectorpreliminary;
+
 	public:
 		EdfData(std::string filename_data, int max_record_nmb = -1);
 		~EdfData();
@@ -67,7 +67,8 @@ class EdfData: public TSData<VectorBase> {
 
 		void saveVTK(std::string filename) const;
 
-		int get_R() const;
+		int get_Tpreliminary() const;
+		void set_decomposition(Decomposition &decomposition);
 
 };
 
@@ -182,32 +183,15 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 
 	/* ------ PREPARE DATAVECTOR ------ */
 	/* compute vector lengths */
-	T = hdr_records_detail[0].hdr_samples*hdr_records;
-	R = hdr_ns-1;
+	this->Tpreliminary = hdr_records_detail[0].hdr_samples*hdr_records;
+	int R = hdr_ns-1;
 
-	/* for data prepare vector of length T and spit it into processors */
-	Vec layout;
-
-	/* try to make a global vector of length T and then get size of local portion */
-	TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
-	TRY( VecSetSizes(layout,PETSC_DECIDE,this->T) );
-	TRY( VecSetFromOptions(layout) );
-	/* get the ownership range - now I know how much I will calculate from the time-series */
-	TRY( VecGetLocalSize(layout,&(this->Tlocal)) );
-	TRY( VecDestroy(&layout) ); /* destroy testing vector - it is useless now */
-
-	Vec datavector_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD,&datavector_Vec) );
-	TRY( VecSetSizes(datavector_Vec,this->Tlocal*R,T*R) );
-	TRY( VecSetFromOptions(datavector_Vec) );
-	this->datavector = new GeneralVector<PetscVector>(datavector_Vec);
-	this->destroy_datavector = true;
-
-	/* get ownership range */
-	int t_begin, t_end; 
-	TRY( VecGetOwnershipRange(datavector_Vec, &t_begin, &t_end) );
-	t_begin = ((double)t_begin)/((double)R);
-	t_end = ((double)t_end)/((double)R);			
+	/* prepare preliminary datavector and load data */
+	Vec datapreload_Vec;
+	TRY( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
+	TRY( VecSetSizes(datapreload_Vec,PETSC_DECIDE,Tpreliminary*R) );
+	TRY( VecSetFromOptions(datapreload_Vec) );
+	this->datavectorpreliminary = new GeneralVector<PetscVector>(datapreload_Vec);
 
 	/* ------ RECORDS ------ */
 	int recnum, ii, samplei, index;
@@ -223,22 +207,45 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 			for(samplei=0; samplei < hdr_records_detail[ii].hdr_samples; samplei++){
 				myfile.read((char *)&value, sizeof(int16_t)); /* read block of memory */
 				value =  value * scalefac + dc;
-				index = ii*this->T + recnum*hdr_records_detail[ii].hdr_samples + samplei;
-				TRY( VecSetValue(datavector_Vec, index, value, INSERT_VALUES) );
-
+				index = ii*this->Tpreliminary + recnum*hdr_records_detail[ii].hdr_samples + samplei;
+				TRY( VecSetValue(datapreload_Vec, index, value, INSERT_VALUES) );
 			}
         }
     }
 
 	/* vector is prepared */
-	TRY( VecAssemblyBegin(datavector_Vec) );
-	TRY( VecAssemblyEnd(datavector_Vec) );
+	TRY( VecAssemblyBegin(datapreload_Vec) );
+	TRY( VecAssemblyEnd(datapreload_Vec) );
 
 	/* close file */
     myfile.close();		
 
 	LOG_FUNC_END
 }
+
+/* set decomposition - from preliminary to real data */
+template<class VectorBase>
+void EdfData<VectorBase>::set_decomposition(Decomposition &new_decomposition) {
+	LOG_FUNC_BEGIN
+
+	this->decomposition = &new_decomposition;
+
+	/* prepare real datavector */
+	Vec data_Vec;
+	this->decomposition->createGlobalVec_data(&data_Vec);
+	this->datavector = new GeneralVector<PetscVector>(data_Vec);
+	this->destroy_datavector = true;
+	
+	/* permute orig to new using parallel layout */
+	Vec datapreload_Vec = datavectorpreliminary->get_vector();
+	this->decomposition->permute_TRxdim(datapreload_Vec, data_Vec);
+	
+	/* destroy preliminary data */
+	TRY(VecDestroy(&datapreload_Vec));
+	
+	LOG_FUNC_END
+}
+
 
 /* from filename */
 template<class VectorBase>
@@ -247,8 +254,6 @@ EdfData<VectorBase>::EdfData(std::string filename_data, int max_record_nmb){
 
 	/* read data from input file */
 	edfRead(filename_data, max_record_nmb);
-
-	this->blocksize = R;
 
 	this->destroy_gammavector = false;
 	this->destroy_thetavector = false;
@@ -304,23 +309,28 @@ void EdfData<VectorBase>::print(ConsoleOutput &output) const {
 */
 	output <<  "----------------------------------------------------------------" << std::endl;
 
-	if(this->tsmodel){
-		output <<  " - T:           " << this->get_T() << std::endl;
-		output <<  " - xdim:        " << this->get_xdim() << std::endl;
-		output <<  " - K:           " << this->tsmodel->get_K() << std::endl;
-		output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
-	} else {
-		output <<  " - model:       NO" << std::endl;
+	output <<  " - Tpreliminary: " << this->get_T() << std::endl;
+
+	if(this->decomposition){
+		output <<  " - T           : " << this->get_T() << std::endl;
+		output <<  " - xdim        : " << this->get_xdim() << std::endl;
+		output <<  " - K           : " << this->get_K() << std::endl;
+		output <<  " - R           : " << this->get_R() << std::endl;
 	}
-	output <<  " - R:           " << this->get_R() << std::endl;
+
+	if(this->tsmodel){
+		output <<  " - model       : " << this->tsmodel->get_name() << std::endl;
+	} else {
+		output <<  " - model       : NO" << std::endl;
+	}
 	
-	output <<  " - datavector:  ";
+	output <<  " - datavector  : ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
 	} else {
 		output << "NO" << std::endl;
 	}
-	output <<   " - gammavector: ";
+	output <<  " - gammavector : ";
 	if(this->gammavector){
 		output << "YES (size: " << this->gammavector->size() << ")" << std::endl;
 	} else {
@@ -373,42 +383,47 @@ void EdfData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &out
 	output_global <<  "----------------------------------------------------------------" << std::endl;
 	
 	/* give information about presence of the data */
-	if(this->tsmodel){
-		output_global <<  " - T:           " << this->get_T() << std::endl;
-		output_local  <<  "  - Tlocal:     " << this->tsmodel->get_Tlocal() << std::endl;
+	output_global <<  " - Tpreliminary: " << this->get_T() << std::endl;
+
+	if(this->decomposition){
+		output_global <<  " - T           : " << this->get_T() << std::endl;
+		output_local  <<  "  - Tlocal     : " << this->get_Tlocal() << std::endl;
 		output_local.synchronize();
-
-		output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
-		output_global <<  " - K:           " << this->tsmodel->get_K() << std::endl;
-
-		output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
-	} else {
-		output_global <<  " - model:       NO" << std::endl;
+		output_global <<  " - xdim        : " << this->get_xdim() << std::endl;
+		output_global <<  " - K           : " << this->get_K() << std::endl;
+		output_global <<  " - R           : " << this->get_R() << std::endl;
+		output_local  <<  "  - Rlocal     : " << this->get_Rlocal() << std::endl;
+		output_local.synchronize();
 	}
-	output_global <<  " - R:           " << this->get_R() << std::endl;
+
+	if(this->tsmodel){
+		output_global <<  " - model       : " << this->tsmodel->get_name() << std::endl;
+	} else {
+		output_global <<  " - model       : NO" << std::endl;
+	}
 	
-	output_global <<  " - datavector:  ";
+	output_global <<  " - datavector  : ";
 	if(this->datavector){
 		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
-		output_local  <<  "  - local size: " << this->datavector->local_size() << std::endl;
+		output_local  <<  "  - local size : " << this->datavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
 		output_global << "NO" << std::endl;
 	}
 	
-	output_global <<   " - gammavector: ";
+	output_global <<  " - gammavector : ";
 	if(this->gammavector){
 		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
-		output_local  <<  "  - local size: " << this->gammavector->local_size() << std::endl;
+		output_local  <<  "  - local size : " << this->gammavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
 		output_global << "NO" << std::endl;
 	}
 	
-	output_global <<   " - thetavector: ";
+	output_global << " - thetavector : ";
 	if(this->thetavector){
 		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
-		output_local  <<  "  - local size: " << this->thetavector->local_size() << std::endl;
+		output_local  <<  "  - local size : " << this->thetavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
 		output_global << "NO" << std::endl;
@@ -424,24 +439,24 @@ template<class VectorBase>
 void EdfData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* print the content of the data */
-	output <<  " - datavector: ";
+	output <<  " - datavector  : ";
 	if(this->datavector){
 		output << *this->datavector << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
 
-	output <<  " - gammavector: ";
+	output <<  " - gammavector : ";
 	if(this->gammavector){
 		output << *this->gammavector << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
 
-	output <<  " - thetavector: ";
+	output <<  " - thetavector : ";
 	if(this->thetavector){
 		output << *this->thetavector << std::endl;
 	} else {
@@ -459,7 +474,7 @@ void EdfData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutpu
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */
-	output_local <<  " - datavector: ";
+	output_local <<  " - datavector : ";
 	if(this->datavector){
 		output_local << *this->datavector << std::endl;
 	} else {
@@ -467,7 +482,7 @@ void EdfData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutpu
 	}
 	output_local.synchronize();
 
-	output_local <<  " - gammavector: ";
+	output_local <<  " - gammavector : ";
 	if(this->gammavector){
 		output_local << *this->gammavector << std::endl;
 	} else {
@@ -475,7 +490,7 @@ void EdfData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutpu
 	}
 	output_local.synchronize();
 
-	output_local <<  " - thetavector: ";
+	output_local <<  " - thetavector : ";
 	if(this->thetavector){
 		output_local << *this->thetavector << std::endl;
 	} else {
@@ -494,8 +509,8 @@ std::string EdfData<VectorBase>::get_name() const {
 }
 
 template<class VectorBase>
-int EdfData<VectorBase>::get_R() const{
-	return this->R;
+int EdfData<VectorBase>::get_Tpreliminary() const{
+	return this->Tpreliminary;
 }
 
 template<>
@@ -504,11 +519,19 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	timer_saveVTK.restart();
 	timer_saveVTK.start();
 
-	int t,k,r;
 	int T = get_T();
 	int Tlocal = get_Tlocal();
+	int Tbegin = get_Tbegin();
+	int Tend = get_Tend();
+	const int *Tranges = decomposition->get_DDT_ranges();
+
 	int K = get_K();
 	int R = get_R();
+	int Rlocal = get_Rlocal();
+	int *DDR_affiliation = decomposition->get_DDR_affiliation();
+	int DDR_rank = decomposition->get_DDR_rank();
+	int DDR_size = decomposition->get_DDR_size();
+
 	int xdim = get_xdim();
 
 	int prank = GlobalManager.get_rank();
@@ -531,8 +554,10 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		myfile << "<?xml version=\"1.0\"?>\n";
 		myfile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
 		myfile << "<Collection>\n";
-		for(t=0;t<T;t++){
-			myfile << " <DataSet timestep=\"" << t << "\" group=\"\" part=\"0\" file=\"" << filename << "_" << t <<".vtu\"/>\n";
+		for(int t=0;t<T;t++){
+			for(int r=0;r<DDR_size;r++){
+				myfile << " <DataSet timestep=\"" << t << "\" group=\"\" part=\"r\" file=\"" << filename << "_" << r << "_" << t <<".vtu\"/>\n";
+			}
 		}
 
 		myfile << "</Collection>\n";
@@ -543,14 +568,38 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 
 	TRY( PetscBarrier(NULL));
 
+	/* compute recovered vector */
+	Vec gammak_Vec;
+	IS gammak_is;
+	
+	Vec data_recovered_Vec;
+	TRY( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
+	TRY( VecSet(data_recovered_Vec,0.0));
+	GeneralVector<PetscVector> data_recovered(data_recovered_Vec);
+
+	double *theta_arr;
+	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
+
+	for(int k=0;k<K;k++){ 
+		/* get gammak */
+		this->decomposition->createIS_gammaK(&gammak_is, k);
+		TRY( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+
+		/* add to recovered image */
+		TRY( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
+
+		TRY( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRY( ISDestroy(&gammak_is) );
+	}	
+
 	double *data_arr;
 	TRY( VecGetArray(datavector->get_vector(), &data_arr) );
 
+	double *data_recovered_arr;
+	TRY( VecGetArray(data_recovered_Vec, &data_recovered_arr) );
+
 	double *gamma_arr;
 	TRY( VecGetArray(gammavector->get_vector(), &gamma_arr) );
-
-	double *theta_arr;
-	TRY( VecGetArray(thetavector->get_vector(), &theta_arr) );
 
 	int coordinates_dim = tsmodel->get_coordinatesVTK_dim();
 	double *coordinates_arr;
@@ -560,41 +609,42 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	int gamma_maxk;
 
 	/* each processor writes its own portion of data */
-	for(t=0;t < Tlocal;t++){
-		oss_filename << "results/" << filename << "_" << get_Tbegin() + t << ".vtu";
-		myfile.open(oss_filename.str().c_str());
+	for(int t=Tbegin;t < Tend;t++){
 		oss_filename.str("");
+		oss_filename << "results/" << filename << "_" << DDR_rank << "_" << t << ".vtu";
+
+		myfile.open(oss_filename.str().c_str());
 
 		myfile << "<?xml version=\"1.0\"?>\n";
 		myfile << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
 		myfile << "  <UnstructuredGrid>\n";
-		myfile << "	  <Piece NumberOfPoints=\"" << get_R() << "\" NumberOfCells=\"0\" >\n";
+		myfile << "	  <Piece NumberOfPoints=\"" << Rlocal << "\" NumberOfCells=\"0\" >\n";
 		myfile << "      <PointData Scalars=\"scalars\">\n";
 
-		/* original time-serie data */
+		/* original data */
 		myfile << "        <DataArray type=\"Float32\" Name=\"original\" format=\"ascii\">\n";
-		for(r=0;r<R;r++){
-			myfile << data_arr[r*Tlocal+t] << "\n";
+		for(int r=0;r<Rlocal;r++){
+			myfile << data_arr[(t-Tbegin)*Rlocal+r] << "\n";
 		}
 		myfile << "        </DataArray>\n";
 
 		/* value of gamma */
-		for(k=0;k<K;k++){
+		for(int k=0;k<K;k++){
 			myfile << "        <DataArray type=\"Float32\" Name=\"gamma_" << k << "\" format=\"ascii\">\n";
-			for(r=0;r<R;r++){
-				myfile << gamma_arr[t*K*R + r*K + k] << "\n";
+			for(int r=0;r<Rlocal;r++){
+				myfile << gamma_arr[(t-Tbegin)*Rlocal*K+r*K+k] << "\n";
 			}
 			myfile << "        </DataArray>\n";
 		}
 
 		/* cluster affiliation */
 		myfile << "        <DataArray type=\"Float32\" Name=\"gamma_max\" format=\"ascii\">\n";
-		for(r=0;r<R;r++){
+		for(int r=0;r<Rlocal;r++){
 			gamma_max = 0.0;
 			gamma_maxk = 0;
-			for(k=0;k<K;k++){
-				if(gamma_arr[t*K*R + r*K + k] > gamma_max){
-					gamma_max = gamma_arr[t*K*R + r*K + k];
+			for(int k=0;k<K;k++){
+				if(gamma_arr[(t-Tbegin)*Rlocal*K + r*K + k] > gamma_max){
+					gamma_max = gamma_arr[(t-Tbegin)*Rlocal*K + r*K + k];
 					gamma_maxk = k;
 				}
 			}
@@ -602,42 +652,39 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		}
 		myfile << "        </DataArray>\n";
 
-		/* recovered data */
+		/* original data */
 		myfile << "        <DataArray type=\"Float32\" Name=\"recovered\" format=\"ascii\">\n";
-		for(r=0;r<R;r++){
-			gamma_max = 0.0;
-			for(k=0;k<K;k++){
-				gamma_max += gamma_arr[t*K*R + r*K + k]*theta_arr[k];
-			}
-			myfile << gamma_max << "\n";
+		for(int r=0;r<Rlocal;r++){
+			myfile << data_recovered_arr[(t-Tbegin)*Rlocal+r] << "\n";
 		}
 		myfile << "        </DataArray>\n";
-
-		
 		myfile << "      </PointData>\n";
+
 		myfile << "      <CellData Scalars=\"scalars\">\n";
 		myfile << "      </CellData>\n";
 		myfile << "      <Points>\n";
 		myfile << "        <DataArray type=\"Float32\" NumberOfComponents=\"3\" format=\"ascii\">\n";
-		for(r=0;r<get_R();r++){
-			/* 1D */
-			if(coordinates_dim == 1){
-				myfile << coordinates_arr[r] << " 0 0\n";
-			}
 
-			/* 2D */
-			if(coordinates_dim == 2){
-				myfile << coordinates_arr[r] << " " << coordinates_arr[r+R] << " 0\n";
-			}
+		for(int r=0;r<R;r++){
+			if(DDR_rank == DDR_affiliation[r]){
+				/* 1D */
+				if(coordinates_dim == 1){
+					myfile << coordinates_arr[r] << " 0 0\n";
+				}
 
-			/* 3D */
-			if(coordinates_dim == 3){
-				myfile << coordinates_arr[r] << coordinates_arr[r+R] << " " << coordinates_arr[r+2*R] << "\n";
-			}
+				/* 2D */
+				if(coordinates_dim == 2){
+					myfile << coordinates_arr[r] << " " << coordinates_arr[r+R] << " 0\n";
+				}
 
+				/* 3D */
+				if(coordinates_dim == 3){
+					myfile << coordinates_arr[r] << coordinates_arr[r+R] << " " << coordinates_arr[r+2*R] << "\n";
+				}
+			}
 		}
+		
 		myfile << "        </DataArray>\n";
-
 		myfile << "      </Points>\n";
 		myfile << "      <Cells>\n";
 		myfile << "        <DataArray type=\"Int32\" Name=\"connectivity\" format=\"ascii\">\n";
@@ -650,13 +697,14 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		myfile << "    </Piece>\n";
 		myfile << "  </UnstructuredGrid>\n";
 		myfile << "</VTKFile>\n";
-		
+
 		myfile.close();
 	}
 
 	TRY( VecRestoreArray(gammavector->get_vector(), &gamma_arr) );
 	TRY( VecRestoreArray(thetavector->get_vector(), &theta_arr) );
 	TRY( VecRestoreArray(datavector->get_vector(), &data_arr) );
+	TRY( VecRestoreArray(data_recovered_Vec, &data_arr) );
 	TRY( VecRestoreArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
 
 	timer_saveVTK.stop();

@@ -68,6 +68,7 @@ class Decomposition {
 		int get_Tbegin() const;
 		int get_Tend() const;
 		int get_DDT_size() const;
+		int get_DDT_rank() const;
 		const int *get_DDT_ranges() const;
 
 		int get_R() const;
@@ -75,15 +76,13 @@ class Decomposition {
 		int get_Rend() const;
 		int get_Rlocal() const;
 		int get_DDR_size() const;
+		int get_DDR_rank() const;
 		int *get_DDR_affiliation() const;
 		int *get_DDR_permutation() const;
 		int *get_DDR_invpermutation() const;
 		int *get_DDR_lengths() const;
 		int *get_DDR_ranges() const;
 		BGMGraph *get_graph() const;
-	
-		int get_DDT_rank() const;
-		int get_DDR_rank() const;
 
 		int get_K() const;
 		int get_xdim() const;
@@ -309,6 +308,10 @@ int Decomposition::get_DDT_size() const{
 	return DDT_size;
 }
 
+int Decomposition::get_DDT_rank() const{
+	return DDT_rank;
+}
+
 const int *Decomposition::get_DDT_ranges() const{
 	return DDT_ranges;
 }
@@ -334,6 +337,10 @@ int Decomposition::get_DDR_size() const{
 	return DDR_size;
 }
 
+int Decomposition::get_DDR_rank() const{
+	return DDR_rank;
+}
+
 int *Decomposition::get_DDR_affiliation() const{
 	return DDR_affiliation;
 }
@@ -356,14 +363,6 @@ int *Decomposition::get_DDR_ranges() const{
 
 BGMGraph *Decomposition::get_graph() const{
 	return graph;
-}
-
-int Decomposition::get_DDT_rank() const{
-	return DDT_rank;
-}
-
-int Decomposition::get_DDR_rank() const{
-	return DDR_rank;
 }
 
 int Decomposition::get_K() const{

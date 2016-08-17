@@ -57,6 +57,22 @@ MyType max_array(int my_size, const MyType *my_array){
 	return return_value;
 }
 
+/** @brief find largest difference between cosequent elements in array
+*
+*  @param my_size the size of array (number of elements) > 1
+*  @param my_array pointer to array
+*/
+template<class MyType>
+MyType max_diff_array(int my_size, const MyType *my_array){
+	MyType return_value = my_array[1] - my_array[0];
+	for(int i=2;i<my_size;i++){
+		if((my_array[i]-my_array[i-1]) > return_value){
+			return_value = my_array[i]-my_array[i-1];
+		}
+	}	
+	return return_value;
+}
+
 /** @brief compute sum of some elements in array
 *
 *  @param start index of starting element of subarray
