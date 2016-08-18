@@ -324,8 +324,8 @@ void QPSolver<VectorBase>::solve() {
 
 	/* update settings of child solver */
 	child_solver->set_debugmode(this->get_debugmode());
-	child_solver->set_maxit(this->get_maxit());
-	child_solver->set_eps(this->get_eps());
+//	child_solver->set_maxit(this->get_maxit());
+//	child_solver->set_eps(this->get_eps());
 
 	/* call solve function to child solver */
 	child_solver->solve();
