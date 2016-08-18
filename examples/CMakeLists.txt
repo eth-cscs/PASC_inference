@@ -49,8 +49,11 @@ make_directory("batch_out")
 make_directory("shortinfo")
 make_directory("log")
 
+# copy general scripts
+file(COPY "scripts/" DESTINATION "scripts/"	FILES_MATCHING PATTERN "*")
+
 # --------- include test cmake functions --------
-include("test_kmeans/test_kmeans.cmake")
+#include("test_kmeans/test_kmeans.cmake")
 #include("test_varx/test_varx.cmake")
 include("test_other/test_other.cmake")
 include("test_edf/test_edf.cmake")

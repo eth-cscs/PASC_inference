@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_DDT", &DDT_size, GlobalManager.get_size());
 	consoleArg.set_option_value("test_DDR", &DDR_size, 1);
 
-	consoleArg.set_option_value("test_data_filename", &data_filename, "data/S001R01.edf.txt");
+	consoleArg.set_option_value("test_data_filename", &data_filename, "data/S001R01.edf");
 	consoleArg.set_option_value("test_max_record_nmb", &max_record_nmb, -1);
 	consoleArg.set_option_value("test_graph_coordinates", &graph_coordinates, "data/Koordinaten_EEG_P.bin");
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 2.5);

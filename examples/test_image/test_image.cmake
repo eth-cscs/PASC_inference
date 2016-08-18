@@ -15,16 +15,16 @@ if(${TEST_IMAGE})
 	else()
 		pascadd_executable("test_image/test_image.cpp" "test_image")
 	endif()
-	
-	# copy data
-	file(COPY "test_image/data/" 
-		 DESTINATION "data"
-		 FILES_MATCHING PATTERN "*")
 
 	# copy scripts
 	make_directory("scripts/test_image/")
 	file(COPY "test_image/scripts/" 
-		 DESTINATION "scripts/test_image/"
+		DESTINATION "scripts/test_image/"
+		FILES_MATCHING PATTERN "*")
+	
+	# copy data
+	file(COPY "test_image/data/" 
+		 DESTINATION "data"
 		 FILES_MATCHING PATTERN "*")
 endif()
 
@@ -35,6 +35,12 @@ if(${TEST_IMAGE_TS})
 	else()
 		pascadd_executable("test_image/test_image_ts.cpp" "test_image_ts")
 	endif()
+
+	# copy scripts
+	make_directory("scripts/test_image/")
+	file(COPY "test_image/scripts/" 
+		DESTINATION "scripts/test_image/"
+		FILES_MATCHING PATTERN "*")
 	
 	# copy data
 	file(COPY "test_image/data/" 

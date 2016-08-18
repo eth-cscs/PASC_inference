@@ -13,7 +13,13 @@ if(${TEST_EDF})
 	else()
 		pascadd_executable("test_edf/test_edf.cpp" "test_edf")
 	endif()
-	
+
+	# copy scripts
+	make_directory("scripts/test_edf/")
+	file(COPY "test_image/scripts/" 
+		DESTINATION "scripts/test_edf/"
+		FILES_MATCHING PATTERN "*")
+			
 	# copy data
 	file(COPY "test_edf/data/" 
 		 DESTINATION "data"
