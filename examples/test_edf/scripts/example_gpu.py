@@ -35,7 +35,7 @@ Ns = [1];
 problem_name = "test_edf";
 
 # common parameters
-problem_parameters = "--test_savevtk=true --test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debugmode=2 --spgqpsolver_maxit=1000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true";
+problem_parameters = "--test_savevtk=true --test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debugmode=2 --spgqpsolver_maxit=3000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true";
 
 # the upper estimation of computing time
 problem_time = "00:20:00"; 

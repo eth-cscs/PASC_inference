@@ -11,7 +11,7 @@ if(${USE_BOOST})
 		set(FLAGS_DEF_D "-DUSE_BOOST ${FLAGS_DEF_D}")
 
 		# todo: here write all used libraries of boost
-		set(LIBRARIES_DEF "${LIBRARIES_DEF};boost_program_options")
+		set(LIBRARIES_DEF "${LIBRARIES_DEF};boost_system;boost_filesystem;boost_program_options")
 	else()
 		message(FATAL_ERROR "${Red}Boost library cannot be found.${ColourReset}")
 	endif()

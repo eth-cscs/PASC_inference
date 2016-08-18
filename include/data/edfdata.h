@@ -545,8 +545,14 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 
 	/* master writes the main file */
 	if(prank == 0){
+		/* create folder */
+		oss_filename << "results/" << filename;
+		boost::filesystem::path dir(oss_filename.str().c_str());
+		boost::filesystem::create_directory(dir);
+		oss_filename.str("");
+		
 		/* write to the name of file */
-		oss_filename << "results/" << filename << ".pvd";
+		oss_filename << "results/" << filename << "/" << filename << ".pvd";
 		myfile.open(oss_filename.str().c_str());
 		oss_filename.str("");
 
@@ -556,7 +562,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		myfile << "<Collection>\n";
 		for(int t=0;t<T;t++){
 			for(int r=0;r<DDR_size;r++){
-				myfile << " <DataSet timestep=\"" << t << "\" group=\"\" part=\"r\" file=\"" << filename << "_" << r << "_" << t <<".vtu\"/>\n";
+				myfile << " <DataSet timestep=\"" << t << "\" group=\"\" part=\"r\" file=\"edf_" << r << "_" << t <<".vtu\"/>\n";
 			}
 		}
 
@@ -611,7 +617,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	/* each processor writes its own portion of data */
 	for(int t=Tbegin;t < Tend;t++){
 		oss_filename.str("");
-		oss_filename << "results/" << filename << "_" << DDR_rank << "_" << t << ".vtu";
+		oss_filename << "results/" << filename << "/edf_" << DDR_rank << "_" << t << ".vtu";
 
 		myfile.open(oss_filename.str().c_str());
 

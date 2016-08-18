@@ -61,6 +61,7 @@
 
 	/* load console parameters with boost */
 	#include <boost/program_options.hpp>
+	#include <boost/filesystem.hpp>
 
 #endif
 
