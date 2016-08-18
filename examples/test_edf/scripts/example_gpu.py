@@ -3,9 +3,9 @@
 #
 
 # import my stuff
-from ../myscripts import write_batchfile
-from ../myscripts import commit_batchfiles
-from ../myscripts import show_jobs
+from myscripts import write_batchfile
+from myscripts import commit_batchfiles
+from myscripts import show_jobs
 
 # path to PASC_inference library
 library_path = "~/soft/PASC_inference";

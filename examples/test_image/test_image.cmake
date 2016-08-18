@@ -18,14 +18,12 @@ if(${TEST_IMAGE})
 
 	# copy scripts
 	make_directory("scripts/test_image/")
-	file(COPY "test_image/scripts/" 
-		DESTINATION "scripts/test_image/"
-		FILES_MATCHING PATTERN "*")
+	file(COPY "scripts/" DESTINATION "scripts/test_image/"	FILES_MATCHING PATTERN "*")
+	file(COPY "test_image/scripts/" DESTINATION "scripts/test_image/" FILES_MATCHING PATTERN "*")
 	
 	# copy data
-	file(COPY "test_image/data/" 
-		 DESTINATION "data"
-		 FILES_MATCHING PATTERN "*")
+	file(COPY "test_image/data/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+
 endif()
 
 if(${TEST_IMAGE_TS})
@@ -38,13 +36,12 @@ if(${TEST_IMAGE_TS})
 
 	# copy scripts
 	make_directory("scripts/test_image/")
-	file(COPY "test_image/scripts/" 
-		DESTINATION "scripts/test_image/"
-		FILES_MATCHING PATTERN "*")
+	file(COPY "scripts/" DESTINATION "scripts/test_image/"	FILES_MATCHING PATTERN "*")
+	file(COPY "test_image/scripts/" DESTINATION "scripts/test_image/" FILES_MATCHING PATTERN "*")
 	
 	# copy data
-	file(COPY "test_image/data/" 
-		 DESTINATION "data"
-		 FILES_MATCHING PATTERN "*")
+	file(COPY "test_image/data/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+
+
 endif()
 
