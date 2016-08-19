@@ -236,7 +236,9 @@ int main( int argc, char *argv[] )
 
 /* 6.) save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	mydata.saveVTK(data_out);
+	if(savevtk){
+		mydata.saveVTK(data_out);
+	}
 
 	/* save results into CSV file */
 //	coutMaster << "--- SAVING CSV ---" << std::endl;
