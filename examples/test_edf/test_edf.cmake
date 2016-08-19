@@ -17,7 +17,7 @@ if(${TEST_EDF})
 	# copy scripts
 	make_directory("scripts/test_edf/")
 	file(COPY "scripts/" DESTINATION "scripts/test_edf/"	FILES_MATCHING PATTERN "*")
-	file(COPY "test_image/scripts/" DESTINATION "scripts/test_edf/"	FILES_MATCHING PATTERN "*")
+	file(COPY "test_edf/scripts/" DESTINATION "scripts/test_edf/"	FILES_MATCHING PATTERN "*")
 			
 	# copy data
 	file(COPY "test_edf/data/" DESTINATION "data" FILES_MATCHING PATTERN "*")

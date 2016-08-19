@@ -90,7 +90,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_cutdata_down", &cutdata_down, -200);
 	consoleArg.set_option_value("test_cutdata_up", &cutdata_up, 200);
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
-	consoleArg.set_option_value("test_shiftdata", &scaledata, false);
+	consoleArg.set_option_value("test_shiftdata", &shiftdata, false);
 	consoleArg.set_option_value("test_shiftdata_coeff", &shiftdata_coeff, 200);
 
 	consoleArg.set_option_value("test_shortinfo", &shortinfo, true);
