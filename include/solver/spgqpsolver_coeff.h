@@ -23,11 +23,11 @@
 #define SPGQPSOLVER_COEFF_DEFAULT_SIGMA2 1.0
 #define SPGQPSOLVER_COEFF_DEFAULT_ALPHAINIT 2.0
 
-#define SPGQPSOLVER_COEFF_STOP_NORMGP true
+#define SPGQPSOLVER_COEFF_STOP_NORMGP false
 #define SPGQPSOLVER_COEFF_STOP_ANORMGP false
 #define SPGQPSOLVER_COEFF_STOP_NORMGP_NORMB false
 #define SPGQPSOLVER_COEFF_STOP_ANORMGP_NORMB false
-#define SPGQPSOLVER_COEFF_STOP_DIFFF false
+#define SPGQPSOLVER_COEFF_STOP_DIFFF true
 
 #ifdef USE_PETSCVECTOR
 	typedef petscvector::PetscVector PetscVector;
@@ -818,7 +818,7 @@ void SPGQPSolverC<VectorBase>::solve() {
 		}
 
 		/* stopping criteria */
-		if( this->stop_difff && abs(fx - fx_old) < this->eps){
+		if( this->stop_difff && std::abs(fx - fx_old) < this->eps){
 			break;
 		}
 		if(this->stop_normgp && dd < this->eps){
