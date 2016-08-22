@@ -17,7 +17,8 @@ extern int DEBUG_MODE;
 #include "matrix/blockgraphsparse.h"
 
 #include "feasibleset/simplex_local.h"
-#include "solver/spgqpsolver.h"
+//#include "solver/spgqpsolver.h"
+#include "solver/spgqpsolver_coeff.h"
 #include "data/qpdata.h"
 
 /* theta problem */
@@ -302,7 +303,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
-	*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
+	*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
 
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
