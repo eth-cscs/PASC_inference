@@ -54,7 +54,8 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 		int get_K() const;
 		int get_T() const;
 		int get_Tlocal() const;
-		double get_alpha() const;
+		double get_coeff() const;
+		void set_coeff(double coeff);
 
 };
 
@@ -331,8 +332,13 @@ int BlockGraphSparseMatrix<VectorBase>::get_Rlocal() const {
 }
 
 template<class VectorBase>
-double BlockGraphSparseMatrix<VectorBase>::get_alpha() const { 
+double BlockGraphSparseMatrix<VectorBase>::get_coeff() const {
 	return this->alpha;
+}
+
+template<class VectorBase>
+void BlockGraphSparseMatrix<VectorBase>::set_coeff(double coeff) {
+	this->alpha = coeff;
 }
 
 

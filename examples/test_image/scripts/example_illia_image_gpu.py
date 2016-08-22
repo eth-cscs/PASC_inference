@@ -37,7 +37,7 @@ problem_name = "test_image";
 problem_parameters = "--test_Theta=0.4 --test_Theta=0.6 --test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debugmode=2 --spgqpsolver_maxit=1000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true";
 
 # the upper estimation of computing time
-problem_time = "00:20:00"; 
+problem_time = "00:40:00"; 
 
 # machine parameters
 architecture = "GPU1";
@@ -52,9 +52,9 @@ for dimension in dimensions:
         for K in Ks:
             for N in Ns:
                 image_path = "%s/%s_%s_%s.bin" % (image_dir,image_name,dimension[0],dimension[1]);
-                problem_name_full = "%s_%s_w%s_h%s_epssqr%.10f_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (problem_name,image_name,dimension[0],dimension[1],epssqr,K,architecture,N,Nthreads,Ngpu)
+                problem_name_full = "%s_%s_w%s_h%s_epssqr%.16f_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (problem_name,image_name,dimension[0],dimension[1],epssqr,K,architecture,N,Nthreads,Ngpu)
                 print " - %s: %s" % (problem_name, problem_name_full);
-                problem_parameters_full = "%s --test_image_filename=\"%s\" --test_image_out=\"%s\" --test_width=%s --test_height=%s --test_epssqr=%.10f --test_K=%s --test_shortinfo_header='image_name,width,height,epssqr,K,architecture,N,Nthreads,Ngpu,' --test_shortinfo_values='%s,%d,%d,%.10f,%d,%s,%d,%d,%d,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, image_path, problem_name_full, dimension[0], dimension[1], epssqr, K, image_name, dimension[0], dimension[1], epssqr, K, architecture, N, Nthreads, Ngpu, problem_name_full);
+                problem_parameters_full = "%s --test_image_filename=\"%s\" --test_image_out=\"%s\" --test_width=%s --test_height=%s --test_epssqr=%.16f --test_K=%s --test_shortinfo_header='image_name,width,height,epssqr,K,architecture,N,Nthreads,Ngpu,' --test_shortinfo_values='%s,%d,%d,%.16f,%d,%s,%d,%d,%d,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, image_path, problem_name_full, dimension[0], dimension[1], epssqr, K, image_name, dimension[0], dimension[1], epssqr, K, architecture, N, Nthreads, Ngpu, problem_name_full);
                 batchfile_name = write_batchfile(problem_name, problem_name_full, problem_time, problem_parameters_full, library_path, architecture, N, Nthreads, Ngpu);
                 batchfile_list.append(batchfile_name);
 

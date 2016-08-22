@@ -72,6 +72,9 @@ class GeneralMatrix {
 		template<class VectorBase2>
 		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralMatrix<VectorBase2> &matrix);
 
+		virtual double get_coeff() const;
+		virtual void set_coeff(double coeff);
+
 };
 
 /* print general matrix, call virtual print() */
@@ -93,6 +96,16 @@ template<class VectorBase>
 GeneralMatrixRHS<VectorBase> operator*(const GeneralMatrix<VectorBase> &matrix, const GeneralVector<VectorBase> &x){
 	if(DEBUG_MODE >= 100) coutMaster << "(GeneralMatrixRHS)OPERATOR: *" << std::endl;
 	return GeneralMatrixRHS<VectorBase>(&matrix,&x);	
+}
+
+template<class VectorBase>
+double GeneralMatrix<VectorBase>::get_coeff() const {
+	return 1.0;
+}
+
+template<class VectorBase>
+void GeneralMatrix<VectorBase>::set_coeff(double coeff) {
+	// TODO: write here something really funny
 }
 
 

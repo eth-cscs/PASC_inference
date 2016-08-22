@@ -23,7 +23,7 @@ graph_coeff = 2.5;
 
 # used penalty
 #epssqrs = [1e-6, 2e-6, 3e-6, 4e-6, 5e-6, 6e-6, 7e-6, 8e-6, 9e-6, 1e-5, 2e-5, 3e-5, 4e-5, 5e-5, 6e-5, 7e-5, 8e-5, 9e-5, 1e-4, 5e-4, 1e-3, 1e-2];
-epssqrs = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2];
+epssqrs = [0, 1e-14, 1e-13, 1e-12, 1e-11, 1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2];
 
 # how many clusters to use (value of K)
 Ks = [2];
@@ -51,9 +51,9 @@ batchfile_list = []; # in this list store all generated batch files
 for epssqr in epssqrs:
     for K in Ks:
         for N in Ns:
-            problem_name_full = "%s_%s_epssqr%.10f_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (problem_name,data_name,epssqr,K,architecture,N,Nthreads,Ngpu)
+            problem_name_full = "%s_%s_epssqr%.16f_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (problem_name,data_name,epssqr,K,architecture,N,Nthreads,Ngpu)
             print " - %s: %s" % (problem_name, problem_name_full);
-            problem_parameters_full = "%s --test_data_filename=\"%s\" --test_max_record_nmb=\"%d\" --test_graph_coordinates=\"%s\" --test_graph_coeff=%f --test_data_out=\"%s\" --test_epssqr=%.10f --test_K=%s --test_shortinfo_header='data_name,epssqr,K,architecture,N,Nthreads,Ngpu,' --test_shortinfo_values='%s,%.10f,%d,%s,%d,%d,%d,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, data_path, max_record_nmb, graph_path, graph_coeff, problem_name_full, epssqr, K, data_name, epssqr, K, architecture, N, Nthreads, Ngpu, problem_name_full);
+            problem_parameters_full = "%s --test_data_filename=\"%s\" --test_max_record_nmb=\"%d\" --test_graph_coordinates=\"%s\" --test_graph_coeff=%f --test_data_out=\"%s\" --test_epssqr=%.16f --test_K=%s --test_shortinfo_header='data_name,epssqr,K,architecture,N,Nthreads,Ngpu,' --test_shortinfo_values='%s,%.16f,%d,%s,%d,%d,%d,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, data_path, max_record_nmb, graph_path, graph_coeff, problem_name_full, epssqr, K, data_name, epssqr, K, architecture, N, Nthreads, Ngpu, problem_name_full);
             batchfile_name = write_batchfile(problem_name, problem_name_full, problem_time, problem_parameters_full, library_path, architecture, N, Nthreads, Ngpu);
             batchfile_list.append(batchfile_name);
 
