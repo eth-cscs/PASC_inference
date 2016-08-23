@@ -35,13 +35,12 @@ int main( int argc, char *argv[] )
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
 		("test_graph_filename", boost::program_options::value< std::string >(), "name of input file with graph data (vector in PETSc format) [string]")
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
-		("test_epssqr", boost::program_options::value<double>(), "penalty parameter [double]")
+		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
+		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to set {0;1} [bool]")
 		("test_scaledata", boost::program_options::value<bool>(), "scale to interval {-1,1} [bool]")
 		("test_cutdata", boost::program_options::value<bool>(), "cut data to interval {0,1} [bool]")
-		("test_shiftdata", boost::program_options::value<bool>(), "shift data with -0.5 [bool]")
-		("test_shiftdata_coeff", boost::program_options::value<double>(), "coeficient of data shift [double]")
 		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]")
 		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
@@ -56,10 +55,19 @@ int main( int argc, char *argv[] )
 		return 0;
 	} 
 
+	std::vector<double> epssqr_list;
+	if(consoleArg.set_option_value("test_epssqr", &epssqr_list)){
+		/* sort list */
+		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
+		
+	} else {
+		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		return 0;
+	}
+
 	int K, annealing, width, height; 
-	double epssqr;
-	double graph_coeff, shiftdata_coeff; 
-	bool cutgamma, scaledata, cutdata, printstats, shiftdata, shortinfo;
+	double graph_coeff; 
+	bool cutgamma, scaledata, cutdata, printstats, shortinfo, graph_save;
 
 	std::string image_filename;
 	std::string image_out;
@@ -71,13 +79,11 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_width", &width, 250);
 	consoleArg.set_option_value("test_height", &height, 150);
-	consoleArg.set_option_value("test_epssqr", &epssqr, 0.00001);
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
+	consoleArg.set_option_value("test_graph_save", &graph_save, false);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
 	consoleArg.set_option_value("test_cutdata", &cutdata, true);
-	consoleArg.set_option_value("test_shiftdata", &shiftdata, false);
-	consoleArg.set_option_value("test_shiftdata_coeff", &shiftdata_coeff, -0.5);
 	consoleArg.set_option_value("test_printstats", &printstats, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/usi_text/usi_250_150_02.bin");
@@ -127,24 +133,16 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_height             = " << std::setw(30) << height << " (height of image)" << std::endl;
 	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)" << std::endl;
 	if(given_Theta){
-		coutMaster << " test_Theta              = " << std::setw(30) << "[";
-		for(int k=0;k<K;k++){
-			coutMaster << Theta_solution[k];
-			if(k<K-1){
-				coutMaster << ",";
-			}
-		}
-		coutMaster << "]" << std::endl;
+		coutMaster << " test_Theta              = " << std::setw(30) << print_array(Theta_solution,K) << std::endl;
 	}
 	coutMaster << " test_graph_filename     = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
 	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_epssqr             = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
+	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)" << std::endl;
+	coutMaster << " test_epssqr             = " << std::setw(30) << print_vector(epssqr_list) << " (penalty)" << std::endl;
 	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
 	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
 	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
 	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
-	coutMaster << " test_shiftdata          = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
-	coutMaster << " test_shiftdata_coeff    = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
 	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)" << std::endl;
 	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
@@ -152,9 +150,15 @@ int main( int argc, char *argv[] )
 	coutMaster << "-------------------------------------------" << std::endl << std::endl;
 
 	/* start logging */
-	std::ostringstream oss_name_of_file_log;
-	oss_name_of_file_log << "log/" << image_out << "_w" << width << "_h" << height << "_K" << K << "_epssqr" << epssqr << "_p" << GlobalManager.get_rank() << ".txt";
-	logging.begin(oss_name_of_file_log.str());
+	std::ostringstream oss;
+	oss << "log/" << image_out << ".txt";
+	logging.begin(oss.str());
+	oss.str("");
+
+	/* prepare shortinfo output */
+	std::ofstream shortinfofile;
+	std::ostringstream oss_short_output_values;
+	std::ostringstream oss_short_output_header;
 		
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
@@ -177,7 +181,12 @@ int main( int argc, char *argv[] )
 	Decomposition decomposition(1, *graph, K, 1, DDR_size);
 	decomposition.print(coutMaster);
 
-//	graph->saveVTK("results/graph.vtk");
+	/* save decoposed graph to see if space decomposition is working */
+	if(graph_save){
+		oss << "results/" << image_out << "_graph.vtk";
+		graph->saveVTK(oss.str());
+		oss.str("");
+	}
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
@@ -194,11 +203,6 @@ int main( int argc, char *argv[] )
 		mydata.cutdata(0,1);
 	}
 
-	/* shift data */
-	if(shiftdata){
-		mydata.shiftdata(shiftdata_coeff);
-	}
-
 	/* scale data */
 	if(scaledata){
 		mydata.scaledata(-1,1,0,1);
@@ -206,7 +210,7 @@ int main( int argc, char *argv[] )
 
 /* 4.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr);
+	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
 	mymodel.print(coutMaster,coutAll);
 
 /* 5.) prepare time-series solver */
@@ -219,8 +223,8 @@ int main( int argc, char *argv[] )
 		mysolver.set_solution_theta(Theta_solution);
 	}
 	
-/* 6.) solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+/* 6.) solve the problem with initial epssqr */
+	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---" << std::endl;
 	mysolver.solve();
 
 	/* cut gamma */
@@ -233,18 +237,87 @@ int main( int argc, char *argv[] )
 		mydata.scaledata(0,1,-1,1);
 	}
 
-	/* unshift data */
-	if(shiftdata){
-		mydata.shiftdata(-shiftdata_coeff);
+	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	oss << image_out << "_depth0" << "_epssqr" << epssqr_list[0];
+	mydata.saveImage(oss.str(),true);
+	oss.str("");
+
+	/* write short output */
+	if(shortinfo){
+		shortinfofile.open(shortinfo_filename.c_str());
+
+		/* add provided strings from console parameters */
+		oss_short_output_header << shortinfo_header;
+		oss_short_output_values << shortinfo_values;
+
+		mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
+		/* master writes the file with short info (used in batch script for quick computation) */
+		if( GlobalManager.get_rank() == 0){
+			shortinfofile << oss_short_output_header.str() << std::endl;
+			shortinfofile << oss_short_output_values.str() << std::endl;
+		}
+		TRY( PetscBarrier(NULL) );
+
+		oss_short_output_header.str("");
+		oss_short_output_values.str("");
+		
+		shortinfofile.close();
+	}
+
+/* 7.) solve the problems with other epssqr */
+	for(int depth = 1; depth < epssqr_list.size();depth++){
+		/* set new epssqr */
+		mymodel.set_epssqr(epssqr_list[depth]);
+
+		/* scale data */
+		if(scaledata){
+			mydata.scaledata(-1,1,0,1);
+		}
+
+		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---" << std::endl;
+		mysolver.solve();
+
+		/* cut gamma */
+		if(cutgamma){
+			mydata.cutgamma();
+		}
+
+		/* unscale data */
+		if(scaledata){
+			mydata.scaledata(0,1,-1,1);
+		}
+
+		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+		oss << image_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
+		mydata.saveImage(oss.str(),false);
+		oss.str("");
+		
+		/* write short output */
+		if(shortinfo){
+			shortinfofile.open(shortinfo_filename.c_str());
+
+			/* add provided strings from console parameters */
+			oss_short_output_values << shortinfo_values;
+
+			mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
+			/* master writes the file */
+			if( GlobalManager.get_rank() == 0){
+				shortinfofile << oss_short_output_values.str() << std::endl;
+			}
+			TRY( PetscBarrier(NULL) );
+
+			oss_short_output_header.str("");
+			oss_short_output_values.str("");
+		
+			shortinfofile.close();
+		}
 	}
 
 	/* print solution */
 	coutMaster << "--- THETA SOLUTION ---" << std::endl;
 	mydata.print_thetavector(coutMaster);
-
-/* 7.) save results */
-	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-	mydata.saveImage(image_out);
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;
@@ -253,30 +326,6 @@ int main( int argc, char *argv[] )
 	/* print short info */
 	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
 	mysolver.printstatus(coutMaster);
-
-	/* write short output */
-	if(shortinfo){
-		std::ostringstream oss_short_output_values;
-		std::ostringstream oss_short_output_header;
-		
-		/* add provided strings from console parameters */
-		oss_short_output_header << shortinfo_header;
-		oss_short_output_values << shortinfo_values;
-		
-		mysolver.printshort(oss_short_output_header, oss_short_output_values);
-
-		std::ofstream myfile;
-		myfile.open(shortinfo_filename.c_str());
-		
-		/* master writes the file with short info (used in batch script for quick computation) */
-		if( GlobalManager.get_rank() == 0){
-			myfile << oss_short_output_header.str() << std::endl;
-			myfile << oss_short_output_values.str() << std::endl;
-		}
-		TRY( PetscBarrier(NULL) );
-		
-		myfile.close();
-	}
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

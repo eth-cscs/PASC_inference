@@ -41,7 +41,7 @@ class ImageData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void saveImage(std::string filename) const;
+		void saveImage(std::string filename, bool save_original=true) const;
 
 };
 
@@ -267,7 +267,7 @@ std::string ImageData<VectorBase>::get_name() const {
 }
 
 template<>
-void ImageData<PetscVector>::saveImage(std::string filename) const{
+void ImageData<PetscVector>::saveImage(std::string filename, bool save_original) const{
 	Timer timer_saveImage; 
 	timer_saveImage.restart();
 	timer_saveImage.start();
@@ -284,22 +284,18 @@ void ImageData<PetscVector>::saveImage(std::string filename) const{
 	GeneralVector<PetscVector> gammasave(gammasave_Vec);
 
 	/* save datavector - just for fun; to see if it was loaded in a right way */
-	oss_name_of_file << "results/" << filename << "_original.bin";
-	this->decomposition->permute_TRxdim(datasave_Vec, datavector->get_vector(), true);
-	datasave.save_binary(oss_name_of_file.str());
-	oss_name_of_file.str("");
+	if(save_original){
+		oss_name_of_file << "results/" << filename << "_original.bin";
+		this->decomposition->permute_TRxdim(datasave_Vec, datavector->get_vector(), true);
+		datasave.save_binary(oss_name_of_file.str());
+		oss_name_of_file.str("");
+	}
 
 	/* save gamma */
 	oss_name_of_file << "results/" << filename << "_gamma.bin";
 	this->decomposition->permute_TRK(gammasave_Vec, gammavector->get_vector(), true);
 	gammasave.save_binary(oss_name_of_file.str());
-//	gammavector->save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
-
-	/* save gamma as txt */
-//	oss_name_of_file << "results/" << filename << "_gamma.txt";
-//	gammasave.save_ascii(oss_name_of_file.str());
-//	oss_name_of_file.str("");
 
 	/* compute recovered image */
 	Vec gammak_Vec;

@@ -107,6 +107,8 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 
 		double get_aic(double L) const;
 		
+		void set_epssqr(double epssqr);
+		
 };
 
 } // end of namespace
@@ -267,6 +269,25 @@ template<class VectorBase>
 std::string GraphH1FEMModel<VectorBase>::get_name() const {
 	return "Graph-H1-FEM Time-Series Model";	
 }
+
+/* set new penalty */
+template<class VectorBase>
+void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
+	this->epssqr = epssqr;
+
+	if(this->A_shared){
+		if(this->matrix_type == 0){
+			/* FREE */
+			//TODO: implement free matrix multiplication for decomposition in space?
+//			(BlockGraphFreeMatrix<VectorBase>*)A_shared->set_coeff(this->epssqr);
+		}
+		if(this->matrix_type == 1){
+			/* SPARSE */
+			((BlockGraphSparseMatrix<VectorBase>*)A_shared)->set_coeff(this->epssqr);
+		}
+	}	
+}
+
 
 /* prepare gamma solver */
 template<>

@@ -11,6 +11,30 @@
 
 namespace pascinference {
 
+template<class MyType>
+std::string print_array(MyType *my_array, int my_size){
+	std::ostringstream out;
+	out << "[";
+	for(int i=0;i<my_size;i++){
+		out << my_array[i];
+		if(i<my_size-1) out << ",";
+	}	
+	out << "]";
+	return out.str();
+}
+
+template<class MyType>
+std::string print_vector(std::vector<MyType> &my_vector){
+	std::ostringstream out;
+	out << "[";
+	for(int i=0;i<my_vector.size();i++){
+		out << my_vector[i];
+		if(i<my_vector.size()-1) out << ",";
+	}	
+	out << "]";
+	return out.str();
+}
+
 /** @brief print content of array
 *
 *  @param output where to print
