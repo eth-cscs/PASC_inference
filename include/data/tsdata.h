@@ -96,6 +96,7 @@ class TSData: public GeneralData {
 
 		void save_thetavector(std::string filename) const;
 		void print_thetavector(ConsoleOutput &output) const;
+		std::string print_thetavector() const;
 
 		void save_gammavector(std::string filename, int blocksize) const;
 
@@ -712,6 +713,23 @@ void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
 
 	LOG_FUNC_END
 }
+
+template<>
+std::string TSData<PetscVector>::print_thetavector() const {
+	std::ostringstream out;
+
+	int theta_size = this->tsmodel->get_thetavectorlength_local();
+	double *theta_arr;
+	TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+	for(int i=0;i<theta_size;i++){
+		out << theta_arr[i] << ",";
+	}	
+
+	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+
+	return out.str();
+}
+
 
 template<>
 void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize) const {

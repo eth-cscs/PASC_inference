@@ -33,8 +33,13 @@ Ns = [1];
 # name of problem (name of compiled program)
 problem_name = "test_image";
 
+# prepare epssqr parameters
+epssqr_parameters = "";
+for epssqr in epssqrs:
+    epssqr_parameters = "%s --test_epssqr=%.16f" % (epssqr_parameters, epssqr);
+
 # common parameters
-problem_parameters = "--test_Theta=0.5 --test_Theta=0.51 --test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debugmode=2 --spgqpsolver_maxit=5000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true";
+problem_parameters = "--test_Theta=0.5 --test_Theta=0.51 --test_cutdata=true --test_scaledata=false --test_annealing=10 --tssolver_debugmode=2 --spgqpsolver_maxit=5000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true %s" % (epssqr_parameters);
 
 # the upper estimation of computing time
 problem_time = "00:40:00"; 
@@ -48,15 +53,14 @@ Nthreads = 1;
 print "Preparing batch scripts: %s (Nthreads=%d, Ngpu=%d)" % (architecture,Nthreads,Ngpu)
 batchfile_list = [];
 for dimension in dimensions:
-    for epssqr in epssqrs:
-        for K in Ks:
-            for N in Ns:
-                image_path = "%s/%s_%s_%s.bin" % (image_dir,image_name,dimension[0],dimension[1]);
-                problem_name_full = "%s_%s_w%s_h%s_epssqr%.16f_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (problem_name,image_name,dimension[0],dimension[1],epssqr,K,architecture,N,Nthreads,Ngpu)
-                print " - %s: %s" % (problem_name, problem_name_full);
-                problem_parameters_full = "%s --test_image_filename=\"%s\" --test_image_out=\"%s\" --test_width=%s --test_height=%s --test_epssqr=%.16f --test_K=%s --test_shortinfo_header='image_name,width,height,epssqr,K,architecture,N,Nthreads,Ngpu,' --test_shortinfo_values='%s,%d,%d,%.16f,%d,%s,%d,%d,%d,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, image_path, problem_name_full, dimension[0], dimension[1], epssqr, K, image_name, dimension[0], dimension[1], epssqr, K, architecture, N, Nthreads, Ngpu, problem_name_full);
-                batchfile_name = write_batchfile(problem_name, problem_name_full, problem_time, problem_parameters_full, library_path, architecture, N, Nthreads, Ngpu);
-                batchfile_list.append(batchfile_name);
+    for K in Ks:
+        for N in Ns:
+            image_path = "%s/%s_%s_%s.bin" % (image_dir,image_name,dimension[0],dimension[1]);
+            problem_name_full = "%%j_%s_%s_w%s_h%s_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (image_name,dimension[0],dimension[1],architecture,N,Nthreads,Ngpu)
+            print " - %s: %s" % (problem_name, problem_name_full);
+            problem_parameters_full = "%s --test_image_filename=\"%s\" --test_image_out=\"%s\" --test_width=%s --test_height=%s --test_K=%s --test_shortinfo_header='image_name,architecture,N,Nthreads,Ngpu,' --test_shortinfo_values='%s,%s,%d,%d,%d,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, image_path, problem_name_full, dimension[0], dimension[1], K, image_name, architecture, N, Nthreads, Ngpu, problem_name_full);
+            batchfile_name = write_batchfile(problem_name, problem_name_full, problem_time, problem_parameters_full, library_path, architecture, N, Nthreads, Ngpu);
+            batchfile_list.append(batchfile_name);
 
 # run bash scripts
 commit_batchfiles(batchfile_list, "c11", "normal")

@@ -99,6 +99,7 @@ class TSSolver: public GeneralSolver {
 		virtual GeneralSolver *get_thetasolver() const;
 
 		void set_solution_theta(double *Theta);
+		void set_annealing(int annealing);
 };
 
 } // end of namespace
@@ -463,6 +464,12 @@ template<class VectorBase>
 std::string TSSolver<VectorBase>::get_name() const {
 	return "TSSolver<VectorBase>";
 }
+
+template<class VectorBase>
+void TSSolver<VectorBase>::set_annealing(int annealing) {
+	this->annealing = annealing;
+}
+
 
 /* solve the problem */
 template<class VectorBase>

@@ -194,19 +194,13 @@ int main( int argc, char *argv[] )
 	mydata.print(coutMaster);
 
 	/* print statistics */
-	if(printstats){
-		mydata.printstats(coutMaster);
-	}
+	if(printstats) mydata.printstats(coutMaster);
 
 	/* cut data */
-	if(cutdata){
-		mydata.cutdata(0,1);
-	}
+	if(cutdata) mydata.cutdata(0,1);
 
 	/* scale data */
-	if(scaledata){
-		mydata.scaledata(-1,1,0,1);
-	}
+	if(scaledata) mydata.scaledata(-1,1,0,1);
 
 /* 4.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
@@ -219,23 +213,17 @@ int main( int argc, char *argv[] )
 	mysolver.print(coutMaster,coutAll);
 
 	/* set solution if obtained from console */
-	if(given_Theta){
-		mysolver.set_solution_theta(Theta_solution);
-	}
+	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
 /* 6.) solve the problem with initial epssqr */
 	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---" << std::endl;
 	mysolver.solve();
 
 	/* cut gamma */
-	if(cutgamma){
-		mydata.cutgamma();
-	}
+	if(cutgamma) mydata.cutgamma();
 
-	/* unscale data */
-	if(scaledata){
-		mydata.scaledata(0,1,-1,1);
-	}
+	/* unscale data before save */
+	if(scaledata) mydata.scaledata(0,1,-1,1);
 
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	oss << image_out << "_depth0" << "_epssqr" << epssqr_list[0];
@@ -244,49 +232,59 @@ int main( int argc, char *argv[] )
 
 	/* write short output */
 	if(shortinfo){
-		shortinfofile.open(shortinfo_filename.c_str());
-
-		/* add provided strings from console parameters */
-		oss_short_output_header << shortinfo_header;
-		oss_short_output_values << shortinfo_values;
-
-		mysolver.printshort(oss_short_output_header, oss_short_output_values);
-
 		/* master writes the file with short info (used in batch script for quick computation) */
 		if( GlobalManager.get_rank() == 0){
+			shortinfofile.open(shortinfo_filename.c_str());
+
+			/* add provided strings from console parameters */
+			oss_short_output_header << shortinfo_header;
+			oss_short_output_values << shortinfo_values;
+
+			/* add info about the problem */
+			oss_short_output_header << "width,height,K,depth,epssqr,";
+			oss_short_output_values << width << "," << height << "," << K << ",0,0.0,"; 
+
+			/* append Theta solution */
+			for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
+			oss_short_output_values << mydata.print_thetavector(); 
+
+			/* print info from solver */
+			mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
 			shortinfofile << oss_short_output_header.str() << std::endl;
 			shortinfofile << oss_short_output_values.str() << std::endl;
-		}
-		TRY( PetscBarrier(NULL) );
-
-		oss_short_output_header.str("");
-		oss_short_output_values.str("");
+			
+			/* clear streams for next time */
+			oss_short_output_header.str("");
+			oss_short_output_values.str("");
 		
-		shortinfofile.close();
+			shortinfofile.close();
+		}
+
+		/* wait for master */
+		TRY( PetscBarrier(NULL) );
 	}
+
 
 /* 7.) solve the problems with other epssqr */
 	for(int depth = 1; depth < epssqr_list.size();depth++){
 		/* set new epssqr */
 		mymodel.set_epssqr(epssqr_list[depth]);
 
-		/* scale data */
-		if(scaledata){
-			mydata.scaledata(-1,1,0,1);
-		}
+		/* decrease the number of annealing steps in TSSolver to 1 */
+		mysolver.set_annealing(1);
+
+		/* scale data before computation */
+		if(scaledata) mydata.scaledata(-1,1,0,1);
 
 		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---" << std::endl;
 		mysolver.solve();
 
 		/* cut gamma */
-		if(cutgamma){
-			mydata.cutgamma();
-		}
+		if(cutgamma) mydata.cutgamma();
 
-		/* unscale data */
-		if(scaledata){
-			mydata.scaledata(0,1,-1,1);
-		}
+		/* unscale data before export */
+		if(scaledata) mydata.scaledata(0,1,-1,1);
 
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		oss << image_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
@@ -295,23 +293,31 @@ int main( int argc, char *argv[] )
 		
 		/* write short output */
 		if(shortinfo){
-			shortinfofile.open(shortinfo_filename.c_str());
-
-			/* add provided strings from console parameters */
-			oss_short_output_values << shortinfo_values;
-
-			mysolver.printshort(oss_short_output_header, oss_short_output_values);
-
 			/* master writes the file */
 			if( GlobalManager.get_rank() == 0){
-				shortinfofile << oss_short_output_values.str() << std::endl;
-			}
-			TRY( PetscBarrier(NULL) );
+				shortinfofile.open(shortinfo_filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
-			oss_short_output_header.str("");
-			oss_short_output_values.str("");
-		
-			shortinfofile.close();
+				/* add provided strings from console parameters */
+				oss_short_output_values << shortinfo_values << width << "," << height << "," << K << "," << depth << "," << epssqr_list[depth] << ",";
+
+				/* append Theta solution */
+				oss_short_output_values << mydata.print_thetavector(); 
+
+				/* append data from solver */
+				mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
+				/* write data */
+				shortinfofile << oss_short_output_values.str() << std::endl;
+
+				/* clear streams for next time */
+				oss_short_output_header.str("");
+				oss_short_output_values.str("");
+
+				shortinfofile.close();
+			}
+
+			/* wait for master */
+			TRY( PetscBarrier(NULL) );
 		}
 	}
 
@@ -332,7 +338,6 @@ int main( int argc, char *argv[] )
 
 	logging.end();
 	Finalize();
-
 
 	return 0;
 }
