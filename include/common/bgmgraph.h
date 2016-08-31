@@ -727,8 +727,8 @@ BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
 		int i = idx/(double)width; /* index of row */
 		int j = idx - i*width; /* index of column */	
 
-		coordinates_arr[idx] = i;
-		coordinates_arr[idx + this->n] = j;
+		coordinates_arr[idx] = j;
+		coordinates_arr[idx + this->n] = i;
 	}
 
 	TRY( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
