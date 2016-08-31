@@ -59,7 +59,7 @@ int main( int argc, char *argv[] )
 
 	int K, max_record_nmb, annealing, DDT_size, DDR_size; 
 	double epssqr; 
-	bool cutgamma, savevtk, printstats, cutdata, scaledata, shiftdata, shortinfo;
+	bool cutgamma, savevtk, printstats, cutdata, scaledata, shiftdata, shortinfo_write_or_not;
 	double cutdata_up, cutdata_down, shiftdata_coeff, graph_coeff;
 
 	std::string data_filename;
@@ -93,7 +93,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_shiftdata", &shiftdata, false);
 	consoleArg.set_option_value("test_shiftdata_coeff", &shiftdata_coeff, 200);
 
-	consoleArg.set_option_value("test_shortinfo", &shortinfo, true);
+	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
 	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/myshortinfo.txt");
@@ -133,14 +133,7 @@ int main( int argc, char *argv[] )
 	coutMaster << std::endl;
 	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)" << std::endl;
 	if(given_Theta){
-		coutMaster << " test_Theta              = " << std::setw(30) << "[";
-		for(int k=0;k<K;k++){
-			coutMaster << Theta_solution[k];
-			if(k<K-1){
-				coutMaster << ",";
-			}
-		}
-		coutMaster << "]" << std::endl;
+		coutMaster << " test_Theta              = " << std::setw(30) << print_array(Theta_solution,K) << std::endl;
 	}
 	coutMaster << " test_epssqr             = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
 	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
@@ -155,7 +148,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_shiftdata          = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
 	coutMaster << " test_shiftdata_coeff    = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
 	coutMaster << std::endl;
-	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)" << std::endl;
+	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
 	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
@@ -171,6 +164,13 @@ int main( int argc, char *argv[] )
 	std::ostringstream oss_name_of_file_log;
 	oss_name_of_file_log << "log/" << data_out << "_r" << max_record_nmb << "_K" << K << "_epssqr" << epssqr << "_p" << GlobalManager.get_rank() << ".txt";
 	logging.begin(oss_name_of_file_log.str());
+		
+	/* start shortinfo output */
+	if(shortinfo_write_or_not){
+		shortinfo.begin(shortinfo_filename);
+	}
+	std::ostringstream oss_short_output_values;
+	std::ostringstream oss_short_output_header;
 		
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
@@ -196,19 +196,13 @@ int main( int argc, char *argv[] )
 	mydata.print(coutMaster);
 
 	/* cut data to given interval [cutdata_down,cutdata_up] */
-	if(cutdata){
-		mydata.cutdata(cutdata_down,cutdata_up);
-	}
+	if(cutdata)	mydata.cutdata(cutdata_down,cutdata_up);
 
 	/* print basic stats about loaded data */
-	if(printstats){
-		mydata.printstats(coutMaster);
-	}
+	if(printstats) mydata.printstats(coutMaster);
 	
 	/* scale data to interval [-1,1] */
-	if(scaledata){
-		mydata.scaledata(-1,1);
-	}
+	if(scaledata) mydata.scaledata(-1,1);
 
 /* 3.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
@@ -225,24 +219,14 @@ int main( int argc, char *argv[] )
 	mysolver.solve();
 
 	/* cut gamma */
-	if(cutgamma){
-		mydata.cutgamma();
-	}
+	if(cutgamma) mydata.cutgamma();
 
 	/* unscale data to original interval */
-	if(scaledata){
-		mydata.unscaledata(-1,1);
-	}
+	if(scaledata) mydata.unscaledata(-1,1);
 
 /* 6.) save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
-	if(savevtk){
-		mydata.saveVTK(data_out);
-	}
-
-	/* save results into CSV file */
-//	coutMaster << "--- SAVING CSV ---" << std::endl;
-//	mydata.saveCSV("results/edf.csv");
+	if(savevtk)	mydata.saveVTK(data_out);
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;
@@ -254,27 +238,33 @@ int main( int argc, char *argv[] )
 	mysolver.printstatus(coutMaster);
 
 	/* write short output */
-	if(shortinfo){
-		std::ostringstream oss_short_output_values;
-		std::ostringstream oss_short_output_header;
-		
+	if(shortinfo_write_or_not){
 		/* add provided strings from console parameters */
 		oss_short_output_header << shortinfo_header;
 		oss_short_output_values << shortinfo_values;
 
+		/* add info about the problem */
+		oss_short_output_header << "max_record_nmb,annealing,K,epssqr,";
+		oss_short_output_values << max_record_nmb << "," << annealing << "," << K << "," << epssqr << ","; 
+
+		/* append Theta solution */
+		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
+		oss_short_output_values << mydata.print_thetavector(); 
+
+		/* print info from solver */
 		mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
-		std::ofstream myfile;
-		myfile.open(shortinfo_filename.c_str());
+		/* append end of line */
+		oss_short_output_header << std::endl;
+		oss_short_output_values << std::endl;
 
-		/* master writes the file with short info (used in batch script for quick computation) */
-		if( GlobalManager.get_rank() == 0){
-			myfile << oss_short_output_header.str() << std::endl;
-			myfile << oss_short_output_values.str() << std::endl;
-		}
-		TRY( PetscBarrier(NULL) );
-		
-		myfile.close();
+		/* write to shortinfo file */
+		shortinfo.write(oss_short_output_header.str());
+		shortinfo.write(oss_short_output_values.str());
+			
+		/* clear streams for next writing */
+		oss_short_output_header.str("");
+		oss_short_output_values.str("");
 	}
 
 	/* say bye */	

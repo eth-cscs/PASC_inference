@@ -67,7 +67,7 @@ int main( int argc, char *argv[] )
 
 	int K, annealing, width, height; 
 	double graph_coeff; 
-	bool cutgamma, scaledata, cutdata, printstats, shortinfo, graph_save;
+	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, graph_save;
 
 	std::string image_filename;
 	std::string image_out;
@@ -88,7 +88,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/usi_text/usi_250_150_02.bin");
 	consoleArg.set_option_value("test_image_out", &image_out, "usi_test_250_150_02");
-	consoleArg.set_option_value("test_shortinfo", &shortinfo, true);
+	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
 	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/usi_250_150_02.txt");
@@ -143,7 +143,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
 	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
 	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
-	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)" << std::endl;
+	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
 	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
@@ -155,8 +155,10 @@ int main( int argc, char *argv[] )
 	logging.begin(oss.str());
 	oss.str("");
 
-	/* prepare shortinfo output */
-	std::ofstream shortinfofile;
+	/* start shortinfo output */
+	if(shortinfo_write_or_not){
+		shortinfo.begin(shortinfo_filename);
+	}
 	std::ostringstream oss_short_output_values;
 	std::ostringstream oss_short_output_header;
 		
@@ -168,21 +170,29 @@ int main( int argc, char *argv[] )
 
 	BGMGraph *graph;
 	if(generalgraph){
+		/* if this is general graph, then load it from file and process it with given threshold */
 		graph = new BGMGraph(graph_filename);
 		graph->process(graph_coeff);
 	} else {
+		/* this is not general graph, it is "only" 2D grid */
 		graph = new BGMGraphGrid2D(width, height);
 		((BGMGraphGrid2D*)graph)->process_grid();
 	}
+	
+	/* print basic info about graph */
 	graph->print(coutMaster);
 	
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
+
+	/* prepare decomposition based on graph, in this case T=1 and DDT_size=1 */
 	Decomposition decomposition(1, *graph, K, 1, DDR_size);
+
+	/* print info about decomposition */
 	decomposition.print(coutMaster);
 
-	/* save decoposed graph to see if space decomposition is working */
 	if(graph_save){
+		/* save decoposed graph to see if space (graph) decomposition is working */
 		oss << "results/" << image_out << "_graph.vtk";
 		graph->saveVTK(oss.str());
 		oss.str("");
@@ -190,7 +200,11 @@ int main( int argc, char *argv[] )
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	
+	/* load data from file and store it subject to decomposition */
 	ImageData<PetscVector> mydata(decomposition, image_filename, width, height);
+	
+	/* print information about loaded data */
 	mydata.print(coutMaster);
 
 	/* print statistics */
@@ -204,12 +218,20 @@ int main( int argc, char *argv[] )
 
 /* 4.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+
+	/* prepare model on the top of given data */
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
+
+	/* print info about model */
 	mymodel.print(coutMaster,coutAll);
 
 /* 5.) prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+
+	/* prepare time-series solver */
 	TSSolver<PetscVector> mysolver(mydata, annealing);
+
+	/* print info about solver */
 	mysolver.print(coutMaster,coutAll);
 
 	/* set solution if obtained from console */
@@ -231,38 +253,34 @@ int main( int argc, char *argv[] )
 	oss.str("");
 
 	/* write short output */
-	if(shortinfo){
-		/* master writes the file with short info (used in batch script for quick computation) */
-		if( GlobalManager.get_rank() == 0){
-			shortinfofile.open(shortinfo_filename.c_str());
+	if(shortinfo_write_or_not){
+		/* add provided strings from console parameters */
+		oss_short_output_header << shortinfo_header;
+		oss_short_output_values << shortinfo_values;
 
-			/* add provided strings from console parameters */
-			oss_short_output_header << shortinfo_header;
-			oss_short_output_values << shortinfo_values;
+		/* add info about the problem */
+		oss_short_output_header << "width,height,K,depth,epssqr,";
+		oss_short_output_values << width << "," << height << "," << K << ",0,0.0,"; 
 
-			/* add info about the problem */
-			oss_short_output_header << "width,height,K,depth,epssqr,";
-			oss_short_output_values << width << "," << height << "," << K << ",0,0.0,"; 
+		/* append Theta solution */
+		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
+		oss_short_output_values << mydata.print_thetavector(); 
 
-			/* append Theta solution */
-			for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
-			oss_short_output_values << mydata.print_thetavector(); 
+		/* print info from solver */
+		mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
-			/* print info from solver */
-			mysolver.printshort(oss_short_output_header, oss_short_output_values);
+		/* append end of line */
+		oss_short_output_header << std::endl;
+		oss_short_output_values << std::endl;
 
-			shortinfofile << oss_short_output_header.str() << std::endl;
-			shortinfofile << oss_short_output_values.str() << std::endl;
+		/* write to shortinfo file */
+		shortinfo.write(oss_short_output_header.str());
+		shortinfo.write(oss_short_output_values.str());
 			
-			/* clear streams for next time */
-			oss_short_output_header.str("");
-			oss_short_output_values.str("");
-		
-			shortinfofile.close();
-		}
-
-		/* wait for master */
-		TRY( PetscBarrier(NULL) );
+		/* clear streams for next writing */
+		oss_short_output_header.str("");
+		oss_short_output_values.str("");
+	
 	}
 
 
@@ -292,32 +310,24 @@ int main( int argc, char *argv[] )
 		oss.str("");
 		
 		/* write short output */
-		if(shortinfo){
-			/* master writes the file */
-			if( GlobalManager.get_rank() == 0){
-				shortinfofile.open(shortinfo_filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+		if(shortinfo_write_or_not){
+			/* add provided strings from console parameters */
+			oss_short_output_values << shortinfo_values << width << "," << height << "," << K << "," << depth << "," << epssqr_list[depth] << ",";
 
-				/* add provided strings from console parameters */
-				oss_short_output_values << shortinfo_values << width << "," << height << "," << K << "," << depth << "," << epssqr_list[depth] << ",";
+			/* append Theta solution */
+			oss_short_output_values << mydata.print_thetavector(); 
 
-				/* append Theta solution */
-				oss_short_output_values << mydata.print_thetavector(); 
+			/* append data from solver */
+			mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
-				/* append data from solver */
-				mysolver.printshort(oss_short_output_header, oss_short_output_values);
+			/* append end of line */
+			oss_short_output_values << std::endl;
 
-				/* write data */
-				shortinfofile << oss_short_output_values.str() << std::endl;
+			/* write data */
+			shortinfo.write(oss_short_output_values.str());
 
-				/* clear streams for next time */
-				oss_short_output_header.str("");
-				oss_short_output_values.str("");
-
-				shortinfofile.close();
-			}
-
-			/* wait for master */
-			TRY( PetscBarrier(NULL) );
+			/* clear streams for next time */
+			oss_short_output_values.str("");
 		}
 	}
 

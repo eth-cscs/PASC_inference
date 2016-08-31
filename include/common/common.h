@@ -30,6 +30,7 @@
 #include "common/arrayoperation.h"
 #include "common/logging.h"
 #include "common/mvnrnd.h"
+#include "common/shortinfo.h"
 
 namespace pascinference {
 
