@@ -32,6 +32,7 @@ int main( int argc, char *argv[] )
 		("test_max_record_nmb", boost::program_options::value<int>(), "maximum nuber of loaded records")
 		("test_graph_coordinates", boost::program_options::value< std::string >(), "name of input file with coordinates [string]")
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold coefficient of graph [double]")
+		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_data_out", boost::program_options::value< std::string >(), "part of output filename [string]")
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]")
@@ -59,7 +60,7 @@ int main( int argc, char *argv[] )
 
 	int K, max_record_nmb, annealing, DDT_size, DDR_size; 
 	double epssqr; 
-	bool cutgamma, savevtk, printstats, cutdata, scaledata, shiftdata, shortinfo_write_or_not;
+	bool cutgamma, savevtk, printstats, cutdata, scaledata, shiftdata, shortinfo_write_or_not, graph_save;
 	double cutdata_up, cutdata_down, shiftdata_coeff, graph_coeff;
 
 	std::string data_filename;
@@ -77,6 +78,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_max_record_nmb", &max_record_nmb, -1);
 	consoleArg.set_option_value("test_graph_coordinates", &graph_coordinates, "data/Koordinaten_EEG_P.bin");
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 2.5);
+	consoleArg.set_option_value("test_graph_save", &graph_save, false);
+	
 	consoleArg.set_option_value("test_data_out", &data_out, "test_edf");
 
 	consoleArg.set_option_value("test_K", &K, 2);
@@ -129,6 +132,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_max_record_nmb     = " << std::setw(30) << max_record_nmb << " (max number of loaded time-steps)" << std::endl;
 	coutMaster << " test_graph_coordinates  = " << std::setw(30) << graph_coordinates << " (name of input file with coordinates)" << std::endl;
 	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold coefficient of graph)" << std::endl;
+	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)" << std::endl;
 	coutMaster << " test_data_out           = " << std::setw(30) << data_out << " (part of output filename)" << std::endl;
 	coutMaster << std::endl;
 	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)" << std::endl;
@@ -161,9 +165,10 @@ int main( int argc, char *argv[] )
 	}
 
 	/* start logging */
-	std::ostringstream oss_name_of_file_log;
-	oss_name_of_file_log << "log/" << data_out << "_r" << max_record_nmb << "_K" << K << "_epssqr" << epssqr << "_p" << GlobalManager.get_rank() << ".txt";
-	logging.begin(oss_name_of_file_log.str());
+	std::ostringstream oss;
+	oss << "log/" << data_out << "_r" << max_record_nmb << "_K" << K << "_epssqr" << epssqr << "_p" << GlobalManager.get_rank() << ".txt";
+	logging.begin(oss.str());
+	oss.str("");
 		
 	/* start shortinfo output */
 	if(shortinfo_write_or_not){
@@ -181,13 +186,20 @@ int main( int argc, char *argv[] )
 
 /* 2a.) prepare graph */
 	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
-	BGMGraph mygraph(graph_coordinates);
-	mygraph.process(graph_coeff);
-	mygraph.print(coutMaster);
+	BGMGraph graph(graph_coordinates);
+	graph.process(graph_coeff);
+	graph.print(coutMaster);
+	if(graph_save){
+		/* save decoposed graph to see if space (graph) decomposition is working */
+		oss << "results/" << data_out << "_DDR" << DDR_size << "_graph.vtk";
+		graph.saveVTK(oss.str());
+		oss.str("");
+	}
+
 
 /* 2b.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
-	Decomposition mydecomposition(mydata.get_Tpreliminary(), mygraph, K, 1, DDT_size, DDR_size);
+	Decomposition mydecomposition(mydata.get_Tpreliminary(), graph, K, 1, DDT_size, DDR_size);
 	mydecomposition.print(coutMaster);
 
 /* 2c.) set new decomposition to data */

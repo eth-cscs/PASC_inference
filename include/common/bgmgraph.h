@@ -48,7 +48,7 @@ class BGMGraph {
 		*  @param idx1 index of vertex
 		*  @param idx2 index of vertex
 		*/
-		double compute_norm(const double *values, int idx1, int idx2);
+		double compute_normsqr(const double *values, int idx1, int idx2);
 		
 	public:
 		BGMGraph();
@@ -157,7 +157,7 @@ class BGMGraphGrid1D: public BGMGraph {
 
 /* ----------------- BGMGraph implementation ------------- */
 
-double BGMGraph::compute_norm(const double *values, int idx1, int idx2){
+double BGMGraph::compute_normsqr(const double *values, int idx1, int idx2){
 	int d;
 	double mynorm = 0;
 	for(d=0;d<dim;d++){
@@ -433,7 +433,7 @@ void BGMGraph::process(double threshold) {
 //	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		for(int j=i+1;j<n;j++){
-			if(compute_norm(coordinates_arr, i, j) < threshold){
+			if(compute_normsqr(coordinates_arr, i, j) < threshold*threshold){
 				neighbor_nmbs[i] += 1;
 				neighbor_nmbs[j] += 1;
 			}
@@ -460,7 +460,7 @@ void BGMGraph::process(double threshold) {
 //	#pragma omp parallel for // TODO: here is a problem, cannot be used, maybe because of couter arrays?
 	for(int i=0;i<n;i++){
 		for(int j=i+1;j<n;j++){
-			if(compute_norm(coordinates_arr, i, j) < threshold){
+			if(compute_normsqr(coordinates_arr, i, j) < threshold*threshold){
 				neighbor_ids[i][counters[i]] = j;
 				neighbor_ids[j][counters[j]] = i;
 
