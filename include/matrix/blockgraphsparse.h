@@ -121,13 +121,13 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 				/* compute sum of W entries in row */
 				if(t == 0 || t == T-1){
 					if(T > 1){
-						Wsum = 2*neighbor_nmbs[r_orig]+1; /* +1 for diagonal block */
+						Wsum = 2*neighbor_nmbs[r_orig]+2; /* +1 for diagonal block */
 					} else {
 						Wsum = neighbor_nmbs[r_orig];
 					}
 				} else {
 					if(T > 1){
-						Wsum = 4*neighbor_nmbs[r_orig]+2; /* +2 for diagonal block */
+						Wsum = 3*neighbor_nmbs[r_orig]+4; /* +2 for diagonal block */
 					} else {
 						Wsum = (neighbor_nmbs[r_orig])+1; /* +1 for diagonal block */
 					}

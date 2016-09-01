@@ -214,7 +214,7 @@ int main( int argc, char *argv[] )
 	if(printstats) mydata.printstats(coutMaster);
 	
 	/* scale data to interval [0,1] */
-	if(scaledata) mydata.scaledata(0,1);
+	if(scaledata) mydata.scaledata(0,1,cutdata_down,cutdata_up);
 
 /* 3.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
@@ -228,6 +228,10 @@ int main( int argc, char *argv[] )
 
 /* 5.) solve the problem */
 	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	/* set solution if obtained from console */
+	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
+
+	/* call solve to the problem */
 	mysolver.solve();
 
 	/* cut gamma */
