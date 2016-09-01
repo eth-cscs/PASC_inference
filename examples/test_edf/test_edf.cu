@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
 		("test_cutdata", boost::program_options::value<bool>(), "cut data to given interval [bool]")
 		("test_cutdata_down", boost::program_options::value<double>(), "lower bound used for cutting data [double]")
 		("test_cutdata_up", boost::program_options::value<double>(), "upper bound used for cutting data [double]")
-		("test_scaledata", boost::program_options::value<bool>(), "scale data to interval -1,1 [bool]")
+		("test_scaledata", boost::program_options::value<bool>(), "scale data to interval 0,1 [bool]")
 		("test_shiftdata", boost::program_options::value<bool>(), "shift data with -0.5 [bool]")
 		("test_shiftdata_coeff", boost::program_options::value<double>(), "coeficient of data shift [double]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
@@ -148,7 +148,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to given interval)" << std::endl;
 	coutMaster << " test_cutdata_down       = " << std::setw(30) << cutdata_down << " (lower bound used for cutting data)" << std::endl;
 	coutMaster << " test_cutdata_up         = " << std::setw(30) << cutdata_up << " (upper bound used for cutting data)" << std::endl;
-	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to interval [-1,1])" << std::endl;
+	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to interval [0,1])" << std::endl;
 	coutMaster << " test_shiftdata          = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
 	coutMaster << " test_shiftdata_coeff    = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
 	coutMaster << std::endl;
@@ -213,8 +213,8 @@ int main( int argc, char *argv[] )
 	/* print basic stats about loaded data */
 	if(printstats) mydata.printstats(coutMaster);
 	
-	/* scale data to interval [-1,1] */
-	if(scaledata) mydata.scaledata(-1,1);
+	/* scale data to interval [0,1] */
+	if(scaledata) mydata.scaledata(0,1);
 
 /* 3.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
@@ -234,11 +234,15 @@ int main( int argc, char *argv[] )
 	if(cutgamma) mydata.cutgamma();
 
 	/* unscale data to original interval */
-	if(scaledata) mydata.unscaledata(-1,1);
+	if(scaledata) mydata.unscaledata(0,1);
 
 /* 6.) save results into VTK file */
 	coutMaster << "--- SAVING VTK ---" << std::endl;
 	if(savevtk)	mydata.saveVTK(data_out);
+
+	/* print solution */
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	mydata.print_thetavector(coutMaster);
 
 	/* print timers */
 	coutMaster << "--- TIMERS INFO ---" << std::endl;

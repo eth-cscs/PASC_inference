@@ -127,7 +127,7 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 					}
 				} else {
 					if(T > 1){
-						Wsum = 3*neighbor_nmbs[r_orig]+2; /* +2 for diagonal block */
+						Wsum = 4*neighbor_nmbs[r_orig]+2; /* +2 for diagonal block */
 					} else {
 						Wsum = (neighbor_nmbs[r_orig])+1; /* +1 for diagonal block */
 					}
@@ -140,11 +140,11 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 				if(T>1){
 					if(t > 0) {
 						/* t - 1 */
-						TRY( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -coeff, INSERT_VALUES) );
+						TRY( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -2*coeff, INSERT_VALUES) );
 					}
 					if(t < T-1) {
 						/* t + 1 */
-						TRY( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -coeff, INSERT_VALUES) );
+						TRY( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -2*coeff, INSERT_VALUES) );
 					}
 				}
 
