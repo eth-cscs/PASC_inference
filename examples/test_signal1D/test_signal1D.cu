@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_filename", &filename, "data/samplesignal.bin");
 	consoleArg.set_option_value("test_filename_out", &filename_out, "samplesignal");
-	consoleArg.set_option_value("test_filename_solution", &filename_solution, "");
+	consoleArg.set_option_value("test_filename_solution", &filename_solution, "data/samplesignal_solution.bin");
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
@@ -263,7 +263,7 @@ int main( int argc, char *argv[] )
 		if(scaledata) mydata.scaledata(0,1,-1,1);
 
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-		oss << image_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
+		oss << filename_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
 //		mydata.saveImage(oss.str(),false);
 		oss.str("");
 		

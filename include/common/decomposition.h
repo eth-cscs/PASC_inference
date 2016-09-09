@@ -83,6 +83,7 @@ class Decomposition {
 		int *get_DDR_lengths() const;
 		int *get_DDR_ranges() const;
 		BGMGraph *get_graph() const;
+		void set_graph(BGMGraph &graph, int DDR_size=1);
 
 		int get_K() const;
 		int get_xdim() const;
@@ -120,7 +121,7 @@ Decomposition::Decomposition(int T, int R, int K, int xdim, int DDT_size){
 	this->R = R;
 	this->K = K;
 	this->xdim = xdim;
-	
+		
 	this->DDT_size = DDT_size;
 	this->DDR_size = 1;
 	
@@ -163,6 +164,7 @@ Decomposition::Decomposition(int T, int R, int K, int xdim, int DDT_size){
 	DDR_ranges[0] = 0;
 	DDR_ranges[1] = R;
 
+	/* no graph provided */
 	graph = NULL;
 
 	compute_rank();
@@ -175,12 +177,11 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 
 	this->T = T;
 	this->R = new_graph.get_n();
-	this->graph = &new_graph;
 	this->K = K;
 	this->xdim = xdim;
 
-	/* decompose graph */
-	new_graph.decompose(DDR_size);
+	/* prepare new layout for R */
+	set_graph(new_graph,DDR_size);
 	
 	this->DDT_size = 1;
 	this->DDR_size = new_graph.get_DD_size();
@@ -190,15 +191,6 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 	DDT_ranges = (int *)malloc((this->DDT_size+1)*sizeof(int));
 	DDT_ranges[0] = 0;
 	DDT_ranges[1] = T;
-
-	/* prepare new layout for R */
-	/* no graph provided - allocate arrays */
-	destroy_DDR_arrays = false;
-	DDR_affiliation = new_graph.get_DD_affiliation();
-	DDR_permutation = new_graph.get_DD_permutation();
-	DDR_invpermutation = new_graph.get_DD_invpermutation();
-	DDR_lengths = new_graph.get_DD_lengths();
-	DDR_ranges = new_graph.get_DD_ranges();
 
 	compute_rank();
 
@@ -210,15 +202,14 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 
 	this->T = T;
 	this->R = new_graph.get_n();
-	this->graph = &new_graph;
 	this->K = K;
 	this->xdim = xdim;
 
-	/* decompose graph */
-	new_graph.decompose(DDR_size);
+	/* prepare new layout for R */
+	set_graph(new_graph, DDR_size);
 	
 	this->DDT_size = DDT_size;
-	this->DDR_size = new_graph.get_DD_size();
+	this->DDR_size = graph->get_DD_size();
 	
 	/* prepare new layout for T */
 	destroy_DDT_arrays = true;	
@@ -233,15 +224,6 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 			DDT_ranges[i+1] += 1;
 		}
 	}
-
-	/* prepare new layout for R */
-	/* no graph provided - allocate arrays */
-	destroy_DDR_arrays = false;
-	DDR_affiliation = new_graph.get_DD_affiliation();
-	DDR_permutation = new_graph.get_DD_permutation();
-	DDR_invpermutation = new_graph.get_DD_invpermutation();
-	DDR_lengths = new_graph.get_DD_lengths();
-	DDR_ranges = new_graph.get_DD_ranges();
 
 	compute_rank();
 
@@ -364,6 +346,31 @@ int *Decomposition::get_DDR_ranges() const{
 BGMGraph *Decomposition::get_graph() const{
 	return graph;
 }
+
+void Decomposition::set_graph(BGMGraph &new_graph, int DDR_size) {
+	if(destroy_DDR_arrays){
+		free(DDR_affiliation);
+		free(DDR_permutation);
+		free(DDR_invpermutation);
+		free(DDR_lengths);
+		free(DDR_ranges);
+	}
+
+	/* decompose graph */
+	new_graph.decompose(DDR_size);
+
+	this->graph = &new_graph;
+
+	destroy_DDR_arrays = false;
+	DDR_affiliation = new_graph.get_DD_affiliation();
+	DDR_permutation = new_graph.get_DD_permutation();
+	DDR_invpermutation = new_graph.get_DD_invpermutation();
+	DDR_lengths = new_graph.get_DD_lengths();
+	DDR_ranges = new_graph.get_DD_ranges();	
+	
+	compute_rank();
+}
+
 
 int Decomposition::get_K() const{
 	return K;

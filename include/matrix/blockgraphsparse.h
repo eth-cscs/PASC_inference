@@ -82,7 +82,6 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 	int Tlocal = get_Tlocal();
 	int Tbegin = decomposition->get_Tbegin();
 	int Tend = decomposition->get_Tend();
-
 	int R = get_R();
 	int Rlocal = get_Rlocal();
 	int Rbegin = decomposition->get_Rbegin();

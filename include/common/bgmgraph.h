@@ -388,6 +388,8 @@ void BGMGraph::decompose(int nmb_domains){
 
 			
 		} else {
+			coutMaster << "kurva nejvetsi" << std::endl;
+			
 			/* nmb_domains <= 1 */
 			/* fill arrays manually, METIS is not able to do it with number of domains equal to 1 */
 			for(int i=0;i<n;i++){

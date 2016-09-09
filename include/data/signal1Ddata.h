@@ -63,7 +63,7 @@ Signal1DData<VectorBase>::Signal1DData(std::string filename_data){
 	/* prepare preliminary datavector and load data */
 	/* prepare preliminary datavector and load data */
 	Vec datapreload_Vec;
-//	TRY( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
+	TRY( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
 	this->datavectorpreliminary = new GeneralVector<PetscVector>(datapreload_Vec);
 	this->datavectorpreliminary->load_global(filename_data);
 

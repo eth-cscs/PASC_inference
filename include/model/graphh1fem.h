@@ -136,6 +136,25 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 
 	/* set this model to data - tsdata will prepare gamma vector and thetavector */
 	tsdata->set_model(*this);
+
+	/* control the existence of graph */
+	/* in this model, I need to work with graph, but maybe there is no graph in decomposition
+	 * (for instance in the case without spatial decomposition), however it seems that user still wants to work 
+	 * with this model based on graph. Therefore we create graph of disjoint nodes without any edge. This graph
+	 * represents the situation and can be used for matrix-graph-based manipulation
+	*/
+	if(get_graph() == NULL){
+		BGMGraph *graph = this->tsdata->get_decomposition()->get_graph();
+		double coordinates_array[this->tsdata->get_R()];
+
+		for(int r=0;r<this->tsdata->get_R();r++){
+			coordinates_array[r] = r;
+		} 
+		graph = new BGMGraph(coordinates_array, this->tsdata->get_R(), 1);
+		graph->process(0.0);
+		
+		this->tsdata->get_decomposition()->set_graph(*graph);
+	}
 	
 	LOG_FUNC_END
 }
@@ -169,7 +188,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 
 	output <<  " - Graph:       " << std::endl;
 	output.push();
-	this->tsdata->get_decomposition()->get_graph()->print(output);
+	this->get_graph()->print(output);
 	output.pop();
 
 	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
@@ -197,7 +216,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  " - matrix type: " << this->matrix_type << std::endl;
 
 	output_global.push();
-	this->tsdata->get_decomposition()->get_graph()->print(output_global);
+	this->get_graph()->print(output_global);
 	output_global.pop();
 
 	output_global <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
@@ -309,7 +328,6 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 //	double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
 //	double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
 
-
 	if(this->matrix_type == 0){
 		/* FREE */
 		//TODO: implement free matrix multiplication for decomposition in space?
@@ -319,7 +337,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 		/* SPARSE */
 		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
 	}
-	
+
 	gammadata->set_A(A_shared); 
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
 
