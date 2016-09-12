@@ -60,7 +60,6 @@ int main( int argc, char *argv[] )
 	}
 
 	int K, annealing; 
-	double graph_coeff; 
 	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not;
 
 	std::string filename;

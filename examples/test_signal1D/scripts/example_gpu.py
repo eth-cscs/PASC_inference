@@ -16,12 +16,13 @@ problem_name = "test_signal1D";
 
 # noise of input signal
 nmbfilesmax = 10;
-Sigma = [1,2,3,4,5,6,7,8,9,10];
+Sigma = [1,2,3];
+#Sigma = [1,2,3,4,5,6,7,8,9,10];
+
 
 # used penalty
-epssqrs = [0.0, 1e-7, 1e-6, 1e-5, 1e-4];
-
-#epssqrs = [0.0, 1e-14, 1e-12, 1e-10, 1e-8, 1e-7, 2e-7, 3e-7, 4e-7, 5e-7, 6e-7, 7e-7, 8e-7, 9e-7,
+epssqrs = [1e-7, 1e-6, 1e-5, 1e-4];
+#epssqrs = [1e-14, 1e-12, 1e-10, 1e-8, 1e-7, 2e-7, 3e-7, 4e-7, 5e-7, 6e-7, 7e-7, 8e-7, 9e-7,
 #		   1e-6, 2e-6, 3e-6, 4e-6, 5e-6, 6e-6, 7e-6, 8e-6, 9e-6, 
 #		   1e-5, 2e-5, 3e-5, 4e-5, 5e-5, 6e-5, 7e-5, 8e-5, 9e-5, 
 #		   1e-4, 5e-4, 1e-3, 1e-2];
@@ -61,8 +62,8 @@ for n in range(1,nmbfilesmax+1):
         batchfile_list.append(batchfile_name);
 
 # run bash scripts
-#commit_batchfiles(batchfile_list, "c11", "normal")
+commit_batchfiles(batchfile_list, "c11", "normal")
 
 # show the queue
-#show_jobs("c11")
+show_jobs("c11")
 

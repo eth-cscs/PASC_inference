@@ -9,7 +9,7 @@ printinfo_onoff("TEST_SIGNAL1D\t\t\t\t" "${TEST_SIGNAL1D}")
 if(${TEST_SIGNAL1D})
 	# this is signal processing test
 	if(${USE_CUDA})
-		pascadd_executable("test_signal1D/test_signal1D.cu" "test_signal1De")
+		pascadd_executable("test_signal1D/test_signal1D.cu" "test_signal1D")
 	else()
 		pascadd_executable("test_signal1D/test_signal1D.cpp" "test_signal1D")
 	endif()
