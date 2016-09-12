@@ -35,7 +35,7 @@ problem_parameters="";
 for epssqr in epssqrs:
     problem_parameters = "--test_epssqr=%.16f %s" % (epssqr,problem_parameters)
 
-problem_parameters = "%s --test_filename_solution=\"%s\" --test_shortinfo=true --test_cutdata=false --test_scaledata=false --test_annealing=1 --tssolver_debugmode=0 --spgqpsolver_maxit=1000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true --test_K=2 --test_Theta=1.0 --test_Theta=2.0" % (problem_parameters,filename_solution);
+problem_parameters = "%s --test_filename_solution=\"%s\" --test_shortinfo=true --test_cutdata=false --test_scaledata=false --test_annealing=1 --tssolver_debugmode=0 --spgqpsolver_maxit=1000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_K=2 --test_Theta=1.0 --test_Theta=2.0" % (problem_parameters,filename_solution);
 
 # the upper estimation of computing time
 problem_time = "00:20:00";
