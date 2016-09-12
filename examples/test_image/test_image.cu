@@ -290,7 +290,7 @@ int main( int argc, char *argv[] )
 		mymodel.set_epssqr(epssqr_list[depth]);
 
 		/* decrease the number of annealing steps in TSSolver to 1 */
-		mysolver.set_annealing(1);
+//		mysolver.set_annealing(1);
 
 		/* scale data before computation */
 		if(scaledata) mydata.scaledata(-1,1,0,1);

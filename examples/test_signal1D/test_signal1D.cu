@@ -77,7 +77,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
-	consoleArg.set_option_value("test_cutdata", &cutdata, true);
+	consoleArg.set_option_value("test_cutdata", &cutdata, false);
 	consoleArg.set_option_value("test_printstats", &printstats, false);
 	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
@@ -162,7 +162,6 @@ int main( int argc, char *argv[] )
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
-
 	mydata.set_decomposition(decomposition);
 
 	/* print information about loaded data */
@@ -171,13 +170,13 @@ int main( int argc, char *argv[] )
 	/* print statistics */
 	if(printstats) mydata.printstats(coutMaster);
 
-	/* cut data */
-	if(cutdata) mydata.cutdata(0,1);
+/* 4.) prepare and load solution */
+	Vec solution_Vec;
+	TRY( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
+	GeneralVector<PetscVector> solution(solution_Vec);
+	solution.load_global(filename_solution);
 
-	/* scale data */
-	if(scaledata) mydata.scaledata(-1,1,0,1);
-
-/* 4.) prepare model */
+/* 5.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 
 	/* prepare model on the top of given data */
@@ -186,7 +185,7 @@ int main( int argc, char *argv[] )
 	/* print info about model */
 	mymodel.print(coutMaster,coutAll);
 
-/* 5.) prepare time-series solver */
+/* 6.) prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 
 	/* prepare time-series solver */
@@ -198,27 +197,66 @@ int main( int argc, char *argv[] )
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
-/* 6.) solve the problem with initial epssqr */
-	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---" << std::endl;
-	mysolver.solve();
+/* 6.) solve the problem with epssqrs and remember best solution */
+	double epssqr, epssqr_best;
+	double abserr;
+	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
 
-	/* cut gamma */
-	if(cutgamma) mydata.cutgamma();
+	Vec gammavector_best_Vec; /* here we store solution with best abserr value */
+	TRY( VecDuplicate(mydata.get_gammavector()->get_vector(),&gammavector_best_Vec) );
 
-	/* unscale data before save */
-	if(scaledata) mydata.scaledata(0,1,-1,1);
+	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
+	TRY( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
+	
+	for(int depth = 0; depth < epssqr_list.size();depth++){
+		epssqr = epssqr_list[depth];
+		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---" << std::endl;
 
-	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-	oss << filename_out << "_depth0" << "_epssqr" << epssqr_list[0];
-//	mydata.saveImage(oss.str(),true);
-	oss.str("");
+		/* set new epssqr */
+		mymodel.set_epssqr(epssqr_list[depth]);
 
-	/* write short output */
+		/* cut data */
+		if(cutdata) mydata.cutdata(0,1);
+
+		/* scale data */
+		if(scaledata){
+			mydata.scaledata(-1,1,0,1);
+		}
+		
+		mysolver.solve();
+
+		/* cut gamma */
+		if(cutgamma) mydata.cutgamma();
+
+		/* unscale data before save */
+		if(scaledata){
+			mydata.scaledata(0,1,-1,1);
+		}
+
+		/* compute absolute error of computed solution */
+		abserr = mydata.compute_abserr_reconstructed(solution);
+		
+		coutMaster << " - abserr = " << abserr << std::endl;
+		
+		/* if this solution is better then previous, then store it */
+		if(abserr < abserr_best){
+			abserr_best = abserr;
+			epssqr_best = epssqr;
+			TRY(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
+			TRY(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
+		}
+	}
+
+	/* set best computed solution back to data */
+	TRY(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
+	TRY(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
+
+/* 7.) write short output with best solution */
 	if(shortinfo_write_or_not){
 
 		/* add provided strings from console parameters and info about the problem */
-		oss_short_output_header << shortinfo_header << "filename,K,depth,epssqr,";
-		oss_short_output_values << shortinfo_values << filename << "," << K << ",0,0.0,"; 
+		oss_short_output_header << shortinfo_header << "filename,K,epssqr_best,abserr_best,";
+		oss_short_output_values << shortinfo_values << filename << "," << K << "," << epssqr_best << "," << abserr_best << ",";
 
 		/* append Theta solution */
 		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
@@ -241,53 +279,11 @@ int main( int argc, char *argv[] )
 	
 	}
 
-
-/* 7.) solve the problems with other epssqr */
-	for(int depth = 1; depth < epssqr_list.size();depth++){
-		/* set new epssqr */
-		mymodel.set_epssqr(epssqr_list[depth]);
-
-		/* decrease the number of annealing steps in TSSolver to 1 */
-		mysolver.set_annealing(1);
-
-		/* scale data before computation */
-		if(scaledata) mydata.scaledata(-1,1,0,1);
-
-		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---" << std::endl;
-		mysolver.solve();
-
-		/* cut gamma */
-		if(cutgamma) mydata.cutgamma();
-
-		/* unscale data before export */
-		if(scaledata) mydata.scaledata(0,1,-1,1);
-
-		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-		oss << filename_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
-//		mydata.saveImage(oss.str(),false);
-		oss.str("");
-		
-		/* write short output */
-		if(shortinfo_write_or_not){
-			/* add provided strings from console parameters */
-			oss_short_output_values << shortinfo_values << filename << "," << K << "," << depth << "," << epssqr_list[depth] << ",";
-
-			/* append Theta solution */
-			oss_short_output_values << mydata.print_thetavector(); 
-
-			/* append data from solver */
-			mysolver.printshort(oss_short_output_header, oss_short_output_values);
-
-			/* append end of line */
-			oss_short_output_values << std::endl;
-
-			/* write data */
-			shortinfo.write(oss_short_output_values.str());
-
-			/* clear streams for next time */
-			oss_short_output_values.str("");
-		}
-	}
+/* 8.) store best solution */
+	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	oss << filename_out;
+	mydata.saveSignal1D(oss.str(),false);
+	oss.str("");
 
 	/* print solution */
 	coutMaster << "--- THETA SOLUTION ---" << std::endl;

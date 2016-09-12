@@ -46,6 +46,8 @@ class Signal1DData: public TSData<VectorBase> {
 
 		int get_Tpreliminary() const;
 		void set_decomposition(Decomposition &decomposition);
+		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
+
 };
 
 } // end of namespace
@@ -312,7 +314,7 @@ void Signal1DData<PetscVector>::saveSignal1D(std::string filename, bool save_ori
 	gammasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
-	/* compute recovered image */
+	/* compute recovered signal */
 	Vec gammak_Vec;
 	IS gammak_is;
 
@@ -359,6 +361,53 @@ void Signal1DData<PetscVector>::saveSignal1D(std::string filename, bool save_ori
 template<class VectorBase>
 int Signal1DData<VectorBase>::get_Tpreliminary() const{
 	return this->Tpreliminary;
+}
+
+template<class VectorBase>
+double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
+	LOG_FUNC_BEGIN	
+
+	double abserr;
+
+	/* compute recovered signal */
+	Vec gammak_Vec;
+	IS gammak_is;
+
+	Vec data_abserr_Vec;
+	TRY( VecDuplicate(this->datavector->get_vector(), &data_abserr_Vec) );
+	
+	/* abserr = -solution */
+	TRY( VecCopy(solution.get_vector(),data_abserr_Vec)); 
+	TRY( VecScale(data_abserr_Vec,-1.0));
+
+	double *theta_arr;
+	TRY( VecGetArray(this->thetavector->get_vector(),&theta_arr) );
+
+	int K = this->get_K();
+
+	for(int k=0;k<K;k++){ 
+		/* get gammak */
+		this->decomposition->createIS_gammaK(&gammak_is, k);
+		TRY( VecGetSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
+
+		/* add to recovered image */
+		TRY( VecAXPY(data_abserr_Vec, theta_arr[k], gammak_Vec) );
+
+		TRY( VecRestoreSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRY( ISDestroy(&gammak_is) );
+	}	
+
+	TRY( VecRestoreArray(this->thetavector->get_vector(),&theta_arr) );
+
+	/* compute mean(abs(solution - data_recovered) */
+	TRY( VecAbs(data_abserr_Vec) );
+	TRY( VecSum(data_abserr_Vec, &abserr) );
+	int T = this->get_T();
+	abserr = abserr/(double)T;
+	
+	LOG_FUNC_END
+	
+	return abserr;
 }
 
 
