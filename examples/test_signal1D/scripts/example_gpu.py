@@ -11,7 +11,7 @@ from myscripts import show_jobs
 library_path = "~/soft/PASC_inference";
 
 # nmbfilesmax
-filename_solution = "data/signal1D_solution.bin";
+filename_solution = "data/signal1D/signal1D_solution.bin";
 problem_name = "test_signal1D";
 
 # noise of input signal
@@ -51,7 +51,7 @@ batchfile_list = [];
 for n in range(1,nmbfilesmax+1):
     print "Preparing batch scripts: %s" % (n)
     for sigma in Sigma:
-        filename = "data/signal1D_id%s_idSigma%s.bin" % (n,sigma);
+        filename = "data/signal1D/signal1D_id%s_idSigma%s.bin" % (n,sigma);
         filename_out = "signal1D_id%s_idSigma_%s" % (n,sigma);
         shortinfo_header = "n,sigmaid,";
         shortinfo_values = "%s,%s," % (n,sigma);
