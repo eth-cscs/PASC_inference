@@ -254,8 +254,8 @@ int main( int argc, char *argv[] )
 	if(shortinfo_write_or_not){
 
 		/* add provided strings from console parameters and info about the problem */
-		oss_short_output_header << shortinfo_header << "filename,K,epssqr_best,abserr_best,";
-		oss_short_output_values << shortinfo_values << filename << "," << K << "," << epssqr_best << "," << abserr_best << ",";
+		oss_short_output_header << shortinfo_header << "K,epssqr_best,abserr_best,";
+		oss_short_output_values << shortinfo_values << K << "," << epssqr_best << "," << abserr_best << ",";
 
 		/* append Theta solution */
 		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
