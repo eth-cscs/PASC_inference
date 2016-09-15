@@ -212,7 +212,7 @@ int main( int argc, char *argv[] )
 		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---" << std::endl;
 
 		/* set new epssqr */
-		mymodel.set_epssqr(epssqr_list[depth]);
+		mymodel.set_epssqr(epssqr);
 
 		/* cut data */
 		if(cutdata) mydata.cutdata(0,1);

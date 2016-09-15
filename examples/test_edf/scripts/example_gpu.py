@@ -48,8 +48,7 @@ batchfile_list = []; # in this list store all generated batch files
 for epssqr in epssqrs:
    problem_name_full = "%s_%s_epssqr%.16f_K%s_arch%s_N%s_Nthreads%s_Ngpu%s" % (problem_name,data_name,epssqr,K,architecture,N,Nthreads,Ngpu)
    print " - %s: %s" % (problem_name, problem_name_full);
-   problem_parameters_full = "%s --test_data_filename=\"%s\" --test_max_record_nmb=\"%d\" --test_graph_coordinates=\"%s\" --test_graph_coeff=%f --test_data_out=\"%s\" --test_epssqr=%.16f --test_shortinfo_header='data_name,epssqr,' --test_shortinfo_values='%s,%.16f,' --test_shortinfo_filename='shortinfo/%s.txt'" % 
-   (problem_parameters, data_path, max_record_nmb, graph_path, graph_coeff, problem_name_full, epssqr, data_name, epssqr, problem_name_full);
+   problem_parameters_full = "%s --test_data_filename=\"%s\" --test_max_record_nmb=\"%d\" --test_graph_coordinates=\"%s\" --test_graph_coeff=%f --test_data_out=\"%s\" --test_epssqr=%.16f --test_shortinfo_header='data_name,epssqr,' --test_shortinfo_values='%s,%.16f,' --test_shortinfo_filename='shortinfo/%s.txt'" % (problem_parameters, data_path, max_record_nmb, graph_path, graph_coeff, problem_name_full, epssqr, data_name, epssqr, problem_name_full);
    batchfile_name = write_batchfile(problem_name, problem_name_full, problem_time, problem_parameters_full, library_path, architecture, N, Nthreads, Ngpu);
    batchfile_list.append(batchfile_name);
 
