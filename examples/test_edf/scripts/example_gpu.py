@@ -33,6 +33,7 @@ problem_name = "test_edf";
 
 # common parameters
 problem_parameters = "--test_savevtk=true --test_cutdata=true --test_scaledata=false --test_annealing=1 --tssolver_debugmode=2 --spgqpsolver_maxit=3000 --tssolver_maxit=100 --spgqpsolver_debugmode=0 --test_shortinfo=true --test_K=6 --test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0";
+K = 2;
 
 # the upper estimation of computing time
 problem_time = "00:30:00"; 
