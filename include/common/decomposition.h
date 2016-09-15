@@ -205,11 +205,12 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 	this->K = K;
 	this->xdim = xdim;
 
-	/* prepare new layout for R */
-	set_graph(new_graph, DDR_size);
-	
 	this->DDT_size = DDT_size;
 	this->DDR_size = graph->get_DD_size();
+
+	/* prepare new layout for R */
+	destroy_DDR_arrays = false;
+	set_graph(new_graph, DDR_size);
 	
 	/* prepare new layout for T */
 	destroy_DDT_arrays = true;	
@@ -251,21 +252,21 @@ Decomposition::~Decomposition(){
 void Decomposition::compute_rank(){
 	LOG_FUNC_BEGIN
 
-	/* control the decomposition */
-	if(DDT_size*DDR_size != GlobalManager.get_size()){
-		coutMaster << "Sorry, DDT_size*DDR_size != nproc" << std::endl;
-		coutMaster << " DDT_size = " << DDT_size << std::endl;
-		coutMaster << " DDR_size = " << DDR_size << std::endl;
-		coutMaster << " nproc    = " << GlobalManager.get_size() << std::endl;
-		
-		// TODO: throw error
-	}
-
 	/* get rank of this processor */
 	int rank = GlobalManager.get_rank();
 
 	this->DDT_rank = rank/(double)this->DDR_size;
 	this->DDR_rank = rank - (this->DDT_rank)*(this->DDR_size);
+
+	/* control the decomposition */
+	if(this->DDT_size*this->DDR_size != GlobalManager.get_size()){
+		coutMaster << "Sorry, DDT_size*DDR_size != nproc" << std::endl;
+		coutMaster << " DDT_size = " << this->DDT_size << std::endl;
+		coutMaster << " DDR_size = " << this->DDR_size << std::endl;
+		coutMaster << " nproc    = " << GlobalManager.get_size() << std::endl;
+
+		// TODO: throw error
+	}
 	
 	LOG_FUNC_END
 }
@@ -348,6 +349,7 @@ BGMGraph *Decomposition::get_graph() const{
 }
 
 void Decomposition::set_graph(BGMGraph &new_graph, int DDR_size) {
+
 	if(destroy_DDR_arrays){
 		free(DDR_affiliation);
 		free(DDR_permutation);
@@ -357,10 +359,10 @@ void Decomposition::set_graph(BGMGraph &new_graph, int DDR_size) {
 	}
 
 	/* decompose graph */
+	this->DDR_size = DDR_size;
 	new_graph.decompose(DDR_size);
 
 	this->graph = &new_graph;
-
 	destroy_DDR_arrays = false;
 	DDR_affiliation = new_graph.get_DD_affiliation();
 	DDR_permutation = new_graph.get_DD_permutation();
@@ -384,7 +386,7 @@ void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &o
 	output_master << "Decomposition" << std::endl;
 	
 	output_master.push();
-	output_master << " Clusters              : " << this->K << std::endl;
+	output_master << " K                     : " << this->K << std::endl;
 	output_master << " Data dimension        : " << this->xdim << std::endl;
 	output_master << " Time                  : " << this->T << std::endl;
 	output_master << " - DDT_size            : " << this->DDT_size << std::endl;

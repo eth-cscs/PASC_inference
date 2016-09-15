@@ -220,6 +220,8 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	/* close file */
     myfile.close();		
 
+	TRY( PetscBarrier(NULL) );
+
 	LOG_FUNC_END
 }
 
