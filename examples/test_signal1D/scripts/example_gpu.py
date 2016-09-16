@@ -9,9 +9,10 @@ from myscripts import show_jobs
 
 # path to PASC_inference library
 library_path = "~/soft/PASC_inference";
+nameextension = "gauss";
 
 # nmbfilesmax
-filename_solution = "data/signal1D/signal1D_solution.bin";
+filename_solution = "data/signal1D_%s/signal1D_solution.bin" % (nameextension);
 problem_name = "test_signal1D";
 
 # noise of input signal
@@ -21,11 +22,8 @@ Sigma = [1,2];
 
 
 # used penalty
-epssqrs = [1e-7, 1e-6];
-#epssqrs = [1e-14, 1e-12, 1e-10, 1e-8, 1e-7, 2e-7, 3e-7, 4e-7, 5e-7, 6e-7, 7e-7, 8e-7, 9e-7,
-#		   1e-6, 2e-6, 3e-6, 4e-6, 5e-6, 6e-6, 7e-6, 8e-6, 9e-6, 
-#		   1e-5, 2e-5, 3e-5, 4e-5, 5e-5, 6e-5, 7e-5, 8e-5, 9e-5, 
-#		   1e-4, 5e-4, 1e-3, 1e-2];
+epssqrs = [1e-7, 1e-6, 1e6];
+#epssqrs = [1e-14, 1e-12, 1e-10, 1e-8, 1e-7, 5e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 5e-1, 1e0, 5e0, 1e1, 5e1, 1e2, 5e2, 1e3, 5e3, 1e4, 5e4, 1e5, 5e5, 1e6];
 
 # name of problem (name of compiled program)
 problem_name = "test_signal1D";
@@ -51,12 +49,12 @@ batchfile_list = [];
 for n in range(1,nmbfilesmax+1):
     print "Preparing batch scripts: %s" % (n)
     for sigma in Sigma:
-        filename = "data/signal1D/signal1D_id%s_idSigma%s.bin" % (n,sigma);
-        filename_out = "signal1D_id%s_idSigma_%s" % (n,sigma);
+        filename = "data/signal1D_%s/signal1D_id%s_idSigma%s.bin" % (nameextension,n,sigma);
+        filename_out = "signal1D_%s_id%s_idSigma_%s" % (nameextension,n,sigma);
         shortinfo_header = "n,sigmaid,";
         shortinfo_values = "%s,%s," % (n,sigma);
-        shortinfo_filename = "shortinfo/id%s_idSigma%d.txt" % (n,sigma);
-        problem_name_full = "%s_id%s_idSigma%s" % (problem_name,n,sigma);
+        shortinfo_filename = "shortinfo/%s_id%s_idSigma%d.txt" % (nameextension,n,sigma);
+        problem_name_full = "%s_%s_id%s_idSigma%s" % (problem_name,nameextension,n,sigma);
         problem_parameters_full = "%s --test_filename=\"%s\" --test_filename_out=\"%s\" --test_shortinfo_header=\"%s\" --test_shortinfo_values=\"%s\" --test_shortinfo_filename=\"%s\"" % (problem_parameters, filename, filename_out, shortinfo_header, shortinfo_values, shortinfo_filename);
         batchfile_name = write_batchfile(problem_name, problem_name_full, problem_time, problem_parameters_full, library_path, architecture, N, Nthreads, Ngpu);
         batchfile_list.append(batchfile_name);
