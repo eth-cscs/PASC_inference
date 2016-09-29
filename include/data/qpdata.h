@@ -1,5 +1,5 @@
 /** @file qpdata.h
- *  @brief class for manipulation with QP data
+ *  @brief code for manipulation with Quadratic Programming data
  *
  *  @author Lukas Pospisil
  */
