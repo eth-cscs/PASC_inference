@@ -10,6 +10,7 @@
 #include "pascinference.h"
 
 namespace pascinference {
+namespace solver {
 
 /** @class GeneralSolver
  *  @brief solver for solving problems
@@ -230,6 +231,7 @@ void GeneralSolver::set_eps(double eps) {
 }
 
 
+}
 } /* end of namespace */
 
 

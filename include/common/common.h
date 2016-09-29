@@ -27,12 +27,12 @@
 #include "common/globalmanager.h"
 #include "common/consoleoutput.h"
 #include "common/consoleinput.h"
-#include "common/arrayoperation.h"
 #include "common/logging.h"
 #include "common/mvnrnd.h"
 #include "common/shortinfo.h"
 
 namespace pascinference {
+namespace common {
 
 /* global variables */
 int DEBUG_MODE; /**< the debug mode of the library */ //TODO: old and unnecessary?
@@ -70,11 +70,14 @@ void Finalize();
 	}
 #endif
 
+
 }
+} /* end of namespace */
 
 /* ------------ IMPLEMENTATION -------------- */
 
 namespace pascinference {
+namespace common {
 
 bool Initialize(int argc, char *argv[]){
 	/* console arguments */
@@ -122,6 +125,8 @@ void myround(double in, double *out){
 	*out = myValue.dValue;
 }
 
+
+}
 } /* end of namespace */
 
 #endif

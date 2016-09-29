@@ -8,7 +8,7 @@ extern int DEBUGMODE;
 #include "data/simpledata.h"
 
 namespace pascinference {
-
+namespace solver {
 
 /* SimpleSolver */ 
 template<class VectorBase>
@@ -38,12 +38,15 @@ class SimpleSolver: public GeneralSolver {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace solver {
 
 /* constructor */
 template<class VectorBase>
@@ -207,6 +210,8 @@ void SimpleSolver<VectorBase>::solve() {
 	LOG_FUNC_END
 }
 
+
+}
 } /* end namespace */
 
 #endif

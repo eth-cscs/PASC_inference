@@ -10,6 +10,7 @@
 #define	PASC_COMMON_BGMGRAPH_H
 
 namespace pascinference {
+namespace algebra {
 
 /** \class BGMGraph
  *  \brief General class for manipulation with graphs.
@@ -126,7 +127,12 @@ class BGMGraph {
 		void saveVTK(std::string filename) const;
 };
 
-/* for simplier manipulation with graph of image */
+/** \class BGMGraphGrid2D
+ *  \brief Graph of two dimensional grid.
+ *
+ *  Could be used for faster and simplier manipulation with image graph.
+ * 
+*/
 class BGMGraphGrid2D: public BGMGraph {
 	protected:
 		int width;
@@ -141,6 +147,10 @@ class BGMGraphGrid2D: public BGMGraph {
 		virtual void process_grid();
 };
 
+/** \class BGMGraphGrid1D
+ *  \brief Graph of one dimensional grid.
+ *
+*/
 class BGMGraphGrid1D: public BGMGraph {
 	protected:
 		int width;
@@ -919,5 +929,6 @@ void BGMGraphGrid1D::process_grid(){
 
 
 }
+} /* end of namespace */
 
 #endif

@@ -2,7 +2,8 @@
 #define	PASC_COMMON_MEMORYCHECK_H
 
 namespace pascinference {
-	
+namespace common {
+
 /** @class MemoryCheck
  *  @brief get memory state
  * 
@@ -62,6 +63,8 @@ class MemoryCheck {
 	
 };
 
+
+}
 } /* end of namespace */
 
 #endif

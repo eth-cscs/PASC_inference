@@ -21,6 +21,7 @@ extern int DEBUG_MODE;
 
 
 namespace pascinference {
+namespace algebra {
 
 /* matlab matrix */ 
 template<class VectorBase>
@@ -387,9 +388,7 @@ int FileCRSMatrix<VectorBase>::read_filesize(std::ifstream &myfile) {
 	return (int)(end-begin);
 }
 
-
-
-
+}
 } /* end of namespace */
 
 

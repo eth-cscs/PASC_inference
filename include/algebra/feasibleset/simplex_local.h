@@ -23,7 +23,7 @@ typedef petscvector::PetscVector PetscVector;
 #endif
 
 namespace pascinference {
-
+namespace algebra {
 
 /** \class SimplexFeasibleSet_Local
  *  \brief class for manipulation with simplex set
@@ -134,12 +134,15 @@ __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
 __global__ void kernel_project(double *x, double *x_sorted, int T, int K);
 #endif
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace algebra {
 
 /* constructor */
 SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int T, int K){
@@ -425,7 +428,7 @@ __global__ void kernel_project(double *x, double *x_sorted, int T, int K){
 #endif
 
 
-
+}
 } /* end namespace */
 
 #endif

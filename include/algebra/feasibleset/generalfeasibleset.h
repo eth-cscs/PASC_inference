@@ -10,6 +10,7 @@
 #include "pascinference.h"
 
 namespace pascinference {
+namespace algebra {
 
 /** \class GeneralFeasibleSet
  *  \brief general class for manipulation with feasible sets
@@ -80,6 +81,7 @@ std::string GeneralFeasibleSet<VectorBase>::get_name() const {
 }
 
 
+}
 } /* end of namespace */
 
 #endif

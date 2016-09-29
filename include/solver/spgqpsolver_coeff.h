@@ -38,6 +38,7 @@
 #endif
 
 namespace pascinference {
+namespace solver {
 
 /** \class SPGQPSolverC_fs
  *  \brief generalized Armijo condition
@@ -198,12 +199,15 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace solver {
 
 template<class VectorBase>
 void SPGQPSolverC<VectorBase>::set_settings_from_console() {
@@ -1011,7 +1015,7 @@ void SPGQPSolverC<PetscVector>::compute_dots(double *dd, double *dAd, double *gd
 #endif
 
 
-
+}
 } /* end namespace */
 
 #endif

@@ -13,10 +13,10 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 /* gamma problem */
-#include "matrix/blocklaplacefree.h"
-#include "matrix/blocklaplacesparse.h"
+#include "algebra/matrix/blocklaplacefree.h"
+#include "algebra/matrix/blocklaplacesparse.h"
 
-#include "feasibleset/simplex_local.h"
+#include "algebra/feasibleset/simplex_local.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
@@ -29,6 +29,7 @@ extern int DEBUG_MODE;
 #define KMEANSH1FEMMODEL_DEFAULT_MATRIX_TYPE 0
 
 namespace pascinference {
+namespace model {
 
 template<class VectorBase>
 class KmeansH1FEMModel: public TSModel<VectorBase> {
@@ -70,13 +71,16 @@ class KmeansH1FEMModel: public TSModel<VectorBase> {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace model {
 
 /* constructor */
 template<>
@@ -470,6 +474,8 @@ double KmeansH1FEMModel<VectorBase>::get_aic(double L) const{
 
 }
 
+
+}
 } /* end namespace */
 
 #endif

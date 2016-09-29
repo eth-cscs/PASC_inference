@@ -14,6 +14,7 @@
 typedef petscvector::PetscVector PetscVector;
 
 namespace pascinference {
+namespace algebra {
 
 template<class VectorBase>
 class BlockLaplaceFreeMatrix: public GeneralMatrix<VectorBase> {
@@ -385,6 +386,7 @@ void BlockLaplaceFreeMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 #endif
 
 
+}
 } /* end of namespace */
 
 

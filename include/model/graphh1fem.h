@@ -13,10 +13,10 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 /* gamma problem */
-#include "matrix/blockgraphfree.h"
-#include "matrix/blockgraphsparse.h"
+#include "algebra/matrix/blockgraphfree.h"
+#include "algebra/matrix/blockgraphsparse.h"
 
-#include "feasibleset/simplex_local.h"
+#include "algebra/feasibleset/simplex_local.h"
 //#include "solver/spgqpsolver.h"
 #include "solver/spgqpsolver_coeff.h"
 #include "data/qpdata.h"
@@ -32,6 +32,7 @@ extern int DEBUG_MODE;
 
 
 namespace pascinference {
+namespace model {
 
 /** \class GraphH1FEMModel
  *  \brief time-series model with quadratic penalty time-space regularisation.
@@ -111,13 +112,16 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace model {
 
 /* constructor */
 template<>
@@ -573,6 +577,8 @@ double GraphH1FEMModel<VectorBase>::get_aic(double L) const{
 
 }
 
+
+}
 } /* end namespace */
 
 #endif

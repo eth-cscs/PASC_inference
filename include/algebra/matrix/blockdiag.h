@@ -16,8 +16,14 @@ extern int DEBUG_MODE;
 #endif
 
 
-namespace pascinference {
+namespace pascinference::algebra {
 
+/** \class BlockDiagMatrix
+ *  \brief Manipulation with Block-diagonal matrix.
+ *
+ * Blocks are stored in array of pointers to matrices.
+ * 
+*/
 template<class VectorBase, class MatrixBase>
 class BlockDiagMatrix: public GeneralMatrix<VectorBase> {
 	private:

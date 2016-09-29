@@ -23,8 +23,12 @@ extern int DEBUG_MODE;
 namespace pascinference {
 
 /* Maybe these classes are not defined yet */ 
-template<class VectorBase>
-class TSModel;
+namespace model {
+	template<class VectorBase>
+	class TSModel;
+}
+
+namespace data {
 
 template<class VectorBase>
 class TSData: public GeneralData {
@@ -133,12 +137,15 @@ class TSData: public GeneralData {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace data {
 
 template<class VectorBase>
 TSData<VectorBase>::TSData(){
@@ -1014,6 +1021,7 @@ void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double
 }
 
 
+}
 } /* end namespace */
 
 #endif

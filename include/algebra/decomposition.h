@@ -7,12 +7,13 @@
 #ifndef PASC_COMMON_DECOMPOSITION_H
 #define	PASC_COMMON_DECOMPOSITION_H
 
-#include "common/bgmgraph.h"
+#include "algebra/bgmgraph.h"
 
 /* this class is for petscvector */
 typedef petscvector::PetscVector PetscVector;
 
 namespace pascinference {
+namespace algebra {
 
 class Decomposition {
 	protected:
@@ -638,6 +639,7 @@ void Decomposition::createIS_gammaK(IS *is, int k) const {
 }
 
 
+}
 } /* end of namespace */
 
 #endif

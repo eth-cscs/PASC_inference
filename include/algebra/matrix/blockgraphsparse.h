@@ -8,7 +8,7 @@
 #define	PASC_BLOCKGRAPHSPARSEMATRIX_H
 
 #include "pascinference.h"
-#include "common/bgmgraph.h"
+#include "algebra/bgmgraph.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'BLOCKGRAPHSPARSEMATRIX is for PETSCVECTOR only, sorry'
@@ -19,6 +19,7 @@
 #endif
 
 namespace pascinference {
+namespace algebra {
 
 typedef petscvector::PetscVector PetscVector;
 typedef Mat PetscMatrix;
@@ -342,7 +343,7 @@ void BlockGraphSparseMatrix<VectorBase>::set_coeff(double coeff) {
 	this->alpha = coeff;
 }
 
-
+}
 } /* end of namespace */
 
 

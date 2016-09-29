@@ -2,6 +2,7 @@
 #define	PASCSOLVERLIST_H
 
 namespace pascinference {
+namespace solver {
 	
 	enum SolverType{ 
 		SOLVER_AUTO, /* choose automatic solver */
@@ -10,8 +11,10 @@ namespace pascinference {
 		SOLVER_SPGQP /* Spectral Projected Gradient method of QP (QP problem with given projection) */
 		
 	};
-	
-}
+
+
+}	
+} /* end of namespace */
 
 
 #endif

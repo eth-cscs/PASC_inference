@@ -18,6 +18,7 @@ extern int DEBUGMODE;
 #define QPSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
+namespace solver {
 
 /* QPSolver */ 
 template<class VectorBase>
@@ -86,7 +87,9 @@ class QPSolver: public GeneralSolver {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
@@ -95,6 +98,7 @@ class QPSolver: public GeneralSolver {
 #include "solver/spgqpsolver.h"
 
 namespace pascinference {
+namespace solver {
 
 /* constructor */
 template<class VectorBase>
@@ -360,6 +364,8 @@ QPData<VectorBase> *QPSolver<VectorBase>::get_data() const {
 	return qpdata;
 }
 
+
+}
 } /* end namespace */
 
 #endif

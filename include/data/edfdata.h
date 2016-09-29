@@ -15,11 +15,12 @@ typedef petscvector::PetscVector PetscVector;
 
 #include <iostream>
 #include "common/common.h"
-#include "common/bgmgraph.h"
+#include "algebra/bgmgraph.h"
 #include "model/tsmodel.h"
 #include "data/tsdata.h"
 
 namespace pascinference {
+namespace data {
 
 template<class VectorBase>
 class EdfData: public TSData<VectorBase> {
@@ -72,12 +73,15 @@ class EdfData: public TSData<VectorBase> {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace data {
 
 template<>
 void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
@@ -721,6 +725,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 }
 
 
+}
 } /* end namespace */
 
 #endif

@@ -10,6 +10,7 @@
 #include "pascinference.h"
 
 namespace pascinference {
+namespace model {
 
 /** \class GeneralModel
  *  \brief General class for manipulation with models.
@@ -59,8 +60,7 @@ std::string GeneralModel::get_name() const {
 }
 
 
-
-
+}
 } /* end of namespace */
 
 

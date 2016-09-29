@@ -8,6 +8,7 @@
 #include "options.h"
 
 namespace pascinference {
+namespace common {
 
 class ConsoleArgClass {
 	private:
@@ -86,6 +87,8 @@ static ConsoleArgClass consoleArg;
 //TODO: define aliases
 //typedef boost::program_options::value<int>() ConsoleInt;
 
+
+}
 } /* end of namespace */
 
 #endif

@@ -26,7 +26,7 @@
 
 
 namespace pascinference {
-
+namespace common {
 
 class LoggingClass {
 	private:
@@ -253,6 +253,7 @@ LoggingClass logging;
 
 
 }
+} /* end of namespace */
 
 
 #endif

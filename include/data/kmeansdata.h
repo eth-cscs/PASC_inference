@@ -22,6 +22,7 @@ extern int DEBUG_MODE;
 #include "model/tsmodel.h"
 
 namespace pascinference {
+namespace data {
 
 template<class VectorBase>
 class KmeansData: public TSData<VectorBase> {
@@ -48,12 +49,15 @@ class KmeansData: public TSData<VectorBase> {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace data {
 
 template<class VectorBase>
 std::string KmeansData<VectorBase>::get_name() const {
@@ -475,7 +479,7 @@ void KmeansData<PetscVector>::load_gammavector(std::string filename) const {
 }
 
 
-
+}
 } /* end namespace */
 
 #endif

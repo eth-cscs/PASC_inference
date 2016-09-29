@@ -71,14 +71,69 @@
 #endif
 
 /* include pascinference stuff */
+
+/** 
+*  \namespace pascinference
+*  \brief main namespace of the library
+*
+*/
+namespace pascinference {
+	/** 
+	*  \namespace pascinference::common
+	*  \brief general commonly-used stuff
+	*
+	*/
+	namespace common {}
+
+	/** 
+	*  \namespace pascinference::algebra
+	*  \brief for manipulation with algebraic structures
+	*
+	*/
+	namespace algebra {}
+
+	/** 
+	*  \namespace pascinference::data
+	*  \brief for manipulation with problem data
+	*
+	*/
+	namespace data {}
+
+	/** 
+	*  \namespace pascinference::solver
+	*  \brief solvers for different types of problems
+	*
+	*/
+	namespace solver {}
+
+	/** 
+	*  \namespace pascinference::model
+	*  \brief models for solving time-series problems
+	*
+	*/
+	namespace model {}
+
+
+	// TODO: is this good idea?
+	using namespace common;
+	using namespace algebra;
+	using namespace data;
+	using namespace solver;
+	using namespace model;
+	
+}
+
 #include "common/common.h"
-#include "algebra/algebra.h"
-#include "common/decomposition.h"
+
+#include "algebra/arrayoperation.h"
+#include "algebra/generalmatrix.h"
+#include "algebra/generalvector.h"
+#include "algebra/feasibleset/generalfeasibleset.h"
+#include "algebra/decomposition.h"
 
 #include "data/generaldata.h"
 #include "solver/list.h"
 #include "solver/generalsolver.h"
-#include "feasibleset/generalfeasibleset.h"
 #include "model/generalmodel.h"
 
 

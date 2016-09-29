@@ -18,12 +18,13 @@ extern int DEBUG_MODE;
 
 #include <iostream>
 #include "common/common.h"
-#include "common/bgmgraph.h"
-#include "matrix/blockgraphfree.h"
+#include "algebra/bgmgraph.h"
+#include "algebra/matrix/blockgraphfree.h"
 #include "model/tsmodel.h"
 #include "data/tsdata.h"
 
 namespace pascinference {
+namespace data {
 
 template<class VectorBase>
 class ImageData: public TSData<VectorBase> {
@@ -45,12 +46,15 @@ class ImageData: public TSData<VectorBase> {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace data {
 
 /* from filename */
 template<class VectorBase>
@@ -342,8 +346,7 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 }
 
 
-
-
+}
 } /* end namespace */
 
 #endif

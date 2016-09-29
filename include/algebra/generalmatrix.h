@@ -11,13 +11,13 @@
 extern int DEBUG_MODE; 
 
 namespace pascinference {
+namespace algebra {
 
-/* there will be a class with vectors... later */
+/* there will be a class with vectors inside namespace vector... later defined, but I need it now */
 template<class VectorBase> class GeneralVector;
-	
+
 /* class for manipulation with A*x as one object, will be defined later */
 template<class VectorBase> class GeneralMatrixRHS;
-
 
 /** \class GeneralMatrix
  *  \brief General class for manipulation with matrices.
@@ -151,7 +151,7 @@ class GeneralMatrixRHS{
 
 
 
-
+}
 } /* end of namespace */
 
 

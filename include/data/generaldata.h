@@ -10,6 +10,7 @@
 #include "pascinference.h"
 
 namespace pascinference {
+namespace data {
 
 /** \class GeneralData
  *  \brief general class for manipulation with data
@@ -88,9 +89,7 @@ std::string GeneralData::get_name() const {
 }
 
 
-
-
-
+}
 } /* end of namespace */
 
 

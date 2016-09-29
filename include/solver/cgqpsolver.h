@@ -16,6 +16,7 @@
 #define CGQPSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
+namespace solver {
 
 /** \class CGQPSolver
  *  \brief Conjugate Gradient method for solving Quadratic Programs
@@ -67,12 +68,15 @@ class CGQPSolver: public QPSolver<VectorBase> {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace solver {
 
 /* constructor */
 template<class VectorBase>
@@ -447,6 +451,8 @@ void CGQPSolver<PetscVector>::free_temp_vectors(){
 
 #endif
 
+
+}
 } /* end namespace */
 
 #endif

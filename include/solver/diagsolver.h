@@ -10,7 +10,7 @@ extern int DEBUGMODE;
 #define DIAGSOLVER_DEFAULT_DEBUGMODE 0;
 
 namespace pascinference {
-
+namespace solver {
 
 /* DiagSolver */ 
 template<class VectorBase>
@@ -45,12 +45,15 @@ class DiagSolver: public GeneralSolver {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace solver {
 
 /* constructor */
 template<class VectorBase>
@@ -311,6 +314,8 @@ void DiagSolver<MinlinDeviceVector>::solve() {
 
 #endif
 
+
+}
 } /* end namespace */
 
 #endif

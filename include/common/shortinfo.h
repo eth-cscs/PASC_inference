@@ -4,6 +4,7 @@
 #include "common/globalmanager.h"
 
 namespace pascinference {
+namespace common {
 
 class ShortinfoClass {
 	private:
@@ -51,6 +52,6 @@ ShortinfoClass shortinfo;
 
 
 }
-
+} /* end of namespace */
 
 #endif

@@ -21,7 +21,8 @@ extern int DEBUG_MODE;
 
 
 namespace pascinference {
-
+namespace algebra {
+	
 /* matlab matrix */ 
 template<class VectorBase>
 class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
@@ -581,8 +582,7 @@ int LocalDenseMatrix<VectorBase>::read_filesize(std::ifstream &myfile) {
 }
 
 
-
-
+}
 } /* end of namespace */
 
 

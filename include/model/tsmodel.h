@@ -20,9 +20,12 @@ extern int DEBUG_MODE;
 namespace pascinference {
 
 /* Maybe these classes are not defined yet */ 
-template<class VectorBase>
-class TSData;
+namespace data {
+	template<class VectorBase>
+	class TSData;
+}
 
+namespace model {
 /** \class TSModel
  *  \brief General class for manipulation with global time-series models.
  *
@@ -117,12 +120,15 @@ class TSModel: public GeneralModel {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace model {
 
 /* constructor */
 template<class VectorBase>
@@ -209,6 +215,7 @@ double TSModel<VectorBase>::get_aic(double L) const{
 }
 
 
+}
 } /* end namespace */
 
 #endif

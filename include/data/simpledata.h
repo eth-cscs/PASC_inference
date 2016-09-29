@@ -13,6 +13,7 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 namespace pascinference {
+namespace data {
 
 template<class VectorBase>
 class SimpleData: public GeneralData {
@@ -60,12 +61,15 @@ class SimpleData: public GeneralData {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace data {
 
 /* constructor */
 template<class VectorBase>
@@ -170,6 +174,7 @@ GeneralVector<VectorBase> *SimpleData<VectorBase>::get_x() const{
 }
 
 
+}
 } /* end namespace */
 
 #endif

@@ -13,6 +13,7 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 namespace pascinference {
+namespace data {
 
 /** \class QPData
  *  \brief general class for manipulation with QP data
@@ -105,6 +106,8 @@ class QPData: public GeneralData {
 
 };
 
+
+}
 } /* end of namespace */
 
 
@@ -113,6 +116,7 @@ class QPData: public GeneralData {
 //TODO: move to impls
 
 namespace pascinference {
+namespace data {
 
 /* constructor */
 template<class VectorBase>
@@ -395,6 +399,7 @@ GeneralFeasibleSet<VectorBase> *QPData<VectorBase>::get_feasibleset() const{
 }
 
 
+}
 } /* end namespace */
 
 #endif

@@ -14,21 +14,22 @@ extern int DEBUG_MODE;
 
 /* gamma problem */
 //#include "matrix/blockdiaglaplace_explicit.h"
-#include "matrix/blockdiaglaplace_vector.h"
+#include "algebra/matrix/blockdiaglaplace_vector.h"
 
-#include "feasibleset/simplex_local.h"
+#include "algebra/feasibleset/simplex_local.h"
 #include "solver/qpsolver_global.h"
 #include "data/qpdata.h"
 
 /* theta problem */
 #include "solver/multicg_global.h"
-#include "matrix/blockdiag.h"
-#include "matrix/localdense.h"
+#include "algebra/matrix/blockdiag.h"
+#include "algebra/matrix/localdense.h"
 
 #include "data/tsdata_global.h"
 
 
 namespace pascinference {
+namespace model {
 
 class VarxH1FEMModel_Global: public TSModel_Global {
 	protected:
@@ -88,13 +89,16 @@ class VarxH1FEMModel_Global: public TSModel_Global {
 //				static void set_solution_theta(int T, int xdim, int K, int xmem, double *theta, GeneralVector<VectorBase> *thetavector);		
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace model {
 
 /* constructor */
 VarxH1FEMModel_Global::VarxH1FEMModel_Global(int new_T, int new_xdim, int new_K, int new_xmem, double new_epssqr) {
@@ -961,6 +965,7 @@ void VarxH1FEMModel_Global::set_solution_gamma(int K_solution, int xmem_solution
 }
 
 
+}
 } /* end namespace */
 
 #endif

@@ -10,6 +10,7 @@
 #define	PASC_COMMON_ARRAYOPERATION_H
 
 namespace pascinference {
+namespace algebra {
 
 template<class MyType>
 std::string print_array(MyType *my_array, int my_size){
@@ -172,6 +173,7 @@ void mult_pw_array(int my_size, MyType *my_array, const MyType *my_array1, const
 }
 
 
+}
 } /* end of namespace */
 
 #endif

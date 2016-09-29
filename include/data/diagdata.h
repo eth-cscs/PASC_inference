@@ -13,6 +13,7 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 namespace pascinference {
+namespace data {
 
 /** class DiagData
  * @brief data of diag(a) x = b 
@@ -107,12 +108,15 @@ class DiagData: public GeneralData {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace data {
 
 /* constructor */
 template<class VectorBase>
@@ -285,6 +289,7 @@ GeneralVector<VectorBase> *DiagData<VectorBase>::get_x() const{
 }
 
 
+}
 } /* end namespace */
 
 #endif

@@ -24,6 +24,7 @@
 #define TSSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
+namespace solver {
 
 /* TSSolver */ 
 template<class VectorBase>
@@ -102,12 +103,15 @@ class TSSolver: public GeneralSolver {
 		void set_annealing(int annealing);
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace solver {
 
 /* set predefined debug mode schema */
 template<class VectorBase>
@@ -762,6 +766,7 @@ void TSSolver<VectorBase>::set_solution_theta(double *Theta) {
 }
 
 
+}
 } /* end namespace */
 
 #endif

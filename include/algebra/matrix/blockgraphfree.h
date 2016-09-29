@@ -8,7 +8,7 @@
 #define	PASC_BLOCKGRAPHFREEMATRIX_H
 
 #include "pascinference.h"
-#include "common/bgmgraph.h"
+#include "algebra/bgmgraph.h"
 
 #ifndef USE_PETSCVECTOR
  #error 'BLOCKGRAPHFREEMATRIX is for PETSCVECTOR only, sorry'
@@ -23,6 +23,7 @@
 #endif
 
 namespace pascinference {
+namespace algebra {
 
 template<class VectorBase>
 class BlockGraphFreeMatrix: public GeneralMatrix<VectorBase> {
@@ -650,6 +651,7 @@ void BlockGraphFreeMatrix<PetscVector>::matmult_graph(PetscVector &y, const Pets
 #endif
 
 
+}
 } /* end of namespace */
 
 

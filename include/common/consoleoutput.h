@@ -2,6 +2,7 @@
 #define	PASC_COMMON_CONSOLEOUTPUT_H
 
 namespace pascinference {
+namespace common {
 
 /** @class OffsetClass
  *  @brief output space
@@ -259,6 +260,8 @@ class ConsoleOutput : public std::ostream {
 static ConsoleOutput coutMaster(std::cout,0); /**< instance of output console stream on master */
 static ConsoleOutput coutAll(std::cout); /**< instance of output console stream */
 
+
+}
 } /* end of namespace */
 
 #endif

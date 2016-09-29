@@ -10,6 +10,7 @@
 #define	PASC_COMMON_TIMER_H
 
 namespace pascinference {
+namespace common {
 
 /** \class StackTimer
  *  \brief stack-based time management
@@ -124,12 +125,14 @@ class Timer {
 		bool status() const;
 };
 
+}
 } /* end of namespace */
 
 
 /* ------------ IMPLEMENTATION ------------- */
 
 namespace pascinference {
+namespace common {
 	
 /* ------------ STACK TIMER ------------ */
 double StackTimer::getUnixTime(void){
@@ -199,6 +202,8 @@ bool Timer::status() const {
 	return this->run_or_not;
 }
 
+
+}
 } /* end of namespace */
 
 

@@ -9,14 +9,15 @@ extern int DEBUGMODE;
 #include "solver/cgqpsolver.h"
 #include "data/qpdata.h"
 
-#include "matrix/blockdiag.h"
-#include "matrix/localdense.h"
+#include "algebra/matrix/blockdiag.h"
+#include "algebra/matrix/localdense.h"
 
 #define MULTICGSOLVER_DEFAULT_MAXIT 1000
 #define MULTICGSOLVER_DEFAULT_EPS 0.0001
 #define MULTICGSOLVER_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
+namespace solver {
 
 /* MultiCGSolver */ 
 template<class VectorBase>
@@ -43,12 +44,15 @@ class MultiCGSolver: public QPSolver<VectorBase> {
 
 };
 
-} // end of namespace
+
+}
+} /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
 namespace pascinference {
+namespace solver {
 
 /* constructor */
 template<class VectorBase>
@@ -358,6 +362,7 @@ void MultiCGSolver<PetscVector>::solve() {
 #endif
 
 
+}
 } /* end namespace */
 
 #endif

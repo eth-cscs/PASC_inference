@@ -2,6 +2,7 @@
 #define	PASC_COMMON_GLOBALMANAGER_H
 
 namespace pascinference {
+namespace common {
 	
 class GlobalManagerClass {
 	private:
@@ -48,6 +49,8 @@ class GlobalManagerClass {
 
 static GlobalManagerClass GlobalManager; /**< for manipulation with rank and size of MPI */
 
+
+}
 } /* end of namespace */
 
 #endif

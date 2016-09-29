@@ -11,6 +11,8 @@
 #define	PASC_GENERALVECTOR_H
 
 namespace pascinference {
+namespace algebra {
+
 	/** @class General_all_type
 	*  @brief deal with vector(all)
 	* 
@@ -108,9 +110,11 @@ namespace pascinference {
 	};
 
 }
+}
 
 // TODO: move to impl
 namespace pascinference {
+namespace algebra {
 
 /* ------- PETSCVECTOR ------- */	
 #ifdef USE_PETSCVECTOR
@@ -206,11 +210,9 @@ void GeneralVector<MinlinDeviceVector>::set_random() {
 	}	
 }
 
-
 #endif
 
-
-
-} /* end of namespace petscvector */
+}
+} /* end of namespace */
 
 #endif
