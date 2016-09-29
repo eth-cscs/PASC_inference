@@ -40,67 +40,67 @@
 namespace pascinference {
 namespace solver {
 
-/** \class SPGQPSolverC_fs
- *  \brief generalized Armijo condition
- *
- *  For manipulation with fs - function values for generalized Armijo condition used in SPGQP.
-*/
-class SPGQPSolverC_fs {
-	private:
-		int m; /**< the length of list */
-		double *fs_list; /**< the list with function values */
-		int last_idx;
-
-	public: 
-		/** @brief constructor
-		*
-		* @param length of lists
-		*/
-		SPGQPSolverC_fs(int new_m);
-
-		/** @brief deconstructor
-		*
-		*/
-		~SPGQPSolverC_fs();
-
-		/** @brief set all values to given one
-		*
-		* At the begining of computation, all values are the same, set them using this function.
-		* 
-		* @param fx function value
-		*/
-		void init(double fx);
-
-		/** @brief return maximum value from the list
-		*
-		*/
-		double get_max();		
-
-		/** @brief return length of lists
-		*
-		*/
-		int get_size();
-		
-		/** @brief update list - add new value and remove oldest one
-		*
-		*/
-		void update(double new_fx);
-		
-		/** @brief print content of the lists
-		*
-		* @param output where to print
-		*/
-		void print(ConsoleOutput &output);
-};
-
 /** \class SPGQPSolverC
- *  \brief Spectral Projected Gradient method for Quadratic Programs
+ *  \brief Spectral Projected Gradient method for Quadratic Programs with special care of matrix coefficients
  *
  *  For solving QP on closed convex set using projections.
 */
 template<class VectorBase>
 class SPGQPSolverC: public QPSolver<VectorBase> {
 	private:
+		/** \class SPGQPSolverC_fs
+		 *  \brief generalized Armijo condition
+		 *
+		 *  For manipulation with fs - function values for generalized Armijo condition used in SPGQP.
+		*/
+		class SPGQPSolverC_fs {
+			private:
+				int m; /**< the length of list */
+				double *fs_list; /**< the list with function values */
+				int last_idx;
+
+			public: 
+				/** @brief constructor
+				*
+				* @param length of lists
+				*/
+				SPGQPSolverC_fs(int new_m);
+
+				/** @brief deconstructor
+				*
+				*/
+				~SPGQPSolverC_fs();
+
+				/** @brief set all values to given one
+				*
+				* At the begining of computation, all values are the same, set them using this function.
+				* 
+				* @param fx function value
+				*/
+				void init(double fx);
+
+				/** @brief return maximum value from the list
+				*
+				*/
+				double get_max();		
+
+				/** @brief return length of lists
+				*
+				*/
+				int get_size();
+
+				/** @brief update list - add new value and remove oldest one
+				*
+				*/
+				void update(double new_fx);
+		
+				/** @brief print content of the lists
+				*
+				* @param output where to print
+				*/
+				void print(ConsoleOutput &output);
+		};
+
 		Timer timer_solve; 			/**< total solution time of SPG algorithm */
 		Timer timer_projection;		/**< the sum of time necessary to perform projections */
 		Timer timer_matmult; 		/**< the sum of time necessary to perform matrix multiplication */
@@ -918,18 +918,20 @@ int SPGQPSolverC<VectorBase>::get_hessmult() const {
 
 /* ---------- SPGQPSolverC_fs -------------- */
 
-/* constructor */
-SPGQPSolverC_fs::SPGQPSolverC_fs(int new_m){
+/* constructor */template<class VectorBase>
+SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::SPGQPSolverC_fs(int new_m){
 	this->m = new_m;
 	this->fs_list = (double*)malloc(this->m*sizeof(double));
 }
 
-SPGQPSolverC_fs::~SPGQPSolverC_fs(){
+template<class VectorBase>
+SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::~SPGQPSolverC_fs(){
 	free(this->fs_list);
 }
 
 /* init the list with function values using one initial fx */
-void SPGQPSolverC_fs::init(double fx){
+template<class VectorBase>
+void SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::init(double fx){
 	LOG_FUNC_BEGIN
 
 	for(int i=0; i<this->m;i++){
@@ -941,12 +943,14 @@ void SPGQPSolverC_fs::init(double fx){
 }
 
 /* get the size of the list */
-int SPGQPSolverC_fs::get_size(){
+template<class VectorBase>
+int SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::get_size(){
 	return this->m;
 }
 
 /* get the value of max value in the list */
-double SPGQPSolverC_fs::get_max(){
+template<class VectorBase>
+double SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::get_max(){
 	LOG_FUNC_BEGIN
 	
 	int max_idx = 0;
@@ -964,7 +968,8 @@ double SPGQPSolverC_fs::get_max(){
 }
 
 /* update the list by new value - pop the first and push the new value (FIFO) */
-void SPGQPSolverC_fs::update(double new_fx){
+template<class VectorBase>
+void SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::update(double new_fx){
 	LOG_FUNC_BEGIN
 
 	this->last_idx++;
@@ -978,7 +983,8 @@ void SPGQPSolverC_fs::update(double new_fx){
 }
 
 /* print the content of the list */
-void SPGQPSolverC_fs::print(ConsoleOutput &output)
+template<class VectorBase>
+void SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::print(ConsoleOutput &output)
 {
 	output << "[ ";
 	/* for each component go throught the list */

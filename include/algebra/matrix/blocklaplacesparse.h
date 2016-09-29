@@ -17,6 +17,10 @@ typedef Mat PetscMatrix;
 namespace pascinference {
 namespace algebra {
 
+/** \class BlockLaplaceSparseMatrix
+ *  \brief sparse matrix for FEM-H1 model time-regularisation
+ *
+*/
 template<class VectorBase>
 class BlockLaplaceSparseMatrix: public GeneralMatrix<VectorBase> {
 	private:

@@ -10,7 +10,11 @@ extern int DEBUGMODE;
 namespace pascinference {
 namespace solver {
 
-/* SimpleSolver */ 
+/** \class SimpleSolver
+ *  \brief Solver which doesn't do anything.
+ *
+ *  Operates on SimpleData.
+*/
 template<class VectorBase>
 class SimpleSolver: public GeneralSolver {
 	protected:

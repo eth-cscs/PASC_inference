@@ -19,7 +19,11 @@ extern int DEBUGMODE;
 namespace pascinference {
 namespace solver {
 
-/* MultiCGSolver */ 
+/** \class MultiCGSolver
+ *  \brief Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix
+ *
+ *  Solve each block-system using CG.
+*/
 template<class VectorBase>
 class MultiCGSolver: public QPSolver<VectorBase> {
 	protected:

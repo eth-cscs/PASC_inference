@@ -23,7 +23,6 @@ namespace solver {
  *
  *  For solving QP without constraints.
 */
-
 template<class VectorBase>
 class CGQPSolver: public QPSolver<VectorBase> {
 	protected:

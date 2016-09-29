@@ -20,7 +20,10 @@ extern int DEBUGMODE;
 namespace pascinference {
 namespace solver {
 
-/* QPSolver */ 
+/** \class QPSolver
+ *  \brief General Quadratic Programming solver
+ *
+*/
 template<class VectorBase>
 class QPSolver: public GeneralSolver {
 	protected:

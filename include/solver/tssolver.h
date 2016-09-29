@@ -26,7 +26,10 @@
 namespace pascinference {
 namespace solver {
 
-/* TSSolver */ 
+/** \class TSSolver
+ *  \brief for solving time-series problems
+ *
+*/
 template<class VectorBase>
 class TSSolver: public GeneralSolver {
 	protected:

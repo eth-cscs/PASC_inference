@@ -24,6 +24,10 @@ namespace algebra {
 typedef petscvector::PetscVector PetscVector;
 typedef Mat PetscMatrix;
 
+/** \class BlockGraphSparseMatrix
+ *  \brief sparse graph-based matrix for FEM-H1 model regularisation
+ *
+*/
 template<class VectorBase>
 class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 	private:

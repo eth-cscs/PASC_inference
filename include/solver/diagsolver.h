@@ -12,7 +12,11 @@ extern int DEBUGMODE;
 namespace pascinference {
 namespace solver {
 
-/* DiagSolver */ 
+/** \class DiagSolver
+ *  \brief Solver for linear systems with diagonal matrix
+ *
+ *  Operates on DiagData.
+*/
 template<class VectorBase>
 class DiagSolver: public GeneralSolver {
 	protected:
