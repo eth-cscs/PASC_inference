@@ -111,6 +111,7 @@ class TSData: public GeneralData {
 		/** @brief print basic statistics about data
 		* 
 		* @param output where to print
+		* @param printdetails print details of the data or not
 		*/
 		void printstats(ConsoleOutput &output, bool printdetails=false) const;
 

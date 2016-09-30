@@ -1,5 +1,5 @@
 /** @file generalsolver.h
- *  @brief class for manipulation with solver
+ *  @brief General solver for solving problems
  *
  *  @author Lukas Pospisil
  */

@@ -139,7 +139,6 @@ class GeneralMatrixRHS{
 		 * Call multiplication function from matrix class to perform y = A*x 
 		 * 
 		 * @param y result vector y=A*x
-		 * @param newx pointer to input vector on right side
 		 */ 
 		void matmult(GeneralVector<VectorBase> &y){ 
 			if(DEBUG_MODE >= 100) coutMaster << "(GeneralMatrixRHS)FUNCTION: matmult" << std::endl;

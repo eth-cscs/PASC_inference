@@ -35,6 +35,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
 make_directory(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
+macro(PRINT value)
+ message("${value}")
+endmacro()
+
 # print name of variable and value
 macro(PRINTINFO name value)
  message(" ${name} : ${Yellow}${value}${ColourReset}")

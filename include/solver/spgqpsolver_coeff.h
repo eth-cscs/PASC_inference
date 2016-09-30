@@ -1,5 +1,5 @@
-/** @file spgqpsolver.h
- *  @brief Spectral Projected Gradient method for solving Quadratic Programs with Matrix with coefficient
+/** @file spgqpsolver_coeff.h
+ *  @brief Spectral Projected Gradient method for solving Quadratic Programs with special case of matrix coefficient
  *
  *  @author Lukas Pospisil
  */
@@ -62,7 +62,7 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 			public: 
 				/** @brief constructor
 				*
-				* @param length of lists
+				* @param new_m length of list
 				*/
 				SPGQPSolverC_fs(int new_m);
 

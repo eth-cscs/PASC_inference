@@ -3,13 +3,24 @@
 
 namespace pascinference {
 namespace common {
-	
+
+/** \class GlobalManagerClass
+ *  \brief Manipulation with processes informations - MPI environment.
+ *
+ *  Works also without MPI. In this case rank=0 and size=1.
+*/
 class GlobalManagerClass {
 	private:
-		int rank;
-		int size;
-		bool initialized; /**< the rank and size were already obtained */
+		int rank;			/**< the rank of this process */
+		int size;			/**< number of processes */
+		bool initialized;	/**< the rank and size were already obtained */
 
+		/** @brief set rank and number of processes
+		 * 
+		 * If PetscVector is used, then MPI_Comm_rank and MPI_Comm_size called.
+		 * Works also without PetscVector, in this case the problem is one-process, rank=0 and size=1.
+		 * 
+		 */
 		void init(){
 			if(!initialized){
 			#ifdef USE_PETSCVECTOR
@@ -32,15 +43,26 @@ class GlobalManagerClass {
 		}
 
 	public:
+		/** @brief default constructor
+		 * 
+		 * Calls init(), set rank and size.
+		 * 
+		 */
 		GlobalManagerClass(){
 			this->init();
 		}
 
+		/** @brief return rank of this process
+		 * 
+		 */
 		int get_rank(){
 			this->init();
 			return this->rank;
 		}
 		
+		/** @brief return number of processes
+		 * 
+		 */
 		int get_size(){
 			this->init();
 			return this->size;
@@ -48,7 +70,6 @@ class GlobalManagerClass {
 };
 
 static GlobalManagerClass GlobalManager; /**< for manipulation with rank and size of MPI */
-
 
 }
 } /* end of namespace */

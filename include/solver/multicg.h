@@ -1,3 +1,9 @@
+/** @file multicg.h
+ *  @brief Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix.
+ *
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASC_MULTICGSOLVER_H
 #define	PASC_MULTICGSOLVER_H
 

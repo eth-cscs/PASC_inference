@@ -1,3 +1,9 @@
+/** @file simplesolver.h
+ *  @brief Solver which doesn't do anything
+ *
+ *  @author Lukas Pospisil
+ */
+ 
 #ifndef PASC_SIMPLESOLVER_H
 #define	PASC_SIMPLESOLVER_H
 

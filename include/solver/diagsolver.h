@@ -1,3 +1,9 @@
+/** @file diagsolver.h
+ *  @brief Solver for linear systems with diagonal matrix
+ *
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASC_DIAGSOLVER_H
 #define	PASC_DIAGSOLVER_H
 

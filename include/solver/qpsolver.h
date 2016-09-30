@@ -1,5 +1,5 @@
 /** @file qpsolver.h
- *  @brief class for manipulation with quadratic programming solvers
+ *  @brief General Quadratic Programming solver
  *
  *  @author Lukas Pospisil
  */
@@ -50,7 +50,7 @@ class QPSolver: public GeneralSolver {
 		 * 
 		 * Set inner pointer to data on which the solver operates to given data.
 		 * 
-		 * @param new_data input data for solver
+		 * @param new_qpdata input data for solver
 		 */ 		
 		QPSolver(QPData<VectorBase> &new_qpdata); 
 

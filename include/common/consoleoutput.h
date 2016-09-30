@@ -228,7 +228,8 @@ class ConsoleOutput : public std::ostream {
 
 		/** @brief constructor from given output stream and rank
 		*
-		* @param std output stream (for example std::cout)
+		* @param str output stream (for example std::cout)
+		* @param rank rank of the processor which prints, if -1 then all print
 		*/
 		ConsoleOutput(std::ostream& str, int rank = -1) : std::ostream(&buffer), buffer(str) {
 			buffer.rankset = false;

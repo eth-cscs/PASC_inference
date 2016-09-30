@@ -1,5 +1,5 @@
 /** @file options.h
- *  @brief defines command line options
+ *  @brief define command line options
  *
  *  Includes the definition of all command line options with description.
  *  Call program with --help to see these options.

@@ -1,3 +1,9 @@
+/** @file tssolver.h
+ *  @brief Time-series solver.
+ *
+ *  @author Lukas Pospisil
+ */
+ 
 #ifndef PASC_TSSOLVER_H
 #define	PASC_TSSOLVER_H
 

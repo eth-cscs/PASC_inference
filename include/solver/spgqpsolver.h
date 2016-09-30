@@ -62,7 +62,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 			public: 
 				/** @brief constructor
 				*
-				* @param length of lists
+				* @param new_m length of lists
 				*/
 				SPGQPSolver_fs(int new_m);
 

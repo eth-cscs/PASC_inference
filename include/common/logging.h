@@ -28,16 +28,22 @@
 namespace pascinference {
 namespace common {
 
+/** \class LoggingClass
+ *  \brief Manipulation with log file.
+ *
+ *  Several macros implemented to call logging methods.
+ * 
+*/
 class LoggingClass {
 	private:
-		std::string *filename;
-		std::ofstream myfile;
+		std::string *filename;			/**< name of log file */
+		std::ofstream myfile;			/**< log file */
 
-		bool log_or_not;
-		bool log_or_not_func_call;
-		bool log_or_not_file_line;
-		bool log_or_not_level;
-		bool log_or_not_memory;
+		bool log_or_not;				/**< logging (writting into file) is turned on/off */
+		bool log_or_not_func_call;		/**< log LOG_FUNC_STATIC_BEGIN/LOG_FUNC_STATIC_END */
+		bool log_or_not_file_line;		/**< log also the file and line of called log function */
+		bool log_or_not_level;			/**< log also the level of called function */
+		bool log_or_not_memory;			/**< log also the state of the memory */
 		
 		int level;
 		double reference_time;
@@ -249,7 +255,7 @@ class LoggingClass {
 
 };
 
-LoggingClass logging;
+LoggingClass logging;	/**< global instance of logging class */
 
 
 }
