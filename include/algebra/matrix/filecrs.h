@@ -23,7 +23,10 @@ extern int DEBUG_MODE;
 namespace pascinference {
 namespace algebra {
 
-/* matlab matrix */ 
+/** \class FileCRSMatrix
+ *  \brief Matrix loaded from CRS file.
+ *
+*/
 template<class VectorBase>
 class FileCRSMatrix: public GeneralMatrix<VectorBase> {
 	private:
