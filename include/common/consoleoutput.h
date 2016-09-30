@@ -5,9 +5,9 @@ namespace pascinference {
 namespace common {
 
 /** @class OffsetClass
- *  @brief output space
+ *  @brief to control the space at the beginning of print
  * 
- *  For manipulating with the space in the begining of output line.
+ *  For manipulating with the space at the begining of each output line.
  * 
  */ 
 class OffsetClass {

@@ -343,7 +343,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	}
 
 	gammadata->set_A(A_shared); 
-	gammadata->set_feasibleset(new SimplexFeasibleSet_Local(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
+	gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
 	*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);

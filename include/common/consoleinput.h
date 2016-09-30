@@ -10,6 +10,12 @@
 namespace pascinference {
 namespace common {
 
+/** @class ConsoleArgClass
+ *  @brief for manipulation with console arguments
+ * 
+ *  Based on boost::program_options.
+ * 
+ */ 
 class ConsoleArgClass {
 	private:
 		boost::program_options::options_description *description;
@@ -82,7 +88,7 @@ class ConsoleArgClass {
 		}		
 };
 
-static ConsoleArgClass consoleArg;
+static ConsoleArgClass consoleArg; /**< global instance to manipulate with console input arguments */
 
 //TODO: define aliases
 //typedef boost::program_options::value<int>() ConsoleInt;

@@ -23,7 +23,12 @@ extern int DEBUG_MODE;
 namespace pascinference {
 namespace algebra {
 	
-/* matlab matrix */ 
+/** \class LocalDenseMatrix
+ *  \brief Manipulation with dense matrices.
+ *
+ * Can be used also MinLin, which uses local matrices.
+ * 
+*/
 template<class VectorBase>
 class LocalDenseMatrix: public GeneralMatrix<VectorBase> {
 	private:

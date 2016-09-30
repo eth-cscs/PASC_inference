@@ -38,7 +38,8 @@ namespace algebra {
  *	\f]
  * 
 */
-class SimplexFeasibleSet_Local: public GeneralFeasibleSet<PetscVector> {
+template<class VectorBase>
+class SimplexFeasibleSet_Local: public GeneralFeasibleSet<VectorBase> {
 	private:
 		
 		/** @brief sort array using bubble sort
@@ -145,7 +146,8 @@ namespace pascinference {
 namespace algebra {
 
 /* constructor */
-SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int T, int K){
+template<class VectorBase>
+SimplexFeasibleSet_Local<VectorBase>::SimplexFeasibleSet_Local(int T, int K){
 	LOG_FUNC_BEGIN
 
 	/* set initial content */
@@ -163,7 +165,8 @@ SimplexFeasibleSet_Local::SimplexFeasibleSet_Local(int T, int K){
 }
 
 /* general destructor */
-SimplexFeasibleSet_Local::~SimplexFeasibleSet_Local(){
+template<class VectorBase>
+SimplexFeasibleSet_Local<VectorBase>::~SimplexFeasibleSet_Local(){
 	LOG_FUNC_BEGIN
 	
 	#ifdef USE_CUDA
@@ -175,7 +178,8 @@ SimplexFeasibleSet_Local::~SimplexFeasibleSet_Local(){
 }
 
 /* print info about feasible set */
-void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
+template<class VectorBase>
+void SimplexFeasibleSet_Local<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 	
 	output <<  this->get_name() << std::endl;
@@ -193,11 +197,13 @@ void SimplexFeasibleSet_Local::print(ConsoleOutput &output) const {
 	LOG_FUNC_END
 }
 
-std::string SimplexFeasibleSet_Local::get_name() const {
+template<class VectorBase>
+std::string SimplexFeasibleSet_Local<VectorBase>::get_name() const {
 	return "SimplexFeasibleSet_Local";
 }
 
-void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
+template<>
+void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &x) {
 	LOG_FUNC_BEGIN
 	
 	/* get local array */
@@ -229,8 +235,8 @@ void SimplexFeasibleSet_Local::project(GeneralVector<PetscVector> &x) {
 	LOG_FUNC_END
 }
 
-
-void SimplexFeasibleSet_Local::sort_bubble(double *x, int n){
+template<class VectorBase>
+void SimplexFeasibleSet_Local<VectorBase>::sort_bubble(double *x, int n){
 	int i;
 	int m = n;
 	int mnew;
@@ -252,7 +258,8 @@ void SimplexFeasibleSet_Local::sort_bubble(double *x, int n){
     }
 }
 
-void SimplexFeasibleSet_Local::project_sub(double *x, int t, int T, int K){
+template<class VectorBase>
+void SimplexFeasibleSet_Local<VectorBase>::project_sub(double *x, int t, int T, int K){
 	if(t<T){ /* maybe we call more than T kernels */
 		int k;
 

@@ -129,7 +129,7 @@ namespace pascinference {
 #include "algebra/generalmatrix.h"
 #include "algebra/generalvector.h"
 #include "algebra/feasibleset/generalfeasibleset.h"
-#include "algebra/decomposition.h"
+#include "common/decomposition.h"
 
 #include "data/generaldata.h"
 #include "solver/list.h"

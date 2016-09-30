@@ -30,6 +30,10 @@ namespace model {
 
 namespace data {
 
+/** \class TSData
+ *  \brief General Time-series data.
+ *
+*/
 template<class VectorBase>
 class TSData: public GeneralData {
 	protected:
