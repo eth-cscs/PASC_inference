@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
 	} 
 
 /*	if(GlobalManager.get_size() > 1){
-		coutMaster << "This example works only on one processor, sorry." << std::endl;
+		coutMaster << "This example works only on one processor, sorry.\n";
 		return 0;		
 	}
 */
@@ -62,19 +62,19 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
 	/* print settings */
-	coutMaster << " test_T                    = " << std::setw(30) << graph_filename << " (length of time-series)" << std::endl;
-	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_graph_out            = " << std::setw(30) << graph_filename << " (part of name of output file with graph)" << std::endl;
-	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)" << std::endl;
-	coutMaster << " test_DDT                  = " << std::setw(30) << DDT_size << " (decomposition in time)" << std::endl;
-	coutMaster << " test_DDR                  = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
+	coutMaster << " test_T                    = " << std::setw(30) << graph_filename << " (length of time-series)\n";
+	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)\n";
+	coutMaster << " test_graph_out            = " << std::setw(30) << graph_filename << " (part of name of output file with graph)\n";
+	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)\n";
+	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)\n";
+	coutMaster << " test_DDT                  = " << std::setw(30) << DDT_size << " (decomposition in time)\n";
+	coutMaster << " test_DDR                  = " << std::setw(30) << DDR_size << " (decomposition in space)\n";
 
 	if(DDT_size*DDR_size != nproc){
-		coutMaster << "Sorry, DDT*DDR != nproc" << std::endl;
-		coutMaster << " DDT = " << DDT_size << std::endl;
-		coutMaster << " DDR = " << DDR_size << std::endl;
-		coutMaster << " nproc    = " << nproc << std::endl;
+		coutMaster << "Sorry, DDT*DDR != nproc\n";
+		coutMaster << " DDT = " << DDT_size << "\n";
+		coutMaster << " DDR = " << DDR_size << "\n";
+		coutMaster << " nproc    = " << nproc << "\n";
 		
 		return 0;
 	}
@@ -85,7 +85,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* create graph */
 	BGMGraph graph(graph_filename);
@@ -108,7 +108,7 @@ int main( int argc, char *argv[] )
 	decomposition.print_content(coutMaster, coutAll);
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

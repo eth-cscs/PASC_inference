@@ -146,12 +146,12 @@ void QPSolver_Global::RestoreLocalData(){
 void QPSolver_Global::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << std::endl;
-	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debugmode: " << this->debugmode << std::endl;
+	output <<  " - maxit:      " << this->maxit << "\n";
+	output <<  " - eps:        " << this->eps << "\n";
+	output <<  " - debugmode: " << this->debugmode << "\n";
 
 	/* print data */
 	if(qpdata){
@@ -167,19 +167,19 @@ void QPSolver_Global::print(ConsoleOutput &output) const {
 void QPSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* print settings */
-	output_global <<  " - maxit:      " << this->maxit << std::endl;
-	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debugmode: " << this->debugmode << std::endl;
+	output_global <<  " - maxit:      " << this->maxit << "\n";
+	output_global <<  " - eps:        " << this->eps << "\n";
+	output_global <<  " - debugmode: " << this->debugmode << "\n";
 
-	output_global << " - local solver:" << std::endl;
+	output_global << " - local solver:\n";
 	output_global.push();
 	if(solver_local){
 		solver_local->printstatus(output_local);
 	} else {
-		output_local <<  " - not set yet." << std::endl; 
+		output_local <<  " - not set yet.\n"; 
 	}
 	output_local.synchronize();	
 	output_global.pop();
@@ -200,11 +200,11 @@ void QPSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_
 void QPSolver_Global::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << std::endl;
+	output << this->get_name() << "\n";
 	
 	/* print content of data */
 	if(qpdata){
-		output << "- data:" << std::endl;
+		output << "- data:\n";
 		coutMaster.push();
 		qpdata->printcontent(output);
 		coutMaster.pop();
@@ -220,7 +220,7 @@ void QPSolver_Global::printstatus(ConsoleOutput &output) const {
 	if(solver_local){
 		solver_local->printstatus(output);
 	} else {
-		output <<  " - status: not set yet." << std::endl; 
+		output <<  " - status: not set yet.\n"; 
 	}
 
 	LOG_FUNC_END
@@ -234,7 +234,7 @@ void QPSolver_Global::printtimer(ConsoleOutput &output) const {
 	if(solver_local){
 		solver_local->printtimer(output);
 	} else {
-		output <<  " - timer: not set yet." << std::endl; 
+		output <<  " - timer: not set yet.\n"; 
 	}
 
 	LOG_FUNC_END

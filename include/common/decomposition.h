@@ -261,10 +261,10 @@ void Decomposition::compute_rank(){
 
 	/* control the decomposition */
 	if(this->DDT_size*this->DDR_size != GlobalManager.get_size()){
-		coutMaster << "Sorry, DDT_size*DDR_size != nproc" << std::endl;
-		coutMaster << " DDT_size = " << this->DDT_size << std::endl;
-		coutMaster << " DDR_size = " << this->DDR_size << std::endl;
-		coutMaster << " nproc    = " << GlobalManager.get_size() << std::endl;
+		coutMaster << "Sorry, DDT_size*DDR_size != nproc\n";
+		coutMaster << " DDT_size = " << this->DDT_size << "\n";
+		coutMaster << " DDR_size = " << this->DDR_size << "\n";
+		coutMaster << " nproc    = " << GlobalManager.get_size() << "\n";
 
 		// TODO: throw error
 	}
@@ -384,13 +384,13 @@ int Decomposition::get_xdim() const{
 }
 
 void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details) const {
-	output_master << "Decomposition" << std::endl;
+	output_master << "Decomposition\n";
 	
 	output_master.push();
-	output_master << " K                     : " << this->K << std::endl;
-	output_master << " Data dimension        : " << this->xdim << std::endl;
-	output_master << " Time                  : " << this->T << std::endl;
-	output_master << " - DDT_size            : " << this->DDT_size << std::endl;
+	output_master << " K                     : " << this->K << "\n";
+	output_master << " Data dimension        : " << this->xdim << "\n";
+	output_master << " Time                  : " << this->T << "\n";
+	output_master << " - DDT_size            : " << this->DDT_size << "\n";
 	output_master << " - DDT_ranges          : ";
 	for(int i=0;i< this->DDT_size+1;i++){
 		output_master << this->DDT_ranges[i];
@@ -398,12 +398,12 @@ void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &o
 			output_master << ", ";
 		}
 	}
-	output_master << std::endl;
+	output_master << "\n";
 	output_master.pop();
 
 	output_master.push();
-	output_master << " Space                 : " << this->R << std::endl;
-	output_master << " - DDR_size            : " << this->DDR_size << std::endl;
+	output_master << " Space                 : " << this->R << "\n";
+	output_master << " - DDR_size            : " << this->DDR_size << "\n";
 	if(print_details){
 		output_master << " - DDR_affiliation     : ";
 		for(int i=0;i< this->R;i++){
@@ -412,7 +412,7 @@ void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &o
 				output_master << ", ";
 			}
 		}
-		output_master << std::endl;
+		output_master << "\n";
 		output_master << " - DDR_permutation     : ";
 		for(int i=0;i< this->R;i++){
 			output_master << this->DDR_permutation[i];
@@ -420,7 +420,7 @@ void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &o
 				output_master << ", ";
 			}
 		}
-		output_master << std::endl;
+		output_master << "\n";
 	}
 	output_master << " - DDR_ranges          : ";
 	for(int i=0;i< this->DDR_size+1;i++){
@@ -429,7 +429,7 @@ void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &o
 			output_master << ", ";
 		}
 	}
-	output_master << std::endl;
+	output_master << "\n";
 	output_master << " - DDR_lengths         : ";
 	for(int i=0;i< this->DDR_size;i++){
 		output_master << this->DDR_lengths[i];
@@ -437,25 +437,25 @@ void Decomposition::print_content(ConsoleOutput &output_master, ConsoleOutput &o
 			output_master << ", ";
 		}
 	}
-	output_master << std::endl;
+	output_master << "\n";
 	output_master.pop();
 
 	output_master.push();
-	output_master << " - coordinates [T,R]: " << std::endl;
-	output_local  << "   [ " << this->DDT_rank << ", " << this->DDR_rank << " ]" << std::endl;
+	output_master << " - coordinates [T,R]: \n";
+	output_local  << "   [ " << this->DDT_rank << ", " << this->DDR_rank << " ]\n";
 	output_local.synchronize();
 	output_master.pop();
 	
 }
 
 void Decomposition::print(ConsoleOutput &output) const {
-	output << "Decomposition" << std::endl;
+	output << "Decomposition\n";
 	
 	output.push();
-	output << " Clusters              : " << this->K << std::endl;
-	output << " Data dimension        : " << this->xdim << std::endl;
-	output << " Time                  : " << this->T << std::endl;
-	output << " - DDT_size            : " << this->DDT_size << std::endl;
+	output << " Clusters              : " << this->K << "\n";
+	output << " Data dimension        : " << this->xdim << "\n";
+	output << " Time                  : " << this->T << "\n";
+	output << " - DDT_size            : " << this->DDT_size << "\n";
 	output << " - DDT_ranges          : ";
 	for(int i=0;i< this->DDT_size+1;i++){
 		output << this->DDT_ranges[i];
@@ -463,12 +463,12 @@ void Decomposition::print(ConsoleOutput &output) const {
 			output << ", ";
 		}
 	}
-	output << std::endl;
+	output << "\n";
 	output.pop();
 
 	output.push();
-	output << " Space                 : " << this->R << std::endl;
-	output << " - DDR_size            : " << this->DDR_size << std::endl;
+	output << " Space                 : " << this->R << "\n";
+	output << " - DDR_size            : " << this->DDR_size << "\n";
 	output << " - DDR_ranges          : ";
 	for(int i=0;i< this->DDR_size+1;i++){
 		output << this->DDR_ranges[i];
@@ -476,7 +476,7 @@ void Decomposition::print(ConsoleOutput &output) const {
 			output << ", ";
 		}
 	}
-	output << std::endl;
+	output << "\n";
 	output.pop();
 	
 }

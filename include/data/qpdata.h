@@ -147,38 +147,38 @@ template<class VectorBase>
 void QPData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
 	output <<  " - A:            ";
 	if(this->A){
-		output << "YES (" << this->A->get_name() << ")" << std::endl; // TODO: get matrix name 
+		output << "YES (" << this->A->get_name() << ")\n"; // TODO: get matrix name 
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - b:            ";
 	if(this->b){
-		output << "YES (size: " << this->b->size() << ")" << std::endl;
+		output << "YES (size: " << this->b->size() << ")\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - x0:           ";
 	if(this->x0){
-		output << "YES (size: " << this->x0->size() << ")" << std::endl;
+		output << "YES (size: " << this->x0->size() << ")\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - x:            ";
 	if(this->x){
-		output << "YES (size: " << this->x->size() << ")" << std::endl;
+		output << "YES (size: " << this->x->size() << ")\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - feasible_set: ";
 	if(this->feasibleset){
-		output << "YES (" << this->feasibleset->get_name() << ")" << std::endl;
+		output << "YES (" << this->feasibleset->get_name() << ")\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 		
 	LOG_FUNC_END
@@ -188,62 +188,62 @@ template<class VectorBase>
 void QPData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
 	output_global <<  " - A:            ";
 	if(this->A){
-		output_global << "YES (" << this->A->get_name() << ")" << std::endl; // TODO: get matrix name 
+		output_global << "YES (" << this->A->get_name() << ")\n"; // TODO: get matrix name 
 		output_global.push();
 		this->A->print(output_local);
 		output_global.pop();
 		output_local.synchronize();
 	} else {
-		output_global << "not set" << std::endl;
+		output_global << "not set\n";
 	}
 
 	output_global <<  " - b:            ";
 	if(this->b){
-		output_global << "YES (size: " << this->b->size() << ")" << std::endl;
+		output_global << "YES (size: " << this->b->size() << ")\n";
 		output_global.push();
-		output_local  <<  "local size: " << this->b->local_size() << std::endl;
+		output_local  <<  "local size: " << this->b->local_size() << "\n";
 		output_global.pop();
 		output_local.synchronize();		
 	} else {
-		output_global << "not set" << std::endl;
+		output_global << "not set\n";
 	}
 
 	output_global <<  " - x0:           ";
 	if(this->x0){
-		output_global << "YES (size: " << this->x0->size() << ")" << std::endl;
+		output_global << "YES (size: " << this->x0->size() << ")\n";
 		output_global.push();
-		output_local  <<  "local size: " << this->x0->local_size() << std::endl;
+		output_local  <<  "local size: " << this->x0->local_size() << "\n";
 		output_global.pop();
 		output_local.synchronize();		
 	} else {
-		output_global << "not set" << std::endl;
+		output_global << "not set\n";
 	}
 	
 	output_global <<  " - x:            ";
 	if(this->x){
-		output_global << "YES (size: " << this->x->size() << ")" << std::endl;
+		output_global << "YES (size: " << this->x->size() << ")\n";
 		output_global.push();
-		output_local  <<  "local size: " << this->x->local_size() << std::endl;
+		output_local  <<  "local size: " << this->x->local_size() << "\n";
 		output_global.pop();
 		output_local.synchronize();		
 	} else {
-		output_global << "not set" << std::endl;
+		output_global << "not set\n";
 	}
 	
 	output_global <<  " - feasible_set: ";
 	if(this->feasibleset){
-		output_global << "YES (" << this->feasibleset->get_name() << ")" << std::endl;
+		output_global << "YES (" << this->feasibleset->get_name() << ")\n";
 		output_global.push();
 		this->feasibleset->print(output_local);
 		output_global.pop();
 		output_local.synchronize();		
 	} else {
-		output_global << "not set" << std::endl;
+		output_global << "not set\n";
 	}
 		
 	output_global.synchronize();
@@ -255,38 +255,38 @@ template<class VectorBase>
 void QPData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
 	output <<  " - A:            ";
 	if(this->A){
 		this->A->print(output); 
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - b:            ";
 	if(this->b){
-		output << *(this->b) << std::endl;
+		output << *(this->b) << "\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - x0:           ";
 	if(this->x0){
-		output << *(this->x0) << std::endl;
+		output << *(this->x0) << "\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - x:            ";
 	if(this->x0){
-		output << *(this->x) << std::endl;
+		output << *(this->x) << "\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 	output <<  " - feasible_set: ";
 	if(this->feasibleset){
-		output << *(this->feasibleset) << std::endl;
+		output << *(this->feasibleset) << "\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 		
 	LOG_FUNC_END
@@ -296,46 +296,46 @@ template<class VectorBase>
 void QPData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 		
 	/* give information about presence of the data */
 	output_local <<  " - A:            ";
 	if(this->A){
 		this->A->print(output_local); 
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 	
 	output_local <<  " - b:            ";
 	if(this->b){
-		output_local << *(this->b) << std::endl;
+		output_local << *(this->b) << "\n";
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 	
 	output_local <<  " - x0:           ";
 	if(this->x0){
-		output_local << *(this->x0) << std::endl;
+		output_local << *(this->x0) << "\n";
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 	
 	output_local <<  " - x:            ";
 	if(this->x0){
-		output_local << *(this->x) << std::endl;
+		output_local << *(this->x) << "\n";
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 	
 	output_local <<  " - feasible_set: ";
 	if(this->feasibleset){
-		output_local << *(this->feasibleset) << std::endl;
+		output_local << *(this->feasibleset) << "\n";
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 		

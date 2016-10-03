@@ -182,16 +182,16 @@ template<class VectorBase>
 void SimplexFeasibleSet_Local<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 	
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output <<  " - nmb of subsets:     " << T << std::endl;
-	output <<  " - size of subset:     " << K << std::endl;
+	output <<  " - nmb of subsets:     " << T << "\n";
+	output <<  " - size of subset:     " << K << "\n";
 
 	#ifdef USE_CUDA
-		output <<  " - blockSize:   " << blockSize << std::endl;
-		output <<  " - gridSize:    " << gridSize << std::endl;
-		output <<  " - minGridSize: " << minGridSize << std::endl;
+		output <<  " - blockSize:   " << blockSize << "\n";
+		output <<  " - gridSize:    " << gridSize << "\n";
+		output <<  " - minGridSize: " << minGridSize << "\n";
 	#endif
 
 	LOG_FUNC_END

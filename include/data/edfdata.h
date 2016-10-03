@@ -286,67 +286,67 @@ template<class VectorBase>
 void EdfData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output <<  " - version of this data format:            " << hdr_ver << std::endl;
-	output <<  " - local patient identification:           " << hdr_patientID << std::endl;
-	output <<  " - local recording identification:         " << hdr_recordID << std::endl;
-	output <<  " - startdate of recording (dd.mm.yy):      " << hdr_startdate << std::endl;
-	output <<  " - starttime of recording (hh.mm.ss):      " << hdr_starttime << std::endl;
-	output <<  " - number of bytes in header record:       " << hdr_bytes << std::endl;
-	output <<  " - number of data records (-1 if unknown): " << hdr_records << std::endl;
-	output <<  " - duration of a data record, in seconds:  " << hdr_duration << std::endl;
-	output <<  " - number of signals (ns) in data record:  " << hdr_ns << std::endl;
+	output <<  " - version of this data format:            " << hdr_ver << "\n";
+	output <<  " - local patient identification:           " << hdr_patientID << "\n";
+	output <<  " - local recording identification:         " << hdr_recordID << "\n";
+	output <<  " - startdate of recording (dd.mm.yy):      " << hdr_startdate << "\n";
+	output <<  " - starttime of recording (hh.mm.ss):      " << hdr_starttime << "\n";
+	output <<  " - number of bytes in header record:       " << hdr_bytes << "\n";
+	output <<  " - number of data records (-1 if unknown): " << hdr_records << "\n";
+	output <<  " - duration of a data record, in seconds:  " << hdr_duration << "\n";
+	output <<  " - number of signals (ns) in data record:  " << hdr_ns << "\n";
 /*
-	output <<  " - record details:" << std::endl;
+	output <<  " - record details:\n";
 	for(int i=0;i<hdr_ns;i++){
-		output <<  "   - id:                 " << i << std::endl;
-		output <<  "     label:              " << *hdr_records_detail[i].hdr_label << std::endl;
-		output <<  "     transducer type:    " << *hdr_records_detail[i].hdr_transducer << std::endl;
-		output <<  "     physical dimension: " << *hdr_records_detail[i].hdr_units << std::endl;
-		output <<  "     physical minimum:   " << hdr_records_detail[i].hdr_physicalMin << std::endl;
-		output <<  "     physical maximum:   " << hdr_records_detail[i].hdr_physicalMax << std::endl;
-		output <<  "     digital minimum:    " << hdr_records_detail[i].hdr_digitalMin << std::endl;
-		output <<  "     digital maximum:    " << hdr_records_detail[i].hdr_digitalMax << std::endl;
-		output <<  "     prefiltering:       " << *hdr_records_detail[i].hdr_prefilter << std::endl;
-		output <<  "     nr of samples:      " << hdr_records_detail[i].hdr_samples << std::endl;
+		output <<  "   - id:                 " << i << "\n";
+		output <<  "     label:              " << *hdr_records_detail[i].hdr_label << "\n";
+		output <<  "     transducer type:    " << *hdr_records_detail[i].hdr_transducer << "\n";
+		output <<  "     physical dimension: " << *hdr_records_detail[i].hdr_units << "\n";
+		output <<  "     physical minimum:   " << hdr_records_detail[i].hdr_physicalMin << "\n";
+		output <<  "     physical maximum:   " << hdr_records_detail[i].hdr_physicalMax << "\n";
+		output <<  "     digital minimum:    " << hdr_records_detail[i].hdr_digitalMin << "\n";
+		output <<  "     digital maximum:    " << hdr_records_detail[i].hdr_digitalMax << "\n";
+		output <<  "     prefiltering:       " << *hdr_records_detail[i].hdr_prefilter << "\n";
+		output <<  "     nr of samples:      " << hdr_records_detail[i].hdr_samples << "\n";
 	}
 */
-	output <<  "----------------------------------------------------------------" << std::endl;
+	output <<  "----------------------------------------------------------------\n";
 
-	output <<  " - Tpreliminary: " << this->get_T() << std::endl;
+	output <<  " - Tpreliminary: " << this->get_T() << "\n";
 
 	if(this->decomposition){
-		output <<  " - T           : " << this->get_T() << std::endl;
-		output <<  " - xdim        : " << this->get_xdim() << std::endl;
-		output <<  " - K           : " << this->get_K() << std::endl;
-		output <<  " - R           : " << this->get_R() << std::endl;
+		output <<  " - T           : " << this->get_T() << "\n";
+		output <<  " - xdim        : " << this->get_xdim() << "\n";
+		output <<  " - K           : " << this->get_K() << "\n";
+		output <<  " - R           : " << this->get_R() << "\n";
 	}
 
 	if(this->tsmodel){
-		output <<  " - model       : " << this->tsmodel->get_name() << std::endl;
+		output <<  " - model       : " << this->tsmodel->get_name() << "\n";
 	} else {
-		output <<  " - model       : NO" << std::endl;
+		output <<  " - model       : NO\n";
 	}
 	
 	output <<  " - datavector  : ";
 	if(this->datavector){
-		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
+		output << "YES (size: " << this->datavector->size() << ")\n";
 	} else {
-		output << "NO" << std::endl;
+		output << "NO\n";
 	}
 	output <<  " - gammavector : ";
 	if(this->gammavector){
-		output << "YES (size: " << this->gammavector->size() << ")" << std::endl;
+		output << "YES (size: " << this->gammavector->size() << ")\n";
 	} else {
-		output << "NO" << std::endl;
+		output << "NO\n";
 	}
 	output <<   " - thetavector: ";
 	if(this->thetavector){
-		output << "YES (size: " << this->thetavector->size() << ")" << std::endl;
+		output << "YES (size: " << this->thetavector->size() << ")\n";
 	} else {
-		output << "NO" << std::endl;
+		output << "NO\n";
 	}
 
 	output.synchronize();
@@ -359,80 +359,80 @@ template<class VectorBase>
 void EdfData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output_global <<  " - version of this data format:            " << hdr_ver << std::endl;
-	output_global <<  " - local patient identification:           " << hdr_patientID << std::endl;
-	output_global <<  " - local recording identification:         " << hdr_recordID << std::endl;
-	output_global <<  " - startdate of recording (dd.mm.yy):      " << hdr_startdate << std::endl;
-	output_global <<  " - starttime of recording (hh.mm.ss):      " << hdr_starttime << std::endl;
-	output_global <<  " - number of bytes in header record:       " << hdr_bytes << std::endl;
-	output_global <<  " - number of data records (-1 if unknown): " << hdr_records << std::endl;
-	output_global <<  " - duration of a data record, in seconds:  " << hdr_duration << std::endl;
-	output_global <<  " - number of signals (ns) in data record:  " << hdr_ns << std::endl;
+	output_global <<  " - version of this data format:            " << hdr_ver << "\n";
+	output_global <<  " - local patient identification:           " << hdr_patientID << "\n";
+	output_global <<  " - local recording identification:         " << hdr_recordID << "\n";
+	output_global <<  " - startdate of recording (dd.mm.yy):      " << hdr_startdate << "\n";
+	output_global <<  " - starttime of recording (hh.mm.ss):      " << hdr_starttime << "\n";
+	output_global <<  " - number of bytes in header record:       " << hdr_bytes << "\n";
+	output_global <<  " - number of data records (-1 if unknown): " << hdr_records << "\n";
+	output_global <<  " - duration of a data record, in seconds:  " << hdr_duration << "\n";
+	output_global <<  " - number of signals (ns) in data record:  " << hdr_ns << "\n";
 /*
-	output_global <<  " - record details:" << std::endl;
+	output_global <<  " - record details:\n";
 	for(int i=0;i<hdr_ns;i++){
-		output_global <<  "   - id:                 " << i << std::endl;
-		output_global <<  "     label:              " << *hdr_records_detail[i].hdr_label << std::endl;
-		output_global <<  "     transducer type:    " << *hdr_records_detail[i].hdr_transducer << std::endl;
-		output_global <<  "     physical dimension: " << *hdr_records_detail[i].hdr_units << std::endl;
-		output_global <<  "     physical minimum:   " << hdr_records_detail[i].hdr_physicalMin << std::endl;
-		output_global <<  "     physical maximum:   " << hdr_records_detail[i].hdr_physicalMax << std::endl;
-		output_global <<  "     digital minimum:    " << hdr_records_detail[i].hdr_digitalMin << std::endl;
-		output_global <<  "     digital maximum:    " << hdr_records_detail[i].hdr_digitalMax << std::endl;
-		output_global <<  "     prefiltering:       " << *hdr_records_detail[i].hdr_prefilter << std::endl;
-		output_global <<  "     nr of samples:      " << hdr_records_detail[i].hdr_samples << std::endl;
+		output_global <<  "   - id:                 " << i << "\n";
+		output_global <<  "     label:              " << *hdr_records_detail[i].hdr_label << "\n";
+		output_global <<  "     transducer type:    " << *hdr_records_detail[i].hdr_transducer << "\n";
+		output_global <<  "     physical dimension: " << *hdr_records_detail[i].hdr_units << "\n";
+		output_global <<  "     physical minimum:   " << hdr_records_detail[i].hdr_physicalMin << "\n";
+		output_global <<  "     physical maximum:   " << hdr_records_detail[i].hdr_physicalMax << "\n";
+		output_global <<  "     digital minimum:    " << hdr_records_detail[i].hdr_digitalMin << "\n";
+		output_global <<  "     digital maximum:    " << hdr_records_detail[i].hdr_digitalMax << "\n";
+		output_global <<  "     prefiltering:       " << *hdr_records_detail[i].hdr_prefilter << "\n";
+		output_global <<  "     nr of samples:      " << hdr_records_detail[i].hdr_samples << "\n";
 	}
 */
-	output_global <<  "----------------------------------------------------------------" << std::endl;
+	output_global <<  "----------------------------------------------------------------\n";
 	
 	/* give information about presence of the data */
-	output_global <<  " - Tpreliminary: " << this->get_T() << std::endl;
+	output_global <<  " - Tpreliminary: " << this->get_T() << "\n";
 
 	if(this->decomposition){
-		output_global <<  " - T           : " << this->get_T() << std::endl;
-		output_local  <<  "  - Tlocal     : " << this->get_Tlocal() << std::endl;
+		output_global <<  " - T           : " << this->get_T() << "\n";
+		output_local  <<  "  - Tlocal     : " << this->get_Tlocal() << "\n";
 		output_local.synchronize();
-		output_global <<  " - xdim        : " << this->get_xdim() << std::endl;
-		output_global <<  " - K           : " << this->get_K() << std::endl;
-		output_global <<  " - R           : " << this->get_R() << std::endl;
-		output_local  <<  "  - Rlocal     : " << this->get_Rlocal() << std::endl;
+		output_global <<  " - xdim        : " << this->get_xdim() << "\n";
+		output_global <<  " - K           : " << this->get_K() << "\n";
+		output_global <<  " - R           : " << this->get_R() << "\n";
+		output_local  <<  "  - Rlocal     : " << this->get_Rlocal() << "\n";
 		output_local.synchronize();
 	}
 
 	if(this->tsmodel){
-		output_global <<  " - model       : " << this->tsmodel->get_name() << std::endl;
+		output_global <<  " - model       : " << this->tsmodel->get_name() << "\n";
 	} else {
-		output_global <<  " - model       : NO" << std::endl;
+		output_global <<  " - model       : NO\n";
 	}
 	
 	output_global <<  " - datavector  : ";
 	if(this->datavector){
-		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
-		output_local  <<  "  - local size : " << this->datavector->local_size() << std::endl;
+		output_global << "YES (size: " << this->datavector->size() << ")\n";
+		output_local  <<  "  - local size : " << this->datavector->local_size() << "\n";
 		output_local.synchronize();
 	} else {
-		output_global << "NO" << std::endl;
+		output_global << "NO\n";
 	}
 	
 	output_global <<  " - gammavector : ";
 	if(this->gammavector){
-		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
-		output_local  <<  "  - local size : " << this->gammavector->local_size() << std::endl;
+		output_global << "YES (size: " << this->gammavector->size() << ")\n";
+		output_local  <<  "  - local size : " << this->gammavector->local_size() << "\n";
 		output_local.synchronize();
 	} else {
-		output_global << "NO" << std::endl;
+		output_global << "NO\n";
 	}
 	
 	output_global << " - thetavector : ";
 	if(this->thetavector){
-		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
-		output_local  <<  "  - local size : " << this->thetavector->local_size() << std::endl;
+		output_global << "YES (size: " << this->thetavector->size() << ")\n";
+		output_local  <<  "  - local size : " << this->thetavector->local_size() << "\n";
 		output_local.synchronize();
 	} else {
-		output_global << "NO" << std::endl;
+		output_global << "NO\n";
 	}
 
 	output_global.synchronize();
@@ -445,28 +445,28 @@ template<class VectorBase>
 void EdfData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << std::endl;
+	output << this->get_name() << "\n";
 	
 	/* print the content of the data */
 	output <<  " - datavector  : ";
 	if(this->datavector){
-		output << *this->datavector << std::endl;
+		output << *this->datavector << "\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 
 	output <<  " - gammavector : ";
 	if(this->gammavector){
-		output << *this->gammavector << std::endl;
+		output << *this->gammavector << "\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 
 	output <<  " - thetavector : ";
 	if(this->thetavector){
-		output << *this->thetavector << std::endl;
+		output << *this->thetavector << "\n";
 	} else {
-		output << "not set" << std::endl;
+		output << "not set\n";
 	}
 
 	LOG_FUNC_END
@@ -477,30 +477,30 @@ template<class VectorBase>
 void EdfData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* print the content of the data */
 	output_local <<  " - datavector : ";
 	if(this->datavector){
-		output_local << *this->datavector << std::endl;
+		output_local << *this->datavector << "\n";
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 
 	output_local <<  " - gammavector : ";
 	if(this->gammavector){
-		output_local << *this->gammavector << std::endl;
+		output_local << *this->gammavector << "\n";
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 
 	output_local <<  " - thetavector : ";
 	if(this->thetavector){
-		output_local << *this->thetavector << std::endl;
+		output_local << *this->thetavector << "\n";
 	} else {
-		output_local << "not set" << std::endl;
+		output_local << "not set\n";
 	}
 	output_local.synchronize();
 
@@ -720,7 +720,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	TRY( VecRestoreArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
 
 	timer_saveVTK.stop();
-	coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+	coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << "\n";
 	coutAll.synchronize();
 }
 

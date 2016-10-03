@@ -110,7 +110,7 @@ int main( int argc, char *argv[] )
 		
 		/* control number of provided Theta */
 		if(Theta_list.size() != K){
-			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
+			coutMaster << "number of provided Theta solutions is different then number of clusters!\n";
 			return 0;
 		}
 
@@ -123,44 +123,44 @@ int main( int argc, char *argv[] )
 	}	
 
 
-	coutMaster << "----------------------------------- PROBLEM INFO --------------------------------------" << std::endl << std::endl;
-	coutMaster << " nmb of proc             = " << std::setw(30) << GlobalManager.get_size() << " (number of MPI processes)" << std::endl;
-	coutMaster << " test_DDT                = " << std::setw(30) << DDT_size << " (decomposition in time)" << std::endl;
-	coutMaster << " test_DDR                = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
-	coutMaster << std::endl;
-	coutMaster << " test_data_filename      = " << std::setw(30) << data_filename << " (name of input file)" << std::endl;
-	coutMaster << " test_max_record_nmb     = " << std::setw(30) << max_record_nmb << " (max number of loaded time-steps)" << std::endl;
-	coutMaster << " test_graph_coordinates  = " << std::setw(30) << graph_coordinates << " (name of input file with coordinates)" << std::endl;
-	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold coefficient of graph)" << std::endl;
-	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)" << std::endl;
-	coutMaster << " test_data_out           = " << std::setw(30) << data_out << " (part of output filename)" << std::endl;
-	coutMaster << std::endl;
-	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	coutMaster << "----------------------------------- PROBLEM INFO --------------------------------------\n" << "\n";
+	coutMaster << " nmb of proc             = " << std::setw(30) << GlobalManager.get_size() << " (number of MPI processes)\n";
+	coutMaster << " test_DDT                = " << std::setw(30) << DDT_size << " (decomposition in time)\n";
+	coutMaster << " test_DDR                = " << std::setw(30) << DDR_size << " (decomposition in space)\n";
+	coutMaster << "\n";
+	coutMaster << " test_data_filename      = " << std::setw(30) << data_filename << " (name of input file)\n";
+	coutMaster << " test_max_record_nmb     = " << std::setw(30) << max_record_nmb << " (max number of loaded time-steps)\n";
+	coutMaster << " test_graph_coordinates  = " << std::setw(30) << graph_coordinates << " (name of input file with coordinates)\n";
+	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold coefficient of graph)\n";
+	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)\n";
+	coutMaster << " test_data_out           = " << std::setw(30) << data_out << " (part of output filename)\n";
+	coutMaster << "\n";
+	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)\n";
 	if(given_Theta){
-		coutMaster << " test_Theta              = " << std::setw(30) << print_array(Theta_solution,K) << std::endl;
+		coutMaster << " test_Theta              = " << std::setw(30) << print_array(Theta_solution,K) << "\n";
 	}
-	coutMaster << " test_epssqr             = " << std::setw(30) << epssqr << " (penalty)" << std::endl;
-	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)" << std::endl;
-	coutMaster << " test_printstats         = " << std::setw(30) << printstats << " (print basic statistics of data)" << std::endl;
-	coutMaster << std::endl;
-	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})" << std::endl;
-	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to given interval)" << std::endl;
-	coutMaster << " test_cutdata_down       = " << std::setw(30) << cutdata_down << " (lower bound used for cutting data)" << std::endl;
-	coutMaster << " test_cutdata_up         = " << std::setw(30) << cutdata_up << " (upper bound used for cutting data)" << std::endl;
-	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to interval [0,1])" << std::endl;
-	coutMaster << " test_shiftdata          = " << std::setw(30) << shiftdata << " (shift data by coeficient)" << std::endl;
-	coutMaster << " test_shiftdata_coeff    = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)" << std::endl;
-	coutMaster << std::endl;
-	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
-	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
-	coutMaster << "---------------------------------------------------------------------------------------" << std::endl << std::endl;
+	coutMaster << " test_epssqr             = " << std::setw(30) << epssqr << " (penalty)\n";
+	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)\n";
+	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)\n";
+	coutMaster << " test_printstats         = " << std::setw(30) << printstats << " (print basic statistics of data)\n";
+	coutMaster << "\n";
+	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0,1})\n";
+	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to given interval)\n";
+	coutMaster << " test_cutdata_down       = " << std::setw(30) << cutdata_down << " (lower bound used for cutting data)\n";
+	coutMaster << " test_cutdata_up         = " << std::setw(30) << cutdata_up << " (upper bound used for cutting data)\n";
+	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to interval [0,1])\n";
+	coutMaster << " test_shiftdata          = " << std::setw(30) << shiftdata << " (shift data by coeficient)\n";
+	coutMaster << " test_shiftdata_coeff    = " << std::setw(30) << shiftdata_coeff << " (shifting coeficient)\n";
+	coutMaster << "\n";
+	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)\n";
+	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)\n";
+	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)\n";
+	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)\n";
+	coutMaster << "---------------------------------------------------------------------------------------\n" << "\n";
 
 	/* control the decomposition */
 	if(DDT_size*DDR_size != GlobalManager.get_size()){
-		coutMaster << "Sorry, DDT*DDR != nproc" << std::endl;
+		coutMaster << "Sorry, DDT*DDR != nproc\n";
 		return 0;
 	}
 
@@ -178,14 +178,14 @@ int main( int argc, char *argv[] )
 	std::ostringstream oss_short_output_header;
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 /* 1.) prepare time-series data */
-	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
+	coutMaster << "--- PREPARING PRELIMINARY DATA ---\n";
 	EdfData<PetscVector> mydata(data_filename, max_record_nmb);
 
 /* 2a.) prepare graph */
-	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
+	coutMaster << "--- PREPARING GRAPH ---\n";
 	BGMGraph graph(graph_coordinates);
 	graph.process(graph_coeff);
 	graph.print(coutMaster);
@@ -198,12 +198,12 @@ int main( int argc, char *argv[] )
 
 
 /* 2b.) prepare decomposition */
-	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
+	coutMaster << "--- COMPUTING DECOMPOSITION ---\n";
 	Decomposition mydecomposition(mydata.get_Tpreliminary(), graph, K, 1, DDT_size, DDR_size);
 	mydecomposition.print(coutMaster);
 
 /* 2c.) set new decomposition to data */
-	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	coutMaster << "--- PREPARING DATA ---\n";
 	mydata.set_decomposition(mydecomposition);
 	mydata.print(coutMaster);
 
@@ -217,17 +217,17 @@ int main( int argc, char *argv[] )
 	if(scaledata) mydata.scaledata(0,1,cutdata_down,cutdata_up);
 
 /* 3.) prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	coutMaster << "--- PREPARING MODEL ---\n";
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr);
 	mymodel.print(coutMaster,coutAll);
 
 /* 4.) prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	coutMaster << "--- PREPARING SOLVER ---\n";
 	TSSolver<PetscVector> mysolver(mydata, annealing);
 	mysolver.print(coutMaster,coutAll);
 
 /* 5.) solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	coutMaster << "--- SOLVING THE PROBLEM ---\n";
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 
@@ -241,20 +241,20 @@ int main( int argc, char *argv[] )
 	if(scaledata) mydata.unscaledata(0,1);
 
 /* 6.) save results into VTK file */
-	coutMaster << "--- SAVING VTK ---" << std::endl;
+	coutMaster << "--- SAVING VTK ---\n";
 	if(savevtk)	mydata.saveVTK(data_out);
 
 	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	coutMaster << "--- THETA SOLUTION ---\n";
 	mydata.print_thetavector(coutMaster);
 
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	coutMaster << "--- TIMERS INFO ---\n";
 	mysolver.printtimer(coutAll);
 	coutAll.synchronize();
 
 	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	coutMaster << "--- FINAL SOLVER INFO ---\n";
 	mysolver.printstatus(coutMaster);
 
 	/* write short output */
@@ -275,8 +275,8 @@ int main( int argc, char *argv[] )
 		mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
 		/* append end of line */
-		oss_short_output_header << std::endl;
-		oss_short_output_values << std::endl;
+		oss_short_output_header << "\n";
+		oss_short_output_values << "\n";
 
 		/* write to shortinfo file */
 		shortinfo.write(oss_short_output_header.str());
@@ -288,7 +288,7 @@ int main( int argc, char *argv[] )
 	}
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

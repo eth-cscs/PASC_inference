@@ -171,15 +171,15 @@ TSModel<VectorBase>::~TSModel(){
 /* print info about model */
 template<class VectorBase>
 void TSModel<VectorBase>::print(ConsoleOutput &output) const {
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output <<  " - nproc:  " << GlobalManager.get_size() << std::endl;
+	output <<  " - nproc:  " << GlobalManager.get_size() << "\n";
 	
-	output <<  " - T:      " << tsdata->get_T() << std::endl;
-	output <<  " - xdim:    " << tsdata->get_xdim() << std::endl;
+	output <<  " - T:      " << tsdata->get_T() << "\n";
+	output <<  " - xdim:    " << tsdata->get_xdim() << "\n";
 
-	output <<  " - K: " << tsdata->get_K() << std::endl;
+	output <<  " - K: " << tsdata->get_K() << "\n";
 		
 }
 

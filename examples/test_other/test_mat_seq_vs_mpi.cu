@@ -62,14 +62,14 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_print_vectors", &print_vectors, true);
 
-	coutMaster << " test_matrix_type          = " << std::setw(20) << matrix_type << " (which matrix type to test)" << std::endl;
-	coutMaster << " test_T                    = " << std::setw(20) << T << " (length of time-series)" << std::endl;
-	coutMaster << " test_K                    = " << std::setw(20) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_n                    = " << std::setw(20) << n << " (number of tests)" << std::endl;
-	coutMaster << " test_alpha                = " << std::setw(20) << alpha << " (coeficient of the matrix)" << std::endl;
-	coutMaster << " test_graph_filename       = " << std::setw(20) << graph_filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_graph_coeff          = " << std::setw(20) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_print_vectors        = " << std::setw(20) << print_vectors << " (print content of vectors or not)" << std::endl;
+	coutMaster << " test_matrix_type          = " << std::setw(20) << matrix_type << " (which matrix type to test)\n";
+	coutMaster << " test_T                    = " << std::setw(20) << T << " (length of time-series)\n";
+	coutMaster << " test_K                    = " << std::setw(20) << K << " (number of clusters)\n";
+	coutMaster << " test_n                    = " << std::setw(20) << n << " (number of tests)\n";
+	coutMaster << " test_alpha                = " << std::setw(20) << alpha << " (coeficient of the matrix)\n";
+	coutMaster << " test_graph_filename       = " << std::setw(20) << graph_filename << " (name of file with coordinates)\n";
+	coutMaster << " test_graph_coeff          = " << std::setw(20) << graph_coeff << " (threshold of the graph)\n";
+	coutMaster << " test_print_vectors        = " << std::setw(20) << print_vectors << " (print content of vectors or not)\n";
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -77,7 +77,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* create graph */
 	BGMGraph graph(graph_filename);
@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
 		R = 1;
 	}
 
-	coutAll << "T=" << T << std::endl;
+	coutAll << "T=" << T << "\n";
 	coutAll.synchronize();
 
 	/* create base vector */
@@ -169,10 +169,10 @@ int main( int argc, char *argv[] )
 	double mynorm_mpi;
 	double mynorm_err;
 
-	coutMaster << "running main fun" << std::endl;
-	coutMaster << " Tlocal   = " << std::setw(7) << Tlocal << std::endl;
-	coutMaster << " Tbegin   = " << std::setw(7) << Tbegin << std::endl;
-	coutMaster << " Tend     = " << std::setw(7) << Tend << std::endl;
+	coutMaster << "running main fun\n";
+	coutMaster << " Tlocal   = " << std::setw(7) << Tlocal << "\n";
+	coutMaster << " Tbegin   = " << std::setw(7) << Tbegin << "\n";
+	coutMaster << " Tend     = " << std::setw(7) << Tend << "\n";
 
 	for(ni = 0; ni < n; ni++){
 		/* set random values to values_Vec */
@@ -216,7 +216,7 @@ int main( int argc, char *argv[] )
 		TRY( VecGetArray(y_seq_Vec, &y_seq_arr) );
 
 		if(print_vectors){
-			coutMaster << "y_seq (master): " << std::endl;
+			coutMaster << "y_seq (master): \n";
 			for(int k=0; k<K; k++){
 				for(int r=0;r<R;r++){
 					coutMaster << " k=" << k << ",r=" << r << ": x = [";
@@ -235,11 +235,11 @@ int main( int argc, char *argv[] )
 							coutMaster << ",";
 						}
 					}
-					coutMaster << "]" << std::endl;
+					coutMaster << "]\n";
 				}
 			}
 		
-			coutMaster << "y_mpi: " << std::endl;
+			coutMaster << "y_mpi: \n";
 			for(int k=0; k<K; k++){
 				for(int r=0;r<R;r++){
 					TRY( PetscPrintf(PETSC_COMM_WORLD, " k=%d,r=%d: x = [", k, r) );
@@ -282,15 +282,15 @@ int main( int argc, char *argv[] )
 		coutMaster << "err=" << std::setw(10) << mynorm_err << ": ";
 		coutMaster << "mpi=" << mynorm_mpi << ", ";
 		coutMaster << "seq=" << mynorm_seq;
-		coutMaster << std::endl;
+		coutMaster << "\n";
 		coutMaster << std::setprecision(ss);
 
 	}
 
-	coutMaster << "T=" << std::setw(9) << T << ", K="<< std::setw(4) << K << ", R="<< std::setw(4) << R << ", time_mpi=" << std::setw(10) << timer_mpi.get_value_sum() << ", time_seq=" << std::setw(10) << timer_seq.get_value_sum() << std::endl;
+	coutMaster << "T=" << std::setw(9) << T << ", K="<< std::setw(4) << K << ", R="<< std::setw(4) << R << ", time_mpi=" << std::setw(10) << timer_mpi.get_value_sum() << ", time_seq=" << std::setw(10) << timer_seq.get_value_sum() << "\n";
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

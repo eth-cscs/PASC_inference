@@ -42,7 +42,7 @@ int main( int argc, char *argv[] )
 	int T;
 	std::vector<int> T_list;
 	if(!consoleArg.set_option_value("test_T", &T_list)){
-		std::cout << "test_T has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		std::cout << "test_T has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -50,7 +50,7 @@ int main( int argc, char *argv[] )
 	int K;
 	std::vector<int> K_list;
 	if(!consoleArg.set_option_value("test_K", &K_list)){
-		std::cout << "test_K has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		std::cout << "test_K has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -65,7 +65,7 @@ int main( int argc, char *argv[] )
 	std::ostringstream oss;
 
 	/* print info about what we will compute */
-	coutMaster << "- PROBLEM INFO --------------------------------------------------" << std::endl;
+	coutMaster << "- PROBLEM INFO --------------------------------------------------\n";
 	coutMaster << " T      = ";
 	for(i=0;i<T_size;i++){
 		coutMaster << T_list[i];
@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
 				coutMaster << ", ";
 		}
 	}
-	coutMaster << " (length of time-series)" << std::endl;
+	coutMaster << " (length of time-series)\n";
 	coutMaster << " K      = ";
 	for(i=0;i<K_size;i++){
 		coutMaster << K_list[i];
@@ -81,9 +81,9 @@ int main( int argc, char *argv[] )
 				coutMaster << ", ";
 		}
 	}
-	coutMaster << " (number of clusters)" << std::endl;
-	coutMaster << " n      = " << n << " (number of tests)" << std::endl;
-	coutMaster << "------------------------------------------------------------------" << std::endl;	
+	coutMaster << " (number of clusters)\n";
+	coutMaster << " n      = " << n << " (number of tests)\n";
+	coutMaster << "------------------------------------------------------------------\n";	
 
 
 	/* start logging */
@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	Timer timer1; /* total projection time for petscseq */
 	timer1.restart();	
@@ -168,7 +168,7 @@ int main( int argc, char *argv[] )
 			}
 
 			/* --- PRINT INFO ABOUT TIMERS --- */
-			coutMaster << "K = "<< std::setw(4) << K << ", T = " << std::setw(9) << T << ", time = " << std::setw(10) << timer1.get_value_sum() << std::endl;
+			coutMaster << "K = "<< std::setw(4) << K << ", T = " << std::setw(9) << T << ", time = " << std::setw(10) << timer1.get_value_sum() << "\n";
 
 			#ifdef USE_CUDA
 				oss_print_to_log << "TIME_PETSCVECMPI|";
@@ -194,7 +194,7 @@ int main( int argc, char *argv[] )
 	TRY( PetscRandomDestroy(&rnd) );
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

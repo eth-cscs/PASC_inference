@@ -62,7 +62,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* parameters of the model */
 	int xdim = 4; /* data dimension */
@@ -99,27 +99,27 @@ int main( int argc, char *argv[] )
 	};
 
 	/* prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	coutMaster << "--- PREPARING MODEL ---\n";
 	VarxH1FEMModel_Global mymodel(T, xdim, K, xmem, epssqr);
 
 	/* prepare time-series data */
-	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	coutMaster << "--- PREPARING DATA ---\n";
 	TSData_Global mydata(mymodel);
 
 	/* generate some values to data */
-	coutMaster << "--- GENERATING DATA ---" << std::endl;
+	coutMaster << "--- GENERATING DATA ---\n";
 	mymodel.generate_data(K_solution, xmem_solution, theta_solution, xstart_solution, &get_cluster_id_solution, &mydata, false);
 	mymodel.generate_data_add_noise(&mydata, noise_covariance);
 
 	/* prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	coutMaster << "--- PREPARING SOLVER ---\n";
 	TSSolver_Global mysolver(mydata);
 
 	mysolver.debugmode = 2;
 //	mysolver.print(coutMaster,coutAll);
 
 	/* solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	coutMaster << "--- SOLVING THE PROBLEM ---\n";
 //	mymodel.set_solution_gamma(K_solution, xmem_solution, &get_cluster_id_solution, mydata.get_gammavector());
 	mysolver.solve();
 
@@ -130,11 +130,11 @@ int main( int argc, char *argv[] )
 	mydata.cut_gamma();
 
 	/* save results into CSV file */
-	coutMaster << "--- SAVING CSV ---" << std::endl;
+	coutMaster << "--- SAVING CSV ---\n";
 	mydata.saveCSV("results/varx");
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

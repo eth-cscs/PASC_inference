@@ -68,19 +68,19 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "results/kmeans_shortinfo.txt");
 
 
-	coutMaster << "----------------------- PROBLEM INFO --------------------------" << std::endl << std::endl;
-	coutMaster << " test_data_filename      = " << std::setw(30) << data_filename << " (name of file with data)" << std::endl;
-	coutMaster << " test_gamma0_filename    = " << std::setw(30) << gamma0_filename << " (name of file with gamma0)" << std::endl;
-	coutMaster << " test_xdim               = " << std::setw(30) << xdim << " (data dimension)" << std::endl;
-	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters to test)" << std::endl;
-	coutMaster << " test_epssqp             = " << std::setw(30) << epssqr << " (penalty parameter)" << std::endl;
-	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)" << std::endl;
-	coutMaster << " test_savecsv            = " << std::setw(30) << savecsv << " (save results into csv format)" << std::endl;
-	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)" << std::endl;
-	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
-	coutMaster << "---------------------------------------------------------------" << std::endl << std::endl;
+	coutMaster << "----------------------- PROBLEM INFO --------------------------\n" << "\n";
+	coutMaster << " test_data_filename      = " << std::setw(30) << data_filename << " (name of file with data)\n";
+	coutMaster << " test_gamma0_filename    = " << std::setw(30) << gamma0_filename << " (name of file with gamma0)\n";
+	coutMaster << " test_xdim               = " << std::setw(30) << xdim << " (data dimension)\n";
+	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters to test)\n";
+	coutMaster << " test_epssqp             = " << std::setw(30) << epssqr << " (penalty parameter)\n";
+	coutMaster << " test_savevtk            = " << std::setw(30) << savevtk << " (save results into vtk format)\n";
+	coutMaster << " test_savecsv            = " << std::setw(30) << savecsv << " (save results into csv format)\n";
+	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo << " (save shortinfo file after computation)\n";
+	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)\n";
+	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)\n";
+	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)\n";
+	coutMaster << "---------------------------------------------------------------\n" << "\n";
 
 	/* start logging */
 	std::ostringstream oss_filename_log;
@@ -88,47 +88,47 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_filename_log.str());
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* prepare time-series data */
-	coutMaster << "--- LOADING DATA ---" << std::endl;
+	coutMaster << "--- LOADING DATA ---\n";
 	KmeansData<PetscVector> mydata(data_filename, xdim);
 
 	/* prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	coutMaster << "--- PREPARING MODEL ---\n";
 	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, K, epssqr);
 
 	mydata.print(coutMaster,coutAll);
 	
 	/* prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	coutMaster << "--- PREPARING SOLVER ---\n";
 	TSSolver<PetscVector> mysolver(mydata);
 
 	/* load gammavector from file */
 	mydata.load_gammavector(gamma0_filename);
 
 	/* solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	coutMaster << "--- SOLVING THE PROBLEM ---\n";
 	mysolver.solve();
 
 	/* save results into VTK file */
 	if(savevtk){
-		coutMaster << "--- SAVING VTK ---" << std::endl;
+		coutMaster << "--- SAVING VTK ---\n";
 		mydata.saveVTK("results/test_kmeans.vtk");
 	}
 
 	/* save results into CSV file */
 	if(savecsv){
-		coutMaster << "--- SAVING CSV ---" << std::endl;
+		coutMaster << "--- SAVING CSV ---\n";
 		mydata.saveCSV("results/test_kmeans.csv");
 	}
 	
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	coutMaster << "--- TIMERS INFO ---\n";
 	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	/* write short output */
 	if(shortinfo){
@@ -146,16 +146,16 @@ int main( int argc, char *argv[] )
 		
 		/* master writes the file with short info (used in batch script for quick computation) */
 		if( GlobalManager.get_rank() == 0){
-			myfile << oss_short_output_header.str() << std::endl;
-			myfile << oss_short_output_values.str() << std::endl;
+			myfile << oss_short_output_header.str() << "\n";
+			myfile << oss_short_output_values.str() << "\n";
 		}
 		TRY( PetscBarrier(NULL) );
 		
 		myfile.close();
 	}
 
-	coutMaster << "solution: " << std::endl;
-	coutAll << *(mydata.get_thetavector()) << std::endl;
+	coutMaster << "solution: \n";
+	coutAll << *(mydata.get_thetavector()) << "\n";
 	coutAll.synchronize();
 
 	logging.end();

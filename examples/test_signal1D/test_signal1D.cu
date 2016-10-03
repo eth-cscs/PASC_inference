@@ -55,7 +55,7 @@ int main( int argc, char *argv[] )
 		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
 		
 	} else {
-		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
 		
 		/* control number of provided Theta */
 		if(Theta_list.size() != K){
-			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
+			coutMaster << "number of provided Theta solutions is different then number of clusters!\n";
 			return 0;
 		}
 
@@ -107,27 +107,27 @@ int main( int argc, char *argv[] )
 	/* set decomposition in space */
 	int DDT_size = GlobalManager.get_size();
 
-	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
-	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	coutMaster << "- PROBLEM INFO ----------------------------\n";
+	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)\n";
+	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)\n";
 	if(given_Theta){
-		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K) << std::endl;
+		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K) << "\n";
 	}
 
-	coutMaster << " test_filename               = " << std::setw(30) << filename << " (name of input file with signal data)" << std::endl;
-	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)" << std::endl;
-	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)" << std::endl;
-	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
-	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
-	coutMaster << " test_cutdata                = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
-	coutMaster << " test_scaledata              = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
-	coutMaster << " test_printstats             = " << std::setw(30) << printstats << " (print basic statistics of data)" << std::endl;
-	coutMaster << " test_shortinfo              = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
-	coutMaster << " test_shortinfo_header       = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_values       = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_filename     = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
-	coutMaster << "-------------------------------------------" << std::endl << std::endl;
+	coutMaster << " test_filename               = " << std::setw(30) << filename << " (name of input file with signal data)\n";
+	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)\n";
+	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)\n";
+	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)\n";
+	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)\n";
+	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})\n";
+	coutMaster << " test_cutdata                = " << std::setw(30) << cutdata << " (cut data to {0,1})\n";
+	coutMaster << " test_scaledata              = " << std::setw(30) << scaledata << " (scale data to {-1,1})\n";
+	coutMaster << " test_printstats             = " << std::setw(30) << printstats << " (print basic statistics of data)\n";
+	coutMaster << " test_shortinfo              = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)\n";
+	coutMaster << " test_shortinfo_header       = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)\n";
+	coutMaster << " test_shortinfo_values       = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)\n";
+	coutMaster << " test_shortinfo_filename     = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)\n";
+	coutMaster << "-------------------------------------------\n" << "\n";
 
 
 	/* start logging */
@@ -144,14 +144,14 @@ int main( int argc, char *argv[] )
 	std::ostringstream oss_short_output_header;
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 /* 1.) prepare preliminary time-series data (to get the size of the problem T) */
-	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
+	coutMaster << "--- PREPARING PRELIMINARY DATA ---\n";
 	Signal1DData<PetscVector> mydata(filename);
 
 /* 2.) prepare decomposition */
-	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
+	coutMaster << "--- COMPUTING DECOMPOSITION ---\n";
 
 	/* prepare decomposition based on preloaded data */
 	Decomposition decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
@@ -160,7 +160,7 @@ int main( int argc, char *argv[] )
 	decomposition.print(coutMaster);
 
 /* 3.) prepare time-series data */
-	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
+	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---\n";
 	mydata.set_decomposition(decomposition);
 
 	/* print information about loaded data */
@@ -176,7 +176,7 @@ int main( int argc, char *argv[] )
 	solution.load_global(filename_solution);
 
 /* 5.) prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	coutMaster << "--- PREPARING MODEL ---\n";
 
 	/* prepare model on the top of given data */
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
@@ -185,7 +185,7 @@ int main( int argc, char *argv[] )
 	mymodel.print(coutMaster,coutAll);
 
 /* 6.) prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	coutMaster << "--- PREPARING SOLVER ---\n";
 
 	/* prepare time-series solver */
 	TSSolver<PetscVector> mysolver(mydata, annealing);
@@ -209,7 +209,7 @@ int main( int argc, char *argv[] )
 	
 	for(int depth = 0; depth < epssqr_list.size();depth++){
 		epssqr = epssqr_list[depth];
-		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---" << std::endl;
+		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---\n";
 
 		/* set new epssqr */
 		mymodel.set_epssqr(epssqr);
@@ -235,7 +235,7 @@ int main( int argc, char *argv[] )
 		/* compute absolute error of computed solution */
 		abserr = mydata.compute_abserr_reconstructed(solution);
 		
-		coutMaster << " - abserr = " << abserr << std::endl;
+		coutMaster << " - abserr = " << abserr << "\n";
 		
 		/* if this solution is better then previous, then store it */
 		if(abserr < abserr_best){
@@ -265,8 +265,8 @@ int main( int argc, char *argv[] )
 		mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
 		/* append end of line */
-		oss_short_output_header << std::endl;
-		oss_short_output_values << std::endl;
+		oss_short_output_header << "\n";
+		oss_short_output_values << "\n";
 
 		/* write to shortinfo file */
 		shortinfo.write(oss_short_output_header.str());
@@ -279,25 +279,25 @@ int main( int argc, char *argv[] )
 	}
 
 /* 8.) store best solution */
-	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	coutMaster << "--- SAVING OUTPUT ---\n";
 	oss << filename_out;
 	mydata.saveSignal1D(oss.str(),false);
 	oss.str("");
 
 	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	coutMaster << "--- THETA SOLUTION ---\n";
 	mydata.print_thetavector(coutMaster);
 
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	coutMaster << "--- TIMERS INFO ---\n";
 	mysolver.printtimer(coutMaster);
 
 	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	coutMaster << "--- FINAL SOLVER INFO ---\n";
 	mysolver.printstatus(coutMaster);
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

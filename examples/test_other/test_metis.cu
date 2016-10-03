@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
 	} 
 
 /*	if(GlobalManager.get_size() > 1){
-		coutMaster << "This example works only on one processor, sorry." << std::endl;
+		coutMaster << "This example works only on one processor, sorry.\n";
 		return 0;		
 	}
 */
@@ -57,11 +57,11 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_view_graph", &view_graph, false);
 
 	/* print settings */
-	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_graph_out            = " << std::setw(30) << graph_filename << " (part of name of output file with graph)" << std::endl;
-	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_graph_nmb_domains    = " << std::setw(30) << graph_nmb_domains << " (number of domains for decomposition)" << std::endl;
-	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)" << std::endl;
+	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)\n";
+	coutMaster << " test_graph_out            = " << std::setw(30) << graph_filename << " (part of name of output file with graph)\n";
+	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)\n";
+	coutMaster << " test_graph_nmb_domains    = " << std::setw(30) << graph_nmb_domains << " (number of domains for decomposition)\n";
+	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)\n";
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -69,7 +69,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* create graph */
 	BGMGraph graph(graph_filename);
@@ -93,7 +93,7 @@ int main( int argc, char *argv[] )
 	graph.saveVTK(oss_graph_out_filename.str());
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

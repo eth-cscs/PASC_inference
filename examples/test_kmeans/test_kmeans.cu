@@ -59,12 +59,12 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_epssqr", &epssqr, 10);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 
-	coutMaster << "- PROBLEM INFO -----------------" << std::endl;
-	coutMaster << " T         = " << T << " (length of time-series)" << std::endl;
-	coutMaster << " K         = " << K << " (number of clusters)" << std::endl;
-	coutMaster << " epssqr    = " << epssqr << " (penalty)" << std::endl;
-	coutMaster << " annealing = " << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << "------------------------------" << std::endl << std::endl;
+	coutMaster << "- PROBLEM INFO -----------------\n";
+	coutMaster << " T         = " << T << " (length of time-series)\n";
+	coutMaster << " K         = " << K << " (number of clusters)\n";
+	coutMaster << " epssqr    = " << epssqr << " (penalty)\n";
+	coutMaster << " annealing = " << annealing << " (number of annealing steps)\n";
+	coutMaster << "------------------------------\n" << "\n";
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* parameters of the model */
 	int xdim = 3; /* data dimension */
@@ -97,44 +97,44 @@ int main( int argc, char *argv[] )
 	};
 
 	/* prepare time-series data */
-	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	coutMaster << "--- PREPARING DATA ---\n";
 	KmeansData<PetscVector> mydata(T,xdim);
 
 	/* prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	coutMaster << "--- PREPARING MODEL ---\n";
 	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, K, epssqr);
 
 	/* generate some values to data */
-	coutMaster << "--- GENERATING DATA ---" << std::endl;
+	coutMaster << "--- GENERATING DATA ---\n";
 	mydata.generate(solution_K, solution_theta, &solution_get_cluster_id, false);
 	mydata.add_noise(noise_covariance);
 
 	/* prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	coutMaster << "--- PREPARING SOLVER ---\n";
 	TSSolver<PetscVector> mysolver(mydata, annealing);
 
 	/* solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	coutMaster << "--- SOLVING THE PROBLEM ---\n";
 	mysolver.solve();
 
 	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	coutMaster << "--- THETA SOLUTION ---\n";
 	mydata.print_thetavector(coutMaster);
 
 	/* save results into VTK file */
-	coutMaster << "--- SAVING VTK ---" << std::endl;
+	coutMaster << "--- SAVING VTK ---\n";
 	mydata.saveVTK("results/test_kmeans.vtk");
 
 	/* save results into CSV file */
-	coutMaster << "--- SAVING CSV ---" << std::endl;
+	coutMaster << "--- SAVING CSV ---\n";
 	mydata.saveCSV("results/test_kmeans.csv");
 
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	coutMaster << "--- TIMERS INFO ---\n";
 	mysolver.printtimer(coutMaster);
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

@@ -111,7 +111,7 @@ namespace pascinference {
 /* constructor */
 template<class VectorBase>
 SimplexFeasibleSet<VectorBase>::SimplexFeasibleSet(int Tnew, int Knew){
-	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)CONSTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)CONSTRUCTOR\n";
 
 	/* set initial content */
 	this->T = Tnew;
@@ -123,18 +123,18 @@ SimplexFeasibleSet<VectorBase>::SimplexFeasibleSet(int Tnew, int Knew){
 /* general destructor */
 template<class VectorBase>
 SimplexFeasibleSet<VectorBase>::~SimplexFeasibleSet(){
-	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)DESTRUCTOR\n";
 	
 }
 
 /* print info about feasible set */
 template<class VectorBase>
 void SimplexFeasibleSet<VectorBase>::print(ConsoleOutput &output) const {
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output <<  " - T:     " << T << std::endl;
-	output <<  " - K:     " << K << std::endl;
+	output <<  " - T:     " << T << "\n";
+	output <<  " - K:     " << K << "\n";
 		
 }
 
@@ -149,7 +149,7 @@ std::string SimplexFeasibleSet<VectorBase>::get_name() const {
 #ifdef USE_MINLIN
 template<>
 void SimplexFeasibleSet<HostMinLinVector>::project(GeneralVector<HostMinLinVector> &x) {
-	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)FUNCTION: project HostMinLinVector" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)FUNCTION: project HostMinLinVector\n";
 
 	int t,k;
 	double x_sub[K];  /* GammaVector x_sub(K); */
@@ -430,7 +430,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 	}
 
 	if(DEBUG_MODE >= 100){
-		coutAll << " my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]" << std::endl;
+		coutAll << " my ownership: [" << this->petsc_projection_Townership_low << ", " << this->petsc_projection_Townership_high << "]\n";
 	}
 
 	Vec x_sub;
@@ -458,7 +458,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 				coutAll << x_sub_arr[j];
 				if(j < this->K-1) coutAll << ", ";
 			}
-			coutAll << " ]" << std::endl;
+			coutAll << " ]\n";
 		}
 
 		/* restore the array */
@@ -477,7 +477,7 @@ void SimplexFeasibleSet<GlobalPetscVector>::project(GeneralVector<GlobalPetscVec
 /* petsc specific destructor */
 template<>
 SimplexFeasibleSet<GlobalPetscVector>::~SimplexFeasibleSet(){
-	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(SimplexFeasibleSet)DESTRUCTOR\n";
 
 	/* destruction of index sets */
 	if(this->petsc_projection_init){

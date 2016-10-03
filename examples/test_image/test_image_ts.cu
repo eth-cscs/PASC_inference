@@ -57,16 +57,16 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_image_filename", &image_filename, "data/image1.bin");
 	consoleArg.set_option_value("test_image_out", &image_out, "image1");
 
-	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
-	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
-	coutMaster << " test_image_out       = " << std::setw(30) << image_out << " (part of name of output file)" << std::endl;
-	coutMaster << " test_K               = " << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_width           = " << width << " (width of image)" << std::endl;
-	coutMaster << " test_height          = " << height << " (height of image)" << std::endl;
-	coutMaster << " test_epssqr          = " << epssqr << " (penalty)" << std::endl;
-	coutMaster << " test_annealing       = " << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma        = " << cutgamma << " (cut gamma to {0,1})" << std::endl;
-	coutMaster << "-------------------------------------------" << std::endl << std::endl;
+	coutMaster << "- PROBLEM INFO ----------------------------\n";
+	coutMaster << " test_image_filename  = " << std::setw(30) << image_filename << " (name of input file with image data)\n";
+	coutMaster << " test_image_out       = " << std::setw(30) << image_out << " (part of name of output file)\n";
+	coutMaster << " test_K               = " << K << " (number of clusters)\n";
+	coutMaster << " test_width           = " << width << " (width of image)\n";
+	coutMaster << " test_height          = " << height << " (height of image)\n";
+	coutMaster << " test_epssqr          = " << epssqr << " (penalty)\n";
+	coutMaster << " test_annealing       = " << annealing << " (number of annealing steps)\n";
+	coutMaster << " test_cutgamma        = " << cutgamma << " (cut gamma to {0,1})\n";
+	coutMaster << "-------------------------------------------\n" << "\n";
 
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -74,15 +74,15 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* prepare time-series data */
-	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	coutMaster << "--- PREPARING DATA ---\n";
 	ImageData<PetscVector> mydata(image_filename, width, height, height);
 	mydata.print(coutMaster, coutAll);
 
 	/* prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	coutMaster << "--- PREPARING MODEL ---\n";
 
 	BGMGraphGrid1D mygraph(width);
 	mygraph.process_grid();
@@ -92,11 +92,11 @@ int main( int argc, char *argv[] )
 	mymodel.print(coutMaster,coutAll);
 
 	/* prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	coutMaster << "--- PREPARING SOLVER ---\n";
 	TSSolver<PetscVector> mysolver(mydata, annealing);
 
 	/* solve the problem */
-	coutMaster << "--- SOLVING THE PROBLEM ---" << std::endl;
+	coutMaster << "--- SOLVING THE PROBLEM ---\n";
 	mysolver.solve();
 
 	/* cut gamma */
@@ -105,23 +105,23 @@ int main( int argc, char *argv[] )
 	}
 
 	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	coutMaster << "--- THETA SOLUTION ---\n";
 	mydata.print_thetavector(coutMaster);
 	
 	/* save results into CSV file */
-	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	coutMaster << "--- SAVING OUTPUT ---\n";
 	mydata.saveImage(image_out);
 
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	coutMaster << "--- TIMERS INFO ---\n";
 	mysolver.printtimer(coutMaster);
 
 	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	coutMaster << "--- FINAL SOLVER INFO ---\n";
 	mysolver.printstatus(coutMaster);
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

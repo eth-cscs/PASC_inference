@@ -157,16 +157,16 @@ void MultiCGSolver_Global::RestoreLocalData(){
 void MultiCGSolver_Global::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << std::endl;
+	output << this->get_name() << "\n";
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << std::endl;
-	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debugmode: " << this->debugmode << std::endl;
+	output <<  " - maxit:      " << this->maxit << "\n";
+	output <<  " - eps:        " << this->eps << "\n";
+	output <<  " - debugmode: " << this->debugmode << "\n";
 
 	/* print data */
 	if(qpdata){
-		output << "- data:" << std::endl;
+		output << "- data:\n";
 		coutMaster.push();
 		qpdata->print(output);
 		coutMaster.pop();
@@ -179,16 +179,16 @@ void MultiCGSolver_Global::print(ConsoleOutput &output) const {
 void MultiCGSolver_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global << this->get_name() << std::endl;
+	output_global << this->get_name() << "\n";
 	
 	/* print settings */
-	output_global <<  " - maxit:      " << this->maxit << std::endl;
-	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debugmode: " << this->debugmode << std::endl;
+	output_global <<  " - maxit:      " << this->maxit << "\n";
+	output_global <<  " - eps:        " << this->eps << "\n";
+	output_global <<  " - debugmode: " << this->debugmode << "\n";
 
 	/* print data */
 	if(qpdata){
-		output_global << "- data:" << std::endl;
+		output_global << "- data:\n";
 		output_global.push();
 		qpdata->print(output_global,output_local);
 		output_global.pop();
@@ -203,7 +203,7 @@ void MultiCGSolver_Global::printstatus(ConsoleOutput &output) const {
 	output <<  " - max(it): " << std::setw(6) << this->it_last << ", ";
 	output <<  "max(hessmult): " << std::setw(6) << this->hessmult_last << ", ";
 	output <<  "max(norm(g)): " << std::setw(10) << this->fx << ", ";
-	output <<  "used memory: " << std::setw(6) << MemoryCheck::get_virtual() << "%" << std::endl;
+	output <<  "used memory: " << std::setw(6) << MemoryCheck::get_virtual() << "%\n";
 
 	LOG_FUNC_END
 }
@@ -212,11 +212,11 @@ void MultiCGSolver_Global::printstatus(ConsoleOutput &output) const {
 void MultiCGSolver_Global::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << std::endl;
+	output << this->get_name() << "\n";
 	
 	/* print content of data */
 	if(qpdata){
-		output << "- data:" << std::endl;
+		output << "- data:\n";
 		coutMaster.push();
 		qpdata->printcontent(output);
 		coutMaster.pop();
@@ -228,11 +228,11 @@ void MultiCGSolver_Global::printcontent(ConsoleOutput &output) const {
 void MultiCGSolver_Global::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
-	output <<  " - it all =        " << this->it_sum << std::endl;
-	output <<  " - hessmult all =  " << this->hessmult_sum << std::endl;
-	output <<  " - timers" << std::endl;
-	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  this->get_name() << "\n";
+	output <<  " - it all =        " << this->it_sum << "\n";
+	output <<  " - hessmult all =  " << this->hessmult_sum << "\n";
+	output <<  " - timers\n";
+	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << "\n";
 
 	LOG_FUNC_END
 }

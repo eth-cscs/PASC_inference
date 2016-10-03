@@ -61,7 +61,7 @@ int main( int argc, char *argv[] )
 		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
 		
 	} else {
-		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -110,7 +110,7 @@ int main( int argc, char *argv[] )
 		
 		/* control number of provided Theta */
 		if(Theta_list.size() != K){
-			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
+			coutMaster << "number of provided Theta solutions is different then number of clusters!\n";
 			return 0;
 		}
 
@@ -125,29 +125,29 @@ int main( int argc, char *argv[] )
 	/* set decomposition in space */
 	int DDR_size = GlobalManager.get_size();
 
-	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
-	coutMaster << " DDR_size                = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_image_filename     = " << std::setw(30) << image_filename << " (name of input file with image data)" << std::endl;
-	coutMaster << " test_image_out          = " << std::setw(30) << image_out << " (part of name of output file)" << std::endl;
-	coutMaster << " test_width              = " << std::setw(30) << width << " (width of image)" << std::endl;
-	coutMaster << " test_height             = " << std::setw(30) << height << " (height of image)" << std::endl;
-	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	coutMaster << "- PROBLEM INFO ----------------------------\n";
+	coutMaster << " DDR_size                = " << std::setw(30) << DDR_size << " (decomposition in space)\n";
+	coutMaster << " test_image_filename     = " << std::setw(30) << image_filename << " (name of input file with image data)\n";
+	coutMaster << " test_image_out          = " << std::setw(30) << image_out << " (part of name of output file)\n";
+	coutMaster << " test_width              = " << std::setw(30) << width << " (width of image)\n";
+	coutMaster << " test_height             = " << std::setw(30) << height << " (height of image)\n";
+	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)\n";
 	if(given_Theta){
-		coutMaster << " test_Theta              = " << std::setw(30) << print_array(Theta_solution,K) << std::endl;
+		coutMaster << " test_Theta              = " << std::setw(30) << print_array(Theta_solution,K) << "\n";
 	}
-	coutMaster << " test_graph_filename     = " << std::setw(30) << graph_filename << " (name of input file with graph data)" << std::endl;
-	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)" << std::endl;
-	coutMaster << " test_epssqr             = " << std::setw(30) << print_vector(epssqr_list) << " (penalty)" << std::endl;
-	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
-	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
-	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
-	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
-	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
-	coutMaster << "-------------------------------------------" << std::endl << std::endl;
+	coutMaster << " test_graph_filename     = " << std::setw(30) << graph_filename << " (name of input file with graph data)\n";
+	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold of the graph)\n";
+	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)\n";
+	coutMaster << " test_epssqr             = " << std::setw(30) << print_vector(epssqr_list) << " (penalty)\n";
+	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)\n";
+	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})\n";
+	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to {0,1})\n";
+	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {-1,1})\n";
+	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)\n";
+	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)\n";
+	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)\n";
+	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)\n";
+	coutMaster << "-------------------------------------------\n" << "\n";
 
 	/* start logging */
 	std::ostringstream oss;
@@ -163,10 +163,10 @@ int main( int argc, char *argv[] )
 	std::ostringstream oss_short_output_header;
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 /* 1.) prepare graph of image */
-	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
+	coutMaster << "--- PREPARING GRAPH ---\n";
 
 	BGMGraph *graph;
 	if(generalgraph){
@@ -183,7 +183,7 @@ int main( int argc, char *argv[] )
 	graph->print(coutMaster);
 	
 /* 2.) prepare decomposition */
-	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
+	coutMaster << "--- COMPUTING DECOMPOSITION ---\n";
 
 	/* prepare decomposition based on graph, in this case T=1 and DDT_size=1 */
 	Decomposition decomposition(1, *graph, K, 1, DDR_size);
@@ -199,7 +199,7 @@ int main( int argc, char *argv[] )
 	}
 
 /* 3.) prepare time-series data */
-	coutMaster << "--- PREPARING DATA ---" << std::endl;
+	coutMaster << "--- PREPARING DATA ---\n";
 	
 	/* load data from file and store it subject to decomposition */
 	ImageData<PetscVector> mydata(decomposition, image_filename, width, height);
@@ -217,7 +217,7 @@ int main( int argc, char *argv[] )
 	if(scaledata) mydata.scaledata(-1,1,0,1);
 
 /* 4.) prepare model */
-	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+	coutMaster << "--- PREPARING MODEL ---\n";
 
 	/* prepare model on the top of given data */
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
@@ -226,7 +226,7 @@ int main( int argc, char *argv[] )
 	mymodel.print(coutMaster,coutAll);
 
 /* 5.) prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+	coutMaster << "--- PREPARING SOLVER ---\n";
 
 	/* prepare time-series solver */
 	TSSolver<PetscVector> mysolver(mydata, annealing);
@@ -238,7 +238,7 @@ int main( int argc, char *argv[] )
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
 /* 6.) solve the problem with initial epssqr */
-	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---" << std::endl;
+	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---\n";
 	mysolver.solve();
 
 	/* cut gamma */
@@ -247,7 +247,7 @@ int main( int argc, char *argv[] )
 	/* unscale data before save */
 	if(scaledata) mydata.scaledata(0,1,-1,1);
 
-	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	coutMaster << "--- SAVING OUTPUT ---\n";
 	oss << image_out << "_depth0" << "_epssqr" << epssqr_list[0];
 	mydata.saveImage(oss.str(),true);
 	oss.str("");
@@ -270,8 +270,8 @@ int main( int argc, char *argv[] )
 		mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
 		/* append end of line */
-		oss_short_output_header << std::endl;
-		oss_short_output_values << std::endl;
+		oss_short_output_header << "\n";
+		oss_short_output_values << "\n";
 
 		/* write to shortinfo file */
 		shortinfo.write(oss_short_output_header.str());
@@ -295,7 +295,7 @@ int main( int argc, char *argv[] )
 		/* scale data before computation */
 		if(scaledata) mydata.scaledata(-1,1,0,1);
 
-		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---" << std::endl;
+		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---\n";
 		mysolver.solve();
 
 		/* cut gamma */
@@ -304,7 +304,7 @@ int main( int argc, char *argv[] )
 		/* unscale data before export */
 		if(scaledata) mydata.scaledata(0,1,-1,1);
 
-		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+		coutMaster << "--- SAVING OUTPUT ---\n";
 		oss << image_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
 		mydata.saveImage(oss.str(),false);
 		oss.str("");
@@ -321,7 +321,7 @@ int main( int argc, char *argv[] )
 			mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
 			/* append end of line */
-			oss_short_output_values << std::endl;
+			oss_short_output_values << "\n";
 
 			/* write data */
 			shortinfo.write(oss_short_output_values.str());
@@ -332,19 +332,19 @@ int main( int argc, char *argv[] )
 	}
 
 	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	coutMaster << "--- THETA SOLUTION ---\n";
 	mydata.print_thetavector(coutMaster);
 
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	coutMaster << "--- TIMERS INFO ---\n";
 	mysolver.printtimer(coutMaster);
 
 	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	coutMaster << "--- FINAL SOLVER INFO ---\n";
 	mysolver.printstatus(coutMaster);
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

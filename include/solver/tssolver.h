@@ -273,14 +273,14 @@ template<class VectorBase>
 void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 
 	/* print settings */
-	output <<  " - maxit:        " << this->maxit << std::endl;
-	output <<  " - annealing:    " << this->annealing << std::endl;
-	output <<  " - eps:          " << this->eps << std::endl;
-	output <<  " - debugmode:   " << this->debugmode << std::endl;
-	output <<  " - init_permute: " << this->init_permute << std::endl;
+	output <<  " - maxit:        " << this->maxit << "\n";
+	output <<  " - annealing:    " << this->annealing << "\n";
+	output <<  " - eps:          " << this->eps << "\n";
+	output <<  " - debugmode:   " << this->debugmode << "\n";
+	output <<  " - init_permute: " << this->init_permute << "\n";
 
 	/* print data */
 	if(tsdata){
@@ -290,22 +290,22 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 	}
 
 	/* if child solvers are specified, then print also info about it */	
-	output <<  " Gamma Solver" << std::endl;
+	output <<  " Gamma Solver\n";
 	if(gammasolver){
 		output.push();
 		gammasolver->print(output);
 		output.pop();
 	} else {
-		output <<  " - not set" << std::endl;
+		output <<  " - not set\n";
 	}
 
-	output <<  " Theta Solver" << std::endl;
+	output <<  " Theta Solver\n";
 	if(thetasolver){
 		output.push();
 		thetasolver->print(output);
 		output.pop();
 	} else {
-		output <<  " - not set" << std::endl;
+		output <<  " - not set\n";
 	}
 	
 	LOG_FUNC_END
@@ -316,14 +316,14 @@ template<class VectorBase>
 void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global << this->get_name() << std::endl;
+	output_global << this->get_name() << "\n";
 
 	/* print settings */
-	output_global <<  " - maxit:        " << this->maxit << std::endl;
-	output_global <<  " - eps:          " << this->eps << std::endl;
-	output_global <<  " - debugmode:   " << this->debugmode << std::endl;
-	output_global <<  " - init_permute: " << this->init_permute << std::endl;
-	output_global <<  " - annealing:    " << this->annealing << std::endl;
+	output_global <<  " - maxit:        " << this->maxit << "\n";
+	output_global <<  " - eps:          " << this->eps << "\n";
+	output_global <<  " - debugmode:   " << this->debugmode << "\n";
+	output_global <<  " - init_permute: " << this->init_permute << "\n";
+	output_global <<  " - annealing:    " << this->annealing << "\n";
 
 	/* print data */
 	if(tsdata){
@@ -333,22 +333,22 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	}
 
 	/* if child solvers are specified, then print also info about it */	
-	output_global <<  " Gamma Solver" << std::endl;
+	output_global <<  " Gamma Solver\n";
 	if(gammasolver){
 		output_global.push();
 		gammasolver->print(output_global, output_local);
 		output_global.pop();
 	} else {
-		output_global <<  " - not set" << std::endl;
+		output_global <<  " - not set\n";
 	}
 
-	output_global <<  " Theta Solver" << std::endl;
+	output_global <<  " Theta Solver\n";
 	if(thetasolver){
 		output_global.push();
 		thetasolver->print(output_global, output_local);
 		output_global.pop();
 	} else {
-		output_global <<  " - not set" << std::endl;
+		output_global <<  " - not set\n";
 	}
 	
 	output_local.synchronize();
@@ -361,19 +361,19 @@ template<class VectorBase>
 void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
-	output <<  " - it:          " << this->it_last << std::endl;
-	output <<  " - L:           " << this->L << std::endl;
-	output <<  " - deltaL:      " << this->deltaL << std::endl;
-	output <<  " - gammasolver_status:" << std::endl;
+	output <<  this->get_name() << "\n";
+	output <<  " - it:          " << this->it_last << "\n";
+	output <<  " - L:           " << this->L << "\n";
+	output <<  " - deltaL:      " << this->deltaL << "\n";
+	output <<  " - gammasolver_status:\n";
 	output.push();
-	output << gammasolver_status.str() << std::endl;
+	output << gammasolver_status.str() << "\n";
 	output.pop();
-	output <<  " - thetasolver_status:" << std::endl;
+	output <<  " - thetasolver_status:\n";
 	output.push();
-	output << thetasolver_status.str() << std::endl;
+	output << thetasolver_status.str() << "\n";
 	output.pop();
-	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%\n";
 	
 	LOG_FUNC_END
 }
@@ -385,9 +385,9 @@ void TSSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	std::streamsize ss = std::cout.precision();
 
 	output << std::setprecision(17);
-	output <<  "      - it:      " << std::setw(25) << this->it_last << std::endl;
-	output <<  "      - L:       " << std::setw(25) << this->L << std::endl;
-	output <<  "      - deltaL:  " << std::setw(25) << this->deltaL << std::endl;
+	output <<  "      - it:      " << std::setw(25) << this->it_last << "\n";
+	output <<  "      - L:       " << std::setw(25) << this->L << "\n";
+	output <<  "      - deltaL:  " << std::setw(25) << this->deltaL << "\n";
 	output << std::setprecision(ss);
 
 	LOG_FUNC_END
@@ -397,34 +397,34 @@ template<class VectorBase>
 void TSSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
-	output <<  " - it all =          " << this->it_sum << std::endl;
-	output <<  " - AIC =             " << tsdata->get_aic() << std::endl;
-	output <<  " - annealing =       " << this->annealing << std::endl;
-	output <<  " - init_permute =    " << this->init_permute << std::endl;
-	output <<  " - timers" << std::endl;
-	output <<  "  - t_solve =        " << this->timer_solve.get_value_sum() << std::endl;
-	output <<  "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << std::endl;
-	output <<  "  - t_gamma_solve =  "  << this->timer_gamma_solve.get_value_sum() << std::endl;
-	output <<  "  - t_theta_update = " << this->timer_theta_update.get_value_sum() << std::endl;
-	output <<  "  - t_theta_solve =  " << this->timer_theta_solve.get_value_sum() << std::endl;
+	output <<  this->get_name() << "\n";
+	output <<  " - it all =          " << this->it_sum << "\n";
+	output <<  " - AIC =             " << tsdata->get_aic() << "\n";
+	output <<  " - annealing =       " << this->annealing << "\n";
+	output <<  " - init_permute =    " << this->init_permute << "\n";
+	output <<  " - timers\n";
+	output <<  "  - t_solve =        " << this->timer_solve.get_value_sum() << "\n";
+	output <<  "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << "\n";
+	output <<  "  - t_gamma_solve =  "  << this->timer_gamma_solve.get_value_sum() << "\n";
+	output <<  "  - t_theta_update = " << this->timer_theta_update.get_value_sum() << "\n";
+	output <<  "  - t_theta_solve =  " << this->timer_theta_solve.get_value_sum() << "\n";
 
-	output <<  " Gamma Solver" << std::endl;
+	output <<  " Gamma Solver\n";
 	if(gammasolver){
 		coutMaster.push();
 		gammasolver->printtimer(output);
 		coutMaster.pop();
 	} else {
-		output << " - not set" << std::endl;
+		output << " - not set\n";
 	}
 
-	output <<  " Theta Solver" << std::endl;
+	output <<  " Theta Solver\n";
 	if(thetasolver){
 		coutMaster.push();
 		thetasolver->printtimer(output);
 		coutMaster.pop();
 	} else {
-		output << " - not set" << std::endl;
+		output << " - not set\n";
 	}
 
 	LOG_FUNC_END
@@ -496,7 +496,7 @@ void TSSolver<VectorBase>::solve() {
 	/* the gamma or theta solver wasn't specified yet */
 	if(!gammasolver || !thetasolver){
 		// TODO: give error - actually, gamma and theta solvers are created during constructor with tsdata - now if we don't have tsdata, there is nothing to solve
-		coutMaster << "Warning: gammasolver or thetasolver is not set yet!" << std::endl;
+		coutMaster << "Warning: gammasolver or thetasolver is not set yet!\n";
 	}
 
 	/* now the gammasolver and thetasolver should be specified and prepared */
@@ -518,7 +518,7 @@ void TSSolver<VectorBase>::solve() {
 	coutMaster.push();
 	for(it_annealing=0;it_annealing < this->annealing;it_annealing++){
 		if(debug_print_annealing){
-			coutMaster <<  "- annealing = " << it_annealing << std::endl;
+			coutMaster <<  "- annealing = " << it_annealing << "\n";
 		}
 		
 		/* permute initial approximation subject to decomposition */
@@ -541,7 +541,7 @@ void TSSolver<VectorBase>::solve() {
 		coutMaster.push();
 		for(it=0;it < this->maxit;it++){
 			if(debug_print_it){
-				coutMaster <<  "it = " << it << std::endl;
+				coutMaster <<  "it = " << it << "\n";
 			}
 
 			/* --- COMPUTE Theta --- */
@@ -558,11 +558,11 @@ void TSSolver<VectorBase>::solve() {
 			/* print info about theta solver */
 			if(debug_print_theta){
 				/* print info about cost function */
-				coutMaster << " theta solver:" << std::endl;
+				coutMaster << " theta solver:\n";
 				coutMaster << "  - ";
 				coutMaster << "it = " << std::setw(6) << thetasolver->get_it() << ", ";
 				coutMaster << "time_update = " << std::setw(12) << this->timer_theta_update.get_value_last() << ", ";
-				coutMaster << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << std::endl;
+				coutMaster << "time_solve = " << std::setw(12) << this->timer_theta_solve.get_value_last() << "\n";
 				if(this->debugmode >= 10){
 					coutMaster.push();
 					thetasolver->printstatus(coutAll);
@@ -573,7 +573,7 @@ void TSSolver<VectorBase>::solve() {
 			}
 
 			if(debug_print_theta_solution){
-				coutMaster <<  "- thetasolver content:" << std::endl;
+				coutMaster <<  "- thetasolver content:\n";
 				coutMaster.push();
 				 thetasolver->printcontent(coutMaster);
 				coutMaster.pop();
@@ -593,11 +593,11 @@ void TSSolver<VectorBase>::solve() {
 			/* print info about gammasolver */
 			if(debug_print_gamma){
 				/* print info about cost function */
-				coutMaster << " gamma solver:" << std::endl;
+				coutMaster << " gamma solver:\n";
 				coutMaster << "  - ";
 				coutMaster << "it = " << std::setw(6) << gammasolver->get_it() << ", ";
 				coutMaster << "time_update = " << std::setw(12) << this->timer_gamma_update.get_value_last() << ", ";
-				coutMaster << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << std::endl;
+				coutMaster << "time_solve = " << std::setw(12) << this->timer_gamma_solve.get_value_last() << "\n";
 				if(this->debugmode >= 10){
 					coutMaster.push();
 					gammasolver->printstatus(coutAll);
@@ -606,7 +606,7 @@ void TSSolver<VectorBase>::solve() {
 				coutAll.synchronize();
 			}
 			if(debug_print_gamma_solution){
-				coutMaster <<  "- gammasolver content:" << std::endl;
+				coutMaster <<  "- gammasolver content:\n";
 				coutMaster.push();
 				gammasolver->printcontent(coutMaster);
 				coutMaster.pop();
@@ -623,11 +623,11 @@ void TSSolver<VectorBase>::solve() {
 
 			if(debug_print_it){
 				/* print info about cost function */
-				coutMaster << " outer loop status:" << std::endl;			
+				coutMaster << " outer loop status:\n";			
 				coutMaster << "  - ";
 				coutMaster << "L_old = " << std::setw(12) << L_old << ", ";
 				coutMaster << "L = " << std::setw(12) << L << ", ";
-				coutMaster << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
+				coutMaster << "|L - L_old| = " << std::setw(12) << deltaL << "\n";
 			}
 
 			/* global stopping criteria */
@@ -654,7 +654,7 @@ void TSSolver<VectorBase>::solve() {
 			coutMaster << ", it=" << std::setw(6) << it;
 			coutMaster << ", it_gamma=" << std::setw(6) << it_gammasolver;
 //		coutMaster << ", it_theta=" << std::setw(6) << it_thetasolver;
-			coutMaster << std::endl;
+			coutMaster << "\n";
 		}
 
 		/* if there is no other annealing steps, we are not using temp storage and store results directly */

@@ -161,7 +161,7 @@ void KmeansData<PetscVector>::saveCSV(std::string filename) const {
 			
 	/* writing finished */
 	timer_saveCSV.stop();
-	coutMaster <<  " - problem saved to CSV in: " << timer_saveCSV.get_value_sum() << std::endl;
+	coutMaster <<  " - problem saved to CSV in: " << timer_saveCSV.get_value_sum() << "\n";
 
 	LOG_FUNC_STATIC_END
 }
@@ -191,7 +191,7 @@ void KmeansData<PetscVector>::generate(int K_solution, double *theta_solution, i
 		TRY( VecMax(datavector->get_vector(), NULL, &max_value) );
 		TRY( VecScale(datavector->get_vector(), 1.0/max_value) );
 				
-		coutAll << "--- scaling data with max value of x: " << max_value << std::endl;
+		coutAll << "--- scaling data with max value of x: " << max_value << "\n";
 		coutAll.synchronize();
 	}
 
@@ -396,7 +396,7 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 
 
 	timer_saveVTK.stop();
-	coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+	coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << "\n";
 
 	LOG_FUNC_END	
 }

@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
 	} 
 
 	if(GlobalManager.get_size() > 1){
-		coutMaster << "The simplificator works only on one processor, sorry." << std::endl;
+		coutMaster << "The simplificator works only on one processor, sorry.\n";
 		return 0;		
 	}
 
@@ -44,15 +44,15 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_T", &T, 100000);
 
 	/* print info about what we will compute */
-	coutMaster << "- PROBLEM INFO --------------------------------------------------" << std::endl;
-	coutMaster << " T      = " << std::setw(40) << T << std::endl;
-	coutMaster << " input  = " << std::setw(40) << input_filename << std::endl;
-	coutMaster << " output = " << std::setw(40) << output_filename << std::endl;
+	coutMaster << "- PROBLEM INFO --------------------------------------------------\n";
+	coutMaster << " T      = " << std::setw(40) << T << "\n";
+	coutMaster << " input  = " << std::setw(40) << input_filename << "\n";
+	coutMaster << " output = " << std::setw(40) << output_filename << "\n";
 
-	coutMaster << "------------------------------------------------------------------" << std::endl;
+	coutMaster << "------------------------------------------------------------------\n";
 	
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* input file */
 	std::string line;
@@ -60,7 +60,7 @@ int main( int argc, char *argv[] )
 
 
 	if (!input_file.is_open()){
-		coutMaster << "Unable to open input file." << std::endl; 	
+		coutMaster << "Unable to open input file.\n"; 	
 		return 1;
 	}
 	
@@ -89,7 +89,7 @@ int main( int argc, char *argv[] )
 	output_file.close();
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	Finalize();
 

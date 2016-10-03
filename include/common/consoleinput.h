@@ -57,7 +57,7 @@ class ConsoleArgClass {
 			}
 
 			if(vm->count("version")){
-				std::cout << "not implemented yet" << std::endl;
+				std::cout << "not implemented yet\n";
 				return false;
 			}
 

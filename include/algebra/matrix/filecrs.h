@@ -77,8 +77,8 @@ template<>
 FileCRSMatrix<PetscVector>::FileCRSMatrix(const PetscVector &x, std::string filename){
 	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename" << std::endl;
-		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
+		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename\n";
+		coutMaster << " - read matrix in petsc format from: " << filename << "\n";
 	}
 
 	/* get informations from given vector */
@@ -109,7 +109,7 @@ FileCRSMatrix<PetscVector>::FileCRSMatrix(const PetscVector &x, std::string file
 template<>
 FileCRSMatrix<PetscVector>::~FileCRSMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR\n";
 
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
 		TRY( MatDestroy(&A_petsc) );
@@ -120,20 +120,20 @@ FileCRSMatrix<PetscVector>::~FileCRSMatrix(){
 template<>
 void FileCRSMatrix<PetscVector>::print(ConsoleOutput &output) const		
 {
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print\n";
 
-	output << "FileCRS matrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
-	output << "----------------------------------------------------------" << std::endl;
+	output << "FileCRS matrix (sorry, 'only' MatView from Petsc follows):\n";
+	output << "----------------------------------------------------------\n";
 	
 	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_WORLD) );
 
-	output << "----------------------------------------------------------" << std::endl;
+	output << "----------------------------------------------------------\n";
 }
 
 /* Petsc: matrix-vector multiplication */
 template<>
 void FileCRSMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult\n";
 
 	// TODO: maybe y is not initialized, who knows
 	
@@ -149,8 +149,8 @@ void FileCRSMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) c
 template<>
 FileCRSMatrix<MinlinHostVector>::FileCRSMatrix(const MinlinHostVector &x, std::string filename){
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename" << std::endl;
-		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
+		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename\n";
+		coutMaster << " - read matrix in petsc format from: " << filename << "\n";
 	}
 
 	/* get informations from given vector */
@@ -179,7 +179,7 @@ FileCRSMatrix<MinlinHostVector>::FileCRSMatrix(const MinlinHostVector &x, std::s
 template<>
 FileCRSMatrix<MinlinHostVector>::~FileCRSMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR\n";
 
 	// TODO: destroy minlin matrix
 }
@@ -187,15 +187,15 @@ FileCRSMatrix<MinlinHostVector>::~FileCRSMatrix(){
 /* print matrix */
 template<>
 void FileCRSMatrix<MinlinHostVector>::print(ConsoleOutput &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print\n";
 
-	output << A_minlinhost << std::endl;
+	output << A_minlinhost << "\n";
 }
 
 /* Petsc: matrix-vector multiplication */
 template<>
 void FileCRSMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinHostVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult\n";
 
 	y = A_minlinhost*x;	
 		
@@ -210,8 +210,8 @@ void FileCRSMatrix<MinlinHostVector>::matmult(MinlinHostVector &y, const MinlinH
 template<>
 FileCRSMatrix<MinlinDeviceVector>::FileCRSMatrix(const MinlinDeviceVector &x, std::string filename){
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename" << std::endl;
-		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
+		coutMaster << "(FileCRSMatrix)CONSTRUCTOR: from filename\n";
+		coutMaster << " - read matrix in petsc format from: " << filename << "\n";
 	}
 
 	/* get informations from given vector */
@@ -240,7 +240,7 @@ FileCRSMatrix<MinlinDeviceVector>::FileCRSMatrix(const MinlinDeviceVector &x, st
 template<>
 FileCRSMatrix<MinlinDeviceVector>::~FileCRSMatrix(){
 	/* init Petsc Vector */
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)DESTRUCTOR\n";
 
 	// TODO: destroy minlin matrix
 }
@@ -248,7 +248,7 @@ FileCRSMatrix<MinlinDeviceVector>::~FileCRSMatrix(){
 /* print matrix */
 template<>
 void FileCRSMatrix<MinlinDeviceVector>::print(ConsoleOutput &output) const {
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)OPERATOR: << print\n";
 
 	output << A_minlinhost;
 }
@@ -256,7 +256,7 @@ void FileCRSMatrix<MinlinDeviceVector>::print(ConsoleOutput &output) const {
 /* Petsc: matrix-vector multiplication */
 template<>
 void FileCRSMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const MinlinDeviceVector &x) const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(FileCRSMatrix)FUNCTION: matmult\n";
 
 	y = A_minlinhost*x;	
 		
@@ -301,23 +301,23 @@ void FileCRSMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &A){
 		/* get the size of the file */
 		int file_size = read_filesize(myfile);
 		
-		coutMaster << "size of file:     " << file_size << std::endl;
-		coutMaster << "mat_file_classid: " << mat_file_classid << std::endl;
-		coutMaster << "nmb_of_rows:      " << nmb_of_rows << std::endl;
-		coutMaster << "nmb_of_cols:      " << nmb_of_cols << std::endl;
-		coutMaster << "nmb_of_nz:        " << nmb_of_nz << std::endl;
+		coutMaster << "size of file:     " << file_size << "\n";
+		coutMaster << "mat_file_classid: " << mat_file_classid << "\n";
+		coutMaster << "nmb_of_rows:      " << nmb_of_rows << "\n";
+		coutMaster << "nmb_of_cols:      " << nmb_of_cols << "\n";
+		coutMaster << "nmb_of_nz:        " << nmb_of_nz << "\n";
 
 		coutMaster << "nmb_of_row_nz:    ";
 		for(i=0;i<nmb_of_rows;i++) coutMaster << nmb_of_row_nz[i] << ", ";
-		coutMaster << std::endl;
+		coutMaster << "\n";
 
 		coutMaster << "col_idx_nz:       ";
 		for(i=0;i<nmb_of_nz;i++) coutMaster << col_idx_nz[i] << ", ";
-		coutMaster << std::endl;
+		coutMaster << "\n";
 
 		coutMaster << "values:           ";
 		for(i=0;i<nmb_of_nz;i++) coutMaster << values[i] << ", ";
-		coutMaster << std::endl;
+		coutMaster << "\n";
 	}
 
 	int id_row, id_in_row;

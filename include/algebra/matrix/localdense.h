@@ -105,8 +105,8 @@ LocalDenseMatrix<PetscVector>::LocalDenseMatrix(std::string filename){
 
 	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
-		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename\n";
+		coutMaster << " - read matrix in petsc format from: " << filename << "\n";
 	}
 
 	/* prepare matrix */
@@ -196,7 +196,7 @@ void LocalDenseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x
 /* Petsc: set value of matrix */
 template<>
 void LocalDenseMatrix<PetscVector>::set_value(int row, int col, double value) { 
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value\n";
 
 	TRY( MatSetValue(A_petsc, row, col, value, INSERT_VALUES) );
 
@@ -205,7 +205,7 @@ void LocalDenseMatrix<PetscVector>::set_value(int row, int col, double value) {
 /* Petsc: set value of matrix */
 template<>
 void LocalDenseMatrix<PetscVector>::add_value(int row, int col, double value) { 
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value\n";
 
 	TRY( MatSetValue(A_petsc, row, col, value, ADD_VALUES) );
 
@@ -240,7 +240,7 @@ void LocalDenseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const
 				output << ",";
 			}
 		}
-		output << std::endl;
+		output << "\n";
 
 		TRY( MatRestoreRow(A_petsc,i,NULL,NULL,&values_row) );
 
@@ -260,8 +260,8 @@ LocalDenseMatrix<MinlinHostVector>::LocalDenseMatrix(std::string filename){
 	LOG_FUNC_BEGIN
 
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
-		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename\n";
+		coutMaster << " - read matrix in petsc format from: " << filename << "\n";
 	}
 
 	/* open file */
@@ -373,8 +373,8 @@ LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(std::string filename){
 	LOG_FUNC_BEGIN
 
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename" << std::endl;
-		coutMaster << " - read matrix in petsc format from: " << filename << std::endl;
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from filename\n";
+		coutMaster << " - read matrix in petsc format from: " << filename << "\n";
 	}
 
 
@@ -418,7 +418,7 @@ LocalDenseMatrix<MinlinDeviceVector>::LocalDenseMatrix(int nmb_rows, int nmb_col
 
 	/* init Petsc Vector */
 	if(DEBUG_MODE >= 100){
-		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size" << std::endl;
+		coutMaster << "(LocalDenseMatrix)CONSTRUCTOR: from size\n";
 	}
 
 	MinlinDeviceMatrix A_new(nmb_rows,nmb_cols);
@@ -453,7 +453,7 @@ void LocalDenseMatrix<MinlinDeviceVector>::matmult(MinlinDeviceVector &y, const 
 /* MinLin: set value of matrix */
 template<>
 void LocalDenseMatrix<MinlinDeviceVector>::set_value(int row, int col, double value) { 
-	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value" << std::endl;
+	if(DEBUG_MODE >= 100) coutMaster << "(LocalDenseMatrix)FUNCTION: set value\n";
 
 	A_minlindevice(row,col) = value;	
 		
@@ -496,23 +496,23 @@ void LocalDenseMatrix<VectorBase>::write_aij(std::ifstream &myfile, MatrixType &
 		/* get the size of the file */
 		int file_size = read_filesize(myfile);
 		
-		coutMaster << "size of file:     " << file_size << std::endl;
-		coutMaster << "mat_file_classid: " << mat_file_classid << std::endl;
-		coutMaster << "nmb_of_rows:      " << nmb_of_rows << std::endl;
-		coutMaster << "nmb_of_cols:      " << nmb_of_cols << std::endl;
-		coutMaster << "nmb_of_nz:        " << nmb_of_nz << std::endl;
+		coutMaster << "size of file:     " << file_size << "\n";
+		coutMaster << "mat_file_classid: " << mat_file_classid << "\n";
+		coutMaster << "nmb_of_rows:      " << nmb_of_rows << "\n";
+		coutMaster << "nmb_of_cols:      " << nmb_of_cols << "\n";
+		coutMaster << "nmb_of_nz:        " << nmb_of_nz << "\n";
 
 		coutMaster << "nmb_of_row_nz:    ";
 		for(i=0;i<nmb_of_rows;i++) coutMaster << nmb_of_row_nz[i] << ", ";
-		coutMaster << std::endl;
+		coutMaster << "\n";
 
 		coutMaster << "col_idx_nz:       ";
 		for(i=0;i<nmb_of_nz;i++) coutMaster << col_idx_nz[i] << ", ";
-		coutMaster << std::endl;
+		coutMaster << "\n";
 
 		coutMaster << "values:           ";
 		for(i=0;i<nmb_of_nz;i++) coutMaster << values[i] << ", ";
-		coutMaster << std::endl;
+		coutMaster << "\n";
 	}
 
 	int id_row, id_in_row;

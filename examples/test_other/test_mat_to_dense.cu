@@ -65,24 +65,24 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_view_decomposition", &view_decomposition, false);
 
 	/* print settings */
-	coutMaster << " test_matrix_type          = " << std::setw(30) << matrix_type << " (which matrix type to test)" << std::endl;
-	coutMaster << " test_T                    = " << std::setw(30) << T << " (length of time-series)" << std::endl;
-	coutMaster << " test_K                    = " << std::setw(30) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_DDT                  = " << std::setw(30) << DDT_size << " (decomposition in time)" << std::endl;
-	coutMaster << " test_DDR                  = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_alpha                = " << std::setw(30) << alpha << " (coeficient of the matrix)" << std::endl;
-	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)" << std::endl;
-	coutMaster << " test_view_decomposition   = " << std::setw(30) << view_decomposition << " (print content of decomposition or not)" << std::endl;
-	coutMaster << " test_view_matrix          = " << std::setw(30) << view_matrix << " (print matrix or not)" << std::endl;
-	coutMaster << " test_view_matrix_unsorted = " << std::setw(30) << view_matrix_unsorted << " (print matrix in unsorted form or not)" << std::endl;
+	coutMaster << " test_matrix_type          = " << std::setw(30) << matrix_type << " (which matrix type to test)\n";
+	coutMaster << " test_T                    = " << std::setw(30) << T << " (length of time-series)\n";
+	coutMaster << " test_K                    = " << std::setw(30) << K << " (number of clusters)\n";
+	coutMaster << " test_DDT                  = " << std::setw(30) << DDT_size << " (decomposition in time)\n";
+	coutMaster << " test_DDR                  = " << std::setw(30) << DDR_size << " (decomposition in space)\n";
+	coutMaster << " test_alpha                = " << std::setw(30) << alpha << " (coeficient of the matrix)\n";
+	coutMaster << " test_graph_filename       = " << std::setw(30) << graph_filename << " (name of file with coordinates)\n";
+	coutMaster << " test_graph_coeff          = " << std::setw(30) << graph_coeff << " (threshold of the graph)\n";
+	coutMaster << " test_view_graph           = " << std::setw(30) << view_graph << " (print content of graph or not)\n";
+	coutMaster << " test_view_decomposition   = " << std::setw(30) << view_decomposition << " (print content of decomposition or not)\n";
+	coutMaster << " test_view_matrix          = " << std::setw(30) << view_matrix << " (print matrix or not)\n";
+	coutMaster << " test_view_matrix_unsorted = " << std::setw(30) << view_matrix_unsorted << " (print matrix in unsorted form or not)\n";
 
 	if(DDT_size*DDR_size != nproc){
-		coutMaster << "Sorry, DDT*DDR != nproc" << std::endl;
-		coutMaster << " DDT   = " << DDT_size << std::endl;
-		coutMaster << " DDR   = " << DDR_size << std::endl;
-		coutMaster << " nproc = " << nproc << std::endl;
+		coutMaster << "Sorry, DDT*DDR != nproc\n";
+		coutMaster << " DDT   = " << DDT_size << "\n";
+		coutMaster << " DDR   = " << DDR_size << "\n";
+		coutMaster << " nproc = " << nproc << "\n";
 		
 		return 0;
 	}
@@ -93,7 +93,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* create graph */
 	BGMGraph graph(graph_filename);
@@ -171,7 +171,7 @@ int main( int argc, char *argv[] )
 
 	/* print header of matrix print */
 	if(view_matrix){
-		coutMaster << "------------------------- A -------------------------" << std::endl;
+		coutMaster << "------------------------- A -------------------------\n";
 	}
 
 	/* go through rows and multiply with vector of standart basis */
@@ -267,14 +267,14 @@ int main( int argc, char *argv[] )
 
 	/* print footer of matrix print */
 	if(view_matrix){
-		coutMaster << "-----------------------------------------------------" << std::endl;
+		coutMaster << "-----------------------------------------------------\n";
 	}
 
 	/* print final info */
-	coutMaster << " time = " << std::setw(10) << timer1.get_value_sum()/(double)(decomposition->get_T()*decomposition->get_R()*K) << std::endl;
+	coutMaster << " time = " << std::setw(10) << timer1.get_value_sum()/(double)(decomposition->get_T()*decomposition->get_R()*K) << "\n";
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

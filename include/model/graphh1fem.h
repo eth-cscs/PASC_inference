@@ -179,23 +179,23 @@ template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output <<  " - T:           " << this->tsdata->get_T() << std::endl;
-	output <<  " - xdim:        " << this->tsdata->get_xdim() << std::endl;
+	output <<  " - T:           " << this->tsdata->get_T() << "\n";
+	output <<  " - xdim:        " << this->tsdata->get_xdim() << "\n";
 
-	output <<  " - K:           " << this->tsdata->get_K() << std::endl;
-	output <<  " - R:           " << this->tsdata->get_R() << std::endl;
-	output <<  " - epssqr:      " << this->epssqr << std::endl;
-	output <<  " - matrix type: " << this->matrix_type << std::endl;
+	output <<  " - K:           " << this->tsdata->get_K() << "\n";
+	output <<  " - R:           " << this->tsdata->get_R() << "\n";
+	output <<  " - epssqr:      " << this->epssqr << "\n";
+	output <<  " - matrix type: " << this->matrix_type << "\n";
 
-	output <<  " - Graph:       " << std::endl;
+	output <<  " - Graph:       \n";
 	output.push();
 	this->get_graph()->print(output);
 	output.pop();
 
-	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
+	output <<  " - thetalength: " << this->thetavectorlength_global << "\n";
 	
 	output.synchronize();	
 
@@ -207,30 +207,30 @@ template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output_global <<  " - global info:  " << std::endl;
-	output_global <<  "  - T:          " << this->tsdata->get_T() << std::endl;
-	output_global <<  "  - xdim:       " << this->tsdata->get_xdim() << std::endl;
+	output_global <<  " - global info:  \n";
+	output_global <<  "  - T:          " << this->tsdata->get_T() << "\n";
+	output_global <<  "  - xdim:       " << this->tsdata->get_xdim() << "\n";
 
-	output_global <<  " - K:           " << this->tsdata->get_K() << std::endl;
-	output_global <<  " - R:           " << this->tsdata->get_R() << std::endl;
-	output_global <<  " - epssqr:      " << this->epssqr << std::endl;
-	output_global <<  " - matrix type: " << this->matrix_type << std::endl;
+	output_global <<  " - K:           " << this->tsdata->get_K() << "\n";
+	output_global <<  " - R:           " << this->tsdata->get_R() << "\n";
+	output_global <<  " - epssqr:      " << this->epssqr << "\n";
+	output_global <<  " - matrix type: " << this->matrix_type << "\n";
 
 	output_global.push();
 	this->get_graph()->print(output_global);
 	output_global.pop();
 
-	output_global <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
+	output_global <<  " - thetalength: " << this->thetavectorlength_global << "\n";
 
 	/* give local info */
-	output_global <<  " - local variables:  " << std::endl;
+	output_global <<  " - local variables:  \n";
 	output_global.push();
 	output_local << "Tlocal =" << std::setw(6) << this->tsdata->get_Tlocal() << " (" << this->tsdata->get_Tbegin() << "," << this->tsdata->get_Tend() << "), ";
 	output_local << "Rlocal =" << std::setw(6) << this->tsdata->get_Rlocal() << " (" << this->tsdata->get_Rbegin() << "," << this->tsdata->get_Rend() << "), ";
-	output_local << "thetalength=" << std::setw(6) << this->thetavectorlength_local << std::endl;
+	output_local << "thetalength=" << std::setw(6) << this->thetavectorlength_local << "\n";
 
 	output_global.pop();
 	output_local.synchronize();
@@ -245,10 +245,10 @@ template<>
 void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output_global <<  "theta:" << std::endl;
+	output_global <<  "theta:\n";
 
 	std::ostringstream temp;
 	
@@ -258,10 +258,10 @@ void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, C
 	int k,n;
 
 	output_local.push();
-	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
+	output_local << "- proc: " << GlobalManager.get_rank() << "\n";
 	output_local.push();
 	for(k=0;k<tsdata->get_K();k++){
-		output_local <<  "- k = " << k << std::endl;
+		output_local <<  "- k = " << k << "\n";
 
 		/* mu */
 		output_local.push();
@@ -274,7 +274,7 @@ void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, C
 			}
 			temp.str("");
 		}
-		output_local <<  "]" << std::endl;
+		output_local <<  "]\n";
 		output_local.pop();
 
 	}

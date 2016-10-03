@@ -173,19 +173,19 @@ VarxH1FEMModel_Global::~VarxH1FEMModel_Global(){
 void VarxH1FEMModel_Global::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output <<  " - T:       " << this->T << std::endl;
-	output <<  " - xdim:    " << this->xdim << std::endl;
+	output <<  " - T:       " << this->T << "\n";
+	output <<  " - xdim:    " << this->xdim << "\n";
 
-	output <<  " - K:       " << this->K << std::endl;
-	output <<  " - xmem:    " << this->xmem << std::endl;
-	output <<  " - epssqr:  " << this->epssqr << std::endl;
+	output <<  " - K:       " << this->K << "\n";
+	output <<  " - xmem:    " << this->xmem << "\n";
+	output <<  " - epssqr:  " << this->epssqr << "\n";
 
-	output <<  " - datalength:  " << this->datavectorlength_global << std::endl;
-	output <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
-	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
+	output <<  " - datalength:  " << this->datavectorlength_global << "\n";
+	output <<  " - gammalength: " << this->gammavectorlength_global << "\n";
+	output <<  " - thetalength: " << this->thetavectorlength_global << "\n";
 	
 	output.synchronize();	
 
@@ -196,28 +196,28 @@ void VarxH1FEMModel_Global::print(ConsoleOutput &output) const {
 void VarxH1FEMModel_Global::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output_global <<  " - global info:  " << std::endl;
-	output_global <<  "  - T:       " << this->T << std::endl;
-	output_global <<  "  - xdim:    " << this->xdim << std::endl;
+	output_global <<  " - global info:  \n";
+	output_global <<  "  - T:       " << this->T << "\n";
+	output_global <<  "  - xdim:    " << this->xdim << "\n";
 
-	output_global <<  " - K:       " << this->K << std::endl;
-	output_global <<  " - xmem:    " << this->xmem << std::endl;
-	output_global <<  " - epssqr:  " << this->epssqr << std::endl;
+	output_global <<  " - K:       " << this->K << "\n";
+	output_global <<  " - xmem:    " << this->xmem << "\n";
+	output_global <<  " - epssqr:  " << this->epssqr << "\n";
 
-	output_global <<  " - datalength:  " << this->datavectorlength_global << std::endl;
-	output_global <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
-	output_global <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
+	output_global <<  " - datalength:  " << this->datavectorlength_global << "\n";
+	output_global <<  " - gammalength: " << this->gammavectorlength_global << "\n";
+	output_global <<  " - thetalength: " << this->thetavectorlength_global << "\n";
 
 	/* give local info */
-	output_global <<  " - local variables:  " << std::endl;
+	output_global <<  " - local variables:  \n";
 	output_global.push();
 	output_local << "Tlocal =" << std::setw(6) << this->Tlocal << ", ";
 	output_local << "datalength=" << std::setw(6) << this->datavectorlength_local << ", ";
 	output_local << "gammalength=" << std::setw(6) << this->gammavectorlength_local << ", ";
-	output_local << "thetalength=" << std::setw(6) << this->thetavectorlength_local << std::endl;
+	output_local << "thetalength=" << std::setw(6) << this->thetavectorlength_local << "\n";
 
 	output_global.pop();
 	output_local.synchronize();
@@ -231,10 +231,10 @@ void VarxH1FEMModel_Global::print(ConsoleOutput &output_global, ConsoleOutput &o
 void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* give information about presence of the data */
-	output_global <<  "theta:" << std::endl;
+	output_global <<  "theta:\n";
 
 	std::ostringstream temp;
 	
@@ -245,10 +245,10 @@ void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleO
 	int blocksize = 1 + this->xdim*this->xmem;
 
 	output_local.push();
-	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
+	output_local << "- proc: " << GlobalManager.get_rank() << "\n";
 	output_local.push();
 	for(k=0;k<this->K;k++){
-		output_local <<  "- k = " << k << std::endl;
+		output_local <<  "- k = " << k << "\n";
 
 		/* mu */
 		output_local.push();
@@ -261,7 +261,7 @@ void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleO
 			}
 			temp.str("");
 		}
-		output_local <<  "]" << std::endl;
+		output_local <<  "]\n";
 		output_local.pop();
 
 		/* A */
@@ -275,10 +275,10 @@ void VarxH1FEMModel_Global::printsolution(ConsoleOutput &output_global, ConsoleO
 					output_local << temp.str() << ", ";
 					temp.str("");
 				}
-				output_local << std::endl;
+				output_local << "\n";
 			}
 			output_local.pop();
-			output_local <<  "  ]" << std::endl;
+			output_local <<  "  ]\n";
 		}
 		output_local.pop();
 
@@ -795,7 +795,7 @@ void VarxH1FEMModel_Global::generate_data(int K_solution, int xmem_solution, dou
 		TRY( VecMax(tsdata->get_datavector()->get_vector(), NULL, &max_value) );
 		TRY( VecScale(tsdata->get_datavector()->get_vector(), 1.0/max_value) );
 				
-		coutAll << "--- scaling data with max value of x: " << max_value << std::endl;
+		coutAll << "--- scaling data with max value of x: " << max_value << "\n";
 		coutAll.synchronize();
 	}
 

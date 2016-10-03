@@ -53,7 +53,7 @@ int main( int argc, char *argv[] )
 	} 
 
 	if(GlobalManager.get_size() > 1){
-		coutMaster << "The generator works only on one processor, sorry." << std::endl;
+		coutMaster << "The generator works only on one processor, sorry.\n";
 		return 0;		
 	}
 
@@ -61,7 +61,7 @@ int main( int argc, char *argv[] )
 	int T;
 	std::vector<int> T_list;
 	if(!consoleArg.set_option_value("test_T", &T_list)){
-		std::cout << "test_T has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		std::cout << "test_T has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -69,7 +69,7 @@ int main( int argc, char *argv[] )
 	int K;
 	std::vector<int> K_list;
 	if(!consoleArg.set_option_value("test_K", &K_list)){
-		std::cout << "test_K has to be set! Call application with parameter -h to see all parameters" << std::endl;
+		std::cout << "test_K has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -80,7 +80,7 @@ int main( int argc, char *argv[] )
 	int T_max = 0;
 
 	/* print info about what we will compute */
-	coutMaster << "- PROBLEM INFO --------------------------------------------------" << std::endl;
+	coutMaster << "- PROBLEM INFO --------------------------------------------------\n";
 	coutMaster << " T      = ";
 	for(i=0;i<T_size;i++){
 		coutMaster << T_list[i];
@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
 			T_max = T_list[i];
 		}
 	}
-	coutMaster << " (length of time-series)" << std::endl;
+	coutMaster << " (length of time-series)\n";
 
 	coutMaster << " K      = ";
 	for(i=0;i<K_size;i++){
@@ -101,9 +101,9 @@ int main( int argc, char *argv[] )
 				coutMaster << ", ";
 		}
 	}
-	coutMaster << " (number of clusters)" << std::endl;
+	coutMaster << " (number of clusters)\n";
 
-	coutMaster << "------------------------------------------------------------------" << std::endl;
+	coutMaster << "------------------------------------------------------------------\n";
 	
 	/* start logging */
 	std::ostringstream oss_name_of_file_log;
@@ -111,7 +111,7 @@ int main( int argc, char *argv[] )
 	logging.begin(oss_name_of_file_log.str());
 		
 	/* say hello */
-	coutMaster << "- start program" << std::endl;
+	coutMaster << "- start program\n";
 
 	/* parameters of the model */
 	int xdim = 3; /* data dimension */
@@ -146,7 +146,7 @@ int main( int argc, char *argv[] )
 	TRY( PetscRandomSetSeed(rnd,13) );
 
 	/* ---- GENERATE THE LARGEST PROBLEM ---- */
-	coutMaster << "- generating largest problem: T = " << T_max << std::endl;
+	coutMaster << "- generating largest problem: T = " << T_max << "\n";
 	KmeansData<PetscVector> mydata(T_max,xdim);
 	KmeansH1FEMModel<PetscVector> mymodel(mydata, xdim, solution_K, 0);
 	mydata.set_model(mymodel);
@@ -167,7 +167,7 @@ int main( int argc, char *argv[] )
 	for(ki = 0; ki < K_size; ki++){
 		K = K_list[ki];
 
-		coutMaster << "- computing gamma: K = " << K << std::endl;
+		coutMaster << "- computing gamma: K = " << K << "\n";
 
 		/* create feasible set - we will project */
 		feasibleset = new SimplexFeasibleSet_Local(T_max,K); 
@@ -199,7 +199,7 @@ int main( int argc, char *argv[] )
 	int ti;
 	for(ti=0;ti<T_size;ti++){
 		T = T_list[ti];
-		coutMaster << "- getting subproblem: T = " << T << std::endl;
+		coutMaster << "- getting subproblem: T = " << T << "\n";
 	
 		/* for every dimension of data create stride */
 		for(i=0;i<xdim;i++){
@@ -213,7 +213,7 @@ int main( int argc, char *argv[] )
 		
 		/* save data */
 		oss_name_of_file << "results/data_kmeans_T" << T << ".bin";
-		coutMaster << "- saving: " << oss_name_of_file.str() << std::endl;
+		coutMaster << "- saving: " << oss_name_of_file.str() << "\n";
 		TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD,oss_name_of_file.str().c_str(),FILE_MODE_WRITE,&viewer_out) );
 		TRY( VecView( subdata_Vec, viewer_out) );
 		TRY( PetscViewerDestroy(&viewer_out) );
@@ -232,7 +232,7 @@ int main( int argc, char *argv[] )
 		for(ki = 0; ki < K_size; ki++){
 			K = K_list[ki];
 
-			coutMaster << "- getting subgamma: K = " << K << std::endl;
+			coutMaster << "- getting subgamma: K = " << K << "\n";
 
 			/* get subvectors from gamma0 */
 			gamma0sub_ISs = (IS*)malloc(K*sizeof(IS));
@@ -246,7 +246,7 @@ int main( int argc, char *argv[] )
 		
 			/* save data */
 			oss_name_of_file << "results/gamma0_kmeans_T" << T << "K" << K << ".bin";
-			coutMaster << "- saving: " << oss_name_of_file.str() << std::endl;
+			coutMaster << "- saving: " << oss_name_of_file.str() << "\n";
 			TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD,oss_name_of_file.str().c_str(),FILE_MODE_WRITE,&viewer_out) );
 			TRY( VecView( gamma0sum_Vec, viewer_out) );
 			TRY( PetscViewerDestroy(&viewer_out) );
@@ -271,7 +271,7 @@ int main( int argc, char *argv[] )
 	TRY( PetscRandomDestroy(&rnd) );
 
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	logging.end();
 	Finalize();

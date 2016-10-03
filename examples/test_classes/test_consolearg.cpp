@@ -62,7 +62,7 @@ int main( int argc, char *argv[] ){
 /* --- PRINT LOADED OPTIONS --- */
 	/* coutMaster denotes overloaded std::cout which prints only by master (i.e. process with rank=0) */
 	/* std::setw(int) is used to set fixed length of following variable output */
-	coutMaster << "- LOADED ARGUMENTS: ----------------------------" << std::endl;
+	coutMaster << "- LOADED ARGUMENTS: ----------------------------\n";
 	coutMaster << " test_integer_value         = " << std::setw(30) << test_integer_value << " (this is testing integer value)\n";
 	coutMaster << " test_double_value          = " << std::setw(30) << test_double_value << " (this is testing double value)\n";
 	coutMaster << " test_bool_value            = " << std::setw(30) << test_bool_value << " (this is testing bool value)\n";
@@ -81,7 +81,7 @@ int main( int argc, char *argv[] ){
 
 /* --- FINALIZE LIBRARY --- */
 	/* say bye */	
-	coutMaster << "- end program" << std::endl;
+	coutMaster << "- end program\n";
 
 	/* call Finalize() to finalize Petsc if it was used */
 	Finalize();

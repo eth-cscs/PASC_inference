@@ -106,12 +106,12 @@ template<class VectorBase>
 void SimpleSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output <<  this->get_name() << "\n";
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << std::endl;
-	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debugmode: " << this->debugmode << std::endl;
+	output <<  " - maxit:      " << this->maxit << "\n";
+	output <<  " - eps:        " << this->eps << "\n";
+	output <<  " - debugmode: " << this->debugmode << "\n";
 
 	/* print data */
 	if(simpledata){
@@ -128,16 +128,16 @@ template<class VectorBase>
 void SimpleSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;
+	output_global <<  this->get_name() << "\n";
 	
 	/* print settings */
-	output_global <<  " - maxit:      " << this->maxit << std::endl;
-	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debugmode: " << this->debugmode << std::endl;
+	output_global <<  " - maxit:      " << this->maxit << "\n";
+	output_global <<  " - eps:        " << this->eps << "\n";
+	output_global <<  " - debugmode: " << this->debugmode << "\n";
 
 	/* print data */
 	if(simpledata){
-		output_global << "- data:" << std::endl;
+		output_global << "- data:\n";
 		coutMaster.push();
 		simpledata->print(output_global,output_local);
 		coutMaster.pop();
@@ -150,8 +150,8 @@ template<class VectorBase>
 void SimpleSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
-	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	output <<  this->get_name() << "\n";
+	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%\n";
 
 	LOG_FUNC_END
 }
@@ -173,11 +173,11 @@ template<class VectorBase>
 void SimpleSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << std::endl;
+	output << this->get_name() << "\n";
 	
 	/* print content of data */
 	if(simpledata){
-		output << "- data:" << std::endl;
+		output << "- data:\n";
 		coutMaster.push();
 		simpledata->printcontent(output);
 		coutMaster.pop();
@@ -190,9 +190,9 @@ template<class VectorBase>
 void SimpleSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
-	output <<  " - timers" << std::endl;
-	output <<  "  - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  this->get_name() << "\n";
+	output <<  " - timers\n";
+	output <<  "  - t_solve =  " << this->timer_solve.get_value_sum() << "\n";
 
 	LOG_FUNC_END
 }
