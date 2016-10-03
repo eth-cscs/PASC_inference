@@ -382,18 +382,18 @@ template<class VectorBase>
 void SPGQPSolverC<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << "\n";
-	output <<  " - eps:        " << this->eps << "\n";
-	output <<  " - debugmode: " << this->debugmode << "\n";
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
-	output <<  " - m:          " << m << "\n";
-	output <<  " - gamma:      " << gamma << "\n";
-	output <<  " - sigma1:     " << sigma1 << "\n";
-	output <<  " - sigma2:     " << sigma2 << "\n";
-	output <<  " - alphainit:  " << alphainit << "\n";
+	output <<  " - m:          " << m << std::endl;
+	output <<  " - gamma:      " << gamma << std::endl;
+	output <<  " - sigma1:     " << sigma1 << std::endl;
+	output <<  " - sigma2:     " << sigma2 << std::endl;
+	output <<  " - alphainit:  " << alphainit << std::endl;
 	
 	/* print data */
 	if(qpdata){
@@ -411,18 +411,18 @@ template<class VectorBase>
 void SPGQPSolverC<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_local <<  " - maxit:      " << this->maxit << "\n";
-	output_local <<  " - eps:        " << this->eps << "\n";
-	output_local <<  " - debugmode: " << this->debugmode << "\n";
+	output_local <<  " - maxit:      " << this->maxit << std::endl;
+	output_local <<  " - eps:        " << this->eps << std::endl;
+	output_local <<  " - debugmode: " << this->debugmode << std::endl;
 
-	output_local <<  " - m:          " << m << "\n";
-	output_local <<  " - gamma:      " << gamma << "\n";
-	output_local <<  " - sigma1:     " << sigma1 << "\n";
-	output_local <<  " - sigma2:     " << sigma2 << "\n";
-	output_local <<  " - alphainit:  " << alphainit << "\n";
+	output_local <<  " - m:          " << m << std::endl;
+	output_local <<  " - gamma:      " << gamma << std::endl;
+	output_local <<  " - sigma1:     " << sigma1 << std::endl;
+	output_local <<  " - sigma2:     " << sigma2 << std::endl;
+	output_local <<  " - alphainit:  " << alphainit << std::endl;
 
 	output_local.synchronize();
 	
@@ -444,7 +444,7 @@ void SPGQPSolverC<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output <<  "hess mult: " << std::setw(6) << this->hessmult_last << ", ";
 	output <<  "fx: " << std::setw(10) << this->fx << ", ";	
 	output <<  "norm(gP): " << std::setw(10) << this->gP << ", ";
-	output <<  "used memory: " << std::setw(6) << MemoryCheck::get_virtual() << "%\n";
+	output <<  "used memory: " << std::setw(6) << MemoryCheck::get_virtual() << "%" << std::endl;
 
 	output << " - ";
 //	output <<  "t_solve = " << std::setw(10) << this->timer_solve.get_value_last() << ", ";
@@ -454,7 +454,7 @@ void SPGQPSolverC<VectorBase>::printstatus(ConsoleOutput &output) const {
 //	output <<  "t_update = " << std::setw(10) << this->timer_update.get_value_last() << ", ";
 //	output <<  "t_stepsize = " << std::setw(10) << this->timer_stepsize.get_value_last() << ", ";
 //	output <<  "t_fs = " << std::setw(10) << this->timer_fs.get_value_last() << ", ";
-	output <<  "t_other = " << std::setw(10) << this->timer_solve.get_value_last() - (this->timer_projection.get_value_last() + this->timer_matmult.get_value_last() + this->timer_dot.get_value_last() + this->timer_update.get_value_last() + this->timer_stepsize.get_value_last() + this->timer_fs.get_value_last()) << "\n";
+	output <<  "t_other = " << std::setw(10) << this->timer_solve.get_value_last() - (this->timer_projection.get_value_last() + this->timer_matmult.get_value_last() + this->timer_dot.get_value_last() + this->timer_update.get_value_last() + this->timer_stepsize.get_value_last() + this->timer_fs.get_value_last()) << std::endl;
 
 	LOG_FUNC_END
 }
@@ -486,11 +486,11 @@ void SPGQPSolverC<VectorBase>::printstatus(std::ostringstream &output) const {
 	std::streamsize ss = std::cout.precision();
 
 	output << std::setprecision(17);
-	output <<  "      - fx:           " << std::setw(25) << this->fx << "\n";
-	output <<  "      - fx_control:   " << std::setw(25) << fx_quadratic+fx_linear << ", log: " << std::setw(25) << log(fx_quadratic+fx_linear)/log(10) << "\n";
-	output <<  "      - fx_linear:    " << std::setw(25) << fx_linear << ", log: " << std::setw(25) << log(fx_linear)/log(10) << "\n";
-	output <<  "      - fx_quadratic: " << std::setw(25) << fx_quadratic << ", log: " << std::setw(25) << log(fx_quadratic)/log(10) << "\n";
-	output <<  "      - norm(gP):     " << std::setw(25) << this->gP << ", log: " << std::setw(25) << log(this->gP)/log(10) << "\n";
+	output <<  "      - fx:           " << std::setw(25) << this->fx << std::endl;
+	output <<  "      - fx_control:   " << std::setw(25) << fx_quadratic+fx_linear << ", log: " << std::setw(25) << log(fx_quadratic+fx_linear)/log(10) << std::endl;
+	output <<  "      - fx_linear:    " << std::setw(25) << fx_linear << ", log: " << std::setw(25) << log(fx_linear)/log(10) << std::endl;
+	output <<  "      - fx_quadratic: " << std::setw(25) << fx_quadratic << ", log: " << std::setw(25) << log(fx_quadratic)/log(10) << std::endl;
+	output <<  "      - norm(gP):     " << std::setw(25) << this->gP << ", log: " << std::setw(25) << log(this->gP)/log(10) << std::endl;
 	output << std::setprecision(ss);
 
 	LOG_FUNC_END
@@ -500,18 +500,18 @@ template<class VectorBase>
 void SPGQPSolverC<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
-	output <<  " - it all =        " << this->it_sum << "\n";
-	output <<  " - hessmult all =  " << this->hessmult_sum << "\n";
-	output <<  " - timers\n";
-	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << "\n";
-	output <<  "  - t_project =    " << this->timer_projection.get_value_sum() << "\n";
-	output <<  "  - t_matmult =    " << this->timer_matmult.get_value_sum() << "\n";
-	output <<  "  - t_dot =        " << this->timer_dot.get_value_sum() << "\n";
-	output <<  "  - t_update =     " << this->timer_update.get_value_sum() << "\n";
-	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << "\n";
-	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << "\n";
-	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << "\n";
+	output <<  this->get_name() << std::endl;
+	output <<  " - it all =        " << this->it_sum << std::endl;
+	output <<  " - hessmult all =  " << this->hessmult_sum << std::endl;
+	output <<  " - timers" << std::endl;
+	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_project =    " << this->timer_projection.get_value_sum() << std::endl;
+	output <<  "  - t_matmult =    " << this->timer_matmult.get_value_sum() << std::endl;
+	output <<  "  - t_dot =        " << this->timer_dot.get_value_sum() << std::endl;
+	output <<  "  - t_update =     " << this->timer_update.get_value_sum() << std::endl;
+	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
+	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
+	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
 
 	LOG_FUNC_END
 }
@@ -795,29 +795,29 @@ void SPGQPSolverC<VectorBase>::solve() {
 			coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
 
 			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;
-			coutMaster << ", \t\033[36mdd = \033[0m" << dd << "\n";
+			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
 		}
 		
 		/* print qpdata */
 		if(debug_print_vectors){
-			coutMaster << "x: " << x << "\n";
-			coutMaster << "d: " << d << "\n";
-			coutMaster << "g: " << g << "\n";
-			coutMaster << "Ad: " << Ad << "\n";
+			coutMaster << "x: " << x << std::endl;
+			coutMaster << "d: " << d << std::endl;
+			coutMaster << "g: " << g << std::endl;
+			coutMaster << "Ad: " << Ad << std::endl;
 		}
 
 		if(debug_print_scalars){
 			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			coutMaster << "\033[36m dAd = \033[0m" << dAd << ",";
-			coutMaster << "\033[36m gd = \033[0m" << gd << "\n";
+			coutMaster << "\033[36m gd = \033[0m" << gd << std::endl;
 			
 			coutMaster << "\033[36m    fx = \033[0m" << fx << ",";
 			coutMaster << "\033[36m fx_max = \033[0m" << fx_max << ",";
-			coutMaster << "\033[36m xi = \033[0m" << xi << "\n";
+			coutMaster << "\033[36m xi = \033[0m" << xi << std::endl;
 			
 			coutMaster << "\033[36m    beta_bar = \033[0m" << beta_bar << ",";
 			coutMaster << "\033[36m beta_hat = \033[0m" << beta_hat << ",";
-			coutMaster << "\033[36m beta = \033[0m" << beta << "\n";
+			coutMaster << "\033[36m beta = \033[0m" << beta << std::endl;
 			
 		}
 

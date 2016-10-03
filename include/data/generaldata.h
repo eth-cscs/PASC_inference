@@ -63,25 +63,25 @@ class GeneralData {
 
 /* general print, call virtual print() */
 ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralData &data){
-	if(DEBUG_MODE >= 100) coutMaster << "(GeneralData)OPERATOR: <<\n";
+	if(DEBUG_MODE >= 100) coutMaster << "(GeneralData)OPERATOR: <<" << std::endl;
 	output << data.get_name();
 	return output;
 }
 
 void GeneralData::print(ConsoleOutput &output) const {
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 }
 
 void GeneralData::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 }
 
 void GeneralData::printcontent(ConsoleOutput &output) const {
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 }
 
 void GeneralData::printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 }
 
 std::string GeneralData::get_name() const {

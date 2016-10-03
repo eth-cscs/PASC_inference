@@ -115,12 +115,12 @@ template<class VectorBase>
 void DiagSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << "\n";
-	output <<  " - eps:        " << this->eps << "\n";
-	output <<  " - debugmode: " << this->debugmode << "\n";
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(diagdata){
@@ -137,16 +137,16 @@ template<class VectorBase>
 void DiagSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit:      " << this->maxit << "\n";
-	output_global <<  " - eps:        " << this->eps << "\n";
-	output_global <<  " - debugmode: " << this->debugmode << "\n";
+	output_global <<  " - maxit:      " << this->maxit << std::endl;
+	output_global <<  " - eps:        " << this->eps << std::endl;
+	output_global <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(diagdata){
-		output_global << "- data:\n";
+		output_global << "- data:" << std::endl;
 		coutMaster.push();
 		diagdata->print(output_global,output_local);
 		coutMaster.pop();
@@ -159,8 +159,8 @@ template<class VectorBase>
 void DiagSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
-	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%\n";
+	output <<  this->get_name() << std::endl;
+	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
 	LOG_FUNC_END
 }
@@ -182,11 +182,11 @@ template<class VectorBase>
 void DiagSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << "\n";
+	output << this->get_name() << std::endl;
 	
 	/* print content of data */
 	if(diagdata){
-		output << "- data:\n";
+		output << "- data:" << std::endl;
 		coutMaster.push();
 		diagdata->printcontent(output);
 		coutMaster.pop();
@@ -199,10 +199,10 @@ template<class VectorBase>
 void DiagSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
-	output <<  " - timers\n";
-	output <<  "  - t_solve =  " << this->timer_solve.get_value_sum() << "\n";
-	output <<  "  - t_dot =    " << this->timer_dot.get_value_sum() << "\n";
+	output <<  this->get_name() << std::endl;
+	output <<  " - timers" << std::endl;
+	output <<  "  - t_solve =  " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_dot =    " << this->timer_dot.get_value_sum() << std::endl;
 
 	LOG_FUNC_END
 }

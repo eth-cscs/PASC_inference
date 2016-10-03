@@ -145,26 +145,26 @@ template<class VectorBase>
 void DiagData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output <<  " - a:            ";
 	if(this->a){
-		output << "YES (size: " << this->a->size() << ")\n";
+		output << "YES (size: " << this->a->size() << ")" << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 	output <<  " - b:            ";
 	if(this->b){
-		output << "YES (size: " << this->b->size() << ")\n";
+		output << "YES (size: " << this->b->size() << ")" << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 	output <<  " - x:            ";
 	if(this->x){
-		output << "YES (size: " << this->x->size() << ")\n";
+		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 		
 	LOG_FUNC_END
@@ -174,40 +174,40 @@ template<class VectorBase>
 void DiagData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output_global <<  " - a:            ";
 	if(this->a){
-		output_global << "YES (size: " << this->a->size() << ")\n";
+		output_global << "YES (size: " << this->a->size() << ")" << std::endl;
 		output_global.push();
-		output_local  <<  "local size: " << this->a->local_size() << "\n";
+		output_local  <<  "local size: " << this->a->local_size() << std::endl;
 		output_global.pop();
 		output_local.synchronize();		
 	} else {
-		output_global << "not set\n";
+		output_global << "not set" << std::endl;
 	}
 	
 	output_global <<  " - b:            ";
 	if(this->b){
-		output_global << "YES (size: " << this->b->size() << ")\n";
+		output_global << "YES (size: " << this->b->size() << ")" << std::endl;
 		output_global.push();
-		output_local  <<  "local size: " << this->b->local_size() << "\n";
+		output_local  <<  "local size: " << this->b->local_size() << std::endl;
 		output_global.pop();
 		output_local.synchronize();		
 	} else {
-		output_global << "not set\n";
+		output_global << "not set" << std::endl;
 	}
 
 	output_global <<  " - x:            ";
 	if(this->x){
-		output_global << "YES (size: " << this->x->size() << ")\n";
+		output_global << "YES (size: " << this->x->size() << ")" << std::endl;
 		output_global.push();
-		output_local  <<  "local size: " << this->x->local_size() << "\n";
+		output_local  <<  "local size: " << this->x->local_size() << std::endl;
 		output_global.pop();
 		output_local.synchronize();		
 	} else {
-		output_global << "not set\n";
+		output_global << "not set" << std::endl;
 	}
 		
 	LOG_FUNC_END
@@ -217,26 +217,26 @@ template<class VectorBase>
 void DiagData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	output <<  " - a:            ";
 	if(this->a){
-		output << *(this->a) << "\n";
+		output << *(this->a) << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 	output <<  " - b:            ";
 	if(this->b){
-		output << *(this->b) << "\n";
+		output << *(this->b) << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 	output <<  " - x:            ";
 	if(this->x){
-		output << *(this->x) << "\n";
+		output << *(this->x) << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 
 	LOG_FUNC_END
@@ -246,7 +246,7 @@ template<class VectorBase>
 void DiagData<VectorBase>::printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 
 	// TODO
 	LOG_FUNC_END

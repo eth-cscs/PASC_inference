@@ -102,7 +102,7 @@ void KmeansData<PetscVector>::saveCSV(std::string filename) const {
 				myfile << ",";
 			}
 		}
-		myfile << "\n";
+		myfile << std::endl;
 		myfile.close();
 	}
 
@@ -147,7 +147,7 @@ void KmeansData<PetscVector>::saveCSV(std::string filename) const {
 						myfile << ",";
 					}
 				}
-				myfile << "\n";
+				myfile << std::endl;
 			}
 			myfile.close();			
 		}
@@ -161,7 +161,7 @@ void KmeansData<PetscVector>::saveCSV(std::string filename) const {
 			
 	/* writing finished */
 	timer_saveCSV.stop();
-	coutMaster <<  " - problem saved to CSV in: " << timer_saveCSV.get_value_sum() << "\n";
+	coutMaster <<  " - problem saved to CSV in: " << timer_saveCSV.get_value_sum() << std::endl;
 
 	LOG_FUNC_STATIC_END
 }
@@ -191,7 +191,7 @@ void KmeansData<PetscVector>::generate(int K_solution, double *theta_solution, i
 		TRY( VecMax(datavector->get_vector(), NULL, &max_value) );
 		TRY( VecScale(datavector->get_vector(), 1.0/max_value) );
 				
-		coutAll << "--- scaling data with max value of x: " << max_value << "\n";
+		coutAll << "--- scaling data with max value of x: " << max_value << std::endl;
 		coutAll.synchronize();
 	}
 
@@ -253,13 +253,13 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 		myfile.open(filename.c_str());
 
 		/* write header to file */
-		myfile << "# vtk DataFile Version 3.1\n";
-		myfile << "PASCInference: Kmeans solution\n";
-		myfile << "ASCII\n";
-		myfile << "DATASET UNSTRUCTURED_GRID\n";
+		myfile << "# vtk DataFile Version 3.1" << std::endl;
+		myfile << "PASCInference: Kmeans solution" << std::endl;
+		myfile << "ASCII" << std::endl;
+		myfile << "DATASET UNSTRUCTURED_GRID" << std::endl;
 
 		/* points - coordinates */
-		myfile << "POINTS " << T << " FLOAT\n";
+		myfile << "POINTS " << T << " FLOAT" << std::endl;
 		
 		myfile.close();
 	}
@@ -276,20 +276,20 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 			for(t=0;t < Tlocal;t++){
 				if(xdim == 1){ 
 					/* 1D sample */
-					myfile << data_arr[t] << " 0 0\n"; /* x */
+					myfile << data_arr[t] << " 0 0" << std::endl; /* x */
 				}
 
 				if(xdim == 2){ 
 					/* 3D sample */
 					myfile << data_arr[2*t] << " "; /* x */
-					myfile << data_arr[2*t+1] << " 0\n"; /* y */
+					myfile << data_arr[2*t+1] << " 0" << std::endl; /* y */
 				}
 
 				if(xdim == 3){ 
 					/* 3D sample */
 					myfile << data_arr[3*t] << " "; /* x */
 					myfile << data_arr[3*t+1] << " "; /* y */
-					myfile << data_arr[3*t+2] << "\n"; /* z */
+					myfile << data_arr[3*t+2] << std::endl; /* z */
 				}
 
 				if(xdim > 3){
@@ -308,8 +308,8 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 	if(prank == 0){
 		myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 	
-		myfile << "\n";
-		myfile << "POINT_DATA " <<  T << "\n";
+		myfile << std::endl;
+		myfile << "POINT_DATA " <<  T << std::endl;
 
 		myfile.close();
 	}
@@ -334,9 +334,9 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 		if(prank == 0){
 			myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
-			myfile << "\n";
-			myfile << "SCALARS gamma_" << k << " float 1\n";
-			myfile << "LOOKUP_TABLE default\n";
+			myfile << std::endl;
+			myfile << "SCALARS gamma_" << k << " float 1" << std::endl;
+			myfile << "LOOKUP_TABLE default" << std::endl;
 
 			myfile.close();
 		}
@@ -348,7 +348,7 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 				myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
 				for(t=0;t < Tlocal;t++){
-					myfile << gamma_arr[t*K+k] << "\n";
+					myfile << gamma_arr[t*K+k] << std::endl;
 
 					/* update maximum */
 					if(gamma_arr[t*K+k] > gamma_max[t]){
@@ -371,9 +371,9 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 	if(prank == 0){
 		myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 	
-		myfile << "\n";
-		myfile << "SCALARS gamma_max_id float 1\n";
-		myfile << "LOOKUP_TABLE default\n";
+		myfile << std::endl;
+		myfile << "SCALARS gamma_max_id float 1" << std::endl;
+		myfile << "LOOKUP_TABLE default" << std::endl;
 
 		myfile.close();
 	}
@@ -385,7 +385,7 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 				myfile.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 
 				for(t=0;t < Tlocal;t++){
-					myfile << gamma_max_id[t] << "\n";
+					myfile << gamma_max_id[t] << std::endl;
 				}
 
 				myfile.close();
@@ -396,7 +396,7 @@ void KmeansData<PetscVector>::saveVTK(std::string filename) const{
 
 
 	timer_saveVTK.stop();
-	coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << "\n";
+	coutMaster <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
 
 	LOG_FUNC_END	
 }

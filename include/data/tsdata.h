@@ -392,35 +392,35 @@ template<class VectorBase>
 void TSData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	if(this->tsmodel){
-		output <<  " - T:           " << get_T() << "\n";
-		output <<  " - xdim:        " << get_xdim() << "\n";
-		output <<  " - K:           " << get_K() << "\n";
-		output <<  " - model:       " << tsmodel->get_name() << "\n";
+		output <<  " - T:           " << get_T() << std::endl;
+		output <<  " - xdim:        " << get_xdim() << std::endl;
+		output <<  " - K:           " << get_K() << std::endl;
+		output <<  " - model:       " << tsmodel->get_name() << std::endl;
 	} else {
-		output <<  " - model:       NO\n";
+		output <<  " - model:       NO" << std::endl;
 	}
 	
 	output <<  " - datavector:  ";
 	if(this->datavector){
-		output << "YES (size: " << this->datavector->size() << ")\n";
+		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
 	} else {
-		output << "NO\n";
+		output << "NO" << std::endl;
 	}
 	output <<   " - gammavector: ";
 	if(this->gammavector){
-		output << "YES (size: " << this->gammavector->size() << ")\n";
+		output << "YES (size: " << this->gammavector->size() << ")" << std::endl;
 	} else {
-		output << "NO\n";
+		output << "NO" << std::endl;
 	}
 	output <<   " - thetavector: ";
 	if(this->thetavector){
-		output << "YES (size: " << this->thetavector->size() << ")\n";
+		output << "YES (size: " << this->thetavector->size() << ")" << std::endl;
 	} else {
-		output << "NO\n";
+		output << "NO" << std::endl;
 	}
 
 	output.synchronize();
@@ -433,47 +433,47 @@ template<>
 void TSData<PetscVector>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";	
+	output_global <<  this->get_name() << std::endl;	
 
 	/* give information about presence of the data */
 	if(this->tsmodel){
-		output_global <<  " - T:           " << get_T() << "\n";
-		output_local  <<  "  - Tlocal:     " << get_Tlocal() << "\n";
+		output_global <<  " - T:           " << get_T() << std::endl;
+		output_local  <<  "  - Tlocal:     " << get_Tlocal() << std::endl;
 		output_local.synchronize();
 
-		output_global <<  " - xdim:        " << get_xdim() << "\n";
-		output_global <<  " - K:           " << get_K() << "\n";
+		output_global <<  " - xdim:        " << get_xdim() << std::endl;
+		output_global <<  " - K:           " << get_K() << std::endl;
 
-		output_global <<  " - model:       " << get_name() << "\n";
+		output_global <<  " - model:       " << get_name() << std::endl;
 	} else {
-		output_global <<  " - model:       NO\n";
+		output_global <<  " - model:       NO" << std::endl;
 	}
 	
 	output_global <<  " - datavector:  ";
 	if(this->datavector){
-		output_global << "YES (size: " << this->datavector->size() << ")\n";
-		output_local  <<  "  - local size: " << this->datavector->local_size() << "\n";
+		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->datavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
-		output_global << "NO\n";
+		output_global << "NO" << std::endl;
 	}
 	
 	output_global <<   " - gammavector: ";
 	if(this->gammavector){
-		output_global << "YES (size: " << this->gammavector->size() << ")\n";
-		output_local  <<  "  - local size: " << this->gammavector->local_size() << "\n";
+		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->gammavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
-		output_global << "NO\n";
+		output_global << "NO" << std::endl;
 	}
 	
 	output_global <<   " - thetavector: ";
 	if(this->thetavector){
-		output_global << "YES (size: " << this->thetavector->size() << ")\n";
-		output_local  <<  "  - local size: " << this->thetavector->local_size() << "\n";
+		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->thetavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
-		output_global << "NO\n";
+		output_global << "NO" << std::endl;
 	}
 
 	output_global.synchronize();
@@ -486,28 +486,28 @@ template<class VectorBase>
 void TSData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */
 	output <<  " - datavector: ";
 	if(this->datavector){
-		output << *this->datavector << "\n";
+		output << *this->datavector << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 
 	output <<  " - gammavector: ";
 	if(this->gammavector){
-		output << *this->gammavector << "\n";
+		output << *this->gammavector << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 
 	output <<  " - thetavector: ";
 	if(this->thetavector){
-		output << *this->thetavector << "\n";
+		output << *this->thetavector << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 
 	LOG_FUNC_END
@@ -518,30 +518,30 @@ template<>
 void TSData<PetscVector>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */
 	output_local <<  " - datavector: ";
 	if(this->datavector){
-		output_local << *this->datavector << "\n";
+		output_local << *this->datavector << std::endl;
 	} else {
-		output_local << "not set\n";
+		output_local << "not set" << std::endl;
 	}
 	output_local.synchronize();
 
 	output_local <<  " - gammavector: ";
 	if(this->gammavector){
-		output_local << *this->gammavector << "\n";
+		output_local << *this->gammavector << std::endl;
 	} else {
-		output_local << "not set\n";
+		output_local << "not set" << std::endl;
 	}
 	output_local.synchronize();
 
 	output_local <<  " - thetavector: ";
 	if(this->thetavector){
-		output_local << *this->thetavector << "\n";
+		output_local << *this->thetavector << std::endl;
 	} else {
-		output_local << "not set\n";
+		output_local << "not set" << std::endl;
 	}
 	output_local.synchronize();
 
@@ -706,7 +706,7 @@ template<>
 void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << "Theta:\n";
+	output << "Theta:" << std::endl;
 
 	int theta_size = this->tsmodel->get_thetavectorlength_local();
 	double *theta_arr;
@@ -718,7 +718,7 @@ void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
 			output << ", ";
 		}
 	}
-	output << "\n";
+	output << std::endl;
 		
 	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
@@ -757,13 +757,13 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 	std::streamsize ss = std::cout.precision();
 	output << std::setprecision(17);
 
-	output <<  "STATS: " << this->get_name() << "\n";
+	output <<  "STATS: " << this->get_name() << std::endl;
 	output.push();
 		int x_size = this->datavector->size();
 		int blocksize = get_R()*get_K();
-		output << " - total length:    " << std::setw(25) << x_size << "\n";
-		output << " - nmb of blocks:   " << std::setw(25) << blocksize << "\n";
-		output << " - length of block: " << std::setw(25) << get_T() << "\n";
+		output << " - total length:    " << std::setw(25) << x_size << std::endl;
+		output << " - nmb of blocks:   " << std::setw(25) << blocksize << std::endl;
+		output << " - length of block: " << std::setw(25) << get_T() << std::endl;
 		
 		/* compute basic statistics: */
 		Vec x_Vec = datavector->get_vector();
@@ -778,10 +778,10 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 		TRY( VecMin(x_Vec, NULL, &x_min) );
 		x_avg = x_sum/(double)x_size;
 
-		output <<  " - sum:             " << std::setw(25) << x_sum << "\n";
-		output <<  " - max:             " << std::setw(25) << x_max << "\n";
-		output <<  " - min:             " << std::setw(25) << x_min << "\n";
-		output <<  " - avg:             " << std::setw(25) << x_avg << "\n";
+		output <<  " - sum:             " << std::setw(25) << x_sum << std::endl;
+		output <<  " - max:             " << std::setw(25) << x_max << std::endl;
+		output <<  " - min:             " << std::setw(25) << x_min << std::endl;
+		output <<  " - avg:             " << std::setw(25) << x_avg << std::endl;
 
 		/* for each dimension compute basic statistics: */
 		if(printdetails){
@@ -795,7 +795,7 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 			double xk_avg;
 		
 			for(int k=0;k<blocksize;k++){
-				output << "x_" << k << "\n";
+				output << "x_" << k << std::endl;
 				output.push();
 					TRY( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, blocksize, &xk_is) );
 					TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
@@ -805,11 +805,11 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 					TRY( VecMin(xk_Vec, NULL, &xk_min) );
 					xk_avg = xk_sum/(double)xk_size;
 
-					output <<  " - length: " << std::setw(25) << xk_size << "\n";
-					output <<  " - sum:    " << std::setw(25) << xk_sum << "\n";
-					output <<  " - max:    " << std::setw(25) << xk_max << "\n";
-					output <<  " - min:    " << std::setw(25) << xk_min << "\n";
-					output <<  " - avg:    " << std::setw(25) << xk_avg << "\n";
+					output <<  " - length: " << std::setw(25) << xk_size << std::endl;
+					output <<  " - sum:    " << std::setw(25) << xk_sum << std::endl;
+					output <<  " - max:    " << std::setw(25) << xk_max << std::endl;
+					output <<  " - min:    " << std::setw(25) << xk_min << std::endl;
+					output <<  " - avg:    " << std::setw(25) << xk_avg << std::endl;
 
 					TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
 					TRY( ISDestroy(&xk_is) );

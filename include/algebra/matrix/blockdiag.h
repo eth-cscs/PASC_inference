@@ -81,14 +81,14 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::print(ConsoleOutput &output) const
 	LOG_FUNC_BEGIN
 	
 	output << "Blocks: (blocksize = " << this->blocksize << ", ";
-	output << "nmb of blocks = " << this->nmb_blocks << ")\n";
+	output << "nmb of blocks = " << this->nmb_blocks << ")" << std::endl;
 
 	int i;
 	output.push();
 	for(i=0;i<this->nmb_blocks;i++){ /* print each block */
 		output << "block_" << i << ": ";
 		this->blocks[i]->print(output);
-		output << "\n";
+		output << std::endl;
 	}
 	output.pop();
 	
@@ -101,12 +101,12 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::printcontent(ConsoleOutput &output)
 {
 	LOG_FUNC_BEGIN
 	
-	output << "Blocks:\n";
+	output << "Blocks:" << std::endl;
 
 	int i;
 	output.push();
 	for(i=0;i<this->nmb_blocks;i++){ /* print each block */
-		output << "block_" << i << ": \n";
+		output << "block_" << i << ": " << std::endl;
 		this->blocks[i]->printcontent(output);
 	}
 	output.pop();
@@ -129,7 +129,7 @@ void BlockDiagMatrix<VectorBase,MatrixBase>::matmult(VectorBase &y, const Vector
 /* get number of blocks */
 template<class VectorBase, class MatrixBase>
 int BlockDiagMatrix<VectorBase,MatrixBase>::get_nmb_blocks() const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_nmb_blocks\n";
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_nmb_blocks" << std::endl;
 
 	return this->nmb_blocks;
 }
@@ -138,7 +138,7 @@ int BlockDiagMatrix<VectorBase,MatrixBase>::get_nmb_blocks() const {
 /* get number of blocks */
 template<class VectorBase, class MatrixBase>
 MatrixBase **BlockDiagMatrix<VectorBase,MatrixBase>::get_blocks() const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_blocks\n";
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_blocks" << std::endl;
 
 	return this->blocks;
 }
@@ -146,7 +146,7 @@ MatrixBase **BlockDiagMatrix<VectorBase,MatrixBase>::get_blocks() const {
 /* get blocksize */
 template<class VectorBase, class MatrixBase>
 int BlockDiagMatrix<VectorBase,MatrixBase>::get_blocksize() const { 
-	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_blocksize\n";
+	if(DEBUG_MODE >= 100) coutMaster << "(BlockDiagMatrix)FUNCTION: get_blocksize" << std::endl;
 
 	return this->blocksize;
 }

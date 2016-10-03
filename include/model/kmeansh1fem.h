@@ -145,19 +145,19 @@ template<class VectorBase>
 void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T:       " << this->T << "\n";
-	output <<  " - xdim:    " << this->xdim << "\n";
+	output <<  " - T:       " << this->T << std::endl;
+	output <<  " - xdim:    " << this->xdim << std::endl;
 
-	output <<  " - K:       " << this->K << "\n";
-	output <<  " - epssqr:  " << this->epssqr << "\n";
-	output <<  " - matrix type: " << this->matrix_type << "\n";
+	output <<  " - K:       " << this->K << std::endl;
+	output <<  " - epssqr:  " << this->epssqr << std::endl;
+	output <<  " - matrix type: " << this->matrix_type << std::endl;
 
-	output <<  " - datalength:  " << this->datavectorlength_global << "\n";
-	output <<  " - gammalength: " << this->gammavectorlength_global << "\n";
-	output <<  " - thetalength: " << this->thetavectorlength_global << "\n";
+	output <<  " - datalength:  " << this->datavectorlength_global << std::endl;
+	output <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
+	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
 	
 	output.synchronize();	
 
@@ -169,28 +169,28 @@ template<class VectorBase>
 void KmeansH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output_global <<  " - global info:  \n";
-	output_global <<  "  - T:           " << this->T << "\n";
-	output_global <<  "  - xdim:        " << this->xdim << "\n";
+	output_global <<  " - global info:  " << std::endl;
+	output_global <<  "  - T:           " << this->T << std::endl;
+	output_global <<  "  - xdim:        " << this->xdim << std::endl;
 
-	output_global <<  " - K:           " << this->K << "\n";
-	output_global <<  " - epssqr:      " << this->epssqr << "\n";
-	output_global <<  " - matrix type: " << this->matrix_type << "\n";
+	output_global <<  " - K:           " << this->K << std::endl;
+	output_global <<  " - epssqr:      " << this->epssqr << std::endl;
+	output_global <<  " - matrix type: " << this->matrix_type << std::endl;
 
-	output_global <<  " - datalength:  " << this->datavectorlength_global << "\n";
-	output_global <<  " - gammalength: " << this->gammavectorlength_global << "\n";
-	output_global <<  " - thetalength: " << this->thetavectorlength_global << "\n";
+	output_global <<  " - datalength:  " << this->datavectorlength_global << std::endl;
+	output_global <<  " - gammalength: " << this->gammavectorlength_global << std::endl;
+	output_global <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
 
 	/* give local info */
-	output_global <<  " - local variables:  \n";
+	output_global <<  " - local variables:  " << std::endl;
 	output_global.push();
 	output_local << "Tlocal =" << std::setw(6) << this->Tlocal << " (" << this->Tbegin << "," << this->Tend << "), ";
 	output_local << "datalength=" << std::setw(6) << this->datavectorlength_local << ", ";
 	output_local << "gammalength=" << std::setw(6) << this->gammavectorlength_local << ", ";
-	output_local << "thetalength=" << std::setw(6) << this->thetavectorlength_local << "\n";
+	output_local << "thetalength=" << std::setw(6) << this->thetavectorlength_local << std::endl;
 
 	output_global.pop();
 	output_local.synchronize();
@@ -205,10 +205,10 @@ template<>
 void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global << this->get_name() << "\n";
+	output_global << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output_global <<  "theta:\n";
+	output_global <<  "theta:" << std::endl;
 
 	std::ostringstream temp;
 	
@@ -218,10 +218,10 @@ void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, 
 	int k,n;
 
 	output_local.push();
-	output_local << "- proc: " << GlobalManager.get_rank() << "\n";
+	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
 	output_local.push();
 	for(k=0;k<this->K;k++){
-		output_local <<  "- k = " << k << "\n";
+		output_local <<  "- k = " << k << std::endl;
 
 		/* mu */
 		output_local.push();
@@ -234,7 +234,7 @@ void KmeansH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, 
 			}
 			temp.str("");
 		}
-		output_local <<  "]\n";
+		output_local <<  "]" << std::endl;
 		output_local.pop();
 
 	}
@@ -465,10 +465,10 @@ double KmeansH1FEMModel<VectorBase>::get_aic(double L) const{
 	TRY( VecDot(b,x,&L) );
 */
 /*
-	coutMaster << "L:     " << L << "\n";
-	coutMaster << "log:   " << log(L) << "\n";
-	coutMaster << "log10: " << log10(L) << "\n";
-	coutMaster << "K:     " << this->K << "\n";
+	coutMaster << "L:     " << L << std::endl;
+	coutMaster << "log:   " << log(L) << std::endl;
+	coutMaster << "log10: " << log10(L) << std::endl;
+	coutMaster << "K:     " << this->K << std::endl;
 */
 	return 2*log(L) + this->K;
 

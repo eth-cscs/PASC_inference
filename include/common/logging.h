@@ -97,7 +97,7 @@ class LoggingClass {
 			}
 			myfile << "LOG_OPEN" << LOG_SEPARATOR;
 			myfile << "filename=" << filename << ",start time=" << reference_time;
-			myfile << "\n";
+			myfile << std::endl;
 			myfile.close();			
 		}
 		
@@ -117,7 +117,7 @@ class LoggingClass {
 				}
 				myfile << "LOG_CLOSE" << LOG_SEPARATOR;
 				myfile << "filename=" << *filename;
-				myfile << "\n";
+				myfile << std::endl;
 				closefile();			
 			}
 			log_or_not = false;
@@ -141,7 +141,7 @@ class LoggingClass {
 				}
 				myfile << "FUNC_BEGIN" << LOG_SEPARATOR;
 				myfile << name_class << "::" << name_function;
-				myfile << "\n";
+				myfile << std::endl;
 				closefile();			
 			}
 		}
@@ -162,7 +162,7 @@ class LoggingClass {
 				}
 				myfile << "FUNC_END" << LOG_SEPARATOR;
 				myfile << name_class << "::" << name_function;
-				myfile << "\n";
+				myfile << std::endl;
 				closefile();
 			}
 			
@@ -186,7 +186,7 @@ class LoggingClass {
 				}
 				myfile << "IT_" << name_algorithm << LOG_SEPARATOR;
 				myfile << it;
-				myfile << "\n";
+				myfile << std::endl;
 				closefile();
 			}
 		}
@@ -207,7 +207,7 @@ class LoggingClass {
 				}
 				myfile << "FX_" << name_algorithm << LOG_SEPARATOR;
 				myfile << fx_value;
-				myfile << "\n";
+				myfile << std::endl;
 				closefile();
 			}
 		}
@@ -228,7 +228,7 @@ class LoggingClass {
 				}
 				myfile << "FX_" << name_algorithm << "_" << name_add << LOG_SEPARATOR;
 				myfile << fx_value;
-				myfile << "\n";
+				myfile << std::endl;
 				closefile();
 			}
 		}
@@ -248,7 +248,7 @@ class LoggingClass {
 					myfile << file << LOG_SEPARATOR;
 					myfile << line << LOG_SEPARATOR;
 				}
-				myfile << my_string << "\n";
+				myfile << my_string << std::endl;
 				closefile();
 			}
 		}

@@ -156,12 +156,12 @@ template<class VectorBase>
 void QPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << "\n";
-	output <<  " - eps:        " << this->eps << "\n";
-	output <<  " - debugmode: " << this->debugmode << "\n";
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(qpdata){
@@ -182,19 +182,19 @@ template<class VectorBase>
 void QPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit:       " << this->maxit << "\n";
-	output_global <<  " - eps:         " << this->eps << "\n";
-	output_global <<  " - debugmode:  " << this->debugmode << "\n";
+	output_global <<  " - maxit:       " << this->maxit << std::endl;
+	output_global <<  " - eps:         " << this->eps << std::endl;
+	output_global <<  " - debugmode:  " << this->debugmode << std::endl;
 
-	output_global <<  " - child solver: \n";
+	output_global <<  " - child solver: " << std::endl;
 	output_global.push();
 	if(child_solver){
 		child_solver->printstatus(output_local);
 	} else {
-		output_local <<  " - not set yet.\n"; 
+		output_local <<  " - not set yet." << std::endl; 
 	}
 	output_local.synchronize();	
 	output_global.pop();
@@ -216,11 +216,11 @@ template<class VectorBase>
 void QPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << "\n";
+	output << this->get_name() << std::endl;
 	
 	/* print content of data */
 	if(qpdata){
-		output << "- data:\n";
+		output << "- data:" << std::endl;
 		coutMaster.push();
 		qpdata->printcontent(output);
 		coutMaster.pop();
@@ -237,7 +237,7 @@ void QPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	if(child_solver){
 		child_solver->printstatus(output);
 	} else {
-		output << this->get_name() << ": status\n";
+		output << this->get_name() << ": status" << std::endl;
 	}
 
 	LOG_FUNC_END
@@ -250,7 +250,7 @@ void QPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	if(child_solver){
 		child_solver->printstatus(output);
 	} else {
-		output << this->get_name() << ": status\n";
+		output << this->get_name() << ": status" << std::endl;
 	}
 
 	LOG_FUNC_END
@@ -264,7 +264,7 @@ void QPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	if(child_solver){
 		child_solver->printtimer(output);
 	} else {
-		output << this->get_name() << ": timer\n";
+		output << this->get_name() << ": timer" << std::endl;
 	}
 
 	LOG_FUNC_END

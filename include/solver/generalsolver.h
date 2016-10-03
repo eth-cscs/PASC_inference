@@ -136,7 +136,7 @@ ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralSolver &solver){
 void GeneralSolver::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 	
-	output << this->get_name() << "\n";
+	output << this->get_name() << std::endl;
 
 	LOG_FUNC_END
 }
@@ -144,7 +144,7 @@ void GeneralSolver::print(ConsoleOutput &output) const {
 void GeneralSolver::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 	
-	output_global << this->get_name() << "\n";
+	output_global << this->get_name() << std::endl;
 	output_global.synchronize();
 
 	LOG_FUNC_END
@@ -153,7 +153,7 @@ void GeneralSolver::print(ConsoleOutput &output_global, ConsoleOutput &output_lo
 void GeneralSolver::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 	
-	output << this->get_name() << ": status\n";
+	output << this->get_name() << ": status" << std::endl;
 
 	LOG_FUNC_END
 }
@@ -161,7 +161,7 @@ void GeneralSolver::printstatus(ConsoleOutput &output) const {
 void GeneralSolver::printstatus(std::ostringstream &output) const {
 	LOG_FUNC_BEGIN
 	
-	output << this->get_name() << ": status\n";
+	output << this->get_name() << ": status" << std::endl;
 
 	LOG_FUNC_END
 }
@@ -169,7 +169,7 @@ void GeneralSolver::printstatus(std::ostringstream &output) const {
 void GeneralSolver::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 	
-	output << this->get_name() << ": content\n";
+	output << this->get_name() << ": content" << std::endl;
 
 	LOG_FUNC_END
 }
@@ -177,7 +177,7 @@ void GeneralSolver::printcontent(ConsoleOutput &output) const {
 void GeneralSolver::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 	
-	output << this->get_name() << ": timer\n";
+	output << this->get_name() << ": timer" << std::endl;
 
 	LOG_FUNC_END
 }

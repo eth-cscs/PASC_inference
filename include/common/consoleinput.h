@@ -18,11 +18,16 @@ namespace common {
  */ 
 class ConsoleArgClass {
 	private:
-		boost::program_options::options_description *description;
-		boost::program_options::variables_map *vm;
+		boost::program_options::options_description *description; 	/**< here all the console options (including default library parameters) are stored */
+		boost::program_options::variables_map *vm;					/**< used for parsing console arguments */
 
-		int console_nmb_cols;
+		int console_nmb_cols;	/**< number of columns of console */
 	public:
+		/** @brief default constructor
+		*
+		*   Set number of columns of console.
+		*   Set and load the default console parameters of library.
+		*/
 		ConsoleArgClass() {
 			/* get terminal size */
 			struct winsize w;
@@ -40,10 +45,24 @@ class ConsoleArgClass {
 			add_options(description, console_nmb_cols);
 		}
 		
+		/** @brief get the number of columns in console
+		*
+		*   Can be used to print options through whole console.
+		* 
+		*  @return number of columns of console
+		*/
 		int get_console_nmb_cols(){
 			return console_nmb_cols;
 		}
-		
+
+		/** @brief initialize the option reader
+		*
+		*  Arguments argc and argv are usually taken from arguments of main function.
+		* 
+		*  @param argc number of console parameters
+		*  @param argv console parameters
+		*  @return success of initialisation
+		*/
 		bool init(int argc, char *argv[]){
 			/* parse command line arguments */	
 			vm = new boost::program_options::variables_map();
@@ -52,22 +71,32 @@ class ConsoleArgClass {
 
 			/* what to do with parsed arguments? */	
 			if(vm->count("help")){
-				std::cout << *description;
+				std::cout << *description << std::endl;
 				return false;
 			}
 
 			if(vm->count("version")){
-				std::cout << "not implemented yet\n";
+				std::cout << "not implemented yet" << std::endl;
 				return false;
 			}
 
 			return true;
 		}
 
+		/** @brief get the description content to add more options
+		*
+		*  @return the inner instance of description
+		*/
 		boost::program_options::options_description *get_description(){
 			return description;
 		}
-		
+
+		/** @brief get the value of option
+		*
+		*  @param name name of option in string format
+		*  @param out_value there will be stored output value of option
+		*  @return if option is not provided, then false
+		*/
 		template<class Type>
 		bool set_option_value(std::string name, Type *out_value){
 			if(vm->count(name)){
@@ -77,7 +106,13 @@ class ConsoleArgClass {
 				return false;
 			}
 		}
-		
+
+		/** @brief get the value of option or implicit value
+		*
+		*  @param name name of option in string format
+		*  @param out_value there will be stored output value of option
+		*  @param implicit_value if the option is not set in console parameters, this value will be used
+		*/
 		template<class Type, class Type2>
 		void set_option_value(std::string name, Type *out_value, Type2 implicit_value){
 			if(vm->count(name)){

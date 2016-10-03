@@ -520,20 +520,20 @@ void BGMGraph::process(double threshold) {
 }
 
 void BGMGraph::print(ConsoleOutput &output) const {
-	output << "Graph\n";
+	output << "Graph" << std::endl;
 	
 	output.push();
-	output << " - dim:        " << this->dim << "\n";
-	output << " - vertices:   " << this->n << "\n";
-	output << " - edges:      " << this->m << "\n";
-	output << " - max_degree: " << this->m_max << "\n";
-	output << " - threshold:  " << this->threshold << "\n";
-	output << " - processed:  " << this->processed << "\n";
+	output << " - dim:        " << this->dim << std::endl;
+	output << " - vertices:   " << this->n << std::endl;
+	output << " - edges:      " << this->m << std::endl;
+	output << " - max_degree: " << this->m_max << std::endl;
+	output << " - threshold:  " << this->threshold << std::endl;
+	output << " - processed:  " << this->processed << std::endl;
 
-	output << " - decomposed: " << this->DD_decomposed << "\n";
+	output << " - decomposed: " << this->DD_decomposed << std::endl;
 	output.push();
 	if(DD_decomposed){
-		output << " - nmb of domains: " << this->DD_size << "\n";
+		output << " - nmb of domains: " << this->DD_size << std::endl;
 		output << " - lengths:        ";
 		for(int i=0;i<DD_size;i++){ /* use DD_length as counters */
 			output << DD_lengths[i];
@@ -541,7 +541,7 @@ void BGMGraph::print(ConsoleOutput &output) const {
 				output << ", ";
 			}
 		}
-		output << "\n";
+		output << std::endl;
 	}
 	output.pop();
 	
@@ -552,20 +552,20 @@ void BGMGraph::print(ConsoleOutput &output) const {
 void BGMGraph::print_content(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 	
-	output << "Graph\n";
+	output << "Graph" << std::endl;
 	
 	output.push();
-	output << " - dim         : " << this->dim << "\n";
-	output << " - vertices    : " << this->n << "\n";
-	output << " - edges       : " << this->m << "\n";
-	output << " - max_degree  : " << this->m_max << "\n";
-	output << " - threshold   : " << this->threshold << "\n";
-	output << " - coordinates : " << *coordinates << "\n";
+	output << " - dim         : " << this->dim << std::endl;
+	output << " - vertices    : " << this->n << std::endl;
+	output << " - edges       : " << this->m << std::endl;
+	output << " - max_degree  : " << this->m_max << std::endl;
+	output << " - threshold   : " << this->threshold << std::endl;
+	output << " - coordinates : " << *coordinates << std::endl;
 
-	output << " - decomposed  : " << this->DD_decomposed << "\n";
+	output << " - decomposed  : " << this->DD_decomposed << std::endl;
 	output.push();
 	if(DD_decomposed){
-		output << " - DD_size: " << this->DD_size << "\n";
+		output << " - DD_size: " << this->DD_size << std::endl;
 		output << " - DD_lengths:        ";
 		for(int i=0;i<DD_size;i++){
 			output << DD_lengths[i];
@@ -573,7 +573,7 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 				output << ", ";
 			}
 		}
-		output << "\n";	
+		output << std::endl;	
 		output << " - DD_ranges:        ";
 		for(int i=0;i<DD_size+1;i++){
 			output << DD_ranges[i];
@@ -581,7 +581,7 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 				output << ", ";
 			}
 		}
-		output << "\n";	
+		output << std::endl;	
 		output << " - DD_affiliation: ";
 		for(int i=0;i<n;i++){
 			output << DD_affiliation[i];
@@ -589,7 +589,7 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 				output << ", ";
 			}
 		}
-		output << "\n";	
+		output << std::endl;	
 		output << " - DD_permutation: ";
 		for(int i=0;i<n;i++){
 			output << DD_permutation[i];
@@ -597,7 +597,7 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 				output << ", ";
 			}
 		}
-		output << "\n";	
+		output << std::endl;	
 		output << " - DD_invpermutation: ";
 		for(int i=0;i<n;i++){
 			output << DD_invpermutation[i];
@@ -605,14 +605,14 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 				output << ", ";
 			}
 		}
-		output << "\n";	
+		output << std::endl;	
 			
 	}
 	output.pop();
 
-	output << " - processed:  " << this->processed << "\n";
+	output << " - processed:  " << this->processed << std::endl;
 	if(this->processed){
-		output << " - arrays of neighbors: \n";
+		output << " - arrays of neighbors: " << std::endl;
 		output.push();
 		for(int i=0;i<n;i++){
 			output << i << ": " << "(" << neighbor_nmbs[i] << "): ";
@@ -622,7 +622,7 @@ void BGMGraph::print_content(ConsoleOutput &output) const {
 					output << ", ";
 				}
 			}
-			output << "\n";
+			output << std::endl;
 		}
 		output.pop();
 	}
@@ -646,32 +646,32 @@ void BGMGraph::saveVTK(std::string filename) const {
 		myfile.open(filename.c_str());
 
 		/* write header to file */
-		myfile << "# vtk DataFile Version 3.1\n";
-		myfile << "PASCInference: Graph\n";
-		myfile << "ASCII\n";
-		myfile << "DATASET UNSTRUCTURED_GRID\n";
+		myfile << "# vtk DataFile Version 3.1" << std::endl;
+		myfile << "PASCInference: Graph" << std::endl;
+		myfile << "ASCII" << std::endl;
+		myfile << "DATASET UNSTRUCTURED_GRID" << std::endl;
 
 		/* write points - coordinates */
-		myfile << "POINTS " << n << " FLOAT\n";
+		myfile << "POINTS " << n << " FLOAT" << std::endl;
 		const double *coordinates_arr;
 		TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
 		for(int i=0;i<n;i++){
 			if(dim == 1){ 
 				/* 1D sample */
-				myfile << coordinates_arr[i] << " 0 0\n"; /* x */
+				myfile << coordinates_arr[i] << " 0 0" << std::endl; /* x */
 			}
 
 			if(dim == 2){ 
 				/* 2D sample */
 				myfile << coordinates_arr[i] << " "; /* x */
-				myfile << coordinates_arr[n+i] << " 0\n"; /* y */
+				myfile << coordinates_arr[n+i] << " 0" << std::endl; /* y */
 			}
 
 			if(dim == 3){ 
 				/* 3D sample */
 				myfile << coordinates_arr[i] << " "; /* x */
 				myfile << coordinates_arr[n+i] << " "; /* y */
-				myfile << coordinates_arr[2*n+i] << "\n"; /* z */
+				myfile << coordinates_arr[2*n+i] << std::endl; /* z */
 			}
 
 			if(dim > 3){
@@ -681,26 +681,26 @@ void BGMGraph::saveVTK(std::string filename) const {
 		TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 		
 		/* write edges */
-		myfile << "\nCELLS " << 2*m << " " << 2*m*3 << "\n"; /* actually, edges are here twice */
+		myfile << "\nCELLS " << 2*m << " " << 2*m*3 << std::endl; /* actually, edges are here twice */
 		for(int i=0;i<n;i++){
 			for(int j=0;j<neighbor_nmbs[i];j++){
-				myfile << "2 " << i << " " << neighbor_ids[i][j] << "\n";
+				myfile << "2 " << i << " " << neighbor_ids[i][j] << std::endl;
 			}
 		}
-		myfile << "\nCELL_TYPES " << 2*m << "\n";
+		myfile << "\nCELL_TYPES " << 2*m << std::endl;
 		for(int i=0;i<2*m;i++){
-			myfile << "3\n";
+			myfile << "3" << std::endl;
 		}
 		
 		/* write domain affiliation */
-		myfile << "\nPOINT_DATA " << n << "\n";
-		myfile << "SCALARS domain float 1\n";
-		myfile << "LOOKUP_TABLE default\n";
+		myfile << "\nPOINT_DATA " << n << std::endl;
+		myfile << "SCALARS domain float 1" << std::endl;
+		myfile << "LOOKUP_TABLE default" << std::endl;
 		for(int i=0;i<n;i++){
 			if(DD_decomposed){
-				myfile << DD_affiliation[i] << "\n";
+				myfile << DD_affiliation[i] << std::endl;
 			} else {
-				myfile << "-1\n";
+				myfile << "-1" << std::endl;
 			}
 		}
 		
@@ -711,7 +711,7 @@ void BGMGraph::saveVTK(std::string filename) const {
 	
 	
 	timer_saveVTK.stop();
-	coutMaster <<  " - graph saved to VTK in: " << timer_saveVTK.get_value_sum() << "\n";
+	coutMaster <<  " - graph saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
 
 	LOG_FUNC_END
 }

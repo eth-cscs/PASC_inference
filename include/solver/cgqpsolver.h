@@ -179,12 +179,12 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << "\n";
-	output <<  " - eps:        " << this->eps << "\n";
-	output <<  " - debugmode: " << this->debugmode << "\n";
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print settings */
 	if(this->qpdata){
@@ -201,7 +201,7 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global << this->get_name() << "\n";
+	output_global << this->get_name() << std::endl;
 		
 	LOG_FUNC_END
 }
@@ -211,11 +211,11 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << "\n";
+	output << this->get_name() << std::endl;
 	
 	/* print content of data */
 	if(this->qpdata){
-		output << "- data:\n";
+		output << "- data:" << std::endl;
 		coutMaster.push();
 		this->qpdata->printcontent(output);
 		coutMaster.pop();
@@ -228,11 +228,11 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
-	output <<  " - it:          " << this->it_last << "\n";
-	output <<  " - hess mult:   " << this->hessmult_last << "\n";
-	output <<  " - fx:          " << this->fx << "\n";	
-	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%\n";
+	output <<  this->get_name() << std::endl;
+	output <<  " - it:          " << this->it_last << std::endl;
+	output <<  " - hess mult:   " << this->hessmult_last << std::endl;
+	output <<  " - fx:          " << this->fx << std::endl;	
+	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
 
 	LOG_FUNC_END
 }
@@ -244,7 +244,7 @@ void CGQPSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	std::streamsize ss = std::cout.precision();
 
 	output << std::setprecision(17);
-	output <<  "      - fx:           " << std::setw(25) << this->fx << "\n";
+	output <<  "      - fx:           " << std::setw(25) << this->fx << std::endl;
 	output << std::setprecision(ss);
 
 	LOG_FUNC_END
@@ -254,18 +254,18 @@ template<class VectorBase>
 void CGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
-/*	output <<  " - it all =       " << this->it_sum << "\n";
-	output <<  " - hessmult all = " << this->hessmult_sum << "\n";
-	output <<  " - timers all\n";
-	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << "\n";
-	output <<  "  - t_project =    " << this->timer_projection.get_value_sum() << "\n";
-	output <<  "  - t_matmult =    " << this->timer_matmult.get_value_sum() << "\n";
-	output <<  "  - t_dot =        " << this->timer_dot.get_value_sum() << "\n";
-	output <<  "  - t_update =     " << this->timer_update.get_value_sum() << "\n";
-	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << "\n";
-	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << "\n";
-	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << "\n";
+	output <<  this->get_name() << std::endl;
+/*	output <<  " - it all =       " << this->it_sum << std::endl;
+	output <<  " - hessmult all = " << this->hessmult_sum << std::endl;
+	output <<  " - timers all" << std::endl;
+	output <<  "  - t_solve =      " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_project =    " << this->timer_projection.get_value_sum() << std::endl;
+	output <<  "  - t_matmult =    " << this->timer_matmult.get_value_sum() << std::endl;
+	output <<  "  - t_dot =        " << this->timer_dot.get_value_sum() << std::endl;
+	output <<  "  - t_update =     " << this->timer_update.get_value_sum() << std::endl;
+	output <<  "  - t_stepsize =   " << this->timer_stepsize.get_value_sum() << std::endl;
+	output <<  "  - t_fs =         " << this->timer_fs.get_value_sum() << std::endl;
+	output <<  "  - t_other =      " << this->timer_solve.get_value_sum() - (this->timer_projection.get_value_sum() + this->timer_matmult.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_stepsize.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
 */
 
 	LOG_FUNC_END
@@ -341,22 +341,22 @@ void CGQPSolver<VectorBase>::solve() {
 		p += g;
 		
 		if(this->debugmode >= 10){
-			coutMaster << "it " << it << ": ||g|| = " << normg << "\n";
+			coutMaster << "it " << it << ": ||g|| = " << normg << std::endl;
 		}
 
 		if(this->debugmode >= 100){
-			coutMaster << "x = " << x << "\n";
-			coutMaster << "g = " << g << "\n";
-			coutMaster << "p = " << p << "\n";
-			coutMaster << "Ap = " << Ap << "\n";
-			coutMaster << "pAp = " << pAp << "\n";
-			coutMaster << "alpha = " << alpha << "\n";
-			coutMaster << "beta = " << beta << "\n";
-			coutMaster << "gg = " << gg << "\n";
-			coutMaster << "gg_old = " << gg_old << "\n";
-			coutMaster << "normg = " << normg << "\n";
+			coutMaster << "x = " << x << std::endl;
+			coutMaster << "g = " << g << std::endl;
+			coutMaster << "p = " << p << std::endl;
+			coutMaster << "Ap = " << Ap << std::endl;
+			coutMaster << "pAp = " << pAp << std::endl;
+			coutMaster << "alpha = " << alpha << std::endl;
+			coutMaster << "beta = " << beta << std::endl;
+			coutMaster << "gg = " << gg << std::endl;
+			coutMaster << "gg_old = " << gg_old << std::endl;
+			coutMaster << "normg = " << normg << std::endl;
 
-			coutMaster << "------------------------------------\n";
+			coutMaster << "------------------------------------" << std::endl;
 		}
 
 				
@@ -366,10 +366,10 @@ void CGQPSolver<VectorBase>::solve() {
 		
 	/* print output */
 	if(this->debugmode >= 10){
-		coutMaster << "------------------------\n";
-		coutMaster << " it_cg = " << it << "\n";
-		coutMaster << " norm_g = " << normg << "\n";
-		coutMaster << " hessmult = " << hessmult << "\n";
+		coutMaster << "------------------------" << std::endl;
+		coutMaster << " it_cg = " << it << std::endl;
+		coutMaster << " norm_g = " << normg << std::endl;
+		coutMaster << " hessmult = " << hessmult << std::endl;
 	}
 
 	this->it_sum += it;
@@ -388,7 +388,7 @@ void CGQPSolver<VectorBase>::solve() {
 
 template<class VectorBase>
 double CGQPSolver<VectorBase>::get_fx() const {
-	if(this->debugmode >= 11) coutMaster << "(CGQPSolver)FUNCTION: get_fx()\n";
+	if(this->debugmode >= 11) coutMaster << "(CGQPSolver)FUNCTION: get_fx()" << std::endl;
 	
 	return this->fx;	
 }

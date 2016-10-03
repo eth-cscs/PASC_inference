@@ -113,16 +113,16 @@ template<class VectorBase>
 void MultiCGSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << "\n";
+	output << this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << "\n";
-	output <<  " - eps:        " << this->eps << "\n";
-	output <<  " - debugmode: " << this->debugmode << "\n";
+	output <<  " - maxit:      " << this->maxit << std::endl;
+	output <<  " - eps:        " << this->eps << std::endl;
+	output <<  " - debugmode: " << this->debugmode << std::endl;
 
 	/* print data */
 	if(qpdata){
-		output << "- data:\n";
+		output << "- data:" << std::endl;
 		coutMaster.push();
 		qpdata->print(output);
 		coutMaster.pop();
@@ -135,17 +135,17 @@ template<class VectorBase>
 void MultiCGSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global << this->get_name() << "\n";
+	output_global << this->get_name() << std::endl;
 	
 	/* print settings */
-	output_local <<  " - maxit:      " << this->maxit << "\n";
-	output_local <<  " - eps:        " << this->eps << "\n";
-	output_local <<  " - debugmode: " << this->debugmode << "\n";
+	output_local <<  " - maxit:      " << this->maxit << std::endl;
+	output_local <<  " - eps:        " << this->eps << std::endl;
+	output_local <<  " - debugmode: " << this->debugmode << std::endl;
 	output_local.synchronize();
 
 	/* print data */
 	if(qpdata){
-		output_global << "- data:\n";
+		output_global << "- data:" << std::endl;
 		coutMaster.push();
 		qpdata->print(output_global,output_local);
 		coutMaster.pop();
@@ -158,11 +158,11 @@ template<class VectorBase>
 void MultiCGSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
-	output <<  " - max(it):       " << this->it_last << "\n";
-	output <<  " - max(hessmult): " << this->hessmult_last << "\n";
-	output <<  " - max(norm(g)):  " << this->fx << "\n";	
-	output <<  " - used memory:   " << MemoryCheck::get_virtual() << "%\n";
+	output <<  this->get_name() << std::endl;
+	output <<  " - max(it):       " << this->it_last << std::endl;
+	output <<  " - max(hessmult): " << this->hessmult_last << std::endl;
+	output <<  " - max(norm(g)):  " << this->fx << std::endl;	
+	output <<  " - used memory:   " << MemoryCheck::get_virtual() << "%" << std::endl;
 
 	LOG_FUNC_END
 }
@@ -172,11 +172,11 @@ template<class VectorBase>
 void MultiCGSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << "\n";
+	output << this->get_name() << std::endl;
 	
 	/* print content of data */
 	if(qpdata){
-		output << "- data:\n";
+		output << "- data:" << std::endl;
 		coutMaster.push();
 		qpdata->printcontent(output);
 		coutMaster.pop();
@@ -261,7 +261,7 @@ void MultiCGSolver<VectorBase>::solve() {
 
 template<class VectorBase>
 double MultiCGSolver<VectorBase>::get_fx() const {
-	if(this->debugmode >= 11) coutMaster << "(MultiCGSolver)FUNCTION: get_fx()\n";
+	if(this->debugmode >= 11) coutMaster << "(MultiCGSolver)FUNCTION: get_fx()" << std::endl;
 	
 	return this->fx;	
 }

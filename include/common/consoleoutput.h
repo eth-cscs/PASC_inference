@@ -142,6 +142,10 @@ class ConsoleOutput : public std::ostream {
 			offset.pop();
 		}
 
+		/** @brief synchronize the output on all processes
+		*
+		*  In the case of PETSC call PetscSynchronizedFlush.
+		*/
 		void synchronize(){
 			if(buffer.print_rank == -1){
 				TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
@@ -251,6 +255,9 @@ class ConsoleOutput : public std::ostream {
 			offset.pop();
 		}
 
+		/** @brief synchronize the output on all processes
+		*
+		*/
 		void synchronize(){
 		}
 		

@@ -62,11 +62,11 @@ int main( int argc, char *argv[] ){
 /* --- PRINT LOADED OPTIONS --- */
 	/* coutMaster denotes overloaded std::cout which prints only by master (i.e. process with rank=0) */
 	/* std::setw(int) is used to set fixed length of following variable output */
-	coutMaster << "- LOADED ARGUMENTS: ----------------------------\n";
-	coutMaster << " test_integer_value         = " << std::setw(30) << test_integer_value << " (this is testing integer value)\n";
-	coutMaster << " test_double_value          = " << std::setw(30) << test_double_value << " (this is testing double value)\n";
-	coutMaster << " test_bool_value            = " << std::setw(30) << test_bool_value << " (this is testing bool value)\n";
-	coutMaster << " test_string_value          = " << std::setw(30) << test_string_value << " (this is testing string value)\n";
+	coutMaster << "- LOADED ARGUMENTS: ----------------------------" << std::endl;
+	coutMaster << " test_integer_value         = " << std::setw(30) << test_integer_value << " (this is testing integer value)" << std::endl;
+	coutMaster << " test_double_value          = " << std::setw(30) << test_double_value << " (this is testing double value)" << std::endl;
+	coutMaster << " test_bool_value            = " << std::setw(30) << test_bool_value << " (this is testing bool value)" << std::endl;
+	coutMaster << " test_string_value          = " << std::setw(30) << test_string_value << " (this is testing string value)" << std::endl;
 
 	coutMaster << " test_double_more           = " << std::setw(30);
 	if(given_test_double_more){
@@ -76,12 +76,12 @@ int main( int argc, char *argv[] ){
 		/* if "--test_double_more" was not provided in console parameters, then print following */
 		coutMaster << "not provided";
 	}
-	coutMaster << "\n";
+	coutMaster << "" << std::endl;
 
 
 /* --- FINALIZE LIBRARY --- */
 	/* say bye */	
-	coutMaster << "- end program\n";
+	coutMaster << "- end program" << std::endl;
 
 	/* call Finalize() to finalize Petsc if it was used */
 	Finalize();

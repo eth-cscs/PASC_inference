@@ -122,36 +122,36 @@ template<class VectorBase>
 void Signal1DData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	if(this->tsmodel){
-		output <<  " - T:           " << this->get_T() << "\n";
-		output <<  " - xdim:        " << this->get_xdim() << "\n";
-		output <<  " - K:           " << this->get_K() << "\n";
-		output <<  " - model:       " << this->tsmodel->get_name() << "\n";
+		output <<  " - T:           " << this->get_T() << std::endl;
+		output <<  " - xdim:        " << this->get_xdim() << std::endl;
+		output <<  " - K:           " << this->get_K() << std::endl;
+		output <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	} else {
-		output <<  " - model:       NO\n";
+		output <<  " - model:       NO" << std::endl;
 	}
-	output <<  " - R:           " << this->get_R() << "\n";
+	output <<  " - R:           " << this->get_R() << std::endl;
 	
 	output <<  " - datavector:  ";
 	if(this->datavector){
-		output << "YES (size: " << this->datavector->size() << ")\n";
+		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
 	} else {
-		output << "NO\n";
+		output << "NO" << std::endl;
 	}
 	output <<   " - gammavector: ";
 	if(this->gammavector){
-		output << "YES (size: " << this->gammavector->size() << ")\n";
+		output << "YES (size: " << this->gammavector->size() << ")" << std::endl;
 	} else {
-		output << "NO\n";
+		output << "NO" << std::endl;
 	}
 	output <<   " - thetavector: ";
 	if(this->thetavector){
-		output << "YES (size: " << this->thetavector->size() << ")\n";
+		output << "YES (size: " << this->thetavector->size() << ")" << std::endl;
 	} else {
-		output << "NO\n";
+		output << "NO" << std::endl;
 	}
 
 	output.synchronize();
@@ -164,48 +164,48 @@ template<class VectorBase>
 void Signal1DData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
 	if(this->tsmodel){
-		output_global <<  " - T:           " << this->get_T() << "\n";
-		output_local  <<  "  - Tlocal:     " << this->get_Tlocal() << "\n";
+		output_global <<  " - T:           " << this->get_T() << std::endl;
+		output_local  <<  "  - Tlocal:     " << this->get_Tlocal() << std::endl;
 		output_local.synchronize();
 
-		output_global <<  " - xdim:        " << this->get_xdim() << "\n";
-		output_global <<  " - K:           " << this->get_K() << "\n";
+		output_global <<  " - xdim:        " << this->get_xdim() << std::endl;
+		output_global <<  " - K:           " << this->get_K() << std::endl;
 
-		output_global <<  " - model:       " << this->tsmodel->get_name() << "\n";
+		output_global <<  " - model:       " << this->tsmodel->get_name() << std::endl;
 	} else {
-		output_global <<  " - model:       NO\n";
+		output_global <<  " - model:       NO" << std::endl;
 	}
-	output_global <<  " - R:           " << this->get_R() << "\n";
+	output_global <<  " - R:           " << this->get_R() << std::endl;
 	
 	output_global <<  " - datavector:  ";
 	if(this->datavector){
-		output_global << "YES (size: " << this->datavector->size() << ")\n";
-		output_local  <<  "  - local size: " << this->datavector->local_size() << "\n";
+		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->datavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
-		output_global << "NO\n";
+		output_global << "NO" << std::endl;
 	}
 	
 	output_global <<   " - gammavector: ";
 	if(this->gammavector){
-		output_global << "YES (size: " << this->gammavector->size() << ")\n";
-		output_local  <<  "  - local size: " << this->gammavector->local_size() << "\n";
+		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->gammavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
-		output_global << "NO\n";
+		output_global << "NO" << std::endl;
 	}
 	
 	output_global <<   " - thetavector: ";
 	if(this->thetavector){
-		output_global << "YES (size: " << this->thetavector->size() << ")\n";
-		output_local  <<  "  - local size: " << this->thetavector->local_size() << "\n";
+		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
+		output_local  <<  "  - local size: " << this->thetavector->local_size() << std::endl;
 		output_local.synchronize();
 	} else {
-		output_global << "NO\n";
+		output_global << "NO" << std::endl;
 	}
 
 	output_global.synchronize();
@@ -218,28 +218,28 @@ template<class VectorBase>
 void Signal1DData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << "\n";
+	output <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */
 	output <<  " - datavector: ";
 	if(this->datavector){
-		output << *this->datavector << "\n";
+		output << *this->datavector << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 
 	output <<  " - gammavector: ";
 	if(this->gammavector){
-		output << *this->gammavector << "\n";
+		output << *this->gammavector << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 
 	output <<  " - thetavector: ";
 	if(this->thetavector){
-		output << *this->thetavector << "\n";
+		output << *this->thetavector << std::endl;
 	} else {
-		output << "not set\n";
+		output << "not set" << std::endl;
 	}
 
 	LOG_FUNC_END
@@ -250,30 +250,30 @@ template<class VectorBase>
 void Signal1DData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << "\n";
+	output_global <<  this->get_name() << std::endl;
 	
 	/* print the content of the data */
 	output_local <<  " - datavector: ";
 	if(this->datavector){
-		output_local << *this->datavector << "\n";
+		output_local << *this->datavector << std::endl;
 	} else {
-		output_local << "not set\n";
+		output_local << "not set" << std::endl;
 	}
 	output_local.synchronize();
 
 	output_local <<  " - gammavector: ";
 	if(this->gammavector){
-		output_local << *this->gammavector << "\n";
+		output_local << *this->gammavector << std::endl;
 	} else {
-		output_local << "not set\n";
+		output_local << "not set" << std::endl;
 	}
 	output_local.synchronize();
 
 	output_local <<  " - thetavector: ";
 	if(this->thetavector){
-		output_local << *this->thetavector << "\n";
+		output_local << *this->thetavector << std::endl;
 	} else {
-		output_local << "not set\n";
+		output_local << "not set" << std::endl;
 	}
 	output_local.synchronize();
 
@@ -358,7 +358,7 @@ void Signal1DData<PetscVector>::saveSignal1D(std::string filename, bool save_ori
 //	TRY( VecDestroy(&datasave_Vec) );
 
 	timer_saveSignal1D.stop();
-	coutAll <<  " - problem saved in: " << timer_saveSignal1D.get_value_sum() << "\n";
+	coutAll <<  " - problem saved in: " << timer_saveSignal1D.get_value_sum() << std::endl;
 	coutAll.synchronize();
 }
 
