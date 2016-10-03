@@ -1,3 +1,10 @@
+/** @file globalmanager.h
+ *  @brief Manipulation with information about processes - MPI_COMM size and rank.
+ *
+ *  @author Lukas Pospisil
+ */
+
+
 #ifndef PASC_COMMON_GLOBALMANAGER_H
 #define	PASC_COMMON_GLOBALMANAGER_H
 

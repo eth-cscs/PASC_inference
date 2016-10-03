@@ -1,3 +1,11 @@
+/** @file consoleinput.h
+ *  @brief Manipulation with console arguments and parameters.
+ *
+ *  Based on boost::program_options.
+ * 
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASC_COMMON_CONSOLEINPUT_H
 #define	PASC_COMMON_CONSOLEINPUT_H
 

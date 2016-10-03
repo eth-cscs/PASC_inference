@@ -7,12 +7,14 @@ namespace common {
 /** @class MemoryCheck
  *  @brief get memory state
  * 
- *  Several utils for memory management. Could be used to conrol the memory.
+ *  Several utils for memory management. Could be used to get informations about used memory.
  * 
  */ 
 class MemoryCheck {
 	public:
-		/** @brief get the size of virtual memory
+		/** @brief get the size of virtual memory in bytes
+		 * 
+		 * The value of (sysinfo.totalram + sysinfo.totalswap) * sysinfo.mem_unit
 		 * 
 		 */ 
 		static long long get_virtual_all() {
@@ -25,7 +27,7 @@ class MemoryCheck {
 			return totalVirtualMem;
 		}
 
-		/** @brief get the size of used virtual memory
+		/** @brief get the size of used virtual memory in bytes
 		 * 
 		 */ 
 		static long long get_virtual_used() {
@@ -49,7 +51,7 @@ class MemoryCheck {
 			return 100*((memInfo.totalram - memInfo.freeram) + (memInfo.totalram - memInfo.freeram))/(double)(memInfo.totalram + memInfo.totalram);
 		}
 
-		/** @brief get the size of physical memory
+		/** @brief get the size of physical memory in bytes
 		 * 
 		 */ 
 		static long long get_physical() {

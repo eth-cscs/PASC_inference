@@ -1,3 +1,11 @@
+/** @file consoleoutput.cpp
+ *  @brief manipulation with print to console
+ *
+ *  Several utils for manipulation with console print. Defines also the offset of the print and the begin of the print with proc id.
+ * 
+ *  @author Lukas Pospisil
+ */
+
 #ifndef PASC_COMMON_CONSOLEOUTPUT_H
 #define	PASC_COMMON_CONSOLEOUTPUT_H
 

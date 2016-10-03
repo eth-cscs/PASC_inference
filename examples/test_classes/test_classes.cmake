@@ -4,10 +4,10 @@ include_directories("${CMAKE_SOURCE_DIR}/test_classes/")
 option(TEST_CONSOLEARG "TEST_CONSOLEARG" OFF)
 option(TEST_CONSOLEOUTPUT "TEST_CONSOLEOUTPUT" OFF)
 option(TEST_GLOBALMANAGER "TEST_GLOBALMANAGER" OFF)
-option(TEST_LOGGINGCLASS "TEST_LOGGINGCLASS" OFF)
+option(TEST_LOGGING "TEST_LOGGING" OFF)
 option(TEST_MEMORYCHECK "TEST_MEMORYCHECK" OFF)
-option(TEST_OFFSETCLASS "TEST_OFFSETCLASS" OFF)
-option(TEST_SHORTINFOCLASS "TEST_SHORTINFOCLASS" OFF)
+option(TEST_OFFSET "TEST_OFFSET" OFF)
+option(TEST_SHORTINFO "TEST_SHORTINFO" OFF)
 option(TEST_STACKTIMER "TEST_STACKTIMER" OFF)
 option(TEST_TIMER "TEST_TIMER" OFF)
 
@@ -17,10 +17,10 @@ print(" common")
 printinfo_onoff("  TEST_CONSOLEARG         (ConsoleArg)         " "${TEST_CONSOLEARG}")
 printinfo_onoff("  TEST_CONSOLEOUTPUT      (ConsoleOutput)      " "${TEST_CONSOLEOUTPUT}")
 printinfo_onoff("  TEST_GLOBALMANAGER      (GlobalManager)      " "${TEST_GLOBALMANAGER}")
-printinfo_onoff("  TEST_LOGGINGCLASS       (LoggingClass)       " "${TEST_LOGGINGCLASS}")
+printinfo_onoff("  TEST_LOGGING            (Logging)            " "${TEST_LOGGING}")
 printinfo_onoff("  TEST_MEMORYCHECK        (MemoryCheck)        " "${TEST_MEMORYCHECK}")
-printinfo_onoff("  TEST_OFFSETCLASS        (OffsetClass)        " "${TEST_OFFSETCLASS}")
-printinfo_onoff("  TEST_SHORTINFOCLASS     (ShortinfoClass)     " "${TEST_SHORTINFOCLASS}")
+printinfo_onoff("  TEST_OFFSET             (Offset)             " "${TEST_OFFSET}")
+printinfo_onoff("  TEST_SHORTINFO          (Shortinfo)          " "${TEST_SHORTINFO}")
 printinfo_onoff("  TEST_STACKTIMER         (StackTimer)         " "${TEST_STACKTIMER}")
 printinfo_onoff("  TEST_TIMER              (Timer)              " "${TEST_TIMER}")
 
@@ -40,5 +40,18 @@ if(${TEST_GLOBALMANAGER})
 	pascadd_executable("test_classes/test_globalmanager.cpp" "test_globalmanager")
 endif()
 
+if(${TEST_LOGGING})
+	# Logging
+	pascadd_executable("test_classes/test_logging.cpp" "test_logging")
+endif()
 
+if(${TEST_MEMORYCHECK})
+	# MemoryCheck
+	pascadd_executable("test_classes/test_memorycheck.cpp" "test_memorycheck")
+endif()
+
+if(${TEST_OFFSET})
+	# Offset
+	pascadd_executable("test_classes/test_offset.cpp" "test_offset")
+endif()
 
