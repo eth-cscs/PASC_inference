@@ -136,6 +136,13 @@ macro(PASCADD_EXECUTABLE filename outname)
 	
 endmacro()
 
+# get the list of variables which start with some prefix
+function (getListOfVarsStartingWith _prefix _varResult)
+    get_cmake_property(_vars VARIABLES)
+    string (REGEX MATCHALL "(^|;)${_prefix}[A-Za-z0-9_]*" _matchedVars "${_vars}")
+    set (${_varResult} ${_matchedVars} PARENT_SCOPE)
+endfunction()
+
 include(load_cuda) # CUDA
 include(load_gpu) # GPU
 include(load_petsc) # PETSC
