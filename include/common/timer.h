@@ -1,7 +1,7 @@
 /** @file timer.h
  *  @brief for measuring time
  *
- *  This file includes classes and functions for manipulation with timers.
+ *  This file includes classes and functions for manipulation with timers (StackTimer and Timer).
  *
  *  @author Lukas Pospisil
  */
@@ -19,6 +19,7 @@ namespace common {
  *  new record with the actual time is pushed into the stack. After calling
  *  stop, the difference between actual time and the top of stack is returned.
  *  Moreover, the top marker is removed.
+ * 
 */
 class StackTimer {
 		std::stack<double> time_stack; /**< the stack with times */

@@ -1,5 +1,5 @@
 /** @file shortinfo.h
- *  @brief Manipulation with output file which includes short information.
+ *  @brief Manipulation with output file which includes short final information.
  *
  *  @author Lukas Pospisil
  */

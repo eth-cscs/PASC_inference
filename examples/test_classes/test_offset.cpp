@@ -13,7 +13,6 @@
 
 using namespace pascinference;
 
-
 int main( int argc, char *argv[] ){
 
 /* --- INITIALIZE LIBRARY --- */

@@ -8,7 +8,6 @@ option(TEST_LOGGING "TEST_LOGGING" OFF)
 option(TEST_MEMORYCHECK "TEST_MEMORYCHECK" OFF)
 option(TEST_OFFSET "TEST_OFFSET" OFF)
 option(TEST_SHORTINFO "TEST_SHORTINFO" OFF)
-option(TEST_STACKTIMER "TEST_STACKTIMER" OFF)
 option(TEST_TIMER "TEST_TIMER" OFF)
 
 # print info
@@ -21,8 +20,7 @@ printinfo_onoff("  TEST_LOGGING            (Logging)            " "${TEST_LOGGIN
 printinfo_onoff("  TEST_MEMORYCHECK        (MemoryCheck)        " "${TEST_MEMORYCHECK}")
 printinfo_onoff("  TEST_OFFSET             (Offset)             " "${TEST_OFFSET}")
 printinfo_onoff("  TEST_SHORTINFO          (Shortinfo)          " "${TEST_SHORTINFO}")
-printinfo_onoff("  TEST_STACKTIMER         (StackTimer)         " "${TEST_STACKTIMER}")
-printinfo_onoff("  TEST_TIMER              (Timer)              " "${TEST_TIMER}")
+printinfo_onoff("  TEST_TIMER              (Timer,StackTimer)   " "${TEST_TIMER}")
 
 
 if(${TEST_CONSOLEARG})
@@ -54,4 +52,15 @@ if(${TEST_OFFSET})
 	# Offset
 	pascadd_executable("test_classes/test_offset.cpp" "test_offset")
 endif()
+
+if(${TEST_SHORTINFO})
+	# Shortinfo
+	pascadd_executable("test_classes/test_shortinfo.cpp" "test_shortinfo")
+endif()
+
+if(${TEST_TIMER})
+	# Timer and StackTimer
+	pascadd_executable("test_classes/test_timer.cpp" "test_timer")
+endif()
+
 
