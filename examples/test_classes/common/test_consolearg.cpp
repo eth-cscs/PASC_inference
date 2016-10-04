@@ -1,7 +1,7 @@
 /** @file test_consolearg.cpp
  *  @brief test class and methods: ConsoleArg 
  *
- *  This example (as well as whole class) is based on boost::program_options.
+ *  This example (as well as whole tested class) is based on boost::program_options.
  * 
  *  @author Lukas Pospisil
  */
