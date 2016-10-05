@@ -125,6 +125,16 @@ void myround(double in, double *out){
 	*out = myValue.dValue;
 }
 
+std::string printbool(bool input){
+	std::string out;
+	if(input){
+		out = "true";
+	} else {
+		out = "false";
+	}
+	return out;
+}
+
 
 }
 } /* end of namespace */

@@ -13,7 +13,7 @@ extern int DEBUG_MODE;
 #include "pascinference.h"
 
 /* gamma problem */
-#include "algebra/matrix/blockgraphfree.h"
+//#include "algebra/matrix/blockgraphfree.h" // TODO: implement?
 #include "algebra/matrix/blockgraphsparse.h"
 
 #include "algebra/feasibleset/simplex_local.h"
@@ -52,6 +52,8 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 
 		int matrix_type; /**< type of used matrix 0=FREE,1=SPARSE */
 		
+		bool usethetainpenalty; /**< use the value of Theta in penalty parameter to scale blocks */
+		
 	public:
 
 		/** @brief constructor from data and regularisation constant
@@ -59,7 +61,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		 * @param tsdata time-series data on which model operates
 		 * @param epssqr regularisation constant
 		 */ 	
-		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr);
+		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, bool usethetainpenalty = false);
 
 		/** @brief destructor 
 		 */ 
@@ -109,6 +111,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		double get_aic(double L) const;
 		
 		void set_epssqr(double epssqr);
+		bool get_usethetainpenalty() const;
 		
 };
 
@@ -125,12 +128,13 @@ namespace model {
 
 /* constructor */
 template<>
-GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr) {
+GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, bool usethetainpenalty) {
 	LOG_FUNC_BEGIN
 
 	consoleArg.set_option_value("graphh1femmodel_matrix_type", &this->matrix_type, GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE);
 
 	/* set given parameters */
+	this->usethetainpenalty = usethetainpenalty;
 	this->tsdata = &new_tsdata;
 	this->epssqr = epssqr;
 
@@ -182,15 +186,16 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T:           " << this->tsdata->get_T() << std::endl;
-	output <<  " - xdim:        " << this->tsdata->get_xdim() << std::endl;
+	output <<  " - T                 : " << this->tsdata->get_T() << std::endl;
+	output <<  " - xdim              : " << this->tsdata->get_xdim() << std::endl;
 
-	output <<  " - K:           " << this->tsdata->get_K() << std::endl;
-	output <<  " - R:           " << this->tsdata->get_R() << std::endl;
-	output <<  " - epssqr:      " << this->epssqr << std::endl;
-	output <<  " - matrix type: " << this->matrix_type << std::endl;
+	output <<  " - K                 : " << this->tsdata->get_K() << std::endl;
+	output <<  " - R                 : " << this->tsdata->get_R() << std::endl;
+	output <<  " - epssqr            : " << this->epssqr << std::endl;
+	output <<  " - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
+	output <<  " - matrix type       : " << this->matrix_type << std::endl;
 
-	output <<  " - Graph:       " << std::endl;
+	output <<  " - Graph             : " << std::endl;
 	output.push();
 	this->get_graph()->print(output);
 	output.pop();
@@ -210,23 +215,23 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output_global <<  " - global info:  " << std::endl;
-	output_global <<  "  - T:          " << this->tsdata->get_T() << std::endl;
-	output_global <<  "  - xdim:       " << this->tsdata->get_xdim() << std::endl;
-
-	output_global <<  " - K:           " << this->tsdata->get_K() << std::endl;
-	output_global <<  " - R:           " << this->tsdata->get_R() << std::endl;
-	output_global <<  " - epssqr:      " << this->epssqr << std::endl;
-	output_global <<  " - matrix type: " << this->matrix_type << std::endl;
+	output_global <<  " - global info" << std::endl;
+	output_global <<  "  - T                 : " << this->tsdata->get_T() << std::endl;
+	output_global <<  "  - xdim              : " << this->tsdata->get_xdim() << std::endl;
+	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
+	output_global <<  "  - R                 : " << this->tsdata->get_R() << std::endl;
+	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
+	output_global <<  "  - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
+	output_global <<  "  - matrix type       : " << this->matrix_type << std::endl;
 
 	output_global.push();
 	this->get_graph()->print(output_global);
 	output_global.pop();
 
-	output_global <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
+	output_global <<  "  - thetalength       : " << this->thetavectorlength_global << std::endl;
 
 	/* give local info */
-	output_global <<  " - local variables:  " << std::endl;
+	output_global <<  " - local variables" << std::endl;
 	output_global.push();
 	output_local << "Tlocal =" << std::setw(6) << this->tsdata->get_Tlocal() << " (" << this->tsdata->get_Tbegin() << "," << this->tsdata->get_Tend() << "), ";
 	output_local << "Rlocal =" << std::setw(6) << this->tsdata->get_Rlocal() << " (" << this->tsdata->get_Rbegin() << "," << this->tsdata->get_Rend() << "), ";
@@ -339,7 +344,13 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	}
 	if(this->matrix_type == 1){
 		/* SPARSE */
-		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
+		if(usethetainpenalty){
+			/* use thetavector as a vector of coefficient for scaling blocks */
+			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
+		} else {
+			/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
+			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
+		}
 	}
 
 	gammadata->set_A(A_shared); 
@@ -491,6 +502,8 @@ template<>
 void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
+	// TODO: if Theta is not in penalty term, this computation is completely WRONG! However, it doesn't matter if Theta is given
+
 	Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
 	Vec theta_Vec = tsdata->get_thetavector()->get_vector();
 	Vec data_Vec = tsdata->get_datavector()->get_vector();
@@ -501,8 +514,12 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	TRY( VecAssemblyEnd(tsdata->get_thetavector()->get_vector()) );
 
 	/* now compute A*gamma */
-	*Agamma = (*A_shared)*(*(tsdata->get_gammavector()));
-	Vec Agamma_Vec = Agamma->get_vector();
+	Vec Agamma_Vec;
+	if(usethetainpenalty){
+		/* only if Theta is in penalty term */
+		*Agamma = (*A_shared)*(*(tsdata->get_gammavector()));
+		Agamma_Vec = Agamma->get_vector();
+	}
 
 	/* subvectors */
 	Vec gammak_Vec;
@@ -528,10 +545,13 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		/* get gammak */
 		this->tsdata->get_decomposition()->createIS_gammaK(&gammak_is, k);
 		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-		TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 
 		/* compute gammakAgammak */
-		TRY( VecDot(gammak_Vec, Agammak_Vec, &gammakAgammak) );
+		if(usethetainpenalty){
+			/* only if Theta is in penalty term */
+			TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
+			TRY( VecDot(gammak_Vec, Agammak_Vec, &gammakAgammak) );
+		}
 		
 		/* compute gammakx */
 		TRY( VecDot(data_Vec, gammak_Vec, &gammakx) );
@@ -539,24 +559,34 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		/* compute gammaksum */
 		TRY( VecSum(gammak_Vec, &gammaksum) );
 
-		if(coeff*gammaksum + 0.5*gammakAgammak != 0){
-			theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + 0.5*gammakAgammak);
-//			theta_arr[k] = (gammakx)/(gammaksum + 0.5*gammakAgammak);
-//			theta_arr[k] = (gammakx)/(gammaksum + 0.5*tsdata->get_R()*tsdata->get_T()*gammakAgammak);
-//			theta_arr[k] = gammakx/gammaksum;
+		if(usethetainpenalty){
+			/* only if Theta is in penalty term */
+			if(coeff*gammaksum + 0.5*gammakAgammak != 0){
+				theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + 0.5*gammakAgammak);
+			} else {
+				theta_arr[k] = 0.0;
+			}
 		} else {
-			theta_arr[k] = 0.0;
+			/* if Theta is not in penalty term, then the computation is based on kmeans */
+			if(gammaksum != 0){
+				theta_arr[k] = gammakx/gammaksum;
+			} else {
+				theta_arr[k] = 0.0;
+			}
 		}
 	
 		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-		TRY( VecRestoreSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
+		if(usethetainpenalty){
+			/* only if Theta is in penalty term */
+			TRY( VecRestoreSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
+		}
 		TRY( ISDestroy(&gammak_is) );
 	}	
 
 	/* restore arrays */
 	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
 
-	 TRY( PetscBarrier(NULL));
+	TRY( PetscBarrier(NULL));
 
 	LOG_FUNC_END
 }
@@ -574,6 +604,12 @@ int GraphH1FEMModel<VectorBase>::get_coordinatesVTK_dim() const{
 template<class VectorBase>
 double GraphH1FEMModel<VectorBase>::get_aic(double L) const{
 	return 2*log(L) + this->tsdata->get_K();
+
+}
+
+template<class VectorBase>
+bool GraphH1FEMModel<VectorBase>::get_usethetainpenalty() const{
+	return this->usethetainpenalty;
 
 }
 
