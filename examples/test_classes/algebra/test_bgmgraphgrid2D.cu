@@ -1,7 +1,7 @@
-/** @file test_bgmgraph.cpp
- *  @brief test class and methods: BGMGraph 
+/** @file test_bgmgraphgrid2D.cpp
+ *  @brief test class and methods: BGMGraphGrid2D
  *
- *  This file tests the class and metis decomposition of the graph.
+ *  This file tests the class the regular 2D mesh. The distance between nodes is always equal to 1.
  * 
  *  @author Lukas Pospisil
  */
@@ -15,7 +15,7 @@
 #ifndef USE_METIS
  #error 'This example is for METIS'
 #endif
- 
+
 typedef petscvector::PetscVector PetscVector;
 
 using namespace pascinference;
@@ -27,9 +27,10 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("test_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
-		("test_dim", boost::program_options::value<int>(), "dimension of graph (1,2,3) [int]")
+		("test_width", boost::program_options::value<int>(), "number of grid nodes on x axis [int]")
+		("test_height", boost::program_options::value<int>(), "number of grid nodes on y axis [int]")
 		("test_out", boost::program_options::value< std::string >(), "part of name of output file with graph [string]")
+		("test_generalprocess", boost::program_options::value<bool>(), "use general processing method (otherwise graph processed as squared grid without using given coeff) [bool]")
 		("test_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
 		("test_nmbdomains", boost::program_options::value<int>(), "number of domains for decomposition [int]")
 		("test_print", boost::program_options::value<bool>(), "print content of graph or not [bool]");
@@ -41,21 +42,23 @@ int main( int argc, char *argv[] )
 	} 
 
 	/* load console arguments */
-	std::string filename, out;
+	std::string out;
 	double coeff;
-	bool print;
-	int nmbdomains, dim;
-	consoleArg.set_option_value("test_filename", &filename, "data/test_graph2D.bin");
-	consoleArg.set_option_value("test_dim", &dim, 2);
+	bool print, generalprocess;
+	int nmbdomains, width, height;
+	consoleArg.set_option_value("test_width", &width, 15);
+	consoleArg.set_option_value("test_height", &height, 12);
 	consoleArg.set_option_value("test_out", &out, "test_graph_out");
 	consoleArg.set_option_value("test_coeff", &coeff, 1.1);
 	consoleArg.set_option_value("test_nmbdomains", &nmbdomains, 3);
 	consoleArg.set_option_value("test_print", &print, false);
+	consoleArg.set_option_value("test_generalprocess", &generalprocess, false);
 
 	/* print settings */
-	coutMaster << " test_filename       = " << std::setw(30) << filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_dim            = " << std::setw(30) << dim << " (dimension of graph (1,2,3))" << std::endl;
+	coutMaster << " test_width          = " << std::setw(30) << width << " (number of grid nodes on x axis)" << std::endl;
+	coutMaster << " test_height         = " << std::setw(30) << height << " (number of grid nodes on y axis)" << std::endl;
 	coutMaster << " test_out            = " << std::setw(30) << out << " (part of name of output file with graph)" << std::endl;
+	coutMaster << " test_generalprocess = " << std::setw(30) << generalprocess << " (use general processing method (otherwise graph processed as squared grid without using given coeff))" << std::endl;
 	coutMaster << " test_coeff          = " << std::setw(30) << coeff << " (threshold of the graph)" << std::endl;
 	coutMaster << " test_nmbdomains     = " << std::setw(30) << nmbdomains << " (number of domains for decomposition)" << std::endl;
 	coutMaster << " test_print          = " << std::setw(30) << print << " (print content of graph or not)" << std::endl;
@@ -64,15 +67,19 @@ int main( int argc, char *argv[] )
 	Timer mytimer;
 	mytimer.restart();
 	
-	/* create graph (i.e. load from filename) */
+	/* create graph */
 	mytimer.start();
-	 BGMGraph graph(filename,dim);
+	 BGMGraphGrid2D graph(width, height);
 	mytimer.stop();
 	coutMaster << "- time load      : " << mytimer.get_value_last() << " s" << std::endl;
 	
 	/* process graph with given coefficient */
 	mytimer.start();
-	 graph.process(coeff);
+	 if(generalprocess){
+		graph.process(coeff);
+	 } else {
+		graph.process_grid();
+	 }
 	mytimer.stop();
 	coutMaster << "- time process   : " << mytimer.get_value_last() << " s" << std::endl;
 
@@ -100,8 +107,6 @@ int main( int argc, char *argv[] )
 	/* say bye */	
 	coutMaster << std::endl;
 	coutMaster << "please find generated .vtk file with graph: " << oss_graph_out_filename.str() << std::endl << std::endl;
-	coutMaster << "also look into folder data/ to see other graph examples" << std::endl;
-	coutMaster << "and switch between them using for example ./test_bgmgraph --test_filename=\"data/test_graph1D\" --test_dim=1\"" << std::endl;
 
 	Finalize();
 

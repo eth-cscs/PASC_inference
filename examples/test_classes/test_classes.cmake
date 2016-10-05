@@ -114,9 +114,26 @@ if(${TEST_ALGEBRA_BGMGRAPH})
 		pascadd_executable("test_classes/algebra/test_bgmgraph.cpp" "test_bgmgraph")
 	endif()
 	
-	# copy data
+	# copy data with sample graphs
 	file(COPY "test_classes/data/test_algebra_bgmgraph/" DESTINATION "data" FILES_MATCHING PATTERN "*")
 	
 endif()
 
+if(${TEST_ALGEBRA_BGMGRAPHGRID1D})
+	# BGMGraphGrid1D
+	if(${USE_CUDA})
+		pascadd_executable("test_classes/algebra/test_bgmgraphgrid1D.cu" "test_bgmgraphgrid1D")
+	else()
+		pascadd_executable("test_classes/algebra/test_bgmgraphgrid1D.cpp" "test_bgmgraphgrid1D")
+	endif()
+endif()
+
+if(${TEST_ALGEBRA_BGMGRAPHGRID2D})
+	# BGMGraphGrid2D
+	if(${USE_CUDA})
+		pascadd_executable("test_classes/algebra/test_bgmgraphgrid2D.cu" "test_bgmgraphgrid2D")
+	else()
+		pascadd_executable("test_classes/algebra/test_bgmgraphgrid2D.cpp" "test_bgmgraphgrid2D")
+	endif()
+endif()
 
