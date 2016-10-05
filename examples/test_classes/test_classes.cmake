@@ -113,6 +113,10 @@ if(${TEST_ALGEBRA_BGMGRAPH})
 	else()
 		pascadd_executable("test_classes/algebra/test_bgmgraph.cpp" "test_bgmgraph")
 	endif()
+	
+	# copy data
+	file(COPY "test_classes/data/test_algebra_bgmgraph/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+	
 endif()
 
 
