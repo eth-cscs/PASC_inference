@@ -19,8 +19,6 @@ using namespace pascinference;
 
 typedef petscvector::PetscVector PetscVector;
 
-extern int pascinference::DEBUG_MODE;
-
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
