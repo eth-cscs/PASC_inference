@@ -101,7 +101,7 @@ printinfo_onoff("  TEST_ALGEBRA_BGMGRAPH                     (BGMGraph)         
 printinfo_onoff("  TEST_ALGEBRA_BGMGRAPHGRID1D               (BGMGraphGrid1D)           " "${TEST_ALGEBRA_BGMGRAPHGRID1D}")
 printinfo_onoff("  TEST_ALGEBRA_BGMGRAPHGRID2D               (BGMGraphGrid2D)           " "${TEST_ALGEBRA_BGMGRAPHGRID2D}")
 #printinfo_onoff("  TEST_ALGEBRA_BLOCKDIAGMATRIX              (BlockDiagMatrix)          " "${TEST_ALGEBRA_BLOCKDIAGMATRIX}")
-#printinfo_onoff("  TEST_ALGEBRA_BLOCKGRAPHSPARSEMATRIX       (BlockGraphSparseMatrix)   " "${TEST_ALGEBRA_BLOCKGRAPHSPARSEMATRIX}")
+printinfo_onoff("  TEST_ALGEBRA_BLOCKGRAPHSPARSEMATRIX       (BlockGraphSparseMatrix)   " "${TEST_ALGEBRA_BLOCKGRAPHSPARSEMATRIX}")
 #printinfo_onoff("  TEST_ALGEBRA_BLOCKLAPLACEFREEMATRIX       (BlockLaplaceFreeMatrix)   " "${TEST_ALGEBRA_BLOCKLAPLACEFREEMATRIX}")
 #printinfo_onoff("  TEST_ALGEBRA_BLOCKLAPLACESPARSEMATRIX     (BlockLaplaceSparseMatrix) " "${TEST_ALGEBRA_BLOCKLAPLACESPARSEMATRIX}")
 #printinfo_onoff("  TEST_ALGEBRA_DECOMPOSITION                (Decomposition)            " "${TEST_ALGEBRA_DECOMPOSITION}")
@@ -202,6 +202,19 @@ if(${TEST_ALGEBRA_BGMGRAPHGRID2D})
 	else()
 		pascadd_executable("test_classes/algebra/test_bgmgraphgrid2D.cpp" "test_bgmgraphgrid2D")
 	endif()
+endif()
+
+if(${TEST_ALGEBRA_BLOCKGRAPHSPARSEMATRIX})
+	# BlockGraphSparseMatrix
+	if(${USE_CUDA})
+		pascadd_executable("test_classes/algebra/test_blockgraphsparsematrix.cu" "test_blockgraphsparsematrix")
+	else()
+		pascadd_executable("test_classes/algebra/test_blockgraphsparsematrix.cpp" "test_blockgraphsparsematrix")
+	endif()
+
+	# copy data with sample graphs
+	file(COPY "test_classes/data/test_algebra_blockgraphsparse/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+	
 endif()
 
 # ----- DATA -----

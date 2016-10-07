@@ -183,10 +183,10 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 
 	/* prepare new layout for R */
 	set_graph(new_graph,DDR_size);
-	
+
 	this->DDT_size = 1;
 	this->DDR_size = new_graph.get_DD_size();
-	
+
 	/* prepare new layout for T */
 	destroy_DDT_arrays = true;	
 	DDT_ranges = (int *)malloc((this->DDT_size+1)*sizeof(int));
@@ -206,12 +206,12 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 	this->K = K;
 	this->xdim = xdim;
 
-	this->DDT_size = DDT_size;
-	this->DDR_size = graph->get_DD_size();
-
 	/* prepare new layout for R */
 	destroy_DDR_arrays = false;
 	set_graph(new_graph, DDR_size);
+
+	this->DDT_size = DDT_size;
+	this->DDR_size = graph->get_DD_size();
 	
 	/* prepare new layout for T */
 	destroy_DDT_arrays = true;	
@@ -260,14 +260,14 @@ void Decomposition::compute_rank(){
 	this->DDR_rank = rank - (this->DDT_rank)*(this->DDR_size);
 
 	/* control the decomposition */
-	if(this->DDT_size*this->DDR_size != GlobalManager.get_size()){
-		coutMaster << "Sorry, DDT_size*DDR_size != nproc" << std::endl;
-		coutMaster << " DDT_size = " << this->DDT_size << std::endl;
-		coutMaster << " DDR_size = " << this->DDR_size << std::endl;
-		coutMaster << " nproc    = " << GlobalManager.get_size() << std::endl;
+//	if(this->DDT_size*this->DDR_size != GlobalManager.get_size()){
+//		coutMaster << "Sorry, DDT_size*DDR_size != nproc" << std::endl;
+//		coutMaster << " DDT_size = " << this->DDT_size << std::endl;
+//		coutMaster << " DDR_size = " << this->DDR_size << std::endl;
+//		coutMaster << " nproc    = " << GlobalManager.get_size() << std::endl;
 
 		// TODO: throw error
-	}
+//	}
 	
 	LOG_FUNC_END
 }

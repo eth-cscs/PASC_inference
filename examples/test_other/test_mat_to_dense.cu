@@ -9,7 +9,7 @@
 #include "matrix/blocklaplacefree.h"
 #include "matrix/blocklaplacesparse.h"
 
-#include "matrix/blockgraphfree.h"
+//#include "matrix/blockgraphfree.h"
 #include "matrix/blockgraphsparse.h"
 
 #ifndef USE_PETSCVECTOR
