@@ -3,8 +3,7 @@
 #
 
 # include some funny functions
-import os
-
+import os, shutil
 from subprocess import call
 
 # define function for writing a fun into file
@@ -47,5 +46,24 @@ def show_jobs(account):
     print "--------------------------------------- MY JOBS: -----------------------------------"
     call(["squeue", "--account=%s" % (account)])
     return
-   	
+
+def delete_directory_content(folder):
+    "this function deletes recursively the content of folder"
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path): shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+
+def delete_file(file_path):
+    "this function deletes the file with given path"
+    try:
+        if os.path.isfile(file_path):
+           os.unlink(file_path)
+    except Exception as e:
+        print(e)
+
 
