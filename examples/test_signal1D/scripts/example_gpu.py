@@ -18,12 +18,13 @@ problem_name = "test_signal1D";
 # noise of input signal
 nmbfilesmax = 10;
 Sigma = [1,2];
+#nmbfilesmax = 100;
 #Sigma = [1,2,3,4,5,6,7,8,9,10];
 
 
 # used penalty
-epssqrs = [1e-7, 1e-6, 1e6];
-#epssqrs = [1e-14, 1e-12, 1e-10, 1e-8, 1e-7, 5e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 5e-1, 1e0, 5e0, 1e1, 5e1, 1e2, 5e2, 1e3, 5e3, 1e4, 5e4, 1e5, 5e5, 1e6];
+epssqrs = [1e-7, 1e-6, 1e2];
+#epssqrs = [1e-14, 1e-12, 1e-10, 1e-8, 1e-7, 5e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 5e-1, 1e0, 5e0, 1e1, 5e1, 1e2];
 
 # name of problem (name of compiled program)
 problem_name = "test_signal1D";
