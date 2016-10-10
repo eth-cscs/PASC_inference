@@ -49,6 +49,7 @@ def show_jobs(account):
 
 def delete_directory_content(folder):
     "this function deletes recursively the content of folder"
+    print "- delete content of folder : %s" % (folder)
     for the_file in os.listdir(folder):
         file_path = os.path.join(folder, the_file)
         try:
@@ -60,6 +61,7 @@ def delete_directory_content(folder):
 
 def delete_file(file_path):
     "this function deletes the file with given path"
+    print "- delete file              : %s" % (file_path)
     try:
         if os.path.isfile(file_path):
            os.unlink(file_path)
