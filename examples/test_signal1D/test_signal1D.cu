@@ -28,6 +28,7 @@ int main( int argc, char *argv[] )
 		("test_filename", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
 		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original signal data without noise (vector in PETSc format) [string]")
+		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to set {0;1} [bool]")
@@ -63,6 +64,7 @@ int main( int argc, char *argv[] )
 	std::string filename;
 	std::string filename_out;
 	std::string filename_solution;
+	std::string filename_gamma0;
 	std::string shortinfo_filename;
 	std::string shortinfo_header;
 	std::string shortinfo_values;
@@ -80,6 +82,14 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
 	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/samplesignal.txt");
+
+	/* maybe gamma0 is given in console parameters */
+	bool given_gamma0;
+	if(consoleArg.set_option_value("test_filename_gamma0", &filename_gamma0)){
+		given_gamma0 = true;
+	} else {
+		given_gamma0 = false;
+	}
 
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
@@ -115,6 +125,9 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_filename               = " << std::setw(30) << filename << " (name of input file with signal data)\n";
 	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)\n";
 	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)\n";
+	if(given_gamma0){
+		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)\n";
+	}
 	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)\n";
 	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)\n";
 	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})\n";
@@ -187,6 +200,12 @@ int main( int argc, char *argv[] )
 
 	/* prepare time-series solver */
 	TSSolver<PetscVector> mysolver(mydata, annealing);
+
+	/* if gamma0 is provided, then load it */
+	if(given_gamma0){
+		coutMaster << " - loading and setting gamma0\n";
+		mydata.load_gammavector(filename_gamma0);
+	}
 
 	/* print info about solver */
 	mysolver.print(coutMaster,coutAll);

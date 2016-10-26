@@ -140,6 +140,8 @@ class TSData: public GeneralData {
 		*/
 		void shiftdata(double a);
 
+		virtual void load_gammavector(std::string filename) const;
+		virtual void load_gammavector(VectorBase &gamma0) const;
 };
 
 
@@ -1025,6 +1027,82 @@ void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double
 	LOG_FUNC_END
 }
 
+template<>
+void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
+	LOG_FUNC_BEGIN
+	
+	/* get petsc Vec from provided vector - this vector is stride */
+	Vec gamma0_Vec = gamma0.get_vector();
+	
+	/* variables */
+	int K = this->get_K();
+	int T = this->get_T();
+	int Tlocal = this->get_Tlocal();
+	int Tbegin = this->get_Tbegin();
+	int xdim = this->get_xdim();
+
+	/* prepare IS with my indexes in provided vector */
+	IS gamma_sub_IS;
+	
+	/* fill the index sets */
+	TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal*K, Tbegin*K, 1, &(gamma_sub_IS)) );
+
+	/* now get subvector with my local values from provided stride vector */
+	Vec gamma_sub;
+	TRY( VecGetSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
+
+	/* prepare local vector */
+	Vec gamma_local;
+	#ifndef USE_CUDA
+		TRY( VecCreateSeq(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
+	#else
+		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
+	#endif
+
+	/* get the vector where I will store my values */
+	TRY( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
+
+	/* now copy values from subvector to local vector */
+	TRY( VecCopy(gamma_sub, gamma_local) );
+
+	/* restore subvector */
+	TRY( VecRestoreLocalVector(gammavector->get_vector(), gamma_local) );
+	TRY( VecRestoreSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
+
+	/* destroy auxiliary index sets */
+	TRY( ISDestroy(&gamma_sub_IS) );
+
+	LOG_FUNC_END
+}
+
+template<>
+void TSData<PetscVector>::load_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+	
+	//TODO: control existence of file
+
+	/* aux vector, we first oad data and then distribute values to procs */
+	Vec gamma_preload_Vec;
+	TRY( VecCreate(PETSC_COMM_WORLD, &gamma_preload_Vec) );
+
+	/* prepare viewer to load from file */
+	PetscViewer mviewer;
+	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	
+	/* load vector from viewer */
+	TRY( VecLoad(gamma_preload_Vec, mviewer) );
+
+	/* destroy the viewer */
+	TRY( PetscViewerDestroy(&mviewer) );	
+
+	PetscVector gamma_preload(gamma_preload_Vec);
+	this->load_gammavector(gamma_preload);
+
+//	TRY( VecDestroy(&gamma_preload_Vec) );
+	
+	LOG_FUNC_END
+}
 
 }
 } /* end namespace */
