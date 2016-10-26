@@ -11,7 +11,7 @@ endif()
 # here will be loaded options for compilers
 set(FLAGS_DEF "")
 set(FLAGS_DEF_D "")
-set(LIBRARIES_DEF "")
+set(LIBRARIES_DEF "-lrt;")
 set(COMPILE_FIRST "")
 
 # add debug definitions to compiler flags

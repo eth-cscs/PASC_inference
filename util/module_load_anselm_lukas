@@ -1,0 +1,23 @@
+#
+# this script loads the right modules on IT4I Anselm machine
+# to compile and run example with petsc-cuda support
+#
+# Lukas Pospisil, USI Lugano, 2016
+#
+
+module load GCCcore/4.9.3
+module load MPICH/3.2-GCC-4.9.3-2.25
+module load ifort/2016.1.150-GCC-4.9.3-2.25
+module load binutils/2.25-GCCcore-4.9.3 
+module load Bison/3.0.4-GCCcore-4.9.3
+module load cmake
+
+module load cuda
+
+module load boost/1.56-gcc-openmpi
+
+# feel free to modify this with your paths
+export PETSC_DIR=/home/pos220/playground/petsc
+export PETSC_ARCH=arch-gnu-xc30-cuda-dbg
+
+alias pmpiexec='$PETSC_DIR/bin/petscmpiexec'
