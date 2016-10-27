@@ -39,14 +39,6 @@ static void add_options(boost::program_options::options_description *description
 			("tssolver_debug_print_gamma_solution", boost::program_options::value<bool>(), "print solution of gamma problem in each iteration");
 		opt_solvers.add(opt_tssolver);
 
-		/* MULTICG */
-		boost::program_options::options_description opt_multicgsolver("MULTICGSOLVER", console_nmb_cols);
-		opt_multicgsolver.add_options()
-			("multicgsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
-			("multicgsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("multicgsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
-		opt_solvers.add(opt_multicgsolver);
-
 		/* QPSOLVER */
 		boost::program_options::options_description opt_qpsolver("QPSOLVER", console_nmb_cols);
 		opt_qpsolver.add_options()
@@ -54,14 +46,6 @@ static void add_options(boost::program_options::options_description *description
 			("qpsolver_eps", boost::program_options::value<double>(), "precision [double]")
 			("qpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
 		opt_solvers.add(opt_qpsolver);
-
-		/* CGQPSOLVER */
-		boost::program_options::options_description opt_cgqpsolver("CGQPSOLVER", console_nmb_cols);
-		opt_cgqpsolver.add_options()
-			("cgqpsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
-			("cgqpsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("cgqpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
-		opt_solvers.add(opt_cgqpsolver);
 
 		/* SPGQPSOLVER */
 		boost::program_options::options_description opt_spgqpsolver("SPGQPSOLVER", console_nmb_cols);
@@ -95,12 +79,6 @@ static void add_options(boost::program_options::options_description *description
 		opt_graphh1femmodel.add_options()
 			("graphh1femmodel_matrix_type", boost::program_options::value<int>(), "type of used matrix [0=FREE/1=SPARSE]"); //TODO: enum?
 		opt_models.add(opt_graphh1femmodel);
-
-		/* KMEANSH1FEMMODEL */
-		boost::program_options::options_description opt_kmeansh1femmodel("KMEANSH1FEMMODEL", console_nmb_cols);
-		opt_kmeansh1femmodel.add_options()
-			("kmeansh1femmodel_matrix_type", boost::program_options::value<int>(), "type of used matrix [0=FREE/1=SPARSE]"); //TODO: enum?
-		opt_models.add(opt_kmeansh1femmodel);
 
 	description->add(opt_models);
 
