@@ -50,12 +50,7 @@ make_directory("shortinfo")
 make_directory("log")
 
 # --------- include test cmake functions --------
-#include("test_kmeans/test_kmeans.cmake")
-#include("test_varx/test_varx.cmake")
 include("test_signal1D/test_signal1D.cmake")
-#include("test_other/test_other.cmake")
-include("test_edf/test_edf.cmake")
-include("test_image/test_image.cmake")
 include("test_classes/test_classes.cmake")
 message("\n----------------------------------------------------------\n")
 
