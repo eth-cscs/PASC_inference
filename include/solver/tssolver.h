@@ -20,8 +20,6 @@
 
 //temp
 #include "solver/qpsolver.h"
-#include "solver/diagsolver.h"
-#include "solver/qpsolver.h"
 
 #define TSSOLVER_DEFAULT_MAXIT 300
 #define TSSOLVER_DEFAULT_EPS 1e-9

@@ -7,9 +7,6 @@
 #ifndef PASC_QPSOLVER_H
 #define	PASC_QPSOLVER_H
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUGMODE;
-
 #include "pascinference.h"
 #include "data/qpdata.h"
 
@@ -37,7 +34,6 @@ class QPSolver: public GeneralSolver {
 		int hessmult_sum; /**< number of all Hessian multiplication */
 		int hessmult_last; /**< number of Hessian multiplication */
 
-		SolverType child_solvertype;	
 	public:
 		/** @brief default constructor
 		 * 
@@ -97,9 +93,6 @@ class QPSolver: public GeneralSolver {
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
-#include "solver/cgqpsolver.h"
-#include "solver/spgqpsolver.h"
-
 namespace pascinference {
 namespace solver {
 
@@ -117,8 +110,6 @@ QPSolver<VectorBase>::QPSolver(){
 	consoleArg.set_option_value("qpsolver_eps", &this->eps, QPSOLVER_DEFAULT_EPS);
 	consoleArg.set_option_value("qpsolver_debugmode", &this->debugmode, QPSOLVER_DEFAULT_DEBUGMODE);
 
-	this->child_solvertype = SOLVER_AUTO;
-
 	LOG_FUNC_END
 }
 
@@ -134,8 +125,6 @@ QPSolver<VectorBase>::QPSolver(QPData<VectorBase> &new_qpdata){
 	consoleArg.set_option_value("qpsolver_eps", &this->eps, QPSOLVER_DEFAULT_EPS);
 	consoleArg.set_option_value("qpsolver_debugmode", &this->debugmode, QPSOLVER_DEFAULT_DEBUGMODE);
 			
-	this->child_solvertype = SOLVER_AUTO;
-
 	LOG_FUNC_END
 }
 
@@ -305,28 +294,7 @@ void QPSolver<VectorBase>::solve() {
 	/* the child solver wasn't specified yet */
 	if(!child_solver){
 		/* which specific solver we can use to solve the problem? */
-		if(this->child_solvertype == SOLVER_AUTO){
-			//TODO: here write more sophisticated auto decision tree
-			if(qpdata->get_feasibleset()){
-				/* with constraints */
-				this->child_solvertype = SOLVER_SPGQP;
-			} else {
-				/* unconstrained */
-				this->child_solvertype = SOLVER_CG;
-			}
-		} 
-
-		/* prepare CG solver */
-		if(this->child_solvertype == SOLVER_CG){
-			/* create new instance of CG Solver */
-			child_solver = new CGQPSolver<VectorBase>(*qpdata);
-		}
-
-		/* prepare SPGQP solver */
-		if(this->child_solvertype == SOLVER_SPGQP){
-			/* create new instance of CG Solver */
-			child_solver = new SPGQPSolver<VectorBase>(*qpdata);
-		}
+		//TODO: here write more sophisticated auto decision tree and prepare child solver
 	}
 
 	/* update settings of child solver */

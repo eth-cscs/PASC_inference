@@ -132,7 +132,6 @@ namespace pascinference {
 #include "common/decomposition.h"
 
 #include "data/generaldata.h"
-#include "solver/list.h"
 #include "solver/generalsolver.h"
 #include "model/generalmodel.h"
 
