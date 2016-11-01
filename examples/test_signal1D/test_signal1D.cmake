@@ -4,7 +4,8 @@ include_directories("${CMAKE_SOURCE_DIR}/test_signal1D/")
 option(TEST_SIGNAL1D "TEST_SIGNAL1D" OFF)
 
 # print info
-printinfo_onoff("TEST_SIGNAL1D\t\t\t\t" "${TEST_SIGNAL1D}")
+print("\nSignal1D tests")
+printinfo_onoff(" TEST_SIGNAL1D                                                        " "${TEST_SIGNAL1D}")
 
 if(${TEST_SIGNAL1D})
 	# this is signal processing test
