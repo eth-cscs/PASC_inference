@@ -1,5 +1,5 @@
-/** @file imagedata.cu
- *  @brief this is only for PETSC!
+/** @file signal1Ddata.h
+ *  @brief class for manipulation with one dimensional data
  * 
  *  @author Lukas Pospisil
  */
@@ -24,6 +24,11 @@ extern int DEBUG_MODE;
 namespace pascinference {
 namespace data {
 
+/** class Signal1DData
+ * @brief data of one-dimensional signal
+ * 
+ * Class for manipulation with data from simple one-dimensional signal.
+ */ 
 template<class VectorBase>
 class Signal1DData: public TSData<VectorBase> {
 	protected:

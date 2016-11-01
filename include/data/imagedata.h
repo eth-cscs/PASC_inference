@@ -1,5 +1,5 @@
-/** @file imagedata.cu
- *  @brief this is only for PETSC!
+/** @file imagedata.h
+ *  @brief class for manipulation with image data
  * 
  *  @author Lukas Pospisil
  */
