@@ -12,6 +12,11 @@
 namespace pascinference {
 namespace algebra {
 
+/** @brief print content of array to string
+*
+*  @param my_array pointer to array
+*  @param my_size the size of array (number of elements)
+*/
 template<class MyType>
 std::string print_array(MyType *my_array, int my_size){
 	std::ostringstream out;
@@ -24,6 +29,10 @@ std::string print_array(MyType *my_array, int my_size){
 	return out.str();
 }
 
+/** @brief print content of vector to string
+*
+*  @param my_vector vector to print
+*/
 template<class MyType>
 std::string print_vector(std::vector<MyType> &my_vector){
 	std::ostringstream out;

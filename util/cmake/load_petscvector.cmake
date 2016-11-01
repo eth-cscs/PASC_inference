@@ -1,7 +1,7 @@
 
 if(${USE_PETSCVECTOR})
 	message(STATUS "${Yellow}loading petscvector library${ColourReset}")
-	set(PETSCVECTOR_INCLUDE "${CMAKE_SOURCE_DIR}/../util/petscvector/include")
+	set(PETSCVECTOR_INCLUDE "${CMAKE_SOURCE_DIR}/../include/algebra/vector/petscvector")
 	
 	#we have to use Petsc to use PetscVector
 	if(NOT ${USE_PETSC})

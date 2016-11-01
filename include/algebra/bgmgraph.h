@@ -135,9 +135,10 @@ class BGMGraph {
 */
 class BGMGraphGrid2D: public BGMGraph {
 	protected:
-		int width;
-		int height;
+		int width; /**< dimension of grid */
+		int height; /**< dimension of grid */
 	public:
+	
 		BGMGraphGrid2D(int width, int height);
 		BGMGraphGrid2D(std::string filename, int dim=2) : BGMGraph(filename, dim) {};
 		BGMGraphGrid2D(const double *coordinates_array, int n, int dim) : BGMGraph(coordinates_array, n, dim) {};
