@@ -17,7 +17,8 @@ extern int DEBUG_MODE;
 #include "algebra/matrix/blockgraphsparse.h"
 
 #include "algebra/feasibleset/simplex_local.h"
-#include "solver/spgqpsolver.h"
+//#include "solver/spgqpsolver.h"
+#include "solver/spgqpsolver_coeff.h"
 #include "data/qpdata.h"
 
 /* theta problem */
@@ -330,7 +331,12 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
+//	double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
+//	double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
 	double coeff = this->epssqr;
+//	double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
+//	double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
+
 	if(this->matrix_type == 0){
 		/* FREE */
 		//TODO: implement free matrix multiplication for decomposition in space?
@@ -351,13 +357,16 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
 
 	/* create solver */
-	*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
+	*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
 
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
 
 	/* project random values to feasible set to be sure that initial approximation is feasible */
 	gammadata->get_feasibleset()->project(*gammadata->get_x0());
+
+	/* set stopping criteria based on the size of x (i.e. gamma) */
+//	(*gammasolver)->set_eps((double)(this->tsdata->get_R()*this->tsdata->get_T())*(*gammasolver)->get_eps());
 
 	LOG_FUNC_END
 }
@@ -468,6 +477,7 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	TRY( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
 
 	double coeff = (-1.0)/((double)(R*T));
+//	double coeff = (-1.0)/(sqrt((double)(R*T)));
 	
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
