@@ -4,9 +4,3 @@
 [submodule "util/petscvector"]
 	path = util/petscvector
 	url = https://github.com/lukaspospisil/petscvector.git
-[submodule "util/gnuplot-iostream"]
-	path = util/gnuplot-iostream
-	url = https://github.com/dstahlke/gnuplot-iostream.git
-[submodule "util/EDFlib"]
-	path = util/EDFlib
-	url = https://github.com/Teuniz/EDFlib
