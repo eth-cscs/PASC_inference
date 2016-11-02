@@ -1,7 +1,0 @@
-# Lukas: this is my own compilation of PETSc with cuda,
-# if something goes wrong, I will try to pull latest version from PETSc github
-# and try to compile against it to be sure that the error is (not) on our side,
-# or maybe to test the latest features before ask Will to update module
-
-export PETSC_DIR=/users/pospisil/playground/petsc-maint
-export PETSC_ARCH=arch-gnu-xc30-daint-cuda
