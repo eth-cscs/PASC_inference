@@ -3,10 +3,16 @@
 # this script loads the right modules on IT4I Anselm machine
 #
 
-#module switch PrgEnv-cray/5.2.82 PrgEnv-gnu
-module load boost
-module load cuda
+# use magic script from Vaclav Hapla
+. /apps/permon/petsc/petsc-3.7.4/env-cuda75-gcc49-impi50-mkl153-dbg.sh
+
+# load additional stuff
 module load cmake
+
+#module switch PrgEnv-cray/5.2.82 PrgEnv-gnu
+#module load boost
+#module load cuda
+#module load cmake
 #module load craype-accel-nvidia35
 #module load cray-netcdf-hdf5parallel
 #module load cray-hdf5-parallel

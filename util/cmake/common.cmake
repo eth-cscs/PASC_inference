@@ -16,7 +16,8 @@ set(COMPILE_FIRST "")
 
 # add debug definitions to compiler flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fopenmp")
 
 # define some colors for funny cmake messages
 option(CMAKE_USE_COLOR "CMAKE_USE_COLOR" ON)

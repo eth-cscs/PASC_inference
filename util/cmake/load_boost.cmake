@@ -5,6 +5,7 @@ if(${USE_BOOST})
 
 	if(Boost_FOUND)
 		include_directories( ${Boost_INCLUDE_DIR} )
+		link_directories(${Boost_LIBRARY_DIRS})
 
 		# append to flags definitions
 		set(FLAGS_DEF "-USE_BOOST ${FLAGS_DEF}")
@@ -24,6 +25,8 @@ macro(PRINTSETTING_BOOST)
 	printinfo_onoff("USE_BOOST\t\t\t" "${USE_BOOST}")
 	if(${USE_BOOST})
 		printinfo(" - Boost_INCLUDE_DIR\t\t" "${Boost_INCLUDE_DIR}")
+		printinfo(" - Boost_LIBRARY_DIRS\t\t" "${Boost_LIBRARY_DIRS}")
+		printinfo(" - Boost_LIBRARIES\t\t" "${Boost_LIBRARIES}")
 	endif()
 endmacro()
 
