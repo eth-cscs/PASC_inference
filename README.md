@@ -12,7 +12,7 @@ cd PASC_inference
 ```
 ./util/update_submodules
 ```
-- be sure that PETSc library is installed (and `PETSC_DIR`, `PETSC_ARCH` are properly set), if you are compiling the code on PIZ Daint, you can use scripts, which automatically set right modules and PETSc
+- be sure that right modules are loaded and PETSc library is installed (and `PETSC_DIR`, `PETSC_ARCH` are properly set); if you are compiling the code on PIZ Daint, you can use scripts, which automatically set right modules and PETSc
 ```
 source util/module_load_daint
 source util/set_petsc_daint
