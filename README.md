@@ -1,6 +1,7 @@
 # PASC_inference
 
-HPC C++ library for signal denoising and clustering. Based on FEM-H1 regularisation proposed by Illia Horenko et al.
+HPC C++ library for signal denoising and clustering time-series. 
+Based on FEM-H1 regularisation proposed by Illia Horenko et al. and supported by "PASC project: Towards the HPC-inference of causality networks from multiscale economical data".
 
 ## Installation
 - download library
