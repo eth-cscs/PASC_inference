@@ -1,6 +1,16 @@
 #!/bin/bash --login
 
-#PBS -I
 #PBS -A IT4I-7-5
 #PBS -q qexp
-#PBS -l select=2:ncpus=1:mpiprocs=1:host=cn202+1,walltime=01:00:00
+#PBS -N signal1D_2gpu
+#PBS -l select=2:ncpus=1:mpiprocs=1:host=cn202+1,walltime=00:20:00
+#PBS -j oe
+#PBS -o batch_out/signal1D_2gpu_qexp.log
+
+cd /apps/permon/Lugano/PASC_inference/examples/build/
+source /apps/permon/Lugano/PASC_inference/util/module_load_anselm
+
+/apps/permon/petsc/petsc-3.7.4/bin/petscmpiexec -n 2 ./test_signal1D --test_epssqr=0.01
+
+
+
