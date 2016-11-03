@@ -1,0 +1,6 @@
+#!/bin/bash --login
+
+#PBS -I
+#PBS -A IT4I-7-5
+#PBS -q qexp
+#PBS -l select=2:ncpus=1:mpiprocs=1:host=cn202+1,walltime=01:00:00
