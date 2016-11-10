@@ -10,9 +10,9 @@ import os, shutil
 
 # path to exec folder
 username = "pos220"
-main_folder = "/home/lukas/soft/PASC_inference/";
+main_folder = "/apps/permon/Lugano/PASC_inference/";
 exec_name = "./test_signal1D"
-mpiexec = "mpiexec"
+mpiexec = "/apps/permon/petsc/petsc-3.7.4/bin/petscmpiexec"
 N = [1,2,3,4];
 
 # define console parameters
@@ -66,7 +66,7 @@ for index in range(len(N)):
     exec_path = cpu_exec_path
     params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt" % (problem_name, N[index], problem_name)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
-    batch_filename = os.path.join(gpu_batch_path, "%s.pbs" % (problem_name))
+    batch_filename = os.path.join(cpu_batch_path, "%s.pbs" % (problem_name))
     write_pbs(problem_name, host_string, batch_filename, exec_path, exec_name_full, cpu_modules_path)
     batchfile_list.append(batch_filename);
 
