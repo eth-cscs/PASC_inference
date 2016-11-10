@@ -1,0 +1,12 @@
+#
+# PASC Inference library
+# this script loads the right modules on IT4I Anselm machine
+# to compile and run PETSc without GPU support
+#
+
+module load petsc
+
+# load additional stuff
+module load cmake
+
+

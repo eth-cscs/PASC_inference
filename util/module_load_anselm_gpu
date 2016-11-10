@@ -1,6 +1,7 @@
 #
 # PASC Inference library
 # this script loads the right modules on IT4I Anselm machine
+# with GPU support
 #
 
 # use magic script from Vaclav Hapla
