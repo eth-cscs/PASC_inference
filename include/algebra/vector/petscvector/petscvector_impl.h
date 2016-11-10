@@ -455,6 +455,16 @@ double max(const PetscVector &vec1)
 	return max_value;
 }
 
+/* min = min(vec1) */
+double min(const PetscVector &vec1)
+{
+	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)FUNCTION: min(vec)" << std::endl;
+
+	double min_value;
+	TRY( VecMin(vec1.inner_vector,NULL, &min_value) );
+	return min_value;
+}
+
 /* sum = sum(vec1) */
 double sum(const PetscVector &vec1)
 {

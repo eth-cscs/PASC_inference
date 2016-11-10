@@ -353,9 +353,19 @@ class PetscVector {
 		*  \f[\mathrm{result} = \max \lbrace x_i, i = 0, \dots size-1 \rbrace\f]
 		*
 		*  @param x vector
-		*  @todo control if inner_vector wax allocated
+		*  @todo control if inner_vector was allocated
 		*/ 
 		friend double max(const PetscVector &x);
+
+		/** @brief Get the minimum value in vector.
+		*
+		*  Computes the minimum value in given vector.
+		*  \f[\mathrm{result} = \min \lbrace x_i, i = 0, \dots size-1 \rbrace\f]
+		*
+		*  @param x vector
+		*  @todo control if inner_vector was allocated
+		*/ 
+		friend double min(const PetscVector &x);
 		
 		/** @brief Get the sum of values in vector.
 		*
