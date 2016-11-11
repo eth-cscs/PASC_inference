@@ -56,17 +56,18 @@ int main( int argc, char *argv[] )
 	GeneralVector<pascinference::algebra::PetscVector> in1(in1_Vec);
 	GeneralVector<pascinference::algebra::PetscVector> in2(in2_Vec);
 
-	in1.load_global(in1_filename);
-	in2.load_global(in2_filename);
+	in1.load_local(in1_filename);
+	in2.load_local(in2_filename);
 
 	/* print properties of vectors */
+	coutMaster << std::setprecision(17);	
 	coutMaster << std::endl;
 	coutMaster << "in1:" << std::endl;
 	coutMaster << " size      = " << std::setw(30) << in1.size() << std::endl;
 	coutMaster << " norm      = " << std::setw(30) << norm(in1) << std::endl;
 	coutMaster << " sum       = " << std::setw(30) << sum(in1) << std::endl;
 	coutMaster << " max       = " << std::setw(30) << max(in1) << std::endl;
-	coutMaster << " min       = " << std::setw(30) << min(in2) << std::endl;
+	coutMaster << " min       = " << std::setw(30) << min(in1) << std::endl;
 
 	coutMaster << "in2:" << std::endl;
 	coutMaster << " size      = " << std::setw(30) << in2.size() << std::endl;
@@ -78,7 +79,6 @@ int main( int argc, char *argv[] )
 
 
 	double mynorm = norm(in1 - in2);
-	coutMaster << std::setprecision(17);	
 	coutMaster << " norm(in1 - in2) = " << mynorm << std::endl;
 
 	Finalize();
