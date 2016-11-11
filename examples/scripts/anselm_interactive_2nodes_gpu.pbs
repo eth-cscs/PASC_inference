@@ -3,4 +3,4 @@
 #PBS -I
 #PBS -A IT4I-7-5
 #PBS -q qexp
-#PBS -l select=2:ncpus=1:mpiprocs=1:host=cn202+1,walltime=01:00:00
+#PBS -l select=1:ncpus=1:mpiprocs=1:host=cn200+1:ncpus=1:mpiprocs=1:host=cn201,walltime=01:00:00

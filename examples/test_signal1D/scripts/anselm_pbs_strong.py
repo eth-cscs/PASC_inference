@@ -6,7 +6,14 @@
 from common_pbs import write_pbs
 from common_pbs import commit_pbs
 from common_pbs import show_jobs
-import os, shutil
+import os, shutil, sys, getopt
+
+# parse input arguments
+if len(sys.argv) < 2:
+    print 'anselm_pbs_strong.py <inputfile>'
+    sys.exit()
+
+inputfile = sys.argv[1];
 
 # path to exec folder
 username = "pos220"
@@ -17,9 +24,9 @@ N = [1,2,3,4];
 
 # define console parameters
 params_list = [];
-params_list.append("--test_filename=data/signal1D_gauss_long.bin")
-params_list.append("--test_filename_solution=data/signal1D_solution_long.bin")
-params_list.append("--test_filename_gamma0=data/signal1D_gamma0_long.bin")
+params_list.append("--test_filename=data/%s_data.bin" %(inputfile))
+params_list.append("--test_filename_solution=data/%s_solution.bin" %(inputfile))
+params_list.append("--test_filename_gamma0=data/%s_gamma0.bin" %(inputfile))
 params_list.append("--test_cutdata=false --test_scaledata=false")
 params_list.append("--test_epssqr=1e-2 --test_annealing=1")
 params_list.append("--tssolver_maxit=1 --tssolver_debugmode=0")
