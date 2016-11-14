@@ -22,7 +22,7 @@ void PetscVectorWrapperMul::mul(Vec result){
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(WrapperSub)FUNCTION: mul(Vec result)" << std::endl;
 
 	// TODO: control if vectors were allocated
-	TRY( VecPointwiseMult(result, inner_vector1, inner_vector2) );
+	TRYCXX( VecPointwiseMult(result, inner_vector1, inner_vector2) );
 
 
 }

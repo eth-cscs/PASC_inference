@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
 
 	std::string in_filename;
 
-	if(!consoleArg.set_option_value("in_filename", &in1_filename)){
+	if(!consoleArg.set_option_value("in_filename", &in_filename)){
 		std::cout << "in_filename has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
@@ -46,7 +46,7 @@ int main( int argc, char *argv[] )
 	/* prepare vector */
 	Vec in_Vec;
 
-	TRY( VecCreate(PETSC_COMM_WORLD,&in_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&in_Vec) );
 
 	GeneralVector<pascinference::algebra::PetscVector> in(in_Vec);
 

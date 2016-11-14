@@ -747,14 +747,14 @@ void TSSolver<VectorBase>::gammavector_permute() const{
 
 	/* create new Vec and store into it permuted values */
 	Vec gammavector_new;
-	TRY( VecDuplicate(tsdata->get_gammavector()->get_vector(), &gammavector_new) );
+	TRYCXX( VecDuplicate(tsdata->get_gammavector()->get_vector(), &gammavector_new) );
 	this->tsdata->get_decomposition()->permute_TRK(tsdata->get_gammavector()->get_vector(), gammavector_new, false);
 
 	/* copy values to original vector */
-	TRY( VecCopy(gammavector_new, tsdata->get_gammavector()->get_vector()) );
+	TRYCXX( VecCopy(gammavector_new, tsdata->get_gammavector()->get_vector()) );
 
 	/* destroy new vector */
-	TRY( VecDestroy(&gammavector_new) );
+	TRYCXX( VecDestroy(&gammavector_new) );
 
 	LOG_FUNC_END
 }
@@ -764,11 +764,11 @@ void TSSolver<VectorBase>::set_solution_theta(double *Theta) {
 	LOG_FUNC_BEGIN
 
 	double *theta_arr;
-	TRY(VecGetArray(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+	TRYCXX(VecGetArray(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 	for(int k=0;k<this->model->get_thetavectorlength_local();k++){
 		theta_arr[k] = Theta[k];
 	}
-	TRY(VecRestoreArray(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+	TRYCXX(VecRestoreArray(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 
 	this->thetasolved = true;
 	LOG_FUNC_END

@@ -124,19 +124,19 @@ template<>
 void GeneralVector<PetscVector>::set_random() { 
 	if(!this->rnd){
 		/* prepare random generator */
-//		TRY( PetscRandomCreate(PETSC_COMM_WORLD,&(this->rnd)) );
-		TRY( PetscRandomCreate(PETSC_COMM_SELF,&(this->rnd)) );
+//		TRYCXX( PetscRandomCreate(PETSC_COMM_WORLD,&(this->rnd)) );
+		TRYCXX( PetscRandomCreate(PETSC_COMM_SELF,&(this->rnd)) );
 
-		TRY( PetscRandomSetType(this->rnd,PETSCRAND) );
-		TRY( PetscRandomSetFromOptions(this->rnd) );
+		TRYCXX( PetscRandomSetType(this->rnd,PETSCRAND) );
+		TRYCXX( PetscRandomSetFromOptions(this->rnd) );
 
-		TRY( PetscRandomSetSeed(this->rnd,13) );
+		TRYCXX( PetscRandomSetSeed(this->rnd,13) );
 	}
 
 	Vec vec = this->get_vector();
 
 	/* generate random data to gamma */
-	TRY( VecSetRandom(vec, this->rnd) );
+	TRYCXX( VecSetRandom(vec, this->rnd) );
 
 	this->valuesUpdate();
 }
@@ -145,44 +145,44 @@ template<>
 void GeneralVector<PetscVector>::set_random2() { 
 	if(!this->rnd){
 		/* prepare random generator */
-//		TRY( PetscRandomCreate(PETSC_COMM_WORLD,&(this->rnd)) );
-		TRY( PetscRandomCreate(PETSC_COMM_SELF,&(this->rnd)) );
+//		TRYCXX( PetscRandomCreate(PETSC_COMM_WORLD,&(this->rnd)) );
+		TRYCXX( PetscRandomCreate(PETSC_COMM_SELF,&(this->rnd)) );
 
-		TRY( PetscRandomSetType(this->rnd,PETSCRAND) );
-		TRY( PetscRandomSetFromOptions(this->rnd) );
+		TRYCXX( PetscRandomSetType(this->rnd,PETSCRAND) );
+		TRYCXX( PetscRandomSetFromOptions(this->rnd) );
 
-		TRY( PetscRandomSetSeed(this->rnd,13) );
+		TRYCXX( PetscRandomSetSeed(this->rnd,13) );
 	}
 
 	Vec vec = this->get_vector();
 
 	/* random generator based on one-processor generator */
 	Vec random_vec;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, this->size(), &random_vec) );
-	TRY( VecSetRandom(random_vec, this->rnd) );
-	TRY( VecAssemblyBegin(random_vec) );
-	TRY( VecAssemblyEnd(random_vec) );
+	TRYCXX( VecCreateSeq(PETSC_COMM_SELF, this->size(), &random_vec) );
+	TRYCXX( VecSetRandom(random_vec, this->rnd) );
+	TRYCXX( VecAssemblyBegin(random_vec) );
+	TRYCXX( VecAssemblyEnd(random_vec) );
 
 	int local_begin;
-	TRY( VecGetOwnershipRange(vec, &local_begin, NULL) );
+	TRYCXX( VecGetOwnershipRange(vec, &local_begin, NULL) );
 	
 	IS local_is;
-	TRY( ISCreateStride(PETSC_COMM_WORLD, this->local_size(), local_begin, 1, &local_is) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, this->local_size(), local_begin, 1, &local_is) );
 
 	Vec local_vec, local_random_vec;
-	TRY( VecGetSubVector(vec, local_is, &local_vec) );
-	TRY( VecGetSubVector(random_vec, local_is, &local_random_vec) );
+	TRYCXX( VecGetSubVector(vec, local_is, &local_vec) );
+	TRYCXX( VecGetSubVector(random_vec, local_is, &local_random_vec) );
 
-	TRY( VecCopy(local_random_vec, local_vec) );
+	TRYCXX( VecCopy(local_random_vec, local_vec) );
 
-	TRY( VecRestoreSubVector(vec, local_is, &local_vec) );
-	TRY( VecRestoreSubVector(random_vec, local_is, &local_random_vec) );
+	TRYCXX( VecRestoreSubVector(vec, local_is, &local_vec) );
+	TRYCXX( VecRestoreSubVector(random_vec, local_is, &local_random_vec) );
 
-	TRY( ISDestroy(&local_is) );
-	TRY( VecDestroy(&random_vec) );
+	TRYCXX( ISDestroy(&local_is) );
+	TRYCXX( VecDestroy(&random_vec) );
 
 	/* destroy the random generator */
-//	TRY( PetscRandomDestroy(&rnd) );
+//	TRYCXX( PetscRandomDestroy(&rnd) );
 
 	this->valuesUpdate();
 }

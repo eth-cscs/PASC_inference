@@ -33,7 +33,7 @@ class GlobalManagerClass {
 			#ifdef USE_PETSCVECTOR
 				/* can be set after initialize of petsc */
 				if(petscvector::PETSC_INITIALIZED){
-					TRY(PetscBarrier(NULL));
+					TRYCXX(PetscBarrier(NULL));
 						
 					MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
 					MPI_Comm_size(MPI_COMM_WORLD, &this->size);

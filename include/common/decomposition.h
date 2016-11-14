@@ -131,19 +131,19 @@ Decomposition::Decomposition(int T, int R, int K, int xdim, int DDT_size){
 	DDT_ranges = (int *)malloc((this->DDT_size+1)*sizeof(int));
 	
 	Vec DDT_layout;
-	TRY( VecCreate(PETSC_COMM_WORLD,&DDT_layout) );
-	TRY( VecSetSizes(DDT_layout, PETSC_DECIDE, T ));
-	TRY( VecSetFromOptions(DDT_layout) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&DDT_layout) );
+	TRYCXX( VecSetSizes(DDT_layout, PETSC_DECIDE, T ));
+	TRYCXX( VecSetFromOptions(DDT_layout) );
 	
 	/* get properties of this layout */
 	const int *DDT_ranges_const;
-	TRY( VecGetOwnershipRanges(DDT_layout, &DDT_ranges_const) );
+	TRYCXX( VecGetOwnershipRanges(DDT_layout, &DDT_ranges_const) );
 	for(int i=0;i<DDT_size+1;i++){
 		DDT_ranges[i] = DDT_ranges_const[i]; // TODO: how to deal with const int in ranges form PETSc?
 	}
 	
 	/* destroy temp vector */
-	TRY( VecDestroy(&DDT_layout) );
+	TRYCXX( VecDestroy(&DDT_layout) );
 
 	/* prepare new layout for R */
 	/* no graph provided - allocate arrays */
@@ -490,9 +490,9 @@ void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const {
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
-	TRY( VecSetFromOptions(*x_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
+	TRYCXX( VecSetFromOptions(*x_Vec) );
 
 	LOG_FUNC_END
 }
@@ -506,10 +506,10 @@ void Decomposition::createGlobalCudaVec_gamma(Vec *x_Vec) const { //TODO: how ab
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-	TRY( VecSetType(*x_Vec, VECMPICUDA) );
-	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
-	TRY( VecSetFromOptions(*x_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	TRYCXX( VecSetType(*x_Vec, VECMPICUDA) );
+	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
+	TRYCXX( VecSetFromOptions(*x_Vec) );
 
 	LOG_FUNC_END
 }
@@ -523,9 +523,9 @@ void Decomposition::createGlobalVec_data(Vec *x_Vec) const { //TODO: how about c
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
-	TRY( VecSetFromOptions(*x_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
+	TRYCXX( VecSetFromOptions(*x_Vec) );
 
 	LOG_FUNC_END
 }
@@ -539,13 +539,13 @@ void Decomposition::createGlobalCudaVec_data(Vec *x_Vec) const { //TODO: how abo
 	int Tlocal = this->get_Tlocal();
 	int Rlocal = this->get_Rlocal();
 
-	TRY( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-	TRY( VecSetType(*x_Vec, VECMPICUDA) );
-	TRY( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
-	TRY( VecSetFromOptions(*x_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	TRYCXX( VecSetType(*x_Vec, VECMPICUDA) );
+	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
+	TRYCXX( VecSetFromOptions(*x_Vec) );
 
-//	TRY( VecAssemblyBegin(*x_Vec));
-//	TRY( VecAssemblyEnd(*x_Vec));
+//	TRYCXX( VecAssemblyBegin(*x_Vec));
+//	TRYCXX( VecAssemblyEnd(*x_Vec));
 
 	LOG_FUNC_END
 }
@@ -601,31 +601,31 @@ void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize
 			}
 		}
 	}
-	TRY( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
-//	TRY( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
+	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
+//	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
-	TRY( ISCreateStride(PETSC_COMM_WORLD, local_size, Tbegin*R*blocksize + Rbegin*blocksize, 1, &new_local_is) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, local_size, Tbegin*R*blocksize + Rbegin*blocksize, 1, &new_local_is) );
 
 	/* get subvector with local values from original data */
-	TRY( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
-	TRY( VecGetSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRYCXX( VecGetSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
 
 	/* copy values */
 	if(!invert){
-		TRY( VecCopy(orig_local_Vec, new_local_Vec) );
+		TRYCXX( VecCopy(orig_local_Vec, new_local_Vec) );
 	} else {
-		TRY( VecCopy(new_local_Vec, orig_local_Vec) );
+		TRYCXX( VecCopy(new_local_Vec, orig_local_Vec) );
 	}
 
 	/* restore subvector with local values from original data */
-	TRY( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
-	TRY( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+	TRYCXX( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRYCXX( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
 	
 	/* destroy used stuff */
-	TRY( ISDestroy(&orig_local_is) );
-	TRY( ISDestroy(&new_local_is) );
+	TRYCXX( ISDestroy(&orig_local_is) );
+	TRYCXX( ISDestroy(&new_local_is) );
 
-	TRY( PetscBarrier(NULL));
+	TRYCXX( PetscBarrier(NULL));
 
 	LOG_FUNC_END
 }
@@ -633,7 +633,7 @@ void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize
 void Decomposition::createIS_gammaK(IS *is, int k) const {
 	LOG_FUNC_BEGIN
 	
-	TRY( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_Tbegin()*get_R()*get_K() + get_Rbegin()*get_K() + k, get_K(), is) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_Tbegin()*get_R()*get_K() + get_Rbegin()*get_K() + k, get_K(), is) );
 
 	LOG_FUNC_END
 }

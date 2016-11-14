@@ -417,9 +417,9 @@ void CGQPSolver<PetscVector>::allocate_temp_vectors(){
 	Vec p_vec;
 	Vec Ap_vec;
 
-	TRY( VecDuplicate(this->qpdata->get_b()->get_vector(),&g_vec) );
-	TRY( VecDuplicate(this->qpdata->get_b()->get_vector(),&p_vec) );
-	TRY( VecDuplicate(this->qpdata->get_b()->get_vector(),&Ap_vec) );
+	TRYCXX( VecDuplicate(this->qpdata->get_b()->get_vector(),&g_vec) );
+	TRYCXX( VecDuplicate(this->qpdata->get_b()->get_vector(),&p_vec) );
+	TRYCXX( VecDuplicate(this->qpdata->get_b()->get_vector(),&Ap_vec) );
 
 	g = new GeneralVector<PetscVector>(g_vec);
 	p = new GeneralVector<PetscVector>(p_vec);
@@ -437,9 +437,9 @@ void CGQPSolver<PetscVector>::free_temp_vectors(){
 	Vec p_vec = p->get_vector();
 	Vec Ap_vec = Ap->get_vector();
 	
-	TRY( VecDestroy(&g_vec) );
-	TRY( VecDestroy(&p_vec) );
-	TRY( VecDestroy(&Ap_vec) );
+	TRYCXX( VecDestroy(&g_vec) );
+	TRYCXX( VecDestroy(&p_vec) );
+	TRYCXX( VecDestroy(&Ap_vec) );
 
 	free(g);
 	free(p);

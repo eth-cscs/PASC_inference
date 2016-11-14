@@ -96,20 +96,20 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 	int **neightbor_ids = decomposition->get_graph()->get_neighbor_ids();
 
 	/* create matrix */
-	TRY( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
-	TRY( MatSetSizes(A_petsc,K*Rlocal*Tlocal,K*Rlocal*Tlocal,K*R*T,K*R*T) );
+	TRYCXX( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
+	TRYCXX( MatSetSizes(A_petsc,K*Rlocal*Tlocal,K*Rlocal*Tlocal,K*R*T,K*R*T) );
 
 	#ifndef USE_CUDA
-		TRY( MatSetType(A_petsc,MATMPIAIJ) ); 
+		TRYCXX( MatSetType(A_petsc,MATMPIAIJ) ); 
 	#else
-		TRY( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
+		TRYCXX( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
 	#endif
 
 	/* compute preallocation of number of non-zero elements in matrix */
-	TRY( MatMPIAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL,2*(decomposition->get_graph()->get_m_max()+1),NULL) ); 
-	TRY( MatSeqAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL) );
+	TRYCXX( MatMPIAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL,2*(decomposition->get_graph()->get_m_max()+1),NULL) ); 
+	TRYCXX( MatSeqAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL) );
 
-	TRY( MatSetFromOptions(A_petsc) ); 
+	TRYCXX( MatSetFromOptions(A_petsc) ); 
 	
 	double coeff = 1.0;
 	
@@ -140,17 +140,17 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 				}
 				
 				/* diagonal entry */
-				TRY( MatSetValue(A_petsc, diag_idx, diag_idx, coeff*Wsum, INSERT_VALUES) );
+				TRYCXX( MatSetValue(A_petsc, diag_idx, diag_idx, coeff*Wsum, INSERT_VALUES) );
 
 				/* my nondiagonal entries */
 				if(T>1){
 					if(t > 0) {
 						/* t - 1 */
-						TRY( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -2*coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -2*coeff, INSERT_VALUES) );
 					}
 					if(t < T-1) {
 						/* t + 1 */
-						TRY( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -2*coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -2*coeff, INSERT_VALUES) );
 					}
 				}
 
@@ -159,13 +159,13 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 					int r_new = decomposition->get_Pr(neightbor_ids[r_orig][neighbor]);
 					int idx2 = t*R*K + r_new*K + k;
 
-					TRY( MatSetValue(A_petsc, diag_idx, idx2, -coeff, INSERT_VALUES) );
-//					TRY( MatSetValue(A_petsc, idx2, diag_idx, -coeff, INSERT_VALUES) );
+					TRYCXX( MatSetValue(A_petsc, diag_idx, idx2, -coeff, INSERT_VALUES) );
+//					TRYCXX( MatSetValue(A_petsc, idx2, diag_idx, -coeff, INSERT_VALUES) );
 					if(t > 0) {
-						TRY( MatSetValue(A_petsc, diag_idx, idx2-R*K, -coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(A_petsc, diag_idx, idx2-R*K, -coeff, INSERT_VALUES) );
 					}
 					if(t < T-1) {
-						TRY( MatSetValue(A_petsc, diag_idx, idx2+R*K, -coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(A_petsc, diag_idx, idx2+R*K, -coeff, INSERT_VALUES) );
 					}
 				}
 			} /* end T */
@@ -175,11 +175,11 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 	} /* end K */
 
 	/* finish all writting in matrix */
-	TRY( PetscBarrier(NULL) );
+	TRYCXX( PetscBarrier(NULL) );
 
 	/* assemble matrix */
-	TRY( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
-	TRY( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
 
 	LOG_FUNC_END
 }	
@@ -190,7 +190,7 @@ BlockGraphSparseMatrix<VectorBase>::~BlockGraphSparseMatrix(){
 	LOG_FUNC_BEGIN
 	
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
-		TRY( MatDestroy(&A_petsc) );
+		TRYCXX( MatDestroy(&A_petsc) );
 	}
 	
 	LOG_FUNC_END	
@@ -259,7 +259,7 @@ void BlockGraphSparseMatrix<VectorBase>::printcontent(ConsoleOutput &output) con
 	output << "BlockGraphMatrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
 	output << "----------------------------------------------------------" << std::endl;
 	
-	TRY( MatView(A_petsc, PETSC_VIEWER_STDOUT_WORLD) );
+	TRYCXX( MatView(A_petsc, PETSC_VIEWER_STDOUT_WORLD) );
 
 	output << "----------------------------------------------------------" << std::endl;
 	
@@ -274,14 +274,14 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 	// TODO: maybe y is not initialized, who knows
 
 	/* multiply with constant part of matrix */
-	TRY( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
+	TRYCXX( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
 
 	/* multiply with coeffs */
 	if(coeffs){
 		int K = decomposition->get_K();
 		
 		double *coeffs_arr;
-		TRY( VecGetArray(coeffs->get_vector(),&coeffs_arr) );
+		TRYCXX( VecGetArray(coeffs->get_vector(),&coeffs_arr) );
 
 		Vec xk_Vec;
 		Vec x_Vec = y.get_vector();
@@ -291,23 +291,23 @@ void BlockGraphSparseMatrix<VectorBase>::matmult(VectorBase &y, const VectorBase
 		/* get vector corresponding to coeff */
 		for(int k=0;k<K;k++){
 			this->decomposition->createIS_gammaK(&xk_is, k);
-			TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
+			TRYCXX( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
 			
 //			coeff = coeffs_arr[k]*coeffs_arr[k];
 			coeff = alpha*coeffs_arr[k]*coeffs_arr[k];
-			TRY( VecScale(xk_Vec, coeff) );
+			TRYCXX( VecScale(xk_Vec, coeff) );
 
-			TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
-			TRY( ISDestroy(&xk_is) );
+			TRYCXX( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
+			TRYCXX( ISDestroy(&xk_is) );
 		}
 
-		TRY( VecRestoreArray(coeffs->get_vector(),&coeffs_arr) );
+		TRYCXX( VecRestoreArray(coeffs->get_vector(),&coeffs_arr) );
 	} else {
-	    TRY( VecScale(y.get_vector(), this->alpha) );
+	    TRYCXX( VecScale(y.get_vector(), this->alpha) );
 	}
 
-	TRY( VecAssemblyBegin(y.get_vector()) );
-	TRY( VecAssemblyEnd(y.get_vector()) );
+	TRYCXX( VecAssemblyBegin(y.get_vector()) );
+	TRYCXX( VecAssemblyEnd(y.get_vector()) );
 
 	LOG_FUNC_END
 }

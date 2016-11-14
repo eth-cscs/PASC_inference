@@ -247,7 +247,7 @@ void DiagSolver<PetscVector>::solve() {
 
 
 	this->timer_dot.start(); 
-	 TRY( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );
+	 TRYCXX( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );
 	this->timer_dot.stop(); 
 
 	diagdata->get_x()->valuesUpdate();

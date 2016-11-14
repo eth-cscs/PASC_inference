@@ -250,60 +250,60 @@ TSData<PetscVector>::TSData(Decomposition &new_decomposition, std::string filena
 	//TODO: implement loader of vector into decomposition?
 	///* new data vector only for loading data */
 	//Vec dataPreLoad_Vec;
-	//TRY( VecCreate(PETSC_COMM_WORLD,&dataPreLoad_Vec) );
+	//TRYCXX( VecCreate(PETSC_COMM_WORLD,&dataPreLoad_Vec) );
 
 	///* prepare viewer to load from file */
 	//PetscViewer mviewer;
-	//TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	//TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	//TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	//TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
 	
 	///* load vector from viewer */
-	//TRY( VecLoad(dataPreLoad_Vec, mviewer) );
+	//TRYCXX( VecLoad(dataPreLoad_Vec, mviewer) );
 
 	///* destroy the viewer */
-	//TRY( PetscViewerDestroy(&mviewer) );
+	//TRYCXX( PetscViewerDestroy(&mviewer) );
 
 	///* get T */
 	//int vec_size;
-	//TRY( VecGetSize(dataPreLoad_Vec,&vec_size) );
+	//TRYCXX( VecGetSize(dataPreLoad_Vec,&vec_size) );
 	//int T = vec_size/(double)blocksize;
 
 	///* now we know the length of vector, we will load it again on right layout */
-	//TRY( VecDestroy(&dataPreLoad_Vec) );
+	//TRYCXX( VecDestroy(&dataPreLoad_Vec) );
 
 	///* now prepare new layout */
 	//Vec layout;
-	//TRY( VecCreate(PETSC_COMM_WORLD,&layout) );
-	//TRY( VecSetSizes(layout, PETSC_DECIDE, T ));
-	//TRY( VecSetFromOptions(layout) );
+	//TRYCXX( VecCreate(PETSC_COMM_WORLD,&layout) );
+	//TRYCXX( VecSetSizes(layout, PETSC_DECIDE, T ));
+	//TRYCXX( VecSetFromOptions(layout) );
 
 	//int Tbegin, Tend;
-	//TRY( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
+	//TRYCXX( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
 	
 	///* get Tlocal */
 	//int Tlocal;
-	//TRY( VecGetLocalSize(layout,&Tlocal) );
+	//TRYCXX( VecGetLocalSize(layout,&Tlocal) );
 	
 	///* destroy layout vector - now we know everything what is necessary */
-	//TRY( VecDestroy(&layout) );
+	//TRYCXX( VecDestroy(&layout) );
 	
 	///* we are ready to prepare real datavector */
 	//Vec data_Vec;
-	//TRY( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
-	//TRY( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
-	//TRY( VecSetFromOptions(data_Vec) );	
+	//TRYCXX( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
+	//TRYCXX( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
+	//TRYCXX( VecSetFromOptions(data_Vec) );	
 
-	//TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	//TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	//TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	//TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
 
 	///* load data to vector with right layout */
-	//TRY( VecLoad(data_Vec, mviewer) );
+	//TRYCXX( VecLoad(data_Vec, mviewer) );
 	
-	//TRY( VecAssemblyBegin(data_Vec) );
-	//TRY( VecAssemblyEnd(data_Vec) );
+	//TRYCXX( VecAssemblyBegin(data_Vec) );
+	//TRYCXX( VecAssemblyEnd(data_Vec) );
 
 	///* destroy the viewer */
-	//TRY( PetscViewerDestroy(&mviewer) );
+	//TRYCXX( PetscViewerDestroy(&mviewer) );
 
 	///* prepare general vector */
 	//this->datavector = new GeneralVector<PetscVector>(data_Vec);
@@ -355,9 +355,9 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 		Vec thetavector_Vec;
 
 		/* classic MPI vector */
-		TRY( VecCreate(PETSC_COMM_WORLD,&thetavector_Vec) );
-		TRY( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),this->tsmodel->get_thetavectorlength_global()) );
-		TRY( VecSetFromOptions(thetavector_Vec) );
+		TRYCXX( VecCreate(PETSC_COMM_WORLD,&thetavector_Vec) );
+		TRYCXX( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),this->tsmodel->get_thetavectorlength_global()) );
+		TRYCXX( VecSetFromOptions(thetavector_Vec) );
 		
 		this->thetavector = new GeneralVector<PetscVector>(thetavector_Vec);
 		this->destroy_thetavector = true;
@@ -654,7 +654,7 @@ void TSData<PetscVector>::cutgamma() const{
 	int gamma_t = decomposition->get_Tlocal()*decomposition->get_Rlocal();
 	
 	double *gamma_arr;
-	TRY( VecGetArray(gammavector->get_vector(),&gamma_arr) );
+	TRYCXX( VecGetArray(gammavector->get_vector(),&gamma_arr) );
 	
 	int t,k;
 	for(t = 0; t < gamma_t; t++){
@@ -680,7 +680,7 @@ void TSData<PetscVector>::cutgamma() const{
 
 	}
 
-	TRY( VecRestoreArray(gammavector->get_vector(),&gamma_arr) );
+	TRYCXX( VecRestoreArray(gammavector->get_vector(),&gamma_arr) );
 	
 	LOG_FUNC_END
 }
@@ -690,9 +690,9 @@ void TSData<PetscVector>::save_datavector(std::string filename) const {
 	LOG_FUNC_BEGIN
 
 	PetscViewer viewer_out;
-	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD,filename.c_str(),FILE_MODE_WRITE,&viewer_out) );
-	TRY( VecView( datavector->get_vector(), viewer_out) );
-	TRY( PetscViewerDestroy(&viewer_out) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD,filename.c_str(),FILE_MODE_WRITE,&viewer_out) );
+	TRYCXX( VecView( datavector->get_vector(), viewer_out) );
+	TRYCXX( PetscViewerDestroy(&viewer_out) );
 
 	LOG_FUNC_END
 }
@@ -712,7 +712,7 @@ void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
 
 	int theta_size = this->tsmodel->get_thetavectorlength_local();
 	double *theta_arr;
-	TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 	for(int i=0;i<theta_size;i++){
 		output << theta_arr[i];
@@ -722,7 +722,7 @@ void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
 	}
 	output << std::endl;
 		
-	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
 
 	LOG_FUNC_END
@@ -734,12 +734,12 @@ std::string TSData<PetscVector>::print_thetavector() const {
 
 	int theta_size = this->tsmodel->get_thetavectorlength_local();
 	double *theta_arr;
-	TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 	for(int i=0;i<theta_size;i++){
 		out << theta_arr[i] << ",";
 	}	
 
-	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
 	return out.str();
 }
@@ -775,9 +775,9 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 		double x_min;
 		double x_avg;
 
-		TRY( VecSum(x_Vec, &x_sum) );
-		TRY( VecMax(x_Vec, NULL, &x_max) );
-		TRY( VecMin(x_Vec, NULL, &x_min) );
+		TRYCXX( VecSum(x_Vec, &x_sum) );
+		TRYCXX( VecMax(x_Vec, NULL, &x_max) );
+		TRYCXX( VecMin(x_Vec, NULL, &x_min) );
 		x_avg = x_sum/(double)x_size;
 
 		output <<  " - sum:             " << std::setw(25) << x_sum << std::endl;
@@ -799,12 +799,12 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 			for(int k=0;k<blocksize;k++){
 				output << "x_" << k << std::endl;
 				output.push();
-					TRY( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, blocksize, &xk_is) );
-					TRY( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
+					TRYCXX( ISCreateStride(PETSC_COMM_WORLD, xk_size, k, blocksize, &xk_is) );
+					TRYCXX( VecGetSubVector(x_Vec, xk_is, &xk_Vec) );
 
-					TRY( VecSum(xk_Vec, &xk_sum) );
-					TRY( VecMax(xk_Vec, NULL, &xk_max) );
-					TRY( VecMin(xk_Vec, NULL, &xk_min) );
+					TRYCXX( VecSum(xk_Vec, &xk_sum) );
+					TRYCXX( VecMax(xk_Vec, NULL, &xk_max) );
+					TRYCXX( VecMin(xk_Vec, NULL, &xk_min) );
 					xk_avg = xk_sum/(double)xk_size;
 
 					output <<  " - length: " << std::setw(25) << xk_size << std::endl;
@@ -813,8 +813,8 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 					output <<  " - min:    " << std::setw(25) << xk_min << std::endl;
 					output <<  " - avg:    " << std::setw(25) << xk_avg << std::endl;
 
-					TRY( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
-					TRY( ISDestroy(&xk_is) );
+					TRYCXX( VecRestoreSubVector(x_Vec, xk_is, &xk_Vec) );
+					TRYCXX( ISDestroy(&xk_is) );
 				output.pop();
 			}
 		}
@@ -832,7 +832,7 @@ void TSData<PetscVector>::cutdata(double threshold_down, double threshold_up){
 
 	int x_size = this->datavector->local_size();
 	double *x_arr;
-	TRY( VecGetArray(datavector->get_vector(), &x_arr) );	
+	TRYCXX( VecGetArray(datavector->get_vector(), &x_arr) );	
 
 	double value;
 	for(int i=0; i<x_size; i++){
@@ -856,7 +856,7 @@ void TSData<PetscVector>::cutdata(double threshold_down, double threshold_up){
 		}
 	}
 
-	TRY( VecRestoreArray(datavector->get_vector(), &x_arr) );	
+	TRYCXX( VecRestoreArray(datavector->get_vector(), &x_arr) );	
 	
 	LOG_FUNC_END
 }
@@ -869,34 +869,34 @@ void TSData<PetscVector>::scaledata(double a, double b){
 	Vec x_Vec = datavector->get_vector();
 
 	/* compute max and min for scaling */
-	TRY( VecMax(x_Vec, NULL, &scale_max) );
-	TRY( VecMin(x_Vec, NULL, &scale_min) );
+	TRYCXX( VecMax(x_Vec, NULL, &scale_max) );
+	TRYCXX( VecMin(x_Vec, NULL, &scale_min) );
 
 	/* linear transformation y=k*x + q; */
 	double k = (b-a)/((double)(scale_max-scale_min));
 	double q = a-k*scale_min;
 
 	/* compute x = (x-scale_min)/(scale_max-scale_min) */
-	TRY( VecScale(x_Vec, k) );
-	TRY( VecShift(x_Vec, q) );
+	TRYCXX( VecScale(x_Vec, k) );
+	TRYCXX( VecShift(x_Vec, q) );
 	
-	TRY( VecAssemblyBegin(x_Vec) );
-	TRY( VecAssemblyEnd(x_Vec) );
+	TRYCXX( VecAssemblyBegin(x_Vec) );
+	TRYCXX( VecAssemblyEnd(x_Vec) );
 
 	/* scale also Theta */
 	if(thetavector){
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
-		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = k*theta_arr[i] + q;
 		}
 		
-		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
-		TRY( VecAssemblyBegin(thetavector->get_vector()) );
-		TRY( VecAssemblyEnd(thetavector->get_vector()) );
+		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
+		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
 	
 	LOG_FUNC_END
@@ -914,26 +914,26 @@ void TSData<PetscVector>::unscaledata(double a, double b){
 	double q = a-k*scale_min;
 
 	/* compute x = (x-scale_min)/(scale_max-scale_min) */
-	TRY( VecShift(x_Vec, -q) );
-	TRY( VecScale(x_Vec, 1.0/k) );
+	TRYCXX( VecShift(x_Vec, -q) );
+	TRYCXX( VecScale(x_Vec, 1.0/k) );
 
-	TRY( VecAssemblyBegin(x_Vec) );
-	TRY( VecAssemblyEnd(x_Vec) );
+	TRYCXX( VecAssemblyBegin(x_Vec) );
+	TRYCXX( VecAssemblyEnd(x_Vec) );
 
 	/* scale also computed Theta */
 	if(thetavector){
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
-		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = (theta_arr[i] - q)/k;
 		}
 		
-		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
-		TRY( VecAssemblyBegin(thetavector->get_vector()) );
-		TRY( VecAssemblyEnd(thetavector->get_vector()) );
+		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
+		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
 	
 	LOG_FUNC_END
@@ -945,7 +945,7 @@ void TSData<PetscVector>::cutdata(double a, double b){
 
 	double *data_arr;
 
-	TRY( VecGetArray(datavector->get_vector(),&data_arr));
+	TRYCXX( VecGetArray(datavector->get_vector(),&data_arr));
 	for(int i=0;i<datavector->local_size();i++){
 		if(data_arr[i] > b){
 			data_arr[i] = b;
@@ -954,7 +954,7 @@ void TSData<PetscVector>::cutdata(double a, double b){
 			data_arr[i] = a;
 		} 
 	}
-	TRY( VecRestoreArray(datavector->get_vector(),&data_arr));
+	TRYCXX( VecRestoreArray(datavector->get_vector(),&data_arr));
 	
 	LOG_FUNC_END
 }
@@ -966,24 +966,24 @@ void TSData<PetscVector>::shiftdata(double a){
 
 	Vec x_Vec = datavector->get_vector();
 
-	TRY( VecShift(x_Vec, a) );
+	TRYCXX( VecShift(x_Vec, a) );
 	
-	TRY( VecAssemblyBegin(x_Vec) );
-	TRY( VecAssemblyEnd(x_Vec) );
+	TRYCXX( VecAssemblyBegin(x_Vec) );
+	TRYCXX( VecAssemblyEnd(x_Vec) );
 
 	/* scale also computed Theta */
 	if(thetavector){
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
-		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = theta_arr[i] + a;
 		}
 		
-		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
-		TRY( VecAssemblyBegin(thetavector->get_vector()) );
-		TRY( VecAssemblyEnd(thetavector->get_vector()) );
+		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
+		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
 	
 	LOG_FUNC_END
@@ -1002,26 +1002,26 @@ void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double
 	double q = a-k*scale_min;
 
 	/* compute x = (x-scale_min)/(scale_max-scale_min) */
-	TRY( VecScale(x_Vec, k) );
-	TRY( VecShift(x_Vec, q) );
+	TRYCXX( VecScale(x_Vec, k) );
+	TRYCXX( VecShift(x_Vec, q) );
 	
-	TRY( VecAssemblyBegin(x_Vec) );
-	TRY( VecAssemblyEnd(x_Vec) );
+	TRYCXX( VecAssemblyBegin(x_Vec) );
+	TRYCXX( VecAssemblyEnd(x_Vec) );
 
 	/* scale also Theta */
 	if(thetavector){
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
-		TRY( VecGetArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 		
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = k*theta_arr[i] + q;
 		}
 		
-		TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr));
+		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
-		TRY( VecAssemblyBegin(thetavector->get_vector()) );
-		TRY( VecAssemblyEnd(thetavector->get_vector()) );
+		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
+		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
 	
 	LOG_FUNC_END
@@ -1045,32 +1045,32 @@ void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	IS gamma_sub_IS;
 	
 	/* fill the index sets */
-	TRY( ISCreateStride(PETSC_COMM_WORLD, Tlocal*K, Tbegin*K, 1, &(gamma_sub_IS)) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, Tlocal*K, Tbegin*K, 1, &(gamma_sub_IS)) );
 
 	/* now get subvector with my local values from provided stride vector */
 	Vec gamma_sub;
-	TRY( VecGetSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
+	TRYCXX( VecGetSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
 
 	/* prepare local vector */
 	Vec gamma_local;
 	#ifndef USE_CUDA
-		TRY( VecCreateSeq(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
+		TRYCXX( VecCreateSeq(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
 	#else
-		TRY( VecCreateSeqCUDA(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
+		TRYCXX( VecCreateSeqCUDA(PETSC_COMM_SELF, K*Tlocal, &gamma_local) );
 	#endif
 
 	/* get the vector where I will store my values */
-	TRY( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
+	TRYCXX( VecGetLocalVector(gammavector->get_vector(), gamma_local) );
 
 	/* now copy values from subvector to local vector */
-	TRY( VecCopy(gamma_sub, gamma_local) );
+	TRYCXX( VecCopy(gamma_sub, gamma_local) );
 
 	/* restore subvector */
-	TRY( VecRestoreLocalVector(gammavector->get_vector(), gamma_local) );
-	TRY( VecRestoreSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
+	TRYCXX( VecRestoreLocalVector(gammavector->get_vector(), gamma_local) );
+	TRYCXX( VecRestoreSubVector(gamma0_Vec, gamma_sub_IS, &gamma_sub) );
 
 	/* destroy auxiliary index sets */
-	TRY( ISDestroy(&gamma_sub_IS) );
+	TRYCXX( ISDestroy(&gamma_sub_IS) );
 
 	LOG_FUNC_END
 }
@@ -1083,23 +1083,23 @@ void TSData<PetscVector>::load_gammavector(std::string filename) const {
 
 	/* aux vector, we first oad data and then distribute values to procs */
 	Vec gamma_preload_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD, &gamma_preload_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD, &gamma_preload_Vec) );
 
 	/* prepare viewer to load from file */
 	PetscViewer mviewer;
-	TRY( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRY( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
 	
 	/* load vector from viewer */
-	TRY( VecLoad(gamma_preload_Vec, mviewer) );
+	TRYCXX( VecLoad(gamma_preload_Vec, mviewer) );
 
 	/* destroy the viewer */
-	TRY( PetscViewerDestroy(&mviewer) );	
+	TRYCXX( PetscViewerDestroy(&mviewer) );	
 
 	PetscVector gamma_preload(gamma_preload_Vec);
 	this->load_gammavector(gamma_preload);
 
-//	TRY( VecDestroy(&gamma_preload_Vec) );
+//	TRYCXX( VecDestroy(&gamma_preload_Vec) );
 	
 	LOG_FUNC_END
 }

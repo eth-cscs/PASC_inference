@@ -317,10 +317,10 @@ void MultiCGSolver<PetscVector>::solve() {
 		A_sub = blocks[i];
 
 		/* get global xn_global */
-		TRY( ISCreateStride(PETSC_COMM_SELF, blocksize, i*blocksize, 1, &is_sub) );
-		TRY( VecGetSubVector(b,is_sub,&b_sub) );
-		TRY( VecGetSubVector(x,is_sub,&x_sub) );
-		TRY( VecGetSubVector(x0,is_sub,&x0_sub) );
+		TRYCXX( ISCreateStride(PETSC_COMM_SELF, blocksize, i*blocksize, 1, &is_sub) );
+		TRYCXX( VecGetSubVector(b,is_sub,&b_sub) );
+		TRYCXX( VecGetSubVector(x,is_sub,&x_sub) );
+		TRYCXX( VecGetSubVector(x0,is_sub,&x0_sub) );
 
 		/* from petscvectors to general vectors */
 		b_subGV	= new GeneralVector<PetscVector>(b_sub);
@@ -349,10 +349,10 @@ void MultiCGSolver<PetscVector>::solve() {
 
 		/* solution back to global vector */
 		/* restore subvector with xn_global */
-		TRY( VecRestoreSubVector(b,is_sub,&b_sub) );
-		TRY( VecRestoreSubVector(x,is_sub,&x_sub) );
-		TRY( VecRestoreSubVector(x0,is_sub,&x0_sub) );
-		TRY( ISDestroy(&is_sub) );
+		TRYCXX( VecRestoreSubVector(b,is_sub,&b_sub) );
+		TRYCXX( VecRestoreSubVector(x,is_sub,&x_sub) );
+		TRYCXX( VecRestoreSubVector(x0,is_sub,&x0_sub) );
+		TRYCXX( ISDestroy(&is_sub) );
 		
 		/* destroy globalvectors */
 		free(b_subGV);

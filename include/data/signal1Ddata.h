@@ -73,12 +73,12 @@ Signal1DData<VectorBase>::Signal1DData(std::string filename_data){
 	/* prepare preliminary datavector and load data */
 	/* prepare preliminary datavector and load data */
 	Vec datapreload_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
 	this->datavectorpreliminary = new GeneralVector<PetscVector>(datapreload_Vec);
 	this->datavectorpreliminary->load_global(filename_data);
 
 	/* get the size of the loaded vector */
-	TRY( VecGetSize(datapreload_Vec, &Tpreliminary) );
+	TRYCXX( VecGetSize(datapreload_Vec, &Tpreliminary) );
 	
 	/* other vectors will be prepared after setting the model */
 	this->destroy_datavector = true;
@@ -116,7 +116,7 @@ void Signal1DData<VectorBase>::set_decomposition(Decomposition &new_decompositio
 	this->decomposition->permute_TRxdim(datapreload_Vec, data_Vec);
 	
 	/* destroy preliminary data */
-	TRY(VecDestroy(&datapreload_Vec));
+	TRYCXX(VecDestroy(&datapreload_Vec));
 	
 	LOG_FUNC_END
 }
@@ -327,28 +327,28 @@ void Signal1DData<PetscVector>::saveSignal1D(std::string filename, bool save_ori
 	IS gammak_is;
 
 	Vec data_recovered_Vec;
-	TRY( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
-	TRY( VecSet(data_recovered_Vec,0.0));
+	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
+	TRYCXX( VecSet(data_recovered_Vec,0.0));
 	GeneralVector<PetscVector> data_recovered(data_recovered_Vec);
 
 	double *theta_arr;
-	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
+	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
 	int K = this->get_K();
 
 	for(int k=0;k<K;k++){ 
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
-		TRY( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */
-		TRY( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
+		TRYCXX( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
 
-		TRY( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
-		TRY( ISDestroy(&gammak_is) );
+		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
 	}	
 
-	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
+	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
 
 	/* save recovered data */
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
@@ -359,7 +359,7 @@ void Signal1DData<PetscVector>::saveSignal1D(std::string filename, bool save_ori
 	oss_name_of_file.str("");
 
 	/* destroy vectors with original layout */
-//	TRY( VecDestroy(&datasave_Vec) );
+//	TRYCXX( VecDestroy(&datasave_Vec) );
 
 	timer_saveSignal1D.stop();
 	coutAll <<  " - problem saved in: " << timer_saveSignal1D.get_value_sum() << std::endl;
@@ -382,34 +382,34 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 	IS gammak_is;
 
 	Vec data_abserr_Vec;
-	TRY( VecDuplicate(this->datavector->get_vector(), &data_abserr_Vec) );
+	TRYCXX( VecDuplicate(this->datavector->get_vector(), &data_abserr_Vec) );
 	
 	/* abserr = -solution */
-	TRY( VecCopy(solution.get_vector(),data_abserr_Vec)); 
-	TRY( VecScale(data_abserr_Vec,-1.0));
+	TRYCXX( VecCopy(solution.get_vector(),data_abserr_Vec)); 
+	TRYCXX( VecScale(data_abserr_Vec,-1.0));
 
 	double *theta_arr;
-	TRY( VecGetArray(this->thetavector->get_vector(),&theta_arr) );
+	TRYCXX( VecGetArray(this->thetavector->get_vector(),&theta_arr) );
 
 	int K = this->get_K();
 
 	for(int k=0;k<K;k++){ 
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
-		TRY( VecGetSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( VecGetSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */
-		TRY( VecAXPY(data_abserr_Vec, theta_arr[k], gammak_Vec) );
+		TRYCXX( VecAXPY(data_abserr_Vec, theta_arr[k], gammak_Vec) );
 
-		TRY( VecRestoreSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
-		TRY( ISDestroy(&gammak_is) );
+		TRYCXX( VecRestoreSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
 	}	
 
-	TRY( VecRestoreArray(this->thetavector->get_vector(),&theta_arr) );
+	TRYCXX( VecRestoreArray(this->thetavector->get_vector(),&theta_arr) );
 
 	/* compute mean(abs(solution - data_recovered) */
-	TRY( VecAbs(data_abserr_Vec) );
-	TRY( VecSum(data_abserr_Vec, &abserr) );
+	TRYCXX( VecAbs(data_abserr_Vec) );
+	TRYCXX( VecSum(data_abserr_Vec, &abserr) );
 	int T = this->get_T();
 	abserr = abserr/(double)T;
 	

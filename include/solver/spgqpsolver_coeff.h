@@ -346,8 +346,8 @@ void SPGQPSolverC<VectorBase>::allocate_temp_vectors(){
 	/* prepare for Mdot */
 	#ifdef USE_PETSCVECTOR
 		/* without cuda */
-		TRY( PetscMalloc1(3,&Mdots_val) );
-		TRY( PetscMalloc1(3,&Mdots_vec) );
+		TRYCXX( PetscMalloc1(3,&Mdots_val) );
+		TRYCXX( PetscMalloc1(3,&Mdots_vec) );
 
 		Mdots_vec[0] = d->get_vector();
 		Mdots_vec[1] = Ad->get_vector();
@@ -369,8 +369,8 @@ void SPGQPSolverC<VectorBase>::free_temp_vectors(){
 	free(temp);
 	
 	#ifdef USE_PETSCVECTOR
-		TRY( PetscFree(Mdots_val) );
-		TRY( PetscFree(Mdots_vec) );
+		TRYCXX( PetscFree(Mdots_val) );
+		TRYCXX( PetscFree(Mdots_vec) );
 	#endif
 	
 	LOG_FUNC_END
@@ -1010,7 +1010,7 @@ template<>
 void SPGQPSolverC<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const {
 	LOG_FUNC_BEGIN
 
-	TRY(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
+	TRYCXX(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
 
 	*dd = Mdots_val[0];
 	*dAd = Mdots_val[1];

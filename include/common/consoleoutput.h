@@ -103,10 +103,10 @@ class ConsoleOutput : public std::ostream {
 
 						if(this->print_rank == 0 || GlobalManager.get_size() <= 1){
 							/* master prints */
-							TRY( PetscPrintf(PETSC_COMM_WORLD, output_string.str().c_str()) );
+							TRYCXX( PetscPrintf(PETSC_COMM_WORLD, output_string.str().c_str()) );
 						} else {
 							/* all prints */
-							TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, output_string.str().c_str()) );
+							TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, output_string.str().c_str()) );
 						}
 
 						output_string.str("");
@@ -156,7 +156,7 @@ class ConsoleOutput : public std::ostream {
 		*/
 		void synchronize(){
 			if(buffer.print_rank == -1){
-				TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+				TRYCXX( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
 			}
 		}
 
@@ -197,7 +197,7 @@ class ConsoleOutput : public std::ostream {
 						#ifdef USE_PETSCVECTOR
 							/* can be set after initialize of petsc */
 							if(petscvector::PETSC_INITIALIZED){
-								TRY(PetscBarrier(NULL));
+								TRYCXX(PetscBarrier(NULL));
 						
 								MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
 								rankset = true;
@@ -226,7 +226,7 @@ class ConsoleOutput : public std::ostream {
 					}
 
 					#ifdef USE_PETSCVECTOR
-						TRY(PetscBarrier(NULL)); /* barrier after each cout */
+						TRYCXX(PetscBarrier(NULL)); /* barrier after each cout */
 					#endif
 
 					return 0;

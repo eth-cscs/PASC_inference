@@ -170,10 +170,10 @@ int main( int argc, char *argv[] )
 			for(int r=0; r < R; r++){ /* through graph nodes */
 				for(int t=0;t < T; t++){ /* through time steps */
 					/* prepare e_k in layout */
-					TRY( VecSet(x_Vec,0) );
-					TRY( VecSetValue(x_Vec, decomposition->get_idxglobal(t,r,k), 1.0, INSERT_VALUES) );
-					TRY( VecAssemblyBegin(x_Vec) );
-					TRY( VecAssemblyEnd(x_Vec) );
+					TRYCXX( VecSet(x_Vec,0) );
+					TRYCXX( VecSetValue(x_Vec, decomposition->get_idxglobal(t,r,k), 1.0, INSERT_VALUES) );
+					TRYCXX( VecAssemblyBegin(x_Vec) );
+					TRYCXX( VecAssemblyEnd(x_Vec) );
 
 					/* perform multiplication */
 					mytimer.start();
@@ -183,10 +183,10 @@ int main( int argc, char *argv[] )
 					/* print row (in fact, it is column, but matrix is symmetric) */
 					if(print_matrix){
 						/* get array of values */
-						TRY( VecGetArray(y.get_vector(), &values_arr) );
+						TRYCXX( VecGetArray(y.get_vector(), &values_arr) );
 		
 						/* print row */
-						TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, k*R*T + r*T + t) );
+						TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, k*R*T + r*T + t) );
 
 						/* interpret results from new layout to standart one */
 						for(int k_col = 0; k_col < K; k_col++){
@@ -201,19 +201,19 @@ int main( int argc, char *argv[] )
 										double value = values_arr[t_local*decomposition->get_Rlocal()*K + r_local*K + k_col];
 
 										if(abs(value) > 0.000001){
-											TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, value) );
+											TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, value) );
 										} else {
-											TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+											TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
 										}
 									}
-									TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+									TRYCXX( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
 								}
 							}
 						}
-						TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
+						TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "\n") );
 					
 						/* restore array with values */
-						TRY( VecRestoreArray(y.get_vector(), &values_arr) );
+						TRYCXX( VecRestoreArray(y.get_vector(), &values_arr) );
 					}
 				} /* end T */
 			} /* end R */
@@ -222,10 +222,10 @@ int main( int argc, char *argv[] )
 		/* naiive printing - simply print a content without rearranging coeficient subject to decomposition */
 		for(int col=0; col < K*T*R; col++){ /* simply through all columns */
 			/* prepare e_k in layout */
-			TRY( VecSet(x_Vec,0) );
-			TRY( VecSetValue(x_Vec, col, 1.0, INSERT_VALUES) );
-			TRY( VecAssemblyBegin(x_Vec) );
-			TRY( VecAssemblyEnd(x_Vec) );
+			TRYCXX( VecSet(x_Vec,0) );
+			TRYCXX( VecSetValue(x_Vec, col, 1.0, INSERT_VALUES) );
+			TRYCXX( VecAssemblyBegin(x_Vec) );
+			TRYCXX( VecAssemblyEnd(x_Vec) );
 
 			/* perform multiplication */
 			mytimer.start();
@@ -235,23 +235,23 @@ int main( int argc, char *argv[] )
 			/* print row (in fact, it is column, but matrix is symmetric) */
 			if(print_matrix){
 				/* get array of values */
-				TRY( VecGetArray(y.get_vector(), &values_arr) );
+				TRYCXX( VecGetArray(y.get_vector(), &values_arr) );
 		
 				/* print row */
-				TRY( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, col) );
+				TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, col) );
 
 				for(int loccol = 0; loccol < K*decomposition->get_Rlocal()*decomposition->get_Tlocal(); loccol++){
 					if(abs(values_arr[loccol]) > 0.000001){
-						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values_arr[loccol]) );
+						TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, values_arr[loccol]) );
 					} else {
-						TRY( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
+						TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
 					}
 				}
-				TRY( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-				TRY( PetscPrintf(PETSC_COMM_WORLD, "\n") );
+				TRYCXX( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
+				TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "\n") );
 					
 				/* restore array with values */
-				TRY( VecRestoreArray(y.get_vector(), &values_arr) );
+				TRYCXX( VecRestoreArray(y.get_vector(), &values_arr) );
 			}
 		}
 	}

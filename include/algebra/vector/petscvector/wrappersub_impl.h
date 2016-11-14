@@ -20,7 +20,7 @@ PetscVectorWrapperSub::PetscVectorWrapperSub(Vec new_inner_vector, IS new_subvec
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - get subvector from original vector" << std::endl;
 
 	/* get subvector, restore it in destructor */
-	TRY( VecGetSubVector(inner_vector, subvector_is, &subvector) );
+	TRYCXX( VecGetSubVector(inner_vector, subvector_is, &subvector) );
 	
 }
 
@@ -30,12 +30,12 @@ PetscVectorWrapperSub::~PetscVectorWrapperSub(){
 
 	/* if this was a subvector, then restore values */
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - restore subvector" << std::endl;
-	TRY( VecRestoreSubVector(inner_vector, subvector_is, &subvector) );
+	TRYCXX( VecRestoreSubVector(inner_vector, subvector_is, &subvector) );
 
 	/* if it is necessary to free IS, then free it */
 	if(free_is){
 		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - destroy IS" << std::endl;
-		TRY( ISDestroy(&subvector_is) );
+		TRYCXX( ISDestroy(&subvector_is) );
 	}
 
 }
@@ -46,7 +46,7 @@ void PetscVectorWrapperSub::set(double new_value){
 
 	// TODO: control if subvector was allocated
 
-	TRY( VecSet(this->subvector,new_value) );
+	TRYCXX( VecSet(this->subvector,new_value) );
 
 	valuesUpdate();
 }
@@ -69,7 +69,7 @@ double PetscVectorWrapperSub::get(int i)
 			
 	ix[0] = i;
 
-	TRY( VecGetValues(subvector,ni,ix,y) );
+	TRYCXX( VecGetValues(subvector,ni,ix,y) );
 			
 	return y[0];
 }
@@ -78,8 +78,8 @@ double PetscVectorWrapperSub::get(int i)
 void PetscVectorWrapperSub::valuesUpdate() const {
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(WrapperSub)FUNCTION: valuesUpdate()" << std::endl;
 
-	TRY( VecAssemblyBegin(subvector) );
-	TRY( VecAssemblyEnd(subvector) );
+	TRYCXX( VecAssemblyBegin(subvector) );
+	TRYCXX( VecAssemblyEnd(subvector) );
 }
 
 /* subvector = alpha*subvector */
@@ -88,7 +88,7 @@ void PetscVectorWrapperSub::scale(PetscScalar alpha) const{
 
 	//TODO: control subvector
 
-	TRY( VecScale(subvector, alpha) );
+	TRYCXX( VecScale(subvector, alpha) );
 	valuesUpdate(); // TODO: has to be called?
 }
 
@@ -102,18 +102,18 @@ std::ostream &operator<<(std::ostream &output, const PetscVectorWrapperSub &wrap
 	const PetscInt *indices;
 
 	output << "[";
-	TRY( VecGetLocalSize(wrapper.subvector,&local_size) );
+	TRYCXX( VecGetLocalSize(wrapper.subvector,&local_size) );
 
-	TRY( VecGetArray(wrapper.subvector,&arr_vector) );
-	TRY( ISGetIndices(wrapper.subvector_is,&indices) );
+	TRYCXX( VecGetArray(wrapper.subvector,&arr_vector) );
+	TRYCXX( ISGetIndices(wrapper.subvector_is,&indices) );
 
 	for (i=0; i<local_size; i++){
 		output << "{" << indices[i] << "}=" << arr_vector[i];
 		if(i < local_size-1) output << ", ";
 	}
 
-	TRY( ISRestoreIndices(wrapper.subvector_is,&indices) );
-	TRY( VecRestoreArray(wrapper.subvector,&arr_vector) );
+	TRYCXX( ISRestoreIndices(wrapper.subvector_is,&indices) );
+	TRYCXX( VecRestoreArray(wrapper.subvector,&arr_vector) );
 	output << "]";
 			
 	return output;
@@ -179,7 +179,7 @@ PetscVectorWrapperSub &PetscVectorWrapperSub::operator=(const PetscVector &vec2)
 	/* else copy the vector values and then scale */
 //	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - copy values" << std::endl;		
 
-//	TRY( VecCopy(combnode.get_vector(),subvector));
+//	TRYCXX( VecCopy(combnode.get_vector(),subvector));
 	
 //    this->scale(combnode.get_coeff());
 
@@ -230,7 +230,7 @@ void operator/=(const PetscVectorWrapperSub &subvec1, const PetscVectorWrapperSu
 {
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(WrapperSub)FUNCTION: vec1/vec2" << std::endl;
 
-	TRY(VecPointwiseDivide(subvec1.subvector,subvec1.subvector,subvec2.subvector) );
+	TRYCXX(VecPointwiseDivide(subvec1.subvector,subvec1.subvector,subvec2.subvector) );
 
 	subvec1.valuesUpdate(); // TODO: has to be called?
 
@@ -257,7 +257,7 @@ bool operator==(PetscVectorWrapperSub subvec1, PetscVectorWrapperSub subvec2){
 
 	PetscBool return_value;
 
-	TRY( VecEqual(subvec1.subvector,subvec2.subvector,&return_value) );
+	TRYCXX( VecEqual(subvec1.subvector,subvec2.subvector,&return_value) );
 	
 	return (bool)return_value;
 }
@@ -285,7 +285,7 @@ double sum(const PetscVectorWrapperSub subvec1)
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(WrapperSub)FUNCTION: sum(subvec)" << std::endl;
 
 	double sum_value;
-	TRY( VecSum(subvec1.subvector,&sum_value) );
+	TRYCXX( VecSum(subvec1.subvector,&sum_value) );
 	return sum_value;
 }
 
@@ -295,7 +295,7 @@ double dot(const PetscVectorWrapperSub subvec1, const PetscVectorWrapperSub subv
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(WrapperSub)FUNCTION: dot(subvec1,subvec2)" << std::endl;
 
 	double dot_value;
-	TRY( VecDot(subvec1.subvector,subvec2.subvector,&dot_value));
+	TRYCXX( VecDot(subvec1.subvector,subvec2.subvector,&dot_value));
 	return dot_value;
 }
 
@@ -304,7 +304,7 @@ double dot(const PetscVector &x, const PetscVectorWrapperSub y)
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(WrapperSub)FUNCTION: dot(vec,subvec)" << std::endl;
 
 	double dot_value;
-	TRY( VecDot(x.inner_vector,y.subvector,&dot_value));
+	TRYCXX( VecDot(x.inner_vector,y.subvector,&dot_value));
 	return dot_value;
 }
 
@@ -313,7 +313,7 @@ double dot(const PetscVectorWrapperSub x, const PetscVector &y)
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(WrapperSub)FUNCTION: dot(subvec,vec)" << std::endl;
 
 	double dot_value;
-	TRY( VecDot(y.inner_vector,x.subvector,&dot_value));
+	TRYCXX( VecDot(y.inner_vector,x.subvector,&dot_value));
 	return dot_value;
 }
 

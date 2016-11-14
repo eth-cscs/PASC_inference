@@ -39,14 +39,14 @@ printsetting_petsc()
 # PetscVector
 printsetting_petscvector()
 
+# PERMON
+printsetting_permon()
+
 # MKL
 printsetting_mkl()
 
 # MinLin
 printsetting_minlin()
-
-# EDFlib
-#printsetting_edflib()
 
 # Metis
 printsetting_metis()

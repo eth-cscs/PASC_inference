@@ -74,7 +74,7 @@ class ShortinfoClass {
 			}
 
 			/* wait for master */
-			TRY( PetscBarrier(NULL) );
+			TRYCXX( PetscBarrier(NULL) );
 		}
 		
 };

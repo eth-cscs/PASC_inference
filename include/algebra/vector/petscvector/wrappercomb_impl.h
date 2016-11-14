@@ -106,8 +106,8 @@ void PetscVectorWrapperComb::compute(const Vec &y, double init_scale){
 	 */ 
 
 	/* allocate memory */
-	TRY(PetscMalloc(sizeof(PetscScalar)*list_size,&alphas));
-	TRY(PetscMalloc(sizeof(Vec)*list_size,&vectors));
+	TRYCXX(PetscMalloc(sizeof(PetscScalar)*list_size,&alphas));
+	TRYCXX(PetscMalloc(sizeof(Vec)*list_size,&vectors));
 
 	/* get array with coefficients and vectors */
 	std::list<PetscVectorWrapperCombNode>::iterator list_iter; /* iterator through list */
@@ -155,22 +155,22 @@ void PetscVectorWrapperComb::compute(const Vec &y, double init_scale){
 
 	/* scale the vector */
 	if(scale != 1.0){
-		TRY( VecScale(y, scale) );
+		TRYCXX( VecScale(y, scale) );
 	}
 
 	/* shift by scalar value */
 	if(shift != 0.0){
-		TRY( VecShift(y, shift) );
+		TRYCXX( VecShift(y, shift) );
 	}
 
 	/* y += sum (alphas*vectors) */
 	if(maxpy_length > 0){
-		TRY( VecMAXPY(y,maxpy_length,alphas,vectors) );
+		TRYCXX( VecMAXPY(y,maxpy_length,alphas,vectors) );
 	}
 
 	/* free memory */
-	TRY(PetscFree(alphas));
-	TRY(PetscFree(vectors));
+	TRYCXX(PetscFree(alphas));
+	TRYCXX(PetscFree(vectors));
 
 }
 
@@ -379,7 +379,7 @@ int PetscVectorWrapperCombNode::get_size() const{
 
 	int global_size;
 	if(this->inner_vector){
-		TRY( VecGetSize(this->inner_vector,&global_size) );
+		TRYCXX( VecGetSize(this->inner_vector,&global_size) );
 	} else {
 		global_size = 0;
 	}
@@ -395,7 +395,7 @@ int PetscVectorWrapperCombNode::get_value(int index) const{
 	PetscScalar y[1];
 			
 	ix[0] = index;
-	TRY( VecGetValues(this->inner_vector,ni,ix,y) );	
+	TRYCXX( VecGetValues(this->inner_vector,ni,ix,y) );	
 			
 	return y[0];
 }

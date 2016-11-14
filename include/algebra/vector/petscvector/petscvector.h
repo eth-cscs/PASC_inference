@@ -25,14 +25,14 @@
 /* for manipulating with strings */
 #include <string>
 
-/* to deal with errors, call Petsc functions with TRY(fun); */
+/* to deal with errors, call Petsc functions with TRYXX(fun); */
 static PetscErrorCode ierr; /**< to deal with PetscError */
 
 /**
- * \def TRY(f)
- * Macro for dealing with PetscError. Each original Petsc function could by called using TRY(...).
+ * \def TRYCXX(f)
+ * Macro for dealing with PetscError in C++ code. Each original Petsc function could by called using TRYXX(...).
 */
-#define TRY( f) {ierr = f; do {if (PetscUnlikely(ierr)) {PetscError(PETSC_COMM_SELF,__LINE__,PETSC_FUNCTION_NAME,__FILE__,ierr,PETSC_ERROR_IN_CXX,0);}} while(0);}
+#define TRYCXX( f) {ierr = f; do {if (PetscUnlikely(ierr)) {PetscError(PETSC_COMM_SELF,__LINE__,PETSC_FUNCTION_NAME,__FILE__,ierr,PETSC_ERROR_IN_CXX,0);}} while(0);}
 
 /* we are using namespace petscvector */
 namespace petscvector {

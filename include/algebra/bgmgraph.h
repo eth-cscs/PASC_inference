@@ -197,7 +197,7 @@ BGMGraph::BGMGraph(std::string filename, int dim){
 BGMGraph::BGMGraph(const double *coordinates_array, int n, int dim){
 	/* prepare vector from values */
 	Vec vec_arr;
-	TRY( VecCreateSeqWithArray(PETSC_COMM_SELF,1,n*dim,coordinates_array,&vec_arr) );
+	TRYCXX( VecCreateSeqWithArray(PETSC_COMM_SELF,1,n*dim,coordinates_array,&vec_arr) );
 
 	coordinates = new GeneralVector<PetscVector>(vec_arr);
 
@@ -222,7 +222,7 @@ BGMGraph::BGMGraph(){
 }
 
 BGMGraph::~BGMGraph(){
-//	TRY( VecDestroy(&coordinates.get_vector()));
+//	TRYCXX( VecDestroy(&coordinates.get_vector()));
 //	free(coordinates);
 
 	/* if the graph was processed, then free memory */
@@ -439,7 +439,7 @@ void BGMGraph::process(double threshold) {
 	
 	/* get local array and work with it */
 	const double *coordinates_arr;
-	TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
+	TRYCXX( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
 	
 	/* go throught graph - compute number of neighbors */
 //	#pragma omp parallel for
@@ -491,7 +491,7 @@ void BGMGraph::process(double threshold) {
 	free(counters);
 	
 	/* restore array */
-	TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
+	TRYCXX( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 
 	#ifdef USE_CUDA
 		/* copy data to gpu */
@@ -655,7 +655,7 @@ void BGMGraph::saveVTK(std::string filename) const {
 		/* write points - coordinates */
 		myfile << "POINTS " << n << " FLOAT" << std::endl;
 		const double *coordinates_arr;
-		TRY( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
+		TRYCXX( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
 		for(int i=0;i<n;i++){
 			if(dim == 1){ 
 				/* 1D sample */
@@ -679,7 +679,7 @@ void BGMGraph::saveVTK(std::string filename) const {
 				//TODO ???
 			}
 		}
-		TRY( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
+		TRYCXX( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 		
 		/* write edges */
 		myfile << "\nCELLS " << 2*m << " " << 2*m*3 << std::endl; /* actually, edges are here twice */
@@ -707,7 +707,7 @@ void BGMGraph::saveVTK(std::string filename) const {
 		
 		myfile.close();
 	}
-	TRY( PetscBarrier(NULL) );
+	TRYCXX( PetscBarrier(NULL) );
 	
 	
 	
@@ -729,10 +729,10 @@ BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
 	
 	/* fill coordinates */
 	Vec coordinates_Vec;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, this->n*this->dim, &coordinates_Vec) );
+	TRYCXX( VecCreateSeq(PETSC_COMM_SELF, this->n*this->dim, &coordinates_Vec) );
 	
 	double *coordinates_arr;
-	TRY( VecGetArray(coordinates_Vec, &coordinates_arr) );
+	TRYCXX( VecGetArray(coordinates_Vec, &coordinates_arr) );
 
 	#pragma omp parallel for
 	for(int idx=0;idx<width*height;idx++){
@@ -743,7 +743,7 @@ BGMGraphGrid2D::BGMGraphGrid2D(int width, int height) : BGMGraph(){
 		coordinates_arr[idx + this->n] = i;
 	}
 
-	TRY( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
+	TRYCXX( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
 	
 	this->coordinates = new GeneralVector<PetscVector>(coordinates_Vec);
 
@@ -847,15 +847,15 @@ BGMGraphGrid1D::BGMGraphGrid1D(int width) : BGMGraph(){
 	
 	/* fill coordinates */
 	Vec coordinates_Vec;
-	TRY( VecCreateSeq(PETSC_COMM_SELF, this->n*this->dim, &coordinates_Vec) );
+	TRYCXX( VecCreateSeq(PETSC_COMM_SELF, this->n*this->dim, &coordinates_Vec) );
 	
 	double *coordinates_arr;
-	TRY( VecGetArray(coordinates_Vec, &coordinates_arr) );
+	TRYCXX( VecGetArray(coordinates_Vec, &coordinates_arr) );
 	for(int i=0;i<width;i++){
 		coordinates_arr[i] = i;
 		coordinates_arr[i + this->n] = 0;
 	}
-	TRY( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
+	TRYCXX( VecRestoreArray(coordinates_Vec, &coordinates_arr) );
 	
 	this->coordinates = new GeneralVector<PetscVector>(coordinates_Vec);
 

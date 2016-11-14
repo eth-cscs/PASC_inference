@@ -148,10 +148,10 @@ include(load_cuda) # CUDA
 include(load_gpu) # GPU
 include(load_petsc) # PETSC
 include(load_petscvector) # PetscVector
+include(load_permon) # PERMON
 include(load_boost) # BOOST
 include(load_mkl) # MKL
 include(load_minlin) # MinLin
-include(load_edflib) # EDFlib
 include(load_metis) # METIS
 include(load_pascinference) # PascInference
 

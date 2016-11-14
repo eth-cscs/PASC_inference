@@ -50,8 +50,8 @@ int main( int argc, char *argv[] )
 	Vec in1_Vec;
 	Vec in2_Vec;
 
-	TRY( VecCreate(PETSC_COMM_WORLD,&in1_Vec) );
-	TRY( VecCreate(PETSC_COMM_WORLD,&in2_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&in1_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&in2_Vec) );
 
 	GeneralVector<pascinference::algebra::PetscVector> in1(in1_Vec);
 	GeneralVector<pascinference::algebra::PetscVector> in2(in2_Vec);

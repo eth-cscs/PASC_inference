@@ -182,7 +182,7 @@ int main( int argc, char *argv[] )
 
 /* 4.) prepare and load solution */
 	Vec solution_Vec;
-	TRY( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
+	TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
 	GeneralVector<PetscVector> solution(solution_Vec);
 	solution.load_global(filename_solution);
 
@@ -219,10 +219,10 @@ int main( int argc, char *argv[] )
 	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
 
 	Vec gammavector_best_Vec; /* here we store solution with best abserr value */
-	TRY( VecDuplicate(mydata.get_gammavector()->get_vector(),&gammavector_best_Vec) );
+	TRYCXX( VecDuplicate(mydata.get_gammavector()->get_vector(),&gammavector_best_Vec) );
 
 	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
-	TRY( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
+	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
 	
 	for(int depth = 0; depth < epssqr_list.size();depth++){
 		epssqr = epssqr_list[depth];
@@ -258,14 +258,14 @@ int main( int argc, char *argv[] )
 		if(abserr < abserr_best){
 			abserr_best = abserr;
 			epssqr_best = epssqr;
-			TRY(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
-			TRY(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
+			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
+			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
 		}
 	}
 
 	/* set best computed solution back to data */
-	TRY(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
-	TRY(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
+	TRYCXX(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
+	TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
 
 /* 7.) write short output with best solution */
 	if(shortinfo_write_or_not){

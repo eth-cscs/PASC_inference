@@ -258,7 +258,7 @@ void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, C
 	std::ostringstream temp;
 	
 	double *theta;
-	TRY( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
+	TRYCXX( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
 	
 	int k,n;
 
@@ -385,7 +385,7 @@ void GraphH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetas
 	
 	/* create aux vector for gamma^T A gamma */
 	Vec Agamma_Vec;
-	TRY( VecDuplicate(tsdata->get_gammavector()->get_vector(),&Agamma_Vec) );
+	TRYCXX( VecDuplicate(tsdata->get_gammavector()->get_vector(),&Agamma_Vec) );
 	Agamma = new GeneralVector<PetscVector>(Agamma_Vec);
 	
 	LOG_FUNC_END
@@ -468,13 +468,13 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 
 	/* update gamma_solver data - prepare new linear term */
 	const double *theta_arr;
-	TRY( VecGetArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+	TRYCXX( VecGetArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 	
 	const double *data_arr;
-	TRY( VecGetArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
+	TRYCXX( VecGetArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
 	
 	double *b_arr;
-	TRY( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
+	TRYCXX( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
 
 	double coeff = (-1.0)/((double)(R*T));
 //	double coeff = (-1.0)/(sqrt((double)(R*T)));
@@ -490,9 +490,9 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	/* coeffs of A_shared are updated via computation of Theta :) */
 
 	/* restore arrays */
-	TRY( VecRestoreArray(gammadata->get_b()->get_vector(), &b_arr) );
-	TRY( VecRestoreArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
-	TRY( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+	TRYCXX( VecRestoreArray(gammadata->get_b()->get_vector(), &b_arr) );
+	TRYCXX( VecRestoreArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
+	TRYCXX( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 
 	LOG_FUNC_END
 }
@@ -509,9 +509,9 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	Vec data_Vec = tsdata->get_datavector()->get_vector();
 
 	/* I will use A_shared with coefficients equal to 1, therefore I set Theta=1 */
-	TRY( VecSet(tsdata->get_thetavector()->get_vector(),1.0) );
-	TRY( VecAssemblyBegin(tsdata->get_thetavector()->get_vector()) );
-	TRY( VecAssemblyEnd(tsdata->get_thetavector()->get_vector()) );
+	TRYCXX( VecSet(tsdata->get_thetavector()->get_vector(),1.0) );
+	TRYCXX( VecAssemblyBegin(tsdata->get_thetavector()->get_vector()) );
+	TRYCXX( VecAssemblyEnd(tsdata->get_thetavector()->get_vector()) );
 
 	/* now compute A*gamma */
 	Vec Agamma_Vec;
@@ -532,7 +532,7 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	
 	/* get arrays */
 	double *theta_arr;
-	TRY( VecGetArray(theta_Vec,&theta_arr) );
+	TRYCXX( VecGetArray(theta_Vec,&theta_arr) );
 
 	int K = tsdata->get_K();
 
@@ -544,20 +544,20 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 		
 		/* get gammak */
 		this->tsdata->get_decomposition()->createIS_gammaK(&gammak_is, k);
-		TRY( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 
 		/* compute gammakAgammak */
 		if(usethetainpenalty){
 			/* only if Theta is in penalty term */
-			TRY( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
-			TRY( VecDot(gammak_Vec, Agammak_Vec, &gammakAgammak) );
+			TRYCXX( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
+			TRYCXX( VecDot(gammak_Vec, Agammak_Vec, &gammakAgammak) );
 		}
 		
 		/* compute gammakx */
-		TRY( VecDot(data_Vec, gammak_Vec, &gammakx) );
+		TRYCXX( VecDot(data_Vec, gammak_Vec, &gammakx) );
 
 		/* compute gammaksum */
-		TRY( VecSum(gammak_Vec, &gammaksum) );
+		TRYCXX( VecSum(gammak_Vec, &gammaksum) );
 
 		if(usethetainpenalty){
 			/* only if Theta is in penalty term */
@@ -575,18 +575,18 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 			}
 		}
 	
-		TRY( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		if(usethetainpenalty){
 			/* only if Theta is in penalty term */
-			TRY( VecRestoreSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
+			TRYCXX( VecRestoreSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 		}
-		TRY( ISDestroy(&gammak_is) );
+		TRYCXX( ISDestroy(&gammak_is) );
 	}	
 
 	/* restore arrays */
-	TRY( VecRestoreArray(theta_Vec,&theta_arr) );
+	TRYCXX( VecRestoreArray(theta_Vec,&theta_arr) );
 
-	TRY( PetscBarrier(NULL));
+	TRYCXX( PetscBarrier(NULL));
 
 	LOG_FUNC_END
 }

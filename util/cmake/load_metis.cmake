@@ -9,7 +9,7 @@
 if(${USE_METIS})
 	message(STATUS "${Yellow}loading METIS${ColourReset}")
 
-	set(METIS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../util/metis/include")
+	set(METIS_INCLUDE_DIR "${PASCINFERENCE_ROOT}/util/metis/include")
 
 	if(${USE_CUDA})
 		include_directories(${METIS_INCLUDE_DIR})
@@ -22,8 +22,8 @@ if(${USE_METIS})
 	set(FLAGS_DEF_D "-DUSE_METIS ${FLAGS_DEF_D}")
 
 	# include compiled! METIS library
-	link_directories("${CMAKE_SOURCE_DIR}/../util/metis/build/libmetis/")
-	find_library(METIS_LIB_LOCATION "metis" PATH "${CMAKE_SOURCE_DIR}/../util/metis/build/libmetis/")
+	link_directories("${PASCINFERENCE_ROOT}/util/metis/build/libmetis/")
+	find_library(METIS_LIB_LOCATION "metis" PATH "${PASCINFERENCE_ROOT}/util/metis/build/libmetis/")
 
 	#set(METIS_LIB_LOCATION "${CMAKE_SOURCE_DIR}/../util/metis/build/libmetis/libmetis.so")
 	

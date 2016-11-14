@@ -79,7 +79,7 @@ ImageData<VectorBase>::ImageData(Decomposition &new_decomposition, std::string f
 	this->decomposition->permute_TRxdim(datapreload_Vec, data_Vec);
 	
 	/* destroy preloaded vector */
-//	TRY( VecDestroy(&datapreload_Vec) );
+//	TRYCXX( VecDestroy(&datapreload_Vec) );
 	
 	/* other vectors will be prepared after setting the model */
 	this->destroy_datavector = true;
@@ -305,28 +305,28 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 	IS gammak_is;
 
 	Vec data_recovered_Vec;
-	TRY( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
-	TRY( VecSet(data_recovered_Vec,0.0));
+	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
+	TRYCXX( VecSet(data_recovered_Vec,0.0));
 	GeneralVector<PetscVector> data_recovered(data_recovered_Vec);
 
 	double *theta_arr;
-	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
+	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
 	int K = this->get_K();
 
 	for(int k=0;k<K;k++){ 
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
-		TRY( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */
-		TRY( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
+		TRYCXX( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
 
-		TRY( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
-		TRY( ISDestroy(&gammak_is) );
+		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
 	}	
 
-	TRY( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
+	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
 
 	/* save recovered data */
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
@@ -337,7 +337,7 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 	oss_name_of_file.str("");
 
 	/* destroy vectors with original layout */
-//	TRY( VecDestroy(&datasave_Vec) );
+//	TRYCXX( VecDestroy(&datasave_Vec) );
 
 	timer_saveImage.stop();
 	coutAll <<  " - problem saved in: " << timer_saveImage.get_value_sum() << std::endl;

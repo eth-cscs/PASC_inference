@@ -210,16 +210,16 @@ void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &
 	double *x_arr;
 	
 	#ifdef USE_CUDA
-		TRY( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
+		TRYCXX( VecCUDAGetArrayReadWrite(x.get_vector(),&x_arr) );
 
 		/* use kernel to compute projection */
 		//TODO: here should be actually the comparison of Vec type! not simple use_gpu
 		kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K);
 		gpuErrchk( cudaDeviceSynchronize() );
 
-		TRY( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
+		TRYCXX( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
 	#else
-		TRY( VecGetArray(x.get_vector(),&x_arr) );
+		TRYCXX( VecGetArray(x.get_vector(),&x_arr) );
 	
 		/* use openmp */
 		#pragma omp parallel for
@@ -227,10 +227,10 @@ void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &
 			project_sub(x_arr,t,T,K);
 		}
 
-		TRY( VecRestoreArray(x.get_vector(),&x_arr) );
+		TRYCXX( VecRestoreArray(x.get_vector(),&x_arr) );
 	#endif
 
-	TRY( PetscBarrier(NULL) );
+	TRYCXX( PetscBarrier(NULL) );
 
 	LOG_FUNC_END
 }
