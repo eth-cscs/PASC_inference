@@ -94,8 +94,14 @@ bool Initialize(int argc, char *argv[]){
 
   	/* init Petsc */
   	#ifdef USE_PETSC
-//		PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
-		PetscInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+		#ifdef USE_PERMON
+//			FllopInitialize(&argc,&argv,PETSC_NULL);
+			FllopInitialize(&argc,&argv,PETSC_NULL);
+		#else
+//			PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
+			PetscInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+		#endif
+
 		petscvector::PETSC_INITIALIZED = true;
 	#endif
 	
@@ -105,9 +111,13 @@ bool Initialize(int argc, char *argv[]){
 void Finalize(){
   	/* finalize Petsc */
   	#ifdef USE_PETSC
-		PetscFinalize();
+		#ifdef USE_PERMON
+			FllopFinalize();
+		#else
+			PetscFinalize();
+		#endif
+
 		petscvector::PETSC_INITIALIZED = false;
-	
 	#endif
 
 }

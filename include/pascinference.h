@@ -68,8 +68,7 @@
 
 /* PERMON */
 #ifdef USE_PERMON
-	/* use macro from PERMON, not from me.. it is the same, but the redefinition does not work at all */
-//	#include "fllopqp.h"
+	#include "fllopqp.h"
 #endif
 
 /* boost stuff */
