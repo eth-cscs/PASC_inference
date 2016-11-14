@@ -4,3 +4,4 @@
 [submodule "util/permon"]
 	path = util/permon
 	url = https://github.com/haplav/permon.git
+	ignore = dirty
