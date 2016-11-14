@@ -40,6 +40,18 @@ namespace model {
 */
 template<class VectorBase>
 class GraphH1FEMModel: public TSModel<VectorBase> {
+	public:
+		/** @brief type of solver used to solve inner gamma problem 
+		 * 
+		 * The inner problem leads to QP with equality constraints and bound constraints
+		 * 
+		 */
+		typedef enum { 
+			SOLVER_AUTO, /**< choose automatic solver */
+			SOLVER_SPGQP, /**< CPU/GPU implementation of Spectral Projected Gradient method */
+			SOLVER_PERMON /**< QPPERMON solver (augumented lagrangian combined with active-set method) */
+		} GammaSolverType;
+
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
 	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
@@ -54,6 +66,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		
 		bool usethetainpenalty; /**< use the value of Theta in penalty parameter to scale blocks */
 		
+		GammaSolverType gammasolvertype; /**< the type of used solver */
 	public:
 
 		/** @brief constructor from data and regularisation constant
@@ -90,13 +103,13 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		std::string get_name() const;
 		
 		void initialize_gammasolver(GeneralSolver **gamma_solver);
-		void initialize_thetasolver(GeneralSolver **theta_solver);
-		
-		void finalize_gammasolver(GeneralSolver **gamma_solver);
-		void finalize_thetasolver(GeneralSolver **theta_solver);
-
+		void initialize_gammasolver(GeneralSolver **gamma_solver, GammaSolverType gammasolvertype);
 		void update_gammasolver(GeneralSolver *gamma_solver);
+		void finalize_gammasolver(GeneralSolver **gamma_solver);
+
+		void initialize_thetasolver(GeneralSolver **theta_solver);
 		void update_thetasolver(GeneralSolver *theta_solver);
+		void finalize_thetasolver(GeneralSolver **theta_solver);
 	
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver);
 		void get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver);
@@ -164,6 +177,9 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 		this->tsdata->get_decomposition()->set_graph(*graph);
 	}
 	
+	/* set default types of solvers */
+	this->gammasolvertype = SOLVER_AUTO;
+	
 	LOG_FUNC_END
 }
 
@@ -201,6 +217,14 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output.pop();
 
 	output <<  " - thetalength: " << this->thetavectorlength_global << std::endl;
+
+	output <<  " - gammasolvertype   : ";
+	switch(this->gammasolvertype){
+		case(SOLVER_AUTO): output << "AUTO"; break;
+		case(SOLVER_SPGQP): output << "SPG-QP solver"; break;
+		case(SOLVER_PERMON): output << "PERMON QP solver"; break;
+	}
+	output << std::endl;
 	
 	output.synchronize();	
 
@@ -223,6 +247,13 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
 	output_global <<  "  - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
 	output_global <<  "  - matrix type       : " << this->matrix_type << std::endl;
+	output_global <<  "  - gammasolvertype   : ";
+	switch(this->gammasolvertype){
+		case(SOLVER_AUTO): output_global << "AUTO"; break;
+		case(SOLVER_SPGQP): output_global << "SPG-QP solver"; break;
+		case(SOLVER_PERMON): output_global << "PERMON QP solver"; break;
+	}
+	output_global << std::endl;
 
 	output_global.push();
 	this->get_graph()->print(output_global);
@@ -316,57 +347,79 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	}	
 }
 
+template<class VectorBase>
+void GraphH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolver){
+	initialize_gammasolver(gammasolver, SOLVER_AUTO);
+}
 
 /* prepare gamma solver */
 template<>
-void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver){
+//void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver){
+void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver, GammaSolverType gammasolvertype){
 	LOG_FUNC_BEGIN
 
 	/* in this case, gamma problem is QP with simplex feasible set */
+	this->gammasolvertype = gammasolvertype;
 	
 	/* create data */
 	gammadata = new QPData<PetscVector>();
 	
-	gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
-	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
-	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
-
-//	double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
-//	double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
-	double coeff = this->epssqr;
-//	double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
-//	double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
-
-	if(this->matrix_type == 0){
-		/* FREE */
-		//TODO: implement free matrix multiplication for decomposition in space?
-//		A_shared = new BlockGraphFreeMatrix<PetscVector>(*(tsdata->get_decomposition(), coeff, tsdata->get_thetavector() );
+	/* automatic choice of solver */
+	if(this->gammasolvertype == SOLVER_AUTO){
+		this->gammasolvertype = SOLVER_SPGQP;
 	}
-	if(this->matrix_type == 1){
-		/* SPARSE */
-		if(usethetainpenalty){
-			/* use thetavector as a vector of coefficient for scaling blocks */
-			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
-		} else {
-			/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
-			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
+	
+	/* SPG-QP solver */
+	if(this->gammasolvertype == SOLVER_SPGQP){
+
+		gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
+		gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
+		gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
+
+//		double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
+//		double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
+		double coeff = this->epssqr;
+//		double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
+//		double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
+
+		if(this->matrix_type == 0){
+			/* FREE */
+			//TODO: implement free matrix multiplication for decomposition in space?
+//			A_shared = new BlockGraphFreeMatrix<PetscVector>(*(tsdata->get_decomposition(), coeff, tsdata->get_thetavector() );
 		}
+		if(this->matrix_type == 1){
+			/* SPARSE */
+			if(usethetainpenalty){
+				/* use thetavector as a vector of coefficient for scaling blocks */
+				A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
+			} else {
+				/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
+				A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
+			}
+		}
+
+		gammadata->set_A(A_shared); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
+
+		/* create solver */
+		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
+
+		/* generate random data to gamma */
+		gammadata->get_x0()->set_random();
+
+		/* project random values to feasible set to be sure that initial approximation is feasible */
+		gammadata->get_feasibleset()->project(*gammadata->get_x0());
+
+		/* set stopping criteria based on the size of x (i.e. gamma) */
+//		(*gammasolver)->set_eps((double)(this->tsdata->get_R()*this->tsdata->get_T())*(*gammasolver)->get_eps());
 	}
 
-	gammadata->set_A(A_shared); 
-	gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
+	/* SPG-QP solver */
+	if(this->gammasolvertype == SOLVER_PERMON){
+		
+	}
 
-	/* create solver */
-	*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
 
-	/* generate random data to gamma */
-	gammadata->get_x0()->set_random();
-
-	/* project random values to feasible set to be sure that initial approximation is feasible */
-	gammadata->get_feasibleset()->project(*gammadata->get_x0());
-
-	/* set stopping criteria based on the size of x (i.e. gamma) */
-//	(*gammasolver)->set_eps((double)(this->tsdata->get_R()*this->tsdata->get_T())*(*gammasolver)->get_eps());
 
 	LOG_FUNC_END
 }

@@ -4,12 +4,11 @@
 namespace pascinference {
 namespace solver {
 	
-	enum SolverType{ 
+	enum SolverType { 
 		SOLVER_AUTO, /* choose automatic solver */
-		SOLVER_QP, /* general QP solver (i.e. solve by SOLVER_AUTO in QPSolver) */
 		SOLVER_CG, /* Conjugate Gradient method (Unconstrained QP problem) */
-		SOLVER_SPGQP /* Spectral Projected Gradient method of QP (QP problem with given projection) */
-		
+		SOLVER_SPGQP, /* GPU-Spectral Projected Gradient method of QP (QP problem with given projection) */
+		SOLVER_PERMON /* permon solver */
 	};
 
 
