@@ -58,6 +58,11 @@ class PermonSolver: public QPSolver<VectorBase> {
 		*/
 		void free_temp_vectors();
 
+		/** @brief prepare permon QP and QPS from our qpdata
+		* 
+		*/
+		void prepare_permon_objects();
+
 		/* temporary vectors used during the solution process */
 		GeneralVector<VectorBase> *Ad; 		/**< A*d */
 
@@ -69,6 +74,8 @@ class PermonSolver: public QPSolver<VectorBase> {
 
 		QP qp;						/**< Quadratic Programming problem */
 		QPS qps;					/**< Quadratic Programming solver */
+		Mat BE;						/**< matrix of equality constraints */
+		Vec cE;						/**< vector of equality constraints */
 		
 	public:
 		/** @brief general constructor
@@ -156,6 +163,8 @@ PermonSolver<VectorBase>::PermonSolver(){
 	LOG_FUNC_BEGIN
 
 	qpdata = NULL;
+	qp = NULL;
+	qps = NULL;
 	
 	this->it_sum = 0;
 	this->hessmult_sum = 0;
@@ -196,9 +205,37 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	/* prepare timers */
 	this->timer_solve.restart();	
 
+	prepare_permon_objects();
+
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+void PermonSolver<VectorBase>::prepare_permon_objects(){
+	LOG_FUNC_BEGIN
+
+	/* get local dimension of vector (all should have the same layout, so I take for instance b) */
+//	GeneralVector<VectorBase> pattern = qpdata->get_b();
+//	int global_size = pattern.size();
+//	int local_size = pattern.local_size();
+
+	/* assemble linear equality conditions */
+/*	TRYCXX( MatCreate(PETSC_COMM_WORLD, &BE) );
+	TRYCXX( MatSetSizes(BE,PETSC_DECIDE,,2,n);CHKERRV(ierr);
+	ierr = MatSetFromOptions(B);CHKERRV(ierr);
+	ierr = MatMPIAIJSetPreallocation(B,2,NULL,2,NULL);CHKERRV(ierr);
+	ierr = MatSeqAIJSetPreallocation(B,2,NULL);CHKERRV(ierr);
+
+	value = 1.0;
+	ierr = MatSetValue(B,0,0,value,INSERT_VALUES);CHKERRV(ierr);
+	ierr = MatSetValue(B,1,n-1,value,INSERT_VALUES);CHKERRV(ierr);
+
+	ierr = MatAssemblyBegin(B,MAT_FINAL_ASSEMBLY);CHKERRV(ierr);
+	ierr = MatAssemblyEnd(B,MAT_FINAL_ASSEMBLY);CHKERRV(ierr);
+	ierr = PetscObjectSetName((PetscObject)B,"dirichlet equality");CHKERRV(ierr);
+*/
+	LOG_FUNC_END
+}
 
 /* destructor */
 template<class VectorBase>
