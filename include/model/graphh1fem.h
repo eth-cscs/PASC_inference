@@ -47,9 +47,9 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		 * 
 		 */
 		typedef enum { 
-			SOLVER_AUTO, /**< choose automatic solver */
-			SOLVER_SPGQP, /**< CPU/GPU implementation of Spectral Projected Gradient method */
-			SOLVER_PERMON /**< QPPERMON solver (augumented lagrangian combined with active-set method) */
+			SOLVER_AUTO=0, /**< choose automatic solver */
+			SOLVER_SPGQP=1, /**< CPU/GPU implementation of Spectral Projected Gradient method */
+			SOLVER_PERMON=2 /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
 		} GammaSolverType;
 
 	protected:
@@ -62,8 +62,6 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
 
-		int matrix_type; /**< type of used matrix 0=FREE,1=SPARSE */
-		
 		bool usethetainpenalty; /**< use the value of Theta in penalty parameter to scale blocks */
 		
 		GammaSolverType gammasolvertype; /**< the type of used solver */
@@ -144,7 +142,10 @@ template<>
 GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, bool usethetainpenalty) {
 	LOG_FUNC_BEGIN
 
-	consoleArg.set_option_value("graphh1femmodel_matrix_type", &this->matrix_type, GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE);
+	// TODO: enum in boost::program_options, not only int
+	int gammasolvertype_int;
+	consoleArg.set_option_value("graphh1femmodel_gammasolvertype", &gammasolvertype_int, 0);
+	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
 
 	/* set given parameters */
 	this->usethetainpenalty = usethetainpenalty;
@@ -177,9 +178,6 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 		this->tsdata->get_decomposition()->set_graph(*graph);
 	}
 	
-	/* set default types of solvers */
-	this->gammasolvertype = SOLVER_AUTO;
-	
 	LOG_FUNC_END
 }
 
@@ -209,7 +207,6 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - R                 : " << this->tsdata->get_R() << std::endl;
 	output <<  " - epssqr            : " << this->epssqr << std::endl;
 	output <<  " - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
-	output <<  " - matrix type       : " << this->matrix_type << std::endl;
 
 	output <<  " - Graph             : " << std::endl;
 	output.push();
@@ -246,7 +243,6 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  "  - R                 : " << this->tsdata->get_R() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
 	output_global <<  "  - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
-	output_global <<  "  - matrix type       : " << this->matrix_type << std::endl;
 	output_global <<  "  - gammasolvertype   : ";
 	switch(this->gammasolvertype){
 		case(SOLVER_AUTO): output_global << "AUTO"; break;
@@ -335,16 +331,9 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	this->epssqr = epssqr;
 
 	if(this->A_shared){
-		if(this->matrix_type == 0){
-			/* FREE */
-			//TODO: implement free matrix multiplication for decomposition in space?
-//			(BlockGraphFreeMatrix<VectorBase>*)A_shared->set_coeff(this->epssqr);
-		}
-		if(this->matrix_type == 1){
-			/* SPARSE */
-			((BlockGraphSparseMatrix<VectorBase>*)A_shared)->set_coeff(this->epssqr);
-		}
-	}	
+		/* SPARSE */
+		((BlockGraphSparseMatrix<VectorBase>*)A_shared)->set_coeff(this->epssqr);
+	}
 }
 
 template<class VectorBase>
@@ -382,20 +371,13 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 //		double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
 //		double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
 
-		if(this->matrix_type == 0){
-			/* FREE */
-			//TODO: implement free matrix multiplication for decomposition in space?
-//			A_shared = new BlockGraphFreeMatrix<PetscVector>(*(tsdata->get_decomposition(), coeff, tsdata->get_thetavector() );
-		}
-		if(this->matrix_type == 1){
-			/* SPARSE */
-			if(usethetainpenalty){
-				/* use thetavector as a vector of coefficient for scaling blocks */
-				A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
-			} else {
-				/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
-				A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
-			}
+		/* SPARSE */
+		if(usethetainpenalty){
+			/* use thetavector as a vector of coefficient for scaling blocks */
+			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
+		} else {
+			/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
+			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
 		}
 
 		gammadata->set_A(A_shared); 

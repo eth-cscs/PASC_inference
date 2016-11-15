@@ -93,7 +93,7 @@ static void add_options(boost::program_options::options_description *description
 		/* GRAPHH1FEMMODEL */
 		boost::program_options::options_description opt_graphh1femmodel("GRAPHH1FEMMODEL", console_nmb_cols);
 		opt_graphh1femmodel.add_options()
-			("graphh1femmodel_matrix_type", boost::program_options::value<int>(), "type of used matrix [0=FREE/1=SPARSE]"); //TODO: enum?
+			("graphh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_PERMON]");
 		opt_models.add(opt_graphh1femmodel);
 
 		/* KMEANSH1FEMMODEL */
