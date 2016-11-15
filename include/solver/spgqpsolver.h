@@ -185,8 +185,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		double get_fx() const;
 		double get_fx(double fx_old, double beta, double gd, double dAd) const;
-		int get_it() const;
-		int get_hessmult() const;
 
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
@@ -883,17 +881,6 @@ void SPGQPSolver<VectorBase>::compute_dots(double *dd, double *dAd, double *gd) 
 
 	LOG_FUNC_END
 }
-
-template<class VectorBase>
-int SPGQPSolver<VectorBase>::get_it() const {
-	return this->it_last;
-}
-
-template<class VectorBase>
-int SPGQPSolver<VectorBase>::get_hessmult() const {
-	return this->hessmult_last;
-}
-
 
 /* ---------- SPGQPSolver_fs -------------- */
 
