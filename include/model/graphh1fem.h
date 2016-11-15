@@ -101,7 +101,6 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		std::string get_name() const;
 		
 		void initialize_gammasolver(GeneralSolver **gamma_solver);
-		void initialize_gammasolver(GeneralSolver **gamma_solver, GammaSolverType gammasolvertype);
 		void update_gammasolver(GeneralSolver *gamma_solver);
 		void finalize_gammasolver(GeneralSolver **gamma_solver);
 
@@ -336,20 +335,11 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	}
 }
 
-template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolver){
-	initialize_gammasolver(gammasolver, SOLVER_AUTO);
-}
-
 /* prepare gamma solver */
 template<>
-//void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver){
-void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver, GammaSolverType gammasolvertype){
+void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver){
 	LOG_FUNC_BEGIN
 
-	/* in this case, gamma problem is QP with simplex feasible set */
-	this->gammasolvertype = gammasolvertype;
-	
 	/* create data */
 	gammadata = new QPData<PetscVector>();
 	
@@ -360,7 +350,6 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	
 	/* SPG-QP solver */
 	if(this->gammasolvertype == SOLVER_SPGQP){
-
 		gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
 		gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 		gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
