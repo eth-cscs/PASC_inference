@@ -62,6 +62,8 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 		double get_coeff() const;
 		void set_coeff(double coeff);
 
+		PetscMatrix get_petscmatrix() const;
+
 };
 
 /* ---------------- IMPLEMENTATION -------------------- */
@@ -346,6 +348,12 @@ template<class VectorBase>
 void BlockGraphSparseMatrix<VectorBase>::set_coeff(double coeff) {
 	this->alpha = coeff;
 }
+
+template<>
+PetscMatrix BlockGraphSparseMatrix<PetscVector>::get_petscmatrix() const {
+	return this->A_petsc; // TODO: are you sure that I can use this also without USE_PETSC ?
+}
+
 
 }
 } /* end of namespace */

@@ -21,6 +21,10 @@ extern int DEBUG_MODE;
 #include "solver/spgqpsolver_coeff.h"
 #include "data/qpdata.h"
 
+#ifdef USE_PERMON	
+	#include "solver/permonsolver.h"
+#endif
+
 /* theta problem */
 #include "solver/simplesolver.h"
 #include "data/simpledata.h"
@@ -343,6 +347,35 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* create data */
 	gammadata = new QPData<PetscVector>();
 	
+	gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
+	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
+	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
+
+//	double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
+//	double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
+	double coeff = this->epssqr;
+//	double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
+//	double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
+
+	/* SPARSE */
+	if(usethetainpenalty){
+		/* use thetavector as a vector of coefficient for scaling blocks */
+		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
+	} else {
+		/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
+		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
+	}
+
+	gammadata->set_A(A_shared); 
+	gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
+
+	/* generate random data to gamma */
+	gammadata->get_x0()->set_random();
+
+	/* project random values to feasible set to be sure that initial approximation is feasible */
+	gammadata->get_feasibleset()->project(*gammadata->get_x0());
+
+
 	/* automatic choice of solver */
 	if(this->gammasolvertype == SOLVER_AUTO){
 		this->gammasolvertype = SOLVER_SPGQP;
@@ -350,47 +383,20 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	
 	/* SPG-QP solver */
 	if(this->gammasolvertype == SOLVER_SPGQP){
-		gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
-		gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
-		gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
-
-//		double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
-//		double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
-		double coeff = this->epssqr;
-//		double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
-//		double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
-
-		/* SPARSE */
-		if(usethetainpenalty){
-			/* use thetavector as a vector of coefficient for scaling blocks */
-			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
-		} else {
-			/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
-			A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
-		}
-
-		gammadata->set_A(A_shared); 
-		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
-
 		/* create solver */
 		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
-
-		/* generate random data to gamma */
-		gammadata->get_x0()->set_random();
-
-		/* project random values to feasible set to be sure that initial approximation is feasible */
-		gammadata->get_feasibleset()->project(*gammadata->get_x0());
 
 		/* set stopping criteria based on the size of x (i.e. gamma) */
 //		(*gammasolver)->set_eps((double)(this->tsdata->get_R()*this->tsdata->get_T())*(*gammasolver)->get_eps());
 	}
 
-	/* SPG-QP solver */
+	/* Permon solver */
+#ifdef USE_PERMON	
 	if(this->gammasolvertype == SOLVER_PERMON){
-		
+		/* create solver */
+		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
 	}
-
-
+#endif
 
 	LOG_FUNC_END
 }

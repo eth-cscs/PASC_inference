@@ -124,7 +124,6 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 		double gP; 					/**< norm of projected gradient */
 	
-		/* temporary vectors used during the solution process */
 		/** @brief allocate storage for auxiliary vectors used in computation
 		* 
 		*/
@@ -135,6 +134,7 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 		*/
 		void free_temp_vectors();
 
+		/* temporary vectors used during the solution process */
 		GeneralVector<VectorBase> *g; 		/**< gradient */
 		GeneralVector<VectorBase> *d; 		/**< projected gradient */
 		GeneralVector<VectorBase> *Ad; 		/**< A*d */
@@ -185,8 +185,6 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 
 		double get_fx() const;
 		double get_fx(double fx_old, double beta, double gd, double dAd) const;
-		int get_it() const;
-		int get_hessmult() const;
 
 		void print(ConsoleOutput &output) const;
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
@@ -904,17 +902,6 @@ void SPGQPSolverC<VectorBase>::compute_dots(double *dd, double *dAd, double *gd)
 
 	LOG_FUNC_END
 }
-
-template<class VectorBase>
-int SPGQPSolverC<VectorBase>::get_it() const {
-	return this->it_last;
-}
-
-template<class VectorBase>
-int SPGQPSolverC<VectorBase>::get_hessmult() const {
-	return this->hessmult_last;
-}
-
 
 /* ---------- SPGQPSolverC_fs -------------- */
 

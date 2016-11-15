@@ -21,6 +21,16 @@ namespace pascinference {
 */
 static void add_options(boost::program_options::options_description *description, int console_nmb_cols){
 
+	/* ----- LOG ---- */
+	boost::program_options::options_description opt_log("#### LOG ########################", console_nmb_cols);
+	opt_log.add_options()
+		("log_or_not", boost::program_options::value<bool>(), "logging (writting into log file) is turned on/off [bool]")
+		("log_or_not_func_call", boost::program_options::value<bool>(), "log LOG_FUNC_(STATIC)_BEGIN/LOG_FUNC_(STATIC)_END [bool]")
+		("log_or_not_file_line", boost::program_options::value<bool>(), "log also the file and line of called log function [bool]")
+		("log_or_not_level", boost::program_options::value<bool>(), "log also the level of called function [bool]")
+		("log_or_not_memory", boost::program_options::value<bool>(), "log also the state of the memory [bool]");
+	description->add(opt_log);
+
 	/* ----- SOLVERS ------ */
 	boost::program_options::options_description opt_solvers("#### SOLVERS ########################", console_nmb_cols);
 

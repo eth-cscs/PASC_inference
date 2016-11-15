@@ -121,12 +121,12 @@ class LoggingClass {
 			this->filename = new std::string(new_filename);
 			myfile.open(filename->c_str());
 
-			log_or_not = true;
-			log_or_not_file_line = DEFAULT_LOG_FILE_LINE;
-			log_or_not_func_call = DEFAULT_LOG_FUNC_CALL;
-			log_or_not_level = DEFAULT_LOG_LEVEL;
-			log_or_not_memory = DEFAULT_LOG_MEMORY;
-			
+			consoleArg.set_option_value("log_or_not", &log_or_not, true);
+			consoleArg.set_option_value("log_or_not_file_line", &log_or_not_file_line, DEFAULT_LOG_FILE_LINE);
+			consoleArg.set_option_value("log_or_not_func_call", &log_or_not_func_call, DEFAULT_LOG_FUNC_CALL);
+			consoleArg.set_option_value("log_or_not_level", &log_or_not_level, DEFAULT_LOG_LEVEL);
+			consoleArg.set_option_value("log_or_not_memory", &log_or_not_memory, DEFAULT_LOG_MEMORY);
+
 			level = -1;
 			reference_time = getUnixTime();
 

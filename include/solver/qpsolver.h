@@ -349,17 +349,35 @@ void QPSolver<VectorBase>::solve() {
 
 template<class VectorBase>
 double QPSolver<VectorBase>::get_fx() const {
-	return child_solver->get_fx(); // TODO: control existence
+	double fx;
+	if(child_solver){
+		fx = child_solver->get_fx();
+	} else {
+		fx = this->fx;
+	}
+	return fx;
 }
 
 template<class VectorBase>
 int QPSolver<VectorBase>::get_it() const {
-	return child_solver->get_it(); // TODO: control existence
+	int it;
+	if(child_solver){
+		it = child_solver->get_it();
+	} else {
+		it = this->it_last;
+	}
+	return it;
 }
 
 template<class VectorBase>
 int QPSolver<VectorBase>::get_hessmult() const {
-	return child_solver->get_hessmult(); // TODO: control existence
+	int hessmult;
+	if(child_solver){
+		hessmult = child_solver->get_hessmult();
+	} else {
+		hessmult = this->hessmult_last;
+	}
+	return hessmult;
 }
 
 template<class VectorBase>
