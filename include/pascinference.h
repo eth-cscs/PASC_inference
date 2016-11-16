@@ -144,7 +144,7 @@ namespace pascinference {
 #include "algebra/arrayoperation.h"
 #include "algebra/generalmatrix.h"
 #include "algebra/generalvector.h"
-#include "algebra/feasibleset/generalfeasibleset.h"
+#include "algebra/generalfeasibleset.h"
 #include "common/decomposition.h"
 
 #include "data/generaldata.h"

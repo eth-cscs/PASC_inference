@@ -182,6 +182,7 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 	/* assemble matrix */
 	TRYCXX( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
 	TRYCXX( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( PetscObjectSetName((PetscObject)A_petsc,"Hessian matrix") );
 
 	LOG_FUNC_END
 }	

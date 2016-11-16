@@ -23,6 +23,7 @@ extern int DEBUG_MODE;
 
 #ifdef USE_PERMON	
 	#include "solver/permonsolver.h"
+	#include "algebra/feasibleset/simplex_lineqbound.h"
 #endif
 
 /* theta problem */
@@ -367,14 +368,12 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	}
 
 	gammadata->set_A(A_shared); 
-	gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); /* the feasible set of QP is simplex */ 	
 
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
 
 	/* project random values to feasible set to be sure that initial approximation is feasible */
-	gammadata->get_feasibleset()->project(*gammadata->get_x0());
-
+//	gammadata->get_feasibleset()->project(*gammadata->get_x0());
 
 	/* automatic choice of solver */
 	if(this->gammasolvertype == SOLVER_AUTO){
@@ -383,6 +382,9 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	
 	/* SPG-QP solver */
 	if(this->gammasolvertype == SOLVER_SPGQP){
+		/* the feasible set of QP is simplex */
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); 
+
 		/* create solver */
 		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
 
@@ -393,6 +395,9 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* Permon solver */
 #ifdef USE_PERMON	
 	if(this->gammasolvertype == SOLVER_PERMON){
+		/* the feasible set of QP is combination of linear equality constraints and bound inequality constraints */
+		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(tsdata->get_T()*tsdata->get_R(),tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); 
+
 		/* create solver */
 		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
 	}

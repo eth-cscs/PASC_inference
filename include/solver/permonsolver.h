@@ -24,6 +24,8 @@
 #else
 	#include "fllopqp.h" /* manipulation with quadratic programming problems (QP) */
 	#include "fllopqps.h" /* manipulation with solvers (QPS) */
+
+	#include "algebra/feasibleset/simplex_lineqbound.h"
 #endif
 
 #ifdef USE_CUDA
@@ -58,11 +60,6 @@ class PermonSolver: public QPSolver<VectorBase> {
 		*/
 		void free_temp_vectors();
 
-		/** @brief prepare permon QP and QPS from our qpdata
-		* 
-		*/
-		void prepare_permon_objects();
-
 		/* temporary vectors used during the solution process */
 		GeneralVector<VectorBase> *Ad; 		/**< A*d */
 
@@ -74,8 +71,6 @@ class PermonSolver: public QPSolver<VectorBase> {
 
 		QP qp;						/**< Quadratic Programming problem */
 		QPS qps;					/**< Quadratic Programming solver */
-		Mat BE;						/**< matrix of equality constraints */
-		Vec cE;						/**< vector of equality constraints */
 		
 	public:
 		/** @brief general constructor
@@ -205,35 +200,47 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	/* prepare timers */
 	this->timer_solve.restart();	
 
-	prepare_permon_objects();
+	/* dissect QP objects from qpdata */
+	// TODO: oh my god, this is not the best "general" way!
+	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
+	Mat A = Abgs->get_petscmatrix();
+	double coeff = Abgs->get_coeff();
+	TRYCXX( MatScale(A, coeff) );
+	TRYCXX( MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY) );	
 
-	LOG_FUNC_END
-}
+	GeneralVector<PetscVector> *bg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
+	Vec b = bg->get_vector();
 
-template<class VectorBase>
-void PermonSolver<VectorBase>::prepare_permon_objects(){
-	LOG_FUNC_BEGIN
+	GeneralVector<PetscVector> *x0g = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
+	Vec x0 = x0g->get_vector();
 
-	/* get local dimension of vector (all should have the same layout, so I take for instance b) */
-//	GeneralVector<VectorBase> pattern = qpdata->get_b();
-//	int global_size = pattern.size();
-//	int local_size = pattern.local_size();
+	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
+	Mat B = fs_lineqbound->get_B();
+	Vec c = fs_lineqbound->get_c();
+	Vec lb = fs_lineqbound->get_lb();
 
-	/* assemble linear equality conditions */
-/*	TRYCXX( MatCreate(PETSC_COMM_WORLD, &BE) );
-	TRYCXX( MatSetSizes(BE,PETSC_DECIDE,,2,n);CHKERRV(ierr);
-	ierr = MatSetFromOptions(B);CHKERRV(ierr);
-	ierr = MatMPIAIJSetPreallocation(B,2,NULL,2,NULL);CHKERRV(ierr);
-	ierr = MatSeqAIJSetPreallocation(B,2,NULL);CHKERRV(ierr);
+	/* prepare permon QP */
+	TRYCXX( QPCreate(PETSC_COMM_WORLD, &qp) );
+	TRYCXX( QPSetOperator(qp, A) ); /* set stiffness matrix */
+	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
+	TRYCXX( QPSetInitialVector(qp, x0) ); /* set initial approximation */
 
-	value = 1.0;
-	ierr = MatSetValue(B,0,0,value,INSERT_VALUES);CHKERRV(ierr);
-	ierr = MatSetValue(B,1,n-1,value,INSERT_VALUES);CHKERRV(ierr);
+	TRYCXX( QPAddEq(qp,B,c) ); /* add equality constraints Bx=c */
+	TRYCXX( QPSetBox(qp, lb, NULL) ); /* add lowerbound */
 
-	ierr = MatAssemblyBegin(B,MAT_FINAL_ASSEMBLY);CHKERRV(ierr);
-	ierr = MatAssemblyEnd(B,MAT_FINAL_ASSEMBLY);CHKERRV(ierr);
-	ierr = PetscObjectSetName((PetscObject)B,"dirichlet equality");CHKERRV(ierr);
-*/
+	/* prepare permon QPS */
+	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
+	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
+//	TRYCXX( QPSSetTolerances(qps, setting.rtol, setting.atol, setting.dtol, setting.maxit);CHKERRQ(ierr); /* Set QPS options from settings */
+//	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0);CHKERRQ(ierr); /* Set the QPS monitor */
+	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
+	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
+	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
+	
+	/* print some infos about QPS */
+//	TRYCXX( QPSView(qps, PETSC_VIEWER_STDOUT_WORLD) );
+	
 	LOG_FUNC_END
 }
 
@@ -462,7 +469,7 @@ void PermonSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::o
 
 template<class VectorBase>
 std::string PermonSolver<VectorBase>::get_name() const {
-	return "PERMON";
+	return "PERMON_SOLVER";
 }
 
 /* solve the problem */
@@ -472,10 +479,19 @@ void PermonSolver<VectorBase>::solve() {
 	
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
-	int it = 0;
-	int hessmult = 0;
+	int it = -1;
+	int hessmult = -1;
 	double fx = std::numeric_limits<double>::max();
 
+	/* call permon solver */
+	TRYCXX( QPSSolve(qps) );
+	
+	/* get the solution vector */
+	GeneralVector<PetscVector> *xg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
+	Vec x = xg->get_vector();
+	TRYCXX( QPGetSolutionVector(qp, &x) );
+
+	TRYCXX( QPSGetIterationNumber(qps, &it) );
 
 	this->it_sum += it;
 	this->hessmult_sum += hessmult;

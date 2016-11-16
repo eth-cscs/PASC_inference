@@ -32,7 +32,7 @@ namespace algebra {
  * \f[
  * \Omega = 
  *  \left\lbrace x \in R^{KT}: 
- *    \forall t = 0,\dots,T-1: \sum\limits_{k=0}^{K-1} x_{t+kT} = 1,  
+ *    \forall t = 0,\dots,T-1: \sum\limits_{k=0}^{K-1} x_{tK+k} = 1,  
  *    x \geq 0
  *  \right\rbrace
  *	\f]
@@ -53,7 +53,7 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<VectorBase> {
 		 *
 		 * computes a projection of a point onto simplex in nD
 		 *
-		 * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
+		 * take K-dimensional vector x[tK,tK+1,...tK+K-1] =: p
 		 * and compute projection
 		 * P(p) = arg min || p - y ||_2
 		 * subject to constraints (which define simplex)
@@ -116,7 +116,7 @@ __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
  *
  * computes a projection of a point onto simplex in nD
  *
- * take K-dimensional vector x[t,t+T,t+2T,...t+(K-1)T] =: p
+ * take K-dimensional vector x[tK,tK+1,...tK+(K-1)] =: p
  * and compute projection
  * P(p) = arg min || p - y ||_2
  * subject to constraints (which define simplex)

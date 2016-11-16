@@ -905,7 +905,8 @@ void SPGQPSolverC<VectorBase>::compute_dots(double *dd, double *dAd, double *gd)
 
 /* ---------- SPGQPSolverC_fs -------------- */
 
-/* constructor */template<class VectorBase>
+/* constructor */
+template<class VectorBase>
 SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::SPGQPSolverC_fs(int new_m){
 	this->m = new_m;
 	this->fs_list = (double*)malloc(this->m*sizeof(double));
