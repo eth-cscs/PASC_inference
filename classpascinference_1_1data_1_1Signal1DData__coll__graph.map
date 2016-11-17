@@ -1,0 +1,9 @@
+<map id="pascinference::data::Signal1DData&lt; VectorBase &gt;" name="pascinference::data::Signal1DData&lt; VectorBase &gt;">
+<area shape="rect" id="node2" href="$classpascinference_1_1data_1_1TSData.html" title="General Time&#45;series data. " alt="" coords="43,1645,210,2016"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1data_1_1GeneralData.html" title="general class for manipulation with data " alt="" coords="5,1293,141,1473"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1algebra_1_1Decomposition.html" title="{pascinference::algebra\l::Decomposition\n|# T\l# DDT_size\l# DDT_ranges\l# destroy_DDT_arrays\l# R\l# DDR_size\l# DDR_affiliation\l# DDR_permutation\l# DDR_invpermutation\l# DDR_lengths\land 6 more...\l|+ Decomposition()\l+ Decomposition()\l+ Decomposition()\l+ ~Decomposition()\l+ get_T()\l+ get_Tlocal()\l+ get_Tbegin()\l+ get_Tend()\l+ get_DDT_size()\l+ get_DDT_rank()\land 29 more...\l# compute_rank()\l}" alt="" coords="165,1183,320,1583"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="165,661,320,1120"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n||+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l}" alt="" coords="146,419,339,599"/>
+<area shape="rect" id="node7" href="$classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="93,132,264,356"/>
+<area shape="rect" id="node8" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="288,161,493,327"/>
+</map>

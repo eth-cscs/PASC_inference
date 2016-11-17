@@ -1,9 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpascinference_1_1GeneralSetting.html" title="pascinference::GeneralSetting" alt="" coords="5,71,203,98"/>
-<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolverSetting.html" title="pascinference::GeneralSolver\lSetting" alt="" coords="251,64,444,105"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1DiagSolverSetting.html" title="pascinference::DiagSolver\lSetting" alt="" coords="509,5,683,47"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1QPSolverSetting.html" title="pascinference::QPSolverSetting" alt="" coords="492,71,700,98"/>
-<area shape="rect" id="node7" href="$classpascinference_1_1TSSolverSetting.html" title="pascinference::TSSolverSetting" alt="" coords="493,122,699,149"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1CGQPSolverSetting.html" title="pascinference::CGQPSolver\lSetting" alt="" coords="752,31,939,72"/>
-<area shape="rect" id="node6" href="$classpascinference_1_1SPGQPSolverSetting.html" title="pascinference::SPGQPSolver\lSetting" alt="" coords="748,96,943,137"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1common_1_1ConsoleOutput_1_1ConsoleOutputBuf.html" title="pascinference::common\l::ConsoleOutput::ConsoleOutputBuf" alt="" coords="125,5,357,47"/>
 </map>

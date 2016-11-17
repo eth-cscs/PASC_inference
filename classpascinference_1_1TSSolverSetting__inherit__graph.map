@@ -1,4 +1,0 @@
-<map id="pascinference::TSSolverSetting" name="pascinference::TSSolverSetting">
-<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n|+ debug_mode\l+ maxit\l+ eps\l|+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="12,175,205,325"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l+ get_name()\l}" alt="" coords="10,5,207,127"/>
-</map>

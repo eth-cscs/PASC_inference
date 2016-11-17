@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_bd52eb7ac821349adc834157bbaf2648.html">data</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_31fda7aefa769aa973dab82a4561a96e.html">include</a></li><li class="navelem"><a class="el" href="dir_478ff011747e74d4d741ab1575a9a5f3.html">data</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -99,9 +99,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">diagdata.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;iostream&gt;</code><br />
-<code>#include &quot;<a class="el" href="generaldata_8h_source.html">generaldata.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="algebra_8h_source.html">algebra.h</a>&quot;</code><br />
+
+<p>class for manipulation with data for systems of linear equations with diagonal matrix  
+<a href="#details">More...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="pascinference_8h_source.html">pascinference.h</a>&quot;</code><br />
 </div><div class="textblock"><div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Include dependency graph for diagdata.h:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
@@ -109,7 +110,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="diagdata_8h__incl.png" border="0" usemap="#include_2data_2diagdata_8h" alt=""/></div>
 <map name="include_2data_2diagdata_8h" id="include_2data_2diagdata_8h">
-<area shape="rect" id="node3" href="generaldata_8h.html" title="class for manipulation with data " alt="" coords="278,80,378,107"/><area shape="rect" id="node7" href="algebra_8h.html" title="manipulation with vectors and matrices " alt="" coords="175,80,250,107"/><area shape="rect" id="node4" href="common_8h.html" title="commonly used stuff " alt="" coords="292,155,375,181"/><area shape="rect" id="node8" href="generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="22,155,133,181"/><area shape="rect" id="node9" href="generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="157,155,268,181"/></map>
+<area shape="rect" id="node2" href="pascinference_8h.html" title="main header file " alt="" coords="1151,80,1265,107"/><area shape="rect" id="node11" href="common_8h.html" title="commonly used stuff " alt="" coords="691,155,829,181"/><area shape="rect" id="node28" href="arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="853,155,1014,181"/><area shape="rect" id="node29" href="generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1039,155,1196,181"/><area shape="rect" id="node30" href="generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1220,155,1377,181"/><area shape="rect" id="node31" href="generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1401,155,1585,181"/><area shape="rect" id="node32" href="decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="1609,155,1780,181"/><area shape="rect" id="node34" href="generaldata_8h.html" title="general class for manipulation with data " alt="" coords="1805,155,1934,181"/><area shape="rect" id="node35" href="list_8h.html" title="solver/list.h" alt="" coords="1958,155,2047,181"/><area shape="rect" id="node36" href="generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="2072,155,2221,181"/><area shape="rect" id="node37" href="generalmodel_8h.html" title="class for manipulation with models " alt="" coords="2245,155,2395,181"/><area shape="rect" id="node16" href="timer_8h.html" title="for measuring time " alt="" coords="415,229,531,256"/><area shape="rect" id="node17" href="memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="535,304,705,331"/><area shape="rect" id="node18" href="globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="879,304,1049,331"/><area shape="rect" id="node19" href="consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="759,229,927,256"/><area shape="rect" id="node20" href="consoleinput_8h.html" title="Manipulation with console arguments and parameters. " alt="" coords="1319,229,1479,256"/><area shape="rect" id="node25" href="logging_8h.html" title="Log files. " alt="" coords="607,229,735,256"/><area shape="rect" id="node26" href="mvnrnd_8h.html" title="common/mvnrnd.h" alt="" coords="1164,229,1295,256"/><area shape="rect" id="node27" href="shortinfo_8h.html" title="Manipulation with output file which includes short final information. " alt="" coords="1002,229,1139,256"/><area shape="rect" id="node23" href="options_8h.html" title="define command line options " alt="" coords="1457,304,1532,331"/><area shape="rect" id="node33" href="bgmgraph_8h.html" title="class for manipulation with graphs " alt="" coords="1833,229,1969,256"/></map>
 </div>
 </div><div class="textblock"><div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-1-trigger" src="closed.png" alt="+"/> This graph shows which files directly or indirectly include this file:</div>
@@ -118,20 +119,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-1-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="diagdata_8h__dep__incl.png" border="0" usemap="#include_2data_2diagdata_8hdep" alt=""/></div>
 <map name="include_2data_2diagdata_8hdep" id="include_2data_2diagdata_8hdep">
-<area shape="rect" id="node2" href="kmeansh1_8h.html" title="include/model/kmeansh1.h" alt="" coords="5,155,183,181"/><area shape="rect" id="node5" href="diagsolver_8h.html" title="include/solver/diagsolver.h" alt="" coords="131,80,307,107"/><area shape="rect" id="node3" href="test__kmeans_8cu.html" title="test the kmeans problem solver " alt="" coords="104,229,279,256"/><area shape="rect" id="node4" href="test__kmeans_8cpp.html" title="examples/test_kmeans.cpp" alt="" coords="100,304,283,331"/><area shape="rect" id="node6" href="tssolver_8h.html" title="include/solver/tssolver.h" alt="" coords="207,155,370,181"/></map>
+<area shape="rect" id="node2" href="diagsolver_8h.html" title="Solver for linear systems with diagonal matrix. " alt="" coords="80,80,256,107"/><area shape="rect" id="node3" href="tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="87,155,249,181"/><area shape="rect" id="node4" href="test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="5,229,152,271"/><area shape="rect" id="node6" href="test__signal1D_8cu.html" title="examples/test_signal1D\l/test_signal1D.cu" alt="" coords="176,229,339,271"/><area shape="rect" id="node5" href="test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="5,319,152,360"/><area shape="rect" id="node7" href="test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="176,319,339,360"/></map>
 </div>
 </div>
 <p><a href="diagdata_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1DiagData.html">pascinference::DiagData&lt; VectorBase &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">solve a.*x=b  <a href="classpascinference_1_1DiagData.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1data_1_1DiagData.html">pascinference::data::DiagData&lt; VectorBase &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">data of diag(a) x = b  <a href="classpascinference_1_1data_1_1DiagData.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacepascinference"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepascinference.html">pascinference</a></td></tr>
+<tr class="memdesc:namespacepascinference"><td class="mdescLeft">&#160;</td><td class="mdescRight">main namespace of the library <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacepascinference_1_1data"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1data.html">pascinference::data</a></td></tr>
+<tr class="memdesc:namespacepascinference_1_1data"><td class="mdescLeft">&#160;</td><td class="mdescRight">for manipulation with problem data <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -139,7 +144,10 @@ Variables</h2></td></tr>
 <tr class="memitem:ac858bb435ac6b897dd949dbfdc61b5a5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="diagdata_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></td></tr>
 <tr class="separator:ac858bb435ac6b897dd949dbfdc61b5a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Variable Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>class for manipulation with data for systems of linear equations with diagonal matrix </p>
+<dl class="section author"><dt>Author</dt><dd>Lukas Pospisil </dd></dl>
+</div><h2 class="groupheader">Variable Documentation</h2>
 <a class="anchor" id="ac858bb435ac6b897dd949dbfdc61b5a5"></a>
 <div class="memitem">
 <div class="memproto">
@@ -157,7 +165,7 @@ Variables</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Nov 17 2016 12:53:27 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

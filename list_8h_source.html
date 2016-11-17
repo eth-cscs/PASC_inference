@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a41085eaf10b710b06fa633322b65393.html">solver</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_31fda7aefa769aa973dab82a4561a96e.html">include</a></li><li class="navelem"><a class="el" href="dir_2ea1555266803844f579354b26ed1efe.html">solver</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -99,30 +99,32 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define PASCSOLVERLIST_H</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    </div>
-<div class="line"><a name="l00006"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1">    6</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1">SolverType</a>{ </div>
-<div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a344bdcc468595b1d5980a824c4c0dad0">    7</a></span>&#160;        <a class="code" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a344bdcc468595b1d5980a824c4c0dad0">SOLVER_AUTO</a>, <span class="comment">/* choose automatic solver */</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a305944e29d56304536bd8566a5fc02c1">    8</a></span>&#160;        <a class="code" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a305944e29d56304536bd8566a5fc02c1">SOLVER_QP</a>, <span class="comment">/* general QP solver (i.e. solve by SOLVER_AUTO in QPSolver) */</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a38c050140bd61af15e6dddfe1a0590cb">    9</a></span>&#160;        <a class="code" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a38c050140bd61af15e6dddfe1a0590cb">SOLVER_CG</a>, <span class="comment">/* Conjugate Gradient method (Unconstrained QP problem) */</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a91f71ef585c9359e185666d7dbf7aedc">   10</a></span>&#160;        <a class="code" href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a91f71ef585c9359e185666d7dbf7aedc">SOLVER_SPGQP</a> <span class="comment">/* Spectral Projected Gradient method of QP (QP problem with given projection) */</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;        </div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span>solver {</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    </div>
+<div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6">    7</a></span>&#160;    <span class="keyword">enum</span> <a class="code" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6">SolverType</a> { </div>
+<div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a88d8c30a5733f39a3d5603589a902d22">    8</a></span>&#160;        <a class="code" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a88d8c30a5733f39a3d5603589a902d22">SOLVER_AUTO</a>, <span class="comment">/* choose automatic solver */</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a5f6890ec7010b6e7a745f5ff4928aa68">    9</a></span>&#160;        <a class="code" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a5f6890ec7010b6e7a745f5ff4928aa68">SOLVER_CG</a>, <span class="comment">/* Conjugate Gradient method (Unconstrained QP problem) */</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a8f3aa528aa501f1b9096083f18139f5d">   10</a></span>&#160;        <a class="code" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a8f3aa528aa501f1b9096083f18139f5d">SOLVER_SPGQP</a>, <span class="comment">/* GPU-Spectral Projected Gradient method of QP (QP problem with given projection) */</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6afa7eb5416b9d03c42a96b5cd01d27cf9">   11</a></span>&#160;        <a class="code" href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6afa7eb5416b9d03c42a96b5cd01d27cf9">SOLVER_PERMON</a> <span class="comment">/* permon solver */</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    };</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;}</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="namespacepascinference_html_a1f1196968f73f3844edc9527f47366b1"><div class="ttname"><a href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1">pascinference::SolverType</a></div><div class="ttdeci">SolverType</div><div class="ttdef"><b>Definition:</b> list.h:6</div></div>
-<div class="ttc" id="namespacepascinference_html_a1f1196968f73f3844edc9527f47366b1a38c050140bd61af15e6dddfe1a0590cb"><div class="ttname"><a href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a38c050140bd61af15e6dddfe1a0590cb">pascinference::SOLVER_CG</a></div><div class="ttdef"><b>Definition:</b> list.h:9</div></div>
-<div class="ttc" id="namespacepascinference_html_a1f1196968f73f3844edc9527f47366b1a344bdcc468595b1d5980a824c4c0dad0"><div class="ttname"><a href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a344bdcc468595b1d5980a824c4c0dad0">pascinference::SOLVER_AUTO</a></div><div class="ttdef"><b>Definition:</b> list.h:7</div></div>
-<div class="ttc" id="namespacepascinference_html_a1f1196968f73f3844edc9527f47366b1a91f71ef585c9359e185666d7dbf7aedc"><div class="ttname"><a href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a91f71ef585c9359e185666d7dbf7aedc">pascinference::SOLVER_SPGQP</a></div><div class="ttdef"><b>Definition:</b> list.h:10</div></div>
-<div class="ttc" id="namespacepascinference_html_a1f1196968f73f3844edc9527f47366b1a305944e29d56304536bd8566a5fc02c1"><div class="ttname"><a href="namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1a305944e29d56304536bd8566a5fc02c1">pascinference::SOLVER_QP</a></div><div class="ttdef"><b>Definition:</b> list.h:8</div></div>
-<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;}   </div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;} <span class="comment">/* end of namespace */</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="namespacepascinference_1_1solver_html_aa7578226a61992918534d45f80604df6a5f6890ec7010b6e7a745f5ff4928aa68"><div class="ttname"><a href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a5f6890ec7010b6e7a745f5ff4928aa68">pascinference::solver::SOLVER_CG</a></div><div class="ttdef"><b>Definition:</b> list.h:9</div></div>
+<div class="ttc" id="namespacepascinference_1_1solver_html_aa7578226a61992918534d45f80604df6a8f3aa528aa501f1b9096083f18139f5d"><div class="ttname"><a href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a8f3aa528aa501f1b9096083f18139f5d">pascinference::solver::SOLVER_SPGQP</a></div><div class="ttdef"><b>Definition:</b> list.h:10</div></div>
+<div class="ttc" id="namespacepascinference_1_1solver_html_aa7578226a61992918534d45f80604df6"><div class="ttname"><a href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6">pascinference::solver::SolverType</a></div><div class="ttdeci">SolverType</div><div class="ttdef"><b>Definition:</b> list.h:7</div></div>
+<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdoc">main namespace of the library </div><div class="ttdef"><b>Definition:</b> arrayoperation.h:12</div></div>
+<div class="ttc" id="namespacepascinference_1_1solver_html_aa7578226a61992918534d45f80604df6afa7eb5416b9d03c42a96b5cd01d27cf9"><div class="ttname"><a href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6afa7eb5416b9d03c42a96b5cd01d27cf9">pascinference::solver::SOLVER_PERMON</a></div><div class="ttdef"><b>Definition:</b> list.h:11</div></div>
+<div class="ttc" id="namespacepascinference_1_1solver_html_aa7578226a61992918534d45f80604df6a88d8c30a5733f39a3d5603589a902d22"><div class="ttname"><a href="namespacepascinference_1_1solver.html#aa7578226a61992918534d45f80604df6a88d8c30a5733f39a3d5603589a902d22">pascinference::solver::SOLVER_AUTO</a></div><div class="ttdef"><b>Definition:</b> list.h:8</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Nov 17 2016 12:53:27 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

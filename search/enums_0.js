@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['solvertype',['SolverType',['../namespacepascinference.html#a1f1196968f73f3844edc9527f47366b1',1,'pascinference']]]
+  ['gammasolvertype',['GammaSolverType',['../classpascinference_1_1model_1_1GraphH1FEMModel.html#aab19f8a9d4df20d1645bc129a3e9994c',1,'pascinference::model::GraphH1FEMModel']]]
 ];

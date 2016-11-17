@@ -1,8 +1,18 @@
 var searchData=
 [
-  ['b',['b',['../classpascinference_1_1DiagData.html#a3e585659ecde5adbab1ff28f07c43fa8',1,'pascinference::DiagData::b()'],['../classpascinference_1_1QPData.html#ad6c66597712bdc806e9f205e3966b785',1,'pascinference::QPData::b()']]],
-  ['blockdiaglaplace_5fexplicit_2eh',['blockdiaglaplace_explicit.h',['../blockdiaglaplace__explicit_8h.html',1,'']]],
-  ['blockdiaglaplaceexplicitmatrix',['BlockDiagLaplaceExplicitMatrix',['../classpascinference_1_1BlockDiagLaplaceExplicitMatrix.html#a52d946789d5f8c80600a17113aeb5ee5',1,'pascinference::BlockDiagLaplaceExplicitMatrix']]],
-  ['blockdiaglaplaceexplicitmatrix',['BlockDiagLaplaceExplicitMatrix',['../classpascinference_1_1BlockDiagLaplaceExplicitMatrix.html',1,'pascinference']]],
-  ['buffer',['buffer',['../classpascinference_1_1ConsoleOutput.html#a89f7fd8ddefe5e5ca7dae64ef0f344c8',1,'pascinference::ConsoleOutput']]]
+  ['b',['B',['../classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#aa91334dfd35633e86bf846078f218e39',1,'pascinference::algebra::SimplexFeasibleSet_LinEqBound::B()'],['../classpascinference_1_1data_1_1DiagData.html#ad5b74cb56e5116682efb784dc9e30ac1',1,'pascinference::data::DiagData::b()'],['../classpascinference_1_1data_1_1QPData.html#a4f14300883da7a996d4007fb32ae0fbe',1,'pascinference::data::QPData::b()']]],
+  ['begin',['begin',['../classpascinference_1_1common_1_1LoggingClass.html#a622e1733b73e7b29937d50cff41bef3a',1,'pascinference::common::LoggingClass::begin()'],['../classpascinference_1_1common_1_1ShortinfoClass.html#a437178006f619cffe93eaaaea572087e',1,'pascinference::common::ShortinfoClass::begin()']]],
+  ['begin_5ffunc',['begin_func',['../classpascinference_1_1common_1_1LoggingClass.html#ad7814db42582758cf0c438c2bb6e8b77',1,'pascinference::common::LoggingClass']]],
+  ['bgmgraph',['BGMGraph',['../classpascinference_1_1algebra_1_1BGMGraph.html#a6b1a4bb130e956539a7a059b9f772dca',1,'pascinference::algebra::BGMGraph::BGMGraph()'],['../classpascinference_1_1algebra_1_1BGMGraph.html#a568f2e200cff8be9c1cf8c3ad3a1870c',1,'pascinference::algebra::BGMGraph::BGMGraph(std::string filename, int dim=2)'],['../classpascinference_1_1algebra_1_1BGMGraph.html#a6a2db266b2821eaad5bf240584b26c8a',1,'pascinference::algebra::BGMGraph::BGMGraph(const double *coordinates_array, int n, int dim)']]],
+  ['bgmgraph',['BGMGraph',['../classpascinference_1_1algebra_1_1BGMGraph.html',1,'pascinference::algebra']]],
+  ['bgmgraph_2eh',['bgmgraph.h',['../bgmgraph_8h.html',1,'']]],
+  ['bgmgraphgrid1d',['BGMGraphGrid1D',['../classpascinference_1_1algebra_1_1BGMGraphGrid1D.html#a54fa1ebed98aa0bad5ab920c6c183652',1,'pascinference::algebra::BGMGraphGrid1D::BGMGraphGrid1D(int width)'],['../classpascinference_1_1algebra_1_1BGMGraphGrid1D.html#a0aca4f360c218b6f4f1e50d282aa4533',1,'pascinference::algebra::BGMGraphGrid1D::BGMGraphGrid1D(std::string filename, int dim=2)'],['../classpascinference_1_1algebra_1_1BGMGraphGrid1D.html#aa2162f0dd8338b804ec7a39d15cc6b83',1,'pascinference::algebra::BGMGraphGrid1D::BGMGraphGrid1D(const double *coordinates_array, int n, int dim)']]],
+  ['bgmgraphgrid1d',['BGMGraphGrid1D',['../classpascinference_1_1algebra_1_1BGMGraphGrid1D.html',1,'pascinference::algebra']]],
+  ['bgmgraphgrid2d',['BGMGraphGrid2D',['../classpascinference_1_1algebra_1_1BGMGraphGrid2D.html#a4cfc937f832efac32229d33f18594d5c',1,'pascinference::algebra::BGMGraphGrid2D::BGMGraphGrid2D(int width, int height)'],['../classpascinference_1_1algebra_1_1BGMGraphGrid2D.html#a904636a5824b792b38421b0c4f136f3e',1,'pascinference::algebra::BGMGraphGrid2D::BGMGraphGrid2D(std::string filename, int dim=2)'],['../classpascinference_1_1algebra_1_1BGMGraphGrid2D.html#a4b19b9842e14be049cfd70b190d0a243',1,'pascinference::algebra::BGMGraphGrid2D::BGMGraphGrid2D(const double *coordinates_array, int n, int dim)']]],
+  ['bgmgraphgrid2d',['BGMGraphGrid2D',['../classpascinference_1_1algebra_1_1BGMGraphGrid2D.html',1,'pascinference::algebra']]],
+  ['blockgraphsparse_2eh',['blockgraphsparse.h',['../blockgraphsparse_8h.html',1,'']]],
+  ['blockgraphsparsematrix',['BlockGraphSparseMatrix',['../classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#ae384da312f907cb1e6561f5cade90922',1,'pascinference::algebra::BlockGraphSparseMatrix']]],
+  ['blockgraphsparsematrix',['BlockGraphSparseMatrix',['../classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html',1,'pascinference::algebra']]],
+  ['buffer',['buffer',['../classpascinference_1_1common_1_1ConsoleOutput.html#a9fcd64b382d45baaee82dbce527fcd54',1,'pascinference::common::ConsoleOutput']]],
+  ['bug_20list',['Bug List',['../bug.html',1,'']]]
 ];

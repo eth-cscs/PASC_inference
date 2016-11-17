@@ -1,4 +1,0 @@
-<map id="pascinference::TSModel&lt; VectorBase &gt;" name="pascinference::TSModel&lt; VectorBase &gt;">
-<area shape="rect" id="node3" href="$classpascinference_1_1KmeansH1Model.html" title="{pascinference::KmeansH1Model\l\&lt; VectorBase \&gt;\n|# gammadata\l# thetadata\l# penalty\l|+ KmeansH1Model()\l+ ~KmeansH1Model()\l+ print()\l+ get_name()\l+ get_datavectorlength()\l+ get_gammavectorlength()\l+ get_thetavectorlength()\l+ initialize_gammasolver()\l+ initialize_thetasolver()\l+ finalize_gammasolver()\l+ finalize_thetasolver()\l+ update_gammasolver()\l+ update_thetasolver()\l+ generate_data()\l+ get_L()\l}" alt="" coords="5,491,216,817"/>
-<area shape="rect" id="node2" href="$classpascinference_1_1GeneralModel.html" title="General class for manipulation with models. " alt="" coords="15,5,206,127"/>
-</map>

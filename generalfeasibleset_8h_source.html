@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.9.1"/>
-<title>PASC-Inference: include/generalfeasibleset.h Source File</title>
+<title>PASC-Inference: include/algebra/generalfeasibleset.h Source File</title>
 <link href="mytabs.css" rel="stylesheet" type="text/css"/>
 <link href="my.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_31fda7aefa769aa973dab82a4561a96e.html">include</a></li><li class="navelem"><a class="el" href="dir_b09a5d73ae320bfbd6eb2f4c625e244a.html">algebra</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -96,75 +96,77 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="generalfeasibleset_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#ifndef PASC_GENERALFEASIBLESET_H</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#define PASC_GENERALFEASIBLESET_H</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="common_8h.html">common.h</a>&quot;</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="algebra_8h.html">algebra.h</a>&quot;</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">/* the template says which vector we project; templated function cannot be virtual */</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralFeasibleSet.html">   20</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpascinference_1_1GeneralFeasibleSet.html">GeneralFeasibleSet</a> {</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        </div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralFeasibleSet.html#a6c460770818b7408e2bbec12e516a973">   25</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#a6c460770818b7408e2bbec12e516a973">GeneralFeasibleSet</a>() {};</div>
-<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralFeasibleSet.html#a1581045e5e7b0b314f457212997eafe4">   26</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#a1581045e5e7b0b314f457212997eafe4">~GeneralFeasibleSet</a>() {};</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#a652e50dc25bd4e57f284aa33bd135e9f">print</a>(std::ostream &amp;output) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <span class="keyword">virtual</span> std::string <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#ab6e2d811f9dd23ef07a5a32e9b431dc5">get_name</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralFeasibleSet.html#a184d08a5cf98caa47d244f9cd42817cd">   31</a></span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#a184d08a5cf98caa47d244f9cd42817cd">project</a>(<a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> &amp;x) {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;            <span class="comment">//TODO: give error, the projection is not defined for this type of feasible set</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        };</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase2&gt;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keyword">friend</span> std::ostream &amp;operator&lt;&lt;(std::ostream &amp;output, const GeneralFeasibleSet&lt;VectorBase2&gt; &amp;feasibleset); <span class="comment">/* cannot be virtual, therefore it call virtual print() */</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;};</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">/* general print, call virtual print() */</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase2&gt;</div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a0b2a21b07766d482942dfa14e2b8dd7d">   42</a></span>&#160;std::ostream &amp;operator&lt;&lt;(std::ostream &amp;output, const GeneralFeasibleSet&lt;VectorBase2&gt; &amp;feasibleset){</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt;  <span class="stringliteral">&quot;(GeneralFeasibleSet)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    output &lt;&lt; feasibleset.get_name();</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordflow">return</span> output;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralFeasibleSet.html#a652e50dc25bd4e57f284aa33bd135e9f">   49</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#a652e50dc25bd4e57f284aa33bd135e9f">GeneralFeasibleSet&lt;VectorBase&gt;::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;}</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralFeasibleSet.html#ab6e2d811f9dd23ef07a5a32e9b431dc5">   54</a></span>&#160;std::string <a class="code" href="classpascinference_1_1GeneralFeasibleSet.html#ab6e2d811f9dd23ef07a5a32e9b431dc5">GeneralFeasibleSet&lt;VectorBase&gt;::get_name</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;GeneralFeasibleSet&quot;</span>;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;}</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;} <span class="comment">/* end of namespace */</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_a1581045e5e7b0b314f457212997eafe4"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#a1581045e5e7b0b314f457212997eafe4">pascinference::GeneralFeasibleSet::~GeneralFeasibleSet</a></div><div class="ttdeci">~GeneralFeasibleSet()</div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:26</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_a184d08a5cf98caa47d244f9cd42817cd"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#a184d08a5cf98caa47d244f9cd42817cd">pascinference::GeneralFeasibleSet::project</a></div><div class="ttdeci">virtual void project(GeneralVector&lt; VectorBase &gt; &amp;x)</div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:31</div></div>
-<div class="ttc" id="algebra_8h_html"><div class="ttname"><a href="algebra_8h.html">algebra.h</a></div><div class="ttdoc">manipulation with vectors and matrices </div></div>
-<div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_a652e50dc25bd4e57f284aa33bd135e9f"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#a652e50dc25bd4e57f284aa33bd135e9f">pascinference::GeneralFeasibleSet::print</a></div><div class="ttdeci">virtual void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:49</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
-<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_ab6e2d811f9dd23ef07a5a32e9b431dc5"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#ab6e2d811f9dd23ef07a5a32e9b431dc5">pascinference::GeneralFeasibleSet::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:54</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html">pascinference::GeneralFeasibleSet</a></div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:20</div></div>
-<div class="ttc" id="namespacepascinference_html_ac92cfd92ba9ae30db28ceb7cfb55fdd0"><div class="ttname"><a href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">pascinference::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout)</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
-<div class="ttc" id="common_8h_html"><div class="ttname"><a href="common_8h.html">common.h</a></div><div class="ttdoc">commonly used stuff </div></div>
-<div class="ttc" id="classpascinference_1_1GeneralFeasibleSet_html_a6c460770818b7408e2bbec12e516a973"><div class="ttname"><a href="classpascinference_1_1GeneralFeasibleSet.html#a6c460770818b7408e2bbec12e516a973">pascinference::GeneralFeasibleSet::GeneralFeasibleSet</a></div><div class="ttdeci">GeneralFeasibleSet()</div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:25</div></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#ifndef PASC_GENERALFEASIBLESET_H</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#define PASC_GENERALFEASIBLESET_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="pascinference_8h.html">pascinference.h</a>&quot;</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span>algebra {</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html">   23</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html">GeneralFeasibleSet</a> {</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        </div>
+<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#aabd4df95d2eea1aacb2fb8b455a92f13">   30</a></span>&#160;        <a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#aabd4df95d2eea1aacb2fb8b455a92f13">GeneralFeasibleSet</a>() {};</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#ae82b1a7e938957f48ac8c0f1c394c607">   34</a></span>&#160;        <a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#ae82b1a7e938957f48ac8c0f1c394c607">~GeneralFeasibleSet</a>() {};</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a74394974e850df2c290ef50a6643b207">print</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="keyword">virtual</span> std::string <a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a096efaa338f66b45134e6c9896c1eaa2">get_name</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#aa977afc311cd41d55afe0eab0bd23c69">   53</a></span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#aa977afc311cd41d55afe0eab0bd23c69">project</a>(<a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> &amp;x) {</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="comment">//TODO: give error, the projection is not defined for this type of feasible set</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        };</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase2&gt;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="keyword">friend</span> <a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;operator&lt;&lt;(ConsoleOutput &amp;output, const GeneralFeasibleSet&lt;VectorBase2&gt; &amp;feasibleset); <span class="comment">/* cannot be virtual, therefore it call virtual print() */</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;};</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">/* general print, call virtual print() */</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase2&gt;</div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="namespacepascinference_1_1algebra.html#aa5fd7fe1e31dcba69c1dd122fc09831c">   67</a></span>&#160;<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;operator&lt;&lt;(ConsoleOutput &amp;output, const GeneralFeasibleSet&lt;VectorBase2&gt; &amp;feasibleset){</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="simplex__local_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference_1_1common.html#a4c8daeded9a060bfded223ec8cb7c6c2">coutMaster</a> &lt;&lt;  <span class="stringliteral">&quot;(GeneralFeasibleSet)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    output &lt;&lt; feasibleset.get_name();</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordflow">return</span> output;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;}</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a74394974e850df2c290ef50a6643b207">   74</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a74394974e850df2c290ef50a6643b207">GeneralFeasibleSet&lt;VectorBase&gt;::print</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    output &lt;&lt;  this-&gt;get_name() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a096efaa338f66b45134e6c9896c1eaa2">   79</a></span>&#160;std::string <a class="code" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a096efaa338f66b45134e6c9896c1eaa2">GeneralFeasibleSet&lt;VectorBase&gt;::get_name</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;GeneralFeasibleSet&quot;</span>;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;} <span class="comment">/* end of namespace */</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="namespacepascinference_1_1common_html_a4c8daeded9a060bfded223ec8cb7c6c2"><div class="ttname"><a href="namespacepascinference_1_1common.html#a4c8daeded9a060bfded223ec8cb7c6c2">pascinference::common::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout, 0)</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html">pascinference::algebra::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:17</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralFeasibleSet_html_aabd4df95d2eea1aacb2fb8b455a92f13"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#aabd4df95d2eea1aacb2fb8b455a92f13">pascinference::algebra::GeneralFeasibleSet::GeneralFeasibleSet</a></div><div class="ttdeci">GeneralFeasibleSet()</div><div class="ttdoc">default constructor </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:30</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralFeasibleSet_html_a74394974e850df2c290ef50a6643b207"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a74394974e850df2c290ef50a6643b207">pascinference::algebra::GeneralFeasibleSet::print</a></div><div class="ttdeci">virtual void print(ConsoleOutput &amp;output) const </div><div class="ttdoc">print information about feasible set </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:74</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralFeasibleSet_html"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html">pascinference::algebra::GeneralFeasibleSet</a></div><div class="ttdoc">general class for manipulation with feasible sets </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:23</div></div>
+<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdoc">main namespace of the library </div><div class="ttdef"><b>Definition:</b> arrayoperation.h:12</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralFeasibleSet_html_aa977afc311cd41d55afe0eab0bd23c69"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#aa977afc311cd41d55afe0eab0bd23c69">pascinference::algebra::GeneralFeasibleSet::project</a></div><div class="ttdeci">virtual void project(GeneralVector&lt; VectorBase &gt; &amp;x)</div><div class="ttdoc">project given point to feasible set </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:53</div></div>
+<div class="ttc" id="simplex__local_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="simplex__local_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:38</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralFeasibleSet_html_ae82b1a7e938957f48ac8c0f1c394c607"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#ae82b1a7e938957f48ac8c0f1c394c607">pascinference::algebra::GeneralFeasibleSet::~GeneralFeasibleSet</a></div><div class="ttdeci">~GeneralFeasibleSet()</div><div class="ttdoc">default destructor </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:34</div></div>
+<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html">pascinference::common::ConsoleOutput</a></div><div class="ttdoc">print only on master or on all processors </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:174</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralFeasibleSet_html_a096efaa338f66b45134e6c9896c1eaa2"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a096efaa338f66b45134e6c9896c1eaa2">pascinference::algebra::GeneralFeasibleSet::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdoc">get the name of feasible set </div><div class="ttdef"><b>Definition:</b> generalfeasibleset.h:79</div></div>
+<div class="ttc" id="pascinference_8h_html"><div class="ttname"><a href="pascinference_8h.html">pascinference.h</a></div><div class="ttdoc">main header file </div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Nov 17 2016 12:53:27 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

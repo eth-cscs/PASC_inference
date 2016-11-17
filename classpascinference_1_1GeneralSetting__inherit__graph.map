@@ -1,8 +1,0 @@
-<map id="pascinference::GeneralSetting" name="pascinference::GeneralSetting">
-<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n|+ debug_mode\l+ maxit\l+ eps\l|+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="212,175,405,325"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1DiagSolverSetting.html" title="{pascinference::DiagSolver\lSetting\n||+ DiagSolverSetting()\l+ ~DiagSolverSetting()\l+ print()\l+ get_name()\l}" alt="" coords="5,373,180,509"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1QPSolverSetting.html" title="{pascinference::QPSolverSetting\n||+ QPSolverSetting()\l+ ~QPSolverSetting()\l+ print()\l+ get_name()\l}" alt="" coords="205,381,413,502"/>
-<area shape="rect" id="node7" href="$classpascinference_1_1TSSolverSetting.html" title="{pascinference::TSSolverSetting\n||+ TSSolverSetting()\l+ ~TSSolverSetting()\l+ print()\l+ get_name()\l}" alt="" coords="437,381,644,502"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1CGQPSolverSetting.html" title="{pascinference::CGQPSolver\lSetting\n||+ CGQPSolverSetting()\l+ ~CGQPSolverSetting()\l+ print()\l+ get_name()\l}" alt="" coords="107,579,294,715"/>
-<area shape="rect" id="node6" href="$classpascinference_1_1SPGQPSolverSetting.html" title="{pascinference::SPGQPSolver\lSetting\n|+ m\l+ gamma\l+ sigma2\l+ alphainit\l|+ SPGQPSolverSetting()\l+ ~SPGQPSolverSetting()\l+ print()\l+ get_name()\l}" alt="" coords="318,557,513,737"/>
-</map>

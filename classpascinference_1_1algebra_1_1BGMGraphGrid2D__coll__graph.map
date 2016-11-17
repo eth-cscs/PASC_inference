@@ -1,0 +1,6 @@
+<map id="pascinference::algebra::BGMGraphGrid2D" name="pascinference::algebra::BGMGraphGrid2D">
+<area shape="rect" id="node2" href="$classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="77,661,232,1120"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n||+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l}" alt="" coords="58,419,251,599"/>
+<area shape="rect" id="node4" href="$classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="5,132,176,356"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="200,161,405,327"/>
+</map>

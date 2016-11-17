@@ -1,0 +1,11 @@
+<map id="pascinference::solver::GeneralSolver" name="pascinference::solver::GeneralSolver">
+<area shape="rect" id="node2" href="$classpascinference_1_1solver_1_1DiagSolver.html" title="Solver for linear systems with diagonal matrix. " alt="" coords="261,409,447,707"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1solver_1_1QPSolver.html" title="General Quadratic Programming solver. " alt="" coords="471,387,650,729"/>
+<area shape="rect" id="node9" href="$classpascinference_1_1solver_1_1SimpleSolver.html" title="Solver which doesn&#39;t do anything. " alt="" coords="675,424,873,692"/>
+<area shape="rect" id="node10" href="$classpascinference_1_1solver_1_1TSSolver.html" title="for solving time&#45;series problems " alt="" coords="898,336,1095,780"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1solver_1_1CGQPSolver.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="5,901,204,1243"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1solver_1_1MultiCGSolver.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="228,945,435,1199"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1solver_1_1PermonSolver.html" title="Interface with QP solvers implemented in Permon library. " alt="" coords="459,887,663,1257"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1solver_1_1SPGQPSolver.html" title="Spectral Projected Gradient method for Quadratic Programs. " alt="" coords="687,828,893,1316"/>
+<area shape="rect" id="node8" href="$classpascinference_1_1solver_1_1SPGQPSolverC.html" title="Spectral Projected Gradient method for Quadratic Programs with special care of matrix coefficients..." alt="" coords="918,828,1134,1316"/>
+</map>

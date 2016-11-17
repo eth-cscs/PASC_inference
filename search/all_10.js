@@ -1,13 +1,14 @@
 var searchData=
 [
-  ['random_5fby_5ftime',['RANDOM_BY_TIME',['../common_8h.html#adfef6b945c9cfd04afa18fe1aa178b35',1,'common.h']]],
-  ['rank',['rank',['../classpascinference_1_1ConsoleOutput.html#ac7de12fdedc325e57303417ee72c0a32',1,'pascinference::ConsoleOutput']]],
-  ['rankset',['rankset',['../classpascinference_1_1ConsoleOutput.html#ad13cc5e3d07f84933b99d403749abe77',1,'pascinference::ConsoleOutput']]],
-  ['read_5fdouble_5farray_5ffrom_5ffile',['read_double_array_from_file',['../classpascinference_1_1FileCRSMatrix.html#abf9f6c389cd91beddcecc9ca72b042d2',1,'pascinference::FileCRSMatrix']]],
-  ['read_5fdouble_5ffrom_5ffile',['read_double_from_file',['../classpascinference_1_1FileCRSMatrix.html#a9bb8de0e3078dbf014db52795d081ff4',1,'pascinference::FileCRSMatrix']]],
-  ['read_5ffilesize',['read_filesize',['../classpascinference_1_1FileCRSMatrix.html#ab958aa84dcdce2df60e6222d3332dcbf',1,'pascinference::FileCRSMatrix']]],
-  ['read_5fint_5farray_5ffrom_5ffile',['read_int_array_from_file',['../classpascinference_1_1FileCRSMatrix.html#aeea74b0999c2bcf3294bf029b60ec671',1,'pascinference::FileCRSMatrix']]],
-  ['read_5fint_5ffrom_5ffile',['read_int_from_file',['../classpascinference_1_1FileCRSMatrix.html#a5fef71f4d00ff8d34ab7edb1286ef3d8',1,'pascinference::FileCRSMatrix']]],
-  ['restart',['restart',['../classpascinference_1_1Timer.html#a41013fdd5f5e49126a117ef34bfeddd2',1,'pascinference::Timer']]],
-  ['run_5for_5fnot',['run_or_not',['../classpascinference_1_1Timer.html#aae60148d13c69b56a2d6e0813bcf2381',1,'pascinference::Timer']]]
+  ['qp',['qp',['../classpascinference_1_1solver_1_1PermonSolver.html#a73b7def6756df6279be78500ecef5522',1,'pascinference::solver::PermonSolver']]],
+  ['qpdata',['QPData',['../classpascinference_1_1data_1_1QPData.html',1,'pascinference::data']]],
+  ['qpdata',['QPData',['../classpascinference_1_1data_1_1QPData.html#a064d46557779d0485146019a978e65cd',1,'pascinference::data::QPData::QPData()'],['../classpascinference_1_1solver_1_1MultiCGSolver.html#a4d8b9a4cae0c7f7b7c929eecc61066de',1,'pascinference::solver::MultiCGSolver::qpdata()'],['../classpascinference_1_1solver_1_1PermonSolver.html#ad25f72d84e21f0cdb35b6b3976c7c443',1,'pascinference::solver::PermonSolver::qpdata()'],['../classpascinference_1_1solver_1_1QPSolver.html#a74e1c883863b8bc44497c2ebf9be61fd',1,'pascinference::solver::QPSolver::qpdata()'],['../classpascinference_1_1solver_1_1SPGQPSolver.html#ac5d29a09b282020a5de1cfd1b50dd289',1,'pascinference::solver::SPGQPSolver::qpdata()'],['../classpascinference_1_1solver_1_1SPGQPSolverC.html#a2b94f690b440f1ffd32057242998cf54',1,'pascinference::solver::SPGQPSolverC::qpdata()']]],
+  ['qpdata_2eh',['qpdata.h',['../qpdata_8h.html',1,'']]],
+  ['qps',['qps',['../classpascinference_1_1solver_1_1PermonSolver.html#a8333d255d1f22a9da7b99ff92c32a496',1,'pascinference::solver::PermonSolver']]],
+  ['qpsolver',['QPSolver',['../classpascinference_1_1solver_1_1QPSolver.html#a6f3906e85b977e5bd84802ecd0ba6549',1,'pascinference::solver::QPSolver::QPSolver()'],['../classpascinference_1_1solver_1_1QPSolver.html#a50fb0bd9dc73815eab93a178be6905b1',1,'pascinference::solver::QPSolver::QPSolver(QPData&lt; VectorBase &gt; &amp;new_qpdata)']]],
+  ['qpsolver',['QPSolver',['../classpascinference_1_1solver_1_1QPSolver.html',1,'pascinference::solver']]],
+  ['qpsolver_2eh',['qpsolver.h',['../qpsolver_8h.html',1,'']]],
+  ['qpsolver_5fdefault_5fdebugmode',['QPSOLVER_DEFAULT_DEBUGMODE',['../qpsolver_8h.html#a1f369d70e9132efb6287b52b439f5758',1,'qpsolver.h']]],
+  ['qpsolver_5fdefault_5feps',['QPSOLVER_DEFAULT_EPS',['../qpsolver_8h.html#ab9cec809caa1a8f9e9a23facc4deef99',1,'qpsolver.h']]],
+  ['qpsolver_5fdefault_5fmaxit',['QPSOLVER_DEFAULT_MAXIT',['../qpsolver_8h.html#a70f1943b6fc18854acb9bd14de8a01bc',1,'qpsolver.h']]]
 ];

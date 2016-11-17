@@ -1,8 +1,0 @@
-<map id="pascinference::DiagSolver&lt; VectorBase &gt;" name="pascinference::DiagSolver&lt; VectorBase &gt;">
-<area shape="rect" id="node2" href="$classpascinference_1_1GeneralSolver.html" title="{pascinference::GeneralSolver\n||+ GeneralSolver()\l+ GeneralSolver()\l+ ~GeneralSolver()\l+ print()\l+ printstatus()\l+ printtimer()\l+ get_name()\l+ solve()\l+ solve()\l+ get_data()\l}" alt="" coords="6,389,199,599"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1GeneralData.html" title="{pascinference::GeneralData\n||+ GeneralData()\l+ ~GeneralData()\l+ print()\l+ printcontent()\l+ get_name()\l}" alt="" coords="5,183,189,319"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1GeneralSolverSetting.html" title="{pascinference::GeneralSolver\lSetting\n|+ debug_mode\l+ maxit\l+ eps\l|+ GeneralSolverSetting()\l+ ~GeneralSolverSetting()\l+ print()\l}" alt="" coords="214,176,407,327"/>
-<area shape="rect" id="node7" href="$classpascinference_1_1DiagSolverSetting.html" title="{pascinference::DiagSolver\lSetting\n||+ DiagSolverSetting()\l+ ~DiagSolverSetting()\l+ print()\l+ get_name()\l}" alt="" coords="223,426,398,562"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1GeneralSetting.html" title="{pascinference::GeneralSetting\n||+ GeneralSetting()\l+ ~GeneralSetting()\l+ print()\l+ get_name()\l}" alt="" coords="212,5,409,127"/>
-<area shape="rect" id="node6" href="$classpascinference_1_1Timer.html" title="additive time management " alt="" coords="423,389,567,599"/>
-</map>

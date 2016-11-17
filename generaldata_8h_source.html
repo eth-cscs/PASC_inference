@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.9.1"/>
-<title>PASC-Inference: include/generaldata.h Source File</title>
+<title>PASC-Inference: include/data/generaldata.h Source File</title>
 <link href="mytabs.css" rel="stylesheet" type="text/css"/>
 <link href="my.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_31fda7aefa769aa973dab82a4561a96e.html">include</a></li><li class="navelem"><a class="el" href="dir_478ff011747e74d4d741ab1575a9a5f3.html">data</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -96,73 +96,88 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <a href="generaldata_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#ifndef PASC_GENERALDATA_H</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#define PASC_GENERALDATA_H</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="common_8h.html">common.h</a>&quot;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#ifndef PASC_GENERALDATA_H</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#define PASC_GENERALDATA_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="pascinference_8h.html">pascinference.h</a>&quot;</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span>data {</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html">   18</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpascinference_1_1GeneralData.html">GeneralData</a> {</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#a16102e348d14f97574b2d520ba384f3a">   22</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralData.html#a16102e348d14f97574b2d520ba384f3a">GeneralData</a>() {};</div>
-<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#ad445b0e8f74ba25e679b811200da2aa2">   23</a></span>&#160;        <a class="code" href="classpascinference_1_1GeneralData.html#ad445b0e8f74ba25e679b811200da2aa2">~GeneralData</a>() {};</div>
+<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html">   22</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpascinference_1_1data_1_1GeneralData.html">GeneralData</a> {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">protected</span>:</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">print</a>(std::ostream &amp;output) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">printcontent</a>(std::ostream &amp;output) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keyword">virtual</span> std::string <a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <span class="keyword">friend</span> std::ostream &amp;<a class="code" href="classpascinference_1_1GeneralData.html#a7247c9b08590270659a16de95254354c">operator&lt;&lt;</a>(std::ostream &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;data); <span class="comment">/* cannot be virtual, therefore it call virtual print() */</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;};</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">/* general print, call virtual print() */</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="namespacepascinference.html#a3a15557ca4e076085e096fe207515e36">   34</a></span>&#160;std::ostream &amp;<a class="code" href="namespacepascinference.html#a125e2f59c892b706afbc44edd052989a">operator&lt;&lt;</a>(std::ostream &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1GeneralData.html">GeneralData</a> &amp;data){</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(GeneralData)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    data.<a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">print</a>(output);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">return</span> output;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;}</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">   40</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">GeneralData::print</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    output &lt;&lt;  this-&gt;<a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
-<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">   44</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">GeneralData::printcontent</a>(std::ostream &amp;output)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    output &lt;&lt;  this-&gt;<a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">get_name</a>() &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">   48</a></span>&#160;std::string <a class="code" href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">GeneralData::get_name</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;GeneralData&quot;</span>;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;}</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    </div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html#a2bdf8e0efb734e39f98ddeceb311d87b">   29</a></span>&#160;        <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a2bdf8e0efb734e39f98ddeceb311d87b">GeneralData</a>() {};</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
+<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html#af82b096fd7de79d475ad9349dd29c894">   33</a></span>&#160;        <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#af82b096fd7de79d475ad9349dd29c894">~GeneralData</a>() {};</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#abf19dcde1d310073bb63988ce2290720">print</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#abf19dcde1d310073bb63988ce2290720">print</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_global, <a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_local) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a05c1e5316517f9315157c38fa2b175fd">printcontent</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a05c1e5316517f9315157c38fa2b175fd">printcontent</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_global, <a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_local) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;} <span class="comment">/* end of namespace */</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="namespacepascinference_html_a125e2f59c892b706afbc44edd052989a"><div class="ttname"><a href="namespacepascinference.html#a125e2f59c892b706afbc44edd052989a">pascinference::operator&lt;&lt;</a></div><div class="ttdeci">std::ostream &amp; operator&lt;&lt;(std::ostream &amp;output, const OffsetClass &amp;my_offset)</div><div class="ttdef"><b>Definition:</b> common.h:261</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_ac757a6a84421189fd8e4e5155bc06082"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#ac757a6a84421189fd8e4e5155bc06082">pascinference::GeneralData::printcontent</a></div><div class="ttdeci">virtual void printcontent(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> generaldata.h:44</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_a9ef71dbefcb99eb800c08a195f5d4113"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a9ef71dbefcb99eb800c08a195f5d4113">pascinference::GeneralData::print</a></div><div class="ttdeci">virtual void print(std::ostream &amp;output) const </div><div class="ttdef"><b>Definition:</b> generaldata.h:40</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_a0e3c8233876722b7ec70bf5f60b6a451"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a0e3c8233876722b7ec70bf5f60b6a451">pascinference::GeneralData::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdef"><b>Definition:</b> generaldata.h:48</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_ad445b0e8f74ba25e679b811200da2aa2"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#ad445b0e8f74ba25e679b811200da2aa2">pascinference::GeneralData::~GeneralData</a></div><div class="ttdeci">~GeneralData()</div><div class="ttdef"><b>Definition:</b> generaldata.h:23</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_a7247c9b08590270659a16de95254354c"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a7247c9b08590270659a16de95254354c">pascinference::GeneralData::operator&lt;&lt;</a></div><div class="ttdeci">friend std::ostream &amp; operator&lt;&lt;(std::ostream &amp;output, const GeneralData &amp;data)</div><div class="ttdef"><b>Definition:</b> generaldata.h:34</div></div>
-<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
-<div class="ttc" id="namespacepascinference_html_ac92cfd92ba9ae30db28ceb7cfb55fdd0"><div class="ttname"><a href="namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0">pascinference::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout)</div></div>
-<div class="ttc" id="namespacepascinference_html_a94f5b1fa351afaee4db6cd91a2b35e56"><div class="ttname"><a href="namespacepascinference.html#a94f5b1fa351afaee4db6cd91a2b35e56">pascinference::DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:27</div></div>
-<div class="ttc" id="common_8h_html"><div class="ttname"><a href="common_8h.html">common.h</a></div><div class="ttdoc">commonly used stuff </div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html"><div class="ttname"><a href="classpascinference_1_1GeneralData.html">pascinference::GeneralData</a></div><div class="ttdef"><b>Definition:</b> generaldata.h:18</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralData_html_a16102e348d14f97574b2d520ba384f3a"><div class="ttname"><a href="classpascinference_1_1GeneralData.html#a16102e348d14f97574b2d520ba384f3a">pascinference::GeneralData::GeneralData</a></div><div class="ttdeci">GeneralData()</div><div class="ttdef"><b>Definition:</b> generaldata.h:22</div></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keyword">virtual</span> std::string <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">get_name</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keyword">friend</span> <a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;<a class="code" href="classpascinference_1_1data_1_1GeneralData.html#aff57a6087ddcf8a9a8cb260339dbd6ad">operator&lt;&lt;</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html">GeneralData</a> &amp;data); <span class="comment">/* cannot be virtual, therefore it call virtual print() */</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;};</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">/* general print, call virtual print() */</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="namespacepascinference_1_1data.html#a94de8900ed81b152b1835bbd37d19a7f">   65</a></span>&#160;<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;<a class="code" href="namespacepascinference_1_1data.html#a94de8900ed81b152b1835bbd37d19a7f">operator&lt;&lt;</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output, <span class="keyword">const</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html">GeneralData</a> &amp;data){</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="simplex__local_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a> &gt;= 100) <a class="code" href="namespacepascinference_1_1common.html#a4c8daeded9a060bfded223ec8cb7c6c2">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(GeneralData)OPERATOR: &lt;&lt;&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    output &lt;&lt; data.<a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">get_name</a>();</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordflow">return</span> output;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html#abf19dcde1d310073bb63988ce2290720">   71</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#abf19dcde1d310073bb63988ce2290720">GeneralData::print</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    output &lt;&lt;  this-&gt;<a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">get_name</a>() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;}</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
+<div class="line"><a name="l00075"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html#a6bd4a9d6ce5cdd7d27af0d95886615fa">   75</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#abf19dcde1d310073bb63988ce2290720">GeneralData::print</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_global, <a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_local)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    output_global &lt;&lt;  this-&gt;<a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">get_name</a>() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
+<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html#a05c1e5316517f9315157c38fa2b175fd">   79</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a05c1e5316517f9315157c38fa2b175fd">GeneralData::printcontent</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    output &lt;&lt;  this-&gt;<a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">get_name</a>() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
+<div class="line"><a name="l00083"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html#aead3c1b4e1338fcd867482bb226c68fb">   83</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a05c1e5316517f9315157c38fa2b175fd">GeneralData::printcontent</a>(<a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_global, <a class="code" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output_local)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    output_global &lt;&lt;  this-&gt;<a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">get_name</a>() &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;}</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno"><a class="line" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">   87</a></span>&#160;std::string <a class="code" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">GeneralData::get_name</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;GeneralData&quot;</span>;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;}</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;}</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;} <span class="comment">/* end of namespace */</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="classpascinference_1_1data_1_1GeneralData_html_abf19dcde1d310073bb63988ce2290720"><div class="ttname"><a href="classpascinference_1_1data_1_1GeneralData.html#abf19dcde1d310073bb63988ce2290720">pascinference::data::GeneralData::print</a></div><div class="ttdeci">virtual void print(ConsoleOutput &amp;output) const </div><div class="ttdoc">print basic information about data </div><div class="ttdef"><b>Definition:</b> generaldata.h:71</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1GeneralData_html_aff57a6087ddcf8a9a8cb260339dbd6ad"><div class="ttname"><a href="classpascinference_1_1data_1_1GeneralData.html#aff57a6087ddcf8a9a8cb260339dbd6ad">pascinference::data::GeneralData::operator&lt;&lt;</a></div><div class="ttdeci">friend ConsoleOutput &amp; operator&lt;&lt;(ConsoleOutput &amp;output, const GeneralData &amp;data)</div><div class="ttdoc">append name to input stream </div><div class="ttdef"><b>Definition:</b> generaldata.h:65</div></div>
+<div class="ttc" id="namespacepascinference_1_1common_html_a4c8daeded9a060bfded223ec8cb7c6c2"><div class="ttname"><a href="namespacepascinference_1_1common.html#a4c8daeded9a060bfded223ec8cb7c6c2">pascinference::common::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout, 0)</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1GeneralData_html_a05c1e5316517f9315157c38fa2b175fd"><div class="ttname"><a href="classpascinference_1_1data_1_1GeneralData.html#a05c1e5316517f9315157c38fa2b175fd">pascinference::data::GeneralData::printcontent</a></div><div class="ttdeci">virtual void printcontent(ConsoleOutput &amp;output) const </div><div class="ttdoc">print content of data </div><div class="ttdef"><b>Definition:</b> generaldata.h:79</div></div>
+<div class="ttc" id="namespacepascinference_1_1data_html_a94de8900ed81b152b1835bbd37d19a7f"><div class="ttname"><a href="namespacepascinference_1_1data.html#a94de8900ed81b152b1835bbd37d19a7f">pascinference::data::operator&lt;&lt;</a></div><div class="ttdeci">ConsoleOutput &amp; operator&lt;&lt;(ConsoleOutput &amp;output, const GeneralData &amp;data)</div><div class="ttdef"><b>Definition:</b> generaldata.h:65</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1GeneralData_html"><div class="ttname"><a href="classpascinference_1_1data_1_1GeneralData.html">pascinference::data::GeneralData</a></div><div class="ttdoc">general class for manipulation with data </div><div class="ttdef"><b>Definition:</b> generaldata.h:22</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1GeneralData_html_af82b096fd7de79d475ad9349dd29c894"><div class="ttname"><a href="classpascinference_1_1data_1_1GeneralData.html#af82b096fd7de79d475ad9349dd29c894">pascinference::data::GeneralData::~GeneralData</a></div><div class="ttdeci">~GeneralData()</div><div class="ttdoc">default destructor </div><div class="ttdef"><b>Definition:</b> generaldata.h:33</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1GeneralData_html_a2bdf8e0efb734e39f98ddeceb311d87b"><div class="ttname"><a href="classpascinference_1_1data_1_1GeneralData.html#a2bdf8e0efb734e39f98ddeceb311d87b">pascinference::data::GeneralData::GeneralData</a></div><div class="ttdeci">GeneralData()</div><div class="ttdoc">default constructor </div><div class="ttdef"><b>Definition:</b> generaldata.h:29</div></div>
+<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdoc">main namespace of the library </div><div class="ttdef"><b>Definition:</b> arrayoperation.h:12</div></div>
+<div class="ttc" id="simplex__local_8h_html_ac858bb435ac6b897dd949dbfdc61b5a5"><div class="ttname"><a href="simplex__local_8h.html#ac858bb435ac6b897dd949dbfdc61b5a5">DEBUG_MODE</a></div><div class="ttdeci">int DEBUG_MODE</div><div class="ttdef"><b>Definition:</b> common.h:38</div></div>
+<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html">pascinference::common::ConsoleOutput</a></div><div class="ttdoc">print only on master or on all processors </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:174</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1GeneralData_html_a5cda61b6e29492dcfb5f68cbd49e0d9a"><div class="ttname"><a href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">pascinference::data::GeneralData::get_name</a></div><div class="ttdeci">virtual std::string get_name() const </div><div class="ttdoc">get the name of data </div><div class="ttdef"><b>Definition:</b> generaldata.h:87</div></div>
+<div class="ttc" id="pascinference_8h_html"><div class="ttname"><a href="pascinference_8h.html">pascinference.h</a></div><div class="ttdoc">main header file </div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Nov 17 2016 12:53:27 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

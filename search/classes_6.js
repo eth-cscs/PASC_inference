@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['laplaceexplicitmatrix',['LaplaceExplicitMatrix',['../classpascinference_1_1LaplaceExplicitMatrix.html',1,'pascinference']]],
-  ['laplaceexplicitregularmatrix',['LaplaceExplicitRegularMatrix',['../classpascinference_1_1LaplaceExplicitRegularMatrix.html',1,'pascinference']]]
+  ['memorycheck',['MemoryCheck',['../classpascinference_1_1common_1_1MemoryCheck.html',1,'pascinference::common']]],
+  ['multicgsolver',['MultiCGSolver',['../classpascinference_1_1solver_1_1MultiCGSolver.html',1,'pascinference::solver']]]
 ];

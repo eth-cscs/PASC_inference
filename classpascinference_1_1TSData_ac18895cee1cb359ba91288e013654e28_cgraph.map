@@ -1,6 +1,0 @@
-<map id="pascinference::TSData::TSData" name="pascinference::TSData::TSData">
-<area shape="rect" id="node2" href="$namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0" title="pascinference::coutMaster" alt="" coords="209,5,385,32"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1TSModel.html#ad1439b344b13a8b1ed92d2964d3c22f3" title="pascinference::TSModel\l::get_datavectorlength" alt="" coords="216,57,379,98"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1TSModel.html#a0a6ed159a8f6589f1915beb13345d001" title="pascinference::TSModel\l::get_gammavectorlength" alt="" coords="213,122,382,163"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1TSModel.html#a02a7371308e821f8d861844c6003ecbc" title="pascinference::TSModel\l::get_thetavectorlength" alt="" coords="216,187,379,229"/>
-</map>

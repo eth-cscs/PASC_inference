@@ -1,7 +1,0 @@
-<map id="pascinference::QPSolver::solve" name="pascinference::QPSolver::solve">
-<area shape="rect" id="node2" href="$namespacepascinference.html#ac92cfd92ba9ae30db28ceb7cfb55fdd0" title="pascinference::coutMaster" alt="" coords="472,5,648,32"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1SPGQPSolver.html#a4cae664766884c51985d300c33b9c4a5" title="pascinference::SPGQPSolver\l::solve" alt="" coords="220,57,415,98"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1SPGQPSolver__fs.html#a7a741b48cc18a7d980d74eb37753b9bb" title="pascinference::SPGQPSolver\l_fs::init" alt="" coords="463,57,657,98"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1SPGQPSolver__fs.html#aedba83acbb90fa8aad992cc6d789cc88" title="pascinference::SPGQPSolver\l_fs::get_max" alt="" coords="463,122,657,163"/>
-<area shape="rect" id="node6" href="$classpascinference_1_1SPGQPSolver__fs.html#a9c55a86a2cab090121cb02ad64049a16" title="pascinference::SPGQPSolver\l_fs::update" alt="" coords="463,187,657,229"/>
-</map>

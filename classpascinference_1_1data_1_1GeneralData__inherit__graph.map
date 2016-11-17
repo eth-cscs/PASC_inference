@@ -1,0 +1,8 @@
+<map id="pascinference::data::GeneralData" name="pascinference::data::GeneralData">
+<area shape="rect" id="node2" href="$classpascinference_1_1data_1_1DiagData.html" title="data of diag(a) x = b " alt="" coords="5,277,183,575"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1data_1_1QPData.html" title="general class for manipulation with QP data " alt="" coords="207,277,376,575"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1data_1_1SimpleData.html" title="{pascinference::data\l::SimpleData\&lt; VectorBase \&gt;\n|&#45; x\l|+ SimpleData()\l+ ~SimpleData()\l+ print()\l+ print()\l+ printcontent()\l+ printcontent()\l+ get_name()\l+ set_x()\l+ get_x()\l}" alt="" coords="400,321,591,531"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1data_1_1TSData.html" title="General Time&#45;series data. " alt="" coords="615,233,781,619"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1data_1_1ImageData.html" title="{pascinference::data\l::ImageData\&lt; VectorBase \&gt;\n|# width\l# height\l|+ ImageData()\l+ ~ImageData()\l+ print()\l+ print()\l+ printcontent()\l+ printcontent()\l+ get_name()\l+ saveImage()\l+ saveImage()\l}" alt="" coords="490,689,677,913"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1data_1_1Signal1DData.html" title="data of one&#45;dimensional signal " alt="" coords="701,667,922,935"/>
+</map>

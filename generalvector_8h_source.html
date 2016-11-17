@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.9.1"/>
-<title>PASC-Inference: include/generalvector.h Source File</title>
+<title>PASC-Inference: include/algebra/generalvector.h Source File</title>
 <link href="mytabs.css" rel="stylesheet" type="text/css"/>
 <link href="my.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_31fda7aefa769aa973dab82a4561a96e.html">include</a></li><li class="navelem"><a class="el" href="dir_b09a5d73ae320bfbd6eb2f4c625e244a.html">algebra</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -100,122 +100,194 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#define PASC_GENERALVECTOR_H</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="classpascinference_1_1General__all__type.html">   22</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classpascinference_1_1General__all__type.html">General_all_type</a> {</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">            #ifdef USE_PETSCVECTOR</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;                <span class="comment">/* convert to PetscVector all */</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;                <span class="keyword">operator</span> petscvector::petscvector_all_type()<span class="keyword"> const </span>{ </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;                    <span class="keywordflow">return</span> petscvector::all;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;                }</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">            #endif</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">            #ifdef USE_MINLIN</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                <span class="keyword">typedef</span> minlin::detail::all_type *minlin_all_type;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;                <span class="comment">/* convert to minlin all */</span> </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;                <span class="keyword">operator</span> minlin_all_type()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                    <span class="keywordflow">return</span> minlin::all;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                }</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">            #endif</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    } <a class="code" href="namespacepascinference.html#a64822610639a569f1bae75144cd37a0b">gall</a>;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span>algebra {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
+<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1General__all__type.html">   23</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classpascinference_1_1algebra_1_1General__all__type.html">General_all_type</a> {</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">            #ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;                <span class="comment">/* convert to PetscVector all */</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;                <span class="keyword">operator</span> <a class="code" href="classpetscvector_1_1petscvector__all__type.html">petscvector::petscvector_all_type</a>()<span class="keyword"> const </span>{ </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;                    <span class="keywordflow">return</span> <a class="code" href="namespacepetscvector.html#a5644550f7f2d7ce3c79343be0c3c7d54">petscvector::all</a>;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;                }</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">            #endif</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">            #ifdef USE_MINLIN</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;                <span class="keyword">typedef</span> minlin::detail::all_type *minlin_all_type;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;                <span class="comment">/* convert to minlin all */</span> </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                <span class="keyword">operator</span> minlin_all_type()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                    <span class="keywordflow">return</span> <a class="code" href="namespacepetscvector.html#a5644550f7f2d7ce3c79343be0c3c7d54">minlin::all</a>;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                }</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">            #endif</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    } <a class="code" href="namespacepascinference_1_1algebra.html#ae4383bbe5d11686fe3d3e84f0a5432bd">gall</a>;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">class </span><a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector</a> : <span class="keyword">public</span> VectorBase {</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralVector.html#a7284228a65c8ca24a591954438aed5d2">   56</a></span>&#160;            <a class="code" href="classpascinference_1_1GeneralVector.html#a7284228a65c8ca24a591954438aed5d2">GeneralVector</a>(): VectorBase() {}</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keyword">class </span><a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector</a> : <span class="keyword">public</span> VectorBase {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            <span class="comment">/* random vector generator */</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">            #ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                PetscRandom rnd; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">            #endif</span></div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralVector.html#a9cb4b7b413180b26a16ee8598a33577e">   61</a></span>&#160;            <span class="keyword">template</span>&lt;<span class="keyword">class</span> ArgType&gt; <a class="code" href="classpascinference_1_1GeneralVector.html#a9cb4b7b413180b26a16ee8598a33577e">GeneralVector</a>(ArgType arg): VectorBase(arg) {}</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;            </div>
-<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="classpascinference_1_1GeneralVector.html#a22dcf923cf06a46f9dd5d054daf8362e">   71</a></span>&#160;            <a class="code" href="classpascinference_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> &amp;<a class="code" href="classpascinference_1_1GeneralVector.html#a22dcf923cf06a46f9dd5d054daf8362e">operator=</a>(<a class="code" href="classpascinference_1_1GeneralMatrixRHS.html">GeneralMatrixRHS&lt;VectorBase&gt;</a> rhs){</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;                rhs.<a class="code" href="classpascinference_1_1GeneralMatrixRHS.html#a88bc52a5fe92b3f347416e2e281698de">matmult</a>(*<span class="keyword">this</span>);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            }</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            <span class="comment">/* fill with random values */</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralVector.html#aabb06eeb9ca781e1b039c7d6e6b71017">set_random</a>();</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    };</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">// TODO: move to impl</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">/* ------- PETSCVECTOR ------- */</span>   </div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#ifdef USE_PETSCVECTOR</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keyword">typedef</span> petscvector::PetscVector PetscVector;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralVector.html#aabb06eeb9ca781e1b039c7d6e6b71017">GeneralVector&lt;PetscVector&gt;::set_random</a>() { </div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    PetscRandom rnd;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    Vec vec = this-&gt;get_vector();</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    </div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="comment">/* prepare random generator */</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    TRY( PetscRandomCreate(PETSC_COMM_WORLD,&amp;rnd) );</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    TRY( PetscRandomSetType(rnd,PETSCRAND) );</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    TRY( PetscRandomSetFromOptions(rnd) );</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    TRY( PetscRandomSetSeed(rnd,13) );</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="comment">/* generate random data to gamma */</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    TRY( VecSetRandom(vec, rnd) );</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="comment">/* destroy the random generator */</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    TRY( PetscRandomDestroy(&amp;rnd) );</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    this-&gt;valuesUpdate();</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralVector.html#a78d5b8d317211581c743062a9a4081a9">   62</a></span>&#160;            <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#a78d5b8d317211581c743062a9a4081a9">GeneralVector</a>(): VectorBase() {</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">                #ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                    this-&gt;rnd=NULL;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">                #endif</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;            }</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralVector.html#a02650c53c0ec5b514fb39fb704770879">   72</a></span>&#160;            <span class="keyword">template</span>&lt;<span class="keyword">class</span> ArgType&gt; <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#a02650c53c0ec5b514fb39fb704770879">GeneralVector</a>(ArgType arg): VectorBase(arg) {</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor">                #ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                    this-&gt;rnd=NULL;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor">                #endif</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            }</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralVector.html#aa83883050b924169cacc98973aa5f867">   82</a></span>&#160;            <span class="keyword">template</span>&lt;<span class="keyword">class</span> ArgType1,<span class="keyword">class</span> ArgType2&gt; <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#aa83883050b924169cacc98973aa5f867">GeneralVector</a>(ArgType1 arg1, ArgType2 arg2): VectorBase(arg1,arg2) {</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor">                #ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                    this-&gt;rnd=NULL;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">                #endif</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;            }</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;            </div>
+<div class="line"><a name="l00096"></a><span class="lineno"><a class="line" href="classpascinference_1_1algebra_1_1GeneralVector.html#ad794461348e8ec03bce8614d56591a61">   96</a></span>&#160;            <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> &amp;<a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#ad794461348e8ec03bce8614d56591a61">operator=</a>(<a class="code" href="classpascinference_1_1algebra_1_1GeneralMatrixRHS.html">GeneralMatrixRHS&lt;VectorBase&gt;</a> rhs){</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                rhs.<a class="code" href="classpascinference_1_1algebra_1_1GeneralMatrixRHS.html#ab455ae7ebb2f17bf9a21b123b2c3a910">matmult</a>(*<span class="keyword">this</span>);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;            }</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;            <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#ad6fdf5aa26797a47787014768b8e581e">set_random</a>();</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#a0ced07bbc29de762ad58acba31b19a26">set_random2</a>();</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    };</div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="comment">/* ------- MINLIN ------- */</span>    </div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="preprocessor">#ifdef USE_MINLIN</span></div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="keyword">typedef</span> minlin::threx::HostVector&lt;double&gt; MinlinHostVector;</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="keyword">typedef</span> minlin::threx::DeviceVector&lt;double&gt; MinlinDeviceVector;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;}</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;}</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="comment">// TODO: move to impl</span></div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacepascinference.html">pascinference</a> {</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="keyword">namespace </span>algebra {</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralVector.html#aabb06eeb9ca781e1b039c7d6e6b71017">GeneralVector&lt;MinlinHostVector&gt;::set_random</a>() { </div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="keywordtype">int</span> i;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;size();i++){</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        (*this)(i) = std::rand()/(double)(RAND_MAX); <span class="comment">/* generate random value */</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    }   </div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;}</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1GeneralVector.html#aabb06eeb9ca781e1b039c7d6e6b71017">GeneralVector&lt;MinlinDeviceVector&gt;::set_random</a>() { </div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <span class="keywordtype">int</span> i;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;size();i++){ <span class="comment">// TODO: fill on Host and then transfer to device</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        (*this)(i) = std::rand()/(double)(RAND_MAX); <span class="comment">/* generate random value */</span></div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    }   </div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;}</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="comment">/* ------- PETSCVECTOR ------- */</span>   </div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="preprocessor">#ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="keyword">typedef</span> <a class="code" href="classpetscvector_1_1PetscVector.html">petscvector::PetscVector</a> <a class="code" href="namespacepascinference_1_1algebra.html#aeae0f2f6a5b1b629271cdd007d6c75a1">PetscVector</a>;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#ad6fdf5aa26797a47787014768b8e581e">GeneralVector&lt;PetscVector&gt;::set_random</a>() { </div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keywordflow">if</span>(!this-&gt;rnd){</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        <span class="comment">/* prepare random generator */</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">//      TRYCXX( PetscRandomCreate(PETSC_COMM_WORLD,&amp;(this-&gt;rnd)) );</span></div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomCreate(PETSC_COMM_SELF,&amp;(this-&gt;rnd)) );</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomSetType(this-&gt;rnd,PETSCRAND) );</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomSetFromOptions(this-&gt;rnd) );</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomSetSeed(this-&gt;rnd,13) );</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    }</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    Vec vec = this-&gt;get_vector();</div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;} <span class="comment">/* end of namespace petscvector */</span></div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html_a9cb4b7b413180b26a16ee8598a33577e"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html#a9cb4b7b413180b26a16ee8598a33577e">pascinference::GeneralVector::GeneralVector</a></div><div class="ttdeci">GeneralVector(ArgType arg)</div><div class="ttdoc">call original constructors </div><div class="ttdef"><b>Definition:</b> generalvector.h:61</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralMatrixRHS_html"><div class="ttname"><a href="classpascinference_1_1GeneralMatrixRHS.html">pascinference::GeneralMatrixRHS</a></div><div class="ttdef"><b>Definition:</b> generalmatrix.h:24</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralMatrixRHS_html_a88bc52a5fe92b3f347416e2e281698de"><div class="ttname"><a href="classpascinference_1_1GeneralMatrixRHS.html#a88bc52a5fe92b3f347416e2e281698de">pascinference::GeneralMatrixRHS::matmult</a></div><div class="ttdeci">void matmult(GeneralVector&lt; VectorBase &gt; &amp;y)</div><div class="ttdef"><b>Definition:</b> generalmatrix.h:79</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html">pascinference::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:21</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html_aabb06eeb9ca781e1b039c7d6e6b71017"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html#aabb06eeb9ca781e1b039c7d6e6b71017">pascinference::GeneralVector::set_random</a></div><div class="ttdeci">void set_random()</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html_a7284228a65c8ca24a591954438aed5d2"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html#a7284228a65c8ca24a591954438aed5d2">pascinference::GeneralVector::GeneralVector</a></div><div class="ttdeci">GeneralVector()</div><div class="ttdoc">call original constructors </div><div class="ttdef"><b>Definition:</b> generalvector.h:56</div></div>
-<div class="ttc" id="classpascinference_1_1General__all__type_html"><div class="ttname"><a href="classpascinference_1_1General__all__type.html">pascinference::General_all_type</a></div><div class="ttdoc">deal with vector(all) </div><div class="ttdef"><b>Definition:</b> generalvector.h:22</div></div>
-<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdef"><b>Definition:</b> kmeans2D.h:4</div></div>
-<div class="ttc" id="classpascinference_1_1GeneralVector_html_a22dcf923cf06a46f9dd5d054daf8362e"><div class="ttname"><a href="classpascinference_1_1GeneralVector.html#a22dcf923cf06a46f9dd5d054daf8362e">pascinference::GeneralVector::operator=</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; &amp; operator=(GeneralMatrixRHS&lt; VectorBase &gt; rhs)</div><div class="ttdoc">matrix vector multiplication </div><div class="ttdef"><b>Definition:</b> generalvector.h:71</div></div>
-<div class="ttc" id="namespacepascinference_html_a64822610639a569f1bae75144cd37a0b"><div class="ttname"><a href="namespacepascinference.html#a64822610639a569f1bae75144cd37a0b">pascinference::gall</a></div><div class="ttdeci">class pascinference::General_all_type gall</div></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="comment">/* generate random data to gamma */</span></div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecSetRandom(vec, this-&gt;rnd) );</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    this-&gt;valuesUpdate();</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;}</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#a0ced07bbc29de762ad58acba31b19a26">GeneralVector&lt;PetscVector&gt;::set_random2</a>() { </div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordflow">if</span>(!this-&gt;rnd){</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        <span class="comment">/* prepare random generator */</span></div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="comment">//      TRYCXX( PetscRandomCreate(PETSC_COMM_WORLD,&amp;(this-&gt;rnd)) );</span></div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomCreate(PETSC_COMM_SELF,&amp;(this-&gt;rnd)) );</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomSetType(this-&gt;rnd,PETSCRAND) );</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomSetFromOptions(this-&gt;rnd) );</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscRandomSetSeed(this-&gt;rnd,13) );</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    }</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    Vec vec = this-&gt;get_vector();</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="comment">/* random generator based on one-processor generator */</span></div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    Vec random_vec;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecCreateSeq(PETSC_COMM_SELF, this-&gt;size(), &amp;random_vec) );</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecSetRandom(random_vec, this-&gt;rnd) );</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecAssemblyBegin(random_vec) );</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecAssemblyEnd(random_vec) );</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keywordtype">int</span> local_begin;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetOwnershipRange(vec, &amp;local_begin, NULL) );</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    </div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    IS local_is;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( ISCreateStride(PETSC_COMM_WORLD, this-&gt;local_size(), local_begin, 1, &amp;local_is) );</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    Vec local_vec, local_random_vec;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(vec, local_is, &amp;local_vec) );</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(random_vec, local_is, &amp;local_random_vec) );</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecCopy(local_random_vec, local_vec) );</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(vec, local_is, &amp;local_vec) );</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(random_vec, local_is, &amp;local_random_vec) );</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( ISDestroy(&amp;local_is) );</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecDestroy(&amp;random_vec) );</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="comment">/* destroy the random generator */</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment">//  TRYCXX( PetscRandomDestroy(&amp;rnd) );</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    this-&gt;valuesUpdate();</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;}</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="comment">/* ------- MINLIN ------- */</span>    </div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="preprocessor">#ifdef USE_MINLIN</span></div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="keyword">typedef</span> minlin::threx::HostVector&lt;double&gt; MinlinHostVector;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="keyword">typedef</span> minlin::threx::DeviceVector&lt;double&gt; MinlinDeviceVector;</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#ad6fdf5aa26797a47787014768b8e581e">GeneralVector&lt;MinlinHostVector&gt;::set_random</a>() { </div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">int</span> i;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;size();i++){</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        (*this)(i) = std::rand()/(double)(RAND_MAX); <span class="comment">/* generate random value */</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    }   </div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;}</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#ad6fdf5aa26797a47787014768b8e581e">GeneralVector&lt;MinlinDeviceVector&gt;::set_random</a>() { </div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">int</span> i;</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordflow">for</span>(i=0;i&lt;this-&gt;size();i++){ <span class="comment">// TODO: fill on Host and then transfer to device</span></div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;        (*this)(i) = std::rand()/(double)(RAND_MAX); <span class="comment">/* generate random value */</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    }   </div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;}</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;}</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;} <span class="comment">/* end of namespace */</span></div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="namespacepascinference_1_1algebra_html_aeae0f2f6a5b1b629271cdd007d6c75a1"><div class="ttname"><a href="namespacepascinference_1_1algebra.html#aeae0f2f6a5b1b629271cdd007d6c75a1">pascinference::algebra::PetscVector</a></div><div class="ttdeci">petscvector::PetscVector PetscVector</div><div class="ttdef"><b>Definition:</b> blockgraphsparse.h:24</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html_a0ced07bbc29de762ad58acba31b19a26"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html#a0ced07bbc29de762ad58acba31b19a26">pascinference::algebra::GeneralVector::set_random2</a></div><div class="ttdeci">virtual void set_random2()</div><div class="ttdoc">set random values </div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html_ad794461348e8ec03bce8614d56591a61"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html#ad794461348e8ec03bce8614d56591a61">pascinference::algebra::GeneralVector::operator=</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; &amp; operator=(GeneralMatrixRHS&lt; VectorBase &gt; rhs)</div><div class="ttdoc">matrix vector multiplication </div><div class="ttdef"><b>Definition:</b> generalvector.h:96</div></div>
+<div class="ttc" id="classpetscvector_1_1PetscVector_html"><div class="ttname"><a href="classpetscvector_1_1PetscVector.html">petscvector::PetscVector</a></div><div class="ttdoc">General class for manipulation with vectors. </div><div class="ttdef"><b>Definition:</b> petscvector.h:63</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1General__all__type_html"><div class="ttname"><a href="classpascinference_1_1algebra_1_1General__all__type.html">pascinference::algebra::General_all_type</a></div><div class="ttdoc">deal with vector(all) </div><div class="ttdef"><b>Definition:</b> generalvector.h:23</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html">pascinference::algebra::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:17</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralMatrixRHS_html"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralMatrixRHS.html">pascinference::algebra::GeneralMatrixRHS</a></div><div class="ttdoc">General class for manipulation with matrices. </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:20</div></div>
+<div class="ttc" id="namespacepetscvector_html_a5644550f7f2d7ce3c79343be0c3c7d54"><div class="ttname"><a href="namespacepetscvector.html#a5644550f7f2d7ce3c79343be0c3c7d54">petscvector::all</a></div><div class="ttdeci">class petscvector::petscvector_all_type all</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html_a78d5b8d317211581c743062a9a4081a9"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html#a78d5b8d317211581c743062a9a4081a9">pascinference::algebra::GeneralVector::GeneralVector</a></div><div class="ttdeci">GeneralVector()</div><div class="ttdoc">call original constructor without arguments </div><div class="ttdef"><b>Definition:</b> generalvector.h:62</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html_ad6fdf5aa26797a47787014768b8e581e"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html#ad6fdf5aa26797a47787014768b8e581e">pascinference::algebra::GeneralVector::set_random</a></div><div class="ttdeci">virtual void set_random()</div><div class="ttdoc">set random values </div></div>
+<div class="ttc" id="petscvector_8h_html_a4d8d32bde1a2581a3bee278623465eaa"><div class="ttname"><a href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a></div><div class="ttdeci">#define TRYCXX(f)</div><div class="ttdef"><b>Definition:</b> petscvector.h:35</div></div>
+<div class="ttc" id="namespacepascinference_1_1algebra_html_ae4383bbe5d11686fe3d3e84f0a5432bd"><div class="ttname"><a href="namespacepascinference_1_1algebra.html#ae4383bbe5d11686fe3d3e84f0a5432bd">pascinference::algebra::gall</a></div><div class="ttdeci">class pascinference::algebra::General_all_type gall</div></div>
+<div class="ttc" id="classpetscvector_1_1petscvector__all__type_html"><div class="ttname"><a href="classpetscvector_1_1petscvector__all__type.html">petscvector::petscvector_all_type</a></div><div class="ttdef"><b>Definition:</b> petscvector.h:44</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralMatrixRHS_html_ab455ae7ebb2f17bf9a21b123b2c3a910"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralMatrixRHS.html#ab455ae7ebb2f17bf9a21b123b2c3a910">pascinference::algebra::GeneralMatrixRHS::matmult</a></div><div class="ttdeci">void matmult(GeneralVector&lt; VectorBase &gt; &amp;y)</div><div class="ttdoc">multiplicate and store result </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:143</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html_aa83883050b924169cacc98973aa5f867"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html#aa83883050b924169cacc98973aa5f867">pascinference::algebra::GeneralVector::GeneralVector</a></div><div class="ttdeci">GeneralVector(ArgType1 arg1, ArgType2 arg2)</div><div class="ttdoc">call original constructor with two arguments </div><div class="ttdef"><b>Definition:</b> generalvector.h:82</div></div>
+<div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdoc">main namespace of the library </div><div class="ttdef"><b>Definition:</b> arrayoperation.h:12</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html_a02650c53c0ec5b514fb39fb704770879"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html#a02650c53c0ec5b514fb39fb704770879">pascinference::algebra::GeneralVector::GeneralVector</a></div><div class="ttdeci">GeneralVector(ArgType arg)</div><div class="ttdoc">call original constructor with one argument </div><div class="ttdef"><b>Definition:</b> generalvector.h:72</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Wed Mar 16 2016 17:03:53 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Nov 17 2016 12:53:27 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>
