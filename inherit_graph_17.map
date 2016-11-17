@@ -1,9 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpascinference_1_1data_1_1GeneralData.html" title="general class for manipulation with data " alt="" coords="5,104,141,145"/>
-<area shape="rect" id="node2" href="$classpascinference_1_1data_1_1DiagData.html" title="data of diag(a) x = b " alt="" coords="196,5,373,47"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1data_1_1QPData.html" title="general class for manipulation with QP data " alt="" coords="200,71,369,112"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1data_1_1SimpleData.html" title="pascinference::data\l::SimpleData\&lt; VectorBase \&gt;" alt="" coords="189,136,380,177"/>
-<area shape="rect" id="node5" href="$classpascinference_1_1data_1_1TSData.html" title="General Time&#45;series data. " alt="" coords="201,201,368,243"/>
-<area shape="rect" id="node6" href="$classpascinference_1_1data_1_1ImageData.html" title="pascinference::data\l::ImageData\&lt; VectorBase \&gt;" alt="" coords="436,168,623,209"/>
-<area shape="rect" id="node7" href="$classpascinference_1_1data_1_1Signal1DData.html" title="data of one&#45;dimensional signal " alt="" coords="428,233,631,275"/>
-</map>

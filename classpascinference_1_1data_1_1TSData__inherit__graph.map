@@ -1,5 +1,0 @@
-<map id="pascinference::data::TSData&lt; VectorBase &gt;" name="pascinference::data::TSData&lt; VectorBase &gt;">
-<area shape="rect" id="node3" href="$classpascinference_1_1data_1_1ImageData.html" title="{pascinference::data\l::ImageData\&lt; VectorBase \&gt;\n|# width\l# height\l|+ ImageData()\l+ ~ImageData()\l+ print()\l+ print()\l+ printcontent()\l+ printcontent()\l+ get_name()\l+ saveImage()\l+ saveImage()\l}" alt="" coords="5,689,192,913"/>
-<area shape="rect" id="node4" href="$classpascinference_1_1data_1_1Signal1DData.html" title="data of one&#45;dimensional signal " alt="" coords="216,667,437,935"/>
-<area shape="rect" id="node2" href="$classpascinference_1_1data_1_1GeneralData.html" title="general class for manipulation with data " alt="" coords="144,5,280,185"/>
-</map>

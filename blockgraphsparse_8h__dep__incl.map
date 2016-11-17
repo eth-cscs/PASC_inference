@@ -1,9 +1,0 @@
-<map id="include/algebra/matrix/blockgraphsparse.h" name="include/algebra/matrix/blockgraphsparse.h">
-<area shape="rect" id="node2" href="$test__blockgraphsparsematrix_8cu.html" title="examples/test_classes\l/algebra/test_blockgraphsparsematrix.cu" alt="" coords="9,95,266,136"/>
-<area shape="rect" id="node4" href="$graphh1fem_8h.html" title="include/model/graphh1fem.h" alt="" coords="290,102,475,129"/>
-<area shape="rect" id="node3" href="$test__blockgraphsparsematrix_8cpp.html" title="test class and methods: BlockGraphSparseMatrix " alt="" coords="5,184,269,225"/>
-<area shape="rect" id="node5" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="301,184,448,225"/>
-<area shape="rect" id="node7" href="$test__signal1D_8cu.html" title="examples/test_signal1D\l/test_signal1D.cu" alt="" coords="472,184,635,225"/>
-<area shape="rect" id="node6" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="301,273,448,315"/>
-<area shape="rect" id="node8" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="472,273,635,315"/>
-</map>
