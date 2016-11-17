@@ -1,0 +1,12 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classpascinference_1_1solver_1_1GeneralSolver.html" title="solver for solving problems " alt="" coords="5,169,152,211"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1solver_1_1DiagSolver.html" title="Solver for linear systems with diagonal matrix. " alt="" coords="206,71,393,112"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1solver_1_1QPSolver.html" title="General Quadratic Programming solver. " alt="" coords="210,136,389,177"/>
+<area shape="rect" id="node9" href="$classpascinference_1_1solver_1_1SimpleSolver.html" title="Solver which doesn&#39;t do anything. " alt="" coords="200,201,399,243"/>
+<area shape="rect" id="node10" href="$classpascinference_1_1solver_1_1TSSolver.html" title="for solving time&#45;series problems " alt="" coords="211,267,387,308"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1solver_1_1CGQPSolver.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="455,5,654,47"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1solver_1_1MultiCGSolver.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="451,71,658,112"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1solver_1_1PermonSolver.html" title="Interface with QP solvers implemented in Permon library. " alt="" coords="453,136,657,177"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1solver_1_1SPGQPSolver.html" title="Spectral Projected Gradient method for Quadratic Programs. " alt="" coords="451,201,658,243"/>
+<area shape="rect" id="node8" href="$classpascinference_1_1solver_1_1SPGQPSolverC.html" title="Spectral Projected Gradient method for Quadratic Programs with special care of matrix coefficients..." alt="" coords="447,267,663,308"/>
+</map>

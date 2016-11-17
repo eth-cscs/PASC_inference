@@ -1,0 +1,13 @@
+<map id="include/solver/qpsolver.h" name="include/solver/qpsolver.h">
+<area shape="rect" id="node2" href="$cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="59,87,239,114"/>
+<area shape="rect" id="node3" href="$multicg_8h.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="5,169,164,196"/>
+<area shape="rect" id="node4" href="$permonsolver_8h.html" title="solve QP with solvers implemented in Permon library " alt="" coords="263,87,458,114"/>
+<area shape="rect" id="node5" href="$spgqpsolver_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs. " alt="" coords="733,87,919,114"/>
+<area shape="rect" id="node11" href="$spgqpsolver__coeff_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs with special case of matrix coeffic..." alt="" coords="533,80,709,121"/>
+<area shape="rect" id="node12" href="$tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="414,169,577,196"/>
+<area shape="rect" id="node6" href="$graphh1fem_8h.html" title="include/model/graphh1fem.h" alt="" coords="601,169,787,196"/>
+<area shape="rect" id="node7" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="427,244,574,285"/>
+<area shape="rect" id="node9" href="$test__signal1D_8cu.html" title="examples/test_signal1D\l/test_signal1D.cu" alt="" coords="607,244,770,285"/>
+<area shape="rect" id="node8" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="427,333,574,375"/>
+<area shape="rect" id="node10" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="607,333,770,375"/>
+</map>

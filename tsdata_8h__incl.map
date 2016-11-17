@@ -1,0 +1,24 @@
+<map id="include/data/tsdata.h" name="include/data/tsdata.h">
+<area shape="rect" id="node3" href="$common_8h.html" title="commonly used stuff " alt="" coords="488,229,625,256"/>
+<area shape="rect" id="node21" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="1739,80,1857,107"/>
+<area shape="rect" id="node8" href="$timer_8h.html" title="for measuring time " alt="" coords="5,304,121,331"/>
+<area shape="rect" id="node9" href="$memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="79,379,248,405"/>
+<area shape="rect" id="node10" href="$globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="277,379,447,405"/>
+<area shape="rect" id="node11" href="$consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="562,304,730,331"/>
+<area shape="rect" id="node12" href="$consoleinput_8h.html" title="Manipulation with console arguments and parameters. " alt="" coords="2423,304,2583,331"/>
+<area shape="rect" id="node17" href="$logging_8h.html" title="Log files. " alt="" coords="197,304,325,331"/>
+<area shape="rect" id="node19" href="$mvnrnd_8h.html" title="common/mvnrnd.h" alt="" coords="754,304,885,331"/>
+<area shape="rect" id="node20" href="$shortinfo_8h.html" title="Manipulation with output file which includes short final information. " alt="" coords="400,304,537,331"/>
+<area shape="rect" id="node15" href="$options_8h.html" title="define command line options " alt="" coords="2562,379,2637,405"/>
+<area shape="rect" id="node22" href="$pascinference_8h.html" title="main header file " alt="" coords="1741,155,1855,181"/>
+<area shape="rect" id="node29" href="$arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="1067,229,1228,256"/>
+<area shape="rect" id="node30" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1253,229,1410,256"/>
+<area shape="rect" id="node31" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1434,229,1591,256"/>
+<area shape="rect" id="node32" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1615,229,1799,256"/>
+<area shape="rect" id="node33" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="2622,229,2793,256"/>
+<area shape="rect" id="node35" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="1824,229,1953,256"/>
+<area shape="rect" id="node36" href="$list_8h.html" title="solver/list.h" alt="" coords="1977,229,2067,256"/>
+<area shape="rect" id="node37" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="2091,229,2241,256"/>
+<area shape="rect" id="node38" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="2265,229,2414,256"/>
+<area shape="rect" id="node34" href="$bgmgraph_8h.html" title="class for manipulation with graphs " alt="" coords="2703,304,2839,331"/>
+</map>
