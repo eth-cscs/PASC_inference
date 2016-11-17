@@ -3,6 +3,8 @@
 HPC C++ library for signal denoising and clustering time-series. 
 Based on FEM-H1 regularisation proposed by Illia Horenko et al. and supported by "PASC project: Towards the HPC-inference of causality networks from multiscale economical data".
 
+Generated Doxyden documentation can be found here: http://eth-cscs.github.io/PASC_inference/
+
 ## Installation
 - download library
 ```
