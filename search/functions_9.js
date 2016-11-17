@@ -10,9 +10,6 @@ var searchData=
   ['mul',['mul',['../classpetscvector_1_1PetscVectorWrapperMul.html#a8a50123cea7abf25f332b385138c0e5e',1,'petscvector::PetscVectorWrapperMul::mul()'],['../namespacepetscvector.html#a2f8f8c06432e3856cb38197e2a0ae2d4',1,'petscvector::mul(const PetscVector &amp;vec1, const PetscVector &amp;vec2)'],['../namespacepetscvector.html#af4094b077e621dbe5906dac7b93ac1dd',1,'petscvector::mul(PetscVectorWrapperSub subvec1, PetscVectorWrapperSub subvec2)']]],
   ['mult_5fpw_5farray',['mult_pw_array',['../namespacepascinference_1_1algebra.html#af62b124cb8763c0d227159084f735091',1,'pascinference::algebra']]],
   ['multicgsolver',['MultiCGSolver',['../classpascinference_1_1solver_1_1MultiCGSolver.html#a115271f82b16f61d35b1c69e2541f610',1,'pascinference::solver::MultiCGSolver::MultiCGSolver()'],['../classpascinference_1_1solver_1_1MultiCGSolver.html#a4445fb0971ee4cb00b3699de41a8ab8f',1,'pascinference::solver::MultiCGSolver::MultiCGSolver(const QPData&lt; VectorBase &gt; &amp;new_qpdata)']]],
-  ['mxcreatedoublematrixe',['mxCreateDoubleMatrixE',['../mexutil_8h.html#a749f1317fafac627a1bc0dc87cdfa8bb',1,'mexutil.h']]],
-  ['mxcreatenumericarraye',['mxCreateNumericArrayE',['../mexutil_8h.html#a5801830d54834a56917594b84a0dce6d',1,'mexutil.h']]],
-  ['mxcreatenumericmatrixe',['mxCreateNumericMatrixE',['../mexutil_8h.html#a91330fd224087f80429ca2453ebc448c',1,'mexutil.h']]],
   ['my_5fmvnrnd_5fd2',['my_mvnrnd_D2',['../namespacepascinference_1_1common.html#ae69156a7300d72f15404d922056698ab',1,'pascinference::common']]],
   ['my_5fmvnrnd_5fdn',['my_mvnrnd_Dn',['../namespacepascinference_1_1common.html#a564eb7bd9fe93eef43b667c42f6e98e7',1,'pascinference::common']]],
   ['myround',['myround',['../namespacepascinference_1_1common.html#a6b2a917eb4e873fcd652199c4b7a45c0',1,'pascinference::common']]]
