@@ -128,7 +128,7 @@ int main( int argc, char *argv[] )
 	if(given_gamma0){
 		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)\n";
 	} else {
-		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << "(name of input file with initial gamma approximation)\n";
+		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)\n";
 	}
 	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)\n";
 	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)\n";

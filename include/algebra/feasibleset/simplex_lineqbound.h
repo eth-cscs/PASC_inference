@@ -112,7 +112,7 @@ SimplexFeasibleSet_LinEqBound<VectorBase>::SimplexFeasibleSet_LinEqBound(int T, 
 	TRYCXX( MatGetOwnershipRangeColumn(B, &col_begin, NULL) );
 
 	/* set local content */
-	double value = 1.0;
+	double value = 1.0/(double)(this->K*this->T);
 	for(int t=0; t<this->Tlocal;t++){
 		for(int k=0;k<this->K;k++){
 			TRYCXX( MatSetValue(B, row_begin + t, col_begin + t*this->K+k, value, INSERT_VALUES) );

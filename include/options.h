@@ -94,6 +94,14 @@ static void add_options(boost::program_options::options_description *description
 			("spgqpsolver_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
 		opt_solvers.add(opt_spgqpsolver);
 
+		/* PERMONSOLVER */
+		boost::program_options::options_description opt_permonsolver("PERMONSOLVER", console_nmb_cols);
+		opt_permonsolver.add_options()
+			("permonsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
+			("permonsolver_eps", boost::program_options::value<double>(), "precision [double]")
+			("permonsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
+		opt_solvers.add(opt_permonsolver);
+
 	description->add(opt_solvers);
 
 

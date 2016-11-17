@@ -13,6 +13,10 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
+#define PERMONSOLVER_DEFAULT_MAXIT 1000
+#define PERMONSOLVER_DEFAULT_EPS 1e-9
+
+
 #ifndef USE_PETSCVECTOR
 	#error 'BLOCKGRAPHSPARSEMATRIX is for PETSCVECTOR only, sorry'
 #else
@@ -114,9 +118,9 @@ namespace solver {
 
 template<class VectorBase>
 void PermonSolver<VectorBase>::set_settings_from_console() {
-/*	consoleArg.set_option_value("spgqpsolver_maxit", &this->maxit, SPGQPSOLVER_COEFF_DEFAULT_MAXIT);
-	consoleArg.set_option_value("spgqpsolver_eps", &this->eps, SPGQPSOLVER_COEFF_DEFAULT_EPS);
-	
+	consoleArg.set_option_value("permonsolver_maxit", &this->maxit, PERMONSOLVER_DEFAULT_MAXIT);
+	consoleArg.set_option_value("permonsolver_eps", &this->eps, PERMONSOLVER_DEFAULT_EPS);
+/*	
 	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_COEFF_DEFAULT_M);	
 	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_COEFF_DEFAULT_GAMMA);	
 	consoleArg.set_option_value("spgqpsolver_sigma1", &this->sigma1, SPGQPSOLVER_COEFF_DEFAULT_SIGMA1);	
@@ -220,6 +224,10 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	Vec c = fs_lineqbound->get_c();
 	Vec lb = fs_lineqbound->get_lb();
 
+	Vec ub;
+	TRYCXX( VecDuplicate(lb,&ub) );
+	TRYCXX( VecSet(ub,1.0) );
+
 	/* prepare permon QP */
 	TRYCXX( QPCreate(PETSC_COMM_WORLD, &qp) );
 	TRYCXX( QPSetOperator(qp, A) ); /* set stiffness matrix */
@@ -227,20 +235,23 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	TRYCXX( QPSetInitialVector(qp, x0) ); /* set initial approximation */
 
 	TRYCXX( QPAddEq(qp,B,c) ); /* add equality constraints Bx=c */
-	TRYCXX( QPSetBox(qp, lb, NULL) ); /* add lowerbound */
+	TRYCXX( QPSetBox(qp, lb, ub) ); /* add lowerbound */
 
 	/* prepare permon QPS */
 	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
 	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
-//	TRYCXX( QPSSetTolerances(qps, setting.rtol, setting.atol, setting.dtol, setting.maxit);CHKERRQ(ierr); /* Set QPS options from settings */
-//	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0);CHKERRQ(ierr); /* Set the QPS monitor */
+	TRYCXX( QPSSetTolerances(qps, this->eps, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
+	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0) ); /* Set the QPS monitor */
 	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
+
+	TRYCXX( QPSSMALXESetRhoInitial(qps,1e5, QPS_ARG_DIRECT) );
+
 	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
 	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
 	
 	/* print some infos about QPS */
 //	TRYCXX( QPSView(qps, PETSC_VIEWER_STDOUT_WORLD) );
-	
+
 	LOG_FUNC_END
 }
 
@@ -492,6 +503,20 @@ void PermonSolver<VectorBase>::solve() {
 	TRYCXX( QPGetSolutionVector(qp, &x) );
 
 	TRYCXX( QPSGetIterationNumber(qps, &it) );
+
+	/* control the equality constraint */
+	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
+	Mat B = fs_lineqbound->get_B();
+	Vec c = fs_lineqbound->get_c();
+	Vec v;
+	TRYCXX( VecDuplicate(c,&v) );
+	TRYCXX( MatMult(B,x,v) );
+	TRYCXX( VecAXPY(v,1.0,c) );
+
+	double mynorm;
+	TRYCXX( VecNorm(v, NORM_2, &mynorm) );
+	coutMaster << "++++ norm(B*x - c) = " << mynorm << std::endl;
+
 
 	this->it_sum += it;
 	this->hessmult_sum += hessmult;
