@@ -17,7 +17,7 @@ extern int DEBUG_MODE;
 #include "algebra/matrix/blockgraphsparse.h"
 
 #include "algebra/feasibleset/simplex_local.h"
-//#include "solver/spgqpsolver.h"
+#include "solver/spgqpsolver.h"
 #include "solver/spgqpsolver_coeff.h"
 #include "data/qpdata.h"
 
@@ -54,7 +54,8 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		typedef enum { 
 			SOLVER_AUTO=0, /**< choose automatic solver */
 			SOLVER_SPGQP=1, /**< CPU/GPU implementation of Spectral Projected Gradient method */
-			SOLVER_PERMON=2 /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
+			SOLVER_SPGQP_COEFF=2, /**< CPU/GPU implementation of Spectral Projected Gradient method with special coefficient threatment */
+			SOLVER_PERMON=3 /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
 		} GammaSolverType;
 
 	protected:
@@ -223,6 +224,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	switch(this->gammasolvertype){
 		case(SOLVER_AUTO): output << "AUTO"; break;
 		case(SOLVER_SPGQP): output << "SPG-QP solver"; break;
+		case(SOLVER_SPGQP_COEFF): output << "SPG-QP-COEFF solver"; break;
 		case(SOLVER_PERMON): output << "PERMON QP solver"; break;
 	}
 	output << std::endl;
@@ -251,6 +253,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	switch(this->gammasolvertype){
 		case(SOLVER_AUTO): output_global << "AUTO"; break;
 		case(SOLVER_SPGQP): output_global << "SPG-QP solver"; break;
+		case(SOLVER_SPGQP_COEFF): output_global << "SPG-QP-COEFF solver"; break;
 		case(SOLVER_PERMON): output_global << "PERMON QP solver"; break;
 	}
 	output_global << std::endl;
@@ -382,6 +385,18 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	
 	/* SPG-QP solver */
 	if(this->gammasolvertype == SOLVER_SPGQP){
+		/* the feasible set of QP is simplex */
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); 
+
+		/* create solver */
+		*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
+
+		/* set stopping criteria based on the size of x (i.e. gamma) */
+//		(*gammasolver)->set_eps((double)(this->tsdata->get_R()*this->tsdata->get_T())*(*gammasolver)->get_eps());
+	}
+
+	/* SPG-QP solver */
+	if(this->gammasolvertype == SOLVER_SPGQP_COEFF){
 		/* the feasible set of QP is simplex */
 		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); 
 
