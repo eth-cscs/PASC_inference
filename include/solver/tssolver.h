@@ -361,10 +361,13 @@ template<class VectorBase>
 void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
+	std::streamsize ss = std::cout.precision();
+
+	output << std::setprecision(17);
 	output <<  this->get_name() << std::endl;
-	output <<  " - it:          " << this->it_last << std::endl;
-	output <<  " - L:           " << this->L << std::endl;
-	output <<  " - deltaL:      " << this->deltaL << std::endl;
+	output <<  " - it:          " << std::setw(25) << this->it_last << std::endl;
+	output <<  " - L:           " << std::setw(25) << this->L << std::endl;
+	output <<  " - deltaL:      " << std::setw(25) << this->deltaL << std::endl;
 	output <<  " - gammasolver_status:" << std::endl;
 	output.push();
 	output << gammasolver_status.str() << std::endl;
@@ -374,6 +377,7 @@ void TSSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	output << thetasolver_status.str() << std::endl;
 	output.pop();
 	output <<  " - used memory: " << MemoryCheck::get_virtual() << "%" << std::endl;
+	output << std::setprecision(ss);
 	
 	LOG_FUNC_END
 }
@@ -397,17 +401,21 @@ template<class VectorBase>
 void TSSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
+	std::streamsize ss = std::cout.precision();
+
+	output << std::setprecision(17);
 	output <<  this->get_name() << std::endl;
-	output <<  " - it all =          " << this->it_sum << std::endl;
-	output <<  " - AIC =             " << tsdata->get_aic() << std::endl;
-	output <<  " - annealing =       " << this->annealing << std::endl;
-	output <<  " - init_permute =    " << this->init_permute << std::endl;
+	output <<  " - it all =          " << std::setw(25) << this->it_sum << std::endl;
+	output <<  " - AIC =             " << std::setw(25) << tsdata->get_aic() << std::endl;
+	output <<  " - annealing =       " << std::setw(25) << this->annealing << std::endl;
+	output <<  " - init_permute =    " << std::setw(25) << this->init_permute << std::endl;
 	output <<  " - timers" << std::endl;
-	output <<  "  - t_solve =        " << this->timer_solve.get_value_sum() << std::endl;
-	output <<  "  - t_gamma_update = "  << this->timer_gamma_update.get_value_sum() << std::endl;
-	output <<  "  - t_gamma_solve =  "  << this->timer_gamma_solve.get_value_sum() << std::endl;
-	output <<  "  - t_theta_update = " << this->timer_theta_update.get_value_sum() << std::endl;
-	output <<  "  - t_theta_solve =  " << this->timer_theta_solve.get_value_sum() << std::endl;
+	output <<  "  - t_solve =        " << std::setw(25) << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_gamma_update = " << std::setw(25)  << this->timer_gamma_update.get_value_sum() << std::endl;
+	output <<  "  - t_gamma_solve =  " << std::setw(25)  << this->timer_gamma_solve.get_value_sum() << std::endl;
+	output <<  "  - t_theta_update = " << std::setw(25) << this->timer_theta_update.get_value_sum() << std::endl;
+	output <<  "  - t_theta_solve =  " << std::setw(25) << this->timer_theta_solve.get_value_sum() << std::endl;
+	output << std::setprecision(ss);
 
 	output <<  " Gamma Solver" << std::endl;
 	if(gammasolver){
