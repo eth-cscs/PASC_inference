@@ -775,6 +775,10 @@ void SPGQPSolver<VectorBase>::solve() {
 
 			coutMaster << ", \t\033[36mgP = \033[0m" << this->gP;
 			coutMaster << ", \t\033[36mdd = \033[0m" << dd << std::endl;
+
+			/* log function value */
+			LOG_FX2(fx)
+
 		}
 		
 		/* print qpdata */

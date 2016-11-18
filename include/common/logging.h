@@ -289,7 +289,11 @@ class LoggingClass {
 					myfile << line << LOG_SEPARATOR;
 				}
 				myfile << "FX_" << name_algorithm << LOG_SEPARATOR;
-				myfile << fx_value;
+				
+				std::streamsize ss = std::cout.precision();
+				myfile << std::setprecision(17) << fx_value << std::setprecision(ss);
+				
+				
 				myfile << std::endl;
 				closefile();
 			}
@@ -318,7 +322,11 @@ class LoggingClass {
 					myfile << line << LOG_SEPARATOR;
 				}
 				myfile << "FX_" << name_algorithm << "_" << name_add << LOG_SEPARATOR;
-				myfile << fx_value;
+
+				std::streamsize ss = std::cout.precision();
+				myfile << std::setprecision(17) << fx_value << std::setprecision(ss);
+				
+				
 				myfile << std::endl;
 				closefile();
 			}
