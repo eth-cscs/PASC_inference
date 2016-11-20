@@ -15,10 +15,14 @@ typedef petscvector::PetscVector PetscVector;
 namespace pascinference {
 namespace algebra {
 
+/** \class Decomposition
+ *  \brief Manipulation with problem layout.
+ *
+*/
 class Decomposition {
 	protected:
 		/* T decomposition */
-		int T;
+		int T; /**< time - global length */
 		int DDT_size; /**< time - number of domains for decomposition */
 		int *DDT_ranges; /**< time - local ownerships */
 		bool destroy_DDT_arrays; /**< if decomposition of T was not provided, I have to create and destroy arrays here */
@@ -26,7 +30,7 @@ class Decomposition {
 		/* R decomposition */
 		BGMGraph *graph; /**< graph with stucture of the matrix */
 
-		int R;
+		int R; /**< space - global length */
 		int DDR_size; /**< space - number of domains for decomposition */
 		int *DDR_affiliation; /**< space - domain affiliation of vertices */
 		int *DDR_permutation; /**< space - permutation of global indexes */
@@ -57,6 +61,8 @@ class Decomposition {
 		Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DDR_size);
 
 		/** @brief decomposition in time and space
+		 * 
+		 * @todo has to be tested, probably is not working
 		*/
 		Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DDT_size, int DDR_size);
 
@@ -64,29 +70,111 @@ class Decomposition {
 		*/
 		~Decomposition();
 		
+		/** @brief get global time length
+		 * 
+		 * @return global length of time
+		 */
 		int get_T() const;
+		
+		/** @brief get local portion of time
+		 * 
+		 * @return local number of time steps
+		 */
 		int get_Tlocal() const;
+
+		/** @brief get first local index of time in global scope
+		 * 
+		 * @return starting index of local portion of time steps
+		 */
 		int get_Tbegin() const;
+
+		/** @brief get last local index (+1) of time in global scope
+		 *
+		 * @return last index of local portion of time steps plus one
+		 */
 		int get_Tend() const;
+
+		/** @brief get number of parts of time decomposition
+		 * 
+		 * @return number of parts of time decomposition
+		 */
 		int get_DDT_size() const;
+
+		/** @brief get my coordinate in time decomposition
+		 * 
+		 * @return the coortinate of this MPI process in time decomposition
+		 */
 		int get_DDT_rank() const;
+		
+		/** @brief get the array with first indexes of local portion of time
+		 * 
+		 * @return the array (of size DDT_size+1) with global starting indexes
+		 */
 		const int *get_DDT_ranges() const;
 
+		/** @brief get global space length
+		 * 
+		 * @return number of nodes in spatial graph
+		 */
 		int get_R() const;
+
+		/** @brief get first local index of space in global scope
+		 * 
+		 * @return starting index of local portion of graph nodes
+		 */
 		int get_Rbegin() const;
+
+		/** @brief get last local index (+1) of space decomposition in global scope
+		 *
+		 * @return last index of local portion of graph nodes plus one
+		 */
 		int get_Rend() const;
+
+		/** @brief get local portion of decomposed spatial graph
+		 * 
+		 * @return local number of graph nodes
+		 */
 		int get_Rlocal() const;
+
+		/** @brief get number of parts of space decomposition
+		 * 
+		 * @return the number of parts of graph decomposition
+		 */
 		int get_DDR_size() const;
+
+		/** @brief get coordinate of this MPI process in space decomposition
+		 * 
+		 * @return coordinate of local part in graph decomposition
+		 */
 		int get_DDR_rank() const;
+
+
 		int *get_DDR_affiliation() const;
 		int *get_DDR_permutation() const;
 		int *get_DDR_invpermutation() const;
 		int *get_DDR_lengths() const;
 		int *get_DDR_ranges() const;
+		
+		/** @
 		BGMGraph *get_graph() const;
+		
+		/** @brief set graph of space decomposition
+		 * 
+		 * @param graph the new graph of decomposition
+		 * @param DDR_size number of parts of graph decomposition
+		 */
 		void set_graph(BGMGraph &graph, int DDR_size=1);
 
+		/** @brief get number of clusters
+		 * 
+		 * @return number of clusters
+		 */
 		int get_K() const;
+
+		/** @brief get data dimension (number of components)
+		 * 
+		 * @return number of data components
+		 */
 		int get_xdim() const;
 
 		/** @brief print informations of decomposition
@@ -97,19 +185,68 @@ class Decomposition {
 		*/
 		void print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details=true) const;
 
+		/** @brief create global PETSc gamma vector with respect to this decomposition
+		 * 
+		 * @param x_Vec pointer to new gamma vector
+		*/
 		void createGlobalVec_gamma(Vec *x_Vec) const;
+
+		/** @brief create global PETSc gamma vector on GPU with respect to this decomposition
+		 * 
+		 * VECMPICUDA
+		 * 
+		 * @param x_Vec pointer to new gamma vector
+		*/
 		void createGlobalCudaVec_gamma(Vec *x_Vec) const;
+
+		/** @brief create global PETSc data vector with respect to this decomposition
+		 * 
+		 * @param x_Vec pointer to new vector
+		*/
 		void createGlobalVec_data(Vec *x_Vec) const;
+
+		/** @brief create global PETSc data vector on GPU with respect to this decomposition
+		 * 
+		 * VECMPICUDA
+		 * 
+		 * @param x_Vec pointer to new vector
+		*/
 		void createGlobalCudaVec_data(Vec *x_Vec) const;
 
+		/** @brief get local index in gamma vector from global indexes
+		 * 
+		 * @param t_global global time index
+		 * @param r_global global space index
+		 * @param k index of cluster
+		 * @return local index in gamma vector
+		 */
 		int get_idxglobal(int t_global, int r_global, int k) const;
+
+		/** @brief get the index of node in original graph from index in permutated graph
+		 * 
+		 * @param r_global global node index in permutated graph
+		 * @return node index in original graph
+		 * @todo has to be tested
+		 */
 		int get_invPr(int r_global) const;
+
+		/** @brief get the index of node in permutated graph from index in original graph
+		 * 
+		 * @param r_global global node index in original graph
+		 * @return node index in permutated graph
+		 * @todo has to be tested
+		 */
 		int get_Pr(int r_global) const;
 
 		void permute_TRxdim(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
 		void permute_TRK(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
 		void permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 		
+		/** @brief create PETSC index set with local gamma indexes which correspond to given cluster index
+		 * 
+		 * @param is pointer to new index set
+		 * @param k index of cluster
+		 */
 		void createIS_gammaK(IS *is, int k) const;
 };
 
