@@ -1,0 +1,98 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{color}
+\newtheorem{lemma}{Lemma}
+
+\DeclareMathOperator{\Ker}{Ker}
+\let\Im\undefined
+\DeclareMathOperator{\Im}{Im}
+\let\span\undefined
+\DeclareMathOperator{\span}{span}
+
+\begin{document}
+
+Let us consider an optimisation problem
+\begin{displaymath}
+\begin{array}{rcl}
+ \bar{\gamma} & := & \arg \min\limits_{\gamma \in \Omega} L_{\Theta}(\gamma) \\
+ \gamma & := & [\gamma_1, \dots, \gamma_K] \in \mathbb{R}^{KT}, \\
+ \gamma_k & := & [\gamma_k(1), \dots, \gamma_k(T)] \in \mathbb{R}^{T} \\
+ L^{\epsilon}_{\Theta}(\gamma) & := & \frac{1}{T} b_{\Theta}^T \gamma + \frac{\epsilon^2}{T} \gamma^T H \gamma, \\
+ \Omega & := & \lbrace \gamma \in \mathbb{R}^{KT}: \gamma \geq 0 \wedge \sum\limits_{k=1}^K \gamma(t) = 1, \forall t = 1,\dots T \rbrace
+\end{array}
+\end{displaymath}
+and $H \in \mathbb{R}^{KT,KT}$ is block-diagonal matrix, whose blocks $L_k \in \mathbb{R}^{T,T}$ are formed by Laplace matrix. \newline
+In what follows, we proved that this problem has always unique solution.
+
+\section{Properties}
+
+\begin{itemize}
+\item $H$ is SPS (since blocks are SPS) and
+ \begin{equation}
+  \label{eq:kerH}
+  \begin{array}{rcl}  
+   \Ker H & = & \span \lbrace [c, {\bf 0}, \dots, {\bf 0}]^T, [{\bf 0}, c, {\bf 0} \dots, {\bf 0}]^T, \dots, [{\bf 0} \dots, {\bf 0}, c]^T \rbrace \subset \mathbb{R}^{KT}, \\
+   c & := & [ 1, \dots, 1] \in \mathbb{R}^T
+  \end{array}
+ \end{equation}
+\item $L^{\epsilon}_{\Theta}(\gamma)$ is continuous (not strictly) convex function $\mathbb{R}^{KT} \rightarrow \mathbb{R}$,
+\item gradient is given by $\nabla_{\gamma} L^{\epsilon}_{\Theta}(\gamma) = \frac{1}{T} b_{\Theta} + \frac{2\epsilon^2}{T} H \gamma$ ("well known" - can be proved using Taylor expansion),
+\item $\Omega \subset \mathbb{R}^{KT}$ is bounded closed convex set {\color{red}(has to be proved?)},
+\item the matrix $B = [I, \dots I] \in \mathbb{R}^{T,KT}$ ($I \in \mathbb{R}^{T,T}$ denotes identity matrix) forms the equivalent definition of $\Omega$ given by
+ \begin{displaymath}
+  \Omega = \lbrace \gamma \in \mathbb{R}^{KT}: \gamma \geq 0 \wedge B\gamma = c \rbrace
+ \end{displaymath}
+\item $\Ker H \cap \Ker B = \lbrace 0 \rbrace$, proof: let $d := [\alpha_1 c, \dots, \alpha_K c] \neq 0$ be a vector from $\Ker H$, then
+\begin{displaymath}
+ Bd = \left[\sum\limits_{k=1}^K \alpha_k, \dots, \sum\limits_{k=1}^K \alpha_k \right]^T
+\end{displaymath}
+and because $d$ is nonzero (not all $\alpha_k$ is equal zero), then $Bd \neq 0$ and therefore $d \notin \Ker B$.
+\end{itemize}
+
+\begin{lemma}
+\label{th:penalized}
+Let $A \in \mathbb{R}^{n \times n}$ be a SPS matrix, let $B \in \mathbb{R}^{m \times n}$, $\rho > 0$, and let $\Ker A \cap \Ker B = \lbrace 0 \rbrace$.
+Then matrix
+\begin{displaymath}
+A_{\rho} = A + \rho B^T B
+\end{displaymath}
+is SPD.
+\end{lemma}
+
+\begin{proof}
+Let us follow Dost\'{a}l \cite{DosBOOK-2009}, Lemma 1.2. \newline
+If $x \in \mathbb{R}^n \setminus \lbrace 0 \rbrace$ and $\Ker A \cap \Ker B = \lbrace 0 \rbrace$, then either $Ax \neq 0$ or $Bx \neq 0$.
+% (equivalently either $\Vert Ax \Vert \neq 0$ or $\Vert Bx \Vert \neq 0$)
+Since $Ax \neq 0$ is equivalent to $A^{\frac{1}{2}}x \neq 0$,
+% ($\Vert Ax \Vert \neq 0$ is equivalent to $\Vert A^{\frac{1}{2}}x \Vert \neq 0$)
+we get for $\rho > 0$ 
+\begin{displaymath}
+ x^T A_{\rho} x = 
+ x^T (A + \rho B^T B) x = x^T A x + \rho x^T B^T B x =
+ \Vert A^{\frac{1}{2}}x \Vert^2 + \rho \Vert Bx \Vert^2 > 0~\mathrm{.} 
+\end{displaymath}
+Thus $A_{\rho}$ is positive definite. \newline
+\end{proof}
+
+\section{"The" proof}
+
+Let us define equivalent penalised optimisation problem
+\begin{displaymath}
+ \bar{\gamma} =  \arg \min\limits_{\gamma \in \Omega} L_{\Theta}^{\epsilon}(\gamma) + \frac{\epsilon^2 \rho}{T} \Vert B \gamma - c \Vert^2 .
+\end{displaymath}
+Obviously, any solution of this problem is also the solution of original problem and vice versa (the penalisation term is equal to $0$ for all feasible $\gamma \in \Omega$).
+However, the object function of the new problem can be written in form
+\begin{displaymath}
+  L_{\Theta}^{\epsilon}(\gamma) + \frac{\epsilon^2 \rho}{T} \Vert B \gamma - c \Vert^2 = \frac{\epsilon^2}{T} \gamma^T (H + \rho B^T B) \gamma + \frac{1}{T} \gamma^T (b_{\Theta} - 2 \epsilon^2 \rho B^T c) + \frac{\varepsilon^2 \rho}{T} c^T c
+\end{displaymath} 
+and the Hessian matrix is given by $(H + \rho B^T B)$, which is SPD (see Lemma \ref{th:penalized}) and consequently, the object function is strictly convex (in this case, penalisation works as regularisation).
+Since strictly convex QP on closed convex set has always unique solution, the solution of original problem is also unique.
+
+\end{document}
+
+
