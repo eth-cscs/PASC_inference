@@ -7,7 +7,7 @@
 clear all
 close all
 
-addpath('myfunctions')
+addpath(genpath(fullfile(pwd,'../common')))
 
 K = 2; % number of clusters
 n = 10000; % length of signal

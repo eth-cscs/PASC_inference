@@ -6,7 +6,8 @@
 %
 
 clear all
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
+
 n = 3000; % number of points
 radius = 1; % radius of the sphere
 

@@ -6,7 +6,7 @@
 clear all
 close all
 
-addpath('myfunctions')
+addpath(genpath(fullfile(pwd,'../common')))
 
 nameextension = 'gauss';
 %nameextension = 'uniform';

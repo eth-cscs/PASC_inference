@@ -5,7 +5,7 @@
 
 clear all
 
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
 
 width = 1683;height = 374;
 

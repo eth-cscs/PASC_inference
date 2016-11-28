@@ -5,7 +5,7 @@
 
 clear all
 
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
 
 noise_coeffs = [0.0 0.2 0.4 1.0];
 noise_coeffs_print = {'00' '02' '04' '10'};

@@ -5,7 +5,7 @@
 
 clear all
 
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
 
 K = 2;
 annealing = 10;

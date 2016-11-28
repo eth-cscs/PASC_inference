@@ -7,7 +7,7 @@
 clear all
 close all
 
-addpath('myfunctions')
+addpath(genpath(fullfile(pwd,'../common')))
 
 % load HMM toolbox
 addpath('../HMM/HMMall/HMM')

@@ -5,7 +5,7 @@
 
 clear all
 
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
 
 M = csvread('data/image_usi/shortinfo_final2.txt',1,1);
 

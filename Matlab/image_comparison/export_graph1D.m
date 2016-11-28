@@ -3,7 +3,7 @@
 % Lukas Pospisil, USI, Lugano 2016
 %
 
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
 n = 51; % size of graph
 
 % compute coordinate

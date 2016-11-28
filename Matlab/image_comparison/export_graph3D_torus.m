@@ -5,7 +5,7 @@
 %
 
 clear all
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
 
 % number of points
 a=5;

@@ -3,7 +3,8 @@
 % Lukas Pospisil, USI, Lugano 2016
 %
 
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
+
 n = 2000; % number of points
 
 ranges = [1 floor(n/4) floor(2/3*n) n];

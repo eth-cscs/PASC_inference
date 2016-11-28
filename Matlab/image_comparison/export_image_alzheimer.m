@@ -5,7 +5,7 @@
 
 clear all
 
-addpath('common')
+addpath(genpath(fullfile(pwd,'../common')))
 
 % input
 C_noise_medium = load('data/image_alzheimer/C_noise_medium');
