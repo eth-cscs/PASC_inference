@@ -27,6 +27,9 @@
 *.out
 *.app
 
+# Matlab temp files
+*.m~
+
 html
 build
 examples/build*
