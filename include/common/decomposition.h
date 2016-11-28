@@ -155,7 +155,10 @@ class Decomposition {
 		int *get_DDR_lengths() const;
 		int *get_DDR_ranges() const;
 		
-		/** @
+		/** @brief get graph of space decomposition
+		 * 
+		 * @return pointer to graph
+		 */
 		BGMGraph *get_graph() const;
 		
 		/** @brief set graph of space decomposition
