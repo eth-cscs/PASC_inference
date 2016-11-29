@@ -9,11 +9,12 @@ from common_pbs import show_jobs
 import os, shutil, sys, getopt
 
 # parse input arguments
-if len(sys.argv) < 2:
-    print 'anselm_pbs_strong.py <inputfile>'
+if len(sys.argv) < 3:
+    print 'anselm_pbs_strong.py <inputfile> <spgqpsolver_eps>'
     sys.exit()
 
 inputfile = sys.argv[1];
+spgqpsolver_eps = sys.argv[2];
 
 # path to exec folder
 username = "pos220"
@@ -38,10 +39,10 @@ params = ' '.join(params_list);
 gpu_problem_name = "strong_G";
 gpu_exec_path = "%s/examples/build_gpu/" %(main_folder);
 gpu_batch_path = "%s/batch/" %(gpu_exec_path);
-gpu_host_string = ["select=1:ncpus=1:mpiprocs=1:host=cn200,walltime=00:20:00",\
-                   "select=1:ncpus=1:mpiprocs=1:host=cn200+1:ncpus=1:mpiprocs=1:host=cn201,walltime=00:20:00",\
-                   "select=1:ncpus=1:mpiprocs=1:host=cn200+1:ncpus=1:mpiprocs=1:host=cn201+1:ncpus=1:mpiprocs=1:host=cn202,walltime=00:20:00",\
-                   "select=1:ncpus=1:mpiprocs=1:host=cn200+1:ncpus=1:mpiprocs=1:host=cn201+1:ncpus=1:mpiprocs=1:host=cn202+1:ncpus=1:mpiprocs=1:host=cn203,walltime=00:20:00"];
+gpu_host_string = ["select=1:ncpus=16:mpiprocs=1:host=cn200,walltime=00:20:00",\
+                   "select=1:ncpus=16:mpiprocs=1:host=cn200+1:ncpus=16:mpiprocs=1:host=cn201,walltime=00:20:00",\
+                   "select=1:ncpus=16:mpiprocs=1:host=cn200+1:ncpus=16:mpiprocs=1:host=cn201+1:ncpus=16:mpiprocs=1:host=cn202,walltime=00:20:00",\
+                   "select=1:ncpus=16:mpiprocs=1:host=cn200+1:ncpus=16:mpiprocs=1:host=cn201+1:ncpus=16:mpiprocs=1:host=cn202+1:ncpus=16:mpiprocs=1:host=cn203,walltime=00:20:00"];
 gpu_modules_path = "%s/util/module_load_anselm_gpu" %(main_folder);
 
 cpu_problem_name = "strong_C";
@@ -58,7 +59,7 @@ for index in range(len(N)):
     problem_name = "%s%d" %(gpu_problem_name,N[index])
     host_string = gpu_host_string[index]
     exec_path = gpu_exec_path
-    params2 = "--test_filename_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt" % (problem_name, N[index], problem_name)
+    params2 = "--test_filename_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
     batch_filename = os.path.join(gpu_batch_path, "%s.pbs" % (problem_name))
     write_pbs(problem_name, host_string, batch_filename, exec_path, exec_name_full, gpu_modules_path)
@@ -71,7 +72,7 @@ for index in range(len(N)):
     problem_name = "%s%d" %(cpu_problem_name,N[index])
     host_string = cpu_host_string[index]
     exec_path = cpu_exec_path
-    params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt" % (problem_name, N[index], problem_name)
+    params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
     batch_filename = os.path.join(cpu_batch_path, "%s.pbs" % (problem_name))
     write_pbs(problem_name, host_string, batch_filename, exec_path, exec_name_full, cpu_modules_path)
