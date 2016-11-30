@@ -43,4 +43,7 @@ colorbar
 axis off
 view([-135 35]);
 
+set(gcf,'Renderer','OpenGL');
+set(gcf,'RendererMode','manual');
+
 hold off

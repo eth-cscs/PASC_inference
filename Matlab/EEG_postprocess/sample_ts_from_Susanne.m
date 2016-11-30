@@ -42,6 +42,8 @@ colorbar
 axis off
 view([-135 35]);
 
+set(gcf,'Renderer','OpenGL');
+set(gcf,'RendererMode','manual');
 
 for t=1:10
     % map electrode data to brain vertex data
