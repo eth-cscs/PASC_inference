@@ -14,7 +14,7 @@ __global__ void print_precision(){
 	double a;
 	for(int i=0; i < 25;i++){
 		a = 1.0 + pow(10.0,-i);
-		printf(" 1+10^{- %d} : %.*e\n", i, 30, a );
+		printf(" 1+10^{- %d} : %.30f\n", i, a );
 	}
 }
 
