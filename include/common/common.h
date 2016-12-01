@@ -111,7 +111,7 @@ bool Initialize(int argc, char *argv[]){
 	
 	/* cuda warm up */
 	#ifdef USE_CUDA
-		kernel_warmup<<<1,1>>();
+		kernel_warmup<<<1,1>>>();
 		gpuErrchk( cudaDeviceSynchronize() );
 	#endif
 	
