@@ -10,10 +10,10 @@ clear all
 sampleid = {'10e7'};
 
 for k=1:length(sampleid)
-    filename_cpu=['cpu/strong_shortinfo_final_' sampleid{k} '.txt'];
+    filename_cpu=['cpu/weak_shortinfo_final_' sampleid{k} '.txt'];
     M_cpu = csvread(filename_cpu,1,0);
 
-    filename_gpu=['gpu/strong_shortinfo_final_' sampleid{k} '.txt'];
+    filename_gpu=['gpu/weak_shortinfo_final_' sampleid{k} '.txt'];
     M_gpu = csvread(filename_gpu,1,0);
     
     %0col ngpus,K,epssqr_best,abserr_best,Theta0,
