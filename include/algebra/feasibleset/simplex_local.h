@@ -216,6 +216,7 @@ void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &
 		//TODO: here should be actually the comparison of Vec type! not simple use_gpu
 		kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K);
 		gpuErrchk( cudaDeviceSynchronize() );
+		MPI_Barrier( MPI_COMM_WORLD );
 
 		TRYCXX( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
 	#else
