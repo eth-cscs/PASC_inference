@@ -68,10 +68,10 @@ for k=1:length(sampleid)
         subplot(3,6,i);
         hold on
         plot(cpu_nmb,cpu_times(i,:),'b-o')
-        plot(cpu_nmb,cpu_times(i,1)./(1:size(cpu_times,2)),'b--')
+        plot(cpu_nmb,cpu_times(i,1)*ones(size(cpu_times(i,:))),'b--')
 
         plot(gpu_nmb,gpu_times(i,:),'r-o')
-        plot(gpu_nmb,gpu_times(i,1)./(1:size(gpu_times,2)),'r--')
+        plot(gpu_nmb,gpu_times(i,1)*ones(size(gpu_times(i,:))),'r--')
         
         xlabel('nmb of CPUs/GPUs')
         ylabel('computation time [s]')
@@ -84,10 +84,10 @@ for k=1:length(sampleid)
         subplot(3,6,6+i);
         hold on
         plot(cpu_nmb,cpu_times_relative(i,:),'b-o')
-        plot(cpu_nmb,cpu_times_relative(i,1)./(1:size(cpu_times,2)),'b--')
+        plot(cpu_nmb,cpu_times_relative(i,1)*ones(size(cpu_times(i,:))),'b--')
         
         plot(gpu_nmb,gpu_times_relative(i,:),'r-o')
-        plot(gpu_nmb,gpu_times_relative(i,1)./(1:size(gpu_times,2)),'r--')
+        plot(gpu_nmb,gpu_times_relative(i,1)*ones(size(gpu_times(i,:))),'r--')
         xlabel('nmb of CPUs/GPUs')
         ylabel('one iteration computation time [s]')
         ax = legend('CPU','optimal CPU','GPU','optimal GPU');
@@ -103,7 +103,7 @@ for k=1:length(sampleid)
         mybars(2,1:size(gpu_times,2)) = gpu_times_relative(i,1)./gpu_times_relative(i,:);
 
         b = bar(mybars');
-        plot(gpu_nmb,1:size(gpu_times,2),'k--')
+        plot(gpu_nmb,ones(size(gpu_times)),'k--')
         xlabel('nmb of CPUs/GPUs')
         ylabel('speed up')
         ax = legend('CPU','GPU','optimal');
