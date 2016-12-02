@@ -31,7 +31,7 @@ params_list.append("--test_filename_gamma0=data/%s_gamma0.bin" %(inputfile))
 params_list.append("--test_cutdata=false --test_scaledata=false")
 params_list.append("--test_epssqr=1e-2 --test_annealing=1")
 params_list.append("--tssolver_maxit=1 --tssolver_debugmode=0")
-params_list.append("--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgsolver_stop_Anormgp=true")
+params_list.append("--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_Anormgp=true")
 params_list.append("--test_shortinfo=true")
 params_list.append("--test_K=2 --test_Theta=1.0 --test_Theta=2.0")
 params = ' '.join(params_list);
@@ -39,10 +39,10 @@ params = ' '.join(params_list);
 gpu_problem_name = "strong_G";
 gpu_exec_path = "%s/examples/build_gpu/" %(main_folder);
 gpu_batch_path = "%s/batch/" %(gpu_exec_path);
-gpu_host_string = ["select=1:ncpus=16:mpiprocs=1:host=cn200,walltime=00:20:00",\
-                   "select=1:ncpus=16:mpiprocs=1:host=cn200+1:ncpus=16:mpiprocs=1:host=cn201,walltime=00:20:00",\
-                   "select=1:ncpus=16:mpiprocs=1:host=cn200+1:ncpus=16:mpiprocs=1:host=cn201+1:ncpus=16:mpiprocs=1:host=cn202,walltime=00:20:00",\
-                   "select=1:ncpus=16:mpiprocs=1:host=cn200+1:ncpus=16:mpiprocs=1:host=cn201+1:ncpus=16:mpiprocs=1:host=cn202+1:ncpus=16:mpiprocs=1:host=cn203,walltime=00:20:00"];
+gpu_host_string = ["select=1:ncpus=16:mpiprocs=1:host=cn183,walltime=00:20:00",\
+                   "select=1:ncpus=16:mpiprocs=1:host=cn184+1:ncpus=16:mpiprocs=1:host=cn185,walltime=00:20:00",\
+                   "select=1:ncpus=16:mpiprocs=1:host=cn186+1:ncpus=16:mpiprocs=1:host=cn187+1:ncpus=16:mpiprocs=1:host=cn188,walltime=00:20:00",\
+                   "select=1:ncpus=16:mpiprocs=1:host=cn189+1:ncpus=16:mpiprocs=1:host=cn190+1:ncpus=16:mpiprocs=1:host=cn191+1:ncpus=16:mpiprocs=1:host=cn192,walltime=00:20:00"];
 gpu_modules_path = "%s/util/module_load_anselm_gpu" %(main_folder);
 
 cpu_problem_name = "strong_C";

@@ -72,7 +72,9 @@ for index in range(len(N)):
     host_string = cpu_host_string[index]
     exec_path = cpu_exec_path
     params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
-    exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
+    params3 = "--test_filename=data/%s_%d_data.bin --test_filename_solution=data/%s_%d_solution.bin --test_filename_gamma0=data/%s_%d_gamma0.bin" % (inputfile,N[index],inputfile,N[index],inputfile,N[index]);
+
+    exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, params3, problem_name)
     batch_filename = os.path.join(cpu_batch_path, "%s.pbs" % (problem_name))
     write_pbs(problem_name, host_string, batch_filename, exec_path, exec_name_full, cpu_modules_path)
     batchfile_list.append(batch_filename);
