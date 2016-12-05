@@ -140,6 +140,7 @@ double StackTimer::getUnixTime(void){
 //	struct timespec tv;
 //	if(clock_gettime(CLOCK_REALTIME, &tv) != 0) return 0;
 //	return (((double) tv.tv_sec) + (double) (tv.tv_nsec / 1000000000.0));
+	MPI_Barrier(MPI_COMM_WORLD);
 	return MPI_Wtime();
 }
 
@@ -171,6 +172,7 @@ double Timer::getUnixTime(void){
 //	struct timespec tv;
 //	if(clock_gettime(CLOCK_REALTIME, &tv) != 0) return 0;
 //	return (((double) tv.tv_sec) + (double) (tv.tv_nsec / 1000000000.0));
+	MPI_Barrier(MPI_COMM_WORLD);
 	return MPI_Wtime();
 }
 
