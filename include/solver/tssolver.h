@@ -29,6 +29,9 @@
 
 #define TSSOLVER_DEFAULT_DEBUGMODE 0
 
+#define TSSOLVER_DUMP false
+
+
 namespace pascinference {
 namespace solver {
 
@@ -130,6 +133,8 @@ void TSSolver<VectorBase>::set_settings_from_console(){
 	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
 	consoleArg.set_option_value("tssolver_init_permute", &this->init_permute, TSSOLVER_DEFAULT_INIT_PERMUTE);
+
+	consoleArg.set_option_value("tssolver_dump", &this->dump_or_not, TSSOLVER_DUMP);	
 
 	/* set debug mode */
 	consoleArg.set_option_value("tssolver_debugmode", &debugmode, TSSOLVER_DEFAULT_DEBUGMODE);

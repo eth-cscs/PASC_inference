@@ -29,6 +29,8 @@
 #define SPGQPSOLVER_STOP_ANORMGP_NORMB false
 #define SPGQPSOLVER_STOP_DIFFF true
 
+#define SPGQPSOLVER_DUMP false
+
 #ifdef USE_PETSCVECTOR
 	typedef petscvector::PetscVector PetscVector;
 #endif
@@ -224,8 +226,11 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("spgqpsolver_stop_Anormgp_normb", &this->stop_Anormgp_normb, SPGQPSOLVER_STOP_ANORMGP_NORMB);
 	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
 
+	consoleArg.set_option_value("spgqpsolver_dump", &this->dump_or_not, SPGQPSOLVER_DUMP);	
+
 	/* set debug mode */
 	consoleArg.set_option_value("spgqpsolver_debugmode", &this->debugmode, SPGQPSOLVER_DEFAULT_DEBUGMODE);
+
 	
 	debug_print_vectors = false;
 	debug_print_scalars = false; 

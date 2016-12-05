@@ -104,6 +104,7 @@ class QPData: public GeneralData {
 		 */ 
 		GeneralFeasibleSet<VectorBase> *get_feasibleset() const;
 
+
 };
 
 

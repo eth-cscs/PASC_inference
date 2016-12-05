@@ -41,12 +41,13 @@ static void add_options(boost::program_options::options_description *description
 			("tssolver_eps", boost::program_options::value<double>(), "precision [double]")
 			("tssolver_init_permute", boost::program_options::value<bool>(), "permute initial approximation subject to decomposition [bool]")
 			("tssolver_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2/3]")
-			("tssolver_debug_print_annealing", boost::program_options::value<bool>(), "print info about annealing steps")
-			("tssolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
-			("tssolver_debug_print_theta", boost::program_options::value<bool>(), "print theta solver info")
-			("tssolver_debug_print_theta_solution", boost::program_options::value<bool>(), "print solution of theta problem in each iteration")
-			("tssolver_debug_print_gamma", boost::program_options::value<bool>(), "print gamma solver info")
-			("tssolver_debug_print_gamma_solution", boost::program_options::value<bool>(), "print solution of gamma problem in each iteration");
+			("tssolver_debug_print_annealing", boost::program_options::value<bool>(), "print info about annealing steps [bool]")
+			("tssolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations [bool]")
+			("tssolver_debug_print_theta", boost::program_options::value<bool>(), "print theta solver info [bool]")
+			("tssolver_debug_print_theta_solution", boost::program_options::value<bool>(), "print solution of theta problem in each iteration [bool]")
+			("tssolver_debug_print_gamma", boost::program_options::value<bool>(), "print gamma solver info [bool]")
+			("tssolver_debug_print_gamma_solution", boost::program_options::value<bool>(), "print solution of gamma problem in each iteration [bool]")
+			("tssolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_tssolver);
 
 		/* MULTICG */
@@ -54,7 +55,8 @@ static void add_options(boost::program_options::options_description *description
 		opt_multicgsolver.add_options()
 			("multicgsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("multicgsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("multicgsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
+			("multicgsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]")
+			("multicgsolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_multicgsolver);
 
 		/* QPSOLVER */
@@ -62,7 +64,8 @@ static void add_options(boost::program_options::options_description *description
 		opt_qpsolver.add_options()
 			("qpsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("qpsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("qpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
+			("qpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]")
+			("qpsolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_qpsolver);
 
 		/* CGQPSOLVER */
@@ -70,7 +73,8 @@ static void add_options(boost::program_options::options_description *description
 		opt_cgqpsolver.add_options()
 			("cgqpsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("cgqpsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("cgqpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
+			("cgqpsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]")
+			("cgqpsolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_cgqpsolver);
 
 		/* SPGQPSOLVER */
@@ -91,7 +95,8 @@ static void add_options(boost::program_options::options_description *description
 			("spgqpsolver_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
 			("spgqpsolver_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations")
-			("spgqpsolver_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
+			("spgqpsolver_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations")
+			("spgqpsolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_spgqpsolver);
 
 		/* PERMONSOLVER */
@@ -99,7 +104,8 @@ static void add_options(boost::program_options::options_description *description
 		opt_permonsolver.add_options()
 			("permonsolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
 			("permonsolver_eps", boost::program_options::value<double>(), "precision [double]")
-			("permonsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]");
+			("permonsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]")
+			("permonsolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_permonsolver);
 
 	description->add(opt_solvers);
@@ -111,7 +117,7 @@ static void add_options(boost::program_options::options_description *description
 		/* GRAPHH1FEMMODEL */
 		boost::program_options::options_description opt_graphh1femmodel("GRAPHH1FEMMODEL", console_nmb_cols);
 		opt_graphh1femmodel.add_options()
-			("graphh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_PERMON]");
+			("graphh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON]");
 		opt_models.add(opt_graphh1femmodel);
 
 		/* KMEANSH1FEMMODEL */

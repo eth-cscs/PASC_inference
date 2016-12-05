@@ -151,7 +151,7 @@ void PetscVector::save_binary(std::string filename){
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
 	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_WRITE, &mviewer) );
 	
-	/* load vector from viewer */
+	/* save vector using viewer */
 	TRYCXX( VecView(this->inner_vector, mviewer) );
 
 	/* destroy the viewer */
@@ -168,7 +168,7 @@ void PetscVector::save_ascii(std::string filename){
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
 	TRYCXX( PetscViewerASCIIOpen(PETSC_COMM_WORLD ,filename.c_str(), &mviewer) );
 	
-	/* load vector from viewer */
+	/* save vector using viewer */
 	TRYCXX( VecView(this->inner_vector, mviewer) );
 
 	/* destroy the viewer */

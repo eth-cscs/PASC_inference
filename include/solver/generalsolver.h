@@ -22,6 +22,8 @@ namespace solver {
 class GeneralSolver {
 	protected:
 		GeneralData *data; /**< pointer to data on which the solver operates */
+		bool dump_or_not;  /**< dump the data of problem which is solved */
+
 	public:
 		/* settings */
 		int debugmode; /**< print info about the progress */
@@ -124,7 +126,7 @@ class GeneralSolver {
 
 		virtual double get_eps() const;
 		virtual void set_eps(double eps);
-		
+
 };
 
 /* general print, call virtual print() */
@@ -229,6 +231,7 @@ double GeneralSolver::get_eps() const {
 void GeneralSolver::set_eps(double eps) {
 	this->eps = eps;
 }
+
 
 
 }

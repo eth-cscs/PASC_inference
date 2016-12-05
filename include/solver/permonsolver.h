@@ -16,6 +16,7 @@
 #define PERMONSOLVER_DEFAULT_MAXIT 1000
 #define PERMONSOLVER_DEFAULT_EPS 1e-9
 
+#define PERMONSOLVER_DUMP false
 
 #ifndef USE_PETSCVECTOR
 	#error 'BLOCKGRAPHSPARSEMATRIX is for PETSCVECTOR only, sorry'
@@ -76,6 +77,12 @@ class PermonSolver: public QPSolver<VectorBase> {
 		QP qp;						/**< Quadratic Programming problem */
 		QPS qps;					/**< Quadratic Programming solver */
 		
+		/** @brief dump data of the solver
+		 * 
+		 * called before solve()
+		 */
+		void dump() const; 
+
 	public:
 		/** @brief general constructor
 		* 
@@ -120,38 +127,8 @@ template<class VectorBase>
 void PermonSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("permonsolver_maxit", &this->maxit, PERMONSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("permonsolver_eps", &this->eps, PERMONSOLVER_DEFAULT_EPS);
-/*	
-	consoleArg.set_option_value("spgqpsolver_m", &this->m, SPGQPSOLVER_COEFF_DEFAULT_M);	
-	consoleArg.set_option_value("spgqpsolver_gamma", &this->gamma, SPGQPSOLVER_COEFF_DEFAULT_GAMMA);	
-	consoleArg.set_option_value("spgqpsolver_sigma1", &this->sigma1, SPGQPSOLVER_COEFF_DEFAULT_SIGMA1);	
-	consoleArg.set_option_value("spgqpsolver_sigma2", &this->sigma2, SPGQPSOLVER_COEFF_DEFAULT_SIGMA2);	
-	consoleArg.set_option_value("spgqpsolver_alphainit", &this->alphainit, SPGQPSOLVER_COEFF_DEFAULT_ALPHAINIT);	
-
-	consoleArg.set_option_value("spgqpsolver_stop_normgp", &this->stop_normgp, SPGQPSOLVER_COEFF_STOP_NORMGP);
-	consoleArg.set_option_value("spgqpsolver_stop_Anormgp", &this->stop_Anormgp, SPGQPSOLVER_COEFF_STOP_ANORMGP);
-	consoleArg.set_option_value("spgqpsolver_stop_normgp_normb", &this->stop_normgp_normb, SPGQPSOLVER_COEFF_STOP_NORMGP_NORMB);
-	consoleArg.set_option_value("spgqpsolver_stop_Anormgp_normb", &this->stop_Anormgp_normb, SPGQPSOLVER_COEFF_STOP_ANORMGP_NORMB);
-	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_COEFF_STOP_DIFFF);	
-	consoleArg.set_option_value("spgqpsolver_debugmode", &this->debugmode, SPGQPSOLVER_COEFF_DEFAULT_DEBUGMODE);
 	
-	debug_print_vectors = false;
-	debug_print_scalars = false; 
-	debug_print_it = false; 
-
-	if(debugmode == 1){
-		debug_print_it = true;
-	}
-
-	if(debugmode == 2){
-		debug_print_it = true;
-		debug_print_scalars = true;
-	}
-
-	consoleArg.set_option_value("tssolver_debug_print_it",		&debug_print_it, 		debug_print_it);
-	consoleArg.set_option_value("tssolver_debug_print_vectors", &debug_print_vectors,	false);
-	consoleArg.set_option_value("tssolver_debug_print_scalars", &debug_print_scalars, 	debug_print_scalars);
-*/
-
+	consoleArg.set_option_value("permonsolver_dump", &this->dump_or_not, PERMONSOLVER_DUMP);	
 }
 
 
@@ -487,6 +464,11 @@ std::string PermonSolver<VectorBase>::get_name() const {
 template<class VectorBase>
 void PermonSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
+
+	/* dump data */
+	if(this->dump_or_not){
+		this->dump();
+	}
 	
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
@@ -533,6 +515,62 @@ void PermonSolver<VectorBase>::solve() {
 	LOG_FUNC_END
 }
 
+/* dump data of the solver */
+template<class VectorBase>
+void PermonSolver<VectorBase>::dump() const {
+	LOG_FUNC_BEGIN
+
+	coutMaster << "... dump data ..." << std::endl;
+	
+	/* prepare viewer to save to files */
+	PetscViewer mviewer;
+
+	/* A */
+	Mat A;
+	TRYCXX( QPGetOperator(qp, &A) );
+	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "A.bin" , FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( MatView(A, mviewer) );
+	TRYCXX( PetscViewerDestroy(&mviewer) );
+	
+	/* b */
+	Vec b;
+	TRYCXX( QPGetRhs(qp, &b) );
+	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "b.bin" , FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( VecView(b, mviewer) );
+	TRYCXX( PetscViewerDestroy(&mviewer) );
+
+	/* B,c */
+	Mat B;
+	Vec c;
+//	TRYCXX( QPGetEq(qp, &B, &c) );
+	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
+	B = fs_lineqbound->get_B();
+	c = fs_lineqbound->get_c();
+	TRYCXX( VecView(c, PETSC_VIEWER_STDOUT_WORLD) );
+	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "B.bin" , FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( MatView(B, mviewer) );
+	TRYCXX( PetscViewerDestroy(&mviewer) );
+	
+	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "c.bin" , FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( VecView(c, mviewer) );
+	TRYCXX( PetscViewerDestroy(&mviewer) );
+
+	/* x0 */
+	Vec x0;
+//	TRYCXX( QPGetInitialVector(qp, &x0) ); /* not working */
+	GeneralVector<PetscVector> *x0g = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
+	x0 = x0g->get_vector();
+	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "x0.bin" , FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( VecView(x0, mviewer) );
+	TRYCXX( PetscViewerDestroy(&mviewer) );
+
+	LOG_FUNC_END
+}
 
 }
 } /* end namespace */
