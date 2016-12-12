@@ -72,6 +72,12 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 __global__ void kernel_warmup(){
 	
 }
+
+/* include additional petsc-cuda stuff */
+#ifdef USE_PETSC
+	#include "petsccuda.h"
+#endif
+
 #endif
 
 

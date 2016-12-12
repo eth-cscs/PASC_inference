@@ -22,7 +22,7 @@ printinfo("Flags" "")
 printinfo(" - FLAGS_DEF\t\t\t" "${FLAGS_DEF}")
 printinfo(" - FLAGS_DEF_D\t\t\t" "${FLAGS_DEF_D}")
 printinfo(" - LIBRARIES_DEF\t\t" "${LIBRARIES_DEF}")
-
+printinfo(" - LIBRARY_PATH\t\t" "$ENV{LIBRARY_PATH}")
 
 # cuda
 printsetting_cuda()

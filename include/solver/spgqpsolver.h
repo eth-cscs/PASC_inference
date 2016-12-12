@@ -36,7 +36,7 @@
 #endif
 
 #ifdef USE_CUDA
-    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+//    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
 namespace pascinference {

@@ -36,6 +36,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
 make_directory(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
+link_directories($ENV{LIBRARY_PATH})
+include_directories($ENV{CPATH})
+
 macro(PRINT value)
  message("${value}")
 endmacro()
@@ -117,7 +120,6 @@ macro(PASCADD_EXECUTABLE filename outname)
 
 		# link external libraries	
 		target_link_libraries(${outname} ${LIBRARIES_DEF})
-		
 
 		# set the name of output file
 		set_source_files_properties(${filename}
