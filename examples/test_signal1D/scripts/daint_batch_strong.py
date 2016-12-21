@@ -15,6 +15,7 @@ if len(sys.argv) < 2:
 
 inputfile = sys.argv[1];
 spgqpsolver_eps = "1e-4";
+problem_time = "00:20:00";
 
 # path to exec folder
 username = "pospisil"
@@ -55,7 +56,7 @@ for index in range(len(N)):
     params2 = "--test_filename_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
     batch_filename = os.path.join(gpu_batch_path, "%s.pbs" % (problem_name))
-    write_batch(problem_name, host_string, batch_filename, exec_path, exec_name_full, gpu_modules_path)
+    write_batch(problem_name, N[index], 1, 1, N[index], 1, problem_time, library_path, build_path, exec_name_full)
 #    batchfile_list.append(batch_filename);
 
 

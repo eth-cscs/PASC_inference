@@ -7,28 +7,29 @@ import os, shutil
 from subprocess import call
 
 # define function for writing a fun into file
-def write_batch(problem_name, problem_name_full, problem_time, problem_parameters, library_path, architecture, N, Nthreads, Ngpu):
+def write_batch(problem_name, nnodes, nthreads, ntaskspercore, ntasks, ngpu, time, library_path, build_path, exec_name):
     "this function prints a fun into batch script file, the fun is based on parameters"
-    batchfile_name = "./batch/%s.batch" % (problem_name_full);
+	problem_name_full = "%s_%s_%s_%s" % (problem_name,nnodes,nthreads,ngpu)
+    batchfile_name = "%s/%s.batch" % (build_path,problem_name_full);
     myfile = open(batchfile_name, 'w+');
     # write some funny stuff into file
     myfile.write("#!/bin/bash -l\n")
     myfile.write("\n## sbatch settings\n")
-    myfile.write("#SBATCH --nodes=%d\n" % (N))
-    myfile.write("#SBATCH --ntasks-per-core=1\n")
-    myfile.write("#SBATCH --ntasks=%d\n" %(N))
-    myfile.write("#SBATCH --gres=gpu:%d\n" % (Ngpu))
-    myfile.write("#SBATCH --time=%s\n" % (problem_time))
+    myfile.write("#SBATCH --nodes=%d\n" % (nnodes))
+    myfile.write("#SBATCH --ntasks-per-core=%d\n" % (ntaskspercore))
+    myfile.write("#SBATCH --ntasks=%d\n" %(ntasks))
+    myfile.write("#SBATCH --gres=gpu:%d\n" % (ngpu))
+    myfile.write("#SBATCH --time=%s\n" % (time))
     myfile.write("#SBATCH --partition=normal\n")
     myfile.write("#SBATCH --output=batch_out/%%j.%s.o\n" % (problem_name_full))
     myfile.write("#SBATCH --error=batch_out/%%j.%s.e\n" % (problem_name_full))
     myfile.write("\n## load modules\n")
     myfile.write("source %s/util/module_load_daint_sandbox\n" % (library_path))
     myfile.write("\n## set number of threads\n")
-    myfile.write("export OMP_NUM_THREADS=%d\n" % (Nthreads))
+    myfile.write("export OMP_NUM_THREADS=%d\n" % (nthreads))
     myfile.write("\n## run the job\n")
-    myfile.write("srun -N %d -n %d -T 1 ./%s %s\n" % (N,N,problem_name,problem_parameters))
-    return batchfile_name
+    myfile.write("%s\n" %(exec_name))
+    return
 
 def commit_batch(batchfile_list, account, partition):
     "this function commits batch files"
