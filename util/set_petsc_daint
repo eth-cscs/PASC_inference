@@ -1,6 +1,0 @@
-# use module compiled by Will Sawyer on PIZ DAINT (CSCS)
-
-module use /apps/daint/5.2.UP02/modulefiles
-module load petsc_gpu
-export PETSC_DIR=/apps/daint/5.2.UP02/petsc_gpu/3.7
-export PETSC_ARCH=gcc_482

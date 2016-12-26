@@ -23,7 +23,7 @@ library_path = "~/soft/PASC_inference/";
 build_path = "%s/" % (os.getenv( "SCRATCH"));
 exec_name = "./test_signal1D"
 mpiexec = "srun"
-N = [1,2,3,4,5,6];
+N = [1,2,3,4,5,6,7,8];
 
 # define console parameters
 params_list = [];
