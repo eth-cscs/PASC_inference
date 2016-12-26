@@ -4,6 +4,9 @@
 #
 
 module load daint-gpu
+#module swap PrgEnv-cray PrgEnv-gnu
+#module load craype-accel-nvidia60
+#module load Python/2.7.12-CrayGNU-2016.11
 module load Boost
 module load cudatoolkit
 module load craype-accel-nvidia60

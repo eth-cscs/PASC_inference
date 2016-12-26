@@ -83,7 +83,7 @@ macro(PASCADD_EXECUTABLE filename outname)
 		
 		# add executable file
 		cuda_add_executable(${outname} ${filename}
-			OPTIONS "${FLAGS_DEF_D} -arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
 		# add dependency - build pasc library first and then this exec

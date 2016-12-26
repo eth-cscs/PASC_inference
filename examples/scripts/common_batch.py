@@ -9,7 +9,7 @@ from subprocess import call
 # define function for writing a fun into file
 def write_batch(problem_name, nnodes, nthreads, ntaskspercore, ntasks, ngpu, time, library_path, build_path, exec_name):
     "this function prints a fun into batch script file, the fun is based on parameters"
-	problem_name_full = "%s_%s_%s_%s" % (problem_name,nnodes,nthreads,ngpu)
+    problem_name_full = "%s" % (problem_name)
     batchfile_name = "%s/%s.batch" % (build_path,problem_name_full);
     myfile = open(batchfile_name, 'w+');
     # write some funny stuff into file
@@ -18,11 +18,11 @@ def write_batch(problem_name, nnodes, nthreads, ntaskspercore, ntasks, ngpu, tim
     myfile.write("#SBATCH --nodes=%d\n" % (nnodes))
     myfile.write("#SBATCH --ntasks-per-core=%d\n" % (ntaskspercore))
     myfile.write("#SBATCH --ntasks=%d\n" %(ntasks))
-    myfile.write("#SBATCH --gres=gpu:%d\n" % (ngpu))
+#    myfile.write("#SBATCH --gres=gpu:%d\n" % (ngpu))
     myfile.write("#SBATCH --time=%s\n" % (time))
     myfile.write("#SBATCH --partition=normal\n")
-    myfile.write("#SBATCH --output=batch_out/%%j.%s.o\n" % (problem_name_full))
-    myfile.write("#SBATCH --error=batch_out/%%j.%s.e\n" % (problem_name_full))
+    myfile.write("#SBATCH --output=batch_out/%s.%%j.o\n" % (problem_name_full))
+    myfile.write("#SBATCH --error=batch_out/%s.%%j.e\n" % (problem_name_full))
     myfile.write("\n## load modules\n")
     myfile.write("source %s/util/module_load_daint_sandbox\n" % (library_path))
     myfile.write("\n## set number of threads\n")
@@ -31,14 +31,15 @@ def write_batch(problem_name, nnodes, nthreads, ntaskspercore, ntasks, ngpu, tim
     myfile.write("%s\n" %(exec_name))
     return
 
-def commit_batch(batchfile_list, account, partition):
+def commit_batch(batchfile_list, additional_parameters):
     "this function commits batch files"
     # say what we are doing now:
     print "Commiting batch scripts: "
 	# send every batch file from the list
     for batchfile_name in batchfile_list:
-        print  " - %s" % (batchfile_name);
-        call(["sbatch", batchfile_name, "--account=%s" % (account), "--partition=%s" % (partition)])
+        print  " - %s %s" % (batchfile_name, additional_parameters);
+#        call(["sbatch",additional_parameters, batchfile_name])
+        call(["sbatch", batchfile_name, additional_parameters])
     return
 
 def show_jobs(account):

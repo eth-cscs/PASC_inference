@@ -19,11 +19,11 @@ problem_time = "00:20:00";
 
 # path to exec folder
 username = "pospisil"
-library_folder = "~/soft/PASC_inference/";
-build_folder = "%s/soft/PASC_inference/" % (os.getenv( "SCRATCH"));
+library_path = "~/soft/PASC_inference/";
+build_path = "%s/" % (os.getenv( "SCRATCH"));
 exec_name = "./test_signal1D"
-mpiexec = "mpiexec"
-N = [1,2,3,4];
+mpiexec = "srun"
+N = [1,2,3,4,5,6];
 
 # define console parameters
 params_list = [];
@@ -40,12 +40,8 @@ params = ' '.join(params_list);
 
 # GPU
 gpu_problem_name = "strong_G";
-gpu_exec_path = "%s/build_gpu/" %(build_folder);
+gpu_exec_path = "%s/build_gpu/" %(build_path);
 gpu_batch_path = "%s/batch/" %(gpu_exec_path);
-gpu_modules_path = "%s/util/module_load_anselm_gpu" %(library_folder);
-
-
-
 
 # GPU: generate bash scripts
 batchfile_list = [];
@@ -55,13 +51,13 @@ for index in range(len(N)):
     exec_path = gpu_exec_path
     params2 = "--test_filename_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
-    batch_filename = os.path.join(gpu_batch_path, "%s.pbs" % (problem_name))
-    write_batch(problem_name, N[index], 1, 1, N[index], 1, problem_time, library_path, build_path, exec_name_full)
-#    batchfile_list.append(batch_filename);
+    batch_filename = os.path.join(gpu_batch_path, "%s.batch" % (problem_name))
+    write_batch(problem_name, N[index], 1, 1, N[index], 1, problem_time, library_path, gpu_batch_path, exec_name_full)
+    batchfile_list.append(batch_filename);
 
 
 # run bash scripts
-#commit_pbs(batchfile_list)
+#commit_batch(batchfile_list,"-C gpu --account=c11 --constraint=gpu")
 
 # show the queue
 #show_jobs(username)

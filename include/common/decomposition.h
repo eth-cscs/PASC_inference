@@ -704,11 +704,19 @@ int Decomposition::get_Pr(int r_global) const {
 }
 
 void Decomposition::permute_TRxdim(Vec orig_Vec, Vec new_Vec, bool invert) const {
+	LOG_FUNC_BEGIN
+
 	permute_TRblocksize(orig_Vec, new_Vec, xdim, invert);
+
+	LOG_FUNC_END
 }
 
 void Decomposition::permute_TRK(Vec orig_Vec, Vec new_Vec, bool invert) const {
+	LOG_FUNC_BEGIN
+	
 	permute_TRblocksize(orig_Vec, new_Vec, K, invert);
+
+	LOG_FUNC_END
 }
 
 void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
@@ -729,8 +737,11 @@ void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize
 	Vec new_local_Vec;
 
 	/* prepare index set with local data */
-	int orig_local_arr[local_size];
+//	int orig_local_arr[local_size];
+	int *orig_local_arr;
+	orig_local_arr = new int [local_size];
 	int j = 0;
+
 	for(int t=Tbegin;t<Tend;t++){
 		for(int i=0;i<R;i++){
 			if(DDR_affiliation[i] == DDR_rank){
@@ -741,6 +752,7 @@ void Decomposition::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize
 			}
 		}
 	}
+
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
