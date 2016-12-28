@@ -217,7 +217,8 @@ int main( int argc, char *argv[] )
 	
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr, epssqr_best;
-	double abserr;
+	double abserr; /* actual error */
+	double abserrs[epssqr_list.size()]; /* all errors */
 	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
 
 	Vec gammavector_best_Vec; /* here we store solution with best abserr value */
@@ -226,6 +227,7 @@ int main( int argc, char *argv[] )
 	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
 	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
 	
+	/* go throught given list of epssqr */
 	for(int depth = 0; depth < epssqr_list.size();depth++){
 		epssqr = epssqr_list[depth];
 		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---\n";
@@ -253,10 +255,11 @@ int main( int argc, char *argv[] )
 
 		/* compute absolute error of computed solution */
 		abserr = mydata.compute_abserr_reconstructed(solution);
+		abserrs[depth] = abserr;
 		
-		coutMaster << " - abserr = " << abserr << "\n";
-		mysolver.printtimer(coutMaster);
-		mysolver.printstatus(coutMaster);	
+		coutMaster << " - abserr = " << abserr << std::endl;
+//		mysolver.printtimer(coutMaster);
+//		mysolver.printstatus(coutMaster);	
 	
 		/* if this solution is better then previous, then store it */
 		if(abserr < abserr_best){
@@ -300,25 +303,30 @@ int main( int argc, char *argv[] )
 	}
 
 /* 8.) store best solution */
-	coutMaster << "--- SAVING OUTPUT ---\n";
+	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	oss << filename_out;
 	mydata.saveSignal1D(oss.str(),false);
 	oss.str("");
 
 	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---\n";
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
 	mydata.print_thetavector(coutMaster);
 
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---\n";
+	coutMaster << "--- TIMERS INFO ---" << std::endl;
 	mysolver.printtimer(coutMaster);
 
 	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---\n";
+	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
 	mysolver.printstatus(coutMaster);
 
+	/* print absolute errors */
+	coutMaster << "--- ABSOLUTE ERRORS: ---" << std::endl;
+	coutMaster << "epssqr: " << print_vector(epssqr_list) << std::endl;
+	coutMaster << "abserrs: " << print_array(abserrs, epssqr_list.size()) << std::endl;
+
 	/* say bye */	
-	coutMaster << "- end program\n";
+	coutMaster << "- end program" << std::endl;
 
 	logging.end();
 	Finalize();
