@@ -255,7 +255,9 @@ int main( int argc, char *argv[] )
 		abserr = mydata.compute_abserr_reconstructed(solution);
 		
 		coutMaster << " - abserr = " << abserr << "\n";
-		
+		mysolver.printtimer(coutMaster);
+		mysolver.printstatus(coutMaster);	
+	
 		/* if this solution is better then previous, then store it */
 		if(abserr < abserr_best){
 			abserr_best = abserr;
