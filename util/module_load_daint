@@ -5,8 +5,8 @@
 
 module load daint-gpu
 module load Boost
-module load cudatoolkit
-module load craype-accel-nvidia60
+#module load cudatoolkit
+#module load craype-accel-nvidia60
 #module load cray-netcdf-hdf5parallel
 #module load cray-hdf5-parallel
 module load cray-mpich

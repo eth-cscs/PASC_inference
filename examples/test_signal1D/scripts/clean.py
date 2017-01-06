@@ -3,8 +3,8 @@
 #
 
 # import my stuff
-from myscripts import delete_file
-from myscripts import delete_directory_content
+from common_batch import delete_file
+from common_batch import delete_directory_content
 
 # delete created folders and files
 delete_directory_content("batch/")
