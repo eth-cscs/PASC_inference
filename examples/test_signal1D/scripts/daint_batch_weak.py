@@ -28,9 +28,9 @@ N = [1,2,3,4,5,6,7,8];
 # define console parameters
 params_list = [];
 params_list.append("--test_cutdata=false --test_scaledata=false")
-params_list.append("--test_epssqr=1e-2 --test_annealing=1")
+params_list.append("--test_epssqr=1e-3 --test_annealing=1")
 params_list.append("--tssolver_maxit=1 --tssolver_debugmode=0")
-params_list.append("--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true")
+params_list.append("--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_Anormgp=true")
 params_list.append("--test_shortinfo=true")
 params_list.append("--test_K=2 --test_Theta=1.0 --test_Theta=2.0")
 params = ' '.join(params_list);
