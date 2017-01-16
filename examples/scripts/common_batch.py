@@ -7,7 +7,7 @@ import os, shutil
 from subprocess import call
 
 # define function for writing a fun into file
-def write_batch(problem_name, nnodes, nthreads, ntaskspercore, ntasks, ngpu, time, library_path, build_path, exec_name):
+def write_batch(problem_name, nnodes, ntaskspernode, nthreads, time, library_path, build_path, exec_name):
     "this function prints a fun into batch script file, the fun is based on parameters"
     problem_name_full = "%s" % (problem_name)
     batchfile_name = "%s/%s.batch" % (build_path,problem_name_full);
@@ -16,9 +16,7 @@ def write_batch(problem_name, nnodes, nthreads, ntaskspercore, ntasks, ngpu, tim
     myfile.write("#!/bin/bash -l\n")
     myfile.write("\n## sbatch settings\n")
     myfile.write("#SBATCH --nodes=%d\n" % (nnodes))
-    myfile.write("#SBATCH --ntasks-per-core=%d\n" % (ntaskspercore))
-    myfile.write("#SBATCH --ntasks=%d\n" %(ntasks))
-#    myfile.write("#SBATCH --gres=gpu:%d\n" % (ngpu))
+    myfile.write("#SBATCH --ntasks-per-node=%d\n" % (ntaskspernode))
     myfile.write("#SBATCH --time=%s\n" % (time))
     myfile.write("#SBATCH --partition=normal\n")
     myfile.write("#SBATCH --output=batch_out/%s.%%j.o\n" % (problem_name_full))
