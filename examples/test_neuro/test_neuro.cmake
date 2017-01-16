@@ -4,7 +4,8 @@ include_directories("${CMAKE_SOURCE_DIR}/test_neuro/")
 option(TEST_NEURO "TEST_NEURO" OFF)
 
 # print info
-printinfo_onoff("TEST_NEURO\t\t\t\t" "${TEST_NEURO}")
+print("\nNeuro tests")
+printinfo_onoff(" TEST_NEURO                                                           " "${TEST_NEURO}")
 
 if(${TEST_NEURO})
 	# this is neuro test

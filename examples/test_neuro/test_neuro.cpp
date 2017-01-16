@@ -1,1 +1,1 @@
-#include "test_edf2.cu"
+#include "test_neuro.cu"

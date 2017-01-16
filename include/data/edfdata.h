@@ -192,9 +192,9 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 
 	/* prepare preliminary datavector and load data */
 	Vec datapreload_Vec;
-	TRY( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
-	TRY( VecSetSizes(datapreload_Vec,PETSC_DECIDE,Tpreliminary*R) );
-	TRY( VecSetFromOptions(datapreload_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
+	TRYCXX( VecSetSizes(datapreload_Vec,PETSC_DECIDE,Tpreliminary*R) );
+	TRYCXX( VecSetFromOptions(datapreload_Vec) );
 	this->datavectorpreliminary = new GeneralVector<PetscVector>(datapreload_Vec);
 
 	/* ------ RECORDS ------ */
@@ -212,19 +212,19 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 				myfile.read((char *)&value, sizeof(int16_t)); /* read block of memory */
 				value =  value * scalefac + dc;
 				index = ii*this->Tpreliminary + recnum*hdr_records_detail[ii].hdr_samples + samplei;
-				TRY( VecSetValue(datapreload_Vec, index, value, INSERT_VALUES) );
+				TRYCXX( VecSetValue(datapreload_Vec, index, value, INSERT_VALUES) );
 			}
         }
     }
 
 	/* vector is prepared */
-	TRY( VecAssemblyBegin(datapreload_Vec) );
-	TRY( VecAssemblyEnd(datapreload_Vec) );
+	TRYCXX( VecAssemblyBegin(datapreload_Vec) );
+	TRYCXX( VecAssemblyEnd(datapreload_Vec) );
 
 	/* close file */
     myfile.close();		
 
-	TRY( PetscBarrier(NULL) );
+	TRYCXX( PetscBarrier(NULL) );
 
 	LOG_FUNC_END
 }
@@ -247,7 +247,7 @@ void EdfData<VectorBase>::set_decomposition(Decomposition &new_decomposition) {
 	this->decomposition->permute_TRxdim(datapreload_Vec, data_Vec);
 	
 	/* destroy preliminary data */
-	TRY(VecDestroy(&datapreload_Vec));
+	TRYCXX(VecDestroy(&datapreload_Vec));
 	
 	LOG_FUNC_END
 }
@@ -578,44 +578,44 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		myfile.close();
 	}
 
-	TRY( PetscBarrier(NULL));
+	TRYCXX( PetscBarrier(NULL));
 
 	/* compute recovered vector */
 	Vec gammak_Vec;
 	IS gammak_is;
 	
 	Vec data_recovered_Vec;
-	TRY( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
-	TRY( VecSet(data_recovered_Vec,0.0));
+	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
+	TRYCXX( VecSet(data_recovered_Vec,0.0));
 	GeneralVector<PetscVector> data_recovered(data_recovered_Vec);
 
 	double *theta_arr;
-	TRY( VecGetArray(thetavector->get_vector(),&theta_arr) );
+	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
 	for(int k=0;k<K;k++){ 
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
-		TRY( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */
-		TRY( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
+		TRYCXX( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
 
-		TRY( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
-		TRY( ISDestroy(&gammak_is) );
+		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
 	}	
 
 	double *data_arr;
-	TRY( VecGetArray(datavector->get_vector(), &data_arr) );
+	TRYCXX( VecGetArray(datavector->get_vector(), &data_arr) );
 
 	double *data_recovered_arr;
-	TRY( VecGetArray(data_recovered_Vec, &data_recovered_arr) );
+	TRYCXX( VecGetArray(data_recovered_Vec, &data_recovered_arr) );
 
 	double *gamma_arr;
-	TRY( VecGetArray(gammavector->get_vector(), &gamma_arr) );
+	TRYCXX( VecGetArray(gammavector->get_vector(), &gamma_arr) );
 
 	int coordinates_dim = tsmodel->get_coordinatesVTK_dim();
 	double *coordinates_arr;
-	TRY( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
+	TRYCXX( VecGetArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
 
 	double gamma_max;
 	int gamma_maxk;
@@ -713,11 +713,11 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		myfile.close();
 	}
 
-	TRY( VecRestoreArray(gammavector->get_vector(), &gamma_arr) );
-	TRY( VecRestoreArray(thetavector->get_vector(), &theta_arr) );
-	TRY( VecRestoreArray(datavector->get_vector(), &data_arr) );
-	TRY( VecRestoreArray(data_recovered_Vec, &data_arr) );
-	TRY( VecRestoreArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
+	TRYCXX( VecRestoreArray(gammavector->get_vector(), &gamma_arr) );
+	TRYCXX( VecRestoreArray(thetavector->get_vector(), &theta_arr) );
+	TRYCXX( VecRestoreArray(datavector->get_vector(), &data_arr) );
+	TRYCXX( VecRestoreArray(data_recovered_Vec, &data_arr) );
+	TRYCXX( VecRestoreArray(tsmodel->get_coordinatesVTK()->get_vector(), &coordinates_arr) );
 
 	timer_saveVTK.stop();
 	coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
