@@ -23,6 +23,18 @@ figure
 hold on
 plot(1:length(C),C,'b');
 plot(1:length(C),C_true,'r');
+legend('with noise','exact')
+xlabel('t')
+ylabel('X(t)')
+hold off
+
+
+figure
+hold on
+plot(1:length(C),C_true,'r');
+xlabel('t')
+ylabel('X_{exact}(t)')
+axis([0 length(C_true) 0 3])
 hold off
 
 end

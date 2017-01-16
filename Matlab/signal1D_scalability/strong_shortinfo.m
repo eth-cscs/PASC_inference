@@ -6,8 +6,7 @@
 
 clear all
 
-%sampleid = {'10e4', '10e5', '10e6'};
-sampleid = {'10e7'};
+sampleid = {'10e5', '10e6','10e7'};
 
 for k=1:length(sampleid)
     filename_cpu=['cpu/strong_shortinfo_final_' sampleid{k} '.txt'];
