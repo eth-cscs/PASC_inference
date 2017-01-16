@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2015.11.10)  22 NOV 2016 22:17
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9) (preloaded format=pdflatex 2015.11.10)  24 NOV 2016 14:55
 entering extended mode
 **QPsolvability.tex
 (QPsolvability.tex
@@ -197,18 +197,22 @@ LaTeX Warning: Citation `DosBOOK-2009' on page 1 undefined on input line 68.
 
 [1
 
-{C:/Users/Luki/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
-(QPsolvability.aux)
+{C:/Users/Luki/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 101--102
+
+ []
+
+[2] [3] (QPsolvability.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 2140 strings out of 493673
- 26542 string characters out of 3141532
+ 2143 strings out of 493673
+ 26575 string characters out of 3141532
  88418 words of memory out of 3000000
- 5488 multiletter control sequences out of 15000+200000
- 7217 words of font info for 28 fonts, out of 3000000 for 9000
+ 5490 multiletter control sequences out of 15000+200000
+ 7915 words of font info for 30 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  27i,8n,24p,262b,236s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb>
@@ -222,10 +226,11 @@ s (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files (x
 86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (x86
 )/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files (x86)/M
 iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files (x86)/MiK
-TeX 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on QPsolvability.pdf (2 pages, 128381 bytes).
+TeX 2.9/fonts/type1/public/amsfonts/cm/cmti7.pfb><C:/Program Files (x86)/MiKTeX
+ 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on QPsolvability.pdf (3 pages, 143538 bytes).
 PDF statistics:
- 57 PDF objects out of 1000 (max. 8388607)
+ 64 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

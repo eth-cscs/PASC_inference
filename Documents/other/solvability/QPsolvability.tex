@@ -41,7 +41,7 @@ In what follows, we proved that this problem has always unique solution.
   \end{array}
  \end{equation}
 \item $L^{\epsilon}_{\Theta}(\gamma)$ is continuous (not strictly) convex function $\mathbb{R}^{KT} \rightarrow \mathbb{R}$,
-\item gradient is given by $\nabla_{\gamma} L^{\epsilon}_{\Theta}(\gamma) = \frac{1}{T} b_{\Theta} + \frac{2\epsilon^2}{T} H \gamma$ ("well known" - can be proved using Taylor expansion),
+%\item gradient is given by $\nabla_{\gamma} L^{\epsilon}_{\Theta}(\gamma) = \frac{1}{T} b_{\Theta} + \frac{2\epsilon^2}{T} H \gamma$ ("well known" - can be proved using Taylor expansion),
 \item $\Omega \subset \mathbb{R}^{KT}$ is bounded closed convex set {\color{red}(has to be proved?)},
 \item the matrix $B = [I, \dots I] \in \mathbb{R}^{T,KT}$ ($I \in \mathbb{R}^{T,T}$ denotes identity matrix) forms the equivalent definition of $\Omega$ given by
  \begin{displaymath}
@@ -65,7 +65,7 @@ is SPD.
 \end{lemma}
 
 \begin{proof}
-Let us follow Dost\'{a}l \cite{DosBOOK-2009}, Lemma 1.2. \newline
+Let us follow proof by Dost\'{a}l \cite{DosBOOK-2009}, Lemma 1.2. \newline
 If $x \in \mathbb{R}^n \setminus \lbrace 0 \rbrace$ and $\Ker A \cap \Ker B = \lbrace 0 \rbrace$, then either $Ax \neq 0$ or $Bx \neq 0$.
 % (equivalently either $\Vert Ax \Vert \neq 0$ or $\Vert Bx \Vert \neq 0$)
 Since $Ax \neq 0$ is equivalent to $A^{\frac{1}{2}}x \neq 0$,
@@ -83,16 +83,47 @@ Thus $A_{\rho}$ is positive definite. \newline
 
 Let us define equivalent penalised optimisation problem
 \begin{displaymath}
- \bar{\gamma} =  \arg \min\limits_{\gamma \in \Omega} L_{\Theta}^{\epsilon}(\gamma) + \frac{\epsilon^2 \rho}{T} \Vert B \gamma - c \Vert^2 .
+ \bar{\gamma} =  \arg \min\limits_{\gamma \in \Omega} L_{\Theta}^{\epsilon}(\gamma) + \frac{\epsilon^2 \rho}{T} \Vert B \gamma - c \Vert^2 ,
 \end{displaymath}
+where $\rho > 0$ is arbitrary number (\emph{penalisation} parameter).
 Obviously, any solution of this problem is also the solution of original problem and vice versa (the penalisation term is equal to $0$ for all feasible $\gamma \in \Omega$).
 However, the object function of the new problem can be written in form
 \begin{displaymath}
   L_{\Theta}^{\epsilon}(\gamma) + \frac{\epsilon^2 \rho}{T} \Vert B \gamma - c \Vert^2 = \frac{\epsilon^2}{T} \gamma^T (H + \rho B^T B) \gamma + \frac{1}{T} \gamma^T (b_{\Theta} - 2 \epsilon^2 \rho B^T c) + \frac{\varepsilon^2 \rho}{T} c^T c
 \end{displaymath} 
 and the Hessian matrix is given by $(H + \rho B^T B)$, which is SPD (see Lemma \ref{th:penalized}) and consequently, the object function is strictly convex (in this case, penalisation works as regularisation).
-Since strictly convex QP on closed convex set has always unique solution, the solution of original problem is also unique.
+Since strictly convex QP on closed convex set has always unique solution (see additional Lemma below), the solution of original problem is also unique.
+
+Therefore, we can conclude that in the problems of this type, {\it equality constraints regularise original problem}.
+
+\section{QP solvability - strictly convex cost function on convex set}
+
+For completeness, let us review the proof of uniqueness of solution of QP with strictly convex cost function (SPD Hessian matrix) on closed convex set. \newline
+
+Let $\bar{x} \in \Omega$ be a solution of problem 
+\begin{displaymath}
+ \min\limits_{x \in \Omega} f(x), ~~~~ f(x) := \frac{1}{2} x^T A x - b^T x,
+\end{displaymath}
+where $A \in \mathbb{R}^{n,n}$ is SPD matrix, $b \in \mathbb{R}^n$ and $\Omega$ is closed convex set. \newline
+Let us consider arbitrary $y \in \Omega \setminus \lbrace \bar{x} \rbrace$ (in what follows, we will show that $f(y) > f(\bar{x})$)
+and let us denote $d := y - x \neq 0$. Then using the definition of $f$ we can write
+\begin{displaymath}
+ \begin{array}{rcl}
+ f(y) = f(\bar{x} + d) & = & \frac{1}{2} (\bar{x}+d)^T A (\bar{x}+d) - b^T (\bar{x} + d) \\
+ & = & \frac{1}{2} \bar{x}^T A \bar{x} + \frac{1}{2} \bar{x}^T A d + \frac{1}{2} d^T A \bar{x} + \frac{1}{2} d^T A d - b^T \bar{x} - b^T d \\
+ \mathit{"A = A^T"}~~~ & = & f(\bar{x}) + d^T( A \bar{x} - b) + \frac{1}{2} d^T A d \\
+ & > & f(\bar{x}) 
+ \end{array}
+\end{displaymath}
+Last inequality holds since
+\begin{itemize}
+ \item $d^T A d > 0$ because $d \neq 0$ and $A$ is SPD,
+ \item $d^T( A \bar{x} - b) = d^T \nabla f(\bar{x}) \geq 0$ since $\bar{x}$ is minimiser of $f$ and $\Omega$ is convex (every vector from $\bar{x}$ directed to fesible set is ascent (i.e. not descent) vector).
+\end{itemize}
+
+For curiosity: in proof we found that $f(\bar{x} + d) = f(\bar{x}) + d^T( A \bar{x} - b) + \frac{1}{2} d^T A d$ which is in fact full Taylor expansion of $f$.
 
 \end{document}
+
 
 
