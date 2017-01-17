@@ -14,7 +14,7 @@ if len(sys.argv) < 2:
     sys.exit()
 
 inputfile = sys.argv[1];
-spgqpsolver_eps = "1e-4";
+spgqpsolver_eps = "1e-5";
 problem_time = "00:20:00";
 
 # path to exec folder
@@ -29,7 +29,7 @@ Ntaskspernode = 24;
 # define console parameters
 params_list = [];
 params_list.append("--test_cutdata=false --test_scaledata=false")
-params_list.append("--test_epssqr=1e-3 --test_annealing=1")
+params_list.append("--test_epssqr=2e-4 --test_annealing=1")
 params_list.append("--tssolver_maxit=1 --tssolver_debugmode=0")
 params_list.append("--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_Anormgp=true")
 params_list.append("--test_shortinfo=true")
@@ -86,7 +86,7 @@ for index in range(len(N)):
     exec_path = cput_exec_path
     params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps);
     params3 = "--test_filename=data/%s_%d_data.bin --test_filename_solution=data/%s_%d_solution.bin --test_filename_gamma0=data/%s_%d_gamma0.bin" % (inputfile,N[index],inputfile,N[index],inputfile,N[index]);
-    exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, params3, problem_name)
+    exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index]*Ntaskspernode, exec_name, params, params2, params3, problem_name)
     batch_filename = os.path.join(cput_batch_path, "%s.batch" % (problem_name))
     write_batch(problem_name, N[index], Ntaskspernode, 1, problem_time, library_path, cput_batch_path, exec_name_full)
     batchfile_list.append(batch_filename);
