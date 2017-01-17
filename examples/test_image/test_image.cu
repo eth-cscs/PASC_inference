@@ -176,7 +176,7 @@ int main( int argc, char *argv[] )
 		graph = new BGMGraphGrid2D(width, height);
 		((BGMGraphGrid2D*)graph)->process_grid();
 	}
-	
+
 	/* print basic info about graph */
 	graph->print(coutMaster);
 	
