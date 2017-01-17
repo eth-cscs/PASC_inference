@@ -303,7 +303,7 @@ int main( int argc, char *argv[] )
 		if(scaledata) mydata.scaledata(0,1,-1,1);
 
 		coutMaster << "--- SAVING OUTPUT ---\n";
-		oss << image_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
+		oss << image_out << "_epssqr" << epssqr_list[depth];
 		mydata.saveImage(oss.str(),false);
 		oss.str("");
 		
