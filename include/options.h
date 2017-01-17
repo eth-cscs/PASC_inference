@@ -92,6 +92,7 @@ static void add_options(boost::program_options::options_description *description
 			("spgqpsolver_stop_normgp_normb", boost::program_options::value<bool>(), "stopping criteria based on norm(gp) and norm(b) [bool]")
 			("spgqpsolver_stop_Anormgp_normb", boost::program_options::value<bool>(), "stopping criteria based on A-norm(gp) and norm(b) [bool]")
 			("spgqpsolver_stop_difff", boost::program_options::value<bool>(), "stopping criteria based on difference of object function [bool]")
+			("spgqpsolver_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
 			("spgqpsolver_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("spgqpsolver_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
 			("spgqpsolver_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations")

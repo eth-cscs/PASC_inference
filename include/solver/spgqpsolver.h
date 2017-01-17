@@ -29,6 +29,7 @@
 #define SPGQPSOLVER_STOP_ANORMGP_NORMB false
 #define SPGQPSOLVER_STOP_DIFFF true
 
+#define SPGQPSOLVER_MONITOR false
 #define SPGQPSOLVER_DUMP false
 
 #ifdef USE_PETSCVECTOR
@@ -116,6 +117,8 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		bool stop_normgp_normb;		/**< stopping criteria based on norm of gP and norm of b */
 		bool stop_Anormgp_normb;	/**< stopping criteria based on A-norm of gP and norm of b */
 		bool stop_difff;			/**< stopping criteria based on size of decrease of f */
+
+		bool monitor;				/**< export the descend into .m file */
 
 		int m;						/**< size of SPGQPSolver_fs */
 		double gamma;				/**< parameter of Armijo condition */
@@ -227,6 +230,7 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("spgqpsolver_stop_difff", &this->stop_difff, SPGQPSOLVER_STOP_DIFFF);	
 
 	consoleArg.set_option_value("spgqpsolver_dump", &this->dump_or_not, SPGQPSOLVER_DUMP);	
+	consoleArg.set_option_value("spgqpsolver_monitor", &this->monitor, SPGQPSOLVER_MONITOR);	
 
 	/* set debug mode */
 	consoleArg.set_option_value("spgqpsolver_debugmode", &this->debugmode, SPGQPSOLVER_DEFAULT_DEBUGMODE);
@@ -824,6 +828,24 @@ void SPGQPSolver<VectorBase>::solve() {
 		}
 		if(this->stop_Anormgp_normb && dAd < this->eps*normb){
 			break;
+		}
+		
+		/* monitor - export values of stopping criteria */
+		if(this->monitor){
+			//TODO: this could be done in a different way
+			std::ofstream myfile;
+			myfile.open("log/spgqpsolver_monitor.m");
+
+			std::streamsize ss = myfile.precision();
+			myfile << std::setprecision(17);
+			
+			myfile << "norm_difff(" << it << ") = " << abs(fx - fx_old) << "; ";
+			myfile << "norm_gp(" << it << ") = " << dd << "; ";
+			myfile << "norm_Agp(" << it << ") = " << dAd << "; ";
+			myfile << std::endl;
+			
+			myfile << std::setprecision(ss);
+			myfile.close();			
 		}
 		
 	} /* main cycle end */
