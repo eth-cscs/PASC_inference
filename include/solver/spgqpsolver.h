@@ -834,11 +834,14 @@ void SPGQPSolver<VectorBase>::solve() {
 		if(this->monitor){
 			//TODO: this could be done in a different way
 			std::ofstream myfile;
-			myfile.open("log/spgqpsolver_monitor.m");
+			myfile.open("log/spgqpsolver_monitor.m", std::fstream::in | std::fstream::out | std::fstream::app);
 
 			std::streamsize ss = myfile.precision();
 			myfile << std::setprecision(17);
 			
+			myfile << "fx(" << it << ") = " << fx << "; "; 
+			myfile << "alpha_bb(" << it << ") = " << alpha_bb << "; ";
+			myfile << "beta(" << it << ") = " << beta << "; ";
 			myfile << "norm_difff(" << it << ") = " << abs(fx - fx_old) << "; ";
 			myfile << "norm_gp(" << it << ") = " << dd << "; ";
 			myfile << "norm_Agp(" << it << ") = " << dAd << "; ";
