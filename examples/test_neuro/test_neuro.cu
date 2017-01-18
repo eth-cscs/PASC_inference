@@ -264,7 +264,7 @@ int main( int argc, char *argv[] )
 
 		/* add info about the problem */
 		oss_short_output_header << "max_record_nmb,K,depth,epssqr,";
-		oss_short_output_values << max_record_nmb << "," << K << ",0,0.0,"; 
+		oss_short_output_values << max_record_nmb << "," << K << ",0," << epssqr_list[depth] << ","; 
 
 		/* append Theta solution */
 		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";

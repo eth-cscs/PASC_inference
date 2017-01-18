@@ -258,7 +258,7 @@ int main( int argc, char *argv[] )
 
 		/* add info about the problem */
 		oss_short_output_header << "width,height,K,depth,epssqr,";
-		oss_short_output_values << width << "," << height << "," << K << ",0,0.0,"; 
+		oss_short_output_values << width << "," << height << "," << K << ",0," << epssqr_list[0] << ","; 
 
 		/* append Theta solution */
 		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
