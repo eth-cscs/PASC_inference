@@ -14,11 +14,12 @@ source ~/soft/PASC_inference//util/module_load_daint_sandbox
 ## set number of threads
 export OMP_NUM_THREADS=1
 
-export PARAMETERS_DATA="--test_data_filename=data/S001R01.edf --test_data_out=epssqr_G4 --test_max_record_nmb=10"
+export PARAMETERS_DATA="--test_data_filename=data/S001R01.edf --test_data_out=epssqr_G4"
+export PARAMETERS_SIZE="--test_max_record_nmb=-1"
 export PARAMETERS_GRAPH="--test_graph_coordinates=data/Koordinaten_EEG_P.bin --test_graph_coeff=2.5"
 export PARAMETERS_THETA="--test_K=6 --test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
 export PARAMETERS_PREPROC="--test_cutdata=true --test_scaledata=true"
-export PARAMETERS_EPSSQR="--test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=5e-2 --test_epssqr=1e-1 --test_epssqr=5e-1 --test_epssqr=1e0 --test_epssqr=5e0 --test_epssqr=1e1 --test_epssqr=5e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5 --test_epssqr=1e6"
+export PARAMETERS_EPSSQR="--test_epssqr=5e-6 --test_epssqr=1e-5 --test_epssqr=5e-5 --test_epssqr=1e-4 --test_epssqr=5e-4 --test_epssqr=1e-3 --test_epssqr=5e-3 --test_epssqr=1e-2 --test_epssqr=5e-2 --test_epssqr=1e-1 --test_epssqr=5e-1 --test_epssqr=1e0 --test_epssqr=5e0 --test_epssqr=1e1 --test_epssqr=5e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5 --test_epssqr=1e6"
 export PARAMETERS_SOLVER="--spgqpsolver_eps=1e-6 --spgqpsolver_monitor=true --test_annealing=1 --tssolver_maxit=1 --tssolver_debugmode=0 --spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
 export PARAMETERS_SHORTINFO="--test_savevtk=false --test_shortinfo=true --test_shortinfo_header=nproc, --test_shortinfo_values=4, --test_shortinfo_filename=shortinfo/epssqr_G4.txt"
 
