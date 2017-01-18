@@ -50,7 +50,7 @@ for index in range(len(N)):
     params3 = "--test_filename=data/%s_%d_data.bin --test_filename_solution=data/%s_%d_solution.bin --test_filename_gamma0=data/%s_%d_gamma0.bin" % (inputfile,N[index],inputfile,N[index],inputfile,N[index]);
     exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, params3, problem_name)
     batch_filename = os.path.join(gpu_batch_path, "%s.batch" % (problem_name))
-    write_batch(problem_name, N[index], Ntaskspernode, 1, problem_time, library_path, gpu_batch_path, exec_name_full)
+    write_batch(problem_name, N[index], 1, 1, problem_time, library_path, gpu_batch_path, exec_name_full)
     batchfile_list.append(batch_filename);
 
 
@@ -69,7 +69,7 @@ for index in range(len(N)):
     params3 = "--test_filename=data/%s_%d_data.bin --test_filename_solution=data/%s_%d_solution.bin --test_filename_gamma0=data/%s_%d_gamma0.bin" % (inputfile,N[index],inputfile,N[index],inputfile,N[index]);
     exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, params3, problem_name)
     batch_filename = os.path.join(cpu_batch_path, "%s.batch" % (problem_name))
-    write_batch(problem_name, N[index], Ntaskspernode, 1, problem_time, library_path, cpu_batch_path, exec_name_full)
+    write_batch(problem_name, N[index], 1, 1, problem_time, library_path, cpu_batch_path, exec_name_full)
     batchfile_list.append(batch_filename);
 
 
