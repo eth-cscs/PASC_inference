@@ -322,7 +322,8 @@ Decomposition::Decomposition(int T, BGMGraph &new_graph, int K, int xdim, int DD
 	this->xdim = xdim;
 
 	/* prepare new layout for R */
-	set_graph(new_graph,DDR_size);
+	destroy_DDR_arrays = false;
+	set_graph(new_graph, DDR_size);
 
 	this->DDT_size = 1;
 	this->DDR_size = new_graph.get_DD_size();

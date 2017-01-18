@@ -1,7 +1,7 @@
-/** @file edf.cu
- *  @brief test the varx global problem solver
+/** @file test_neuro.cu
+ *  @brief test the neuro filtering possibilities
  *
- *  Load EDF file and solve the problem.
+ *  Load EDF file and solve the filtering problem.
  *
  *  @author Lukas Pospisil
  */
@@ -18,8 +18,6 @@
 using namespace pascinference;
 
 typedef petscvector::PetscVector PetscVector;
-
-extern int pascinference::DEBUG_MODE;
 
 int main( int argc, char *argv[] )
 {
@@ -64,7 +62,7 @@ int main( int argc, char *argv[] )
 		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
 		
 	} else {
-		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters\n";
+		std::cout << "test_epssqr has to be set! Call application with parameter --h to see all parameters\n";
 		return 0;
 	}
 
@@ -93,7 +91,7 @@ int main( int argc, char *argv[] )
 
 	consoleArg.set_option_value("test_K", &K, 2);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
-	consoleArg.set_option_value("test_savevtk", &savevtk, true);
+	consoleArg.set_option_value("test_savevtk", &savevtk, false);
 	consoleArg.set_option_value("test_printstats", &printstats, false);
 
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
@@ -229,95 +227,34 @@ int main( int argc, char *argv[] )
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
 	mymodel.print(coutMaster,coutAll);
 
-/* 4.) prepare time-series solver */
+/* 5.) prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---\n";
+
+	/* prepare time-series solver */
 	TSSolver<PetscVector> mysolver(mydata, annealing);
+
+	/* print info about solver */
 	mysolver.print(coutMaster,coutAll);
 
-/* 5.) solve the problem with initial epssqr */
-	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---\n";
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
+	
+/* 6.) solve the problem with initial epssqr */
+	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---\n";
+	mysolver.solve();
 
 	/* cut gamma */
 	if(cutgamma) mydata.cutgamma();
 
-	/* unscale data to original interval */
+	/* unscale data before save */
 	if(scaledata) mydata.unscaledata(0,1);
 
-/* 6.) solve the problem with epssqrs and remember best solution */
-	double epssqr, epssqr_best;
-	double abserr;
-	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
 
-	Vec gammavector_best_Vec; /* here we store solution with best abserr value */
-	TRYCXX( VecDuplicate(mydata.get_gammavector()->get_vector(),&gammavector_best_Vec) );
+	coutMaster << "--- SAVING OUTPUT ---\n";
+	oss << data_out << "_epssqr" << epssqr_list[0];
+	mydata.saveVector(oss.str(),true);
+	oss.str("");
 
-	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
-	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
-
-	for(int depth = 0; depth < epssqr_list.size();depth++){
-		epssqr = epssqr_list[depth];
-		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---\n";
-
-		/* set new epssqr */
-		mymodel.set_epssqr(epssqr);
-
-		/* cut data */
-		if(cutdata) mydata.cutdata(0,1);
-
-		/* scale data */
-		if(scaledata){
-			mydata.scaledata(-1,1,0,1);
-		}
-		
-		mysolver.solve();
-
-		/* cut gamma */
-		if(cutgamma) mydata.cutgamma();
-
-		/* unscale data before save */
-		if(scaledata){
-			mydata.scaledata(0,1,-1,1);
-		}
-
-		/* compute absolute error of computed solution */
-		abserr = 0;
-//TODO		abserr = mydata.compute_abserr_reconstructed(solution);
-		
-		coutMaster << " - abserr = " << abserr << "\n";
-		
-		/* if this solution is better then previous, then store it */
-		if(abserr < abserr_best){
-			abserr_best = abserr;
-			epssqr_best = epssqr;
-			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
-			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
-		}
-	}
-
-	/* set best computed solution back to data */
-	TRYCXX(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
-	TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
-	
-
-
-/* 6.) save results into VTK file */
-	coutMaster << "--- SAVING VTK ---\n";
-	if(savevtk)	mydata.saveVTK(data_out);
-
-	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---\n";
-	mydata.print_thetavector(coutMaster);
-
-	/* print timers */
-	coutMaster << "--- TIMERS INFO ---\n";
-	mysolver.printtimer(coutAll);
-	coutAll.synchronize();
-
-	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---\n";
-	mysolver.printstatus(coutMaster);
 
 	/* write short output */
 	if(shortinfo_write_or_not){
@@ -326,8 +263,8 @@ int main( int argc, char *argv[] )
 		oss_short_output_values << shortinfo_values;
 
 		/* add info about the problem */
-		oss_short_output_header << "max_record_nmb,annealing,K,epssqr,";
-		oss_short_output_values << max_record_nmb << "," << annealing << "," << K << "," << epssqr << ","; 
+		oss_short_output_header << "max_record_nmb,K,depth,epssqr,";
+		oss_short_output_values << max_record_nmb << "," << K << ",0," << epssqr_list[0] << ","; 
 
 		/* append Theta solution */
 		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
@@ -347,7 +284,78 @@ int main( int argc, char *argv[] )
 		/* clear streams for next writing */
 		oss_short_output_header.str("");
 		oss_short_output_values.str("");
+	
 	}
+
+
+/* 7.) solve the problems with other epssqr */
+	for(int depth = 1; depth < epssqr_list.size();depth++){
+		/* set new epssqr */
+		mymodel.set_epssqr(epssqr_list[depth]);
+
+		/* decrease the number of annealing steps in TSSolver to 1 */
+//		mysolver.set_annealing(1);
+
+		/* scale data before computation */
+		if(scaledata) mydata.scaledata(0,1,cutdata_down,cutdata_up);
+
+		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---\n";
+		mysolver.solve();
+
+		/* cut gamma */
+		if(cutgamma) mydata.cutgamma();
+
+		/* unscale data before export */
+		if(scaledata) mydata.unscaledata(0,1);
+
+		coutMaster << "--- SAVING OUTPUT ---\n";
+		oss << data_out << "_epssqr" << epssqr_list[depth];
+		mydata.saveVector(oss.str(),false);
+		oss.str("");
+
+		/* write short output */
+		if(shortinfo_write_or_not){
+			/* add provided strings from console parameters */
+			oss_short_output_values << shortinfo_values << max_record_nmb << "," << K << "," << depth << "," << epssqr_list[depth] << ",";
+
+			/* append Theta solution */
+			oss_short_output_values << mydata.print_thetavector(); 
+
+			/* append data from solver */
+			mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
+			/* append end of line */
+			oss_short_output_values << "\n";
+
+			/* write data */
+			shortinfo.write(oss_short_output_values.str());
+
+			/* clear streams for next time */
+			oss_short_output_values.str("");
+		}
+	}
+
+/* 6.) save VTK - there is possibility to save only one problem into VTK */ 
+	//TODO: make it in different way
+	if(savevtk) {
+		coutMaster << "--- SAVING VTK ---\n";
+		mydata.saveVTK(data_out);
+	}
+
+/* 7.) print results */
+
+	/* print solution */
+	coutMaster << "--- THETA SOLUTION ---\n";
+	mydata.print_thetavector(coutMaster);
+
+	/* print timers */
+	coutMaster << "--- TIMERS INFO ---\n";
+	mysolver.printtimer(coutAll);
+	coutAll.synchronize();
+
+	/* print short info */
+	coutMaster << "--- FINAL SOLVER INFO ---\n";
+	mysolver.printstatus(coutMaster);
 
 	/* say bye */	
 	coutMaster << "- end program\n";

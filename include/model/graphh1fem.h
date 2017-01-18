@@ -355,7 +355,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
 	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	double coeff = (1.0/((double)(this->tsdata->get_R()*this->tsdata->get_T())))*this->epssqr;
+	double coeff = (1.0/((double)(this->tsdata->get_T())))*this->epssqr;
 //	double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
 //	double coeff = this->epssqr;
 //	double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
@@ -526,7 +526,7 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	double *b_arr;
 	TRYCXX( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
 
-	double coeff = (-1.0)/((double)(R*T));
+	double coeff = (-1.0)/((double)(T));
 //	double coeff = (-1.0)/(sqrt((double)(R*T)));
 	
 	for(int t=0;t<Tlocal;t++){

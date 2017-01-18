@@ -67,6 +67,7 @@ class EdfData: public TSData<VectorBase> {
 		virtual std::string get_name() const;
 
 		void saveVTK(std::string filename) const;
+		void saveVector(std::string filename, bool save_original) const;
 
 		int get_Tpreliminary() const;
 		void set_decomposition(Decomposition &decomposition);
@@ -552,13 +553,13 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	/* master writes the main file */
 	if(prank == 0){
 		/* create folder */
-		oss_filename << "results/" << filename;
+		oss_filename << "results/" << filename << "_vtk";
 		boost::filesystem::path dir(oss_filename.str().c_str());
 		boost::filesystem::create_directory(dir);
 		oss_filename.str("");
 		
 		/* write to the name of file */
-		oss_filename << "results/" << filename << "/" << filename << ".pvd";
+		oss_filename << "results/" << filename << "_vtk/" << filename << ".pvd";
 		myfile.open(oss_filename.str().c_str());
 		oss_filename.str("");
 
@@ -623,7 +624,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	/* each processor writes its own portion of data */
 	for(int t=Tbegin;t < Tend;t++){
 		oss_filename.str("");
-		oss_filename << "results/" << filename << "/edf_" << DDR_rank << "_" << t << ".vtu";
+		oss_filename << "results/" << filename << "_vtk/edf_" << DDR_rank << "_" << t << ".vtu";
 
 		myfile.open(oss_filename.str().c_str());
 
@@ -721,6 +722,81 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 
 	timer_saveVTK.stop();
 	coutAll <<  " - problem saved to VTK in: " << timer_saveVTK.get_value_sum() << std::endl;
+	coutAll.synchronize();
+}
+
+template<>
+void EdfData<PetscVector>::saveVector(std::string filename, bool save_original) const{
+	Timer timer_saveVector; 
+	timer_saveVector.restart();
+	timer_saveVector.start();
+
+	std::ostringstream oss_name_of_file;
+
+	/* prepare vectors to save as a permutation to original layout */
+	Vec datasave_Vec;
+	this->decomposition->createGlobalVec_data(&datasave_Vec);
+	GeneralVector<PetscVector> datasave(datasave_Vec);
+
+	Vec gammasave_Vec;
+	this->decomposition->createGlobalVec_gamma(&gammasave_Vec);
+	GeneralVector<PetscVector> gammasave(gammasave_Vec);
+
+	/* save datavector - just for fun; to see if it was loaded in a right way */
+	if(save_original){
+		oss_name_of_file << "results/" << filename << "_original.bin";
+		this->decomposition->permute_TRxdim(datasave_Vec, datavector->get_vector(), true);
+		datasave.save_binary(oss_name_of_file.str());
+		oss_name_of_file.str("");
+	}
+
+	/* save gamma */
+	oss_name_of_file << "results/" << filename << "_gamma.bin";
+	this->decomposition->permute_TRK(gammasave_Vec, gammavector->get_vector(), true);
+	gammasave.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	/* compute recovered signal */
+	Vec gammak_Vec;
+	IS gammak_is;
+
+	Vec data_recovered_Vec;
+	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
+	TRYCXX( VecSet(data_recovered_Vec,0.0));
+	GeneralVector<PetscVector> data_recovered(data_recovered_Vec);
+
+	double *theta_arr;
+	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
+
+	int K = this->get_K();
+
+	for(int k=0;k<K;k++){ 
+		/* get gammak */
+		this->decomposition->createIS_gammaK(&gammak_is, k);
+		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+
+		/* add to recovered image */
+		TRYCXX( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
+
+		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
+	}	
+
+	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
+
+	/* save recovered data */
+	oss_name_of_file << "results/" << filename << "_recovered.bin";
+	
+	/* but at first, permute recovered data, datasave can be used */
+	this->decomposition->permute_TRxdim(datasave_Vec, data_recovered_Vec, true);
+	datasave.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	/* destroy vectors with original layout */
+//	TRYCXX( VecDestroy(&datasave_Vec) );
+
+	timer_saveVector.stop();
+	coutAll <<  " - problem saved in: " << timer_saveVector.get_value_sum() << std::endl;
 	coutAll.synchronize();
 }
 

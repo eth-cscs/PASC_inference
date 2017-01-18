@@ -28,7 +28,8 @@ class QPData: public GeneralData {
 		GeneralMatrix<VectorBase> *A; /**< Hessian matrix */
 		GeneralVector<VectorBase> *b; /**< RHS vector, linear term */
 		GeneralVector<VectorBase> *x0; /**< initial approximation */
-		GeneralVector<VectorBase> *x; /**< solution */
+		GeneralVector<VectorBase> *x; /**< solution approximation */
+		GeneralVector<VectorBase> *x_sol; /**< solution vector - for tracking the descend of absolute error */
 		GeneralFeasibleSet<VectorBase> *feasibleset; /**< feasible set */
 
 	public:
@@ -95,6 +96,14 @@ class QPData: public GeneralData {
 		/** @brief get solution vector
 		 */ 
 		GeneralVector<VectorBase> *get_x() const;
+
+		/** @brief set solution vector
+		 */ 
+		void set_solution(GeneralVector<VectorBase> *x_sol);
+
+		/** @brief get solution vector
+		 */ 
+		GeneralVector<VectorBase> *get_solution() const;
 
 		/** @brief set new feasible set
 		 */ 
@@ -387,6 +396,16 @@ void QPData<VectorBase>::set_x(GeneralVector<VectorBase> *x){
 template<class VectorBase>
 GeneralVector<VectorBase> *QPData<VectorBase>::get_x() const{
 	return this->x;
+}
+
+template<class VectorBase>
+void QPData<VectorBase>::set_solution(GeneralVector<VectorBase> *x_sol){
+	this->x_sol = x_sol;
+}
+
+template<class VectorBase>
+GeneralVector<VectorBase> *QPData<VectorBase>::get_solution() const{
+	return this->x_sol;
 }
 
 template<class VectorBase>

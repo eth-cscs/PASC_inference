@@ -14,7 +14,7 @@ if len(sys.argv) < 2:
     sys.exit()
 
 inputfile = sys.argv[1];
-spgqpsolver_eps = "1e-4";
+spgqpsolver_eps = "1e-5";
 problem_time = "00:20:00";
 
 # path to exec folder
@@ -24,11 +24,12 @@ build_path = "%s/" % (os.getenv( "SCRATCH"));
 exec_name = "./test_signal1D"
 mpiexec = "srun"
 N = [1,2,3,4,5,6,7,8];
+Ntaskspernode = 24;
 
 # define console parameters
 params_list = [];
 params_list.append("--test_cutdata=false --test_scaledata=false")
-params_list.append("--test_epssqr=1e-3 --test_annealing=1")
+params_list.append("--test_epssqr=2e-4 --test_annealing=1")
 params_list.append("--tssolver_maxit=1 --tssolver_debugmode=0")
 params_list.append("--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_Anormgp=true")
 params_list.append("--test_shortinfo=true")
@@ -49,7 +50,7 @@ for index in range(len(N)):
     params3 = "--test_filename=data/%s_%d_data.bin --test_filename_solution=data/%s_%d_solution.bin --test_filename_gamma0=data/%s_%d_gamma0.bin" % (inputfile,N[index],inputfile,N[index],inputfile,N[index]);
     exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, params3, problem_name)
     batch_filename = os.path.join(gpu_batch_path, "%s.batch" % (problem_name))
-    write_batch(problem_name, N[index], 1, 1, N[index], 1, problem_time, library_path, gpu_batch_path, exec_name_full)
+    write_batch(problem_name, N[index], 1, 1, problem_time, library_path, gpu_batch_path, exec_name_full)
     batchfile_list.append(batch_filename);
 
 
@@ -68,8 +69,29 @@ for index in range(len(N)):
     params3 = "--test_filename=data/%s_%d_data.bin --test_filename_solution=data/%s_%d_solution.bin --test_filename_gamma0=data/%s_%d_gamma0.bin" % (inputfile,N[index],inputfile,N[index],inputfile,N[index]);
     exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, params3, problem_name)
     batch_filename = os.path.join(cpu_batch_path, "%s.batch" % (problem_name))
-    write_batch(problem_name, N[index], 1, 1, N[index], 0, problem_time, library_path, cpu_batch_path, exec_name_full)
+    write_batch(problem_name, N[index], 1, 1, problem_time, library_path, cpu_batch_path, exec_name_full)
     batchfile_list.append(batch_filename);
+
+
+# CPUT
+cput_problem_name = "weak_CT";
+cput_exec_path = "%s/build_cput/" %(build_path);
+cput_batch_path = "%s/batch/" %(cput_exec_path);
+
+# CPUT: generate bash scripts
+batchfile_list = [];
+for index in range(len(N)):
+    print "CPUT: Preparing batch scripts: %s/%s" % (index+1,len(N))
+    problem_name = "%s%d" %(cput_problem_name,N[index])
+    exec_path = cput_exec_path
+    params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps);
+    params3 = "--test_filename=data/%s_%d_data.bin --test_filename_solution=data/%s_%d_solution.bin --test_filename_gamma0=data/%s_%d_gamma0.bin" % (inputfile,N[index],inputfile,N[index],inputfile,N[index]);
+    exec_name_full = "%s -n %d %s %s %s %s > batch_out/%s.log" %(mpiexec, N[index]*Ntaskspernode, exec_name, params, params2, params3, problem_name)
+    batch_filename = os.path.join(cput_batch_path, "%s.batch" % (problem_name))
+    write_batch(problem_name, N[index], Ntaskspernode, 1, problem_time, library_path, cput_batch_path, exec_name_full)
+    batchfile_list.append(batch_filename);
+
+
 
 
 # run bash scripts

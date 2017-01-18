@@ -10,35 +10,31 @@ import os, shutil, sys, getopt
 
 # parse input arguments
 if len(sys.argv) < 2:
-    print 'daint_batch_strong.py <inputfile>'
+    print 'loremipsum_strong.py <epssqr>'
     sys.exit()
 
-inputfile = sys.argv[1];
-spgqpsolver_eps = "1e-5";
-problem_time = "00:20:00";
+epssqr = sys.argv[1];
+spgqpsolver_eps = "1e-6";
+problem_time = "00:30:00";
 
 # path to exec folder
 username = "pospisil"
 library_path = "~/soft/PASC_inference/";
 build_path = "%s/" % (os.getenv( "SCRATCH"));
-exec_name = "./test_signal1D"
+exec_name = "./test_image"
 mpiexec = "srun"
 N = [1,2,3,4,5,6,7,8];
 Ntaskspernode = 24;
 
 # define console parameters
 params_list = [];
-params_list.append("--test_filename=data/%s_data.bin" %(inputfile))
-params_list.append("--test_filename_solution=data/%s_solution.bin" %(inputfile))
-params_list.append("--test_filename_gamma0=data/%s_gamma0.bin" %(inputfile))
-params_list.append("--test_cutdata=false --test_scaledata=false")
-params_list.append("--test_epssqr=2e-4 --test_annealing=1")
-params_list.append("--tssolver_maxit=1 --tssolver_debugmode=0")
-params_list.append("--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_Anormgp=true")
+params_list.append("--test_image_filename=data/loremipsum.bin --test_width=1000 --test_height=1000")
+params_list.append("--test_K=2 --test_Theta=0.5 --test_Theta=0.6")
+params_list.append("--test_cutdata=true --test_scaledata=false")
+params_list.append("--test_epssqr=%s" %(epssqr))
+params_list.append("--spgqpsolver_eps=%s --spgqpsolver_monitor=true --test_annealing=1 --tssolver_maxit=1 --tssolver_debugmode=0 --spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true" %(spgqpsolver_eps))
 params_list.append("--test_shortinfo=true")
-params_list.append("--test_K=2 --test_Theta=1.0 --test_Theta=2.0")
 params = ' '.join(params_list);
-
 
 # GPU
 gpu_problem_name = "strong_G";
@@ -51,7 +47,7 @@ for index in range(len(N)):
     print "GPU: Preparing batch scripts: %s/%s" % (index+1,len(N))
     problem_name = "%s%d" %(gpu_problem_name,N[index])
     exec_path = gpu_exec_path
-    params2 = "--test_filename_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
+    params2 = "--test_image_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt" % (problem_name, N[index], problem_name)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
     batch_filename = os.path.join(gpu_batch_path, "%s.batch" % (problem_name))
     write_batch(problem_name, N[index], 1, 1, problem_time, library_path, gpu_batch_path, exec_name_full)
@@ -69,7 +65,7 @@ for index in range(len(N)):
     print "CPU: Preparing batch scripts: %s/%s" % (index+1,len(N))
     problem_name = "%s%d" %(cpu_problem_name,N[index])
     exec_path = cpu_exec_path
-    params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
+    params2 = "--test_image_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt" % (problem_name, N[index], problem_name)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
     batch_filename = os.path.join(cpu_batch_path, "%s.batch" % (problem_name))
     write_batch(problem_name, N[index], 1, 1, problem_time, library_path, cpu_batch_path, exec_name_full)
@@ -87,7 +83,7 @@ for index in range(len(N)):
     print "CPUT: Preparing batch scripts: %s/%s" % (index+1,len(N))
     problem_name = "%s%d" %(cput_problem_name,N[index])
     exec_path = cput_exec_path
-    params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
+    params2 = "--test_image_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt" % (problem_name, N[index], problem_name)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index]*Ntaskspernode, exec_name, params, params2, problem_name)
     batch_filename = os.path.join(cput_batch_path, "%s.batch" % (problem_name))
     write_batch(problem_name, N[index], Ntaskspernode, 1, problem_time, library_path, cput_batch_path, exec_name_full)

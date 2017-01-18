@@ -21,8 +21,6 @@ using namespace pascinference;
 
 typedef petscvector::PetscVector PetscVector;
 
-extern int pascinference::DEBUG_MODE;
-
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
@@ -178,7 +176,7 @@ int main( int argc, char *argv[] )
 		graph = new BGMGraphGrid2D(width, height);
 		((BGMGraphGrid2D*)graph)->process_grid();
 	}
-	
+
 	/* print basic info about graph */
 	graph->print(coutMaster);
 	
@@ -248,7 +246,7 @@ int main( int argc, char *argv[] )
 	if(scaledata) mydata.scaledata(0,1,-1,1);
 
 	coutMaster << "--- SAVING OUTPUT ---\n";
-	oss << image_out << "_depth0" << "_epssqr" << epssqr_list[0];
+	oss << image_out << "_epssqr" << epssqr_list[0];
 	mydata.saveImage(oss.str(),true);
 	oss.str("");
 
@@ -260,7 +258,7 @@ int main( int argc, char *argv[] )
 
 		/* add info about the problem */
 		oss_short_output_header << "width,height,K,depth,epssqr,";
-		oss_short_output_values << width << "," << height << "," << K << ",0,0.0,"; 
+		oss_short_output_values << width << "," << height << "," << K << ",0," << epssqr_list[0] << ","; 
 
 		/* append Theta solution */
 		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
@@ -305,7 +303,7 @@ int main( int argc, char *argv[] )
 		if(scaledata) mydata.scaledata(0,1,-1,1);
 
 		coutMaster << "--- SAVING OUTPUT ---\n";
-		oss << image_out << "_depth" << depth << "_epssqr" << epssqr_list[depth];
+		oss << image_out << "_epssqr" << epssqr_list[depth];
 		mydata.saveImage(oss.str(),false);
 		oss.str("");
 		
