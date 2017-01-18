@@ -14,7 +14,7 @@ source ~/soft/PASC_inference//util/module_load_daint_sandbox
 ## set number of threads
 export OMP_NUM_THREADS=1
 
-export PARAMETERS_DATA="--test_data_filename=data/S001R01.edf --test_data_out=epssqr_G4 --test_width=1000 --test_height=1000 --test_max_record_nmb=10"
+export PARAMETERS_DATA="--test_data_filename=data/S001R01.edf --test_data_out=epssqr_G4 --test_max_record_nmb=10"
 export PARAMETERS_GRAPH="--test_graph_coordinates=data/Koordinaten_EEG_P.bin --test_graph_coeff=2.5"
 export PARAMETERS_THETA="--test_K=6 --test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
 export PARAMETERS_PREPROC="--test_cutdata=true --test_scaledata=true"
@@ -23,6 +23,6 @@ export PARAMETERS_SOLVER="--spgqpsolver_eps=1e-6 --spgqpsolver_monitor=true --te
 export PARAMETERS_SHORTINFO="--test_savevtk=false --test_shortinfo=true --test_shortinfo_header=nproc, --test_shortinfo_values=4, --test_shortinfo_filename=shortinfo/epssqr_G4.txt"
 
 ## run the job
-srun -n 4 ./test_image $PARAMETERS_DATA $PARAMETERS_GRAPH $PARAMETERS_THETA $PARAMETERS_PREPROC $PARAMETERS_EPSSQR $PARAMETERS_SOLVER $PARAMETERS_SHORTINFO > batch_out/epssqr_G4.log
+srun -n 4 ./test_neuro $PARAMETERS_DATA $PARAMETERS_GRAPH $PARAMETERS_THETA $PARAMETERS_PREPROC $PARAMETERS_EPSSQR $PARAMETERS_SOLVER $PARAMETERS_SHORTINFO > batch_out/epssqr_G4.log
 
 
