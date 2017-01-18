@@ -7,12 +7,15 @@
 clear all
 
 %sampleid = {'10e4', '10e5', '10e6'};
-sampleid = {'10e7'};
+sampleid = {'10e6'};
 
 for k=1:length(sampleid)
     filename_cpu=['cpu/weak_shortinfo_final_' sampleid{k} '.txt'];
     M_cpu = csvread(filename_cpu,1,0);
 
+    filename_cput=['cput/weak_shortinfo_final_' sampleid{k} '.txt'];
+    M_cput = csvread(filename_cput,1,0);
+    
     filename_gpu=['gpu/weak_shortinfo_final_' sampleid{k} '.txt'];
     M_gpu = csvread(filename_gpu,1,0);
     
@@ -35,6 +38,19 @@ for k=1:length(sampleid)
     cpu_times(4,:) = M_cpu(cpu_sortidx,31)';
     cpu_times(5,:) = M_cpu(cpu_sortidx,32)';
     cpu_times(6,:) = M_cpu(cpu_sortidx,34)';
+
+    
+    cput_nmb = M_cput(:,1)';
+    [cput_nmb,cput_sortidx] = sort(cput_nmb);
+        
+    cput_it = M_cpu(cput_sortidx,26)';
+    %all,projection, matmult, dot, update, fs
+    cput_times(1,:) = M_cput(cput_sortidx,28)';
+    cput_times(2,:) = M_cput(cput_sortidx,29)';
+    cput_times(3,:) = M_cput(cput_sortidx,30)';
+    cput_times(4,:) = M_cput(cput_sortidx,31)';
+    cput_times(5,:) = M_cput(cput_sortidx,32)';
+    cput_times(6,:) = M_cput(cput_sortidx,34)';
    
     
     gpu_nmb = M_gpu(:,1)';
@@ -60,6 +76,7 @@ for k=1:length(sampleid)
 
     for i = 1:6
         cpu_times_relative(i,:) = cpu_times(i,:)./cpu_it;
+        cput_times_relative(i,:) = cput_times(i,:)./cput_it;
         gpu_times_relative(i,:) = gpu_times(i,:)./gpu_it;
     end
 
@@ -70,12 +87,15 @@ for k=1:length(sampleid)
         plot(cpu_nmb,cpu_times(i,:),'b-o')
         plot(cpu_nmb,cpu_times(i,1)*ones(size(cpu_times(i,:))),'b--')
 
+        plot(cput_nmb,cput_times(i,:),'g-o')
+        plot(cput_nmb,cput_times(i,1)*ones(size(cput_times(i,:))),'g--')
+        
         plot(gpu_nmb,gpu_times(i,:),'r-o')
         plot(gpu_nmb,gpu_times(i,1)*ones(size(gpu_times(i,:))),'r--')
         
-        xlabel('nmb of CPUs/GPUs')
+        xlabel('number of nodes')
         ylabel('computation time [s]')
-        ax = legend('CPU','optimal CPU','GPU','optimal GPU');
+        ax = legend('CPU 1core','optimal CPU 1core','CPU 24cores','optimal CPU 24cores','GPU','optimal GPU');
         leg = findobj(ax,'type','text');
         set(leg,'FontSize',8)
         title([titles{i} ''])
@@ -85,12 +105,17 @@ for k=1:length(sampleid)
         hold on
         plot(cpu_nmb,cpu_times_relative(i,:),'b-o')
         plot(cpu_nmb,cpu_times_relative(i,1)*ones(size(cpu_times(i,:))),'b--')
+
+        plot(cput_nmb,cput_times_relative(i,:),'g-o')
+        plot(cput_nmb,cput_times_relative(i,1)*ones(size(cput_times(i,:))),'g--')
         
         plot(gpu_nmb,gpu_times_relative(i,:),'r-o')
         plot(gpu_nmb,gpu_times_relative(i,1)*ones(size(gpu_times(i,:))),'r--')
-        xlabel('nmb of CPUs/GPUs')
+
+        xlabel('number of nodes')
         ylabel('one iteration computation time [s]')
-        ax = legend('CPU','optimal CPU','GPU','optimal GPU');
+        ax = legend('CPU 1core','optimal CPU 1core','CPU 24cores','optimal CPU 24cores','GPU','optimal GPU');
+
         leg = findobj(ax,'type','text');
         set(leg,'FontSize',8)
         title([titles{i} ': relative'])
@@ -98,15 +123,18 @@ for k=1:length(sampleid)
 
         subplot(3,6,12+i);
         hold on
-        mybars = zeros(2,max([size(gpu_times,2),size(gpu_times,2)]));
+        mybars = zeros(3,max([size(gpu_times,2),size(gpu_times,2)]));
         mybars(1,1:size(cpu_times,2)) = cpu_times_relative(i,1)./cpu_times_relative(i,:);
-        mybars(2,1:size(gpu_times,2)) = gpu_times_relative(i,1)./gpu_times_relative(i,:);
+        mybars(2,1:size(cput_times,2)) = cput_times_relative(i,1)./cput_times_relative(i,:);
+        mybars(3,1:size(gpu_times,2)) = gpu_times_relative(i,1)./gpu_times_relative(i,:);
 
         b = bar(mybars');
         plot(gpu_nmb,ones(size(gpu_times)),'k--')
-        xlabel('nmb of CPUs/GPUs')
+
+        xlabel('number of nodes')
         ylabel('speed up')
-        ax = legend('CPU','GPU','optimal');
+        ax = legend('CPU 1core', 'CPU 24cores', 'GPU', 'optimal');
+
         leg = findobj(ax,'type','text');
         set(leg,'FontSize',8)
         title([titles{i} ': relative speed up'])
