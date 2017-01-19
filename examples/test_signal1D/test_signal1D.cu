@@ -29,6 +29,7 @@ int main( int argc, char *argv[] )
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
 		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original signal data without noise (vector in PETSc format) [string]")
 		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
+		("test_save_all", boost::program_options::value<bool>(), "save results for all epssqr, not only for the best one [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to set {0;1} [bool]")
@@ -59,7 +60,7 @@ int main( int argc, char *argv[] )
 	}
 
 	int K, annealing; 
-	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not;
+	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, save_all;
 
 	std::string filename;
 	std::string filename_out;
@@ -73,6 +74,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_filename", &filename, "data/samplesignal.bin");
 	consoleArg.set_option_value("test_filename_out", &filename_out, "samplesignal");
 	consoleArg.set_option_value("test_filename_solution", &filename_solution, "data/samplesignal_solution.bin");
+	consoleArg.set_option_value("test_save_all", &save_all, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
@@ -130,6 +132,7 @@ int main( int argc, char *argv[] )
 	} else {
 		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)\n";
 	}
+	coutMaster << " test_save_all               = " << std::setw(30) << save_all << " (save results for all epssqr, not only for the best one)\n";
 	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)\n";
 	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)\n";
 	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})\n";
@@ -215,10 +218,33 @@ int main( int argc, char *argv[] )
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
+	/* write header of short output */
+	if(shortinfo_write_or_not){
+		/* add provided strings from console parameters */
+		oss_short_output_header << shortinfo_header;
+
+		/* add info about the problem */
+		oss_short_output_header << shortinfo_header << "K,epssqr,abserr,";
+
+		/* append Theta solution */
+		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
+
+		/* print info from solver */
+		mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
+		/* append end of line */
+		oss_short_output_header << "\n";
+
+		/* write to shortinfo file */
+		shortinfo.write(oss_short_output_header.str());
+			
+		/* clear streams for next writing */
+		oss_short_output_header.str("");
+	}	
+	
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr, epssqr_best;
 	double abserr; /* actual error */
-	double abserrs[epssqr_list.size()]; /* all errors */
 	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
 
 	Vec gammavector_best_Vec; /* here we store solution with best abserr value */
@@ -255,11 +281,40 @@ int main( int argc, char *argv[] )
 
 		/* compute absolute error of computed solution */
 		abserr = mydata.compute_abserr_reconstructed(solution);
-		abserrs[depth] = abserr;
 		
 		coutMaster << " - abserr = " << abserr << std::endl;
 //		mysolver.printtimer(coutMaster);
 //		mysolver.printstatus(coutMaster);	
+
+		/* store obtained solution */
+		if(save_all){
+			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+			oss << filename_out << "_epssqr" << epssqr;
+			mydata.saveSignal1D(oss.str(),false);
+			oss.str("");
+		}
+		
+		/* store short info */
+		if(shortinfo_write_or_not){
+			/* add provided strings from console parameters and info about the problem */
+			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << abserr << ",";
+
+			/* append Theta solution */
+			oss_short_output_values << mydata.print_thetavector(); 
+
+			/* print info from solver */
+			mysolver.printshort(oss_short_output_header, oss_short_output_values);
+
+			/* append end of line */
+			oss_short_output_values << "\n";
+
+			/* write to shortinfo file */
+			shortinfo.write(oss_short_output_values.str());
+			
+			/* clear streams for next writing */
+			oss_short_output_header.str("");
+			oss_short_output_values.str("");
+		}
 	
 		/* if this solution is better then previous, then store it */
 		if(abserr < abserr_best){
@@ -268,39 +323,12 @@ int main( int argc, char *argv[] )
 			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
 			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
 		}
+		
 	}
 
 	/* set best computed solution back to data */
 	TRYCXX(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
 	TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
-
-/* 7.) write short output with best solution */
-	if(shortinfo_write_or_not){
-
-		/* add provided strings from console parameters and info about the problem */
-		oss_short_output_header << shortinfo_header << "K,epssqr_best,abserr_best,";
-		oss_short_output_values << shortinfo_values << K << "," << epssqr_best << "," << abserr_best << ",";
-
-		/* append Theta solution */
-		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
-		oss_short_output_values << mydata.print_thetavector(); 
-
-		/* print info from solver */
-		mysolver.printshort(oss_short_output_header, oss_short_output_values);
-
-		/* append end of line */
-		oss_short_output_header << "\n";
-		oss_short_output_values << "\n";
-
-		/* write to shortinfo file */
-		shortinfo.write(oss_short_output_header.str());
-		shortinfo.write(oss_short_output_values.str());
-			
-		/* clear streams for next writing */
-		oss_short_output_header.str("");
-		oss_short_output_values.str("");
-	
-	}
 
 /* 8.) store best solution */
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
@@ -319,11 +347,6 @@ int main( int argc, char *argv[] )
 	/* print short info */
 	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
 	mysolver.printstatus(coutMaster);
-
-	/* print absolute errors */
-	coutMaster << "--- ABSOLUTE ERRORS: ---" << std::endl;
-	coutMaster << "epssqr: " << print_vector(epssqr_list) << std::endl;
-	coutMaster << "abserrs: " << print_array(abserrs, epssqr_list.size()) << std::endl;
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;
