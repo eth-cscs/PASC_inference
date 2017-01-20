@@ -218,30 +218,6 @@ int main( int argc, char *argv[] )
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
-	/* write header of short output */
-	if(shortinfo_write_or_not){
-		/* add provided strings from console parameters */
-		oss_short_output_header << shortinfo_header;
-
-		/* add info about the problem */
-		oss_short_output_header << shortinfo_header << "K,epssqr,abserr,";
-
-		/* append Theta solution */
-		for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
-
-		/* print info from solver */
-		mysolver.printshort(oss_short_output_header, oss_short_output_values);
-
-		/* append end of line */
-		oss_short_output_header << "\n";
-
-		/* write to shortinfo file */
-		shortinfo.write(oss_short_output_header.str());
-			
-		/* clear streams for next writing */
-		oss_short_output_header.str("");
-	}	
-	
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr, epssqr_best;
 	double abserr; /* actual error */
@@ -294,21 +270,26 @@ int main( int argc, char *argv[] )
 			oss.str("");
 		}
 		
+
 		/* store short info */
 		if(shortinfo_write_or_not){
 			/* add provided strings from console parameters and info about the problem */
+			if(depth==0) oss_short_output_header << shortinfo_header << "K,epssqr,abserr,";
 			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << abserr << ",";
-
+			
 			/* append Theta solution */
+			if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
 			oss_short_output_values << mydata.print_thetavector(); 
 
 			/* print info from solver */
 			mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
 			/* append end of line */
+			if(depth==0) oss_short_output_header << "\n";
 			oss_short_output_values << "\n";
 
 			/* write to shortinfo file */
+			if(depth==0) shortinfo.write(oss_short_output_header.str());
 			shortinfo.write(oss_short_output_values.str());
 			
 			/* clear streams for next writing */
