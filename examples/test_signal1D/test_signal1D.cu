@@ -332,6 +332,7 @@ int main( int argc, char *argv[] )
 
 /* 8.) store best solution */
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 	oss << filename_out;
 	mydata.saveSignal1D(oss.str(),false);
 	oss.str("");
