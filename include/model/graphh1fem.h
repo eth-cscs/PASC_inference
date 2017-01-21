@@ -337,9 +337,11 @@ template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	this->epssqr = epssqr;
 
+	double coeff = (1.0/((double)(this->tsdata->get_T())))*this->epssqr;
+	
 	if(this->A_shared){
 		/* SPARSE */
-		((BlockGraphSparseMatrix<VectorBase>*)A_shared)->set_coeff(this->epssqr);
+		((BlockGraphSparseMatrix<VectorBase>*)A_shared)->set_coeff(coeff);
 	}
 }
 

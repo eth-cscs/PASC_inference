@@ -408,10 +408,12 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 	TRYCXX( VecRestoreArray(this->thetavector->get_vector(),&theta_arr) );
 
 	/* compute mean(abs(solution - data_recovered) */
-	TRYCXX( VecAbs(data_abserr_Vec) );
-	TRYCXX( VecSum(data_abserr_Vec, &abserr) );
-	int T = this->get_T();
-	abserr = abserr/(double)T;
+//	TRYCXX( VecAbs(data_abserr_Vec) );
+//	TRYCXX( VecSum(data_abserr_Vec, &abserr) );
+//	int T = this->get_T();
+//	abserr = abserr/(double)T;
+
+	TRYCXX( VecNorm(data_abserr_Vec, NORM_2, &abserr) );
 	
 	LOG_FUNC_END
 	
