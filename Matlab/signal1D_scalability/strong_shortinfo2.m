@@ -13,7 +13,7 @@ for k=1:length(sampleid)
     filename_cpu=['cpu/strong_shortinfo_final_' sampleid{k} '.txt'];
     M_cpu = csvread(filename_cpu,1,0);
 
-    filename_cpu2=['cpu2/strong_shortinfo_final_' sampleid{k} '.txt'];
+    filename_cpu2=['cput/strong_shortinfo_final_' sampleid{k} '.txt'];
     M_cpu2 = csvread(filename_cpu2,1,0);
     
     filename_gpu=['gpu/strong_shortinfo_final_' sampleid{k} '.txt'];
