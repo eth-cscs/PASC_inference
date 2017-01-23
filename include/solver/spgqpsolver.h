@@ -831,7 +831,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		}
 		
 		/* monitor - export values of stopping criteria */
-		if(this->monitor){
+		if(this->monitor && GlobalManager.get_rank() == 0){
 			//TODO: this could be done in a different way
 			std::ofstream myfile;
 			myfile.open("log/spgqpsolver_monitor.m", std::fstream::in | std::fstream::out | std::fstream::app);

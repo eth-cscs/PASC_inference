@@ -14,8 +14,9 @@ if len(sys.argv) < 2:
     sys.exit()
 
 inputfile = sys.argv[1];
-spgqpsolver_eps = "1e-5";
-problem_time = "00:20:00";
+test_epssqr = "1e5";
+spgqpsolver_eps = "1e-4";
+problem_time = "00:30:00";
 
 # path to exec folder
 username = "pospisil"
@@ -23,7 +24,8 @@ library_path = "~/soft/PASC_inference/";
 build_path = "%s/" % (os.getenv( "SCRATCH"));
 exec_name = "./test_signal1D"
 mpiexec = "srun"
-N = [1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,18,19,20];
+#N = [1,2,3,4,5,6,7,8,9,10,11,12,13,15,16];
+N=[14];
 Ntaskspernode = 24;
 
 # define console parameters
@@ -32,7 +34,7 @@ params_list.append("--test_filename=data/%s_data.bin" %(inputfile))
 params_list.append("--test_filename_solution=data/%s_solution.bin" %(inputfile))
 params_list.append("--test_filename_gamma0=data/%s_gamma0.bin" %(inputfile))
 params_list.append("--test_cutdata=false --test_scaledata=false")
-params_list.append("--test_epssqr=2e-4 --test_annealing=1")
+params_list.append("--test_epssqr=%s --test_annealing=1" %(test_epssqr))
 params_list.append("--tssolver_maxit=1 --tssolver_debugmode=0")
 params_list.append("--spgqpsolver_maxit=30000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true")
 params_list.append("--test_shortinfo=true")
