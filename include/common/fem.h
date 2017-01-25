@@ -7,6 +7,10 @@
 #ifndef PASC_FEM_H
 #define	PASC_FEM_H
 
+#ifndef USE_PETSCVECTOR
+ #error 'FEM is for PETSCVECTOR'
+#endif
+
 /* this class is for petscvector */
 typedef petscvector::PetscVector PetscVector;
 
@@ -22,6 +26,16 @@ class Fem {
 		Decomposition *decomposition1; /**< decomposition of the larger problem */
 		Decomposition *decomposition2; /**< decomposition of smaller problem */
 		
+		#ifdef USE_CUDA
+			int blockSize_reduce; /**< block size returned by the launch configurator */
+			int minGridSize_reduce; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
+			int gridSize_reduce; /**< the actual grid size needed, based on input size */
+
+			int blockSize_prolongate; /**< block size returned by the launch configurator */
+			int minGridSize_prolongate; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
+			int gridSize_prolongate; /**< the actual grid size needed, based on input size */
+		#endif
+		
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
@@ -36,6 +50,14 @@ class Fem {
 
 };
 
+/* cuda kernels cannot be a member of class */
+#ifdef USE_CUDA
+__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2);
+__global__ void kernel_fem_prolongate_data(double *data2, double *data1, int T2, int T1);
+#endif
+
+
+
 /* ----------------- Fem implementation ------------- */
 
 Fem::Fem(Decomposition *decomposition1, Decomposition *decomposition2){
@@ -43,6 +65,15 @@ Fem::Fem(Decomposition *decomposition1, Decomposition *decomposition2){
 
 	this->decomposition1 = decomposition1;
 	this->decomposition2 = decomposition2;
+
+	#ifdef USE_CUDA
+		/* compute optimal kernel calls */
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_fem_reduce_data, 0, 0) );
+		gridSize_reduce = (decomposition2->get_T() + blockSize_reduce - 1)/ blockSize_reduce;
+
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_fem_prolongate_data, 0, 0) );
+		gridSize_prolongate = (decomposition->get_T() + blockSize_prolongate - 1)/ blockSize_prolongate;
+	#endif
 
 	LOG_FUNC_END
 }
@@ -80,19 +111,33 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
-		TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
-		TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
+		#ifndef USE_CUDA
+			/* sequential version */
+			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
-		for(int t2 =0; t2 < decomposition2->get_T(); t2++){
-			mysum = 0.0;
-			for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
-				mysum += gammak1_arr[i];
+			for(int t2=0; t2 < decomposition2->get_T(); t2++){
+				mysum = 0.0;
+				for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
+					mysum += gammak1_arr[i];
+				}
+				gammak2_arr[t2] = mysum;
 			}
-			gammak2_arr[t2] = mysum;
-		}
 
-		TRYCXX( VecRestoreArray(gammak1_Vec,&gammak1_arr) );
-		TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
+			TRYCXX( VecRestoreArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
+		#else
+			/* cuda version */
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
+
+			kernel_fem_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T());
+			gpuErrchk( cudaDeviceSynchronize() );
+			MPI_Barrier( MPI_COMM_WORLD );
+		
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
+		#endif
 
 		TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
@@ -132,16 +177,30 @@ void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<Pet
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
-		TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
-		TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
+		#ifndef USE_CUDA
+			/* sequential version */
+			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
-		for(int t =0; t < decomposition1->get_T(); t++){
-			idx = round(t*diff);
-			gammak1_arr[t] = gammak2_arr[idx];
-		}
+			for(int t1 =0; t1 < decomposition1->get_T(); t1++){
+				idx = round(t1*diff);
+				gammak1_arr[t1] = gammak2_arr[idx];
+			}
 
-		TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
-		TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
+			TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
+			TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
+		#else
+			/* cuda version */
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
+
+			kernel_fem_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak2_arr, gammak1_arr, decomposition2->get_T(), decomposition1->get_T());
+			gpuErrchk( cudaDeviceSynchronize() );
+			MPI_Barrier( MPI_COMM_WORLD );
+		
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
+		#endif
 
 		TRYCXX( ISDestroy(&gammak1_is) );
 		TRYCXX( ISDestroy(&gammak2_is) );
@@ -154,6 +213,36 @@ void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<Pet
 	
 	LOG_FUNC_END
 }
+
+
+#ifdef USE_CUDA
+__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2) {
+	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if(t2 < T2){
+		double mysum = 0.0;
+		double diff = T1/(double)(T2);
+
+		for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
+			mysum += data1[i];
+		}
+
+		data2[t2] = mysum;
+	}
+}
+
+
+__global__ void kernel_fem_prolongate_data(double *data2, double *data1, int T2, int T1) {
+	int t1 = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if(t1 < T1){
+		double diff = (T2-1.0)/(double)(T1-1.0);
+		int idx = round(t1*diff);
+		data1[t1] = data2[idx];
+	}
+}
+
+#endif
 
 
 
