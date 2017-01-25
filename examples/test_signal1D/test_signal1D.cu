@@ -25,6 +25,7 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
+		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
 		("test_filename", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
 		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original signal data without noise (vector in PETSc format) [string]")
@@ -61,6 +62,7 @@ int main( int argc, char *argv[] )
 
 	int K, annealing; 
 	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, save_all;
+	double fem_reduce;
 
 	std::string filename;
 	std::string filename_out;
@@ -71,6 +73,7 @@ int main( int argc, char *argv[] )
 	std::string shortinfo_values;
 
 	consoleArg.set_option_value("test_K", &K, 2);
+	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, 1.0);
 	consoleArg.set_option_value("test_filename", &filename, "data/samplesignal.bin");
 	consoleArg.set_option_value("test_filename_out", &filename_out, "samplesignal");
 	consoleArg.set_option_value("test_filename_solution", &filename_solution, "data/samplesignal_solution.bin");
@@ -124,6 +127,7 @@ int main( int argc, char *argv[] )
 		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K) << "\n";
 	}
 
+	coutMaster << " test_fem_reduce             = " << std::setw(30) << fem_reduce << " (parameter of the reduction of FEM node)\n";
 	coutMaster << " test_filename               = " << std::setw(30) << filename << " (name of input file with signal data)\n";
 	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)\n";
 	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)\n";
@@ -195,7 +199,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING MODEL ---\n";
 
 	/* prepare model on the top of given data */
-	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
+	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem_reduce);
 
 	/* print info about model */
 	mymodel.print(coutMaster,coutAll);

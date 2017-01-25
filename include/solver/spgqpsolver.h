@@ -13,7 +13,7 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define SPGQPSOLVER_DEFAULT_MAXIT 500
+#define SPGQPSOLVER_DEFAULT_MAXIT 1000
 #define SPGQPSOLVER_DEFAULT_EPS 1e-9
 #define SPGQPSOLVER_DEFAULT_DEBUGMODE 0
 

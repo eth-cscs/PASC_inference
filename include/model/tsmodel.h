@@ -95,20 +95,36 @@ class TSModel: public GeneralModel {
 		virtual void finalize_thetasolver(GeneralSolver **thetasolver){
 		};
 
-		/** @brief update data values of gamma solver
+		/** @brief update data values of gamma solver before calling solve
 		 *  
-		 *  Update data values of gamma solver, prepare it to the solving.
+		 *  Update data values of gamma solver, prepare it to solution process.
 		 * 
 		 */ 
-		virtual void update_gammasolver(GeneralSolver *gammasolver){
+		virtual void updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
 		};
 
-		/** @brief update data values of Theta solver
+		/** @brief update data values of Theta solver before calling solve
 		 *  
 		 *  Update data values of Theta solver, prepare it to the solving.
 		 * 
 		 */ 
-		virtual void update_thetasolver(GeneralSolver *thetasolver){
+		virtual void updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
+		};
+
+		/** @brief update data values of gamma solver after calling solve
+		 *  
+		 *  Update data values of gamma solver, postprocess solution process.
+		 * 
+		 */ 
+		virtual void updateaftersolve_gammasolver(GeneralSolver *gammasolver){
+		};
+
+		/** @brief update data values of Theta solver before calling solve
+		 *  
+		 *  Update data values of Theta solver, postprocess solution process.
+		 * 
+		 */ 
+		virtual void updateaftersolve_thetasolver(GeneralSolver *thetasolver){
 		};
 
 		/** @brief get the value of object function L(gamma,Theta,data)

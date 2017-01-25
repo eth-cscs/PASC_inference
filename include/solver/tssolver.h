@@ -560,12 +560,16 @@ void TSSolver<VectorBase>::solve() {
 			/* --- COMPUTE Theta --- */
 			if(!thetasolved){
 				this->timer_theta_update.start();
-				 model->update_thetasolver(thetasolver);
+				 model->updatebeforesolve_thetasolver(thetasolver);
 				this->timer_theta_update.stop();
 
 				this->timer_theta_solve.start();
 				 thetasolver->solve();
 				this->timer_theta_solve.stop();
+
+				this->timer_theta_update.start();
+				 model->updateaftersolve_thetasolver(thetasolver);
+				this->timer_theta_update.stop();
 			}
 
 			/* print info about theta solver */
@@ -595,12 +599,16 @@ void TSSolver<VectorBase>::solve() {
 			/* --- COMPUTE gamma --- */
 			if(!gammasolved){
 				this->timer_gamma_update.start();
-				 model->update_gammasolver(gammasolver);
+				 model->updatebeforesolve_gammasolver(gammasolver);
 				this->timer_gamma_update.stop();
 
 				this->timer_gamma_solve.start();
 				 gammasolver->solve();
 				this->timer_gamma_solve.stop();
+
+				this->timer_gamma_update.start();
+				 model->updateaftersolve_gammasolver(gammasolver);
+				this->timer_gamma_update.stop();
 			}
 
 			/* print info about gammasolver */

@@ -12,6 +12,9 @@ extern int DEBUG_MODE;
 
 #include "pascinference.h"
 
+/* for reduction and prolongation of data */
+#include "common/fem.h"
+
 /* gamma problem */
 //#include "algebra/matrix/blockgraphfree.h" // TODO: implement?
 #include "algebra/matrix/blockgraphsparse.h"
@@ -31,6 +34,7 @@ extern int DEBUG_MODE;
 #include "data/simpledata.h"
 
 #include "data/tsdata.h"
+
 
 /* default type of matrix: 0=FREE, 1=SPARSE */
 #define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 1
@@ -67,10 +71,17 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		/* for theta problem */
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
-
+		GeneralVector<VectorBase> *residuum; /**< temp vector for residuum computation */
+		
 		bool usethetainpenalty; /**< use the value of Theta in penalty parameter to scale blocks */
 		
 		GammaSolverType gammasolvertype; /**< the type of used solver */
+		
+		double fem_reduce; /**< coeficient of mesh reduction */
+		int T_reduced; /**< the length of reduced gamma problem, T_reduced = fem_double*T */
+		Decomposition *decomposition_reduced; /**< the decomposition of reduced problem */
+		Fem *fem;
+
 	public:
 
 		/** @brief constructor from data and regularisation constant
@@ -78,7 +89,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		 * @param tsdata time-series data on which model operates
 		 * @param epssqr regularisation constant
 		 */ 	
-		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, bool usethetainpenalty = false);
+		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, double fem_reduce = 1.0, bool usethetainpenalty = false);
 
 		/** @brief destructor 
 		 */ 
@@ -107,11 +118,13 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		std::string get_name() const;
 		
 		void initialize_gammasolver(GeneralSolver **gamma_solver);
-		void update_gammasolver(GeneralSolver *gamma_solver);
+		void updatebeforesolve_gammasolver(GeneralSolver *gamma_solver);
+		void updateaftersolve_gammasolver(GeneralSolver *gamma_solver);
 		void finalize_gammasolver(GeneralSolver **gamma_solver);
 
 		void initialize_thetasolver(GeneralSolver **theta_solver);
-		void update_thetasolver(GeneralSolver *theta_solver);
+		void updatebeforesolve_thetasolver(GeneralSolver *theta_solver);
+		void updateaftersolve_thetasolver(GeneralSolver *theta_solver);
 		void finalize_thetasolver(GeneralSolver **theta_solver);
 	
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver);
@@ -129,6 +142,10 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		void set_epssqr(double epssqr);
 		bool get_usethetainpenalty() const;
 		
+		int get_T_reduced() const;
+		Decomposition *get_decomposition_reduced() const;
+		double get_fem_reduce() const;
+
 };
 
 
@@ -144,7 +161,7 @@ namespace model {
 
 /* constructor */
 template<>
-GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, bool usethetainpenalty) {
+GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, double fem_reduce, bool usethetainpenalty) {
 	LOG_FUNC_BEGIN
 
 	// TODO: enum in boost::program_options, not only int
@@ -156,7 +173,7 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	this->usethetainpenalty = usethetainpenalty;
 	this->tsdata = &new_tsdata;
 	this->epssqr = epssqr;
-
+	
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
 	this->thetavectorlength_local = tsdata->get_K()*tsdata->get_xdim();
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
@@ -182,6 +199,23 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 		
 		this->tsdata->get_decomposition()->set_graph(*graph);
 	}
+
+	/* prepare parameters of reduced problem */
+	this->fem_reduce = fem_reduce;
+	this->T_reduced = this->tsdata->get_T()*fem_reduce;
+	if(fem_reduce < 1.0){
+		/* compute new decomposition */
+		this->decomposition_reduced = new Decomposition(this->T_reduced, 
+				*(this->tsdata->get_decomposition()->get_graph()), 
+				this->tsdata->get_decomposition()->get_K(), 
+				this->tsdata->get_decomposition()->get_xdim(), 
+				this->tsdata->get_decomposition()->get_DDT_size(), 
+				this->tsdata->get_decomposition()->get_DDR_size());
+		fem = new Fem(this->tsdata->get_decomposition(),this->decomposition_reduced);
+	} else {
+		/* there is not reduction of the data, we can reuse the decomposition */
+		this->decomposition_reduced = this->tsdata->get_decomposition();
+	}
 	
 	LOG_FUNC_END
 }
@@ -192,6 +226,7 @@ GraphH1FEMModel<VectorBase>::~GraphH1FEMModel(){
 	LOG_FUNC_BEGIN
 	
 	/* destroy auxiliary vectors */
+//	delete this->decomposition_reduced;
 	
 	LOG_FUNC_END
 }
@@ -207,6 +242,16 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	/* give information about presence of the data */
 	output <<  " - T                 : " << this->tsdata->get_T() << std::endl;
 	output <<  " - xdim              : " << this->tsdata->get_xdim() << std::endl;
+
+	/* information of reduced problem */
+	output <<  " - fem_reduce        : " << this->fem_reduce << std::endl;
+	output <<  "  - T_reduced      : " << this->T_reduced << std::endl;
+	output <<  "  - reduced decomposition : " << std::endl;
+	output.push();
+	output.push();
+	decomposition_reduced->print(output);
+	output.pop();
+	output.pop();
 
 	output <<  " - K                 : " << this->tsdata->get_K() << std::endl;
 	output <<  " - R                 : " << this->tsdata->get_R() << std::endl;
@@ -245,6 +290,17 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  " - global info" << std::endl;
 	output_global <<  "  - T                 : " << this->tsdata->get_T() << std::endl;
 	output_global <<  "  - xdim              : " << this->tsdata->get_xdim() << std::endl;
+
+	/* information of reduced problem */
+	output_global <<  "  - fem_reduce        : " << this->fem_reduce << std::endl;
+	output_global <<  "   - T_reduced      : " << this->T_reduced << std::endl;
+	output_global <<  "   - reduced decomposition : " << std::endl;
+	output_global.push();
+	output_global.push();
+	decomposition_reduced->print_content(output_global,output_local);
+	output_global.pop();
+	output_global.pop();
+
 	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
 	output_global <<  "  - R                 : " << this->tsdata->get_R() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
@@ -337,7 +393,7 @@ template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	this->epssqr = epssqr;
 
-	double coeff = (1.0/((double)(this->tsdata->get_T())))*this->epssqr;
+	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
 	
 	if(this->A_shared){
 		/* SPARSE */
@@ -353,23 +409,36 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* create data */
 	gammadata = new QPData<PetscVector>();
 	
-	gammadata->set_x0(tsdata->get_gammavector()); /* the initial approximation of QP problem is gammavector */
-	gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
-	gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
+	/* deal with problem reduction */
+	if(this->fem_reduce < 1.0){
+		/* there is a reduction, we have to create new reduced gammavector */
+		Vec x_reduced_Vec;
+		this->decomposition_reduced->createGlobalVec_gamma(&x_reduced_Vec);
+		gammadata->set_x(new GeneralVector<PetscVector>(x_reduced_Vec)); /* create new linear term of QP problem */
+		gammadata->set_x0(gammadata->get_x()); /* the initial approximation of QP problem is gammavector */
+		gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
+		
+		/* create the residuum from original gamma vector */
+		residuum = new GeneralVector<PetscVector>(*tsdata->get_gammavector());
+	} else {
+		/* there is not reduction at all, we can use vectors from original data */
+		gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
+		gammadata->set_x0(gammadata->get_x()); /* the initial approximation of QP problem is gammavector */
+		gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
 
-	double coeff = (1.0/((double)(this->tsdata->get_T())))*this->epssqr;
-//	double coeff = (1.0/(sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))))*this->epssqr;
-//	double coeff = this->epssqr;
-//	double coeff = sqrt((double)(this->tsdata->get_R()*this->tsdata->get_T()))*this->epssqr;
-//	double coeff = this->tsdata->get_R()*this->tsdata->get_T()*this->epssqr;
+		/* moreover, for the residuum computation, we can use directly vector b */
+		residuum = gammadata->get_b();
+	}
+
+	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
 
 	/* SPARSE */
 	if(usethetainpenalty){
 		/* use thetavector as a vector of coefficient for scaling blocks */
-		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, tsdata->get_thetavector() );
+		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(this->decomposition_reduced), coeff, tsdata->get_thetavector() );
 	} else {
 		/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
-		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(tsdata->get_decomposition()), coeff, NULL );
+		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(this->decomposition_reduced), coeff, NULL );
 	}
 
 	gammadata->set_A(A_shared); 
@@ -388,7 +457,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* SPG-QP solver */
 	if(this->gammasolvertype == SOLVER_SPGQP){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->decomposition_reduced->get_Tlocal()*this->decomposition_reduced->get_Rlocal(),this->decomposition_reduced->get_K())); 
 
 		/* create solver */
 		*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
@@ -400,7 +469,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* SPG-QP solver */
 	if(this->gammasolvertype == SOLVER_SPGQP_COEFF){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->decomposition_reduced->get_Tlocal()*this->decomposition_reduced->get_Rlocal(),this->decomposition_reduced->get_K())); 
 
 		/* create solver */
 		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
@@ -413,7 +482,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 #ifdef USE_PERMON	
 	if(this->gammasolvertype == SOLVER_PERMON){
 		/* the feasible set of QP is combination of linear equality constraints and bound inequality constraints */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(tsdata->get_T()*tsdata->get_R(),tsdata->get_Tlocal()*tsdata->get_Rlocal(),tsdata->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->decomposition_reduced->get_T()*this->decomposition_reduced->get_R(),this->decomposition_reduced->get_Tlocal()*this->decomposition_reduced->get_Rlocal(),this->decomposition_reduced->get_K())); 
 
 		/* create solver */
 		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
@@ -449,6 +518,10 @@ void GraphH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolv
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
+
+	if(this->fem_reduce < 1){
+		free(gammadata->get_x());
+	}
 
 	/* destroy data */
 	free(gammadata->get_b());
@@ -507,16 +580,16 @@ BGMGraph *GraphH1FEMModel<VectorBase>::get_graph() const {
 }
 
 template<>
-void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver){
+void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
-	int T = tsdata->get_T();
-	int Tlocal = tsdata->get_Tlocal();
+	int T = this->tsdata->get_decomposition()->get_T();
+	int Tlocal = this->tsdata->get_decomposition()->get_Tlocal();
 
-	int R = tsdata->get_R();
-	int Rlocal = tsdata->get_Rlocal();
+	int R = this->tsdata->get_decomposition()->get_R();
+	int Rlocal = this->tsdata->get_decomposition()->get_Rlocal();
 
-	int K = tsdata->get_K();
+	int K = this->tsdata->get_decomposition()->get_K();
 
 	/* update gamma_solver data - prepare new linear term */
 	const double *theta_arr;
@@ -525,16 +598,13 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	const double *data_arr;
 	TRYCXX( VecGetArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
 	
-	double *b_arr;
-	TRYCXX( VecGetArray(gammadata->get_b()->get_vector(), &b_arr) );
+	double *residuum_arr;
+	TRYCXX( VecGetArray(this->residuum->get_vector(), &residuum_arr) );
 
-	double coeff = (-1.0)/((double)(T));
-//	double coeff = (-1.0)/(sqrt((double)(R*T)));
-	
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
 			for(int k=0;k<K;k++){
-				b_arr[t*K*Rlocal + r*K + k] = coeff*(data_arr[t*Rlocal+r] - theta_arr[k])*(data_arr[t*Rlocal+r] - theta_arr[k]);
+				residuum_arr[t*K*Rlocal + r*K + k] = (data_arr[t*Rlocal+r] - theta_arr[k])*(data_arr[t*Rlocal+r] - theta_arr[k]);
 			}
 		}
 	}
@@ -542,16 +612,39 @@ void GraphH1FEMModel<PetscVector>::update_gammasolver(GeneralSolver *gammasolver
 	/* coeffs of A_shared are updated via computation of Theta :) */
 
 	/* restore arrays */
-	TRYCXX( VecRestoreArray(gammadata->get_b()->get_vector(), &b_arr) );
+	TRYCXX( VecRestoreArray(this->residuum->get_vector(), &residuum_arr) );
 	TRYCXX( VecRestoreArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
 	TRYCXX( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
+
+	/* if the problem is not reduced, then residuum=b, therefore it is not neccessary to perform reduction */
+	if(fem_reduce < 1.0){
+		this->fem->reduce_gamma(this->residuum, gammadata->get_b());
+		this->fem->reduce_gamma(tsdata->get_gammavector(), gammadata->get_x());
+	}
+
+	/* multiplicate vector b by coefficient */
+	double coeff = (-1.0)/((double)(T));
+	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
 }
 
+template<>
+void GraphH1FEMModel<PetscVector>::updateaftersolve_gammasolver(GeneralSolver *gammasolver){
+	LOG_FUNC_BEGIN
+
+	/* if the problem is not reduced, then gammasolver->x = tsdata->gammavector, therefore it is not neccessary to perform prolongation */
+	if(fem_reduce < 1.0){
+		this->fem->prolongate_gamma(gammadata->get_x(), tsdata->get_gammavector());
+	}
+
+	LOG_FUNC_END
+}
+
+
 /* update theta solver */
 template<>
-void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver){
+void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	// TODO: if Theta is not in penalty term, this computation is completely WRONG! However, it doesn't matter if Theta is given
@@ -643,6 +736,14 @@ void GraphH1FEMModel<PetscVector>::update_thetasolver(GeneralSolver *thetasolver
 	LOG_FUNC_END
 }
 
+template<>
+void GraphH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver *thetasolver){
+	LOG_FUNC_BEGIN
+
+	LOG_FUNC_END
+}
+
+
 template<class VectorBase>
 GeneralVector<VectorBase> *GraphH1FEMModel<VectorBase>::get_coordinatesVTK() const{
 	return this->get_graph()->get_coordinates();
@@ -664,6 +765,22 @@ bool GraphH1FEMModel<VectorBase>::get_usethetainpenalty() const{
 	return this->usethetainpenalty;
 
 }
+
+template<class VectorBase>
+int GraphH1FEMModel<VectorBase>::get_T_reduced() const {
+	return this->T_reduced;
+}
+
+template<class VectorBase>
+double GraphH1FEMModel<VectorBase>::get_fem_reduce() const {
+	return this->fem_reduce;
+}
+
+template<class VectorBase>
+Decomposition *GraphH1FEMModel<VectorBase>::get_decomposition_reduced() const {
+	return this->decomposition_reduced;
+}
+
 
 
 }

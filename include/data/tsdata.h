@@ -142,6 +142,7 @@ class TSData: public GeneralData {
 
 		virtual void load_gammavector(std::string filename) const;
 		virtual void load_gammavector(VectorBase &gamma0) const;
+		
 };
 
 
@@ -1103,6 +1104,8 @@ void TSData<PetscVector>::load_gammavector(std::string filename) const {
 	
 	LOG_FUNC_END
 }
+
+
 
 }
 } /* end namespace */

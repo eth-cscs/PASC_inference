@@ -71,7 +71,6 @@ Signal1DData<VectorBase>::Signal1DData(std::string filename_data){
 	LOG_FUNC_BEGIN
 
 	/* prepare preliminary datavector and load data */
-	/* prepare preliminary datavector and load data */
 	Vec datapreload_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
 	this->datavectorpreliminary = new GeneralVector<PetscVector>(datapreload_Vec);
@@ -419,6 +418,7 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 	
 	return abserr;
 }
+
 
 
 }
