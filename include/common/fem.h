@@ -87,7 +87,6 @@ Fem::~Fem(){
 void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
-	double mysum;
 	double diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
 	
 	double *gammak1_arr;
@@ -125,7 +124,7 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
 			for(int t2=0; t2 < decomposition2->get_Tlocal(); t2++){
-				mysum = 0.0;
+				double mysum = 0.0;
 				for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
 					mysum += gammak1_arr[i];
 				}
@@ -165,7 +164,6 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
 	LOG_FUNC_BEGIN
 
-	int idx;
 	double diff = (decomposition2->get_T()-1.0)/(double)((decomposition1->get_T()-1.0));
 	
 	double *gammak1_arr;
@@ -203,7 +201,7 @@ void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<Pet
 			TRYCXX( VecGetArray(gammak2_sublocal_Vec,&gammak2_arr) );
 
 			for(int t1 =0; t1 < decomposition1->get_Tlocal(); t1++){
-				idx = round(t1*diff);
+				int idx = round(t1*diff);
 				gammak1_arr[t1] = gammak2_arr[idx];
 			}
 
