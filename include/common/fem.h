@@ -52,8 +52,8 @@ class Fem {
 
 /* cuda kernels cannot be a member of class */
 #ifdef USE_CUDA
-__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2);
-__global__ void kernel_fem_prolongate_data(double *data2, double *data1, int T2, int T1);
+__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2, int local_size);
+__global__ void kernel_fem_prolongate_data(double *data2, double *data1, int T2, int T1, int local_size);
 #endif
 
 
@@ -69,10 +69,10 @@ Fem::Fem(Decomposition *decomposition1, Decomposition *decomposition2){
 	#ifdef USE_CUDA
 		/* compute optimal kernel calls */
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_fem_reduce_data, 0, 0) );
-		gridSize_reduce = (decomposition2->get_T() + blockSize_reduce - 1)/ blockSize_reduce;
+		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
 
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_fem_prolongate_data, 0, 0) );
-		gridSize_prolongate = (decomposition->get_T() + blockSize_prolongate - 1)/ blockSize_prolongate;
+		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
 	LOG_FUNC_END
@@ -98,25 +98,33 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 
 	Vec gammak1_Vec;
 	Vec gammak2_Vec;
-	
+
 	IS gammak1_is;
 	IS gammak2_is;
+
+	/* stuff for getting subvector for local computation */
+	IS gammak1_sublocal_is;
+	Vec gammak1_sublocal_Vec;
 
 	for(int k=0;k<decomposition2->get_K();k++){
 
 		/* get gammak */
 		decomposition1->createIS_gammaK(&gammak1_is, k);
-		decomposition1->createIS_gammaK(&gammak2_is, k);
+		decomposition2->createIS_gammaK(&gammak2_is, k);
 
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
+		/* get local necessary part for local computation */
+		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, (decomposition2->get_Tlocal())*diff, (decomposition2->get_Tbegin())*diff, 1, &gammak1_sublocal_is) );
+		TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
+
 		#ifndef USE_CUDA
 			/* sequential version */
-			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecGetArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
-			for(int t2=0; t2 < decomposition2->get_T(); t2++){
+			for(int t2=0; t2 < decomposition2->get_Tlocal(); t2++){
 				mysum = 0.0;
 				for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
 					mysum += gammak1_arr[i];
@@ -124,20 +132,24 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 				gammak2_arr[t2] = mysum;
 			}
 
-			TRYCXX( VecRestoreArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 		#else
 			/* cuda version */
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_fem_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T());
+			kernel_fem_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal());
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 		
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
 		#endif
+
+		/* restore local necessary part for local computation */
+		TRYCXX( VecRestoreSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
+		TRYCXX( ISDestroy(&gammak1_sublocal_is) );
 
 		TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
@@ -168,58 +180,71 @@ void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<Pet
 	IS gammak1_is;
 	IS gammak2_is;
 
+	/* stuff for getting subvector for local computation */
+	IS gammak2_sublocal_is;
+	Vec gammak2_sublocal_Vec;
+
 	for(int k=0;k<decomposition2->get_K();k++){
 
 		/* get gammak */
 		decomposition1->createIS_gammaK(&gammak1_is, k);
-		decomposition1->createIS_gammaK(&gammak2_is, k);
+		decomposition2->createIS_gammaK(&gammak2_is, k);
 
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
+		/* get local necessary part for local computation */
+		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, round(decomposition1->get_Tlocal()*diff), round(decomposition1->get_Tbegin()*diff), 1, &gammak2_sublocal_is) );
+		TRYCXX( VecGetSubVector(gammak2_Vec, gammak2_sublocal_is, &gammak2_sublocal_Vec) );
+
 		#ifndef USE_CUDA
 			/* sequential version */
 			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
-			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
+			TRYCXX( VecGetArray(gammak2_sublocal_Vec,&gammak2_arr) );
 
-			for(int t1 =0; t1 < decomposition1->get_T(); t1++){
+			for(int t1 =0; t1 < decomposition1->get_Tlocal(); t1++){
 				idx = round(t1*diff);
 				gammak1_arr[t1] = gammak2_arr[idx];
 			}
 
-			TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
-			TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
+			TRYCXX( VecRestoreArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecRestoreArray(gammak2_sublocal_Vec,&gammak2_arr) );
 		#else
 			/* cuda version */
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );
 
-			kernel_fem_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak2_arr, gammak1_arr, decomposition2->get_T(), decomposition1->get_T());
+			kernel_fem_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak2_arr, gammak1_arr, decomposition2->get_T(), decomposition1->get_T(), decomposition1->get_Tlocal());
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 		
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );			
 		#endif
+
+		/* restore local necessary part for local computation */
+		TRYCXX( VecRestoreSubVector(gammak2_Vec, gammak2_sublocal_is, &gammak2_sublocal_Vec) );
+		TRYCXX( ISDestroy(&gammak2_sublocal_is) );
+
+		TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
+		TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
 		TRYCXX( ISDestroy(&gammak1_is) );
 		TRYCXX( ISDestroy(&gammak2_is) );
-
 	}
 
 	TRYCXX( VecRestoreArray(gamma1_Vec,&gammak1_arr) );
 	TRYCXX( VecRestoreArray(gamma2_Vec,&gammak2_arr) );
 
-	
 	LOG_FUNC_END
 }
 
 
 #ifdef USE_CUDA
-__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2) {
+__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2, int local_size) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
-	if(t2 < T2){
+	if(t2 < local_size){
 		double mysum = 0.0;
 		double diff = T1/(double)(T2);
 
@@ -232,10 +257,10 @@ __global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int
 }
 
 
-__global__ void kernel_fem_prolongate_data(double *data2, double *data1, int T2, int T1) {
+__global__ void kernel_fem_prolongate_data(double *data2, double *data1, int T2, int T1, int local_size) {
 	int t1 = blockIdx.x*blockDim.x + threadIdx.x;
 
-	if(t1 < T1){
+	if(t1 < local_size){
 		double diff = (T2-1.0)/(double)(T1-1.0);
 		int idx = round(t1*diff);
 		data1[t1] = data2[idx];
