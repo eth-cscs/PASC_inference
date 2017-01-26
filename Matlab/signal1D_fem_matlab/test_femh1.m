@@ -10,22 +10,20 @@ close all
 addpath(genpath(fullfile(pwd,'../common')))
 addpath('compute_femh1') % add functions for femh1 computation 
 
-Nreduce = 2;
+fem_reduce = 2;
 
 % load data or create new
 C_true=[2*ones(1,60) ones(1,40) 2*ones(1,150) ones(1,50) 2*ones(1,150)];
 
-C_true = [C_true];
+C_true = [C_true C_true C_true];
 sigma=1; 
-C_orig=C_true+sigma*randn(size(C_true)); % gaussian
+C=C_true+sigma*randn(size(C_true)); % gaussian
 
-% reduce original problem
-C = reduce( C_orig, ceil(length(C_orig)/Nreduce) );
 
 
 Theta = [1.0, 2.0]; % given Theta, K = length(Theta)
 epssqrs = 10.^(0:0.2:7); % used penalties
-T = length(C_true);
+T = length(C);
 
 C_err = Inf*ones(size(epssqrs)); % here store errors (to plot final error curve)
 L_value = Inf*ones(size(epssqrs)); % here store values of L (to final plot)
@@ -36,7 +34,6 @@ best_epssqr = Inf;
 best_epssqr_id = 1;
 
 gamma = get_random_gamma0( length(C), length(Theta) ); % random initial gamma for first epssqr 
-[H1 B] = get_H1(length(C), length(Theta)); % I want to reuse matrices, it is not neccessary to assemble them for each epssqr
 for i = 1:length(epssqrs)
 	% get penalty
 	epssqr = epssqrs(i);
@@ -45,18 +42,17 @@ for i = 1:length(epssqrs)
     disp([' - epssqr = ' num2str(epssqr)])
     
 	% run the algorithm (reuse previous gamma as initial approximation)
-    [C_filtered, gamma, qp_lin(i), qp_quad(i), L ] = compute_femh1( C, H1, B, gamma, Theta, epssqr );
+    [C_filtered, gamma, qp_lin(i), qp_quad(i), L ] = compute_femh1( C, gamma, Theta, epssqr, fem_reduce );
     
 	% compute error
 %    C_err(i) = mean(abs(C_filtered-C_true));
-    C_filtered_orig = prolongate(C_filtered,length(C_orig));
-    C_err(i) = norm(C_filtered_orig-C_true,1);
+    C_err(i) = norm(C_filtered-C_true,1);
     L_values(i) = L;
 
 	% if this choice of penalty is the best (subject to error), then store the solution
     if C_err(i) < best_epssqr
 		best_epssqr_id = i;
-        best_C_filtered = C_filtered_orig;
+        best_C_filtered = C_filtered;
         best_epssqr = C_err(best_epssqr_id);
 	end
 end
@@ -117,7 +113,7 @@ title(['solution, epssqr = ' num2str(epssqrs(best_epssqr_id))]);
 xlabel('t');
 ylabel('x(t)')
 % plot signals
-plot(1:length(C_orig),C_orig,'b-','LineWidth',1.0);
+plot(1:length(C),C,'b-','LineWidth',1.0);
 plot(1:length(C_true),C_true,'r--','LineWidth',2.0);
 plot(1:length(C_true),best_C_filtered,'-','LineWidth',2.0,'Color',[0.0,0.4,0.0]);
 legend('with noise','original', 'reconstructed');

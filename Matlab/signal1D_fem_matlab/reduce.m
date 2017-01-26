@@ -10,7 +10,7 @@ for t2=0:T2-1
     right = ((t2+1)*(T-1))/(T2-1);
     center = (t2*(T-1))/(T2-1);
     
-%    disp([num2str(left) ', ' num2str(right)])
+%    disp([num2str(t2) ':' num2str(left) ', ' num2str(right)])
 
     left_idx = max(floor(left),0);
     right_idx = min(ceil(right),T-1);
@@ -31,9 +31,9 @@ for t2=0:T2-1
 
     coeffs = coeffs/sum(coeffs);
     
-%    if t==1 || t==T2
-%       coeffs = coeffs*2; 
-%    end
+    if t2==0 || t2==T2-1
+       coeffs = coeffs*0.5; 
+    end
     
     mysum = 0;
     for i=0:nmb-1

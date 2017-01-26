@@ -1,4 +1,4 @@
-function [ y, gamma, qp_lin, qp_quad, L ] = compute_femh1( x, H1, Beq, gamma, Theta, epssqr )
+function [ y, gamma, qp_lin, qp_quad, L ] = compute_femh1( x, gamma, Theta, epssqr, fem_reduce )
 %COMPUTE_FEMH1
 %
 % x        data
@@ -13,22 +13,25 @@ function [ y, gamma, qp_lin, qp_quad, L ] = compute_femh1( x, H1, Beq, gamma, Th
 T = length(x);
 K = length(Theta);
 
-% create H (constant in outer it)
-H = H1;
-for k=1:K
-    gamma_k = gamma((k-1)*T+1:k*T);
-%    alpha_k = (1/T)*epssqr*(Theta(k) - dot(gamma_k,x)/sum(gamma))^2;
-%    alpha_k = epssqr*Theta(k)^2;
-    H((k-1)*T+1:k*T,(k-1)*T+1:k*T) = (epssqr/T)*H((k-1)*T+1:k*T,(k-1)*T+1:k*T);
-%    H((k-1)*T+1:k*T,(k-1)*T+1:k*T) = epssqr*H((k-1)*T+1:k*T,(k-1)*T+1:k*T);
+T2 = ceil(T/fem_reduce);
+[H1 B2] = get_H1(T2, length(Theta));
+H2 = (epssqr/T2)*H1;
+
+gamma2 = zeros(K*T2,1);
+for k = 1:K
+    gamma2((k-1)*T2+1:k*T2) = reduce2( gamma((k-1)*T+1:k*T), T2 );
 end
+% create H (constant in outer it)
+%for k=1:K
+%    gamma_k = gamma((k-1)*T+1:k*T);
+%    H((k-1)*T+1:k*T,(k-1)*T+1:k*T) = (epssqr/T)*H((k-1)*T+1:k*T,(k-1)*T+1:k*T);
+%end
 
 % create equality constraints (constant in outer it)
-B = Beq;
-c = ones(T,1);
+c2 = ones(T2,1);
 
 % lower bound
-l = zeros(K*T,1);
+l2 = zeros(K*T2,1);
 
 % this will be linear term in QP (changing in every outer it)
 b = zeros(size(gamma));
@@ -60,15 +63,25 @@ while it < 1000 % practical stopping criteria after computing new L (see "break"
     end
     % scale b
     b = (1/T)*b;
+    
+    b2 = zeros(K*T2,1);
+    for k = 1:K
+        b2((k-1)*T2+1:k*T2) = reduce2( b((k-1)*T+1:k*T), T2 );
+    end
    
     % run QP Solver
     if true
         % use matlab solver
-        [gamma, Lnew, exitflag, output] = quadprog(H,b,[],[],B,c,l,[],gamma,options);
+        [gamma2, Lnew, exitflag, output] = quadprog(H2,b2,[],[],B2,c2,l2,[],gamma,options);
         it_qp = output.iterations;
     else
         % use my SPGQP
-        [gamma, Lnew, it_qp] = sqpqp(2*H,-b,gamma, K, 1e-9);
+        [gamma2, Lnew, it_qp] = sqpqp(2*H,-b,gamma, K, 1e-9);
+    end
+    
+    gamma = zeros(K*T,1);
+    for k = 1:K
+        gamma((k-1)*T+1:k*T) = prolongate3( gamma2((k-1)*T2+1:k*T2), T );
     end
     
     % compute function value
