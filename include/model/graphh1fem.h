@@ -143,6 +143,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		bool get_usethetainpenalty() const;
 		
 		int get_T_reduced() const;
+		int get_T() const;
 		Decomposition *get_decomposition_reduced() const;
 		double get_fem_reduce() const;
 
@@ -393,7 +394,9 @@ template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	this->epssqr = epssqr;
 
-	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
+	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
+//	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
+	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
 	
 	if(this->A_shared){
 		/* SPARSE */
@@ -431,7 +434,9 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 		residuum = gammadata->get_b();
 	}
 
-	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
+	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
+//	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
+	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
 
 	/* SPARSE */
 	if(usethetainpenalty){
@@ -440,12 +445,6 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	} else {
 		/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
 		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(this->decomposition_reduced), coeff, NULL );
-	}
-
-	/* deal with Hessian matrix in reduced problem */
-	//TODO: this cannot be performed for general FEM!
-	if(this->fem_reduce < 1.0){
-		A_shared->set_coeff(A_shared->get_coeff()/this->fem->get_diff_reduce() );
 	}
 
 	gammadata->set_A(A_shared); 
@@ -525,7 +524,6 @@ void GraphH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolv
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
-
 	if(this->fem_reduce < 1){
 		free(gammadata->get_x());
 	}
@@ -627,12 +625,12 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	if(fem_reduce < 1.0){
 		this->fem->reduce_gamma(this->residuum, gammadata->get_b());
 		this->fem->reduce_gamma(tsdata->get_gammavector(), gammadata->get_x());
-
-		
 	}
 
 	/* multiplicate vector b by coefficient */
-	double coeff = (-1.0)/((double)(T));
+	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
+//	double coeff = (1.0/((double)(this->get_T_reduced())));
+	double coeff = (1.0/((double)(this->get_T())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
@@ -778,6 +776,11 @@ bool GraphH1FEMModel<VectorBase>::get_usethetainpenalty() const{
 template<class VectorBase>
 int GraphH1FEMModel<VectorBase>::get_T_reduced() const {
 	return this->T_reduced;
+}
+
+template<class VectorBase>
+int GraphH1FEMModel<VectorBase>::get_T() const {
+	return this->decomposition->get_T();
 }
 
 template<class VectorBase>

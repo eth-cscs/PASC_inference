@@ -131,12 +131,13 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 			TRYCXX( VecGetArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
+			//TODO: OpenMP?
 			for(int t2=0; t2 < decomposition2->get_Tlocal(); t2++){
 				double mysum = 0.0;
 				for(int i=round(t2*diff_reduce); i < round((t2+1)*diff_reduce);i++){
 					mysum += gammak1_arr[i];
 				}
-				gammak2_arr[t2] = mysum/diff_reduce;
+				gammak2_arr[t2] = mysum;
 			}
 
 			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
@@ -206,6 +207,7 @@ void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<Pet
 			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecGetArray(gammak2_sublocal_Vec,&gammak2_arr) );
 
+			//TODO: OpenMP?
 			for(int t1 =0; t1 < decomposition1->get_Tlocal(); t1++){
 				int idx = round(t1*diff_prolongate);
 				gammak1_arr[t1] = gammak2_arr[idx];
@@ -263,7 +265,7 @@ __global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int
 			mysum += data1[i];
 		}
 
-		data2[t2] = mysum/diff_reduce;
+		data2[t2] = mysum;
 	}
 }
 
