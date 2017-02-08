@@ -173,7 +173,6 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	/* set given parameters */
 	this->usethetainpenalty = usethetainpenalty;
 	this->tsdata = &new_tsdata;
-	this->epssqr = epssqr;
 	
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
 	this->thetavectorlength_local = tsdata->get_K()*tsdata->get_xdim();
@@ -217,6 +216,9 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 		/* there is not reduction of the data, we can reuse the decomposition */
 		this->decomposition_reduced = this->tsdata->get_decomposition();
 	}
+
+	/* set regularization parameter */
+	this->set_epssqr(epssqr);
 	
 	LOG_FUNC_END
 }
@@ -392,7 +394,11 @@ std::string GraphH1FEMModel<VectorBase>::get_name() const {
 /* set new penalty */
 template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
-	this->epssqr = epssqr;
+	if(this->fem_reduce < 1.0){
+		this->epssqr = this->fem_reduce*epssqr;
+	} else {
+		this->epssqr = epssqr;
+	}
 
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
 	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
