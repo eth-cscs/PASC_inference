@@ -473,7 +473,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 		*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
 
 		/* modify stopping criteria based on reduction */
-		if(this->fem_reduce < 1.0)}
+		if(this->fem_reduce < 1.0){
 			(*gammasolver)->set_eps((this->fem_reduce)*(*gammasolver)->get_eps());
 		}
 	}
@@ -487,7 +487,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
 
 		/* modify stopping criteria based on reduction */
-		if(this->fem_reduce < 1.0)}
+		if(this->fem_reduce < 1.0){
 			(*gammasolver)->set_eps((this->fem_reduce)*(*gammasolver)->get_eps());
 		}
 	}
@@ -502,7 +502,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
 
 		/* modify stopping criteria based on reduction */
-		if(this->fem_reduce < 1.0)}
+		if(this->fem_reduce < 1.0){
 			(*gammasolver)->set_eps((this->fem_reduce)*(*gammasolver)->get_eps());
 		}
 	}
