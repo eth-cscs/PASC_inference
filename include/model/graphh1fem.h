@@ -440,7 +440,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	}
 
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
-	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
+	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
 
 	/* SPARSE */
 	if(usethetainpenalty){
@@ -641,7 +641,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	}
 
 	/* multiplicate vector b by coefficient */
-	double coeff = (-1.0/((double)(this->get_T())));
+	double coeff = (-1.0/((double)(this->get_T_reduced())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
@@ -699,8 +699,8 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 
 	int K = tsdata->get_K();
 
-//	double coeff = 1.0;
-	double coeff = 1.0/((double)(tsdata->get_R()*tsdata->get_T()));
+	double coeff = 1.0;
+//	double coeff = 1.0/((double)(tsdata->get_R()*tsdata->get_T()));
 
 	/* through clusters */
 	for(int k=0;k<K;k++){
@@ -786,7 +786,14 @@ bool GraphH1FEMModel<VectorBase>::get_usethetainpenalty() const{
 
 template<class VectorBase>
 int GraphH1FEMModel<VectorBase>::get_T_reduced() const {
-	return this->T_reduced;
+	double return_value;
+	if(this->fem_reduce < 1.0){
+		return_value = this->T_reduced;
+	} else {
+		return_value = this->get_T();
+	}
+
+	return return_value;
 }
 
 template<class VectorBase>
