@@ -223,7 +223,8 @@ int main( int argc, char *argv[] )
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
 /* 6.) solve the problem with epssqrs and remember best solution */
-	double epssqr, epssqr_best;
+	double epssqr;
+	double epssqr_best = -1;
 	double abserr; /* actual error */
 	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
 
