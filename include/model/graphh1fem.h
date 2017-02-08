@@ -395,12 +395,7 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	this->epssqr = epssqr;
 
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
-	double coeff;
-	if(fem_reduce < 1.0){
-		coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
-	} else {
-		coeff = (1.0/((double)(this->get_T())))*this->epssqr;
-	}
+	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
 
 	if(this->A_shared){
 		/* SPARSE */
@@ -439,12 +434,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	}
 
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
-	double coeff;
-	if(fem_reduce < 1.0){
-		coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
-	} else {
-		coeff = (1.0/((double)(this->get_T())))*this->epssqr;
-	}
+	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
 
 	/* SPARSE */
 	if(usethetainpenalty){
@@ -630,18 +620,13 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	TRYCXX( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 
 	/* if the problem is not reduced, then residuum=b, therefore it is not neccessary to perform reduction */
-	double coeff;
 	if(fem_reduce < 1.0){
 		this->fem->reduce_gamma(this->residuum, gammadata->get_b());
 		this->fem->reduce_gamma(tsdata->get_gammavector(), gammadata->get_x());
-		
-//		coeff = (-1.0/((double)(this->get_T_reduced())));
-		coeff = (-1.0/((double)(this->get_T())));
-	} else {
-		coeff = (-1.0/((double)(this->get_T())));
 	}
 
 	/* multiplicate vector b by coefficient */
+	double coeff = (-1.0/((double)(this->get_T())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
