@@ -635,7 +635,8 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 		this->fem->reduce_gamma(this->residuum, gammadata->get_b());
 		this->fem->reduce_gamma(tsdata->get_gammavector(), gammadata->get_x());
 		
-		coeff = (-1.0/((double)(this->get_T_reduced())));
+//		coeff = (-1.0/((double)(this->get_T_reduced())));
+		coeff = (-1.0/((double)(this->get_T())));
 	} else {
 		coeff = (-1.0/((double)(this->get_T())));
 	}
