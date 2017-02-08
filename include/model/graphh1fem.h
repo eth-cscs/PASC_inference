@@ -395,8 +395,8 @@ std::string GraphH1FEMModel<VectorBase>::get_name() const {
 template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	if(this->fem_reduce < 1.0){
-//		this->epssqr = this->fem_reduce*epssqr;
-		this->epssqr = epssqr;
+		this->epssqr = this->fem_reduce*epssqr;
+//		this->epssqr = epssqr;
 	} else {
 		this->epssqr = epssqr;
 	}
