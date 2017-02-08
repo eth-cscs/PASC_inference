@@ -630,7 +630,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	/* multiplicate vector b by coefficient */
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
 //	double coeff = (1.0/((double)(this->get_T_reduced())));
-	double coeff = (1.0/((double)(this->get_T())));
+	double coeff = (-1.0/((double)(this->get_T())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
