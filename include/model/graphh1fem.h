@@ -780,7 +780,7 @@ int GraphH1FEMModel<VectorBase>::get_T_reduced() const {
 
 template<class VectorBase>
 int GraphH1FEMModel<VectorBase>::get_T() const {
-	return this->decomposition->get_T();
+	return this->tsdata->get_T();
 }
 
 template<class VectorBase>
