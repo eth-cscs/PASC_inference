@@ -394,6 +394,8 @@ std::string GraphH1FEMModel<VectorBase>::get_name() const {
 /* set new penalty */
 template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
+	this->epssqr = epssqr;
+
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
 	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
 //	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;

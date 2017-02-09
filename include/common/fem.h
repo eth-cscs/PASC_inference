@@ -120,7 +120,7 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
 		/* get local necessary part for local computation */
-		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, round((decomposition2->get_Tend())*diff)-round((decomposition2->get_Tbegin())*diff), round((decomposition2->get_Tbegin())*diff), 1, &gammak1_sublocal_is) );
+		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, round((decomposition2->get_Tend())*diff)-round((decomposition2->get_Tbegin())*diff)+1, round((decomposition2->get_Tbegin())*diff), 1, &gammak1_sublocal_is) );
 		TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
 
 		#ifndef USE_CUDA
@@ -196,7 +196,7 @@ void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<Pet
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
 		/* get local necessary part for local computation */
-		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, round((decomposition2->get_Tend())*diff)-round((decomposition2->get_Tbegin())*diff), round((decomposition2->get_Tbegin())*diff), 1, &gammak1_sublocal_is) );
+		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, round((decomposition2->get_Tend())*diff)-round((decomposition2->get_Tbegin())*diff)+1, round((decomposition2->get_Tbegin())*diff), 1, &gammak1_sublocal_is) );
 		TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
 
 		#ifndef USE_CUDA
