@@ -202,7 +202,7 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 
 	/* prepare parameters of reduced problem */
 	this->fem_reduce = fem_reduce;
-	this->T_reduced = this->tsdata->get_T()*fem_reduce;
+	this->T_reduced = ceil(this->tsdata->get_T()*fem_reduce);
 	if(fem_reduce < 1.0){
 		/* compute new decomposition */
 		this->decomposition_reduced = new Decomposition(this->T_reduced, 
@@ -394,13 +394,6 @@ std::string GraphH1FEMModel<VectorBase>::get_name() const {
 /* set new penalty */
 template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
-	if(this->fem_reduce < 1.0){
-		this->epssqr = this->fem_reduce*epssqr;
-//		this->epssqr = epssqr;
-	} else {
-		this->epssqr = epssqr;
-	}
-
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
 //	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
 	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
@@ -644,8 +637,8 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	}
 
 	/* multiplicate vector b by coefficient */
-//	double coeff = (-1.0/((double)(this->get_T_reduced())));
-	double coeff = (-1.0/((double)(this->get_T())));
+	double coeff = (-1.0/((double)(this->get_T_reduced())));
+//	double coeff = (-1.0/((double)(this->get_T())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
