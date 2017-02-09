@@ -395,8 +395,8 @@ std::string GraphH1FEMModel<VectorBase>::get_name() const {
 template<class VectorBase>
 void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
-//	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
-	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
+	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
+//	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
 
 	if(this->A_shared){
 		/* SPARSE */
@@ -435,8 +435,8 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	}
 
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
-//	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
-	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
+	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
+//	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
 
 	/* SPARSE */
 	if(usethetainpenalty){
