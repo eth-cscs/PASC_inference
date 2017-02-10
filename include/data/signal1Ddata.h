@@ -412,7 +412,7 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 //	int T = this->get_T();
 //	abserr = abserr/(double)T;
 
-	TRYCXX( VecNorm(data_abserr_Vec, NORM_2, &abserr) );
+	TRYCXX( VecNorm(data_abserr_Vec, NORM_1, &abserr) );
 	
 	LOG_FUNC_END
 	
