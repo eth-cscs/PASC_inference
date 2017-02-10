@@ -25,7 +25,7 @@ with open('shortinfo_final.txt', 'w') as outfile:
                 j = 0
                 for line in infile:
                     j = j + 1
-                    if j == 2:
+                    if j >= 2:
                         outfile.write(line)
  
  
