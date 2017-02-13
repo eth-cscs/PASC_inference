@@ -14,6 +14,7 @@ extern int DEBUG_MODE;
 
 /* for reduction and prolongation of data */
 #include "common/fem.h"
+#include "common/femhat.h"
 
 /* gamma problem */
 //#include "algebra/matrix/blockgraphfree.h" // TODO: implement?
@@ -62,6 +63,14 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 			SOLVER_PERMON=3 /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
 		} GammaSolverType;
 
+		/** @brief type of FEM used to reduce gamma problem 
+		 * 
+		 */
+		typedef enum { 
+			FEM_SUM=0, /**< use the sum */
+			FEM_HAT=1 /**< use linear "hat" functions */
+		} FemType;
+
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
 	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
@@ -81,6 +90,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		int T_reduced; /**< the length of reduced gamma problem, T_reduced = fem_double*T */
 		Decomposition *decomposition_reduced; /**< the decomposition of reduced problem */
 		Fem *fem;
+		FemType femtype; /**< the type of used FEM for reduction */
 
 	public:
 
@@ -167,8 +177,13 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 
 	// TODO: enum in boost::program_options, not only int
 	int gammasolvertype_int;
-	consoleArg.set_option_value("graphh1femmodel_gammasolvertype", &gammasolvertype_int, 0);
+	consoleArg.set_option_value("graphh1femmodel_gammasolvertype", &gammasolvertype_int, SOLVER_AUTO);
 	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
+
+	// TODO: enum in boost::program_options, not only int
+	int femtype_int;
+	consoleArg.set_option_value("graphh1femmodel_femtype", &femtype_int, FEM_HAT);
+	this->femtype = static_cast<FemType>(femtype_int);
 
 	/* set given parameters */
 	this->usethetainpenalty = usethetainpenalty;
@@ -211,7 +226,15 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 				this->tsdata->get_decomposition()->get_xdim(), 
 				this->tsdata->get_decomposition()->get_DDT_size(), 
 				this->tsdata->get_decomposition()->get_DDR_size());
-		fem = new Fem(this->tsdata->get_decomposition(),this->decomposition_reduced);
+		
+		/* set the type of FEM */
+		if(this->femtype == FEM_SUM){
+			fem = new Fem(this->tsdata->get_decomposition(),this->decomposition_reduced);
+		}
+		if(this->femtype == FEM_HAT){
+			fem = new FemHat(this->tsdata->get_decomposition(),this->decomposition_reduced);
+		}
+
 	} else {
 		/* there is not reduction of the data, we can reuse the decomposition */
 		this->decomposition_reduced = this->tsdata->get_decomposition();
@@ -248,7 +271,13 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 
 	/* information of reduced problem */
 	output <<  " - fem_reduce        : " << this->fem_reduce << std::endl;
-	output <<  "  - T_reduced      : " << this->T_reduced << std::endl;
+	output <<  "  - femtype          : ";
+	switch(this->femtype){
+		case(FEM_SUM): output << "FEM_SUM"; break;
+		case(SOLVER_SPGQP): output << "FEM_HAT"; break;
+	}
+	output << std::endl;
+	output <<  "  - T_reduced        : " << this->T_reduced << std::endl;
 	output <<  "  - reduced decomposition : " << std::endl;
 	output.push();
 	output.push();
@@ -296,7 +325,13 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 
 	/* information of reduced problem */
 	output_global <<  "  - fem_reduce        : " << this->fem_reduce << std::endl;
-	output_global <<  "   - T_reduced      : " << this->T_reduced << std::endl;
+	output_global <<  "   - femtype          : ";
+	switch(this->femtype){
+		case(FEM_SUM): output_global << "FEM_SUM"; break;
+		case(SOLVER_SPGQP): output_global << "FEM_HAT"; break;
+	}
+	output_global << std::endl;
+	output_global <<  "   - T_reduced        : " << this->T_reduced << std::endl;
 	output_global <<  "   - reduced decomposition : " << std::endl;
 	output_global.push();
 	output_global.push();

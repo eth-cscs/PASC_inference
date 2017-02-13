@@ -1,15 +1,17 @@
-/** @file fem.h
- *  @brief class for reduction and prolongation on fem meshes
+/** @file femhat.h
+ *  @brief class for reduction and prolongation on fem meshes using hat functions
  *
  *  @author Lukas Pospisil
  */
  
-#ifndef PASC_FEM_H
-#define	PASC_FEM_H
+#ifndef PASC_FEMHAT_H
+#define	PASC_FEMHAT_H
 
 #ifndef USE_PETSCVECTOR
- #error 'FEM is for PETSCVECTOR'
+ #error 'FEMHAT is for PETSCVECTOR'
 #endif
+
+#include "common/fem.h"
 
 /* this class is for petscvector */
 typedef petscvector::PetscVector PetscVector;
@@ -21,77 +23,55 @@ namespace common {
  *  \brief Reduction/prolongation between FEM meshes.
  *
 */
-class Fem {
+class FemHat : public Fem {
 	protected:
-		Decomposition *decomposition1; /**< decomposition of the larger problem */
-		Decomposition *decomposition2; /**< decomposition of smaller problem */
-		
-		#ifdef USE_CUDA
-			int blockSize_reduce; /**< block size returned by the launch configurator */
-			int minGridSize_reduce; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
-			int gridSize_reduce; /**< the actual grid size needed, based on input size */
-
-			int blockSize_prolongate; /**< block size returned by the launch configurator */
-			int minGridSize_prolongate; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
-			int gridSize_prolongate; /**< the actual grid size needed, based on input size */
-		#endif
-		
-		double diff;
 		
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
-		Fem(Decomposition *decomposition1, Decomposition *decomposition2);
+		FemHat(Decomposition *decomposition1, Decomposition *decomposition2);
 
 		/** @brief destructor
 		*/
-		~Fem();
+		~FemHat();
 		
-		virtual void reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
-		virtual void prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const;
-
-		//TODO: cannot me used in general FEM!
-		virtual double get_diff() const;
+		void reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
+		void prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const;
 
 };
 
 /* cuda kernels cannot be a member of class */
 #ifdef USE_CUDA
-__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
-__global__ void kernel_fem_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
+__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
+__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
 #endif
 
 
 
 /* ----------------- Fem implementation ------------- */
 
-Fem::Fem(Decomposition *decomposition1, Decomposition *decomposition2){
+FemHat::FemHat(Decomposition *decomposition1, Decomposition *decomposition2) : Fem(decomposition1, decomposition2){
 	LOG_FUNC_BEGIN
-
-	this->decomposition1 = decomposition1;
-	this->decomposition2 = decomposition2;
 
 	#ifdef USE_CUDA
 		/* compute optimal kernel calls */
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_fem_reduce_data, 0, 0) );
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_femhat_reduce_data, 0, 0) );
 		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
 
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_fem_prolongate_data, 0, 0) );
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
 		gridSize_prolongate = (decomposition2->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
-
-	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
 
 	LOG_FUNC_END
 }
 
-Fem::~Fem(){
+FemHat::~FemHat(){
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END
 }
 
-void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
+void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -167,7 +147,7 @@ void Fem::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVe
 	LOG_FUNC_END
 }
 
-void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
+void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -243,14 +223,10 @@ void Fem::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<Pet
 	LOG_FUNC_END
 }
 
-double Fem::get_diff() const {
-	return diff;
-}
-
 
 
 #ifdef USE_CUDA
-__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
+__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t2 < T2local){
@@ -264,7 +240,7 @@ __global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int
 }
 
 
-__global__ void kernel_fem_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
+__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t2 < T2local){
