@@ -198,7 +198,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
+			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
@@ -287,7 +287,7 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );
 
-			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
+			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
