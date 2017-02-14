@@ -25,7 +25,15 @@ namespace common {
 */
 class FemHat : public Fem {
 	protected:
+		bool left_overlap;		/**< is there overlap to the left side of time axis? */
+		bool right_overlap;		/**< is there overlap to the right side of time axis? */
 		
+		int left_t1_idx;			/**< appropriate left index in fine grid (with overlap) */
+		int right_t1_idx;			/**< appropriate right index in fine grid (with overlap) */
+
+		int left_t2_idx;			/**< appropriate left index in coarse grid (with overlap) */
+		int right_t2_idx;			/**< appropriate right index in coarse grid (with overlap) */
+
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
@@ -42,8 +50,8 @@ class FemHat : public Fem {
 
 /* cuda kernels cannot be a member of class */
 #ifdef USE_CUDA
-__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
-__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
+__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
+__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
 #endif
 
 
@@ -59,8 +67,46 @@ FemHat::FemHat(Decomposition *decomposition1, Decomposition *decomposition2) : F
 		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
 
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
-		gridSize_prolongate = (decomposition2->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
+		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
+
+	/* indicator of begin and end overlap */
+	if(GlobalManager.get_rank() == 0){
+		this->left_overlap = false;
+	} else {
+		this->left_overlap = true;
+	}
+
+	if(GlobalManager.get_rank() == GlobalManager.get_size()-1){
+		this->right_overlap = false;
+	} else {
+		this->right_overlap = true;
+	}
+
+	/* compute appropriate indexes in fine grid */
+	if(this->left_overlap){
+		this->left_t1_idx = floor(this->diff*(decomposition2->get_Tbegin()-1));
+	} else {
+		this->left_t1_idx = floor(this->diff*(decomposition2->get_Tbegin()));
+	}
+	if(this->right_overlap){
+		this->right_t1_idx = floor(this->diff*(decomposition2->get_Tend()-1+1));
+	} else {
+		this->right_t1_idx = floor(this->diff*(decomposition2->get_Tend()-1));
+	}
+
+	/* compute appropriate indexes in coarse grid */
+	if(this->left_overlap){
+		this->left_t2_idx = floor((decomposition1->get_Tbegin())/this->diff)-1;
+	} else {
+		this->left_t2_idx = floor(decomposition1->get_Tbegin()/this->diff);
+	}
+	if(this->right_overlap){
+		this->right_t2_idx = floor((decomposition1->get_Tend()-1)/this->diff)+1;
+	} else {
+		this->right_t2_idx = floor((decomposition1->get_Tend()-1)/this->diff);
+	}
+
 
 	LOG_FUNC_END
 }
@@ -100,7 +146,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
 		/* get local necessary part for local computation */
-		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, round(decomposition2->get_Tlocal()*diff), round(decomposition2->get_Tbegin()*diff), 1, &gammak1_sublocal_is) );
+		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, right_t1_idx - left_t1_idx, left_t1_idx, 1, &gammak1_sublocal_is) );
 		TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
 
 		#ifndef USE_CUDA
@@ -108,17 +154,44 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 			TRYCXX( VecGetArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
+			int Tbegin2 = decomposition2->get_Tbegin();
+
 			//TODO: OpenMP?
 			for(int t2=0; t2 < decomposition2->get_Tlocal(); t2++){
+				double center_t1 = (Tbegin2+t2)*diff;
+				double left_t1 = (Tbegin2+t2-1)*diff;
+				double right_t1 = (Tbegin2+t2+1)*diff;
+				
+				int id_counter = floor(left_t1) - left_t1_idx; /* first index in provided local t1 array */
+
+				double phi_value; /* value of basis function */
+
+				/* left part of hat function */
 				double mysum = 0.0;
-				for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
-					mysum += gammak1_arr[i];
+				int t1 = floor(left_t1);
+
+				/* compute linear combination with coefficients given by basis functions */
+				while(t1 <= center_t1){
+						phi_value = (t1 - left_t1)/(center_t1 - left_t1);
+						mysum += phi_value*gammak1_arr[id_counter];
+						t1 += 1;
+						id_counter += 1;
 				}
+
+				/* right part of hat function */
+				while(t1 < right_t1){
+					phi_value = (t1 - right_t1)/(center_t1 - right_t1);
+					mysum += phi_value*gammak1_arr[id_counter];
+					t1 += 1;
+					id_counter += 1;
+				}
+
 				gammak2_arr[t2] = mysum;
 			}
 
 			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
+			
 		#else
 			/* cuda version */
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
@@ -163,8 +236,8 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 	IS gammak2_is;
 
 	/* stuff for getting subvector for local computation */
-	IS gammak1_sublocal_is;
-	Vec gammak1_sublocal_Vec;
+	IS gammak2_sublocal_is;
+	Vec gammak2_sublocal_Vec;
 
 	for(int k=0;k<decomposition2->get_K();k++){
 
@@ -175,23 +248,39 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
-		/* get local necessary part for local computation */
-		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, round(decomposition2->get_Tlocal()*diff), round(decomposition2->get_Tbegin()*diff), 1, &gammak1_sublocal_is) );
-		TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
+		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, right_t2_idx - left_t2_idx + 1, left_t2_idx, 1, &gammak2_sublocal_is) );
+		TRYCXX( VecGetSubVector(gammak2_Vec, gammak2_sublocal_is, &gammak2_sublocal_Vec) );
 
 		#ifndef USE_CUDA
-			TRYCXX( VecGetArray(gammak1_sublocal_Vec,&gammak1_arr) );
-			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
+			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecGetArray(gammak2_sublocal_Vec,&gammak2_arr) );
+
+			int Tbegin1 = decomposition1->get_Tbegin();
 
 			//TODO: OpenMP?
-			for(int t2=0; t2 < decomposition2->get_Tlocal(); t2++){
-				for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
-					gammak1_arr[i] = gammak2_arr[t2];
-				}
+			for(int t1=0; t1 < decomposition1->get_Tlocal(); t1++){
+				int t2_left_id_orig = floor((t1 + Tbegin1)/diff);
+				int t2_right_id_orig = floor((t1 + Tbegin1)/diff) + 1;
+
+				double t1_left = t2_left_id_orig*diff;
+				double t1_right = t2_right_id_orig*diff;
+
+				int t2_left_id = t2_left_id_orig - left_t2_idx;
+				int t2_right_id = t2_right_id_orig - left_t2_idx;
+
+				/* value of basis functions */
+				double t1_value = 0.0;
+				double phi_value_left = (t1 + Tbegin1 - t1_left)/(t1_right - t1_left); 
+				t1_value += phi_value_left*gammak2_arr[t2_right_id];
+				
+				double phi_value_right = (t1 + Tbegin1 - t1_right)/(t1_left - t1_right); 
+				t1_value += phi_value_right*gammak2_arr[t2_left_id];
+
+				gammak1_arr[t1] = t1_value;
 			}
 
-			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
-			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
+			TRYCXX( VecRestoreArray(gammak1_Vec,&gammak1_arr) );
+			TRYCXX( VecRestoreArray(gammak2_sublocal_Vec,&gammak2_arr) );
 		#else
 			/* cuda version */
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
@@ -207,8 +296,8 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 		#endif
 
 		/* restore local necessary part for local computation */
-		TRYCXX( VecRestoreSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
-		TRYCXX( ISDestroy(&gammak1_sublocal_is) );
+		TRYCXX( VecRestoreSubVector(gammak2_Vec, gammak2_sublocal_is, &gammak2_sublocal_Vec) );
+		TRYCXX( ISDestroy(&gammak2_sublocal_is) );
 
 		TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
@@ -226,13 +315,36 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 
 
 #ifdef USE_CUDA
-__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
+__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t2 < T2local){
+		double center_t1 = (Tbegin2+t2)*diff;
+		double left_t1 = (Tbegin2+t2-1)*diff;
+		double right_t1 = (Tbegin2+t2+1)*diff;
+				
+		int id_counter = floor(left_t1) - left_t1_idx; /* first index in provided local t1 array */
+
+		double phi_value; /* value of basis function */
+
+		/* left part of hat function */
 		double mysum = 0.0;
-		for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
-			mysum += data1[i];
+		int t1 = floor(left_t1);
+
+		/* compute linear combination with coefficients given by basis functions */
+		while(t1 <= center_t1){
+			phi_value = (t1 - left_t1)/(center_t1 - left_t1);
+			mysum += phi_value*gammak1_arr[id_counter];
+			t1 += 1;
+			id_counter += 1;
+		}
+
+		/* right part of hat function */
+		while(t1 < right_t1){
+			phi_value = (t1 - right_t1)/(center_t1 - right_t1);
+			mysum += phi_value*gammak1_arr[id_counter];
+			t1 += 1;
+			id_counter += 1;
 		}
 
 		data2[t2] = mysum;
@@ -240,13 +352,28 @@ __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, 
 }
 
 
-__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
-	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
+__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
+	int t1 = blockIdx.x*blockDim.x + threadIdx.x;
 
-	if(t2 < T2local){
-		for(int i=round(t2*diff); i < round((t2+1)*diff);i++){
-			data1[i] = data2[t2];
-		}
+	if(t1 < T1local){
+		int t2_left_id_orig = floor((t1 + Tbegin1)/diff);
+		int t2_right_id_orig = floor((t1 + Tbegin1)/diff) + 1;
+
+		double t1_left = t2_left_id_orig*diff;
+		double t1_right = t2_right_id_orig*diff;
+
+		int t2_left_id = t2_left_id_orig - left_t2_idx;
+		int t2_right_id = t2_right_id_orig - left_t2_idx;
+
+		/* value of basis functions */
+		double t1_value = 0.0;
+		double phi_value_left = (t1 + Tbegin1 - t1_left)/(t1_right - t1_left); 
+		t1_value += phi_value_left*gammak2_arr[t2_right_id];
+				
+		double phi_value_right = (t1 + Tbegin1 - t1_right)/(t1_left - t1_right); 
+		t1_value += phi_value_right*gammak2_arr[t2_left_id];
+
+		data1[t1] = t1_value;
 	}
 }
 
