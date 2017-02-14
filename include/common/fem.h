@@ -80,7 +80,7 @@ Fem::Fem(Decomposition *decomposition1, Decomposition *decomposition2){
 		gridSize_prolongate = (decomposition2->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
-	diff = (decomposition1->get_T()-1)/(double)(decomposition2->get_T()-1);
+	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
 
 	LOG_FUNC_END
 }

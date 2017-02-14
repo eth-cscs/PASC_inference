@@ -107,6 +107,7 @@ FemHat::FemHat(Decomposition *decomposition1, Decomposition *decomposition2) : F
 		this->right_t2_idx = floor((decomposition1->get_Tend()-1)/this->diff);
 	}
 
+	diff = (decomposition1->get_T()-1)/(double)(decomposition2->get_T()-1);
 
 	LOG_FUNC_END
 }
@@ -197,7 +198,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_fem_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
+			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
@@ -286,10 +287,10 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );
 
-			kernel_fem_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
+			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
-		
+
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );			
 
@@ -334,7 +335,7 @@ __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, 
 		/* compute linear combination with coefficients given by basis functions */
 		while(t1 <= center_t1){
 			phi_value = (t1 - left_t1)/(center_t1 - left_t1);
-			mysum += phi_value*gammak1_arr[id_counter];
+			mysum += phi_value*data1[id_counter];
 			t1 += 1;
 			id_counter += 1;
 		}
@@ -342,7 +343,7 @@ __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, 
 		/* right part of hat function */
 		while(t1 < right_t1){
 			phi_value = (t1 - right_t1)/(center_t1 - right_t1);
-			mysum += phi_value*gammak1_arr[id_counter];
+			mysum += phi_value*data1[id_counter];
 			t1 += 1;
 			id_counter += 1;
 		}
@@ -368,10 +369,10 @@ __global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int 
 		/* value of basis functions */
 		double t1_value = 0.0;
 		double phi_value_left = (t1 + Tbegin1 - t1_left)/(t1_right - t1_left); 
-		t1_value += phi_value_left*gammak2_arr[t2_right_id];
+		t1_value += phi_value_left*data2[t2_right_id];
 				
 		double phi_value_right = (t1 + Tbegin1 - t1_right)/(t1_left - t1_right); 
-		t1_value += phi_value_right*gammak2_arr[t2_left_id];
+		t1_value += phi_value_right*data2[t2_left_id];
 
 		data1[t1] = t1_value;
 	}
