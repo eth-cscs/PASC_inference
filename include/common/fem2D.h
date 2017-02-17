@@ -4,11 +4,11 @@
  *  @author Lukas Pospisil
  */
  
-#ifndef PASC_FEMHAT_H
-#define	PASC_FEMHAT_H
+#ifndef PASC_FEM2D_H
+#define	PASC_FEM2D_H
 
 #ifndef USE_PETSCVECTOR
- #error 'FEMHAT is for PETSCVECTOR'
+ #error 'FEM2D is for PETSCVECTOR'
 #endif
 
 #include "common/fem.h"
@@ -19,14 +19,16 @@ typedef petscvector::PetscVector PetscVector;
 namespace pascinference {
 namespace common {
 
-/** \class FemHat
- *  \brief Reduction/prolongation between FEM meshes using hat functions.
+/** \class FEM 2D manipulation
+ *  \brief Reduction/prolongation between FEM meshes.
  *
 */
-class FemHat : public Fem {
+class Fem2D : public Fem {
 	protected:
-		bool left_overlap;		/**< is there overlap to the left side of time axis? */
-		bool right_overlap;		/**< is there overlap to the right side of time axis? */
+		bool left_overlap;			/**< is there overlap to the left side of space? */
+		bool right_overlap;			/**< is there overlap to the right side of space? */
+		bool top_overlap;			/**< is there overlap to the top side of space? */
+		bool bottom_overlap;		/**< is there overlap to the bottom side of space? */
 		
 		int left_t1_idx;			/**< appropriate left index in fine grid (with overlap) */
 		int right_t1_idx;			/**< appropriate right index in fine grid (with overlap) */
@@ -39,18 +41,18 @@ class FemHat : public Fem {
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
-		FemHat(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce);
+		Fem2D(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
 		 * 
 		 * do not forget to call Fem::set_decomposition_original() and afterwards Fem::compute_decomposition_reduced() to compute decomposition2 internally
 		 * 
 		 */
-		FemHat(double fem_reduce = 1.0);
+		Fem2D(double fem_reduce = 1.0);
 
 		/** @brief destructor
 		*/
-		~FemHat();
+		~Fem2D();
 
 		std::string get_name() const;
 		
@@ -70,14 +72,14 @@ __global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int 
 
 
 /* ----------------- Fem implementation ------------- */
-FemHat::FemHat(double fem_reduce) : Fem(fem_reduce){
+Fem2D::Fem2D(double fem_reduce) : Fem(fem_reduce){
 	LOG_FUNC_BEGIN
 	
 	LOG_FUNC_END
 }
 
 
-FemHat::FemHat(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce) : Fem(decomposition1, decomposition2, fem_reduce){
+Fem2D::Fem2D(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce) : Fem(decomposition1, decomposition2, fem_reduce){
 	LOG_FUNC_BEGIN
 
 	#ifdef USE_CUDA
@@ -89,24 +91,24 @@ FemHat::FemHat(Decomposition *decomposition1, Decomposition *decomposition2, dou
 		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
-	diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
+	diff = (decomposition1->get_T()-1)/(double)(decomposition2->get_T()-1);
 
 	compute_overlaps();
 
 	LOG_FUNC_END
 }
 
-FemHat::~FemHat(){
+Fem2D::~Fem2D(){
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END
 }
 
-std::string FemHat::get_name() const {
-	return "FEM-HAT";
+std::string Fem2D::get_name() const {
+	return "FEM2D";
 }
 
-void FemHat::compute_overlaps() {
+void Fem2D::compute_overlaps() {
 	LOG_FUNC_BEGIN
 	
 	/* indicator of begin and end overlap */
@@ -149,7 +151,7 @@ void FemHat::compute_overlaps() {
 	LOG_FUNC_END
 }
 
-void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
+void Fem2D::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -252,7 +254,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 	LOG_FUNC_END
 }
 
-void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
+void Fem2D::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -344,7 +346,7 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 	LOG_FUNC_END
 }
 
-void FemHat::compute_decomposition_reduced() {
+void Fem2D::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 	
 	if(is_reduced()){
@@ -372,9 +374,9 @@ void FemHat::compute_decomposition_reduced() {
 		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
-	diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
-
 	compute_overlaps();
+
+	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
 	
 	LOG_FUNC_END
 }

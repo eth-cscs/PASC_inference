@@ -10,6 +10,7 @@
 #include "solver/tssolver.h"
 #include "data/imagedata.h"
 #include "model/graphh1fem.h"
+#include "common/fem2D.h"
 
 #include <vector>
 
@@ -27,6 +28,8 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
+		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT]")
+		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
 		("test_image_filename", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
 		("test_image_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
@@ -59,12 +62,12 @@ int main( int argc, char *argv[] )
 		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
 		
 	} else {
-		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters\n";
+		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters" << std::endl;
 		return 0;
 	}
 
-	int K, annealing, width, height; 
-	double graph_coeff; 
+	int K, annealing, width, height, fem_type; 
+	double graph_coeff, fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, graph_save;
 
 	std::string image_filename;
@@ -75,6 +78,8 @@ int main( int argc, char *argv[] )
 	std::string shortinfo_values;
 
 	consoleArg.set_option_value("test_K", &K, 2);
+	consoleArg.set_option_value("test_fem_type", &fem_type, 3);
+	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, 1.0);
 	consoleArg.set_option_value("test_width", &width, 250);
 	consoleArg.set_option_value("test_height", &height, 150);
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
@@ -108,7 +113,7 @@ int main( int argc, char *argv[] )
 		
 		/* control number of provided Theta */
 		if(Theta_list.size() != K){
-			coutMaster << "number of provided Theta solutions is different then number of clusters!\n";
+			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
 			return 0;
 		}
 
@@ -123,29 +128,32 @@ int main( int argc, char *argv[] )
 	/* set decomposition in space */
 	int DDR_size = GlobalManager.get_size();
 
-	coutMaster << "- PROBLEM INFO ----------------------------\n";
-	coutMaster << " DDR_size                = " << std::setw(30) << DDR_size << " (decomposition in space)\n";
-	coutMaster << " test_image_filename     = " << std::setw(30) << image_filename << " (name of input file with image data)\n";
-	coutMaster << " test_image_out          = " << std::setw(30) << image_out << " (part of name of output file)\n";
-	coutMaster << " test_width              = " << std::setw(30) << width << " (width of image)\n";
-	coutMaster << " test_height             = " << std::setw(30) << height << " (height of image)\n";
-	coutMaster << " test_K                  = " << std::setw(30) << K << " (number of clusters)\n";
+	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
+	coutMaster << " DDR_size                = " << std::setw(50) << DDR_size << " (decomposition in space)" << std::endl;
+	coutMaster << " test_image_filename     = " << std::setw(50) << image_filename << " (name of input file with image data)" << std::endl;
+	coutMaster << " test_image_out          = " << std::setw(50) << image_out << " (part of name of output file)" << std::endl;
+	coutMaster << " test_width              = " << std::setw(50) << width << " (width of image)" << std::endl;
+	coutMaster << " test_height             = " << std::setw(50) << height << " (height of image)" << std::endl;
+	coutMaster << " test_K                  = " << std::setw(50) << K << " (number of clusters)" << std::endl;
 	if(given_Theta){
-		coutMaster << " test_Theta              = " << std::setw(30) << print_array(Theta_solution,K) << "\n";
+		coutMaster << " test_Theta              = " << std::setw(50) << print_array(Theta_solution,K) << std::endl;
 	}
-	coutMaster << " test_graph_filename     = " << std::setw(30) << graph_filename << " (name of input file with graph data)\n";
-	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold of the graph)\n";
-	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)\n";
-	coutMaster << " test_epssqr             = " << std::setw(30) << print_vector(epssqr_list) << " (penalty)\n";
-	coutMaster << " test_annealing          = " << std::setw(30) << annealing << " (number of annealing steps)\n";
-	coutMaster << " test_cutgamma           = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})\n";
-	coutMaster << " test_cutdata            = " << std::setw(30) << cutdata << " (cut data to {0,1})\n";
-	coutMaster << " test_scaledata          = " << std::setw(30) << scaledata << " (scale data to {-1,1})\n";
-	coutMaster << " test_shortinfo          = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)\n";
-	coutMaster << " test_shortinfo_header   = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)\n";
-	coutMaster << " test_shortinfo_values   = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)\n";
-	coutMaster << " test_shortinfo_filename = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)\n";
-	coutMaster << "-------------------------------------------\n" << "\n";
+	coutMaster << " test_fem_type           = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT])" << std::endl;
+	coutMaster << " test_fem_reduce         = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
+	coutMaster << " test_graph_filename     = " << std::setw(50) << graph_filename << " (name of input file with graph data)" << std::endl;
+	coutMaster << " test_graph_coeff        = " << std::setw(50) << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_graph_save         = " << std::setw(50) << graph_save << " (save VTK with graph or not)" << std::endl;
+	coutMaster << " test_epssqr             = " << std::setw(50) << print_vector(epssqr_list) << " (penalty)" << std::endl;
+	coutMaster << " test_annealing          = " << std::setw(50) << annealing << " (number of annealing steps)" << std::endl;
+	coutMaster << " test_cutgamma           = " << std::setw(50) << cutgamma << " (cut gamma to {0;1})" << std::endl;
+	coutMaster << " test_cutdata            = " << std::setw(50) << cutdata << " (cut data to {0,1})" << std::endl;
+	coutMaster << " test_scaledata          = " << std::setw(50) << scaledata << " (scale data to {-1,1})" << std::endl;
+	coutMaster << " test_shortinfo          = " << std::setw(50) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
+	coutMaster << " test_shortinfo_header   = " << std::setw(50) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_values   = " << std::setw(50) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_filename = " << std::setw(50) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
+	coutMaster << "-------------------------------------------" << std::endl;
+	coutMaster << std::endl;
 
 	/* start logging */
 	std::ostringstream oss;
@@ -161,10 +169,10 @@ int main( int argc, char *argv[] )
 	std::ostringstream oss_short_output_header;
 		
 	/* say hello */
-	coutMaster << "- start program\n";
+	coutMaster << "- start program" << std::endl;
 
 /* 1.) prepare graph of image */
-	coutMaster << "--- PREPARING GRAPH ---\n";
+	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
 
 	BGMGraph *graph;
 	if(generalgraph){
@@ -181,7 +189,7 @@ int main( int argc, char *argv[] )
 	graph->print(coutMaster);
 	
 /* 2.) prepare decomposition */
-	coutMaster << "--- COMPUTING DECOMPOSITION ---\n";
+	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on graph, in this case T=1 and DDT_size=1 */
 	Decomposition decomposition(1, *graph, K, 1, DDR_size);
@@ -197,7 +205,7 @@ int main( int argc, char *argv[] )
 	}
 
 /* 3.) prepare time-series data */
-	coutMaster << "--- PREPARING DATA ---\n";
+	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	
 	/* load data from file and store it subject to decomposition */
 	ImageData<PetscVector> mydata(decomposition, image_filename, width, height);
@@ -215,16 +223,26 @@ int main( int argc, char *argv[] )
 	if(scaledata) mydata.scaledata(-1,1,0,1);
 
 /* 4.) prepare model */
-	coutMaster << "--- PREPARING MODEL ---\n";
+	coutMaster << "--- PREPARING MODEL ---" << std::endl;
+
+	/* prepare FEM reduction */
+	Fem *fem;
+	if(fem_type == 3){
+		fem = new Fem2D(&decomposition, &decomposition, fem_reduce);
+	}
+	if(fem_type == 4){
+//		fem = new Fem2DHat(fem_reduce);
+	}
 
 	/* prepare model on the top of given data */
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
+//	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem);
 
 	/* print info about model */
 	mymodel.print(coutMaster,coutAll);
 
 /* 5.) prepare time-series solver */
-	coutMaster << "--- PREPARING SOLVER ---\n";
+	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 
 	/* prepare time-series solver */
 	TSSolver<PetscVector> mysolver(mydata, annealing);
@@ -236,7 +254,7 @@ int main( int argc, char *argv[] )
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
 /* 6.) solve the problem with initial epssqr */
-	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---\n";
+	coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[0] << " ---" << std::endl;
 	mysolver.solve();
 
 	/* cut gamma */
@@ -245,7 +263,7 @@ int main( int argc, char *argv[] )
 	/* unscale data before save */
 	if(scaledata) mydata.scaledata(0,1,-1,1);
 
-	coutMaster << "--- SAVING OUTPUT ---\n";
+	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	oss << image_out << "_epssqr" << epssqr_list[0];
 	mydata.saveImage(oss.str(),true);
 	oss.str("");
@@ -293,7 +311,7 @@ int main( int argc, char *argv[] )
 		/* scale data before computation */
 		if(scaledata) mydata.scaledata(-1,1,0,1);
 
-		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---\n";
+		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr_list[depth] << " ---" << std::endl;
 		mysolver.solve();
 
 		/* cut gamma */
@@ -302,7 +320,7 @@ int main( int argc, char *argv[] )
 		/* unscale data before export */
 		if(scaledata) mydata.scaledata(0,1,-1,1);
 
-		coutMaster << "--- SAVING OUTPUT ---\n";
+		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		oss << image_out << "_epssqr" << epssqr_list[depth];
 		mydata.saveImage(oss.str(),false);
 		oss.str("");
@@ -330,19 +348,19 @@ int main( int argc, char *argv[] )
 	}
 
 	/* print solution */
-	coutMaster << "--- THETA SOLUTION ---\n";
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
 	mydata.print_thetavector(coutMaster);
 
 	/* print timers */
-	coutMaster << "--- TIMERS INFO ---\n";
+	coutMaster << "--- TIMERS INFO ---" << std::endl;
 	mysolver.printtimer(coutMaster);
 
 	/* print short info */
-	coutMaster << "--- FINAL SOLVER INFO ---\n";
+	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
 	mysolver.printstatus(coutMaster);
 
 	/* say bye */	
-	coutMaster << "- end program\n";
+	coutMaster << "- end program" << std::endl;
 
 	logging.end();
 	Finalize();
