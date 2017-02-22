@@ -62,7 +62,7 @@ class Fem2D : public Fem {
 		*/
 		~Fem2D();
 
-		void print(ConsoleOutput &output) const;
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
 		
 		void reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
@@ -143,56 +143,60 @@ std::string Fem2D::get_name() const {
 	return "FEM2D";
 }
 
-void Fem2D::print(ConsoleOutput &output) const {
+void Fem2D::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << std::endl;
+	output_global << this->get_name() << std::endl;
 	
 	/* information of reduced problem */
-	output <<  " - is reduced       : " << is_reduced() << std::endl;
-	output <<  " - diff             : " << diff << std::endl;
-	output <<  " - diff_x           : " << diff_x << std::endl;
-	output <<  " - diff_y           : " << diff_y << std::endl;
-	output <<  " - bounding_box1    : " << print_array(this->bounding_box1, 4) << std::endl;
-	output <<  " - bounding_box2    : " << print_array(this->bounding_box2, 4) << std::endl;
-	output <<  " - fem_reduce       : " << fem_reduce << std::endl;
-	output <<  " - fem_type         : " << get_name() << std::endl;
+	output_global <<  " - is reduced       : " << is_reduced() << std::endl;
+	output_global <<  " - diff             : " << diff << std::endl;
+	output_global <<  " - diff_x           : " << diff_x << std::endl;
+	output_global <<  " - diff_y           : " << diff_y << std::endl;
+
+	output_global <<  " - bounding_box" << std::endl;
+	output_local <<   "   - bounding_box1    : " << print_array(this->bounding_box1, 4) << std::endl;
+	output_local <<   "   - bounding_box2    : " << print_array(this->bounding_box2, 4) << std::endl;
+	output_local.synchronize();
+
+	output_global <<  " - fem_reduce       : " << fem_reduce << std::endl;
+	output_global <<  " - fem_type         : " << get_name() << std::endl;
 	
 	if(decomposition1 == NULL){
-		output <<  " - decomposition1   : NO" << std::endl;
+		output_global <<  " - decomposition1   : NO" << std::endl;
 	} else {
-		output <<  " - decomposition1   : YES" << std::endl;
-		output.push();
-		decomposition1->print(output);
-		output.pop();
+		output_global <<  " - decomposition1   : YES" << std::endl;
+		output_global.push();
+		decomposition1->print(output_global);
+		output_global.pop();
 	}
 	if(grid1 == NULL){
-		output <<  " - grid1            : NO" << std::endl;
+		output_global <<  " - grid1            : NO" << std::endl;
 	} else {
-		output <<  " - grid1            : YES [" << grid1->get_width() << ", " << grid1->get_height() << "]" << std::endl;
-		output.push();
-		grid1->print(output);
-		output.pop();
+		output_global <<  " - grid1            : YES [" << grid1->get_width() << ", " << grid1->get_height() << "]" << std::endl;
+		output_global.push();
+		grid1->print(output_global);
+		output_global.pop();
 	}
 
 	if(decomposition2 == NULL){
-		output <<  " - decomposition2   : NO" << std::endl;
+		output_global <<  " - decomposition2   : NO" << std::endl;
 	} else {
-		output <<  " - decomposition2   : YES" << std::endl;
-		output.push();
-		decomposition2->print(output);
-		output.pop();
+		output_global <<  " - decomposition2   : YES" << std::endl;
+		output_global.push();
+		decomposition2->print(output_global);
+		output_global.pop();
 	}
 	if(grid2 == NULL){
-		output <<  " - grid2            : NO" << std::endl;
+		output_global <<  " - grid2            : NO" << std::endl;
 	} else {
-		output <<  " - grid2            : YES [" << grid2->get_width() << ", " << grid2->get_height() << "]" << std::endl;
-		output.push();
-		grid2->print(output);
-		output.pop();
+		output_global <<  " - grid2            : YES [" << grid2->get_width() << ", " << grid2->get_height() << "]" << std::endl;
+		output_global.push();
+		grid2->print(output_global);
+		output_global.pop();
 	}
 	
-	output.synchronize();	
+	output_global.synchronize();	
 
 	LOG_FUNC_END
 }

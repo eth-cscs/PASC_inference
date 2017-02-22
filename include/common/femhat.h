@@ -52,6 +52,7 @@ class FemHat : public Fem {
 		*/
 		~FemHat();
 
+		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
 		
 		void reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
@@ -72,6 +73,16 @@ __global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int 
 /* ----------------- Fem implementation ------------- */
 FemHat::FemHat(double fem_reduce) : Fem(fem_reduce){
 	LOG_FUNC_BEGIN
+
+	/* some implicit values */
+	this->left_overlap = false;
+	this->right_overlap = false;
+
+	this->left_t1_idx = -1;
+	this->right_t1_idx = -1;
+	this->left_t2_idx = -1;
+	this->right_t2_idx = -1;
+
 	
 	LOG_FUNC_END
 }
@@ -106,36 +117,45 @@ std::string FemHat::get_name() const {
 	return "FEM-HAT";
 }
 
-void FemHat::print(ConsoleOutput &output) const {
+void FemHat::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output << this->get_name() << std::endl;
+	output_global << this->get_name() << std::endl;
 	
 	/* information of reduced problem */
-	output <<  " - is reduced       : " << is_reduced() << std::endl;
-	output <<  " - diff             : " << diff << std::endl;
-	output <<  " - fem_reduce       : " << fem_reduce << std::endl;
-	output <<  " - fem_type         : " << get_name() << std::endl;
+	output_global <<  " - is reduced       : " << is_reduced() << std::endl;
+	output_global <<  " - diff             : " << diff << std::endl;
+	output_global <<  " - fem_reduce       : " << fem_reduce << std::endl;
+	output_global <<  " - fem_type         : " << get_name() << std::endl;
 	
+	output_global <<  " - overlap" << std::endl;
+	output_local <<   "   - left           : " << this->left_overlap << std::endl;
+	output_local <<   "     - left_t1_idx  : " << this->left_t1_idx << std::endl;
+	output_local <<   "     - left_t2_idx  : " << this->left_t2_idx << std::endl;
+	output_local <<   "   - right          : " << this->right_overlap << std::endl;
+	output_local <<   "     - right_t1_idx : " << this->right_t1_idx << std::endl;
+	output_local <<   "     - right_t2_idx : " << this->right_t2_idx << std::endl;
+	output_local.synchronize();
+ 	
 	if(decomposition1 == NULL){
-		output <<  " - decomposition1   : NO" << std::endl;
+		output_global <<  " - decomposition1   : NO" << std::endl;
 	} else {
-		output <<  " - decomposition1   : YES" << std::endl;
-		output.push();
-		decomposition1->print(output);
-		output.pop();
+		output_global <<  " - decomposition1   : YES" << std::endl;
+		output_global.push();
+		decomposition1->print(output_global);
+		output_global.pop();
 	}
 
 	if(decomposition2 == NULL){
-		output <<  " - decomposition2   : NO" << std::endl;
+		output_global <<  " - decomposition2   : NO" << std::endl;
 	} else {
-		output <<  " - decomposition2   : YES" << std::endl;
-		output.push();
-		decomposition2->print(output);
-		output.pop();
+		output_global <<  " - decomposition2   : YES" << std::endl;
+		output_global.push();
+		decomposition2->print(output_global);
+		output_global.pop();
 	}
 	
-	output.synchronize();	
+	output_global.synchronize();	
 
 	LOG_FUNC_END
 }

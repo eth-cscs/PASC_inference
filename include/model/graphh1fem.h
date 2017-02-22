@@ -24,7 +24,7 @@ extern int DEBUG_MODE;
 #include "solver/spgqpsolver_coeff.h"
 #include "data/qpdata.h"
 
-#ifdef USE_PERMON	
+#ifdef USE_PERMON
 	#include "solver/permonsolver.h"
 	#include "algebra/feasibleset/simplex_lineqbound.h"
 #endif
@@ -59,7 +59,8 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 			SOLVER_AUTO=0, /**< choose automatic solver */
 			SOLVER_SPGQP=1, /**< CPU/GPU implementation of Spectral Projected Gradient method */
 			SOLVER_SPGQP_COEFF=2, /**< CPU/GPU implementation of Spectral Projected Gradient method with special coefficient threatment */
-			SOLVER_PERMON=3 /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
+			SOLVER_PERMON=3, /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
+			SOLVER_TAO=4 /**< TAO solver */
 		} GammaSolverType;
 
 	protected:
@@ -210,7 +211,7 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	this->fem->set_decomposition_original(this->tsdata->get_decomposition());
 	this->fem->compute_decomposition_reduced();
 
-	fem->print(coutMaster);
+	fem->print(coutMaster,coutAll);
 
 	/* set regularization parameter */
 	this->epssqr = epssqr;
@@ -244,7 +245,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	/* information of reduced problem */
 	output <<  " - fem_reduce        : " << this->fem->get_fem_reduce() << std::endl;
 	output.push();
-	this->fem->print(output);
+	this->fem->print(output,output);
 	output.pop();
 	
 	output <<  " - K                 : " << this->tsdata->get_K() << std::endl;
@@ -288,7 +289,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	/* information of reduced problem */
 	output_global <<  "  - fem_reduce        : " << this->fem->get_fem_reduce() << std::endl;
 	output_global.push();
-	this->fem->print(output_global);
+	this->fem->print(output_global, output_local);
 	output_global.pop();
 
 	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;

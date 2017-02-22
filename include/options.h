@@ -118,7 +118,7 @@ static void add_options(boost::program_options::options_description *description
 		/* GRAPHH1FEMMODEL */
 		boost::program_options::options_description opt_graphh1femmodel("GRAPHH1FEMMODEL", console_nmb_cols);
 		opt_graphh1femmodel.add_options()
-			("graphh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON]");
+			("graphh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]");
 		opt_models.add(opt_graphh1femmodel);
 
 		/* KMEANSH1FEMMODEL */
