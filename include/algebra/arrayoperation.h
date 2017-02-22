@@ -91,6 +91,37 @@ MyType max_array(int my_size, const MyType *my_array){
 	return return_value;
 }
 
+/** @brief find the index of largest elements in array
+*
+*  @param my_size the size of array (number of elements)
+*  @param my_array pointer to array
+*/
+template<class MyType>
+int max_arg_array(int my_size, const MyType *my_array){
+	MyType max_value = my_array[0];
+	int return_value;
+	for(int i=1;i<my_size;i++){
+		if(my_array[i] > return_value){
+			max_value = my_array[i];
+			return_value = i;
+		}
+	}	
+	return return_value;
+}
+
+/** @brief set all elements in array to given value
+*
+*  @param my_size the size of array (number of elements)
+*  @param my_array pointer to array
+*  @param my_value new value of all elements
+*/
+template<class MyType>
+void set_value_array(int my_size, MyType *my_array, MyType my_value){
+	for(int i=0;i<my_size;i++){
+		my_array[i] = my_value;
+	}	
+}
+
 /** @brief find largest difference between cosequent elements in array
 *
 *  @param my_size the size of array (number of elements) > 1

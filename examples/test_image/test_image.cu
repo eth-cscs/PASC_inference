@@ -34,8 +34,6 @@ int main( int argc, char *argv[] )
 		("test_image_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
-		("test_graph_filename", boost::program_options::value< std::string >(), "name of input file with graph data (vector in PETSc format) [string]")
-		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
@@ -67,12 +65,11 @@ int main( int argc, char *argv[] )
 	}
 
 	int K, annealing, width, height, fem_type; 
-	double graph_coeff, fem_reduce;
+	double fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, graph_save;
 
 	std::string image_filename;
 	std::string image_out;
-	std::string graph_filename;
 	std::string shortinfo_filename;
 	std::string shortinfo_header;
 	std::string shortinfo_values;
@@ -82,7 +79,6 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, 1.0);
 	consoleArg.set_option_value("test_width", &width, 250);
 	consoleArg.set_option_value("test_height", &height, 150);
-	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
 	consoleArg.set_option_value("test_graph_save", &graph_save, false);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
@@ -96,14 +92,6 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
 	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/usi_250_150_02.txt");
 	
-	/* use general graph or 2d grid? */
-	bool generalgraph;
-	if(consoleArg.set_option_value("test_graph_filename", &graph_filename)){
-		generalgraph = true;
-	} else {
-		generalgraph = false;
-	}
-
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
 	std::vector<double> Theta_list;
@@ -140,8 +128,6 @@ int main( int argc, char *argv[] )
 	}
 	coutMaster << " test_fem_type           = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce         = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
-	coutMaster << " test_graph_filename     = " << std::setw(50) << graph_filename << " (name of input file with graph data)" << std::endl;
-	coutMaster << " test_graph_coeff        = " << std::setw(50) << graph_coeff << " (threshold of the graph)" << std::endl;
 	coutMaster << " test_graph_save         = " << std::setw(50) << graph_save << " (save VTK with graph or not)" << std::endl;
 	coutMaster << " test_epssqr             = " << std::setw(50) << print_vector(epssqr_list) << " (penalty)" << std::endl;
 	coutMaster << " test_annealing          = " << std::setw(50) << annealing << " (number of annealing steps)" << std::endl;
@@ -174,16 +160,10 @@ int main( int argc, char *argv[] )
 /* 1.) prepare graph of image */
 	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
 
-	BGMGraph *graph;
-	if(generalgraph){
-		/* if this is general graph, then load it from file and process it with given threshold */
-		graph = new BGMGraph(graph_filename);
-		graph->process(graph_coeff);
-	} else {
-		/* this is not general graph, it is "only" 2D grid */
-		graph = new BGMGraphGrid2D(width, height);
-		((BGMGraphGrid2D*)graph)->process_grid();
-	}
+	BGMGraphGrid2D *graph;
+	/* this is not general graph, it is "only" 2D grid */
+	graph = new BGMGraphGrid2D(width, height);
+	graph->process_grid();
 
 	/* print basic info about graph */
 	graph->print(coutMaster);
@@ -228,15 +208,15 @@ int main( int argc, char *argv[] )
 	/* prepare FEM reduction */
 	Fem *fem;
 	if(fem_type == 3){
-		fem = new Fem2D(&decomposition, &decomposition, fem_reduce);
+		fem = new Fem2D(fem_reduce);
 	}
 	if(fem_type == 4){
 //		fem = new Fem2DHat(fem_reduce);
 	}
 
 	/* prepare model on the top of given data */
-	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
-//	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem);
+//	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
+	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem);
 
 	/* print info about model */
 	mymodel.print(coutMaster,coutAll);

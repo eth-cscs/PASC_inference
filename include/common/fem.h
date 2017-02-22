@@ -59,7 +59,7 @@ class Fem {
 		 * 
 		 * @param output where to print
 		 */	
-		void print(ConsoleOutput &output) const;
+		virtual void print(ConsoleOutput &output) const;
 		
 		virtual void reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
 		virtual void prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const;
@@ -134,7 +134,6 @@ std::string Fem::get_name() const {
 	return "FEM-SUM";
 }
 
-/* print info about model */
 void Fem::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
@@ -370,7 +369,7 @@ void Fem::compute_decomposition_reduced() {
 
 	} else {
 		/* there is not reduction of the data, we can reuse the decomposition */
-		decomposition2 = decomposition1;
+		this->set_decomposition_reduced(decomposition1);
 	}
 
 	#ifdef USE_CUDA

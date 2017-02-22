@@ -106,6 +106,40 @@ std::string FemHat::get_name() const {
 	return "FEM-HAT";
 }
 
+void FemHat::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	output << this->get_name() << std::endl;
+	
+	/* information of reduced problem */
+	output <<  " - is reduced       : " << is_reduced() << std::endl;
+	output <<  " - diff             : " << diff << std::endl;
+	output <<  " - fem_reduce       : " << fem_reduce << std::endl;
+	output <<  " - fem_type         : " << get_name() << std::endl;
+	
+	if(decomposition1 == NULL){
+		output <<  " - decomposition1   : NO" << std::endl;
+	} else {
+		output <<  " - decomposition1   : YES" << std::endl;
+		output.push();
+		decomposition1->print(output);
+		output.pop();
+	}
+
+	if(decomposition2 == NULL){
+		output <<  " - decomposition2   : NO" << std::endl;
+	} else {
+		output <<  " - decomposition2   : YES" << std::endl;
+		output.push();
+		decomposition2->print(output);
+		output.pop();
+	}
+	
+	output.synchronize();	
+
+	LOG_FUNC_END
+}
+
 void FemHat::compute_overlaps() {
 	LOG_FUNC_BEGIN
 	

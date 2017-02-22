@@ -12,6 +12,7 @@
 #endif
 
 #include "common/fem.h"
+#include "algebra/graph/bgmgraphgrid2D.h"
 
 /* this class is for petscvector */
 typedef petscvector::PetscVector PetscVector;
@@ -30,13 +31,20 @@ class Fem2D : public Fem {
 		bool top_overlap;			/**< is there overlap to the top side of space? */
 		bool bottom_overlap;		/**< is there overlap to the bottom side of space? */
 		
-		int left_t1_idx;			/**< appropriate left index in fine grid (with overlap) */
-		int right_t1_idx;			/**< appropriate right index in fine grid (with overlap) */
-
-		int left_t2_idx;			/**< appropriate left index in coarse grid (with overlap) */
-		int right_t2_idx;			/**< appropriate right index in coarse grid (with overlap) */
-
 		void compute_overlaps();
+		int overlap1_idx_size;		/**< number of elements in overlap1_idx */
+		int *overlap1_idx;			/**< permutated indexes of overlap part in grid1 */
+		int overlap2_idx_size;		/**< number of elements in overlap2_idx */
+		int *overlap2_idx;			/**< permutated indexes of overlap part in grid2 */
+
+		double diff_x;
+		double diff_y;
+
+		BGMGraphGrid2D *grid1;
+		BGMGraphGrid2D *grid2;
+
+		int *bounding_box1;		/**< bounds of local domain [x1_min,x1_max,y1_min,y1_max] of grid1 */
+		int *bounding_box2;		/**< bounds of local domain [x2_min,x2_max,y2_min,y2_max] of grid2 */
 
 	public:
 		/** @brief create FEM mapping between two decompositions
@@ -54,6 +62,7 @@ class Fem2D : public Fem {
 		*/
 		~Fem2D();
 
+		void print(ConsoleOutput &output) const;
 		std::string get_name() const;
 		
 		void reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
@@ -75,12 +84,29 @@ __global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int 
 Fem2D::Fem2D(double fem_reduce) : Fem(fem_reduce){
 	LOG_FUNC_BEGIN
 	
+	/* I don't have this information without decompositions */
+	this->diff_x = 0;
+	this->diff_y = 0;
+	
+	this->grid1 = NULL;
+	this->grid2 = NULL;
+	
+	this->bounding_box1 = new int[4];
+	set_value_array(4, this->bounding_box1, 0); /* initial values */
+
+	this->bounding_box2 = new int[4];
+	set_value_array(4, this->bounding_box2, 0); /* initial values */
+
+	
 	LOG_FUNC_END
 }
 
 
 Fem2D::Fem2D(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce) : Fem(decomposition1, decomposition2, fem_reduce){
 	LOG_FUNC_BEGIN
+
+	this->grid1 = (BGMGraphGrid2D*)(this->decomposition1->get_graph());
+	this->grid2 = (BGMGraphGrid2D*)(this->decomposition2->get_graph());
 
 	#ifdef USE_CUDA
 		/* compute optimal kernel calls */
@@ -91,9 +117,18 @@ Fem2D::Fem2D(Decomposition *decomposition1, Decomposition *decomposition2, doubl
 		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
-	diff = (decomposition1->get_T()-1)/(double)(decomposition2->get_T()-1);
+	diff = 1; /* time */
+	diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
+	diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
 
-	compute_overlaps();
+	if(is_reduced()){
+		this->bounding_box1 = new int[4];
+		set_value_array(4, this->bounding_box1, 0); /* initial values */
+		this->bounding_box2 = new int[4];
+		set_value_array(4, this->bounding_box2, 0); /* initial values */
+
+		compute_overlaps();
+	}
 
 	LOG_FUNC_END
 }
@@ -108,46 +143,98 @@ std::string Fem2D::get_name() const {
 	return "FEM2D";
 }
 
+void Fem2D::print(ConsoleOutput &output) const {
+	LOG_FUNC_BEGIN
+
+	output << this->get_name() << std::endl;
+	
+	/* information of reduced problem */
+	output <<  " - is reduced       : " << is_reduced() << std::endl;
+	output <<  " - diff             : " << diff << std::endl;
+	output <<  " - diff_x           : " << diff_x << std::endl;
+	output <<  " - diff_y           : " << diff_y << std::endl;
+	output <<  " - bounding_box1    : " << print_array(this->bounding_box1, 4) << std::endl;
+	output <<  " - bounding_box2    : " << print_array(this->bounding_box2, 4) << std::endl;
+	output <<  " - fem_reduce       : " << fem_reduce << std::endl;
+	output <<  " - fem_type         : " << get_name() << std::endl;
+	
+	if(decomposition1 == NULL){
+		output <<  " - decomposition1   : NO" << std::endl;
+	} else {
+		output <<  " - decomposition1   : YES" << std::endl;
+		output.push();
+		decomposition1->print(output);
+		output.pop();
+	}
+	if(grid1 == NULL){
+		output <<  " - grid1            : NO" << std::endl;
+	} else {
+		output <<  " - grid1            : YES [" << grid1->get_width() << ", " << grid1->get_height() << "]" << std::endl;
+		output.push();
+		grid1->print(output);
+		output.pop();
+	}
+
+	if(decomposition2 == NULL){
+		output <<  " - decomposition2   : NO" << std::endl;
+	} else {
+		output <<  " - decomposition2   : YES" << std::endl;
+		output.push();
+		decomposition2->print(output);
+		output.pop();
+	}
+	if(grid2 == NULL){
+		output <<  " - grid2            : NO" << std::endl;
+	} else {
+		output <<  " - grid2            : YES [" << grid2->get_width() << ", " << grid2->get_height() << "]" << std::endl;
+		output.push();
+		grid2->print(output);
+		output.pop();
+	}
+	
+	output.synchronize();	
+
+	LOG_FUNC_END
+}
+
 void Fem2D::compute_overlaps() {
 	LOG_FUNC_BEGIN
 	
-	/* indicator of begin and end overlap */
-	if(GlobalManager.get_rank() == 0){
-		this->left_overlap = false;
-	} else {
-		this->left_overlap = true;
-	}
+	if(is_reduced()){
+		int width1 = grid1->get_width();
+		int height1 = grid1->get_height();
+		int width2 = grid2->get_width();
+		int height2 = grid2->get_height();
+		
+		/* get arrays of grids */
+		int *DD_affiliation1 = grid1->get_DD_affiliation(); 
+		int *DD_permutation1 = grid1->get_DD_permutation(); 
+		int *DD_invpermutation1 = grid1->get_DD_invpermutation(); 
 
-	if(GlobalManager.get_rank() == GlobalManager.get_size()-1){
-		this->right_overlap = false;
-	} else {
-		this->right_overlap = true;
-	}
+		int *DD_affiliation2 = grid2->get_DD_affiliation(); 
+		int *DD_permutation2 = grid2->get_DD_permutation(); 
+		int *DD_invpermutation2 = grid2->get_DD_invpermutation(); 
 
-	/* compute appropriate indexes in fine grid */
-	if(this->left_overlap){
-		this->left_t1_idx = floor(this->diff*(decomposition2->get_Tbegin()-1));
-	} else {
-		this->left_t1_idx = floor(this->diff*(decomposition2->get_Tbegin()));
+		/* prepare overlap indexes */
+		overlap1_idx_size = (bounding_box1[1]-bounding_box1[0]+1)*(bounding_box1[3]-bounding_box1[2]+1);
+		overlap1_idx = new int[overlap1_idx_size];
+		overlap2_idx_size = (bounding_box2[1]-bounding_box2[0]+1)*(bounding_box2[3]-bounding_box2[2]+1);
+		overlap2_idx = new int[overlap2_idx_size];
+		
+		/* fill overlapping indexes with.. indexes */
+		for(int id_x1 = bounding_box1[0]; id_x1 <= bounding_box1[1]; id_x1++){
+			for(int id_y1 = bounding_box1[2]; id_y1 <= bounding_box1[3]; id_y1++){
+				overlap1_idx[(id_y1-bounding_box1[2])*(bounding_box1[1]-bounding_box1[0]+1) + (id_x1-bounding_box1[0])] = DD_permutation1[id_y1*width1 + id_x1];
+			}
+		}
+		for(int id_x2 = bounding_box2[0]; id_x2 <= bounding_box2[1]; id_x2++){
+			for(int id_y2 = bounding_box2[2]; id_y2 <= bounding_box2[3]; id_y2++){
+				overlap2_idx[(id_y2-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (id_x2-bounding_box2[0])] = DD_permutation2[id_y2*width2 + id_x2];
+			}
+		}
+		
 	}
-	if(this->right_overlap){
-		this->right_t1_idx = floor(this->diff*(decomposition2->get_Tend()-1+1));
-	} else {
-		this->right_t1_idx = floor(this->diff*(decomposition2->get_Tend()-1));
-	}
-
-	/* compute appropriate indexes in coarse grid */
-	if(this->left_overlap){
-		this->left_t2_idx = floor((decomposition1->get_Tbegin())/this->diff)-1;
-	} else {
-		this->left_t2_idx = floor(decomposition1->get_Tbegin()/this->diff);
-	}
-	if(this->right_overlap){
-		this->right_t2_idx = floor((decomposition1->get_Tend()-1)/this->diff)+1;
-	} else {
-		this->right_t2_idx = floor((decomposition1->get_Tend()-1)/this->diff);
-	}
-
+	
 	LOG_FUNC_END
 }
 
@@ -167,8 +254,21 @@ void Fem2D::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Petsc
 	IS gammak2_is;
 
 	/* stuff for getting subvector for local computation */
-	IS gammak1_sublocal_is;
-	Vec gammak1_sublocal_Vec;
+	IS gammak1_overlap_is;
+	Vec gammak1_overlap_Vec;
+
+	int *DD_permutation1 = grid1->get_DD_permutation(); 
+	int *DD_invpermutation1 = grid1->get_DD_invpermutation(); 
+	int *DD_permutation2 = grid2->get_DD_permutation(); 
+	int *DD_invpermutation2 = grid2->get_DD_invpermutation(); 
+
+	int Rbegin1 = decomposition1->get_Rbegin();
+	int Rbegin2 = decomposition2->get_Rbegin();
+
+	int width1 = grid1->get_width();
+	int width2 = grid2->get_width();
+	int width_overlap1 = bounding_box1[1] - bounding_box1[0] + 1;
+	int height_overlap1 = bounding_box1[3] - bounding_box1[2] + 1;
 
 	for(int k=0;k<decomposition2->get_K();k++){
 
@@ -180,68 +280,64 @@ void Fem2D::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Petsc
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
 		/* get local necessary part for local computation */
-		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, right_t1_idx - left_t1_idx, left_t1_idx, 1, &gammak1_sublocal_is) );
-		TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
+		TRYCXX( ISCreateGeneral(PETSC_COMM_SELF,overlap1_idx_size,overlap1_idx,PETSC_USE_POINTER,&gammak1_overlap_is) );
+		TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_overlap_is, &gammak1_overlap_Vec) );
 
 		#ifndef USE_CUDA
 			/* sequential version */
-			TRYCXX( VecGetArray(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecGetArray(gammak1_overlap_Vec,&gammak1_arr) );
 			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
-			int Tbegin2 = decomposition2->get_Tbegin();
-
 			//TODO: OpenMP?
-			for(int t2=0; t2 < decomposition2->get_Tlocal(); t2++){
-				double center_t1 = (Tbegin2+t2)*diff;
-				double left_t1 = (Tbegin2+t2-1)*diff;
-				double right_t1 = (Tbegin2+t2+1)*diff;
+			for(int r2=0; r2 < decomposition2->get_Rlocal(); r2++){
+				int id2 = DD_permutation2[Rbegin2 + r2];
+				int id_y2 = floor(id2/(double)width2);
+				int id_x2 = id2 - id_y2*width2;
+
+				/* coordinates in overlap */
+				double center_x1 = (id_x2)*diff_x - bounding_box1[0];
+				double left_x1 = (id_x2-1)*diff_x - bounding_box1[0];
+				double right_x1 = (id_x2+1)*diff_x - bounding_box1[0];
+
+				double center_y1 = (id_y2)*diff_y - bounding_box1[2];
+				double left_y1 = (id_y2-1)*diff_y - bounding_box1[2];
+				double right_y1 = (id_y2+1)*diff_y - bounding_box1[2];
 				
-				int id_counter = floor(left_t1) - left_t1_idx; /* first index in provided local t1 array */
-
-				double phi_value; /* value of basis function */
-
-				/* left part of hat function */
 				double mysum = 0.0;
-				int t1 = floor(left_t1);
-
-				/* compute linear combination with coefficients given by basis functions */
-				while(t1 <= center_t1){
-						phi_value = (t1 - left_t1)/(center_t1 - left_t1);
-						mysum += phi_value*gammak1_arr[id_counter];
-						t1 += 1;
-						id_counter += 1;
+				int counter = 0;
+				for(int x1 = floor(left_x1); x1 < right_x1; x1++){
+					for(int y1 = floor(left_y1); y1 < right_y1; y1++){
+						if(x1 >= 0 && x1 < width_overlap1 && y1 >= 0 && y1 < height_overlap1){
+							mysum += gammak1_arr[y1*width_overlap1 + x1];
+							counter += 1;
+						}
+					}
 				}
-
-				/* right part of hat function */
-				while(t1 < right_t1){
-					phi_value = (t1 - right_t1)/(center_t1 - right_t1);
-					mysum += phi_value*gammak1_arr[id_counter];
-					t1 += 1;
-					id_counter += 1;
-				}
-
-				gammak2_arr[t2] = mysum;
+				gammak2_arr[r2] = mysum;// /(double)counter;
+				
+//				coutAll << "r2 = " << r2 << ", counter = " << counter << ", mysum = " << mysum << std::endl;
 			}
+//			coutAll.synchronize();
 
-			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecRestoreArray(gammak1_overlap_Vec,&gammak1_arr) );
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 			
 		#else
 			/* cuda version */
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
 			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
 		#endif
 
 		/* restore local necessary part for local computation */
-		TRYCXX( VecRestoreSubVector(gammak1_Vec, gammak1_sublocal_is, &gammak1_sublocal_Vec) );
-		TRYCXX( ISDestroy(&gammak1_sublocal_is) );
+		TRYCXX( VecRestoreSubVector(gammak1_Vec, gammak1_overlap_is, &gammak1_overlap_Vec) );
+		TRYCXX( ISDestroy(&gammak1_overlap_is) );
 
 		TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
@@ -270,10 +366,25 @@ void Fem2D::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<P
 	IS gammak2_is;
 
 	/* stuff for getting subvector for local computation */
-	IS gammak2_sublocal_is;
-	Vec gammak2_sublocal_Vec;
+	IS gammak2_overlap_is;
+	Vec gammak2_overlap_Vec;
 
-	for(int k=0;k<decomposition2->get_K();k++){
+	int *DD_permutation1 = grid1->get_DD_permutation(); 
+	int *DD_invpermutation1 = grid1->get_DD_invpermutation(); 
+	int *DD_permutation2 = grid2->get_DD_permutation(); 
+	int *DD_invpermutation2 = grid2->get_DD_invpermutation(); 
+
+	int Rbegin1 = decomposition1->get_Rbegin();
+	int Rbegin2 = decomposition2->get_Rbegin();
+
+	int width1 = grid1->get_width();
+	int height1 = grid1->get_height();
+	int width2 = grid2->get_width();
+	int height2 = grid2->get_height();
+	int width_overlap2 = bounding_box2[1] - bounding_box2[0] + 1;
+	int height_overlap2 = bounding_box2[3] - bounding_box2[2] + 1;
+
+	for(int k=0;k<decomposition1->get_K();k++){
 
 		/* get gammak */
 		decomposition1->createIS_gammaK(&gammak1_is, k);
@@ -282,56 +393,52 @@ void Fem2D::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<P
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
-		TRYCXX( ISCreateStride(PETSC_COMM_WORLD, right_t2_idx - left_t2_idx + 1, left_t2_idx, 1, &gammak2_sublocal_is) );
-		TRYCXX( VecGetSubVector(gammak2_Vec, gammak2_sublocal_is, &gammak2_sublocal_Vec) );
+		/* get local necessary part for local computation */
+		TRYCXX( ISCreateGeneral(PETSC_COMM_SELF,overlap2_idx_size,overlap2_idx,PETSC_USE_POINTER,&gammak2_overlap_is) );
+		TRYCXX( VecGetSubVector(gammak2_Vec, gammak2_overlap_is, &gammak2_overlap_Vec) );
 
 		#ifndef USE_CUDA
+			/* sequential version */
 			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
-			TRYCXX( VecGetArray(gammak2_sublocal_Vec,&gammak2_arr) );
-
-			int Tbegin1 = decomposition1->get_Tbegin();
+			TRYCXX( VecGetArray(gammak2_overlap_Vec,&gammak2_arr) );
 
 			//TODO: OpenMP?
-			for(int t1=0; t1 < decomposition1->get_Tlocal(); t1++){
-				int t2_left_id_orig = floor((t1 + Tbegin1)/diff);
-				int t2_right_id_orig = floor((t1 + Tbegin1)/diff) + 1;
+			for(int r1=0; r1 < decomposition1->get_Rlocal(); r1++){
+				int id1 = DD_invpermutation1[Rbegin1 + r1];
+				int id_y1 = floor(id1/(double)width1);
+				int id_x1 = id1 - id_y1*width1;
 
-				double t1_left = t2_left_id_orig*diff;
-				double t1_right = t2_right_id_orig*diff;
-
-				int t2_left_id = t2_left_id_orig - left_t2_idx;
-				int t2_right_id = t2_right_id_orig - left_t2_idx;
-
-				/* value of basis functions */
-				double t1_value = 0.0;
-				double phi_value_left = (t1 + Tbegin1 - t1_left)/(t1_right - t1_left); 
-				t1_value += phi_value_left*gammak2_arr[t2_right_id];
+				/* coordinates in overlap */
+				int center_x2 = floor((id_x1)/diff_x) - bounding_box2[0];
+				int center_y2 = floor((id_y1)/diff_y) - bounding_box2[2];
 				
-				double phi_value_right = (t1 + Tbegin1 - t1_right)/(t1_left - t1_right); 
-				t1_value += phi_value_right*gammak2_arr[t2_left_id];
-
-				gammak1_arr[t1] = t1_value;
+//				gammak1_arr[r1] = GlobalManager.get_rank()/(double)GlobalManager.get_size();
+//				gammak1_arr[r1] = id1/((double)(width1*height1));
+				gammak1_arr[r1] = gammak2_arr[center_y2*width_overlap2 + center_x2];
+				
+//				coutAll << "r1 = " << r1 << ", value = " << gammak2_arr[center_y2*width_overlap2 + center_x2] << std::endl;
 			}
+//			coutAll.synchronize();
 
 			TRYCXX( VecRestoreArray(gammak1_Vec,&gammak1_arr) );
-			TRYCXX( VecRestoreArray(gammak2_sublocal_Vec,&gammak2_arr) );
+			TRYCXX( VecRestoreArray(gammak2_overlap_Vec,&gammak2_arr) );
+			
 		#else
 			/* cuda version */
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
+			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );			
-
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
 		#endif
 
 		/* restore local necessary part for local computation */
-		TRYCXX( VecRestoreSubVector(gammak2_Vec, gammak2_sublocal_is, &gammak2_sublocal_Vec) );
-		TRYCXX( ISDestroy(&gammak2_sublocal_is) );
+		TRYCXX( VecRestoreSubVector(gammak2_Vec, gammak2_overlap_is, &gammak2_overlap_Vec) );
+		TRYCXX( ISDestroy(&gammak2_overlap_is) );
 
 		TRYCXX( VecRestoreSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecRestoreSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
@@ -349,20 +456,34 @@ void Fem2D::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<P
 void Fem2D::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 	
+	/* decomposition1 has to be set */
+	this->grid1 = (BGMGraphGrid2D*)(this->decomposition1->get_graph());
+
 	if(is_reduced()){
-		int T_reduced = ceil(decomposition1->get_T()*fem_reduce);
+		int T_reduced = 1;
+		int width_reduced = ceil(grid1->get_width()*fem_reduce);
+		int height_reduced = ceil(grid1->get_height()*fem_reduce);
+		
+		this->grid2 = new BGMGraphGrid2D(width_reduced, height_reduced);
+		this->grid2->process_grid();
+		
+		/* decompose second grid based on the decomposition of the first grid */
+		this->grid2->decompose(this->grid1, this->bounding_box1, this->bounding_box2);
+		this->grid2->print(coutMaster);
 		
 		/* compute new decomposition */
 		decomposition2 = new Decomposition(T_reduced, 
-				*(decomposition1->get_graph()), 
+				*(this->grid2), 
 				decomposition1->get_K(), 
 				decomposition1->get_xdim(), 
 				decomposition1->get_DDT_size(), 
 				decomposition1->get_DDR_size());
 
+		compute_overlaps();
 	} else {
 		/* there is not reduction of the data, we can reuse the decomposition */
-		decomposition2 = decomposition1;
+		set_decomposition_reduced(decomposition1);
+		this->grid2 = this->grid1;
 	}
 
 	#ifdef USE_CUDA
@@ -374,14 +495,12 @@ void Fem2D::compute_decomposition_reduced() {
 		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
-	compute_overlaps();
-
-	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
-	
+	diff = 1; /* time */
+	diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
+	diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
+			
 	LOG_FUNC_END
 }
-
-
 
 #ifdef USE_CUDA
 __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
