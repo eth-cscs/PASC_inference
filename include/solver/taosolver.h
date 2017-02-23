@@ -1,11 +1,11 @@
-/** @file permonsolver.h
- *  @brief solve QP with solvers implemented in Permon library
+/** @file taosolver.h
+ *  @brief solve QP with TAO solvers
  *
  *  @author Lukas Pospisil
  */
 
-#ifndef PASC_PERMONSOLVER_H
-#define	PASC_PERMONSOLVER_H
+#ifndef PASC_TAOSOLVER_H
+#define	PASC_TAOSOLVER_H
 
 #include <iostream>
 
@@ -13,47 +13,36 @@
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 
-#define PERMONSOLVER_DEFAULT_MAXIT 1000
-#define PERMONSOLVER_DEFAULT_EPS 1e-9
+#include "petsctao.h"
+#include "algebra/feasibleset/simplex_lineqbound.h"
 
-#define PERMONSOLVER_DUMP false
+//#define PERMONSOLVER_DEFAULT_MAXIT 1000
+//#define PERMONSOLVER_DEFAULT_EPS 1e-9
 
-#ifndef USE_PETSCVECTOR
-	#error 'BLOCKGRAPHSPARSEMATRIX is for PETSCVECTOR only, sorry'
-#else
-	typedef petscvector::PetscVector PetscVector;
-#endif
-
-#ifndef USE_PERMON
-	#error 'PERMONSOLVER cannot be used without -DUSE_PERMON=ON'
-#else
-	#include "fllopqp.h" /* manipulation with quadratic programming problems (QP) */
-	#include "fllopqps.h" /* manipulation with solvers (QPS) */
-
-	#include "algebra/feasibleset/simplex_lineqbound.h"
-#endif
-
-#ifdef USE_CUDA
-    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
-#endif
-
+typedef petscvector::PetscVector PetscVector;
 
 namespace pascinference {
 namespace solver {
 
-/** \class PermonSolver
- *  \brief Interface with QP solvers implemented in Permon library
+/** \class TaoSolver
+ *  \brief Interface with QP solvers implemented in TAO
  *
  *  For solving QP on closed convex set described by separable simplexes.
 */
 template<class VectorBase>
-class PermonSolver: public QPSolver<VectorBase> {
+class TaoSolver: public QPSolver<VectorBase> {
 	private:
 		/** @brief set settings of algorithm from arguments in console
 		* 
 		*/
 		void set_settings_from_console();
 
+		Timer timer_solve; 			/**< total solution time of used algorithm */
+
+		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
+		double gP; 					/**< norm of projected gradient */
+
+		Tao taosolver;				/**< instance of TAO solver */
 
 		/** @brief allocate storage for auxiliary vectors used in computation
 		* 
@@ -66,39 +55,24 @@ class PermonSolver: public QPSolver<VectorBase> {
 		void free_temp_vectors();
 
 		/* temporary vectors used during the solution process */
-		GeneralVector<VectorBase> *Ad; 		/**< A*d */
-
-
-		Timer timer_solve; 			/**< total solution time of used algorithm */
-
-		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
-		double gP; 					/**< norm of projected gradient */
-
-		QP qp;						/**< Quadratic Programming problem */
-		QPS qps;					/**< Quadratic Programming solver */
-		
-		/** @brief dump data of the solver
-		 * 
-		 * called before solve()
-		 */
-		void dump() const; 
+		GeneralVector<VectorBase> *Ad; 		/**< A*d in cost function value computation */
 
 	public:
 		/** @brief general constructor
 		* 
 		*/
-		PermonSolver();
+		TaoSolver();
 
 		/** @brief constructor based on provided data of problem
 		* 
 		* @param new_qpdata data of quadratic program
 		*/
-		PermonSolver(QPData<VectorBase> &new_qpdata); 
+		TaoSolver(QPData<VectorBase> &new_qpdata); 
 
 		/** @brief destructor
 		* 
 		*/
-		~PermonSolver();
+		~TaoSolver();
 
 		void solve();
 
@@ -124,23 +98,22 @@ namespace pascinference {
 namespace solver {
 
 template<class VectorBase>
-void PermonSolver<VectorBase>::set_settings_from_console() {
-	consoleArg.set_option_value("permonsolver_maxit", &this->maxit, PERMONSOLVER_DEFAULT_MAXIT);
-	consoleArg.set_option_value("permonsolver_eps", &this->eps, PERMONSOLVER_DEFAULT_EPS);
+void TaoSolver<VectorBase>::set_settings_from_console() {
+//	consoleArg.set_option_value("taosolver_maxit", &this->maxit, PERMONSOLVER_DEFAULT_MAXIT);
+//	consoleArg.set_option_value("permonsolver_eps", &this->eps, PERMONSOLVER_DEFAULT_EPS);
 	
-	consoleArg.set_option_value("permonsolver_dump", &this->dump_or_not, PERMONSOLVER_DUMP);	
 }
 
 
 /* ----- Solver ----- */
 /* constructor */
 template<class VectorBase>
-PermonSolver<VectorBase>::PermonSolver(){
+TaoSolver<VectorBase>::TaoSolver(){
 	LOG_FUNC_BEGIN
 
 	qpdata = NULL;
-	qp = NULL;
-	qps = NULL;
+//	qp = NULL;
+//	qps = NULL;
 	
 	this->it_sum = 0;
 	this->hessmult_sum = 0;
@@ -153,16 +126,16 @@ PermonSolver<VectorBase>::PermonSolver(){
 	set_settings_from_console();
 
 	/* prepare timers */
-	this->timer_solve.restart();	
-
+	this->timer_solve.restart();
+	
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
-PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
+TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata){
 	LOG_FUNC_BEGIN
 
-	qpdata = &new_qpdata;
+	qpdata = &new_qpdata;	
 	
 	/* allocate temp vectors */
 	allocate_temp_vectors();
@@ -205,26 +178,55 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	TRYCXX( VecDuplicate(lb,&ub) );
 	TRYCXX( VecSet(ub,1.0) );
 
-	/* prepare permon QP */
-	TRYCXX( QPCreate(PETSC_COMM_WORLD, &qp) );
-	TRYCXX( QPSetOperator(qp, A) ); /* set stiffness matrix */
-	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
-	TRYCXX( QPSetInitialVector(qp, x0) ); /* set initial approximation */
+	/* prepare TAO solver */
+	TRYCXX( TaoCreate(PETSC_COMM_WORLD, &taosolver) );
+	/* set type of solver:
+		-#define TAOLMVM     "lmvm"		Limited Memory Variable Metric method for unconstrained minimization
+		-#define TAONLS      "nls"		Newton's method with linesearch for unconstrained minimization
+		-#define TAONTR      "ntr"		Newton's method with linesearch for unconstrained minimization
+		-#define TAONTL      "ntl"	
+		-#define TAOCG       "cg"		Newton's method with linesearch for unconstrained minimization
+		*#define TAOTRON     "tron"		Newton Trust Region method for bound constrained minimization
+		-#define TAOOWLQN    "owlqn"	Orthant-wise limited memory quasi-newton algorithm
+		-#define TAOBMRM     "bmrm"		Bundle method for regularized risk minimization
+		*#define TAOBLMVM    "blmvm"		Limited memory variable metric method for bound constrained minimization
+		*#define TAOBQPIP    "bqpip"		Bounded quadratic interior point algorithm for quadratic optimization with box constraints
+		*#define TAOGPCG     "gpcg"		Newton Trust Region method for quadratic bound constrained minimization
+		*#define TAONM       "nm"		Gradient projected conjugate gradient algorithm is an active-set conjugate-gradient based method for bound-constrained minimization
+		-#define TAOPOUNDERS "pounders"	Model-based algorithm pounder extended for nonlinear least squares
+		-#define TAOLCL      "lcl"		Linearly constrained lagrangian method for pde-constrained optimization
+		-#define TAOSSILS    "ssils"		Semi-smooth infeasible linesearch algorithm for solving complementarity constraints
+		-#define TAOSSFLS    "ssfls"		Semi-smooth feasible linesearch algorithm for solving complementarity constraints
+		-#define TAOASILS    "asils"		Active-set infeasible linesearch algorithm for solving complementarity constraints
+		-#define TAOASFLS    "asfls"		Active-set feasible linesearch algorithm for solving complementarity constraints
+		*#define TAOIPM      "ipm"		Interior point algorithm for generally constrained optimization. (Notes: This algorithm is more of a place-holder for future constrained optimization algorithms and should not yet be used for large problems or production code.)
+	*/
+//	TRYCXX( TaoSetType(taosolver, ) ); //TODO: ??
+	TRYCXX( TaoSetInitialVector(taosolver, x0) ); /* set initial approximation */
 
-	TRYCXX( QPAddEq(qp,B,c) ); /* add equality constraints Bx=c */
-	TRYCXX( QPSetBox(qp, lb, ub) ); /* add lowerbound */
+	TRYCXX( TaoSetVariableBounds(taosolver, lb, ub) );
+
+
+	
+//	TRYCXX( QPCreate(PETSC_COMM_WORLD, &qp) );
+//	TRYCXX( QPSetOperator(qp, A) ); /* set stiffness matrix */
+//	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
+//	TRYCXX( QPSetInitialVector(qp, x0) ); /* set initial approximation */
+
+//	TRYCXX( QPAddEq(qp,B,c) ); /* add equality constraints Bx=c */
+//	TRYCXX( QPSetBox(qp, lb, ub) ); /* add lowerbound */
 
 	/* prepare permon QPS */
-	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
-	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
-	TRYCXX( QPSSetTolerances(qps, this->eps, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
-	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0) ); /* Set the QPS monitor */
-	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
+//	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
+//	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
+//	TRYCXX( QPSSetTolerances(qps, this->eps, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
+//	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0) ); /* Set the QPS monitor */
+//	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
 
-	TRYCXX( QPSSMALXESetRhoInitial(qps,1e2, QPS_ARG_DIRECT) );
+//	TRYCXX( QPSSMALXESetRhoInitial(qps,1e5, QPS_ARG_DIRECT) );
 
-	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
-	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
+//	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
+//	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
 	
 	/* print some infos about QPS */
 //	TRYCXX( QPSView(qps, PETSC_VIEWER_STDOUT_WORLD) );
@@ -234,8 +236,10 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 
 /* destructor */
 template<class VectorBase>
-PermonSolver<VectorBase>::~PermonSolver(){
+TaoSolver<VectorBase>::~TaoSolver(){
 	LOG_FUNC_BEGIN
+
+	TRYCXX( TaoDestroy(&taosolver) );
 
 	/* free temp vectors */
 	free_temp_vectors();
@@ -245,7 +249,7 @@ PermonSolver<VectorBase>::~PermonSolver(){
 
 /* prepare temp_vectors */
 template<class VectorBase>
-void PermonSolver<VectorBase>::allocate_temp_vectors(){
+void TaoSolver<VectorBase>::allocate_temp_vectors(){
 	LOG_FUNC_BEGIN
 
 	GeneralVector<VectorBase> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
@@ -256,7 +260,7 @@ void PermonSolver<VectorBase>::allocate_temp_vectors(){
 
 /* destroy temp_vectors */
 template<class VectorBase>
-void PermonSolver<VectorBase>::free_temp_vectors(){
+void TaoSolver<VectorBase>::free_temp_vectors(){
 	LOG_FUNC_BEGIN
 
 	free(Ad);
@@ -266,7 +270,7 @@ void PermonSolver<VectorBase>::free_temp_vectors(){
 
 /* print info about problem */
 template<class VectorBase>
-void PermonSolver<VectorBase>::print(ConsoleOutput &output) const {
+void TaoSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -295,7 +299,7 @@ void PermonSolver<VectorBase>::print(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
-void PermonSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void TaoSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -324,7 +328,7 @@ void PermonSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput
 }
 
 template<class VectorBase>
-void PermonSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
+void TaoSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  " - it: " << std::setw(6) << this->it_last << ", ";
@@ -340,7 +344,7 @@ void PermonSolver<VectorBase>::printstatus(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
-void PermonSolver<VectorBase>::printstatus(std::ostringstream &output) const {
+void TaoSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	LOG_FUNC_BEGIN
 
 	double fx_linear, fx_quadratic;
@@ -377,7 +381,7 @@ void PermonSolver<VectorBase>::printstatus(std::ostringstream &output) const {
 }
 
 template<class VectorBase>
-void PermonSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
+void TaoSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -390,7 +394,7 @@ void PermonSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
-void PermonSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringstream &values) const {
+void TaoSolver<VectorBase>::printshort(std::ostringstream &header, std::ostringstream &values) const {
 	LOG_FUNC_BEGIN
 
 	double fx_linear, fx_quadratic;
@@ -416,22 +420,22 @@ void PermonSolver<VectorBase>::printshort(std::ostringstream &header, std::ostri
 
 	values << std::setprecision(17);
 
-	header << "PERMON it, ";
+	header << "TAO it, ";
 	values << this->it_last << ", ";
 
-	header << "PERMON hessmult, ";
+	header << "TAO hessmult, ";
 	values << this->hessmult_last << ", ";
 
-	header << "PERMON t all, ";
+	header << "TAO t all, ";
 	values << this->timer_solve.get_value_last() << ", ";
 
-	header << "PERMON fx, ";
+	header << "TAO fx, ";
 	values << this->fx << ", ";
 
-	header << "PERMON fx_linear, ";
+	header << "TAO fx_linear, ";
 	values << fx_linear << ", ";
 
-	header << "PERMON fx_quadratic, ";
+	header << "TAO fx_quadratic, ";
 	values << fx_quadratic << ", ";
 
 	values << std::setprecision(ss);
@@ -440,36 +444,31 @@ void PermonSolver<VectorBase>::printshort(std::ostringstream &header, std::ostri
 }
 
 template<class VectorBase>
-void PermonSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostringstream &values) const {
+void TaoSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostringstream &values) const {
 	LOG_FUNC_BEGIN
 
-	header << "PERMON_sum it, ";
+	header << "TAO_sum it, ";
 	values << this->it_sum << ", ";
 
-	header << "PERMON_sum hessmult, ";
+	header << "TAO_sum hessmult, ";
 	values << this->hessmult_sum << ", ";
 
-	header << "PERMON_sum t all, ";
+	header << "TAO_sum t all, ";
 	values << this->timer_solve.get_value_sum() << ", ";
 
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
-std::string PermonSolver<VectorBase>::get_name() const {
-	return "PERMON_SOLVER";
+std::string TaoSolver<VectorBase>::get_name() const {
+	return "TAO_SOLVER";
 }
 
 /* solve the problem */
 template<class VectorBase>
-void PermonSolver<VectorBase>::solve() {
+void TaoSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
-	/* dump data */
-	if(this->dump_or_not){
-		this->dump();
-	}
-	
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
 	int it = -1;
@@ -477,14 +476,14 @@ void PermonSolver<VectorBase>::solve() {
 	double fx = std::numeric_limits<double>::max();
 
 	/* call permon solver */
-	TRYCXX( QPSSolve(qps) );
+	TRYCXX( TaoSolve(taosolver) );
 	
 	/* get the solution vector */
 	GeneralVector<PetscVector> *xg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
 	Vec x = xg->get_vector();
-	TRYCXX( QPGetSolutionVector(qp, &x) );
+	TRYCXX( TaoGetSolutionVector(taosolver, &x) );
 
-	TRYCXX( QPSGetIterationNumber(qps, &it) );
+	TRYCXX( TaoGetIterationNumber(taosolver, &it) );
 
 	/* control the equality constraint */
 	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
@@ -493,7 +492,7 @@ void PermonSolver<VectorBase>::solve() {
 	Vec v;
 	TRYCXX( VecDuplicate(c,&v) );
 	TRYCXX( MatMult(B,x,v) );
-	TRYCXX( VecAXPY(v,-1.0,c) );
+	TRYCXX( VecAXPY(v,1.0,c) );
 
 	double mynorm;
 	TRYCXX( VecNorm(v, NORM_2, &mynorm) );
@@ -515,62 +514,6 @@ void PermonSolver<VectorBase>::solve() {
 	LOG_FUNC_END
 }
 
-/* dump data of the solver */
-template<class VectorBase>
-void PermonSolver<VectorBase>::dump() const {
-	LOG_FUNC_BEGIN
-
-	coutMaster << "... dump data ..." << std::endl;
-	
-	/* prepare viewer to save to files */
-	PetscViewer mviewer;
-
-	/* A */
-	Mat A;
-	TRYCXX( QPGetOperator(qp, &A) );
-	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "A.bin" , FILE_MODE_WRITE, &mviewer) );
-	TRYCXX( MatView(A, mviewer) );
-	TRYCXX( PetscViewerDestroy(&mviewer) );
-	
-	/* b */
-	Vec b;
-	TRYCXX( QPGetRhs(qp, &b) );
-	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "b.bin" , FILE_MODE_WRITE, &mviewer) );
-	TRYCXX( VecView(b, mviewer) );
-	TRYCXX( PetscViewerDestroy(&mviewer) );
-
-	/* B,c */
-	Mat B;
-	Vec c;
-//	TRYCXX( QPGetEq(qp, &B, &c) );
-	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
-	B = fs_lineqbound->get_B();
-	c = fs_lineqbound->get_c();
-	TRYCXX( VecView(c, PETSC_VIEWER_STDOUT_WORLD) );
-	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "B.bin" , FILE_MODE_WRITE, &mviewer) );
-	TRYCXX( MatView(B, mviewer) );
-	TRYCXX( PetscViewerDestroy(&mviewer) );
-	
-	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "c.bin" , FILE_MODE_WRITE, &mviewer) );
-	TRYCXX( VecView(c, mviewer) );
-	TRYCXX( PetscViewerDestroy(&mviewer) );
-
-	/* x0 */
-	Vec x0;
-//	TRYCXX( QPGetInitialVector(qp, &x0) ); /* not working */
-	GeneralVector<PetscVector> *x0g = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
-	x0 = x0g->get_vector();
-	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "x0.bin" , FILE_MODE_WRITE, &mviewer) );
-	TRYCXX( VecView(x0, mviewer) );
-	TRYCXX( PetscViewerDestroy(&mviewer) );
-
-	LOG_FUNC_END
-}
 
 }
 } /* end namespace */

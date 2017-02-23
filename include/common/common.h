@@ -57,6 +57,10 @@ bool Initialize(int, char**);
  */
 void Finalize();
 
+void myround(double in, double *out);
+std::string printbool(bool input);
+void arg_parse(const char *args, int *argc, char ***argv);
+
 #ifdef USE_CUDA
 /* cuda error check */ 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
@@ -80,6 +84,9 @@ __global__ void kernel_warmup(){
 
 #endif
 
+std::vector<std::string> split(const std::string &s, char delim);
+template<typename Out> void split(const std::string &s, char delim, Out result);
+
 
 }
 } /* end of namespace */
@@ -88,6 +95,10 @@ __global__ void kernel_warmup(){
 
 namespace pascinference {
 namespace common {
+
+/* for loading PETSc options */
+char **argv_petsc;
+int argc_petsc;
 
 bool Initialize(int argc, char *argv[]){
 	/* console arguments */
@@ -104,12 +115,27 @@ bool Initialize(int argc, char *argv[]){
 
   	/* init Petsc */
   	#ifdef USE_PETSC
+		/* Petsc options are provided using "-petsc_options=string" */
+		std::string petsc_options_string;
+		consoleArg.set_option_value("petsc_options", &petsc_options_string, "");
+
+		/* split string and create argc_petsc and argv_petsc */
+		petsc_options_string.insert(0," "); /* add blank space in the beginning (?) */
+		std::vector<std::string> petsc_options_vector = split(petsc_options_string, ' ');
+		argc_petsc = petsc_options_vector.size();
+		
+		argv_petsc = new char*[argc_petsc]; /* the first parameter is ignored (?) */
+		for(size_t i = 0; i < argc_petsc; ++i){
+			argv_petsc[i] = new char[petsc_options_vector[i].size() + 1];
+			std::strcpy(argv_petsc[i], petsc_options_vector[i].c_str());
+		}
+
 		#ifdef USE_PERMON
-//			FllopInitialize(&argc,&argv,PETSC_NULL);
-			FllopInitialize(&argc,&argv,PETSC_NULL);
+			FllopInitialize(&argc_petsc,&argv_petsc,PETSC_NULL);
+//			FllopInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL);
 		#else
-//			PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
-			PetscInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
+			PetscInitialize(&argc_petsc,&argv_petsc,PETSC_NULL,PETSC_NULL);
+//			PetscInitialize(PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
 		#endif
 
 		petscvector::PETSC_INITIALIZED = true;
@@ -127,6 +153,10 @@ bool Initialize(int argc, char *argv[]){
 void Finalize(){
   	/* finalize Petsc */
   	#ifdef USE_PETSC
+		/* clean memory of arguments */
+		for(size_t i = 0; i < argc_petsc; ++i)
+			delete[] argv_petsc[i];
+
 		#ifdef USE_PERMON
 			FllopFinalize();
 		#else
@@ -160,6 +190,23 @@ std::string printbool(bool input){
 	}
 	return out;
 }
+
+template<typename Out>
+void split(const std::string &s, char delim, Out result) {
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        *(result++) = item;
+    }
+}
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    split(s, delim, std::back_inserter(elems));
+    return elems;
+}
+
 
 
 }

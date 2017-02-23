@@ -213,6 +213,9 @@ void mult_pw_array(int my_size, MyType *my_array, const MyType *my_array1, const
 }
 
 
+
+
+
 }
 } /* end of namespace */
 

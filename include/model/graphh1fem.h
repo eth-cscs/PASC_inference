@@ -22,6 +22,7 @@ extern int DEBUG_MODE;
 #include "algebra/feasibleset/simplex_local.h"
 #include "solver/spgqpsolver.h"
 #include "solver/spgqpsolver_coeff.h"
+#include "solver/taosolver.h"
 #include "data/qpdata.h"
 
 #ifdef USE_PERMON
@@ -266,6 +267,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 		case(SOLVER_SPGQP): output << "SPG-QP solver"; break;
 		case(SOLVER_SPGQP_COEFF): output << "SPG-QP-COEFF solver"; break;
 		case(SOLVER_PERMON): output << "PERMON QP solver"; break;
+		case(SOLVER_TAO): output << "TAO QP solver"; break;
 	}
 	output << std::endl;
 	
@@ -302,6 +304,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 		case(SOLVER_SPGQP): output_global << "SPG-QP solver"; break;
 		case(SOLVER_SPGQP_COEFF): output_global << "SPG-QP-COEFF solver"; break;
 		case(SOLVER_PERMON): output_global << "PERMON QP solver"; break;
+		case(SOLVER_TAO): output_global << "TAO QP solver"; break;
 	}
 	output_global << std::endl;
 
@@ -460,25 +463,15 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 
 		/* create solver */
 		*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
-
-		/* modify stopping criteria based on reduction */
-		if(fem->is_reduced()){
-//			(*gammasolver)->set_eps((this->fem_reduce)*(*gammasolver)->get_eps());
-		}
 	}
 
-	/* SPG-QP solver */
+	/* SPG-QP solver with special coefficient treatment */
 	if(this->gammasolvertype == SOLVER_SPGQP_COEFF){
 		/* the feasible set of QP is simplex */
 		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
 
 		/* create solver */
 		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
-
-		/* modify stopping criteria based on reduction */
-		if(fem->is_reduced()){
-//			(*gammasolver)->set_eps((this->fem_reduce)*(*gammasolver)->get_eps());
-		}
 	}
 
 	/* Permon solver */
@@ -489,13 +482,17 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 
 		/* create solver */
 		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
-
-		/* modify stopping criteria based on reduction */
-		if(fem->is_reduced()){
-//			(*gammasolver)->set_eps((this->fem_reduce)*(*gammasolver)->get_eps());
-		}
 	}
 #endif
+
+	/* TAO QP solver */
+	if(this->gammasolvertype == SOLVER_TAO){
+		/* the feasible set of QP is simplex */
+		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(get_decomposition_reduced()->get_T()*get_decomposition_reduced()->get_R(),get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
+
+		/* create solver */
+		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
+	}
 
 	LOG_FUNC_END
 }

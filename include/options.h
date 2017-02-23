@@ -129,6 +129,15 @@ static void add_options(boost::program_options::options_description *description
 
 	description->add(opt_models);
 
+
+	/* ----- PETSC ---- */
+#ifdef USE_PETSC
+	boost::program_options::options_description opt_petsc("#### PETSC ######################", console_nmb_cols);
+	opt_petsc.add_options()
+		("petsc_options", boost::program_options::value< std::string >(), "all PETSc options [string]");
+	description->add(opt_petsc);
+#endif
+
 }
 
 }
