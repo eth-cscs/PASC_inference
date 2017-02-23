@@ -128,7 +128,7 @@ SimplexFeasibleSet_LinEqBound<VectorBase>::SimplexFeasibleSet_LinEqBound(int T, 
 	TRYCXX( VecSet(c,value) );
 	TRYCXX( VecAssemblyBegin(c) );
 	TRYCXX( VecAssemblyEnd(c) );
-	TRYCXX( PetscObjectSetName((PetscObject)c,"equality constraint") );
+	TRYCXX( PetscObjectSetName((PetscObject)c,"RHS eq") );
 
 	/* create RHS vector of lower bounds */
 	TRYCXX( VecSet(lb,0.0) );

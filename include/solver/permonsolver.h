@@ -15,6 +15,7 @@
 
 #define PERMONSOLVER_DEFAULT_MAXIT 1000
 #define PERMONSOLVER_DEFAULT_EPS 1e-9
+#define PERMONSOLVER_USE_UPPERBOUND false
 
 #define PERMONSOLVER_DUMP false
 
@@ -83,6 +84,8 @@ class PermonSolver: public QPSolver<VectorBase> {
 		 */
 		void dump() const; 
 
+		bool use_upperbound;		/**< use additional upper bound x<=1 */
+
 	public:
 		/** @brief general constructor
 		* 
@@ -128,6 +131,7 @@ void PermonSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("permonsolver_maxit", &this->maxit, PERMONSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("permonsolver_eps", &this->eps, PERMONSOLVER_DEFAULT_EPS);
 	
+	consoleArg.set_option_value("permonsolver_use_upperbound", &this->use_upperbound, PERMONSOLVER_USE_UPPERBOUND);	
 	consoleArg.set_option_value("permonsolver_dump", &this->dump_or_not, PERMONSOLVER_DUMP);	
 }
 
@@ -201,30 +205,26 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	Vec c = fs_lineqbound->get_c();
 	Vec lb = fs_lineqbound->get_lb();
 
-	Vec ub;
-	TRYCXX( VecDuplicate(lb,&ub) );
-	TRYCXX( VecSet(ub,1.0) );
-
 	/* prepare permon QP */
 	TRYCXX( QPCreate(PETSC_COMM_WORLD, &qp) );
 	TRYCXX( QPSetOperator(qp, A) ); /* set stiffness matrix */
-	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
 	TRYCXX( QPSetInitialVector(qp, x0) ); /* set initial approximation */
 
 	TRYCXX( QPAddEq(qp,B,c) ); /* add equality constraints Bx=c */
-	TRYCXX( QPSetBox(qp, lb, ub) ); /* add lowerbound */
+	if(this->use_upperbound){
+		Vec ub;
+		TRYCXX( VecDuplicate(lb,&ub) );
+		TRYCXX( VecSet(ub,1.0) ); //TODO: destroy?
+		TRYCXX( QPSetBox(qp, lb, ub) ); /* add box constraints */
+	} else {
+		TRYCXX( QPSetBox(qp, lb, PETSC_NULL) ); /* add lowerbound */
+	}
 
 	/* prepare permon QPS */
 	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
 	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
 	TRYCXX( QPSSetTolerances(qps, this->eps, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
 	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0) ); /* Set the QPS monitor */
-	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
-
-	TRYCXX( QPSSMALXESetRhoInitial(qps,1e2, QPS_ARG_DIRECT) );
-
-	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
-	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
 	
 	/* print some infos about QPS */
 //	TRYCXX( QPSView(qps, PETSC_VIEWER_STDOUT_WORLD) );
@@ -465,6 +465,14 @@ template<class VectorBase>
 void PermonSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
+	/* prepare new transformations, vector b has been changed */
+	GeneralVector<PetscVector> *bg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
+	Vec b = bg->get_vector();
+	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
+	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
+	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
+	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
+
 	/* dump data */
 	if(this->dump_or_not){
 		this->dump();
@@ -485,20 +493,6 @@ void PermonSolver<VectorBase>::solve() {
 	TRYCXX( QPGetSolutionVector(qp, &x) );
 
 	TRYCXX( QPSGetIterationNumber(qps, &it) );
-
-	/* control the equality constraint */
-	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
-	Mat B = fs_lineqbound->get_B();
-	Vec c = fs_lineqbound->get_c();
-	Vec v;
-	TRYCXX( VecDuplicate(c,&v) );
-	TRYCXX( MatMult(B,x,v) );
-	TRYCXX( VecAXPY(v,-1.0,c) );
-
-	double mynorm;
-	TRYCXX( VecNorm(v, NORM_2, &mynorm) );
-	coutMaster << "++++ norm(B*x - c) = " << mynorm << std::endl;
-
 
 	this->it_sum += it;
 	this->hessmult_sum += hessmult;
@@ -550,12 +544,12 @@ void PermonSolver<VectorBase>::dump() const {
 	c = fs_lineqbound->get_c();
 	TRYCXX( VecView(c, PETSC_VIEWER_STDOUT_WORLD) );
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "B.bin" , FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "Beq.bin" , FILE_MODE_WRITE, &mviewer) );
 	TRYCXX( MatView(B, mviewer) );
 	TRYCXX( PetscViewerDestroy(&mviewer) );
 	
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "c.bin" , FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "ceq.bin" , FILE_MODE_WRITE, &mviewer) );
 	TRYCXX( VecView(c, mviewer) );
 	TRYCXX( PetscViewerDestroy(&mviewer) );
 
@@ -568,6 +562,7 @@ void PermonSolver<VectorBase>::dump() const {
 	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD , "x0.bin" , FILE_MODE_WRITE, &mviewer) );
 	TRYCXX( VecView(x0, mviewer) );
 	TRYCXX( PetscViewerDestroy(&mviewer) );
+
 
 	LOG_FUNC_END
 }
