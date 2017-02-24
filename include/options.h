@@ -110,6 +110,16 @@ static void add_options(boost::program_options::options_description *description
 			("permonsolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_permonsolver);
 
+		/* TAOSOLVER */
+		boost::program_options::options_description opt_taosolver("TAOSOLVER", console_nmb_cols);
+		opt_taosolver.add_options()
+			("taosolver_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
+			("taosolver_eps", boost::program_options::value<double>(), "precision [double]")
+			("taosolver_debugmode", boost::program_options::value<int>(), "debug mode [int]")
+			("taosolver_use_upperbound", boost::program_options::value<bool>(), "use additional upper bound x<=1 [bool]")
+			("taosolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
+		opt_solvers.add(opt_taosolver);
+	
 	description->add(opt_solvers);
 
 
