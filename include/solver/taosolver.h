@@ -172,7 +172,7 @@ TaoSolver<VectorBase>::TaoSolver(){
 }
 
 template<class VectorBase>
-TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata) : TaoSolver() {
+TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata) {
 	LOG_FUNC_BEGIN
 
 	qpdata = &new_qpdata;	
@@ -193,6 +193,8 @@ TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata) : TaoSolver() {
 
 	/* prepare timers */
 	this->timer_solve.restart();	
+
+	userctx = new TAOCtx();
 
 	/* dissect QP objects from qpdata */
 	// TODO: oh my god, this is not the best "general" way!
