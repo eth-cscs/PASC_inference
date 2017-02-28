@@ -42,9 +42,13 @@ class TaoSolver: public QPSolver<VectorBase> {
 			public:
 				Mat A;	/**< Hessian matrix */
 				Vec b;	/**< linear term */
+				Vec x0;
 				Mat B;	/**< matrix of equality constraints */
 				Vec c;	/**< rhs of equality constraints */
+				Vec cE;
 				Vec temp_vec;	/**< auxiliary vector */
+				Vec lb;
+				Vec ub;
 		};
 
 		TAOCtx *userctx;
@@ -78,7 +82,7 @@ class TaoSolver: public QPSolver<VectorBase> {
 		/* temporary vectors used during the solution process */
 		GeneralVector<VectorBase> *Ad; 		/**< A*d in cost function value computation */
 //		Vec g_TAO; 		/**< gradient in internal TAO computation */
-		Vec eq_TAO; 	/**< value of equality constraints in internal TAO computation */
+//		Vec eq_TAO; 	/**< value of equality constraints in internal TAO computation */
 
 		/** @brief dump data of the solver
 		 * 
@@ -162,11 +166,13 @@ TaoSolver<VectorBase>::TaoSolver(){
 	/* prepare timers */
 	this->timer_solve.restart();
 	
+	userctx = new TAOCtx();
+	
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
-TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata){
+TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata) : TaoSolver() {
 	LOG_FUNC_BEGIN
 
 	qpdata = &new_qpdata;	
@@ -191,25 +197,30 @@ TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata){
 	/* dissect QP objects from qpdata */
 	// TODO: oh my god, this is not the best "general" way!
 	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
-	Mat A = Abgs->get_petscmatrix();
+	userctx->A = Abgs->get_petscmatrix();
 	double coeff = Abgs->get_coeff();
-	TRYCXX( MatScale(A, coeff) );
-	TRYCXX( MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY) );
-	TRYCXX( MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY) );	
+	TRYCXX( MatScale(userctx->A, coeff) );
+	TRYCXX( MatAssemblyBegin(userctx->A,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( MatAssemblyEnd(userctx->A,MAT_FINAL_ASSEMBLY) );	
 
 	GeneralVector<PetscVector> *bg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
-	Vec b = bg->get_vector();
+	userctx->b = bg->get_vector();
 
 	GeneralVector<PetscVector> *x0g = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
-	Vec x0 = x0g->get_vector();
+	userctx->x0 = x0g->get_vector();
 
 	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
-	Mat B = fs_lineqbound->get_B();
-	Vec c = fs_lineqbound->get_c();
-	Vec lb = fs_lineqbound->get_lb();
+	userctx->B = fs_lineqbound->get_B();
+	userctx->c = fs_lineqbound->get_c();
+	userctx->lb = fs_lineqbound->get_lb();
+
+//	Mat BT;
+//	TRYCXX( MatDuplicate(B, MAT_DO_NOT_COPY_VALUES, &BT) );
+//	TRYCXX( MatTranspose(B, MAT_REUSE_MATRIX, &BT) );
+//	TRYCXX( MatCreateTranspose(B, &BT) );
 
 	/* prepare TAO solver */
-	TRYCXX( TaoCreate(PETSC_COMM_WORLD, &taosolver) );
+
 	/* set type of solver:
 		-#define TAOLMVM     "lmvm"		Limited Memory Variable Metric method for unconstrained minimization
 		-#define TAONLS      "nls"		Newton's method with linesearch for unconstrained minimization
@@ -231,31 +242,7 @@ TaoSolver<VectorBase>::TaoSolver(QPData<VectorBase> &new_qpdata){
 		-#define TAOASFLS    "asfls"		Active-set feasible linesearch algorithm for solving complementarity constraints
 		*#define TAOIPM      "ipm"		Interior point algorithm for generally constrained optimization. (Notes: This algorithm is more of a place-holder for future constrained optimization algorithms and should not yet be used for large problems or production code.)
 	*/
-	TRYCXX( TaoSetType(taosolver, TAOIPM) ); //TODO: is this the only one TAOsolver type?
-	TRYCXX( TaoSetInitialVector(taosolver, x0) ); /* set initial approximation */
 
-	if(this->use_upperbound){
-		Vec ub;
-		TRYCXX( VecDuplicate(lb,&ub) );
-		TRYCXX( VecSet(ub,1.0) ); //TODO: destroy?
-		TRYCXX( TaoSetVariableBounds(taosolver, lb, ub) );
-	} else {
-		TRYCXX( TaoSetVariableBounds(taosolver, lb, PETSC_NULL) );
-	}
-
-	userctx = new TAOCtx();
-	userctx->A = A;
-	userctx->b = b;
-	userctx->B = B;
-	userctx->c = c;
-
-	TRYCXX( TaoSetObjectiveAndGradientRoutine(taosolver, FormFunctionGradient, (void*)userctx) );
-	TRYCXX( TaoSetHessianRoutine(taosolver,A,A,FormHessian,(void*)userctx) );
-
-	TRYCXX( TaoSetEqualityConstraintsRoutine(taosolver,eq_TAO,FormEqualityConstraints,(void*)userctx) );
-	TRYCXX( TaoSetJacobianEqualityRoutine(taosolver, B, B, FormEqualityJacobian,(void*)userctx) );
-
-	TRYCXX( TaoSetTolerances(taosolver, this->eps, this->eps, this->eps) );
 
 	
 //	TRYCXX( QPCreate(PETSC_COMM_WORLD, &qp) );
@@ -301,7 +288,6 @@ template<class VectorBase>
 PetscErrorCode TaoSolver<VectorBase>::FormFunctionGradient(Tao tao, Vec X, PetscReal *f, Vec G, void *ctx) {
 	TAOCtx *userctx2 = (TAOCtx*)ctx;
 
-	PetscFunctionBegin; 
 	/* compute Ax - b */
 	
 	/* G = A*x */
@@ -324,30 +310,55 @@ PetscErrorCode TaoSolver<VectorBase>::FormFunctionGradient(Tao tao, Vec X, Petsc
 	TRYCXX( VecNorm(userctx2->b,NORM_2, &normb) );
 	coutMaster << "TEST normb: " << normb << std::endl;
 
+	PetscScalar normc;
+	TRYCXX( VecNorm(userctx2->c,NORM_2, &normc) );
+	coutMaster << "TEST normc: " << normc << std::endl;
+
+	PetscScalar normcE;
+	TRYCXX( VecNorm(userctx2->cE,NORM_2, &normcE) );
+//	TRYCXX( VecNorm(CE,NORM_2, &normcE) );
+	coutMaster << "TEST normcE: " << normcE << std::endl;
+
+	PetscScalar normlb;
+	TRYCXX( VecNorm(userctx2->lb,NORM_2, &normlb) );
+	coutMaster << "TEST normlb: " << normlb << std::endl;
+
+//	PetscScalar normub;
+//	TRYCXX( VecNorm(userctx2->ub,NORM_2, &normub) );
+//	coutMaster << "TEST normub: " << normub << std::endl;
+
+
+	Vec v;
+	TRYCXX( VecDuplicate(userctx2->c,&v) );
+	TRYCXX( MatMult(userctx2->B,X,v) );
+	TRYCXX( VecAXPY(v,-1.0,userctx2->c) );
+	double mynorm;
+	TRYCXX( VecNorm(v, NORM_2, &mynorm) );
+	coutMaster << "++++ norm(B*x - c) = " << mynorm << std::endl;
+	TRYCXX( VecDestroy(&v));
+	
+//	TRYCXX( VecScale(G, -1.0) );
+	
 	//TRYCXX( VecView(G, PETSC_VIEWER_STDOUT_WORLD) );
 
-	PetscFunctionReturn(0);
+	return(0);
 }
 
 template<class VectorBase>
 PetscErrorCode TaoSolver<VectorBase>::FormHessian(Tao tao, Vec x, Mat H, Mat Hpre, void *ctx) {
 	TAOCtx *userctx2 = (TAOCtx*)ctx;
 
-	PetscFunctionBegin; 
-	
 	H = userctx2->A;
+	Hpre = userctx2->A;
 //	TRYCXX( MatView(H, PETSC_VIEWER_STDOUT_WORLD) );
 
-//return(0);
-	PetscFunctionReturn(0);
+	return(0);
 }
 
 template<class VectorBase>
 PetscErrorCode TaoSolver<VectorBase>::FormEqualityConstraints(Tao tao, Vec X, Vec CE, void* ctx) {
 	TAOCtx *userctx2 = (TAOCtx*)ctx;
 
-	PetscFunctionBegin; 
-	
 	/* CE = B*x - c */
 
 	/* CE = B*x */
@@ -356,20 +367,18 @@ PetscErrorCode TaoSolver<VectorBase>::FormEqualityConstraints(Tao tao, Vec X, Ve
 	/* CE = -1*c + CE */
 	TRYCXX( VecAXPY(CE,-1.0,userctx2->c) );
 
-//return(0);
-	PetscFunctionReturn(0);
+	return(0);
 }
 
 template<class VectorBase>
 PetscErrorCode TaoSolver<VectorBase>::FormEqualityJacobian(Tao tao, Vec X, Mat JE, Mat JEpre, void* ctx) {
 	TAOCtx *userctx2 = (TAOCtx*)ctx;
 
-	PetscFunctionBegin; 
-	
+//	JE = userctx2->BT;
 	JE = userctx2->B;
+	JEpre = userctx2->B;
 
-//return(0);
-	PetscFunctionReturn(0);
+	return(0);
 }
 
 
@@ -384,8 +393,8 @@ void TaoSolver<VectorBase>::allocate_temp_vectors(){
 //	Vec b = qpdata->get_b()->get_vector();
 //	TRYCXX( VecDuplicate( b, &g_TAO) );
 	SimplexFeasibleSet_LinEqBound<PetscVector> *fs_lineqbound = dynamic_cast<SimplexFeasibleSet_LinEqBound<PetscVector> *>(qpdata->get_feasibleset());
-	Vec c = fs_lineqbound->get_c();
-	TRYCXX( VecDuplicate( c, &eq_TAO) ); //TODO: destroy in free temp vectors
+	userctx->c = fs_lineqbound->get_c();
+	TRYCXX( VecDuplicate( userctx->c, &(userctx->cE)) ); //TODO: destroy in free temp vectors
 	
 	LOG_FUNC_END
 }
@@ -603,6 +612,26 @@ void TaoSolver<VectorBase>::solve() {
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
+	TRYCXX( TaoCreate(PETSC_COMM_WORLD, &taosolver) );
+	TRYCXX( TaoSetType(taosolver, TAOIPM) ); //TODO: is this the only one TAOsolver type?
+	TRYCXX( TaoSetInitialVector(taosolver, userctx->x0) ); /* set initial approximation */
+	if(this->use_upperbound){
+		TRYCXX( VecDuplicate(userctx->lb,&(userctx->ub)) );
+		TRYCXX( VecSet(userctx->ub,1.0) ); //TODO: destroy?
+		TRYCXX( TaoSetVariableBounds(taosolver, userctx->lb, userctx->ub) );
+	} else {
+		userctx->ub = PETSC_NULL;
+		TRYCXX( TaoSetVariableBounds(taosolver, userctx->lb, PETSC_NULL) );
+	}
+	TRYCXX( TaoSetObjectiveAndGradientRoutine(taosolver, FormFunctionGradient, (void*)userctx) );
+	TRYCXX( TaoSetHessianRoutine(taosolver,userctx->A,userctx->A,FormHessian,(void*)userctx) );
+	TRYCXX( TaoSetEqualityConstraintsRoutine(taosolver,userctx->cE,FormEqualityConstraints,(void*)userctx) );
+	TRYCXX( TaoSetJacobianEqualityRoutine(taosolver, userctx->B, userctx->B, FormEqualityJacobian,(void*)userctx) );
+//	TRYCXX( TaoSetTolerances(taosolver, this->eps, this->eps, this->eps) );
+	TRYCXX( TaoSetTolerances(taosolver, 0, 0, 0) );
+	TRYCXX( TaoSetFromOptions(taosolver) );
+
+
 	int it = -1;
 	int hessmult = -1;
 	double fx = std::numeric_limits<double>::max();
@@ -616,15 +645,18 @@ void TaoSolver<VectorBase>::solve() {
 	TRYCXX( TaoSetFromOptions(taosolver) );
 
 	/* set KSP */
-/*	KSP ksp;
+	KSP ksp;
 	PC pc;
 	TRYCXX( TaoGetKSP(taosolver,&ksp) );
 	TRYCXX( KSPGetPC(ksp,&pc) );
+
+//	TRYCXX( PCSetType(pc,PCJACOBI) );
 	TRYCXX( PCSetType(pc,PCLU) );
 	TRYCXX( PCFactorSetMatSolverPackage(pc,MATSOLVERSUPERLU) );
+
 	TRYCXX( KSPSetType(ksp,KSPPREONLY) );
 	TRYCXX( KSPSetFromOptions(ksp) );
-*/
+
 	/* call TAO solver */
 	TRYCXX( TaoSolve(taosolver) );
 	
@@ -642,7 +674,7 @@ void TaoSolver<VectorBase>::solve() {
 	Vec v;
 	TRYCXX( VecDuplicate(c,&v) );
 	TRYCXX( MatMult(B,x,v) );
-	TRYCXX( VecAXPY(v,1.0,c) );
+	TRYCXX( VecAXPY(v,-1.0,c) );
 
 	double mynorm;
 	TRYCXX( VecNorm(v, NORM_2, &mynorm) );
