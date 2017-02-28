@@ -188,10 +188,10 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	// TODO: oh my god, this is not the best "general" way!
 	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
 	Mat A = Abgs->get_petscmatrix();
-//	double coeff = Abgs->get_coeff();
-//	TRYCXX( MatScale(A, coeff) );
-//	TRYCXX( MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY) );
-//	TRYCXX( MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY) );	
+	double coeff = Abgs->get_coeff();
+	TRYCXX( MatScale(A, coeff) );
+	TRYCXX( MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY) );	
 
 	GeneralVector<PetscVector> *bg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
 	Vec b = bg->get_vector();
@@ -219,11 +219,7 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 		TRYCXX( QPSetBox(qp, lb, PETSC_NULL) ); /* add lowerbound */
 	}
 
-	/* prepare permon QPS */
-	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
-	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
-	TRYCXX( QPSSetTolerances(qps, this->eps, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
-	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0) ); /* Set the QPS monitor */
+
 	
 	/* print some infos about QPS */
 //	TRYCXX( QPSView(qps, PETSC_VIEWER_STDOUT_WORLD) );
@@ -467,6 +463,15 @@ void PermonSolver<VectorBase>::solve() {
 	/* prepare new transformations, vector b has been changed */
 	GeneralVector<PetscVector> *bg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
 	Vec b = bg->get_vector();
+
+	double normb;
+	TRYCXX( VecNorm(b,NORM_2,&normb) );
+
+	/* prepare permon QPS */
+	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
+	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
+	TRYCXX( QPSSetTolerances(qps, this->eps*normb, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
+	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0) ); /* Set the QPS monitor */
 	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
 	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
 	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
