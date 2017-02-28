@@ -461,6 +461,10 @@ void PermonSolver<VectorBase>::solve() {
 	double normb;
 	TRYCXX( VecNorm(b,NORM_2,&normb) );
 
+	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
+	double coeff = Abgs->get_coeff();
+
+
 	/* prepare permon QPS */
 	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
 	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
@@ -468,8 +472,15 @@ void PermonSolver<VectorBase>::solve() {
 	TRYCXX( QPSMonitorSet(qps,QPSMonitorDefault,NULL,0) ); /* Set the QPS monitor */
 	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
 	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
+
+	TRYCXX( QPSSMALXESetOperatorMaxEigenvalue(qps, 1.99*4.0*coeff) );
+
 	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
 	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
+
+	double maxeig;
+	TRYCXX( QPSSMALXEGetOperatorMaxEigenvalue(qps, &maxeig) );
+	coutMaster << "TEST EIG:  " << maxeig << "(permon) vs. " << 2.0*4.0*coeff << "(exact)" << std::endl;
 
 	/* dump data */
 	if(this->dump_or_not){
