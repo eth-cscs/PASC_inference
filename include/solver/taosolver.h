@@ -348,10 +348,10 @@ PetscErrorCode TaoSolver<VectorBase>::FormFunctionGradient(Tao tao, Vec X, Petsc
 
 template<class VectorBase>
 PetscErrorCode TaoSolver<VectorBase>::FormHessian(Tao tao, Vec x, Mat H, Mat Hpre, void *ctx) {
-	TAOCtx *userctx2 = (TAOCtx*)ctx;
+//	TAOCtx *userctx2 = (TAOCtx*)ctx;
 
-	H = userctx2->A;
-	Hpre = userctx2->A;
+//	H = userctx2->A;
+//	Hpre = userctx2->A;
 //	TRYCXX( MatView(H, PETSC_VIEWER_STDOUT_WORLD) );
 
 	return(0);
@@ -374,11 +374,10 @@ PetscErrorCode TaoSolver<VectorBase>::FormEqualityConstraints(Tao tao, Vec X, Ve
 
 template<class VectorBase>
 PetscErrorCode TaoSolver<VectorBase>::FormEqualityJacobian(Tao tao, Vec X, Mat JE, Mat JEpre, void* ctx) {
-	TAOCtx *userctx2 = (TAOCtx*)ctx;
+//	TAOCtx *userctx2 = (TAOCtx*)ctx;
 
-//	JE = userctx2->BT;
-	JE = userctx2->B;
-	JEpre = userctx2->B;
+//	JE = userctx2->B;
+//	JEpre = userctx2->B;
 
 	return(0);
 }
