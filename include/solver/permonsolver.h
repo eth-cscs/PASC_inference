@@ -188,10 +188,10 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	// TODO: oh my god, this is not the best "general" way!
 	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
 	Mat A = Abgs->get_petscmatrix();
-	double coeff = Abgs->get_coeff();
-	TRYCXX( MatScale(A, coeff) );
-	TRYCXX( MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY) );
-	TRYCXX( MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY) );	
+//	double coeff = Abgs->get_coeff();
+//	TRYCXX( MatScale(A, coeff) );
+//	TRYCXX( MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY) );
+//	TRYCXX( MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY) );	
 
 	GeneralVector<PetscVector> *bg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
 	Vec b = bg->get_vector();
