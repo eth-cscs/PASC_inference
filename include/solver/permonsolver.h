@@ -296,18 +296,12 @@ void PermonSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-/*	output_local <<  " - maxit:      " << this->maxit << std::endl;
+	output_local <<  " - maxit:      " << this->maxit << std::endl;
 	output_local <<  " - eps:        " << this->eps << std::endl;
 	output_local <<  " - debugmode: " << this->debugmode << std::endl;
 
-	output_local <<  " - m:          " << m << std::endl;
-	output_local <<  " - gamma:      " << gamma << std::endl;
-	output_local <<  " - sigma1:     " << sigma1 << std::endl;
-	output_local <<  " - sigma2:     " << sigma2 << std::endl;
-	output_local <<  " - alphainit:  " << alphainit << std::endl;
-
 	output_local.synchronize();
-*/
+
 	/* print data */
 	if(qpdata){
 		coutMaster.push();
