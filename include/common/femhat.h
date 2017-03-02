@@ -64,8 +64,8 @@ class FemHat : public Fem {
 
 /* cuda kernels cannot be a member of class */
 #ifdef USE_CUDA
-__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
-__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
+__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff);
+__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff);
 #endif
 
 
@@ -287,7 +287,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
+			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
@@ -376,7 +376,7 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );
 
-			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, diff);
+			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
@@ -440,7 +440,7 @@ void FemHat::compute_decomposition_reduced() {
 
 
 #ifdef USE_CUDA
-__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
+__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t2 < T2local){
@@ -459,7 +459,9 @@ __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, 
 		/* compute linear combination with coefficients given by basis functions */
 		while(t1 <= center_t1){
 			phi_value = (t1 - left_t1)/(center_t1 - left_t1);
-			mysum += phi_value*data1[id_counter];
+			if(id_counter >= 0){
+				mysum += phi_value*data1[id_counter];
+			}
 			t1 += 1;
 			id_counter += 1;
 		}
@@ -467,7 +469,9 @@ __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, 
 		/* right part of hat function */
 		while(t1 < right_t1){
 			phi_value = (t1 - right_t1)/(center_t1 - right_t1);
-			mysum += phi_value*data1[id_counter];
+			if(id_counter < right_t1_idx - left_t1_idx){
+				mysum += phi_value*data1[id_counter];
+			}
 			t1 += 1;
 			id_counter += 1;
 		}
@@ -477,7 +481,7 @@ __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, 
 }
 
 
-__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
+__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff) {
 	int t1 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t1 < T1local){
