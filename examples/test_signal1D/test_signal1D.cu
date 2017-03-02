@@ -130,6 +130,11 @@ int main( int argc, char *argv[] )
 	int DDT_size = GlobalManager.get_size();
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
+#ifdef USE_GPU
+	coutMaster << " computing on GPU" << std::endl;
+#else
+	coutMaster << " computing on CPU" << std::endl;
+#endif
 	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
 	if(given_Theta){
