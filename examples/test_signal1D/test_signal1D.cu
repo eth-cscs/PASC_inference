@@ -44,14 +44,20 @@ int main( int argc, char *argv[] )
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
 		("test_shortinfo_values", boost::program_options::value< std::string >(), "additional values in shortinfo [string]")
 		("test_shortinfo_filename", boost::program_options::value< std::string >(), "name of shortinfo file [string]");
-
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
 	if(!Initialize(argc, argv)){
 		return 0;
-	} 
+	}
 
+	/* start to measure power consumption and time */
+    Timer timer_all;
+    timer_all.start();
+    double node_energy    = PowerCheck::get_node_energy();
+    double device_energy  = PowerCheck::get_device_energy();
+
+    /* load epssqr list */
 	std::vector<double> epssqr_list;
 	if(consoleArg.set_option_value("test_epssqr", &epssqr_list)){
 		/* sort list */
@@ -347,6 +353,41 @@ int main( int argc, char *argv[] )
 	/* print short info */
 	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
 	mysolver.printstatus(coutMaster);
+
+	/* print info about power consumption */
+    timer_all.stop();
+    node_energy    = PowerCheck::get_node_energy() - node_energy;
+    device_energy  = PowerCheck::get_device_energy() - device_energy;
+    double total_node_energy = PowerCheck::mpi_sum_reduce(node_energy);
+    double total_device_energy = PowerCheck::mpi_sum_reduce(device_energy);
+	double time_all = timer_all.get_value_sum();
+
+	coutMaster << "--- ENERGY INFO --------------------------------" << std::endl;
+	coutMaster << "- total time: " << time_all << " s" << std::endl;
+	#ifdef USE_CRAYPOWER
+		coutMaster << "- node" << std::endl;
+		coutMaster.push();
+		coutMaster << "- " << total_node_energy << " Joules, ";
+		coutMaster << total_node_energy/time_all << " Watts";
+		coutMaster << std::endl;
+		coutMaster.pop();
+		coutMaster << "- device" << std::endl;
+		coutMaster.push();
+		coutMaster << "- " << total_device_energy << " Joules, ";
+		coutMaster << total_device_energy/time_all << " Watts";
+		coutMaster << std::endl;
+		coutMaster.pop();
+		coutMaster << "- node + device" << std::endl;
+		coutMaster.push();
+		coutMaster << "- " << (total_node_energy + total_device_energy) << " Joules, ";
+		coutMaster << (total_node_energy + total_device_energy)/time_all << " Watts";
+		coutMaster << std::endl;
+		coutMaster.pop();
+	#endif
+
+	coutMaster << "------------------------------------------------" << std::endl;
+
+
 
 	/* say bye */	
 	coutMaster << "- end program" << std::endl;

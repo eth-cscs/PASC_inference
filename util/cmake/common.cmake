@@ -155,6 +155,7 @@ include(load_boost) # BOOST
 include(load_mkl) # MKL
 include(load_minlin) # MinLin
 include(load_metis) # METIS
+include(load_craypower) # for measuring power consumption on Piz Daint
 include(load_pascinference) # PascInference
 
 

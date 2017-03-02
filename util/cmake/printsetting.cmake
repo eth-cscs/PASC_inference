@@ -51,6 +51,9 @@ printsetting_minlin()
 # Metis
 printsetting_metis()
 
+# Craypower
+printsetting_craypower()
+
 # PASCInference
 #printsetting_pascinference()
 

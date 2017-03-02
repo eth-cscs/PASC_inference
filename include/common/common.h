@@ -24,6 +24,7 @@
 
 #include "common/timer.h"
 #include "common/memorycheck.h"
+#include "common/powercheck.h"
 #include "common/globalmanager.h"
 #include "common/consoleoutput.h"
 #include "common/consoleinput.h"
