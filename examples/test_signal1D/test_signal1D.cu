@@ -388,6 +388,13 @@ int main( int argc, char *argv[] )
 		coutMaster << (total_node_energy + total_device_energy)/time_all << " Watts";
 		coutMaster << std::endl;
 		coutMaster.pop();
+		
+		
+		//TODO: this is test
+		coutMaster << "device_energy : " << Craypower::device_energy() << std::endl;
+		coutMaster << "energy        : " << Craypower::energy() << std::endl;
+		coutMaster << "device_energy : " << Craypower::device_power() << std::endl;
+		coutMaster << "power         : " << Craypower::power() << std::endl;
 	#endif
 
 	coutMaster << "------------------------------------------------" << std::endl;
