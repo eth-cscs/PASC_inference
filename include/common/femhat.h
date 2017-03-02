@@ -250,8 +250,6 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 				
 				int id_counter = floor(left_t1) - left_t1_idx; /* first index in provided local t1 array */
 
-				coutMaster << "TEST_REDUCTION: " << id_counter << std::endl;
-
 				double phi_value; /* value of basis function */
 
 				/* left part of hat function */
@@ -260,16 +258,20 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 
 				/* compute linear combination with coefficients given by basis functions */
 				while(t1 <= center_t1){
-						phi_value = (t1 - left_t1)/(center_t1 - left_t1);
+					phi_value = (t1 - left_t1)/(center_t1 - left_t1);
+					if(id_counter >= 0){
 						mysum += phi_value*gammak1_arr[id_counter];
-						t1 += 1;
-						id_counter += 1;
+					}
+					t1 += 1;
+					id_counter += 1;
 				}
 
 				/* right part of hat function */
 				while(t1 < right_t1){
 					phi_value = (t1 - right_t1)/(center_t1 - right_t1);
-					mysum += phi_value*gammak1_arr[id_counter];
+					if(id_counter < right_t1_idx - left_t1_idx){
+						mysum += phi_value*gammak1_arr[id_counter];
+					}
 					t1 += 1;
 					id_counter += 1;
 				}
