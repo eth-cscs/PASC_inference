@@ -39,6 +39,7 @@ extern int DEBUG_MODE;
 
 /* default type of matrix: 0=FREE, 1=SPARSE */
 #define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 1
+#define GRAPHH1FEMMODEL_DEFAULT_SCALEF 1
 
 
 namespace pascinference {
@@ -76,6 +77,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		GeneralVector<VectorBase> *residuum; /**< temp vector for residuum computation */
 		
 		bool usethetainpenalty; /**< use the value of Theta in penalty parameter to scale blocks */
+		bool scalef;			/**< divide whole function by T */
 		
 		GammaSolverType gammasolvertype; /**< the type of used solver */
 		
@@ -167,6 +169,8 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	// TODO: enum in boost::program_options, not only int
 	int gammasolvertype_int;
 	consoleArg.set_option_value("graphh1femmodel_gammasolvertype", &gammasolvertype_int, SOLVER_AUTO);
+	consoleArg.set_option_value("graphh1femmodel_scalef", &scalef, GRAPHH1FEMMODEL_DEFAULT_SCALEF);
+	
 	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
 
 	/* set given parameters */
@@ -242,6 +246,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	/* give information about presence of the data */
 	output <<  " - T                 : " << this->tsdata->get_T() << std::endl;
 	output <<  " - xdim              : " << this->tsdata->get_xdim() << std::endl;
+	output <<  " - scalef            : " << printbool(this->scalef) << std::endl;
 
 	/* information of reduced problem */
 	output <<  " - fem_reduce        : " << this->fem->get_fem_reduce() << std::endl;
@@ -287,6 +292,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  " - global info" << std::endl;
 	output_global <<  "  - T                 : " << this->tsdata->get_T() << std::endl;
 	output_global <<  "  - xdim              : " << this->tsdata->get_xdim() << std::endl;
+	output_global <<  "  - scalef            : " << printbool(this->scalef) << std::endl;
 
 	/* information of reduced problem */
 	output_global <<  "  - fem_reduce        : " << this->fem->get_fem_reduce() << std::endl;
@@ -390,7 +396,10 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	this->epssqr = epssqr;
 
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
-	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
+	double coeff = this->epssqr;
+	if(this->scalef){
+		coeff *= (1.0/((double)(this->get_T())));
+	}
 
 	if(this->A_shared != NULL){
 		/* SPARSE */
@@ -432,7 +441,10 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 
 	/* use old T to scale the function to obtain the same scale of function values (idea from Olga) */
 //	double coeff = (1.0/((double)(this->get_T_reduced())))*this->epssqr;
-	double coeff = (1.0/((double)(this->get_T())))*this->epssqr;
+	double coeff = this->epssqr;
+	if(scalef){
+		coeff *= (1.0/((double)(this->get_T())));
+	}
 
 	/* SPARSE */
 	if(usethetainpenalty){
@@ -627,7 +639,11 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	}
 
 	/* multiplicate vector b by coefficient */
-	double coeff = (-1.0/((double)(this->get_T_reduced())));
+	double coeff = -1.0;
+	if(this->scalef){
+		coeff *= (1.0/((double)(this->get_T_reduced())));
+	}
+	
 //	double coeff = (-1.0/((double)(this->get_T())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 

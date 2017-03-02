@@ -218,8 +218,6 @@ PermonSolver<VectorBase>::PermonSolver(QPData<VectorBase> &new_qpdata){
 	} else {
 		TRYCXX( QPSetBox(qp, lb, PETSC_NULL) ); /* add lowerbound */
 	}
-
-
 	
 	/* print some infos about QPS */
 //	TRYCXX( QPSView(qps, PETSC_VIEWER_STDOUT_WORLD) );
@@ -458,14 +456,9 @@ void PermonSolver<VectorBase>::solve() {
 	GeneralVector<PetscVector> *bg = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
 	Vec b = bg->get_vector();
 
-	double normb;
-	TRYCXX( VecNorm(b,NORM_2,&normb) );
-
 	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
 	double coeff = Abgs->get_coeff();
 
-//	coutMaster << "TEEEST1: " << this->maxit << std::endl;
-	
 	/* prepare permon QPS */
 	TRYCXX( QPSCreate(PETSC_COMM_WORLD, &qps) );
 	TRYCXX( QPSSetQP(qps, qp) ); /* Insert the QP problem into the solver. */
@@ -473,17 +466,9 @@ void PermonSolver<VectorBase>::solve() {
 	TRYCXX( QPSetRhs(qp, b) ); /* set righ hand-side vector */
 	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
 	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
-	TRYCXX( QPSSetTolerances(qps, this->eps*normb, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
-	TRYCXX( QPSSMALXESetOperatorMaxEigenvalue(qps, 1.99*4.0*coeff) );
+	TRYCXX( QPSSetTolerances(qps, this->eps, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
+	TRYCXX( QPSSMALXESetOperatorMaxEigenvalue(qps, 1.99*4.0*coeff) ); //TODO: only for Laplace!
 	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
-
-//	double maxeig;
-//	TRYCXX( QPSSMALXEGetOperatorMaxEigenvalue(qps, &maxeig) );
-//	coutMaster << "TEST EIG:  " << maxeig << "(permon) vs. " << 2.0*4.0*coeff << "(exact)" << std::endl;
-
-//	int maxit2;
-//	TRYCXX( QPSGetTolerances(qps, PETSC_NULL, PETSC_NULL, PETSC_NULL, &maxit2) ); /* Set QPS options from settings */
-//	coutMaster << "TEEEST2: " << maxit2 << std::endl;
 
 	/* dump data */
 	if(this->dump_or_not){
