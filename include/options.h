@@ -107,6 +107,7 @@ static void add_options(boost::program_options::options_description *description
 			("permonsolver_eps", boost::program_options::value<double>(), "precision [double]")
 			("permonsolver_debugmode", boost::program_options::value<int>(), "debug mode [int]")
 			("permonsolver_use_upperbound", boost::program_options::value<bool>(), "use additional upper bound x<=1 [bool]")
+			("permonsolver_use_lambdamax", boost::program_options::value<bool>(), "provide the estimation of max eigen value to permon [bool]")
 			("permonsolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_permonsolver);
 

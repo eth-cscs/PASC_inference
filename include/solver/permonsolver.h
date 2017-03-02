@@ -16,6 +16,7 @@
 #define PERMONSOLVER_DEFAULT_MAXIT 1000
 #define PERMONSOLVER_DEFAULT_EPS 1e-9
 #define PERMONSOLVER_USE_UPPERBOUND false
+#define PERMONSOLVER_USE_LAMBDAMAX false
 #define PERMONSOLVER_DUMP false
 
 #ifndef USE_PETSCVECTOR
@@ -84,6 +85,7 @@ class PermonSolver: public QPSolver<VectorBase> {
 		void dump() const; 
 
 		bool use_upperbound;		/**< use additional upper bound x<=1 */
+		bool use_lambdamax;			/**< provide lambdamax to permon */
 
 	public:
 		/** @brief general constructor
@@ -131,6 +133,7 @@ void PermonSolver<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("permonsolver_eps", &this->eps, PERMONSOLVER_DEFAULT_EPS);
 	
 	consoleArg.set_option_value("permonsolver_use_upperbound", &this->use_upperbound, PERMONSOLVER_USE_UPPERBOUND);	
+	consoleArg.set_option_value("permonsolver_use_lambdamax", &this->use_lambdamax, PERMONSOLVER_USE_LAMBDAMAX);	
 	consoleArg.set_option_value("permonsolver_dump", &this->dump_or_not, PERMONSOLVER_DUMP);	
 }
 
@@ -467,7 +470,12 @@ void PermonSolver<VectorBase>::solve() {
 	TRYCXX( QPTFromOptions(qp) ); /* Perform QP transforms */
 	TRYCXX( QPSSetFromOptions(qps) ); /* Set QPS options from the options database (overriding the defaults). */
 	TRYCXX( QPSSetTolerances(qps, this->eps, this->eps, 1e12, this->maxit) ); /* Set QPS options from settings */
-	TRYCXX( QPSSMALXESetOperatorMaxEigenvalue(qps, 1.99*4.0*coeff) ); //TODO: only for Laplace!
+
+	/* provide max eigenvalue to PERMON */
+	if(use_lambdamax){
+		TRYCXX( QPSSMALXESetOperatorMaxEigenvalue(qps, 1.99*4.0*coeff) ); //TODO: only for Laplace!
+	}
+
 	TRYCXX( QPSSetUp(qps) ); /* Set up QP and QPS. */
 
 	/* dump data */
