@@ -250,6 +250,8 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 				
 				int id_counter = floor(left_t1) - left_t1_idx; /* first index in provided local t1 array */
 
+				coutMaster << "TEST_REDUCTION: " << id_counter << std::endl;
+
 				double phi_value; /* value of basis function */
 
 				/* left part of hat function */
@@ -274,7 +276,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 
 				gammak2_arr[t2] = mysum;
 			}
-
+		
 			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 			
