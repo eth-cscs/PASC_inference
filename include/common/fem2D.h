@@ -149,7 +149,7 @@ void Fem2D::print(ConsoleOutput &output_global, ConsoleOutput &output_local) con
 	output_global << this->get_name() << std::endl;
 	
 	/* information of reduced problem */
-	output_global <<  " - is reduced       : " << is_reduced() << std::endl;
+	output_global <<  " - is reduced       : " << printbool(is_reduced()) << std::endl;
 	output_global <<  " - diff             : " << diff << std::endl;
 	output_global <<  " - diff_x           : " << diff_x << std::endl;
 	output_global <<  " - diff_y           : " << diff_y << std::endl;

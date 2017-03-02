@@ -123,7 +123,7 @@ void FemHat::print(ConsoleOutput &output_global, ConsoleOutput &output_local) co
 	output_global << this->get_name() << std::endl;
 	
 	/* information of reduced problem */
-	output_global <<  " - is reduced       : " << is_reduced() << std::endl;
+	output_global <<  " - is reduced       : " << printbool(is_reduced()) << std::endl;
 	output_global <<  " - diff             : " << diff << std::endl;
 	output_global <<  " - fem_reduce       : " << fem_reduce << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
