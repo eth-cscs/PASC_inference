@@ -399,6 +399,8 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	double coeff = this->epssqr;
 	if(this->scalef){
 		coeff *= (1.0/((double)(this->get_T())));
+	} else {
+		coeff *= ((double)(this->get_T_reduced())/((double)(this->get_T())));
 	}
 
 	if(this->A_shared != NULL){
@@ -444,6 +446,8 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	double coeff = this->epssqr;
 	if(scalef){
 		coeff *= (1.0/((double)(this->get_T())));
+	} else {
+		coeff *= ((double)(this->get_T_reduced())/((double)(this->get_T())));
 	}
 
 	/* SPARSE */

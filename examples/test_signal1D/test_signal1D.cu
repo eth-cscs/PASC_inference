@@ -75,7 +75,7 @@ int main( int argc, char *argv[] )
 	std::string shortinfo_values;
 
 	consoleArg.set_option_value("test_K", &K, 2);
-	consoleArg.set_option_value("test_fem_type", &fem_type, 0);
+	consoleArg.set_option_value("test_fem_type", &fem_type, 1);
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, 1.0);
 	consoleArg.set_option_value("test_filename", &filename, "data/samplesignal.bin");
 	consoleArg.set_option_value("test_filename_out", &filename_out, "samplesignal");
