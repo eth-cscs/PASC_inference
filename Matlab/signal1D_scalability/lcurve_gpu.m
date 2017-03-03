@@ -13,7 +13,7 @@ color1 = [1.0 0.0 0.0];
 color2 = [0.0 0.6 0.0];
 color3 = [0.0 0.0 1.0];
 
-M = csvread(['gpu_lcurve/shortinfo_final_1e-4.txt'],1,1);
+M = csvread(['gpu_lcurve/shortinfo_final_1e-6.txt'],1,1);
 myidx_unsorted = find(M(:,1)==K);
 [~,sortidx] = sort(M(myidx_unsorted,2));
 myidx = myidx_unsorted(sortidx);
@@ -24,7 +24,7 @@ lin_final1 = M(myidx,21+K);
 qua_final1 = M(myidx,22+K)./epssqr1;
 
 
-M = csvread(['gpu_lcurve/shortinfo_final_1e-5.txt'],1,1);
+M = csvread(['gpu_lcurve/shortinfo_final_1e-6.txt'],1,1);
 myidx_unsorted = find(M(:,1)==K);
 [~,sortidx] = sort(M(myidx_unsorted,2));
 myidx = myidx_unsorted(sortidx);

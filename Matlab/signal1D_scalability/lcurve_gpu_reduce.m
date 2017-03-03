@@ -17,22 +17,40 @@ mycolor{5} = [0.0 0.6 0.5];
 mycolor{6} = [0.6 0.0 0.6];
 mycolor{7} = [0.1 0.1 0.1];
 
-filename{1} = 'gpu_lcurve/shortinfo_final_1e-6.txt';
-filename{2} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-1.txt';
-filename{3} = 'gpu_lcurve/shortinfo_final_1e-6_reduce5e-2.txt';
-filename{4} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-2.txt';
-filename{5} = 'gpu_lcurve/shortinfo_final_1e-6_reduce5e-3.txt';
-filename{6} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-3.txt';
-filename{7} = 'gpu_lcurve/shortinfo_final_1e-6_reduce5e-3.txt';
+%filename{1} = 'gpu_lcurve/shortinfo_final_1e-6.txt';
+%filename{2} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-1.txt';
+%filename{3} = 'gpu_lcurve/shortinfo_final_1e-6_reduce5e-2.txt';
+%filename{4} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-2.txt';
+%filename{5} = 'gpu_lcurve/shortinfo_final_1e-6_reduce5e-3.txt';
+%filename{6} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-3.txt';
+%filename{7} = 'gpu_lcurve/shortinfo_final_1e-6_reduce5e-3.txt';
 %filename{5} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-4.txt';
+%filename{1} = 'gpu_lcurve/shortinfo_final_1e-6.txt';
+%filename{2} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-1.txt';
+%filename{3} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-2.txt';
+%filename{4} = 'gpu_lcurve/shortinfo_final_1e-6_reduce1e-3.txt';
+filename{1} = 'gpu_lcurve/small_reduce1e0.txt';
+filename{2} = 'gpu_lcurve/small_reduce1e-1.txt';
+filename{3} = 'gpu_lcurve/small_reduce1e-2.txt';
+filename{4} = 'gpu_lcurve/small_reduce1e-3.txt';
 
+
+%mylabel{1} = {'$T_2 = T_1 = 10^7$'};
+%mylabel{2} = {'$T_2 = 0.1 \cdot T_1 = 10^6$'};
+%mylabel{3} = {'$T_2 = 0.05 \cdot T_1 = 5 \cdot 10^5$'};
+%mylabel{4} = {'$T_2 = 0.01 \cdot T_1 = 10^5$'};
+%mylabel{5} = {'$T_2 = 0.005 \cdot T_1 = 5 \cdot 10^4$'};
+%mylabel{6} = {'$T_2 = 0.001 \cdot T_1 = 10^4$'};
+%mylabel{7} = {'$T_2 = 0.0005 \cdot T_1 = 5 \cdot 10^3$'};
 mylabel{1} = {'$T_2 = T_1 = 10^7$'};
 mylabel{2} = {'$T_2 = 0.1 \cdot T_1 = 10^6$'};
-mylabel{3} = {'$T_2 = 0.05 \cdot T_1 = 5 \cdot 10^5$'};
-mylabel{4} = {'$T_2 = 0.01 \cdot T_1 = 10^5$'};
-mylabel{5} = {'$T_2 = 0.005 \cdot T_1 = 5 \cdot 10^4$'};
-mylabel{6} = {'$T_2 = 0.001 \cdot T_1 = 10^4$'};
-mylabel{7} = {'$T_2 = 0.0005 \cdot T_1 = 5 \cdot 10^3$'};
+mylabel{3} = {'$T_2 = 0.01 \cdot T_1 = 10^5$'};
+mylabel{4} = {'$T_2 = 0.001 \cdot T_1 = 10^4$'};
+
+fem_reduce{1} = 1;
+fem_reduce{2} = 0.1;
+fem_reduce{3} = 0.01;
+fem_reduce{4} = 0.005;
 
 for i=1:length(filename)
     M = csvread(filename{i},1,1);
@@ -42,8 +60,8 @@ for i=1:length(filename)
     epssqr{i} = M(myidx,2);
     abserr{i} = M(myidx,3);
     spgit{i} = M(:,12);
-    lin_final{i} = M(myidx,21+K);
-    qua_final{i} = M(myidx,22+K)./epssqr{i};
+    lin_final{i} = fem_reduce{i}*M(myidx,21+K);
+    qua_final{i} = (1/fem_reduce{i})*M(myidx,22+K)./epssqr{i};
 end
 
 

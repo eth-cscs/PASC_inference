@@ -7,23 +7,34 @@
 clear all
 close all
 
-addpath(genpath(fullfile(pwd,'../common')))
+fem_type = 0;
+%fem_type = 1;
+
+addpath('common') % add common stuff
 addpath('compute_femh1') % add functions for femh1 computation 
 
-fem_reduce = 2;
+fem_reduce = 0.5;
 
 % load data or create new
-C_true=[2*ones(1,60) ones(1,40) 2*ones(1,150) ones(1,50) 2*ones(1,150)];
+C_true=[2*ones(1,60) ones(1,50) 2*ones(1,30) ones(1,133) 2*ones(1,20)];
 
-C_true = [C_true C_true C_true];
+C_true = [C_true C_true C_true C_true]';
 sigma=1; 
-C=C_true+sigma*randn(size(C_true)); % gaussian
+C_orig=C_true+sigma*randn(size(C_true)); % gaussian
 
+% reduce original problem
+T2 = ceil(length(C_orig)*fem_reduce);
+if fem_type == 0
+    C = reduce0( C_orig, T2 );
+end
+if fem_type == 1
+    C = reduce1( C_orig, T2 );
+end
 
 
 Theta = [1.0, 2.0]; % given Theta, K = length(Theta)
 epssqrs = 10.^(0:0.2:7); % used penalties
-T = length(C);
+T = length(C_true);
 
 C_err = Inf*ones(size(epssqrs)); % here store errors (to plot final error curve)
 L_value = Inf*ones(size(epssqrs)); % here store values of L (to final plot)
@@ -34,6 +45,7 @@ best_epssqr = Inf;
 best_epssqr_id = 1;
 
 gamma = get_random_gamma0( length(C), length(Theta) ); % random initial gamma for first epssqr 
+[H1 B] = get_H1(length(C), length(Theta)); % I want to reuse matrices, it is not neccessary to assemble them for each epssqr
 for i = 1:length(epssqrs)
 	% get penalty
 	epssqr = epssqrs(i);
@@ -42,17 +54,23 @@ for i = 1:length(epssqrs)
     disp([' - epssqr = ' num2str(epssqr)])
     
 	% run the algorithm (reuse previous gamma as initial approximation)
-    [C_filtered, gamma, qp_lin(i), qp_quad(i), L ] = compute_femh1( C, gamma, Theta, epssqr, fem_reduce );
+    [C_filtered, gamma, qp_lin(i), qp_quad(i), L ] = compute_femh1( C, H1, B, gamma, Theta, epssqr );
     
 	% compute error
 %    C_err(i) = mean(abs(C_filtered-C_true));
-    C_err(i) = norm(C_filtered-C_true,1);
+    if fem_type == 0
+        C_filtered_orig = prolongate0(C_filtered,length(C_orig));
+    end
+    if fem_type == 1
+        C_filtered_orig = prolongate1(C_filtered,length(C_orig));
+    end
+    C_err(i) = norm(C_filtered_orig-C_true,2);
     L_values(i) = L;
 
 	% if this choice of penalty is the best (subject to error), then store the solution
     if C_err(i) < best_epssqr
 		best_epssqr_id = i;
-        best_C_filtered = C_filtered;
+        best_C_filtered = C_filtered_orig;
         best_epssqr = C_err(best_epssqr_id);
 	end
 end
@@ -113,11 +131,11 @@ title(['solution, epssqr = ' num2str(epssqrs(best_epssqr_id))]);
 xlabel('t');
 ylabel('x(t)')
 % plot signals
-plot(1:length(C),C,'b-','LineWidth',1.0);
+plot(1:length(C_orig),C_orig,'b-','LineWidth',1.0);
 plot(1:length(C_true),C_true,'r--','LineWidth',2.0);
 plot(1:length(C_true),best_C_filtered,'-','LineWidth',2.0,'Color',[0.0,0.4,0.0]);
 legend('with noise','original', 'reconstructed');
-
+%legend('with noise', 'original', 'reconstructed');
 % the noise is large, I am interested more in signal, not in noise
 axis([1 length(C_true) 0 3])
 hold off
