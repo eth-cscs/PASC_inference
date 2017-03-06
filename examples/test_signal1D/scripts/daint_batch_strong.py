@@ -26,7 +26,7 @@ exec_name = "./test_signal1D"
 mpiexec = "srun"
 #N = [1,2,3,4,5,6,7,8,9,10,11,12,13,15,16];
 N=[1 2 4 8 16 32 64];
-Ntaskspernode = 36;
+cpu_Ntaskspernode = 36;
 
 # define console parameters
 params_list = [];
@@ -46,6 +46,7 @@ params = ' '.join(params_list);
 gpu_problem_name = "strong_G";
 gpu_exec_path = "%s/build_gpu/" %(build_path);
 gpu_batch_path = "%s/batch/" %(gpu_exec_path);
+gpu_module_name = "module_load_daint_sandbox";
 
 # GPU: generate bash scripts
 batchfile_list = [];
@@ -56,7 +57,7 @@ for index in range(len(N)):
     params2 = "--test_filename_out=%s --test_shortinfo_header=ngpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
     exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
     batch_filename = os.path.join(gpu_batch_path, "%s.batch" % (problem_name))
-    write_batch(problem_name, N[index], 1, 1, problem_time, library_path, gpu_batch_path, exec_name_full)
+    write_batch(problem_name, N[index], 1, 1, problem_time, library_path, gpu_batch_path, exec_name_full, gpu_module_name)
     batchfile_list.append(batch_filename);
 
 
@@ -64,6 +65,7 @@ for index in range(len(N)):
 cpu_problem_name = "strong_C";
 cpu_exec_path = "%s/build_cpu/" %(build_path);
 cpu_batch_path = "%s/batch/" %(cpu_exec_path);
+cpu_module_name = "module_load_daint_mc";
 
 # CPU: generate bash scripts
 batchfile_list = [];
@@ -72,9 +74,9 @@ for index in range(len(N)):
     problem_name = "%s%d" %(cpu_problem_name,N[index])
     exec_path = cpu_exec_path
     params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
-    exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index], exec_name, params, params2, problem_name)
+    exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index]*cpu_Ntaskspernode, exec_name, params, params2, problem_name)
     batch_filename = os.path.join(cpu_batch_path, "%s.batch" % (problem_name))
-    write_batch(problem_name, N[index], 1, 1, problem_time, library_path, cpu_batch_path, exec_name_full)
+    write_batch(problem_name, N[index], cpu_Ntaskspernode, 1, problem_time, library_path, cpu_batch_path, exec_name_full, cpu_module_name)
     batchfile_list.append(batch_filename);
 
 

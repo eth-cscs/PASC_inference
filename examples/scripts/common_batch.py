@@ -7,7 +7,7 @@ import os, shutil
 from subprocess import call
 
 # define function for writing a fun into file
-def write_batch(problem_name, nnodes, ntaskspernode, nthreads, time, library_path, build_path, exec_name):
+def write_batch(problem_name, nnodes, ntaskspernode, nthreads, time, library_path, build_path, exec_name, module_name):
     "this function prints a fun into batch script file, the fun is based on parameters"
     problem_name_full = "%s" % (problem_name)
     batchfile_name = "%s/%s.batch" % (build_path,problem_name_full);
@@ -22,7 +22,7 @@ def write_batch(problem_name, nnodes, ntaskspernode, nthreads, time, library_pat
     myfile.write("#SBATCH --output=batch_out/%s.%%j.o\n" % (problem_name_full))
     myfile.write("#SBATCH --error=batch_out/%s.%%j.e\n" % (problem_name_full))
     myfile.write("\n## load modules\n")
-    myfile.write("source %s/util/module_load_daint_sandbox\n" % (library_path))
+    myfile.write("source %s/util/%s\n" % (library_path,module_name))
     myfile.write("\n## set number of threads\n")
     myfile.write("export OMP_NUM_THREADS=%d\n" % (nthreads))
     myfile.write("\n## run the job\n")
