@@ -39,6 +39,7 @@ int main( int argc, char *argv[] )
 		("test_scaledata", boost::program_options::value<bool>(), "scale to interval {-1,1} [bool]")
 		("test_cutdata", boost::program_options::value<bool>(), "cut data to interval {0,1} [bool]")
 		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]")
+		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]")
 		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
@@ -69,7 +70,7 @@ int main( int argc, char *argv[] )
 	}
 
 	int K, annealing, fem_type; 
-	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, save_all;
+	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, save_all;
 	double fem_reduce;
 
 	std::string filename;
@@ -92,6 +93,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_scaledata", &scaledata, false);
 	consoleArg.set_option_value("test_cutdata", &cutdata, false);
 	consoleArg.set_option_value("test_printstats", &printstats, false);
+	consoleArg.set_option_value("test_printinfo", &printinfo, false);
 	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
@@ -157,7 +159,8 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
 	coutMaster << " test_cutdata                = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
 	coutMaster << " test_scaledata              = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
-	coutMaster << " test_printstats             = " << std::setw(30) << printstats << " (print basic statistics of data)" << std::endl;
+	coutMaster << " test_printstats             = " << std::setw(30) << printbool(printstats) << " (print basic statistics of data)" << std::endl;
+	coutMaster << " test_printinfo              = " << std::setw(30) << printbool(printinfo) << " (print informations about created objects)" << std::endl;
 	coutMaster << " test_shortinfo              = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
 	coutMaster << " test_shortinfo_header       = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_values       = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
@@ -192,14 +195,14 @@ int main( int argc, char *argv[] )
 	Decomposition decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
 
 	/* print info about decomposition */
-	decomposition.print(coutMaster);
+	if(printinfo) decomposition.print(coutMaster);
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
 	mydata.set_decomposition(decomposition);
 
 	/* print information about loaded data */
-	mydata.print(coutMaster);
+	if(printinfo) mydata.print(coutMaster);
 
 	/* print statistics */
 	if(printstats) mydata.printstats(coutMaster);
@@ -226,7 +229,7 @@ int main( int argc, char *argv[] )
 	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem);
 
 	/* print info about model */
-	mymodel.print(coutMaster,coutAll);
+	if(printinfo) mymodel.print(coutMaster,coutAll);
 
 /* 6.) prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
@@ -241,7 +244,7 @@ int main( int argc, char *argv[] )
 	}
 
 	/* print info about solver */
-	mysolver.print(coutMaster,coutAll);
+	if(printinfo) mysolver.print(coutMaster,coutAll);
 
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);

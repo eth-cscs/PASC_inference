@@ -216,8 +216,6 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	this->fem->set_decomposition_original(this->tsdata->get_decomposition());
 	this->fem->compute_decomposition_reduced();
 
-	fem->print(coutMaster,coutAll);
-
 	/* set regularization parameter */
 	this->epssqr = epssqr;
 
