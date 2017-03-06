@@ -14,8 +14,8 @@ if len(sys.argv) < 2:
     sys.exit()
 
 inputfile = sys.argv[1];
-test_epssqr = "1e5";
-spgqpsolver_eps = "1e-4";
+test_epssqr = "3e3";
+spgqpsolver_eps = "1e-6";
 problem_time = "00:30:00";
 
 # path to exec folder
@@ -25,8 +25,8 @@ build_path = "%s/" % (os.getenv( "SCRATCH"));
 exec_name = "./test_signal1D"
 mpiexec = "srun"
 #N = [1,2,3,4,5,6,7,8,9,10,11,12,13,15,16];
-N=[14];
-Ntaskspernode = 24;
+N=[1 2 4 8 16 32 64];
+Ntaskspernode = 36;
 
 # define console parameters
 params_list = [];
@@ -77,23 +77,6 @@ for index in range(len(N)):
     write_batch(problem_name, N[index], 1, 1, problem_time, library_path, cpu_batch_path, exec_name_full)
     batchfile_list.append(batch_filename);
 
-
-# CPUT
-cput_problem_name = "strong_CT";
-cput_exec_path = "%s/build_cput/" %(build_path);
-cput_batch_path = "%s/batch/" %(cput_exec_path);
-
-# CPUT: generate bash scripts
-batchfile_list = [];
-for index in range(len(N)):
-    print "CPUT: Preparing batch scripts: %s/%s" % (index+1,len(N))
-    problem_name = "%s%d" %(cput_problem_name,N[index])
-    exec_path = cput_exec_path
-    params2 = "--test_filename_out=%s --test_shortinfo_header=ncpus, --test_shortinfo_values=%d, --test_shortinfo_filename=shortinfo/%s.txt --spgqpsolver_eps=%s" % (problem_name, N[index], problem_name, spgqpsolver_eps)
-    exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N[index]*Ntaskspernode, exec_name, params, params2, problem_name)
-    batch_filename = os.path.join(cput_batch_path, "%s.batch" % (problem_name))
-    write_batch(problem_name, N[index], Ntaskspernode, 1, problem_time, library_path, cput_batch_path, exec_name_full)
-    batchfile_list.append(batch_filename);
 
 
 # run bash scripts
