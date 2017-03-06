@@ -257,6 +257,10 @@ int main( int argc, char *argv[] )
 
 	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
 	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
+
+	/* energy for one iteration */
+    double node_energy_it;
+    double node_energy_it_sum;
 	
 	/* go throught given list of epssqr */
 	for(int depth = 0; depth < epssqr_list.size();depth++){
@@ -274,7 +278,15 @@ int main( int argc, char *argv[] )
 			mydata.scaledata(-1,1,0,1);
 		}
 		
+		/* measure energy at begin */
+		node_energy_it    = PowerCheck::get_node_energy();
+
+		/* !!! solve the problem */
 		mysolver.solve();
+
+		/* measure energy in the end */
+		node_energy_it     = PowerCheck::get_node_energy() - node_energy_it;
+		node_energy_it_sum = PowerCheck::mpi_sum_reduce(node_energy_it);
 
 		/* cut gamma */
 		if(cutgamma) mydata.cutgamma();
@@ -303,8 +315,8 @@ int main( int argc, char *argv[] )
 		/* store short info */
 		if(shortinfo_write_or_not){
 			/* add provided strings from console parameters and info about the problem */
-			if(depth==0) oss_short_output_header << shortinfo_header << "K,epssqr,abserr,";
-			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << abserr << ",";
+			if(depth==0) oss_short_output_header << shortinfo_header << "K,epssqr,abserr,energy,";
+			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << abserr << "," << node_energy_it_sum << ",";
 			
 			/* append Theta solution */
 			if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
