@@ -55,8 +55,9 @@ int main( int argc, char *argv[] )
 	/* start to measure power consumption and time */
     Timer timer_all;
     timer_all.start();
-    double node_energy    = PowerCheck::get_node_energy();
-    double device_energy  = PowerCheck::get_device_energy();
+	const int ranks_per_node = PowerCheck::ranks_per_node();
+    double node_energy    = PowerCheck::get_node_energy()/(double)ranks_per_node;
+    double device_energy  = PowerCheck::get_device_energy()/(double)ranks_per_node;
 
     /* load epssqr list */
 	std::vector<double> epssqr_list;
@@ -282,15 +283,18 @@ int main( int argc, char *argv[] )
 		}
 		
 		/* measure energy at begin */
-		node_energy_it    = PowerCheck::get_node_energy();
+		MPI_Barrier(MPI_COMM_WORLD);
+		node_energy_it    = PowerCheck::get_node_energy()/(double)ranks_per_node;
 
 		/* !!! solve the problem */
 		mysolver.solve();
 
 		/* measure energy in the end */
-		node_energy_it     = PowerCheck::get_node_energy() - node_energy_it;
+		MPI_Barrier(MPI_COMM_WORLD);
+		node_energy_it     = PowerCheck::get_node_energy()/(double)ranks_per_node - node_energy_it;
 		node_energy_it_sum = PowerCheck::mpi_sum_reduce(node_energy_it);
-
+		MPI_Barrier(MPI_COMM_WORLD);
+		
 		/* cut gamma */
 		if(cutgamma) mydata.cutgamma();
 
