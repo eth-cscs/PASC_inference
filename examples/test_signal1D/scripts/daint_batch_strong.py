@@ -25,7 +25,7 @@ build_path = "%s/" % (os.getenv( "SCRATCH"));
 exec_name = "./test_signal1D"
 mpiexec = "srun"
 #N = [1,2,3,4,5,6,7,8,9,10,11,12,13,15,16];
-N=[1 2 4 8 16 32 64];
+N=[1,2,4,8,16,32,64];
 cpu_Ntaskspernode = 36;
 
 # define console parameters

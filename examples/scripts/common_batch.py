@@ -17,6 +17,8 @@ def write_batch(problem_name, nnodes, ntaskspernode, nthreads, time, library_pat
     myfile.write("\n## sbatch settings\n")
     myfile.write("#SBATCH --nodes=%d\n" % (nnodes))
     myfile.write("#SBATCH --ntasks-per-node=%d\n" % (ntaskspernode))
+    myfile.write("#SBATCH --ntasks-per-core=1\n")
+    myfile.write("#SBATCH --threads-per-core=1\n")
     myfile.write("#SBATCH --time=%s\n" % (time))
     myfile.write("#SBATCH --partition=normal\n")
     myfile.write("#SBATCH --output=batch_out/%s.%%j.o\n" % (problem_name_full))

@@ -55,7 +55,7 @@ int main( int argc, char *argv[] )
 	/* start to measure power consumption and time */
     Timer timer_all;
     timer_all.start();
-	const int ranks_per_node = PowerCheck::ranks_per_node();
+	const int ranks_per_node = PowerCheck::get_ranks_per_node();
     double node_energy    = PowerCheck::get_node_energy()/(double)ranks_per_node;
     double device_energy  = PowerCheck::get_device_energy()/(double)ranks_per_node;
 
@@ -138,6 +138,7 @@ int main( int argc, char *argv[] )
 #else
 	coutMaster << " computing on CPU" << std::endl;
 #endif
+	coutMaster << " ranks_per_node              = " << std::setw(30) << ranks_per_node << " (number of MPI processes on one node)" << std::endl;
 	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
 	if(given_Theta){
@@ -263,8 +264,8 @@ int main( int argc, char *argv[] )
 	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
 
 	/* energy for one iteration */
-    double node_energy_it;
-    double node_energy_it_sum;
+	double node_energy_it;
+    	double node_energy_it_sum;
 	
 	/* go throught given list of epssqr */
 	for(int depth = 0; depth < epssqr_list.size();depth++){
@@ -293,7 +294,6 @@ int main( int argc, char *argv[] )
 		MPI_Barrier(MPI_COMM_WORLD);
 		node_energy_it     = PowerCheck::get_node_energy()/(double)ranks_per_node - node_energy_it;
 		node_energy_it_sum = PowerCheck::mpi_sum_reduce(node_energy_it);
-		MPI_Barrier(MPI_COMM_WORLD);
 		
 		/* cut gamma */
 		if(cutgamma) mydata.cutgamma();
@@ -379,11 +379,13 @@ int main( int argc, char *argv[] )
 	mysolver.printstatus(coutMaster);
 
 	/* print info about power consumption */
-    timer_all.stop();
-    node_energy    = PowerCheck::get_node_energy() - node_energy;
-    device_energy  = PowerCheck::get_device_energy() - device_energy;
-    double total_node_energy = PowerCheck::mpi_sum_reduce(node_energy);
-    double total_device_energy = PowerCheck::mpi_sum_reduce(device_energy);
+	timer_all.stop();
+	MPI_Barrier(MPI_COMM_WORLD);
+	node_energy    = PowerCheck::get_node_energy()/(double)ranks_per_node - node_energy;
+	device_energy  = PowerCheck::get_device_energy()/(double)ranks_per_node - device_energy;
+
+	double total_node_energy = PowerCheck::mpi_sum_reduce(node_energy);
+	double total_device_energy = PowerCheck::mpi_sum_reduce(device_energy);
 	double time_all = timer_all.get_value_sum();
 
 	coutMaster << "--- ENERGY INFO --------------------------------" << std::endl;
