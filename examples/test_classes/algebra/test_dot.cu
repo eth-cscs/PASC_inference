@@ -187,7 +187,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "- create stride" << std::endl;
 	IS myis1;
 	IS myis2;
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, end1-1, -1, &myis1) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, end2-1, -1, &myis1) );
 	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize2, end2-1, -1, &myis2) );
 
 	Vec new1_Vec;
