@@ -17,7 +17,7 @@
  #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
-//#include "algebra/matrix/blockgraphsparse.h"
+#include "algebra/matrix/blockgraphsparse.h"
 
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000
@@ -590,6 +590,7 @@ void SPGQPSolver<VectorBase>::printshort(std::ostringstream &header, std::ostrin
 
 	/* pointers to qpdata */
 	pMatrix A = *(qpdata->get_A());
+
 	pVector b = *(qpdata->get_b());
 
 	/* pointer to solution */
@@ -717,6 +718,24 @@ void SPGQPSolver<VectorBase>::solve() {
 	pVector d = *(this->d); /* A-conjugate vector */
 	pVector Ad = *(this->Ad); /* A*p */
 
+	//TODO: temp!!!
+		BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
+		GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
+		GeneralVector<PetscVector> *x_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
+		GeneralVector<PetscVector> *x0_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
+		GeneralVector<PetscVector> *g_p = dynamic_cast<GeneralVector<PetscVector> *>(this->g);
+		GeneralVector<PetscVector> *d_p = dynamic_cast<GeneralVector<PetscVector> *>(this->d);
+		GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
+
+		Mat A_Mat = Abgs->get_petscmatrix(); 
+		Vec b_Vec = b_p->get_vector();
+		Vec x_Vec = x_p->get_vector();
+		Vec x0_Vec = x0_p->get_vector();
+		Vec g_Vec = g_p->get_vector();
+		Vec d_Vec = d_p->get_vector();
+		Vec Ad_Vec = Ad_p->get_vector();
+
+
 	int it = 0; /* number of iterations */
 	int hessmult = 0; /* number of hessian multiplications */
 
@@ -783,7 +802,11 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* Ad = A*d */
 		this->timer_matmult.start();
-		 Ad = A*d;
+		//TODO: temp!!!
+		// Ad = A*d;
+		 TRYCXX( MatMult(A_Mat, d_Vec, Ad_Vec) );
+		 TRYCXX( VecScale(Ad_Vec, Abgs->get_coeff()) );
+
 		 hessmult += 1;
 		this->timer_matmult.stop();
 
@@ -819,8 +842,11 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* update approximation and gradient */
 		this->timer_update.start();
-		 x += beta*d; /* x = x + beta*d */
-		 g += beta*Ad; /* g = g + beta*Ad */
+		//TODO: temp!!!
+		 TRYCXX( VecAXPY(x_Vec, beta, d_Vec) );
+		 TRYCXX( VecAXPY(g_Vec, beta, Ad_Vec) );
+//		 x += beta*d; /* x = x + beta*d */
+//		 g += beta*Ad; /* g = g + beta*Ad */
 		this->timer_update.stop();
 
 		/* compute new function value using gradient and update fs list */
