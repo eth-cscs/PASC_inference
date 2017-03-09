@@ -93,6 +93,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "- dimension of v2: " << size2 << std::endl;
 	
 	/* we will measure the time of operation */
+	mytimer.start();
 	double dot_result;
 	for(int i=0;i<n;i++){
 

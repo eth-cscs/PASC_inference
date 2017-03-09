@@ -632,6 +632,11 @@ void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const {
 	int Rlocal = this->get_Rlocal();
 
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(*x_Vec, VECMPICUDA));
+	#endif
+
 	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
 	TRYCXX( VecSetFromOptions(*x_Vec) );
 
@@ -665,6 +670,11 @@ void Decomposition::createGlobalVec_data(Vec *x_Vec) const { //TODO: how about c
 	int Rlocal = this->get_Rlocal();
 
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
+	
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(*x_Vec,VECMPICUDA));
+	#endif
+
 	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
 	TRYCXX( VecSetFromOptions(*x_Vec) );
 
