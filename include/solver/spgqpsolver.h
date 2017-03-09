@@ -703,20 +703,20 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
-	typedef GeneralMatrix<VectorBase> (&pMatrix);
+//	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
 	/* pointers to qpdata */
-	pMatrix A = *(qpdata->get_A());
-	pVector b = *(qpdata->get_b());
-	pVector x0 = *(qpdata->get_x0());
+//	pMatrix A = *(qpdata->get_A());
+//	pVector b = *(qpdata->get_b());
+//	pVector x0 = *(qpdata->get_x0());
 
 	/* pointer to solution */
 	pVector x = *(qpdata->get_x());
 
 	/* auxiliary vectors */
-	pVector g = *(this->g); /* gradient */
+//	pVector g = *(this->g); /* gradient */
 	pVector d = *(this->d); /* A-conjugate vector */
-	pVector Ad = *(this->Ad); /* A*p */
+//	pVector Ad = *(this->Ad); /* A*p */
 
 	//TODO: temp!!!
 		BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
@@ -748,12 +748,16 @@ void SPGQPSolver<VectorBase>::solve() {
 	double gd; /* dot(g,d) */
 	double dAd; /* dot(Ad,d) */
 	double alpha_bb; /* BB step-size */
-	double normb = norm(b); /* norm of linear term used in stopping criteria */
+	double normb;// = norm(b); /* norm of linear term used in stopping criteria */
+	//TODO: temp!!!
+		TRYCXX( VecNorm(b_Vec, NORM_2, &normb) );
 
 	/* initial step-size */
 	alpha_bb = this->alphainit;
 
-	x = x0; /* set approximation as initial */
+	//TODO: temp!
+//	x = x0; /* set approximation as initial */
+	TRYCXX( VecCopy(x0_Vec, x0_Vec) );
 
 	this->timer_projection.start();
 	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
@@ -761,10 +765,17 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	/* compute gradient, g = A*x-b */
 	this->timer_matmult.start();
-	 g = A*x;
+	//TODO: temp!!!
+	// g = A*x;
+		 TRYCXX( MatMult(A_Mat, x_Vec, g_Vec) );
+		 TRYCXX( VecScale(g_Vec, Abgs->get_coeff()) );
+
 	 hessmult += 1; /* there was muliplication by A */
 	this->timer_matmult.stop();
-	g -= b;
+
+	//TODO: temp!!!
+	//g -= b;
+		 TRYCXX( VecAXPY(g_Vec, -1.0, b_Vec) );
 
 	/* initialize fs */
 	this->timer_fs.start();
@@ -787,7 +798,10 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
-		 d = x - alpha_bb*g;
+		//d = x - alpha_bb*g;
+		 TRYCXX( VecCopy(x_Vec, d_Vec));
+		 TRYCXX( VecAXPY(d_Vec, -alpha_bb, g_Vec) );
+		 
 		this->timer_update.stop();
 
 		/* d = P(d) */
@@ -797,7 +811,10 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* d = d - x */
 		this->timer_update.start();
-		 d -= x;
+		 //TODO: temp!!!
+		 //d -= x;
+		 TRYCXX( VecAXPY(d_Vec, -1.0, x_Vec) );
+
 		this->timer_update.stop();
 
 		/* Ad = A*d */
@@ -881,10 +898,10 @@ void SPGQPSolver<VectorBase>::solve() {
 		
 		/* print qpdata */
 		if(debug_print_vectors){
-			coutMaster << "x: " << x << std::endl;
-			coutMaster << "d: " << d << std::endl;
-			coutMaster << "g: " << g << std::endl;
-			coutMaster << "Ad: " << Ad << std::endl;
+//			coutMaster << "x: " << x << std::endl;
+//			coutMaster << "d: " << d << std::endl;
+//			coutMaster << "g: " << g << std::endl;
+//			coutMaster << "Ad: " << Ad << std::endl;
 		}
 
 		if(debug_print_scalars){
