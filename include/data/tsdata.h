@@ -1086,6 +1086,10 @@ void TSData<PetscVector>::load_gammavector(std::string filename) const {
 	Vec gamma_preload_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD, &gamma_preload_Vec) );
 
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(gamma_preload_Vec, VECMPICUDA));
+	#endif
+
 	/* prepare viewer to load from file */
 	PetscViewer mviewer;
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );

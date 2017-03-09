@@ -104,7 +104,12 @@ void PetscVector::set(int index, double new_value){
 void PetscVector::load_local(std::string filename){
 	if(!this->inner_vector){
 		TRYCXX( VecCreate(PETSC_COMM_SELF,&inner_vector) );
+
+		#ifdef USE_CUDA
+			TRYCXX(VecSetType(inner_vector, VECMPICUDA));
+		#endif
 	}
+
 
 	//TODO: check if file exists
 
@@ -125,6 +130,10 @@ void PetscVector::load_local(std::string filename){
 void PetscVector::load_global(std::string filename){
 	if(!this->inner_vector){
 		TRYCXX( VecCreate(PETSC_COMM_WORLD,&inner_vector) );
+
+		#ifdef USE_CUDA
+			TRYCXX(VecSetType(inner_vector, VECMPICUDA));
+		#endif
 	}
 
 	//TODO: check if file exists

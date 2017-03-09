@@ -73,6 +73,10 @@ Signal1DData<VectorBase>::Signal1DData(std::string filename_data){
 	/* prepare preliminary datavector and load data */
 	Vec datapreload_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(datapreload_Vec, VECMPICUDA));
+	#endif
+
 	this->datavectorpreliminary = new GeneralVector<PetscVector>(datapreload_Vec);
 	this->datavectorpreliminary->load_global(filename_data);
 

@@ -272,6 +272,10 @@ Decomposition::Decomposition(int T, int R, int K, int xdim, int DDT_size){
 	
 	Vec DDT_layout;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&DDT_layout) );
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(DDT_layout, VECMPICUDA));
+	#endif
+	
 	TRYCXX( VecSetSizes(DDT_layout, PETSC_DECIDE, T ));
 	TRYCXX( VecSetFromOptions(DDT_layout) );
 	
