@@ -184,6 +184,7 @@ int main( int argc, char *argv[] )
 	TRYCXX( VecGetOwnershipRange(b1.get_vector(), &start1, &end1) );
 	TRYCXX( VecGetOwnershipRange(b2.get_vector(), &start2, &end2) );
 	
+	coutMaster << "- create stride" << std::endl;
 	IS myis1;
 	IS myis2;
 	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, end1-1, -1, &myis1) );
@@ -194,22 +195,27 @@ int main( int argc, char *argv[] )
 	Vec myvector73;
 	TRYCXX( VecDuplicate(b2.get_vector(),&myvector73));
 
+	coutMaster << "- get subvector" << std::endl;
 	TRYCXX( VecGetSubVector(b1.get_vector(), myis1, &new1_Vec) );
 	TRYCXX( VecGetSubVector(myvector73, myis2, &new2_Vec) );
 
+	coutMaster << "- copy" << std::endl;
 	TRYCXX( VecCopy(new1_Vec, new2_Vec) );
 	
+	coutMaster << "- restore" << std::endl;
 	TRYCXX( VecRestoreSubVector(b1.get_vector(), myis1, &new1_Vec) );
 	TRYCXX( VecRestoreSubVector(myvector73, myis2, &new2_Vec) );
 	
 	const char *mytype1;
 	const char *mytype2;
+	coutMaster << "- get type" << std::endl;
 	TRYCXX( VecGetType(b2.get_vector(), &mytype1) );
 	TRYCXX( VecGetType(myvector73, &mytype2) );
 	
-	coutMaster << "- type1: " << mytype1 << std::endl;
-	coutMaster << "- type2: " << mytype2 << std::endl;
+	coutMaster << " - type1: " << mytype1 << std::endl;
+	coutMaster << " - type2: " << mytype2 << std::endl;
 	
+	coutMaster << "- compute" << std::endl;
 	double dot_result6;
 	mytimer.start();
 	for(int i=0;i<n;i++){
