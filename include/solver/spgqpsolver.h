@@ -392,7 +392,7 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 		#else
 			TRYCXX( PetscFree(Mdots_val) );
 			TRYCXX( PetscFree(Mdots_vec) );
-		#end
+		#endif
 	#endif
 	
 	LOG_FUNC_END
