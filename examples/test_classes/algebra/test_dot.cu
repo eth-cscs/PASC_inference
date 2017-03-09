@@ -91,6 +91,21 @@ int main( int argc, char *argv[] )
 
 	coutMaster << "- dimension of v1: " << size1 << std::endl;
 	coutMaster << "- dimension of v2: " << size2 << std::endl;
+
+
+	mytimer.start();
+	double dot_result;
+	for(int i=0;i<n;i++){
+		TRYCXX( VecDot( myvector1_Vec, myvector2_Vec, &dot_result) );
+		TRYCXX( VecDot( myvector1_Vec, myvector2_Vec, &dot_result) );
+		TRYCXX( VecDot( myvector1_Vec, myvector2_Vec, &dot_result) );
+	}
+	mytimer.stop();
+	coutMaster << "- result        : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result << std::endl;
+	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	coutMaster << std::endl;
+
 	
 	double *Mdots_val;
 	Vec *Mdots_vec;
@@ -103,7 +118,6 @@ int main( int argc, char *argv[] )
 	
 	/* we will measure the time of operation */
 	mytimer.start();
-	double dot_result;
 	for(int i=0;i<n;i++){
 		TRYCXX( VecMDot( myvector1_Vec, 3, Mdots_vec, Mdots_val) );
 	}
