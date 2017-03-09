@@ -124,6 +124,26 @@ int main( int argc, char *argv[] )
 	coutMaster << std::endl;
 
 
+	coutMaster << "TEST of the wrapper2" << std::endl;
+
+	typedef GeneralVector<PetscVector> (&pVector);
+	pVector b1 = *(&myvector1);
+	pVector b2 = *(&myvector2);
+
+	mytimer.start();
+	double dot_result3;
+	for(int i=0;i<n;i++){
+		dot_result3 = dot(b1,b2);
+	}
+	mytimer.stop();
+
+	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result3 << std::endl;
+	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	coutMaster << std::endl;
+
+
+
 	coutMaster << std::endl;
 
 	Finalize();
