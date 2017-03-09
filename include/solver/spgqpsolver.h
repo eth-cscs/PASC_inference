@@ -703,6 +703,10 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* increase iteration counter */
 		it += 1;
 
+		//TODO: temp
+		coutMaster << "x.get_type(): " << x.get_type() << std::endl;
+		coutMaster << std::endl;
+
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
 		 d = x - alpha_bb*g;

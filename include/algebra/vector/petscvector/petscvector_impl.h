@@ -188,12 +188,15 @@ void PetscVector::save_ascii(std::string filename){
 
 Vec PetscVector::get_vector() const { // TODO: temp
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)FUNCTION: get_vector()" << std::endl;
-	
-	
-		
 	return inner_vector;
 }
 
+std::string PetscVector::get_type() const {
+	const char *mytype;
+	TRYCXX( VecGetType(inner_vector, &mytype) );
+	std::string return_value(mytype,255);
+	return return_value;
+}
 
 int PetscVector::size() const{
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)FUNCTION: size()" << std::endl;

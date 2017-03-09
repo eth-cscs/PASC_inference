@@ -410,6 +410,8 @@ class PetscVector {
 		*/ 
 		friend PetscVectorWrapperMul mul(const PetscVector &x, const PetscVector &y);
 
+		std::string get_type() const;
+
 };
 
 
