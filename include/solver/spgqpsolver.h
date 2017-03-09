@@ -245,7 +245,7 @@ void SPGQPSolver<VectorBase>::copy_to_gpu() {
 	GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
 	Vec Ad_Vec = Ad_p->get_vector();
 
-	TRYCXX( MatCUDACopyToGPU(A_Mat) );
+//	TRYCXX( MatCUDACopyToGPU(A_Mat) );
 	TRYCXX( VecCUDACopyToGPU(b_Vec) );
 	TRYCXX( VecCUDACopyToGPU(x_Vec) );
 	TRYCXX( VecCUDACopyToGPU(x0_Vec) );
