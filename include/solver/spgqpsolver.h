@@ -708,10 +708,10 @@ void SPGQPSolver<VectorBase>::solve() {
 		it += 1;
 
 		// TODO: TEMP
-		coutMaster << "x.type  : " << x.get_type() << std::endl;
-		coutMaster << "d.type  : " << d.get_type() << std::endl;
-		coutMaster << "Ad.type : " << Ad.get_type() << std::endl;
-		coutMaster << "g.type  : " << g.get_type() << std::endl;
+//		coutMaster << "x.type  : " << x.get_type() << std::endl;
+//		coutMaster << "d.type  : " << d.get_type() << std::endl;
+//		coutMaster << "Ad.type : " << Ad.get_type() << std::endl;
+//		coutMaster << "g.type  : " << g.get_type() << std::endl;
 
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
@@ -1029,15 +1029,11 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	TRYCXX( VecGetType(Mdots_vec[1], &mytype2) );
 	TRYCXX( VecGetType(Mdots_vec[2], &mytype3) );
 
-	coutMaster << "typeofvector1: " << mytype1 << std::endl;
-	coutMaster << "typeofvector2: " << mytype2 << std::endl;
-	coutMaster << "typeofvector3: " << mytype3 << std::endl;
+//	coutMaster << "typeofvector1: " << mytype1 << std::endl;
+//	coutMaster << "typeofvector2: " << mytype2 << std::endl;
+//	coutMaster << "typeofvector3: " << mytype3 << std::endl;
 
-#ifdef USE_CUDA
-	TRYCXX( VecMDot_MPICUDA( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
-#else
 	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
-#endif
 
 	*dd = Mdots_val[0];
 	*dAd = Mdots_val[1];
