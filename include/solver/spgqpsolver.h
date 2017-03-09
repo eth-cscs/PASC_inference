@@ -17,7 +17,7 @@
  #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
-#include "algebra/matrix/blockgraphsparse.h"
+//#include "algebra/matrix/blockgraphsparse.h"
 
 
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000
@@ -224,8 +224,8 @@ namespace solver {
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::copy_to_gpu() {
 #ifdef USE_GPU
-	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
-	Mat A_Mat = Abgs->get_petscmatrix();
+//	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
+//	Mat A_Mat = Abgs->get_petscmatrix();
 
 	GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
 	Vec b_Vec = b_p->get_vector();
