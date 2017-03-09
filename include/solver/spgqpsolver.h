@@ -1022,16 +1022,23 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	LOG_FUNC_BEGIN
 
 	//TODO: temp
-	const char *mytype1;
-	const char *mytype2;
-	const char *mytype3;
-	TRYCXX( VecGetType(Mdots_vec[0], &mytype1) );
-	TRYCXX( VecGetType(Mdots_vec[1], &mytype2) );
-	TRYCXX( VecGetType(Mdots_vec[2], &mytype3) );
+//	const char *mytype1;
+//	const char *mytype2;
+//	const char *mytype3;
+//	TRYCXX( VecGetType(Mdots_vec[0], &mytype1) );
+//	TRYCXX( VecGetType(Mdots_vec[1], &mytype2) );
+//	TRYCXX( VecGetType(Mdots_vec[2], &mytype3) );
 
 //	coutMaster << "typeofvector1: " << mytype1 << std::endl;
 //	coutMaster << "typeofvector2: " << mytype2 << std::endl;
 //	coutMaster << "typeofvector3: " << mytype3 << std::endl;
+
+#ifdef USE_CUDA
+	//TODO: hotfix
+	TRYCXX( PetscObjectChangeTypeName((PetscObject)(Mdots_vec[0]),VECMPICUDA) );
+	TRYCXX( PetscObjectChangeTypeName((PetscObject)(Mdots_vec[1]),VECMPICUDA) );
+	TRYCXX( PetscObjectChangeTypeName((PetscObject)(Mdots_vec[2]),VECMPICUDA) );
+#endif
 
 	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
 
