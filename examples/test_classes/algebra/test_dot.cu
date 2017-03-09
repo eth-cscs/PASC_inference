@@ -179,15 +179,15 @@ int main( int argc, char *argv[] )
 	TRYCXX( VecGetLocalSize(b1.get_vector(), &localsize1) );
 	TRYCXX( VecGetLocalSize(b2.get_vector(), &localsize2) );
 	
-	int start1;
-	int start2;
-	TRYCXX( VecGetOwnershipRange(b1.get_vector(), &start1, NULL) );
-	TRYCXX( VecGetOwnershipRange(b2.get_vector(), &start2, NULL) );
+	int start1, end1;
+	int start2, end2;
+	TRYCXX( VecGetOwnershipRange(b1.get_vector(), &start1, &end1) );
+	TRYCXX( VecGetOwnershipRange(b2.get_vector(), &start2, &end2) );
 	
 	IS myis1;
 	IS myis2;
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, start1, 1, &myis1) );
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize2, start2, 1, &myis2) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, end1-1, -1, &myis1) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize2, end2-1, -1, &myis2) );
 
 	Vec new1_Vec;
 	Vec new2_Vec;
