@@ -92,141 +92,150 @@ int main( int argc, char *argv[] )
 	coutMaster << "- dimension of v1: " << size1 << std::endl;
 	coutMaster << "- dimension of v2: " << size2 << std::endl;
 	
+	double *Mdots_val;
+	Vec *Mdots_vec;
+	TRYCXX( PetscMalloc1(3,&Mdots_val) );
+	TRYCXX( PetscMalloc1(3,&Mdots_vec) );
+
+	Mdots_vec[0] = myvector2_Vec;
+	Mdots_vec[1] = myvector2_Vec;
+	Mdots_vec[2] = myvector2_Vec;
+	
 	/* we will measure the time of operation */
 	mytimer.start();
 	double dot_result;
 	for(int i=0;i<n;i++){
-
-		TRYCXX( VecDot(myvector1_Vec, myvector2_Vec, &dot_result) );
-
+		TRYCXX( VecMDot( myvector1_Vec, 3, Mdots_vec, Mdots_val) );
 	}
 	mytimer.stop();
 
-	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result << std::endl;
+	coutMaster << "- result1        : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << Mdots_val[0] << std::endl;
+	coutMaster << "- result2        : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << Mdots_val[1] << std::endl;
+	coutMaster << "- result3        : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << Mdots_val[2] << std::endl;
 	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
 	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
 	coutMaster << std::endl;
 
-	coutMaster << "TEST of the wrapper" << std::endl;
-	GeneralVector<PetscVector> myvector1(myvector1_Vec);
-	GeneralVector<PetscVector> myvector2(myvector2_Vec);
+	//coutMaster << "TEST of the wrapper" << std::endl;
+	//GeneralVector<PetscVector> myvector1(myvector1_Vec);
+	//GeneralVector<PetscVector> myvector2(myvector2_Vec);
 
-	mytimer.start();
-	double dot_result2;
-	for(int i=0;i<n;i++){
-		dot_result2 = dot(myvector1,myvector2);
-	}
-	mytimer.stop();
+	//mytimer.start();
+	//double dot_result2;
+	//for(int i=0;i<n;i++){
+		//dot_result2 = dot(myvector1,myvector2);
+	//}
+	//mytimer.stop();
 
-	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result2 << std::endl;
-	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
-	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
-	coutMaster << std::endl;
-
-
-	coutMaster << "TEST of the wrapper2" << std::endl;
-
-	typedef GeneralVector<PetscVector> (&pVector);
-	pVector b1 = *(&myvector1);
-	pVector b2 = *(&myvector2);
-
-	mytimer.start();
-	double dot_result3;
-	for(int i=0;i<n;i++){
-		dot_result3 = dot(b1,b2);
-	}
-	mytimer.stop();
-
-	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result3 << std::endl;
-	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
-	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
-	coutMaster << std::endl;
+	//coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result2 << std::endl;
+	//coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	//coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	//coutMaster << std::endl;
 
 
-	coutMaster << "TEST of the Vec = Vec" << std::endl;
+	//coutMaster << "TEST of the wrapper2" << std::endl;
 
-	Vec myvector3_Vec;
-	Vec myvector4_Vec;
+	//typedef GeneralVector<PetscVector> (&pVector);
+	//pVector b1 = *(&myvector1);
+	//pVector b2 = *(&myvector2);
+
+	//mytimer.start();
+	//double dot_result3;
+	//for(int i=0;i<n;i++){
+		//dot_result3 = dot(b1,b2);
+	//}
+	//mytimer.stop();
+
+	//coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result3 << std::endl;
+	//coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	//coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	//coutMaster << std::endl;
+
+
+	//coutMaster << "TEST of the Vec = Vec" << std::endl;
+
+	//Vec myvector3_Vec;
+	//Vec myvector4_Vec;
 	
-	myvector3_Vec = b1.get_vector();
-	myvector4_Vec = b2.get_vector();
+	//myvector3_Vec = b1.get_vector();
+	//myvector4_Vec = b2.get_vector();
 
-	Vec myvector5_Vec;
-	Vec myvector6_Vec;
-	TRYCXX( VecDuplicate(myvector3_Vec, &myvector5_Vec) );
-	TRYCXX( VecDuplicate(myvector4_Vec, &myvector6_Vec) );
-	TRYCXX( VecCopy(myvector3_Vec, myvector5_Vec) );
-	TRYCXX( VecCopy(myvector4_Vec, myvector6_Vec) );
+	//Vec myvector5_Vec;
+	//Vec myvector6_Vec;
+	//TRYCXX( VecDuplicate(myvector3_Vec, &myvector5_Vec) );
+	//TRYCXX( VecDuplicate(myvector4_Vec, &myvector6_Vec) );
+	//TRYCXX( VecCopy(myvector3_Vec, myvector5_Vec) );
+	//TRYCXX( VecCopy(myvector4_Vec, myvector6_Vec) );
 
-	double dot_result4;
-	mytimer.start();
-	for(int i=0;i<n;i++){
-		TRYCXX( VecDot(myvector5_Vec, myvector6_Vec, &dot_result4) );
-	}
-	mytimer.stop();
+	//double dot_result4;
+	//mytimer.start();
+	//for(int i=0;i<n;i++){
+		//TRYCXX( VecDot(myvector5_Vec, myvector6_Vec, &dot_result4) );
+	//}
+	//mytimer.stop();
 
-	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result4 << std::endl;
-	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
-	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
-	coutMaster << std::endl;
+	//coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result4 << std::endl;
+	//coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	//coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	//coutMaster << std::endl;
 
 
-	coutMaster << "TEST of the IS" << std::endl;
+	//coutMaster << "TEST of the IS" << std::endl;
 	
-	int localsize1;
-	int localsize2;
+	//int localsize1;
+	//int localsize2;
 	
-	TRYCXX( VecGetLocalSize(b1.get_vector(), &localsize1) );
-	TRYCXX( VecGetLocalSize(b2.get_vector(), &localsize2) );
+	//TRYCXX( VecGetLocalSize(b1.get_vector(), &localsize1) );
+	//TRYCXX( VecGetLocalSize(b2.get_vector(), &localsize2) );
 	
-	int start1, end1;
-	int start2, end2;
-	TRYCXX( VecGetOwnershipRange(b1.get_vector(), &start1, &end1) );
-	TRYCXX( VecGetOwnershipRange(b2.get_vector(), &start2, &end2) );
+	//int start1, end1;
+	//int start2, end2;
+	//TRYCXX( VecGetOwnershipRange(b1.get_vector(), &start1, &end1) );
+	//TRYCXX( VecGetOwnershipRange(b2.get_vector(), &start2, &end2) );
 	
-	coutMaster << "- create stride" << std::endl;
-	IS myis1;
-	IS myis2;
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, end2-1, -1, &myis1) );
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize2, end2-1, -1, &myis2) );
+	//coutMaster << "- create stride" << std::endl;
+	//IS myis1;
+	//IS myis2;
+	//TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, end2-1, -1, &myis1) );
+	//TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize2, end2-1, -1, &myis2) );
 
-	Vec new1_Vec;
-	Vec new2_Vec;
-	Vec myvector73;
-	TRYCXX( VecDuplicate(b2.get_vector(),&myvector73));
+	//Vec new1_Vec;
+	//Vec new2_Vec;
+	//Vec myvector73;
+	//TRYCXX( VecDuplicate(b2.get_vector(),&myvector73));
 
-	coutMaster << "- get subvector" << std::endl;
-	TRYCXX( VecGetSubVector(b1.get_vector(), myis1, &new1_Vec) );
-	TRYCXX( VecGetSubVector(myvector73, myis2, &new2_Vec) );
+	//coutMaster << "- get subvector" << std::endl;
+	//TRYCXX( VecGetSubVector(b1.get_vector(), myis1, &new1_Vec) );
+	//TRYCXX( VecGetSubVector(myvector73, myis2, &new2_Vec) );
 
-	coutMaster << "- copy" << std::endl;
-	TRYCXX( VecCopy(new1_Vec, new2_Vec) );
+	//coutMaster << "- copy" << std::endl;
+	//TRYCXX( VecCopy(new1_Vec, new2_Vec) );
 	
-	coutMaster << "- restore" << std::endl;
-	TRYCXX( VecRestoreSubVector(b1.get_vector(), myis1, &new1_Vec) );
-	TRYCXX( VecRestoreSubVector(myvector73, myis2, &new2_Vec) );
+	//coutMaster << "- restore" << std::endl;
+	//TRYCXX( VecRestoreSubVector(b1.get_vector(), myis1, &new1_Vec) );
+	//TRYCXX( VecRestoreSubVector(myvector73, myis2, &new2_Vec) );
 	
-	const char *mytype1;
-	const char *mytype2;
-	coutMaster << "- get type" << std::endl;
-	TRYCXX( VecGetType(b2.get_vector(), &mytype1) );
-	TRYCXX( VecGetType(myvector73, &mytype2) );
+	//const char *mytype1;
+	//const char *mytype2;
+	//coutMaster << "- get type" << std::endl;
+	//TRYCXX( VecGetType(b2.get_vector(), &mytype1) );
+	//TRYCXX( VecGetType(myvector73, &mytype2) );
 	
-	coutMaster << " - type1: " << mytype1 << std::endl;
-	coutMaster << " - type2: " << mytype2 << std::endl;
+	//coutMaster << " - type1: " << mytype1 << std::endl;
+	//coutMaster << " - type2: " << mytype2 << std::endl;
 	
-	coutMaster << "- compute" << std::endl;
-	double dot_result6;
-	mytimer.start();
-	for(int i=0;i<n;i++){
-		TRYCXX( VecDot(b2.get_vector(), myvector73, &dot_result6) );
-	}
-	mytimer.stop();
+	//coutMaster << "- compute" << std::endl;
+	//double dot_result6;
+	//mytimer.start();
+	//for(int i=0;i<n;i++){
+		//TRYCXX( VecDot(b2.get_vector(), myvector73, &dot_result6) );
+	//}
+	//mytimer.stop();
 
 
-	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result6 << std::endl;
-	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
-	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	//coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result6 << std::endl;
+	//coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	//coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
 
 	coutMaster << std::endl;
 
