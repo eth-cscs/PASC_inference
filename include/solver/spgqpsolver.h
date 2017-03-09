@@ -17,6 +17,9 @@
  #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
+#include "algebra/matrix/blockgraphsparse.h"
+
+
 #define SPGQPSOLVER_DEFAULT_MAXIT 1000
 #define SPGQPSOLVER_DEFAULT_EPS 1e-9
 #define SPGQPSOLVER_DEFAULT_DEBUGMODE 0
