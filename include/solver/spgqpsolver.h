@@ -703,9 +703,11 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* increase iteration counter */
 		it += 1;
 
-		//TODO: temp
-		coutMaster << "x.get_type(): " << x.get_type() << std::endl;
-		coutMaster << std::endl;
+		// TODO: TEMP
+		coutMaster << "x.type  : " << x.get_type() << std::endl;
+		coutMaster << "d.type  : " << d.get_type() << std::endl;
+		coutMaster << "Ad.type : " << Ad.get_type() << std::endl;
+		coutMaster << "g.type  : " << g.get_type() << std::endl;
 
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
@@ -1016,9 +1018,16 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	LOG_FUNC_BEGIN
 
 	//TODO: temp
-	const char *mytype;
-	TRYCXX( VecGetType(Mdots_vec[0], &mytype) );
-	coutMaster << "typeofvector: " << mytype << std::endl;
+	const char *mytype1;
+	const char *mytype2;
+	const char *mytype3;
+	TRYCXX( VecGetType(Mdots_vec[0], &mytype1) );
+	TRYCXX( VecGetType(Mdots_vec[1], &mytype2) );
+	TRYCXX( VecGetType(Mdots_vec[2], &mytype3) );
+
+	coutMaster << "typeofvector1: " << mytype1 << std::endl;
+	coutMaster << "typeofvector2: " << mytype2 << std::endl;
+	coutMaster << "typeofvector3: " << mytype3 << std::endl;
 
 	TRYCXX(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
 
