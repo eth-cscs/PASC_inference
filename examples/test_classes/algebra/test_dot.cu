@@ -151,10 +151,17 @@ int main( int argc, char *argv[] )
 	myvector3_Vec = b1.get_vector();
 	myvector4_Vec = b2.get_vector();
 
+	Vec myvector5_Vec;
+	Vec myvector6_Vec;
+	TRYCXX( VecDuplicate(myvector3_Vec, &myvector5_Vec) );
+	TRYCXX( VecDuplicate(myvector4_Vec, &myvector6_Vec) );
+	TRYCXX( VecCopy(myvector3_Vec, myvector5_Vec) );
+	TRYCXX( VecCopy(myvector4_Vec, myvector6_Vec) );
+
 	double dot_result4;
 	mytimer.start();
 	for(int i=0;i<n;i++){
-		TRYCXX( VecDot(myvector3_Vec, myvector4_Vec, &dot_result4) );
+		TRYCXX( VecDot(myvector5_Vec, myvector6_Vec, &dot_result4) );
 	}
 	mytimer.stop();
 
