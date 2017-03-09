@@ -14,7 +14,7 @@ typedef petscvector::PetscVector PetscVector;
 
 using namespace pascinference;
 
-extern int pascinference::DEBUG_MODE;
+//extern int pascinference::DEBUG_MODE;
 
 int main( int argc, char *argv[] )
 {
@@ -23,7 +23,7 @@ int main( int argc, char *argv[] )
 	opt_problem.add_options()
 		("test_filename1", boost::program_options::value< std::string >(), "name of input file with vector1 data (vector in PETSc format) [string]")
 		("test_filename2", boost::program_options::value< std::string >(), "name of input file with vector2 data (vector in PETSc format) [string]")
-		("test_n", boost::program_options::value< int >(), "how many times to test operation [int]");
+		("test_n", boost::program_options::value< double >(), "how many times to test operation [int]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -34,10 +34,10 @@ int main( int argc, char *argv[] )
 	/* load console arguments */
 	std::string filename1;
 	std::string filename2;
-	int n;
+	double n;
 	consoleArg.set_option_value("test_filename1", &filename1, "data/small_data.bin");
 	consoleArg.set_option_value("test_filename2", &filename2, "data/small_solution.bin");
-	consoleArg.set_option_value("test_n", &n, 100);
+	consoleArg.set_option_value("test_n", &n, 100.0);
 
 	/* print settings */
 	coutMaster << " test_filename1      = " << std::setw(30) << filename1 << " (name of input file with vector1 data)" << std::endl;
@@ -70,10 +70,10 @@ int main( int argc, char *argv[] )
 	for(int i=0;i<n;i++){
 		dot_result = dot(myvector1,myvector2);
 		#ifdef USE_CUDA
-			gpuErrchk( cudaDeviceSynchronize() );
+			//gpuErrchk( cudaDeviceSynchronize() );
 		#endif
-		TRYCXX( PetscBarrier(NULL) );
-		MPI_Barrier(MPI_COMM_WORLD);
+		//TRYCXX( PetscBarrier(NULL) );
+		//MPI_Barrier(MPI_COMM_WORLD);
 
 	}
 	mytimer.stop();
