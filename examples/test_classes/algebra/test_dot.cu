@@ -99,19 +99,30 @@ int main( int argc, char *argv[] )
 
 		TRYCXX( VecDot(myvector1_Vec, myvector2_Vec, &dot_result) );
 
-		#ifdef USE_CUDA
-			//gpuErrchk( cudaDeviceSynchronize() );
-		#endif
-		//TRYCXX( PetscBarrier(NULL) );
-		//MPI_Barrier(MPI_COMM_WORLD);
-
 	}
 	mytimer.stop();
-
 
 	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result << std::endl;
 	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
 	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	coutMaster << std::endl;
+
+	coutMaster << "TEST of the wrapper" << std::endl;
+	GeneralVector<PetscVector> myvector1(myvector1_Vec);
+	GeneralVector<PetscVector> myvector2(myvector2_Vec);
+
+	mytimer.start();
+	double dot_result2;
+	for(int i=0;i<n;i++){
+		dot_result2 = dot(myvector1,myvector2);
+	}
+	mytimer.stop();
+
+	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result << std::endl;
+	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	coutMaster << std::endl;
+
 
 	coutMaster << std::endl;
 
