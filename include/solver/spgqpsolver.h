@@ -1035,9 +1035,9 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 
 #ifdef USE_CUDA
 	//TODO: hotfix
-	TRYCXX( PetscObjectChangeTypeName((PetscObject)(Mdots_vec[0]),VECMPICUDA) );
-	TRYCXX( PetscObjectChangeTypeName((PetscObject)(Mdots_vec[1]),VECMPICUDA) );
-	TRYCXX( PetscObjectChangeTypeName((PetscObject)(Mdots_vec[2]),VECMPICUDA) );
+	TRYCXX( VecCUDACopyToGPU(Mdots_vec[0]) );
+	TRYCXX( VecCUDACopyToGPU(Mdots_vec[1]) );
+	TRYCXX( VecCUDACopyToGPU(Mdots_vec[2]) );
 #endif
 
 	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
