@@ -173,6 +173,8 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		bool debug_print_vectors;	/**< print content of vectors during iterations */
 		bool debug_print_scalars;	/**< print values of computed scalars during iterations */ 
 		
+		void copy_to_gpu();
+		
 	public:
 		/** @brief general constructor
 		* 
@@ -215,6 +217,41 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 namespace pascinference {
 namespace solver {
+
+template<class VectorBase>
+void SPGQPSolver<VectorBase>::copy_to_gpu() {
+#ifdef USE_GPU
+	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
+	Mat A_Mat = Abgs->get_petscmatrix();
+
+	GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
+	Vec b_Vec = b_p->get_vector();
+
+	GeneralVector<PetscVector> *x_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
+	Vec x_Vec = x_p->get_vector();
+
+	GeneralVector<PetscVector> *x0_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
+	Vec x0_Vec = x0_p->get_vector();
+
+	GeneralVector<PetscVector> *g_p = dynamic_cast<GeneralVector<PetscVector> *>(this->g);
+	Vec g_Vec = g_p->get_vector();
+
+	GeneralVector<PetscVector> *d_p = dynamic_cast<GeneralVector<PetscVector> *>(this->d);
+	Vec d_Vec = d_p->get_vector();
+
+	GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
+	Vec Ad_Vec = Ad_p->get_vector();
+
+	TRYCXX( MatCUDACopyToGPU(A_Mat) );
+	TRYCXX( VecCUDACopyToGPU(b_Vec) );
+	TRYCXX( VecCUDACopyToGPU(x_Vec) );
+	TRYCXX( VecCUDACopyToGPU(x0_Vec) );
+	TRYCXX( VecCUDACopyToGPU(g_Vec) );
+	TRYCXX( VecCUDACopyToGPU(d_Vec) );
+	TRYCXX( VecCUDACopyToGPU(Ad_Vec) );
+
+#endif
+}
 
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::set_settings_from_console() {
@@ -357,11 +394,11 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	/* prepare for Mdot */
 	#ifdef USE_PETSCVECTOR
 		/* without cuda */
-		#ifdef USE_CUDA
-			gpuErrchk( cudaMalloc((void **)&Mdots_val,3*sizeof(double)) );
-		#else
+//		#ifdef USE_CUDA
+//			gpuErrchk( cudaMalloc((void **)&Mdots_val,3*sizeof(double)) );
+//		#else
 			TRYCXX( PetscMalloc1(3,&Mdots_val) );
-		#endif
+//		#endif
 
 		TRYCXX( PetscMalloc1(3,&Mdots_vec) );
 
@@ -385,14 +422,14 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 	free(temp);
 	
 	#ifdef USE_PETSCVECTOR
-		#ifdef USE_CUDA
-			gpuErrchk( cudaFree(&Mdots_val) );
+//		#ifdef USE_CUDA
+//			gpuErrchk( cudaFree(&Mdots_val) );
 //			gpuErrchk( cudaFree(&Mdots_vec) );
-			TRYCXX( PetscFree(Mdots_vec) );
-		#else
+//			TRYCXX( PetscFree(Mdots_vec) );
+//		#else
 			TRYCXX( PetscFree(Mdots_val) );
 			TRYCXX( PetscFree(Mdots_vec) );
-		#endif
+//		#endif
 	#endif
 	
 	LOG_FUNC_END
@@ -655,6 +692,8 @@ std::string SPGQPSolver<VectorBase>::get_name() const {
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
+
+	copy_to_gpu();
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
