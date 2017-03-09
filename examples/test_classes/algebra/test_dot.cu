@@ -10,6 +10,8 @@
 
 #include "pascinference.h"
 
+#include "../src/vec/vec/impls/mpi/mpicuda/mpicuda.cu"
+
 typedef petscvector::PetscVector PetscVector;
 
 using namespace pascinference;
@@ -107,14 +109,21 @@ int main( int argc, char *argv[] )
 	coutMaster << std::endl;
 
 	
-	double *Mdots_val;
-	Vec *Mdots_vec;
-	TRYCXX( PetscMalloc1(3,&Mdots_val) );
-	TRYCXX( PetscMalloc1(3,&Mdots_vec) );
+	PetscScalar Mdots_val[3];
+	Vec Mdots_vec[3];
+
+//	Mdots_val = new double[3];
+//	Mdots_vec = new Vec[3];
+
+//	TRYCXX( PetscMalloc1(3,&Mdots_val) );
+//	cudaMalloc((void**)&Mdots_val, 3*sizeof(double));
+//	TRYCXX( PetscMalloc1(3,&Mdots_vec) );
 
 	Mdots_vec[0] = myvector2_Vec;
 	Mdots_vec[1] = myvector2_Vec;
 	Mdots_vec[2] = myvector2_Vec;
+
+	coutMaster << "--- start to compute ---" << std::endl;
 	
 	/* we will measure the time of operation */
 	mytimer.start();
@@ -122,6 +131,8 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecMDot( myvector1_Vec, 3, Mdots_vec, Mdots_val) );
 	}
 	mytimer.stop();
+
+	coutMaster << "---- computed ----" << std::endl;
 
 	coutMaster << "- result1        : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << Mdots_val[0] << std::endl;
 	coutMaster << "- result2        : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << Mdots_val[1] << std::endl;
