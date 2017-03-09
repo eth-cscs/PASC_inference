@@ -191,18 +191,32 @@ int main( int argc, char *argv[] )
 
 	Vec new1_Vec;
 	Vec new2_Vec;
+	Vec myvector73;
+	TRYCXX( VecDuplicate(b2.get_vector(),&myvector73));
+
 	TRYCXX( VecGetSubVector(b1.get_vector(), myis1, &new1_Vec) );
-	TRYCXX( VecGetSubVector(b2.get_vector(), myis2, &new2_Vec) );
+	TRYCXX( VecGetSubVector(myvector73, myis2, &new2_Vec) );
+
+	TRYCXX( VecCopy(new1_Vec, new2_Vec) );
+	
+	TRYCXX( VecRestoreSubVector(b1.get_vector(), myis1, &new1_Vec) );
+	TRYCXX( VecRestoreSubVector(myvector73, myis2, &new2_Vec) );
+	
+	const char *mytype1;
+	const char *mytype2;
+	TRYCXX( VecGetType(b2.get_vector(), &mytype1) );
+	TRYCXX( VecGetType(myvector73, &mytype2) );
+	
+	coutMaster << "- type1: " << mytype1 << std::endl;
+	coutMaster << "- type2: " << mytype2 << std::endl;
 	
 	double dot_result6;
 	mytimer.start();
 	for(int i=0;i<n;i++){
-		TRYCXX( VecDot(new1_Vec, new2_Vec, &dot_result6) );
+		TRYCXX( VecDot(b2.get_vector(), myvector73, &dot_result6) );
 	}
 	mytimer.stop();
 
-	TRYCXX( VecRestoreSubVector(b1.get_vector(), myis1, &new1_Vec) );
-	TRYCXX( VecRestoreSubVector(b2.get_vector(), myis2, &new2_Vec) );
 
 	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result6 << std::endl;
 	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
