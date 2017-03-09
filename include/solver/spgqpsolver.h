@@ -357,7 +357,12 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	/* prepare for Mdot */
 	#ifdef USE_PETSCVECTOR
 		/* without cuda */
-		TRYCXX( PetscMalloc1(3,&Mdots_val) );
+		#ifdef USE_CUDA
+			gpuErrchk( cudaMalloc((void **)&Mdots_val,3*sizeof(double)) );
+		#else
+			TRYCXX( PetscMalloc1(3,&Mdots_val) );
+		#endif
+
 		TRYCXX( PetscMalloc1(3,&Mdots_vec) );
 
 		Mdots_vec[0] = d->get_vector();
@@ -380,8 +385,14 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 	free(temp);
 	
 	#ifdef USE_PETSCVECTOR
-		TRYCXX( PetscFree(Mdots_val) );
-		TRYCXX( PetscFree(Mdots_vec) );
+		#ifdef USE_CUDA
+			gpuErrchk( cudaFree(&Mdots_val) );
+//			gpuErrchk( cudaFree(&Mdots_vec) );
+			TRYCXX( PetscFree(Mdots_vec) );
+		#else
+			TRYCXX( PetscFree(Mdots_val) );
+			TRYCXX( PetscFree(Mdots_vec) );
+		#end
 	#endif
 	
 	LOG_FUNC_END
@@ -1039,9 +1050,15 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	TRYCXX( VecCUDACopyToGPU(Mdots_vec[1]) );
 	TRYCXX( VecCUDACopyToGPU(Mdots_vec[2]) );
 
-	VecDot(Mdots_vec[0],Mdots_vec[0], dd);
-	VecDot(Mdots_vec[0],Mdots_vec[1], dAd);
-	VecDot(Mdots_vec[0],Mdots_vec[2], gd);
+	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
+
+	*dd = Mdots_val[0];
+	*dAd = Mdots_val[1];
+	*gd = Mdots_val[2];
+
+//	VecDot(Mdots_vec[0],Mdots_vec[0], dd);
+//	VecDot(Mdots_vec[0],Mdots_vec[1], dAd);
+//	VecDot(Mdots_vec[0],Mdots_vec[2], gd);
 #else
 	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
 
