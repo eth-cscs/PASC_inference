@@ -143,6 +143,26 @@ int main( int argc, char *argv[] )
 	coutMaster << std::endl;
 
 
+	coutMaster << "TEST of the Vec = Vec" << std::endl;
+
+	Vec myvector3_Vec;
+	Vec myvector4_Vec;
+	
+	myvector3_Vec = b1.get_vector();
+	myvector4_Vec = b2.get_vector();
+
+	double dot_result4;
+	mytimer.start();
+	for(int i=0;i<n;i++){
+		TRYCXX( VecDot(myvector3_Vec, myvector4_Vec, &dot_result4) );
+	}
+	mytimer.stop();
+
+	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result4 << std::endl;
+	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+	coutMaster << std::endl;
+
 
 	coutMaster << std::endl;
 
