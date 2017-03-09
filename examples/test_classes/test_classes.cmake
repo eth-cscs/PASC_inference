@@ -20,6 +20,7 @@ endif()
 
 # ----- ALGEBRA -----
 option(TEST_ALGEBRA "TEST_ALGEBRA" OFF)
+option(TEST_ALGEBRA_DOT "TEST_ALGEBRA_DOT" OFF)
 option(TEST_ALGEBRA_BGMGRAPH "TEST_ALGEBRA_BGMGRAPH" OFF)
 option(TEST_ALGEBRA_BGMGRAPHGRID1D "TEST_ALGEBRA_BGMGRAPHGRID1D" OFF)
 option(TEST_ALGEBRA_BGMGRAPHGRID2D "TEST_ALGEBRA_BGMGRAPHGRID2D" OFF)
@@ -97,6 +98,7 @@ printinfo_onoff("  TEST_COMMON_OFFSET                        (Offset)           
 printinfo_onoff("  TEST_COMMON_SHORTINFO                     (Shortinfo)                " "${TEST_COMMON_SHORTINFO}")
 printinfo_onoff("  TEST_COMMON_TIMER                         (Timer,StackTimer)         " "${TEST_COMMON_TIMER}")
 printinfo_onoff(" TEST_ALGEBRA                              (...)                      " "${TEST_ALGEBRA}")
+printinfo_onoff("  TEST_ALGEBRA_DOT                          (dot product)              " "${TEST_ALGEBRA_DOT}")
 printinfo_onoff("  TEST_ALGEBRA_BGMGRAPH                     (BGMGraph)                 " "${TEST_ALGEBRA_BGMGRAPH}")
 printinfo_onoff("  TEST_ALGEBRA_BGMGRAPHGRID1D               (BGMGraphGrid1D)           " "${TEST_ALGEBRA_BGMGRAPHGRID1D}")
 printinfo_onoff("  TEST_ALGEBRA_BGMGRAPHGRID2D               (BGMGraphGrid2D)           " "${TEST_ALGEBRA_BGMGRAPHGRID2D}")
@@ -172,6 +174,16 @@ if(${TEST_COMMON_TIMER})
 endif()
 
 # ----- ALGEBRA -----
+
+if(${TEST_ALGEBRA_DOT})
+	# dot product
+	if(${USE_CUDA})
+		pascadd_executable("test_classes/algebra/test_dot.cu" "test_dot")
+	else()
+		pascadd_executable("test_classes/algebra/test_dot.cpp" "test_dot")
+	endif()
+	
+endif()
 
 if(${TEST_ALGEBRA_BGMGRAPH})
 	# BGMGraph
