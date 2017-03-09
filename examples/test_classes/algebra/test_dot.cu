@@ -53,6 +53,10 @@ int main( int argc, char *argv[] )
 
 	Vec myvector1_Vec;
 	Vec myvector2_Vec;
+
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&myvector1_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&myvector2_Vec) );
+		
 	GeneralVector<PetscVector> myvector1(myvector1_Vec);
 	myvector1.load_global(filename1);
 	GeneralVector<PetscVector> myvector2(myvector2_Vec);
