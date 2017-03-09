@@ -982,17 +982,34 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 	double fx = std::numeric_limits<double>::max();
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
-	typedef GeneralVector<VectorBase> (&pVector);
+//	typedef GeneralVector<VectorBase> (&pVector);
 
 	/* pointers to qpdata */
-	pVector g = *(this->g);
-	pVector x = *(qpdata->get_x());
-	pVector b = *(qpdata->get_b());
-	pVector temp = *(this->temp);
+//	pVector g = *(this->g);
+//	pVector x = *(qpdata->get_x());
+//	pVector b = *(qpdata->get_b());
+//	pVector temp = *(this->temp);
 
 	/* use computed gradient in this->g to compute function value */
-	temp = g - b;
-	double tempt = dot(temp,x);
+	//TODO: temp!!!
+//	temp = g - b;
+	double tempt; // = dot(temp,x);
+
+
+		GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
+		GeneralVector<PetscVector> *x_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
+		GeneralVector<PetscVector> *g_p = dynamic_cast<GeneralVector<PetscVector> *>(this->g);
+		GeneralVector<PetscVector> *temp_p = dynamic_cast<GeneralVector<PetscVector> *>(this->temp);
+
+		Vec b_Vec = b_p->get_vector();
+		Vec x_Vec = x_p->get_vector();
+		Vec g_Vec = g_p->get_vector();
+		Vec temp_Vec = temp_p->get_vector();
+
+		TRYCXX( VecCopy(g_Vec,temp_Vec) );
+		TRYCXX( VecAXPY(temp_Vec, -1.0, b_Vec));
+		TRYCXX( VecDot(x_Vec,temp_Vec,&tempt));
+
 	fx = 0.5*tempt;
 
 	LOG_FUNC_END
