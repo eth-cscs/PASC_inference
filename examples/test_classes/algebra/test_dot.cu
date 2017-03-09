@@ -171,6 +171,43 @@ int main( int argc, char *argv[] )
 	coutMaster << std::endl;
 
 
+	coutMaster << "TEST of the IS" << std::endl;
+	
+	int localsize1;
+	int localsize2;
+	
+	TRYCXX( VecGetLocalSize(b1.get_vector(), &localsize1) );
+	TRYCXX( VecGetLocalSize(b2.get_vector(), &localsize2) );
+	
+	int start1;
+	int start2;
+	TRYCXX( VecGetOwnershipRange(b1.get_vector(), &start1, NULL) );
+	TRYCXX( VecGetOwnershipRange(b2.get_vector(), &start2, NULL) );
+	
+	IS myis1;
+	IS myis2;
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize1, start1, 1, &myis1) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, localsize2, start2, 1, &myis2) );
+
+	Vec new1_Vec;
+	Vec new2_Vec;
+	TRYCXX( VecGetSubVector(b1.get_vector(), myis1, &new1_Vec) );
+	TRYCXX( VecGetSubVector(b2.get_vector(), myis2, &new2_Vec) );
+	
+	double dot_result6;
+	mytimer.start();
+	for(int i=0;i<n;i++){
+		TRYCXX( VecDot(new1_Vec, new2_Vec, &dot_result6) );
+	}
+	mytimer.stop();
+
+	TRYCXX( VecRestoreSubVector(b1.get_vector(), myis1, &new1_Vec) );
+	TRYCXX( VecRestoreSubVector(b2.get_vector(), myis2, &new2_Vec) );
+
+	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result6 << std::endl;
+	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
+	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
+
 	coutMaster << std::endl;
 
 	Finalize();
