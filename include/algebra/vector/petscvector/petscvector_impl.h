@@ -188,6 +188,8 @@ void PetscVector::save_ascii(std::string filename){
 
 Vec PetscVector::get_vector() const { // TODO: temp
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)FUNCTION: get_vector()" << std::endl;
+	
+	
 		
 	return inner_vector;
 }

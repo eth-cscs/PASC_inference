@@ -1011,6 +1011,11 @@ template<>
 void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const {
 	LOG_FUNC_BEGIN
 
+	//TODO: temp
+	const char *mytype;
+	TRYCXX( VecGetType(Mdots_vec[0], &mytype) );
+	coutMaster << "typeofvector: " << mytype << std::endl;
+
 	TRYCXX(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
 
 	*dd = Mdots_val[0];
