@@ -118,7 +118,7 @@ int main( int argc, char *argv[] )
 	}
 	mytimer.stop();
 
-	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result << std::endl;
+	coutMaster << "- result         : " << std::setprecision(std::numeric_limits<long double>::digits10 + 1) << dot_result2 << std::endl;
 	coutMaster << "- time total     : " << mytimer.get_value_last() << " s" << std::endl;
 	coutMaster << "- time average   : " << mytimer.get_value_last()/(double)n << " s" << std::endl;
 	coutMaster << std::endl;
