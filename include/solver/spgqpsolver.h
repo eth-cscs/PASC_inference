@@ -1029,7 +1029,11 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	coutMaster << "typeofvector2: " << mytype2 << std::endl;
 	coutMaster << "typeofvector3: " << mytype3 << std::endl;
 
-	TRYCXX(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
+#ifdef USE_CUDA
+	TRYCXX( VecMDot_MPICUDA( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
+#else
+	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
+#endif
 
 	*dd = Mdots_val[0];
 	*dAd = Mdots_val[1];
