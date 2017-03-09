@@ -1038,13 +1038,19 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	TRYCXX( VecCUDACopyToGPU(Mdots_vec[0]) );
 	TRYCXX( VecCUDACopyToGPU(Mdots_vec[1]) );
 	TRYCXX( VecCUDACopyToGPU(Mdots_vec[2]) );
-#endif
 
+	VecDot(Mdots_vec[0],Mdots_vec[0], dd);
+	VecDot(Mdots_vec[0],Mdots_vec[1], dAd);
+	VecDot(Mdots_vec[0],Mdots_vec[2], gd);
+#else
 	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
 
 	*dd = Mdots_val[0];
 	*dAd = Mdots_val[1];
 	*gd = Mdots_val[2];
+
+#endif
+
 
 	LOG_FUNC_END
 }
