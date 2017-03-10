@@ -79,7 +79,12 @@ class Craypower {
 			MPI_Allgather(&node, 1, MPI_INT, &node_ids[0], 1, MPI_INT, MPI_COMM_WORLD);
 
 			/* count the number of mpi ranks that are on the same node as this rank */
-			return std::count(node_ids.begin(), node_ids.end(), node);
+			int return_value = std::count(node_ids.begin(), node_ids.end(), node);
+			if(return_value <= 0){
+				return_value = 1;
+			}			
+			
+			return return_value;
 		}
 };
 
