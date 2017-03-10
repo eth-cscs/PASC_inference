@@ -764,6 +764,7 @@ void SPGQPSolver<VectorBase>::solve() {
 
 	this->timer_projection.start();
 	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
+ 	 allbarrier();
 	this->timer_projection.stop();
 
 	/* compute gradient, g = A*x-b */
@@ -772,7 +773,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	// g = A*x;
 		 TRYCXX( MatMult(A_Mat, x_Vec, g_Vec) );
 		 TRYCXX( VecScale(g_Vec, Abgs->get_coeff()) );
-		allbarrier();
+		 allbarrier();
 
 	 hessmult += 1; /* there was muliplication by A */
 	this->timer_matmult.stop();
@@ -866,7 +867,6 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* update approximation and gradient */
 		this->timer_update.start();
 		//TODO: temp!!!
-		 allbarrier();
 		 TRYCXX( VecAXPY(x_Vec, beta, d_Vec) );
 		 TRYCXX( VecAXPY(g_Vec, beta, Ad_Vec) );
 		 allbarrier();
