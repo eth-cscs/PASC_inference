@@ -169,6 +169,14 @@ void Finalize(){
 
 }
 
+void allbarrier() {
+	#ifdef USE_GPU
+		gpuErrchk( cudaDeviceSynchronize() );
+	#endif
+
+	TRYCXX(PetscBarrier(NULL));
+}
+
 void myround(double in, double *out){
 	union myUnion {
 		double dValue;

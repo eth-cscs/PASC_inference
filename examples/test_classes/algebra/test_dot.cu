@@ -10,7 +10,7 @@
 
 #include "pascinference.h"
 
-#include "../src/vec/vec/impls/mpi/mpicuda/mpicuda.cu"
+//#include "../src/vec/vec/impls/mpi/mpicuda/mpicuda.cu"
 
 typedef petscvector::PetscVector PetscVector;
 

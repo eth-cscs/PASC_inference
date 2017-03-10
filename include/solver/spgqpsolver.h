@@ -14,7 +14,7 @@
 #include "data/qpdata.h"
 
 #ifdef USE_CUDA
- #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+// #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
 #include "algebra/matrix/blockgraphsparse.h"
@@ -698,6 +698,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
 	copy_to_gpu();
+	allbarrier();
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
@@ -751,6 +752,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	double normb;// = norm(b); /* norm of linear term used in stopping criteria */
 	//TODO: temp!!!
 		TRYCXX( VecNorm(b_Vec, NORM_2, &normb) );
+		allbarrier();
 
 	/* initial step-size */
 	alpha_bb = this->alphainit;
@@ -758,6 +760,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	//TODO: temp!
 //	x = x0; /* set approximation as initial */
 	TRYCXX( VecCopy(x0_Vec, x0_Vec) );
+	allbarrier();
 
 	this->timer_projection.start();
 	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
@@ -769,6 +772,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	// g = A*x;
 		 TRYCXX( MatMult(A_Mat, x_Vec, g_Vec) );
 		 TRYCXX( VecScale(g_Vec, Abgs->get_coeff()) );
+		allbarrier();
 
 	 hessmult += 1; /* there was muliplication by A */
 	this->timer_matmult.stop();
@@ -776,6 +780,7 @@ void SPGQPSolver<VectorBase>::solve() {
 	//TODO: temp!!!
 	//g -= b;
 		 TRYCXX( VecAXPY(g_Vec, -1.0, b_Vec) );
+		allbarrier();
 
 	/* initialize fs */
 	this->timer_fs.start();
@@ -801,7 +806,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		//d = x - alpha_bb*g;
 		 TRYCXX( VecCopy(x_Vec, d_Vec));
 		 TRYCXX( VecAXPY(d_Vec, -alpha_bb, g_Vec) );
-		 
+		 allbarrier();
 		this->timer_update.stop();
 
 		/* d = P(d) */
@@ -814,7 +819,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		 //TODO: temp!!!
 		 //d -= x;
 		 TRYCXX( VecAXPY(d_Vec, -1.0, x_Vec) );
-
+		 allbarrier();
 		this->timer_update.stop();
 
 		/* Ad = A*d */
@@ -823,7 +828,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		// Ad = A*d;
 		 TRYCXX( MatMult(A_Mat, d_Vec, Ad_Vec) );
 		 TRYCXX( VecScale(Ad_Vec, Abgs->get_coeff()) );
-
+		 allbarrier();
 		 hessmult += 1;
 		this->timer_matmult.stop();
 
@@ -837,6 +842,7 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* fx_max = max(fs) */
 		this->timer_fs.start();
 		 fx_max = fs.get_max();
+		 allbarrier();
 		this->timer_fs.stop();
 		
 		/* compute step-size from A-condition */
@@ -860,8 +866,10 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* update approximation and gradient */
 		this->timer_update.start();
 		//TODO: temp!!!
+		 allbarrier();
 		 TRYCXX( VecAXPY(x_Vec, beta, d_Vec) );
 		 TRYCXX( VecAXPY(g_Vec, beta, Ad_Vec) );
+		 allbarrier();
 //		 x += beta*d; /* x = x + beta*d */
 //		 g += beta*Ad; /* g = g + beta*Ad */
 		this->timer_update.stop();
@@ -872,6 +880,7 @@ void SPGQPSolver<VectorBase>::solve() {
 //		 fx = get_fx(fx_old,beta,gd,dAd);
 		 fx = get_fx();
 		 fs.update(fx);
+		 allbarrier();
 		this->timer_fs.stop();
 
 		/* update BB step-size */
@@ -1009,6 +1018,7 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 		TRYCXX( VecCopy(g_Vec,temp_Vec) );
 		TRYCXX( VecAXPY(temp_Vec, -1.0, b_Vec));
 		TRYCXX( VecDot(x_Vec,temp_Vec,&tempt));
+		allbarrier();
 
 	fx = 0.5*tempt;
 
@@ -1172,9 +1182,13 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 
 	//TODO:: temp!!!
 	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[0], dd) );
-	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[1], dAd) );
-	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[2], gd) );
+	allbarrier();
 
+	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[1], dAd) );
+	allbarrier();
+
+	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[2], gd) );
+	allbarrier();
 
 	LOG_FUNC_END
 }
