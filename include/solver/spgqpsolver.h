@@ -14,7 +14,7 @@
 #include "data/qpdata.h"
 
 #ifdef USE_CUDA
-// #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+ #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
 #include "algebra/matrix/blockgraphsparse.h"
