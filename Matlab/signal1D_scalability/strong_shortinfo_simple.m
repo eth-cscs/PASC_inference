@@ -12,9 +12,6 @@ sampleid = {'10e7'};
 for k=1:length(sampleid)
     filename_cpu=['cpu/strong_shortinfo_final_' sampleid{k} '.txt'];
     M_cpu = csvread(filename_cpu,1,0);
-
-    filename_cput=['cput/strong_shortinfo_final_' sampleid{k} '.txt'];
-    M_cput = csvread(filename_cput,1,0);
     
     filename_gpu=['gpu/strong_shortinfo_final_' sampleid{k} '.txt'];
     M_gpu = csvread(filename_gpu,1,0);
@@ -34,13 +31,6 @@ for k=1:length(sampleid)
     cpu_times(k,:) = M_cpu(cpu_sortidx,28)';
     cpu_times_relative(k,:) = cpu_times(k,:)./cpu_it;
 
-    cput_nmb = M_cput(:,1)';
-    [cput_nmb,cput_sortidx] = sort(cput_nmb);
-    cput_it = M_cput(cput_sortidx,26)';
-    %all,projection, matmult, dot, update, fs
-    cput_times(k,:) = M_cput(cput_sortidx,28)';
-    cput_times_relative(k,:) = cput_times(k,:)./cput_it;
-    
     gpu_nmb = M_gpu(:,1)';
     [gpu_nmb,gpu_sortidx] = sort(gpu_nmb);
     gpu_it = M_gpu(gpu_sortidx,26)';
@@ -57,62 +47,52 @@ set(gca,'fontsize',12);
 cpu_plot = plot(1:size(cpu_times,2), cpu_times_relative(1,:), 'b', 'LineWidth', 2.0);
 plot(1:size(cpu_times,2), cpu_times_relative(1,:), 'bo', 'LineWidth', 2.0);
 
-cput_plot = plot(1:size(cput_times,2), cput_times_relative(1,:), 'Color', [0.0 0.6 0.0], 'LineWidth', 2.0);
-plot(1:size(cput_times,2), cput_times_relative(1,:), 'Color', [0.0 0.6 0.0], 'Marker', 'o', 'LineWidth', 2.0);
-
 gpu_plot = plot(1:size(cpu_times,2), gpu_times_relative(1,:), 'r', 'LineWidth', 2.0);
 plot(1:size(cpu_times,2), gpu_times_relative(1,:), 'ro', 'LineWidth', 2.0);
 
 xlabel('number of nodes', 'Interpreter', 'latex', 'FontSize', 12)
 ylabel('computing time [s]', 'Interpreter', 'latex', 'FontSize', 12)
 
-h = legend([cpu_plot cput_plot gpu_plot],'CPU 1core','CPU 24cores','GPU');
+h = legend([cpu_plot gpu_plot],'CPU','GPU');
 set(h,'Interpreter','latex');
 set(h, 'FontSize', 16);
+
+axis([1 max([size(gpu_times,2), size(cpu_times,2)]) ...
+      min([cpu_times_relative(1,:), gpu_times_relative(1,:)]) max([cpu_times_relative(1,:), gpu_times_relative(1,:)])])
 
 set(gca,'YScale','log');
+set(gca,'XScale','log');
+
 
 hold off
 
+if false
+    figure
+    hold on
+    set(gca,'fontsize',12);
 
-figure
-hold on
-set(gca,'fontsize',12);
+    for k=1:length(sampleid)
+        mybars = zeros(2,max([size(cpu_times,2),size(gpu_times,2)]));
+        mybars(1,1:size(cpu_times,2)) = cpu_times_relative(k,1)./cpu_times_relative(k,:);
+        mybars(2,1:size(gpu_times,2)) = gpu_times_relative(k,1)./gpu_times_relative(k,:);
 
-for k=1:length(sampleid)
-    mybars = zeros(2,max([size(gpu_times,2),size(gpu_times,2)]));
-    mybars(1,1:size(cpu_times,2)) = cpu_times_relative(k,1)./cpu_times_relative(k,:);
-    mybars(2,1:size(cput_times,2)) = cput_times_relative(k,1)./cput_times_relative(k,:);
-    mybars(3,1:size(gpu_times,2)) = gpu_times_relative(k,1)./gpu_times_relative(k,:);
 
-%    cpu_plot = plot3(1:size(mybars,2),k*ones(size(mybars(1,:))),mybars(1,:),'b');
-%    plot3(1:size(mybars,2),k*ones(size(mybars(1,:))),mybars(1,:),'bo');
-    
-%    gpu_plot = plot3(1:size(mybars,2),k*ones(size(mybars(2,:))),mybars(2,:),'r');
-%    plot3(1:size(mybars,2),k*ones(size(mybars(2,:))),mybars(2,:),'ro');
+        for i=1:size(mybars,2)
+            cpu_plot = fill([i+0 i+0.2 i+0.2 i+0], [0 0 mybars(1,i) mybars(1,i)], 'b');
+            gpu_plot = fill([i+0.22 i+0.42 i+0.42 i+0.22], [0 0 mybars(2,i) mybars(2,i)], 'r');
 
-    for i=1:size(mybars,2)
-%        cpu_plot = fill3([i+0 i+0.2 i+0.2 i+0], [k k k k], [0 0 mybars(1,i) mybars(1,i)], 'b');
-%        gpu_plot = fill3([i+0.21 i+0.41 i+0.41 i+0.21], [k k k k], [0 0 mybars(2,i) mybars(2,i)], 'r');
-        cpu_plot = fill([i+0 i+0.2 i+0.2 i+0], [0 0 mybars(1,i) mybars(1,i)], 'b');
-        cput_plot = fill([i+0.22 i+0.42 i+0.42 i+0.22], [0 0 mybars(2,i) mybars(2,i)], 'g');
-        gpu_plot = fill([i+0.44 i+0.64 i+0.64 i+0.44], [0 0 mybars(3,i) mybars(3,i)], 'r');
-        
-        set(cput_plot,'FaceColor', [0.0 0.6 0.0]);
+        end
     end
+
+    opt_plot = plot(gpu_nmb+0.25,1:size(gpu_times,2),'k--', 'LineWidth', 2.0);
+
+    xlabel('number of nodes', 'Interpreter', 'latex', 'FontSize', 12)
+    ylabel('speed up', 'Interpreter', 'latex', 'FontSize', 12)
+
+    h = legend([cpu_plot gpu_plot opt_plot],'CPU','GPU', 'optimal');
+    set(h,'Interpreter','latex');
+    set(h, 'FontSize', 16);
+
+    hold off
 end
-
-opt_plot = plot(gpu_nmb+0.25,1:size(gpu_times,2),'k--', 'LineWidth', 2.0);
-
-xlabel('number of nodes', 'Interpreter', 'latex', 'FontSize', 12)
-ylabel('speed up', 'Interpreter', 'latex', 'FontSize', 12)
-%zlabel('computing time')
-
-
-h = legend([cpu_plot cput_plot gpu_plot opt_plot],'CPU 1core','CPU 24cores','GPU', 'optimal');
-set(h,'Interpreter','latex');
-set(h, 'FontSize', 16);
-
-hold off
-
 

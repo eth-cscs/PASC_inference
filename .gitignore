@@ -30,6 +30,7 @@
 # Matlab temp files
 *.m~
 
+.DS_Store
 html
 build
 examples/build*
