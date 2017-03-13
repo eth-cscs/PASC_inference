@@ -39,13 +39,6 @@
 #define SPGQPSOLVER_MONITOR false
 #define SPGQPSOLVER_DUMP false
 
-#ifdef USE_PETSCVECTOR
-	typedef petscvector::PetscVector PetscVector;
-#endif
-
-#ifdef USE_CUDA
-//    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
-#endif
 
 namespace pascinference {
 namespace solver {
@@ -136,7 +129,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 		double gP; 					/**< norm of projected gradient */
 	
-		/* temporary vectors used during the solution process */
 		/** @brief allocate storage for auxiliary vectors used in computation
 		* 
 		*/
@@ -176,8 +168,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		bool debug_print_vectors;	/**< print content of vectors during iterations */
 		bool debug_print_scalars;	/**< print values of computed scalars during iterations */ 
 		
-		void copy_to_gpu();
-		
 	public:
 		/** @brief general constructor
 		* 
@@ -211,50 +201,19 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 };
 
-
 }
 } /* end of namespace */
 
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
+#ifdef USE_PETSCVECTOR
+	/* petscvector-scpecific inplementation */
+	#include "solver/specific/spgqpsolver_petsc.h"
+#endif
+
 namespace pascinference {
 namespace solver {
-
-template<class VectorBase>
-void SPGQPSolver<VectorBase>::copy_to_gpu() {
-#ifdef USE_GPU
-//	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
-//	Mat A_Mat = Abgs->get_petscmatrix();
-
-	GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
-	Vec b_Vec = b_p->get_vector();
-
-	GeneralVector<PetscVector> *x_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
-	Vec x_Vec = x_p->get_vector();
-
-	GeneralVector<PetscVector> *x0_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
-	Vec x0_Vec = x0_p->get_vector();
-
-	GeneralVector<PetscVector> *g_p = dynamic_cast<GeneralVector<PetscVector> *>(this->g);
-	Vec g_Vec = g_p->get_vector();
-
-	GeneralVector<PetscVector> *d_p = dynamic_cast<GeneralVector<PetscVector> *>(this->d);
-	Vec d_Vec = d_p->get_vector();
-
-	GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
-	Vec Ad_Vec = Ad_p->get_vector();
-
-//	TRYCXX( MatCUDACopyToGPU(A_Mat) );
-	TRYCXX( VecCUDACopyToGPU(b_Vec) );
-	TRYCXX( VecCUDACopyToGPU(x_Vec) );
-	TRYCXX( VecCUDACopyToGPU(x0_Vec) );
-	TRYCXX( VecCUDACopyToGPU(g_Vec) );
-	TRYCXX( VecCUDACopyToGPU(d_Vec) );
-	TRYCXX( VecCUDACopyToGPU(Ad_Vec) );
-
-#endif
-}
 
 template<class VectorBase>
 void SPGQPSolver<VectorBase>::set_settings_from_console() {
@@ -393,23 +352,7 @@ void SPGQPSolver<VectorBase>::allocate_temp_vectors(){
 	Ad = new GeneralVector<VectorBase>(*pattern);	
 	temp = new GeneralVector<VectorBase>(*pattern);	
 
-	//TODO: prepare Mdot without petsc?
-	/* prepare for Mdot */
-	#ifdef USE_PETSCVECTOR
-		/* without cuda */
-//		#ifdef USE_CUDA
-//			gpuErrchk( cudaMalloc((void **)&Mdots_val,3*sizeof(double)) );
-//		#else
-			TRYCXX( PetscMalloc1(3,&Mdots_val) );
-//		#endif
-
-		TRYCXX( PetscMalloc1(3,&Mdots_vec) );
-
-		Mdots_vec[0] = d->get_vector();
-		Mdots_vec[1] = Ad->get_vector();
-		Mdots_vec[2] = g->get_vector();
-
-	#endif
+	// TODO: prepare Mdots_vec & Mdots_val for general Mdot operation
 	
 	LOG_FUNC_END
 }
@@ -423,17 +366,8 @@ void SPGQPSolver<VectorBase>::free_temp_vectors(){
 	free(d);
 	free(Ad);
 	free(temp);
-	
-	#ifdef USE_PETSCVECTOR
-//		#ifdef USE_CUDA
-//			gpuErrchk( cudaFree(&Mdots_val) );
-//			gpuErrchk( cudaFree(&Mdots_vec) );
-//			TRYCXX( PetscFree(Mdots_vec) );
-//		#else
-			TRYCXX( PetscFree(Mdots_val) );
-			TRYCXX( PetscFree(Mdots_vec) );
-//		#endif
-	#endif
+
+	// TODO: free Mdots_vec & Mdots_val for general Mdot operation
 	
 	LOG_FUNC_END
 }
@@ -697,45 +631,24 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
-	copy_to_gpu();
-	allbarrier();
-
 	this->timer_solve.start(); /* stop this timer in the end of solution */
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
 	typedef GeneralVector<VectorBase> (&pVector);
-//	typedef GeneralMatrix<VectorBase> (&pMatrix);
+	typedef GeneralMatrix<VectorBase> (&pMatrix);
 
 	/* pointers to qpdata */
-//	pMatrix A = *(qpdata->get_A());
-//	pVector b = *(qpdata->get_b());
-//	pVector x0 = *(qpdata->get_x0());
+	pMatrix A = *(qpdata->get_A());
+	pVector b = *(qpdata->get_b());
+	pVector x0 = *(qpdata->get_x0());
 
 	/* pointer to solution */
 	pVector x = *(qpdata->get_x());
 
 	/* auxiliary vectors */
-//	pVector g = *(this->g); /* gradient */
+	pVector g = *(this->g); /* gradient */
 	pVector d = *(this->d); /* A-conjugate vector */
-//	pVector Ad = *(this->Ad); /* A*p */
-
-	//TODO: temp!!!
-		BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
-		GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
-		GeneralVector<PetscVector> *x_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
-		GeneralVector<PetscVector> *x0_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
-		GeneralVector<PetscVector> *g_p = dynamic_cast<GeneralVector<PetscVector> *>(this->g);
-		GeneralVector<PetscVector> *d_p = dynamic_cast<GeneralVector<PetscVector> *>(this->d);
-		GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
-
-		Mat A_Mat = Abgs->get_petscmatrix(); 
-		Vec b_Vec = b_p->get_vector();
-		Vec x_Vec = x_p->get_vector();
-		Vec x0_Vec = x0_p->get_vector();
-		Vec g_Vec = g_p->get_vector();
-		Vec d_Vec = d_p->get_vector();
-		Vec Ad_Vec = Ad_p->get_vector();
-
+	pVector Ad = *(this->Ad); /* A*p */
 
 	int it = 0; /* number of iterations */
 	int hessmult = 0; /* number of hessian multiplications */
@@ -749,39 +662,26 @@ void SPGQPSolver<VectorBase>::solve() {
 	double gd; /* dot(g,d) */
 	double dAd; /* dot(Ad,d) */
 	double alpha_bb; /* BB step-size */
-	double normb;// = norm(b); /* norm of linear term used in stopping criteria */
-	//TODO: temp!!!
-		TRYCXX( VecNorm(b_Vec, NORM_2, &normb) );
-		allbarrier();
+	double normb = norm(b); /* norm of linear term used in stopping criteria */
 
 	/* initial step-size */
 	alpha_bb = this->alphainit;
 
 	//TODO: temp!
-//	x = x0; /* set approximation as initial */
-	TRYCXX( VecCopy(x0_Vec, x0_Vec) );
-	allbarrier();
+	x = x0; /* set approximation as initial */
 
 	this->timer_projection.start();
 	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
- 	 allbarrier();
 	this->timer_projection.stop();
 
 	/* compute gradient, g = A*x-b */
 	this->timer_matmult.start();
-	//TODO: temp!!!
-	// g = A*x;
-		 TRYCXX( MatMult(A_Mat, x_Vec, g_Vec) );
-		 TRYCXX( VecScale(g_Vec, Abgs->get_coeff()) );
-		 allbarrier();
-
+	 g = A*x;
 	 hessmult += 1; /* there was muliplication by A */
 	this->timer_matmult.stop();
 
 	//TODO: temp!!!
-	//g -= b;
-		 TRYCXX( VecAXPY(g_Vec, -1.0, b_Vec) );
-		allbarrier();
+	g -= b;
 
 	/* initialize fs */
 	this->timer_fs.start();
@@ -796,18 +696,9 @@ void SPGQPSolver<VectorBase>::solve() {
 		/* increase iteration counter */
 		it += 1;
 
-		// TODO: TEMP
-//		coutMaster << "x.type  : " << x.get_type() << std::endl;
-//		coutMaster << "d.type  : " << d.get_type() << std::endl;
-//		coutMaster << "Ad.type : " << Ad.get_type() << std::endl;
-//		coutMaster << "g.type  : " << g.get_type() << std::endl;
-
 		/* d = x - alpha_bb*g, see next step, it will be d = P(x - alpha_bb*g) - x */
 		this->timer_update.start();
-		//d = x - alpha_bb*g;
-		 TRYCXX( VecCopy(x_Vec, d_Vec));
-		 TRYCXX( VecAXPY(d_Vec, -alpha_bb, g_Vec) );
-		 allbarrier();
+		 d = x - alpha_bb*g;
 		this->timer_update.stop();
 
 		/* d = P(d) */
@@ -817,33 +708,23 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* d = d - x */
 		this->timer_update.start();
-		 //TODO: temp!!!
-		 //d -= x;
-		 TRYCXX( VecAXPY(d_Vec, -1.0, x_Vec) );
-		 allbarrier();
+		 d -= x;
 		this->timer_update.stop();
 
 		/* Ad = A*d */
 		this->timer_matmult.start();
-		//TODO: temp!!!
-		// Ad = A*d;
-		 TRYCXX( MatMult(A_Mat, d_Vec, Ad_Vec) );
-		 TRYCXX( VecScale(Ad_Vec, Abgs->get_coeff()) );
-		 allbarrier();
+		 Ad = A*d;
 		 hessmult += 1;
 		this->timer_matmult.stop();
 
+		/* dd = dot(d,d); dAd = dot(Ad,d); gd = dot(g,d); */
 		this->timer_dot.start();
-//		  dd = dot(d,d);
-//		  dAd = dot(Ad,d); 
-//		  gd = dot(g,d);
 		 compute_dots(&dd, &dAd, &gd);
 		this->timer_dot.stop();
 
 		/* fx_max = max(fs) */
 		this->timer_fs.start();
 		 fx_max = fs.get_max();
-		 allbarrier();
 		this->timer_fs.stop();
 		
 		/* compute step-size from A-condition */
@@ -866,12 +747,8 @@ void SPGQPSolver<VectorBase>::solve() {
 
 		/* update approximation and gradient */
 		this->timer_update.start();
-		//TODO: temp!!!
-		 TRYCXX( VecAXPY(x_Vec, beta, d_Vec) );
-		 TRYCXX( VecAXPY(g_Vec, beta, Ad_Vec) );
-		 allbarrier();
-//		 x += beta*d; /* x = x + beta*d */
-//		 g += beta*Ad; /* g = g + beta*Ad */
+		 x += beta*d; /* x = x + beta*d */
+		 g += beta*Ad; /* g = g + beta*Ad */
 		this->timer_update.stop();
 
 		/* compute new function value using gradient and update fs list */
@@ -991,34 +868,17 @@ double SPGQPSolver<VectorBase>::get_fx() const {
 	double fx = std::numeric_limits<double>::max();
 
 	/* I don't want to write (*x) as a vector, therefore I define following pointer types */
-//	typedef GeneralVector<VectorBase> (&pVector);
+	typedef GeneralVector<VectorBase> (&pVector);
 
 	/* pointers to qpdata */
-//	pVector g = *(this->g);
-//	pVector x = *(qpdata->get_x());
-//	pVector b = *(qpdata->get_b());
-//	pVector temp = *(this->temp);
+	pVector g = *(this->g);
+	pVector x = *(qpdata->get_x());
+	pVector b = *(qpdata->get_b());
+	pVector temp = *(this->temp);
 
 	/* use computed gradient in this->g to compute function value */
-	//TODO: temp!!!
-//	temp = g - b;
-	double tempt; // = dot(temp,x);
-
-
-		GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
-		GeneralVector<PetscVector> *x_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
-		GeneralVector<PetscVector> *g_p = dynamic_cast<GeneralVector<PetscVector> *>(this->g);
-		GeneralVector<PetscVector> *temp_p = dynamic_cast<GeneralVector<PetscVector> *>(this->temp);
-
-		Vec b_Vec = b_p->get_vector();
-		Vec x_Vec = x_p->get_vector();
-		Vec g_Vec = g_p->get_vector();
-		Vec temp_Vec = temp_p->get_vector();
-
-		TRYCXX( VecCopy(g_Vec,temp_Vec) );
-		TRYCXX( VecAXPY(temp_Vec, -1.0, b_Vec));
-		TRYCXX( VecDot(x_Vec,temp_Vec,&tempt));
-		allbarrier();
+	temp = g - b;
+	double tempt = dot(temp,x);
 
 	fx = 0.5*tempt;
 
@@ -1135,64 +995,6 @@ void SPGQPSolver<VectorBase>::SPGQPSolver_fs::print(ConsoleOutput &output)
 	}
 	output << " ]";
 }
-
-
-/* ----------- PETSC special stuff ------------- */
-#ifdef USE_PETSC
-/* compute dot products */
-template<>
-void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const {
-	LOG_FUNC_BEGIN
-
-	//TODO: temp
-//	const char *mytype1;
-//	const char *mytype2;
-//	const char *mytype3;
-//	TRYCXX( VecGetType(Mdots_vec[0], &mytype1) );
-//	TRYCXX( VecGetType(Mdots_vec[1], &mytype2) );
-//	TRYCXX( VecGetType(Mdots_vec[2], &mytype3) );
-
-//	coutMaster << "typeofvector1: " << mytype1 << std::endl;
-//	coutMaster << "typeofvector2: " << mytype2 << std::endl;
-//	coutMaster << "typeofvector3: " << mytype3 << std::endl;
-
-#ifdef USE_CUDA
-	//TODO: hotfix
-//	TRYCXX( VecCUDACopyToGPU(Mdots_vec[0]) );
-//	TRYCXX( VecCUDACopyToGPU(Mdots_vec[1]) );
-//	TRYCXX( VecCUDACopyToGPU(Mdots_vec[2]) );
-
-//	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
-
-//	*dd = Mdots_val[0];
-//	*dAd = Mdots_val[1];
-//	*gd = Mdots_val[2];
-
-//	VecDot(Mdots_vec[0],Mdots_vec[0], dd);
-//	VecDot(Mdots_vec[0],Mdots_vec[1], dAd);
-//	VecDot(Mdots_vec[0],Mdots_vec[2], gd);
-#else
-//	TRYCXX( VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
-
-//	*dd = Mdots_val[0];
-//	*dAd = Mdots_val[1];
-//	*gd = Mdots_val[2];
-
-#endif
-
-	//TODO:: temp!!!
-	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[0], dd) );
-	allbarrier();
-
-	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[1], dAd) );
-	allbarrier();
-
-	TRYCXX( VecDot( Mdots_vec[0], Mdots_vec[2], gd) );
-	allbarrier();
-
-	LOG_FUNC_END
-}
-#endif
 
 
 }
