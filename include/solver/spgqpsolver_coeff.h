@@ -624,7 +624,8 @@ void SPGQPSolverC<VectorBase>::printshort_sum(std::ostringstream &header, std::o
 
 template<class VectorBase>
 std::string SPGQPSolverC<VectorBase>::get_name() const {
-	return "SPGQP";
+	std::string return_value = "SPGQPSolverC<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 /* solve the problem */

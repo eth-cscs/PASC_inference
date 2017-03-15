@@ -294,7 +294,8 @@ void QPSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostri
 
 template<class VectorBase>
 std::string QPSolver<VectorBase>::get_name() const {
-	return "GeneralQPSolver";
+	std::string return_value = "QPSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 /* solve the problem */

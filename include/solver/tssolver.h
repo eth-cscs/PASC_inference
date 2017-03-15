@@ -488,7 +488,8 @@ void TSSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::ostri
 
 template<class VectorBase>
 std::string TSSolver<VectorBase>::get_name() const {
-	return "TSSolver<VectorBase>";
+	std::string return_value = "TSSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 template<class VectorBase>

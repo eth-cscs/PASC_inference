@@ -208,7 +208,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 //TODO: move to impls
 
 #ifdef USE_PETSCVECTOR
-	/* petscvector-scpecific inplementation */
+	/* petscvector-specific inplementation */
 	#include "solver/specific/spgqpsolver_petsc.h"
 #endif
 
@@ -378,7 +378,7 @@ template<class VectorBase>
 void SPGQPSolver<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
-	output <<  this->get_name() << std::endl;
+	output << this->get_name() << std::endl;
 	
 	/* print settings */
 	output <<  " - maxit:      " << this->maxit << std::endl;
@@ -623,7 +623,8 @@ void SPGQPSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::os
 
 template<class VectorBase>
 std::string SPGQPSolver<VectorBase>::get_name() const {
-	return "SPGQP";
+	std::string return_value = "SPGQPSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 /* solve the problem */
@@ -999,5 +1000,6 @@ void SPGQPSolver<VectorBase>::SPGQPSolver_fs::print(ConsoleOutput &output)
 
 }
 } /* end namespace */
+
 
 #endif

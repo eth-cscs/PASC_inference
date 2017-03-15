@@ -4,8 +4,8 @@
  *  @author Lukas Pospisil
  */
 
-#ifndef PASC_SPGQPSOLVER_H
-#define	PASC_SPGQPSOLVER_H
+#ifndef PASC_SPGQPSOLVER_PETSC_H
+#define	PASC_SPGQPSOLVER_PETSC_H
 
 #include <iostream>
 
@@ -24,18 +24,32 @@ typedef petscvector::PetscVector PetscVector;
 namespace pascinference {
 namespace solver {
 
+/* in this file, I provide these specializations for PetscVector */
+template<> std::string SPGQPSolver<PetscVector>::get_name() const;
+template<> void SPGQPSolver<PetscVector>::allocate_temp_vectors();
+template<> void SPGQPSolver<PetscVector>::free_temp_vectors();
+template<> void SPGQPSolver<PetscVector>::solve();
+template<> double SPGQPSolver<PetscVector>::get_fx() const;
+template<> void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const;
+
+template<>
+std::string SPGQPSolver<PetscVector>::get_name() const {
+	return "SPGQPSolver for PETSc"; /* better to see than simple "SPGQPSolver<PetscVector>" */
+}
+
 /* prepare temp_vectors */
 template<>
 void SPGQPSolver<PetscVector>::allocate_temp_vectors(){
 	LOG_FUNC_BEGIN
 
-	GeneralVector<VectorBase> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
+	GeneralVector<PetscVector> *pattern = qpdata->get_b(); /* I will allocate temp vectors subject to linear term */
 
-	g = new GeneralVector<VectorBase>(*pattern);
-	d = new GeneralVector<VectorBase>(*pattern);
-	Ad = new GeneralVector<VectorBase>(*pattern);	
-	temp = new GeneralVector<VectorBase>(*pattern);	
+	g = new GeneralVector<PetscVector>(*pattern);
+	d = new GeneralVector<PetscVector>(*pattern);
+	Ad = new GeneralVector<PetscVector>(*pattern);	
+	temp = new GeneralVector<PetscVector>(*pattern);	
 
+	/* for Mdot */
 	TRYCXX( PetscMalloc1(3,&Mdots_val) );
 	TRYCXX( PetscMalloc1(3,&Mdots_vec) );
 
@@ -60,15 +74,6 @@ void SPGQPSolver<PetscVector>::free_temp_vectors(){
 	TRYCXX( PetscFree(Mdots_vec) );
 	
 	LOG_FUNC_END
-}
-
-template<>
-std::string SPGQPSolver<PetscVector>::get_name() const {
-#ifdef USE_CUDA
-	return "SPGQP-Petsc-CUDA";
-#else
-	return "SPGQP-Petsc";
-#endif
 }
 
 /* solve the problem */
@@ -134,7 +139,7 @@ void SPGQPSolver<PetscVector>::solve() {
 	allbarrier();
 
 	this->timer_projection.start();
-	 qpdata->get_feasibleset()->project(x); /* project initial approximation to feasible set */
+	 qpdata->get_feasibleset()->project(*x_p); /* project initial approximation to feasible set */
  	 allbarrier();
 	this->timer_projection.stop();
 
@@ -171,7 +176,7 @@ void SPGQPSolver<PetscVector>::solve() {
 
 		/* d = P(d) */
 		this->timer_projection.start();
-		 qpdata->get_feasibleset()->project(d);
+		 qpdata->get_feasibleset()->project(*d_p);
 		this->timer_projection.stop();
 
 		/* d = d - x */

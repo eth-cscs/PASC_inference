@@ -274,7 +274,8 @@ void CGQPSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 template<class VectorBase>
 std::string CGQPSolver<VectorBase>::get_name() const {
-	return "Conjugate Gradient method for QP";
+	std::string return_value = "CGQPSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 

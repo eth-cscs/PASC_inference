@@ -199,7 +199,8 @@ void SimpleSolver<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 template<class VectorBase>
 std::string SimpleSolver<VectorBase>::get_name() const {
-	return "SimpleSolver";
+	std::string return_value = "SimpleSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 template<class VectorBase>

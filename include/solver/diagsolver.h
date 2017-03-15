@@ -226,7 +226,8 @@ void DiagSolver<VectorBase>::printshort(std::ostringstream &header, std::ostring
 
 template<class VectorBase>
 std::string DiagSolver<VectorBase>::get_name() const {
-	return "Diagonal Solver";
+	std::string return_value = "DiagSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 template<class VectorBase>

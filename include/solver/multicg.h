@@ -187,7 +187,8 @@ void MultiCGSolver<VectorBase>::printcontent(ConsoleOutput &output) const {
 
 template<class VectorBase>
 std::string MultiCGSolver<VectorBase>::get_name() const {
-	return "MultiCG";
+	std::string return_value = "MultiCGSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 

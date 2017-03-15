@@ -447,7 +447,8 @@ void PermonSolver<VectorBase>::printshort_sum(std::ostringstream &header, std::o
 
 template<class VectorBase>
 std::string PermonSolver<VectorBase>::get_name() const {
-	return "PERMON_SOLVER";
+	std::string return_value = "PermonSolver<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 /* solve the problem */

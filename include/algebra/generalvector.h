@@ -107,6 +107,14 @@ namespace algebra {
 			*
 			*/
 			virtual void set_random2();
+			
+			/** @brief get the name of the type
+			*
+			*/
+			static std::string get_name() {
+				return "GeneralVector";
+			}
+			
 	};
 
 }
@@ -185,6 +193,11 @@ void GeneralVector<PetscVector>::set_random2() {
 //	TRYCXX( PetscRandomDestroy(&rnd) );
 
 	this->valuesUpdate();
+}
+
+template<>
+std::string GeneralVector<PetscVector>::get_name() {
+	return "PetscVector";
 }
 
 #endif
