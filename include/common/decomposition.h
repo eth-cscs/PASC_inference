@@ -682,13 +682,6 @@ void Decomposition::createGlobalVec_data(Vec *x_Vec) const { //TODO: how about c
 	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
 	TRYCXX( VecSetFromOptions(*x_Vec) );
 
-
-	//TODO: temp
-	const char *mytype;
-	TRYCXX( VecGetType(*x_Vec, &mytype) );
-	coutMaster << "typeofvector2: " << mytype << std::endl;
-
-
 	LOG_FUNC_END
 }
 
