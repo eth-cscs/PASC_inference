@@ -54,6 +54,9 @@ printsetting_metis()
 # Craypower
 printsetting_craypower()
 
+# Dlib
+printsetting_dlib()
+
 # PASCInference
 #printsetting_pascinference()
 

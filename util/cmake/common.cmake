@@ -146,6 +146,7 @@ function (getListOfVarsStartingWith _prefix _varResult)
     set (${_varResult} ${_matchedVars} PARENT_SCOPE)
 endfunction()
 
+include(load_dlib) # DLIB
 include(load_cuda) # CUDA
 include(load_gpu) # GPU
 include(load_petsc) # PETSC
