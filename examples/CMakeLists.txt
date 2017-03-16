@@ -54,6 +54,7 @@ make_directory("log")
 # --------- include test cmake functions --------
 include("util/util.cmake")
 include("test_signal1D/test_signal1D.cmake")
+include("test_entropy/test_entropy.cmake")
 include("test_image/test_image.cmake")
 include("test_neuro/test_neuro.cmake")
 include("test_classes/test_classes.cmake")

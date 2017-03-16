@@ -29,6 +29,59 @@ std::string print_array(MyType *my_array, int my_size){
 	return out.str();
 }
 
+/** @brief print content of array with subarrays to string
+*
+*  @param my_array pointer to array
+*  @param my_size1 the number of subarrays
+*  @param my_size2 the size of subarray
+*/
+template<class MyType>
+std::string print_array(MyType *my_array, int my_size1, int my_size2){
+	std::ostringstream out;
+	out << "{";
+	for(int i=0;i<my_size1;i++){
+		out << "[";
+		for(int j=0;j<my_size2;j++){
+			out << my_array[i*my_size2+j];
+			if(j<my_size2-1) out << ",";
+		}
+		out << "]";
+		if(i<my_size1-1) out << ",";
+	}	
+	out << "}";
+	return out.str();
+}
+
+bool parse_strings_to_doubles(int K, int Km, std::vector<std::string> Theta_list, double *Theta_solution) {
+	std::string token; 
+	size_t pos;
+	int counter=0;
+	
+	for(int k=0;k < K;k++){
+		pos = 0;
+		
+		while ((pos = Theta_list[k].find(",")) != std::string::npos) {
+			token = Theta_list[k].substr(0, pos);
+
+			if(counter >= K*Km) return false;
+			Theta_solution[counter] = atof(token.c_str());
+			counter++;
+
+			Theta_list[k].erase(0, pos + 1);
+		}
+
+		if(counter >= K*Km) return false;
+		Theta_solution[counter] = atof(Theta_list[k].c_str());
+		counter++;
+	}
+
+	if(counter != K*Km){
+		return false;
+	} else {
+		return true;
+	}
+}
+
 /** @brief print content of vector to string
 *
 *  @param my_vector vector to print

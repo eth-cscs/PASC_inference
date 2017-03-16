@@ -1,4 +1,4 @@
-/** @file test_test_signal1D.cu
+/** @file test_signal1D.cu
  *  @brief test the kmeans problem solver on simple 1D signal problem
  *
  *  @author Lukas Pospisil
