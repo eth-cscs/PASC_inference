@@ -7,7 +7,7 @@
 #include "pascinference.h"
 #include "solver/tssolver.h"
 #include "data/signal1Ddata.h"
-#include "model/graphh1fem.h"
+#include "model/entropyh1fem.h"
 
 #include <vector>
 
@@ -81,9 +81,9 @@ int main( int argc, char *argv[] )
 
 	consoleArg.set_option_value("test_K", &K, 1);
 	consoleArg.set_option_value("test_Km", &Km, 1);
-	consoleArg.set_option_value("test_filename", &filename, "data/samplesignal.bin");
-	consoleArg.set_option_value("test_filename_out", &filename_out, "samplesignal");
-	consoleArg.set_option_value("test_filename_solution", &filename_solution, "data/samplesignal_solution.bin");
+	consoleArg.set_option_value("test_filename", &filename, "data/entropy_small_data.bin");
+	consoleArg.set_option_value("test_filename_out", &filename_out, "entropy_small");
+	consoleArg.set_option_value("test_filename_solution", &filename_solution, "data/entropy_small_solution.bin");
 	consoleArg.set_option_value("test_save_all", &save_all, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
@@ -94,7 +94,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
-	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/samplesignal.txt");
+	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/entropy_small.txt");
 
 	/* maybe gamma0 is given in console parameters */
 	bool given_gamma0;
@@ -182,42 +182,42 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
-///* 1.) prepare preliminary time-series data (to get the size of the problem T) */
-	//coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
-	//Signal1DData<PetscVector> mydata(filename);
+/* 1.) prepare preliminary time-series data (to get the size of the problem T) */
+	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
+	Signal1DData<PetscVector> mydata(filename);
 
-///* 2.) prepare decomposition */
-	//coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
+/* 2.) prepare decomposition */
+	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
-	///* prepare decomposition based on preloaded data */
-	//Decomposition decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
+	/* prepare decomposition based on preloaded data */
+	Decomposition decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
 
-	///* print info about decomposition */
-	//if(printinfo) decomposition.print(coutMaster);
+	/* print info about decomposition */
+	if(printinfo) decomposition.print(coutMaster);
 
-///* 3.) prepare time-series data */
-	//coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
-	//mydata.set_decomposition(decomposition);
+/* 3.) prepare time-series data */
+	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
+	mydata.set_decomposition(decomposition);
 
-	///* print information about loaded data */
-	//if(printinfo) mydata.print(coutMaster);
+	/* print information about loaded data */
+	if(printinfo) mydata.print(coutMaster);
 
-	///* print statistics */
-	//if(printstats) mydata.printstats(coutMaster);
+	/* print statistics */
+	if(printstats) mydata.printstats(coutMaster);
 
-///* 4.) prepare and load solution */
-	//Vec solution_Vec;
-	//TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
-	//GeneralVector<PetscVector> solution(solution_Vec);
-	//solution.load_global(filename_solution);
+/* 4.) prepare and load solution */
+	Vec solution_Vec;
+	TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
+	GeneralVector<PetscVector> solution(solution_Vec);
+	solution.load_global(filename_solution);
 
-///* 5.) prepare model */
-	//coutMaster << "--- PREPARING MODEL ---" << std::endl;
+/* 5.) prepare model */
+	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 
-	///* prepare FEM reduction */
+	/* prepare FEM reduction */
 
-	///* prepare model on the top of given data */
-	//GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
+	/* prepare model on the top of given data */
+	EntropyH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
 
 	///* print info about model */
 	//if(printinfo) mymodel.print(coutMaster,coutAll);
