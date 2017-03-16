@@ -5,3 +5,6 @@
 	path = util/permon
 	url = https://github.com/haplav/permon.git
 	ignore = dirty
+[submodule "util/dlib"]
+	path = util/dlib
+	url = https://github.com/davisking/dlib.git
