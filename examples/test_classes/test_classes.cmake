@@ -86,6 +86,17 @@ if(${TEST_SOLVER})
 	endforeach()
 endif()
 
+# ----- DLIB -----
+option(TEST_DLIB "TEST_DLIB" OFF)
+option(TEST_DLIB_ANNA "TEST_DLIB_ANNA" OFF)
+if(${TEST_DLIB})
+	# define shortcut to compile all tests of this group
+	getListOfVarsStartingWith("TEST_DLIB_" matchedVars)
+	foreach (_var IN LISTS matchedVars)
+		set(${_var} ON)
+	endforeach()
+endif()
+
 # print info
 print("\nClasses tests")
 printinfo_onoff(" TEST_COMMON                               (...)                      " "${TEST_COMMON}")
@@ -129,6 +140,8 @@ printinfo_onoff(" TEST_SOLVER                               (...)               
 #printinfo_onoff("  TEST_SOLVER_MULTICG                       (MultiCGSolver)            " "${TEST_SOLVER_MULTICG}")
 #printinfo_onoff("  TEST_SOLVER_SIMPLE                        (SimpleSolver)             " "${TEST_SOLVER_SIMPLE}")
 #printinfo_onoff("  TEST_SOLVER_SPGQP                         (SPGQPSolver)              " "${TEST_SOLVER_SPGQP}")
+printinfo_onoff(" TEST_DLIB                                 (...)                      " "${TEST_DLIB}")
+printinfo_onoff("  TEST_DLIB_ANNA                            (bechmark from Anna)       " "${TEST_DLIB_ANNA}")
  
 
 # ----- COMMON -----
@@ -234,3 +247,16 @@ endif()
 # ----- MODEL -----
 
 # ----- SOLVER -----
+
+# ----- DLIB ------
+if(${TEST_DLIB_ANNA})
+	# benchmark from anna - first experiences with dlib
+	if(${USE_CUDA})
+		pascadd_executable("test_classes/dlib/test_anna.cu" "test_anna")
+	else()
+		pascadd_executable("test_classes/dlib/test_anna.cpp" "test_anna")
+	endif()
+
+endif()
+
+
