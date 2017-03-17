@@ -12,20 +12,20 @@ typedef petscvector::PetscVector PetscVector;
 /* gamma problem */
 #include "algebra/matrix/blockgraphsparse.h"
 
+#include "data/qpdata.h"
 #include "algebra/feasibleset/simplex_local.h"
 #include "solver/spgqpsolver.h"
 #include "solver/spgqpsolver_coeff.h"
 #include "solver/taosolver.h"
-#include "data/qpdata.h"
 
 #ifdef USE_PERMON
-	#include "solver/permonsolver.h"
 	#include "algebra/feasibleset/simplex_lineqbound.h"
+	#include "solver/permonsolver.h"
 #endif
 
 /* theta problem */
-#include "solver/simplesolver.h"
-#include "data/simpledata.h"
+#include "data/entropydata.h"
+#include "solver/entropysolver.h"
 
 #include "data/tsdata.h"
 
@@ -60,14 +60,13 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
-	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
+	 	EntropyData<VectorBase> *thetadata; /**< for computing lambda-problem with integrals (Anna knows...)  */
 
 		double epssqr; /**< penalty coeficient */
-		int Km;			/**< number of used moments */
+		int Km;			/**< number of moments */
 		
 		/* for theta problem */
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
-		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
 		GeneralVector<VectorBase> *residuum; /**< temp vector for residuum computation */
 		
 		bool scalef;			/**< divide whole function by T */
@@ -123,7 +122,7 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		void get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver);
 		
 		QPData<VectorBase> *get_gammadata() const;
-		SimpleData<VectorBase> *get_thetadata() const;
+		EntropyData<VectorBase> *get_thetadata() const;
 		BGMGraph *get_graph() const;
 
 		double get_aic(double L) const;
@@ -329,7 +328,7 @@ void EntropyH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	if(this->scalef){
 		coeff *= (1.0/((double)(this->get_T())));
 	} else {
-		coeff *= ((double)(this->get_T_reduced())/((double)(this->get_T())));
+		coeff *= 1.0;
 	}
 
 	if(this->A_shared != NULL){
@@ -427,17 +426,15 @@ void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thet
 	LOG_FUNC_BEGIN
 	
 	/* create data */
-	thetadata = new SimpleData<PetscVector>();
-	thetadata->set_x(tsdata->get_thetavector());
+	thetadata = new EntropyData<PetscVector>(this->tsdata->get_T(), this->tsdata->get_K(), this->get_Km());
+	thetadata->set_lambda(tsdata->get_thetavector());
+	thetadata->set_x(tsdata->get_datavector());
+	thetadata->set_gamma(tsdata->get_gammavector());
+	thetadata->set_decomposition(tsdata->get_decomposition());
 
 	/* create solver */
-	*thetasolver = new SimpleSolver<PetscVector>(*thetadata);
-	
-	/* create aux vector for gamma^T A gamma */
-	Vec Agamma_Vec;
-	TRYCXX( VecDuplicate(tsdata->get_gammavector()->get_vector(),&Agamma_Vec) );
-	Agamma = new GeneralVector<PetscVector>(Agamma_Vec);
-	
+	*thetasolver = new EntropySolver<PetscVector>(*thetadata);
+
 	LOG_FUNC_END
 }
 
@@ -466,7 +463,6 @@ void EntropyH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetaso
 	/* I created this objects, I should destroy them */
 
 	/* destroy data */
-	free(Agamma);
 	free(thetadata);
 
 	/* destroy solver */
@@ -493,7 +489,7 @@ QPData<VectorBase>* EntropyH1FEMModel<VectorBase>::get_gammadata() const {
 }
 
 template<class VectorBase>
-SimpleData<VectorBase>* EntropyH1FEMModel<VectorBase>::get_thetadata() const {
+EntropyData<VectorBase>* EntropyH1FEMModel<VectorBase>::get_thetadata() const {
 	return thetadata;
 }
 
@@ -512,6 +508,7 @@ void EntropyH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver
 	int K = this->tsdata->get_decomposition()->get_K();
 
 	/* update gamma_solver data - prepare new linear term */
+	/* theta includes all moments */
 	const double *theta_arr;
 	TRYCXX( VecGetArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 	
@@ -558,62 +555,6 @@ void EntropyH1FEMModel<PetscVector>::updateaftersolve_gammasolver(GeneralSolver 
 template<>
 void EntropyH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
-
-	// TODO: if Theta is not in penalty term, this computation is completely WRONG! However, it doesn't matter if Theta is given
-
-	Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
-	Vec theta_Vec = tsdata->get_thetavector()->get_vector();
-	Vec data_Vec = tsdata->get_datavector()->get_vector();
-
-	/* I will use A_shared with coefficients equal to 1, therefore I set Theta=1 */
-	TRYCXX( VecSet(tsdata->get_thetavector()->get_vector(),1.0) );
-	TRYCXX( VecAssemblyBegin(tsdata->get_thetavector()->get_vector()) );
-	TRYCXX( VecAssemblyEnd(tsdata->get_thetavector()->get_vector()) );
-
-	/* subvectors */
-	Vec gammak_Vec;
-	Vec Agammak_Vec;
-	IS gammak_is;
-	
-	double gammakx;
-	double gammaksum;
-	
-	/* get arrays */
-	double *theta_arr;
-	TRYCXX( VecGetArray(theta_Vec,&theta_arr) );
-
-	int K = tsdata->get_K();
-
-	double coeff = 1.0;
-
-	/* through clusters */
-	for(int k=0;k<K;k++){
-		
-		/* get gammak */
-		this->tsdata->get_decomposition()->createIS_gammaK(&gammak_is, k);
-		TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-
-		/* compute gammakx */
-		TRYCXX( VecDot(data_Vec, gammak_Vec, &gammakx) );
-
-		/* compute gammaksum */
-		TRYCXX( VecSum(gammak_Vec, &gammaksum) );
-
-		/* if Theta is not in penalty term, then the computation is based on kmeans */
-		if(gammaksum != 0){
-			theta_arr[k] = gammakx/gammaksum;
-		} else {
-			theta_arr[k] = 0.0;
-		}
-	
-		TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-		TRYCXX( ISDestroy(&gammak_is) );
-	}	
-
-	/* restore arrays */
-	TRYCXX( VecRestoreArray(theta_Vec,&theta_arr) );
-
-	TRYCXX( PetscBarrier(NULL));
 
 	LOG_FUNC_END
 }

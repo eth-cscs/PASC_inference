@@ -240,64 +240,51 @@ int main( int argc, char *argv[] )
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
-///* 6.) solve the problem with epssqrs and remember best solution */
-	//double epssqr;
-	//double epssqr_best = -1;
-	//double abserr; /* actual error */
-	//double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
+/* 6.) solve the problem with epssqrs and remember best solution */
+	double epssqr;
+	double epssqr_best = -1;
+	double abserr; /* actual error */
+	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
 
-	//Vec gammavector_best_Vec; /* here we store solution with best abserr value */
-	//TRYCXX( VecDuplicate(mydata.get_gammavector()->get_vector(),&gammavector_best_Vec) );
+	Vec gammavector_best_Vec; /* here we store solution with best abserr value */
+	TRYCXX( VecDuplicate(mydata.get_gammavector()->get_vector(),&gammavector_best_Vec) );
 
-	//Vec thetavector_best_Vec; /* here we store solution with best abserr value */
-	//TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
+	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
+	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
 
-	///* energy for one iteration */
-	//double node_energy_it;
-    	//double node_energy_it_sum;
-	
-	///* go throught given list of epssqr */
-	//for(int depth = 0; depth < epssqr_list.size();depth++){
-		//epssqr = epssqr_list[depth];
-		//coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---" << std::endl;
+	/* go throught given list of epssqr */
+	for(int depth = 0; depth < epssqr_list.size();depth++){
+		epssqr = epssqr_list[depth];
+		coutMaster << "--- SOLVING THE PROBLEM with epssqr = " << epssqr << " ---" << std::endl;
 
-		///* set new epssqr */
-		//mymodel.set_epssqr(epssqr);
+		/* set new epssqr */
+		mymodel.set_epssqr(epssqr);
 
-		///* cut data */
-		//if(cutdata) mydata.cutdata(0,1);
+		/* cut data */
+		if(cutdata) mydata.cutdata(0,1);
 
-		///* scale data */
-		//if(scaledata){
-			//mydata.scaledata(-1,1,0,1);
-		//}
+		/* scale data */
+		if(scaledata){
+			mydata.scaledata(-1,1,0,1);
+		}
 		
-		///* measure energy at begin */
-		//MPI_Barrier(MPI_COMM_WORLD);
-		//node_energy_it    = PowerCheck::get_node_energy()/(double)ranks_per_node;
+		/* !!! solve the problem */
+		mysolver.solve();
 
-		///* !!! solve the problem */
-		//mysolver.solve();
+		/* cut gamma */
+		if(cutgamma) mydata.cutgamma();
 
-		///* measure energy in the end */
-		//MPI_Barrier(MPI_COMM_WORLD);
-		//node_energy_it     = PowerCheck::get_node_energy()/(double)ranks_per_node - node_energy_it;
-		//node_energy_it_sum = PowerCheck::mpi_sum_reduce(node_energy_it);
+		/* unscale data before save */
+		if(scaledata){
+			mydata.scaledata(0,1,-1,1);
+		}
+
+		/* compute absolute error of computed solution */
+		abserr = mydata.compute_abserr_reconstructed(solution);
 		
-		///* cut gamma */
-		//if(cutgamma) mydata.cutgamma();
-
-		///* unscale data before save */
-		//if(scaledata){
-			//mydata.scaledata(0,1,-1,1);
-		//}
-
-		///* compute absolute error of computed solution */
-		//abserr = mydata.compute_abserr_reconstructed(solution);
-		
-		//coutMaster << " - abserr = " << abserr << std::endl;
-////		mysolver.printtimer(coutMaster);
-////		mysolver.printstatus(coutMaster);	
+		coutMaster << " - abserr = " << abserr << std::endl;
+//		mysolver.printtimer(coutMaster);
+//		mysolver.printstatus(coutMaster);	
 
 		///* store obtained solution */
 		//if(save_all){
@@ -334,19 +321,19 @@ int main( int argc, char *argv[] )
 			//oss_short_output_values.str("");
 		//}
 	
-		///* if this solution is better then previous, then store it */
-		//if(abserr < abserr_best){
-			//abserr_best = abserr;
-			//epssqr_best = epssqr;
-			//TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
-			//TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
-		//}
+		/* if this solution is better then previous, then store it */
+		if(abserr < abserr_best){
+			abserr_best = abserr;
+			epssqr_best = epssqr;
+			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
+			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
+		}
 		
-	//}
+	}
 
-	///* set best computed solution back to data */
-	//TRYCXX(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
-	//TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
+	/* set best computed solution back to data */
+	TRYCXX(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
+	TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
 
 ///* 8.) store best solution */
 	//coutMaster << "--- SAVING OUTPUT ---" << std::endl;
@@ -355,17 +342,17 @@ int main( int argc, char *argv[] )
 	//mydata.saveSignal1D(oss.str(),false);
 	//oss.str("");
 
-	///* print solution */
-	//coutMaster << "--- THETA SOLUTION ---" << std::endl;
-	//mydata.print_thetavector(coutMaster);
+	/* print solution */
+	coutMaster << "--- THETA SOLUTION ---" << std::endl;
+	mydata.print_thetavector(coutMaster);
 
-	///* print timers */
-	//coutMaster << "--- TIMERS INFO ---" << std::endl;
-	//mysolver.printtimer(coutMaster);
+	/* print timers */
+	coutMaster << "--- TIMERS INFO ---" << std::endl;
+	mysolver.printtimer(coutMaster);
 
-	///* print short info */
-	//coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
-	//mysolver.printstatus(coutMaster);
+	/* print short info */
+	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
+	mysolver.printstatus(coutMaster);
 
 	/* print info about power consumption */
 	timer_all.stop();

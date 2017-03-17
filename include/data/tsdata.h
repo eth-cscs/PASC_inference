@@ -355,8 +355,12 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 	if(!this->thetavector){
 		Vec thetavector_Vec;
 
-		/* classic MPI vector */
 		TRYCXX( VecCreate(PETSC_COMM_WORLD,&thetavector_Vec) );
+		#ifdef USE_CUDA
+			TRYCXX(VecSetType(thetavector_Vec, VECMPICUDA));
+		#else
+			TRYCXX(VecSetType(thetavector_Vec, VECMPI));
+		#endif
 		TRYCXX( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),this->tsmodel->get_thetavectorlength_global()) );
 		TRYCXX( VecSetFromOptions(thetavector_Vec) );
 		

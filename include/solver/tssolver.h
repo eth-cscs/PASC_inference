@@ -591,10 +591,7 @@ void TSSolver<VectorBase>::solve() {
 			}
 
 			if(debug_print_theta_solution){
-				coutMaster <<  "- thetasolver content:" << std::endl;
-				coutMaster.push();
-				 thetasolver->printcontent(coutMaster);
-				coutMaster.pop();
+				coutMaster << "thetavector = " << *(tsdata->get_thetavector()) << std::endl;
 			}
 
 			/* --- COMPUTE gamma --- */
@@ -628,10 +625,7 @@ void TSSolver<VectorBase>::solve() {
 				coutAll.synchronize();
 			}
 			if(debug_print_gamma_solution){
-				coutMaster <<  "- gammasolver content:" << std::endl;
-				coutMaster.push();
-				gammasolver->printcontent(coutMaster);
-				coutMaster.pop();
+				coutMaster << "gammavector = " << *(tsdata->get_gammavector()) << std::endl;
 			}
 
 			/* compute stopping criteria if the problem was not solved yet */
