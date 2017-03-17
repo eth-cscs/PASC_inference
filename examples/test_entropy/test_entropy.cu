@@ -217,28 +217,28 @@ int main( int argc, char *argv[] )
 	/* prepare FEM reduction */
 
 	/* prepare model on the top of given data */
-	EntropyH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0]);
+	EntropyH1FEMModel<PetscVector> mymodel(mydata, Km, epssqr_list[0]);
 
-	///* print info about model */
-	//if(printinfo) mymodel.print(coutMaster,coutAll);
+	/* print info about model */
+	if(printinfo) mymodel.print(coutMaster,coutAll);
 
-///* 6.) prepare time-series solver */
-	//coutMaster << "--- PREPARING SOLVER ---" << std::endl;
+/* 6.) prepare time-series solver */
+	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 
-	///* prepare time-series solver */
-	//TSSolver<PetscVector> mysolver(mydata, annealing);
+	/* prepare time-series solver */
+	TSSolver<PetscVector> mysolver(mydata, annealing);
 
-	///* if gamma0 is provided, then load it */
-	//if(given_gamma0){
-		//coutMaster << " - loading and setting gamma0" << std::endl;
-		//mydata.load_gammavector(filename_gamma0);
-	//}
+	/* if gamma0 is provided, then load it */
+	if(given_gamma0){
+		coutMaster << " - loading and setting gamma0" << std::endl;
+		mydata.load_gammavector(filename_gamma0);
+	}
 
-	///* print info about solver */
-	//if(printinfo) mysolver.print(coutMaster,coutAll);
+	/* print info about solver */
+	if(printinfo) mysolver.print(coutMaster,coutAll);
 
-	///* set solution if obtained from console */
-	//if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
+	/* set solution if obtained from console */
+	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
 	
 ///* 6.) solve the problem with epssqrs and remember best solution */
 	//double epssqr;

@@ -63,6 +63,7 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
 
 		double epssqr; /**< penalty coeficient */
+		int Km;			/**< number of used moments */
 		
 		/* for theta problem */
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
@@ -80,7 +81,7 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		 * @param tsdata time-series data on which model operates
 		 * @param epssqr regularisation constant
 		 */ 	
-		EntropyH1FEMModel(TSData<VectorBase> &tsdata, double epssqr);
+		EntropyH1FEMModel(TSData<VectorBase> &tsdata, int Km, double epssqr);
 
 		/** @brief destructor 
 		 */ 
@@ -123,8 +124,10 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		
 		QPData<VectorBase> *get_gammadata() const;
 		SimpleData<VectorBase> *get_thetadata() const;
+		BGMGraph *get_graph() const;
 
 		double get_aic(double L) const;
+		int get_Km() const;
 		void set_epssqr(double epssqr);
 		int get_T() const;
 
@@ -143,7 +146,7 @@ namespace model {
 
 /* constructor */
 template<>
-EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr) {
+EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdata, int Km, double epssqr) {
 	LOG_FUNC_BEGIN
 
 	// TODO: enum in boost::program_options, not only int
@@ -155,13 +158,33 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 
 	/* set given parameters */
 	this->tsdata = &new_tsdata;
+	this->Km = Km;
 	
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
-	this->thetavectorlength_local = tsdata->get_K()*tsdata->get_xdim();
+	this->thetavectorlength_local = tsdata->get_K()*this->get_Km();
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
 
 	/* set this model to data - tsdata will prepare gamma vector and thetavector */
 	tsdata->set_model(*this);
+
+	/* control the existence of graph */
+	/* in this model, I need to work with graph, but maybe there is no graph in decomposition
+	 * (for instance in the case without spatial decomposition), however it seems that user still wants to work 
+	 * with this model based on graph. Therefore we create graph of disjoint nodes without any edge. This graph
+	 * represents the situation and can be used for matrix-graph-based manipulation
+	*/
+	if(get_graph() == NULL){
+		BGMGraph *graph = this->tsdata->get_decomposition()->get_graph();
+		double coordinates_array[this->tsdata->get_R()];
+
+		for(int r=0;r<this->tsdata->get_R();r++){
+			coordinates_array[r] = r;
+		} 
+		graph = new BGMGraph(coordinates_array, this->tsdata->get_R(), 1);
+		graph->process(0.0);
+		
+		this->tsdata->get_decomposition()->set_graph(*graph);
+	}
 
 	/* set regularization parameter */
 	this->epssqr = epssqr;
@@ -191,7 +214,13 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - scalef            : " << printbool(this->scalef) << std::endl;
 
 	output <<  " - K                 : " << this->tsdata->get_K() << std::endl;
+	output <<  " - Km                : " << this->get_Km() << std::endl;
 	output <<  " - epssqr            : " << this->epssqr << std::endl;
+
+	output <<  " - Graph             : " << std::endl;
+	output.push();
+	this->get_graph()->print(output);
+	output.pop();
 
 	output <<  " - thetalength       : " << this->thetavectorlength_global << std::endl;
 
@@ -223,8 +252,8 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	output_global <<  "  - xdim              : " << this->tsdata->get_xdim() << std::endl;
 	output_global <<  "  - scalef            : " << printbool(this->scalef) << std::endl;
 	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
+	output_global <<  "  - Km                : " << this->get_Km() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
-	output_global <<  "  - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
 	output_global <<  "  - gammasolvertype   : ";
 	switch(this->gammasolvertype){
 		case(SOLVER_AUTO): output_global << "AUTO"; break;
@@ -270,34 +299,14 @@ void EntropyH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global,
 	double *theta;
 	TRYCXX( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
 	
-	int k,n;
-
 	output_local.push();
-	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
-	output_local.push();
-	for(k=0;k<tsdata->get_K();k++){
-		output_local <<  "- k = " << k << std::endl;
-
-		/* mu */
-		output_local.push();
-		output_local <<  "- theta = [";
-		for(n=0;n<tsdata->get_xdim();n++){
-			temp << theta[k*tsdata->get_xdim() + n];
-			output_local << temp.str();
-			if(n < tsdata->get_xdim()-1){
-				output_local << ", ";
-			}
-			temp.str("");
-		}
-		output_local <<  "]" << std::endl;
-		output_local.pop();
-
-	}
-	output_local.pop();
+	output_local << print_array(theta,tsdata->get_K(),get_Km()) << std::endl;
 	output_local.pop();
 
 	output_local.synchronize();
 	output_global.synchronize();
+
+	TRYCXX( VecRestoreArray(thetadata->get_x()->get_vector(),&theta) );
 
 	LOG_FUNC_END
 }
@@ -488,6 +497,11 @@ SimpleData<VectorBase>* EntropyH1FEMModel<VectorBase>::get_thetadata() const {
 	return thetadata;
 }
 
+template<class VectorBase>
+BGMGraph *EntropyH1FEMModel<VectorBase>::get_graph() const {
+	return this->tsdata->get_decomposition()->get_graph();
+}
+
 template<>
 void EntropyH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
@@ -614,7 +628,11 @@ void EntropyH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver 
 template<class VectorBase>
 double EntropyH1FEMModel<VectorBase>::get_aic(double L) const{
 	return 2*log(L) + this->tsdata->get_K();
+}
 
+template<class VectorBase>
+int EntropyH1FEMModel<VectorBase>::get_Km() const {
+	return this->Km;
 }
 
 template<class VectorBase>
