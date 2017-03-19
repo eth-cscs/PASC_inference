@@ -328,7 +328,7 @@ void EntropySolver<PetscVector>::compute_moments() {
 	
 	double *moments_arr, mysum, gammaksum;
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
-	for(int km=0; km < 20; km++){
+	for(int km=0; km < entropydata->get_Km(); km++){
 		
 		for(int k=0;k<entropydata->get_K();k++){
 			/* get gammak */
@@ -336,7 +336,7 @@ void EntropySolver<PetscVector>::compute_moments() {
 			TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 
 			/* compute x_power_gammak */
-			TRYCXX( VecPointwiseMult(x_power_Vec, gammak_Vec, x_power_gammak_Vec) ); /* x_power_gammak = x_power.*gammak */
+			TRYCXX( VecPointwiseMult(x_power_gammak_Vec, gammak_Vec, x_power_Vec) ); /* x_power_gammak = x_power.*gammak */
 
 			/* compute gammaksum */
 			TRYCXX( VecSum(gammak_Vec, &gammaksum) );
@@ -344,9 +344,7 @@ void EntropySolver<PetscVector>::compute_moments() {
 
 			/* store computed moment */
 			if(gammaksum != 0){
-//				moments_arr[k*this->entropydata->get_Km() + km] = mysum/gammaksum;
-
-				coutMaster << mysum << std::endl;
+				moments_arr[k*this->entropydata->get_Km() + km] = mysum/gammaksum;
 			} else {
 				moments_arr[k*this->entropydata->get_Km() + km] = 0.0;
 			}
