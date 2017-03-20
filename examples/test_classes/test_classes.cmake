@@ -89,6 +89,7 @@ endif()
 # ----- DLIB -----
 option(TEST_DLIB "TEST_DLIB" OFF)
 option(TEST_DLIB_ANNA "TEST_DLIB_ANNA" OFF)
+option(TEST_DLIB_INTEGRAL "TEST_DLIB_INTEGRAL" OFF)
 if(${TEST_DLIB})
 	# define shortcut to compile all tests of this group
 	getListOfVarsStartingWith("TEST_DLIB_" matchedVars)
@@ -141,7 +142,8 @@ printinfo_onoff(" TEST_SOLVER                               (...)               
 #printinfo_onoff("  TEST_SOLVER_SIMPLE                        (SimpleSolver)             " "${TEST_SOLVER_SIMPLE}")
 #printinfo_onoff("  TEST_SOLVER_SPGQP                         (SPGQPSolver)              " "${TEST_SOLVER_SPGQP}")
 printinfo_onoff(" TEST_DLIB                                 (...)                      " "${TEST_DLIB}")
-printinfo_onoff("  TEST_DLIB_ANNA                            (bechmark from Anna)       " "${TEST_DLIB_ANNA}")
+printinfo_onoff("  TEST_DLIB_ANNA                            (benchmark from Anna)       " "${TEST_DLIB_ANNA}")
+printinfo_onoff("  TEST_DLIB_INTEGRAL                        (numerical integration)     " "${TEST_DLIB_INTEGRAL}")
  
 
 # ----- COMMON -----
@@ -259,4 +261,13 @@ if(${TEST_DLIB_ANNA})
 
 endif()
 
+if(${TEST_DLIB_INTEGRAL})
+	# test numerical integration
+	if(${USE_CUDA})
+		pascadd_executable("test_classes/dlib/test_integral.cu" "test_integral")
+	else()
+		pascadd_executable("test_classes/dlib/test_integral.cpp" "test_integral")
+	endif()
+
+endif()
 
