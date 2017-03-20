@@ -144,6 +144,7 @@ static void add_options(boost::program_options::options_description *description
 		boost::program_options::options_description opt_entropyh1femmodel("ENTROPYH1FEMMODEL", console_nmb_cols);
 		opt_entropyh1femmodel.add_options()
 			("entropyh1femmodel_scalef", boost::program_options::value<bool>(), "scale function by 1/T [bool]")
+			("entropyh1femmodel_thetasolvertype", boost::program_options::value<int>(), "type of used inner Entropy solver [0=SOLVER_AUTO/1=SOLVER_ENTROPY_DLIB/2=SOLVER_ENTROPY_SPG]")			
 			("entropyh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]");
 		opt_models.add(opt_entropyh1femmodel);
 

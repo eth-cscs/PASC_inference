@@ -25,7 +25,8 @@ typedef petscvector::PetscVector PetscVector;
 
 /* theta problem */
 #include "data/entropydata.h"
-#include "solver/entropysolver.h"
+#include "solver/entropysolver_dlib.h"
+#include "solver/entropysolver_spg.h"
 
 #include "data/tsdata.h"
 
@@ -51,12 +52,23 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		 * 
 		 */
 		typedef enum { 
-			SOLVER_AUTO=0, /**< choose automatic solver */
-			SOLVER_SPGQP=1, /**< CPU/GPU implementation of Spectral Projected Gradient method */
-			SOLVER_SPGQP_COEFF=2, /**< CPU/GPU implementation of Spectral Projected Gradient method with special coefficient threatment */
-			SOLVER_PERMON=3, /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
-			SOLVER_TAO=4 /**< TAO solver */
+			GSOLVER_AUTO=0, /**< choose automatic solver */
+			GSOLVER_SPGQP=1, /**< CPU/GPU implementation of Spectral Projected Gradient method */
+			GSOLVER_SPGQP_COEFF=2, /**< CPU/GPU implementation of Spectral Projected Gradient method with special coefficient threatment */
+			GSOLVER_PERMON=3, /**< PERMONQP solver (augumented lagrangians combined with active-set method) */
+			GSOLVER_TAO=4 /**< TAO solver */
 		} GammaSolverType;
+
+		/** @brief type of solver used to solve inner theta problem 
+		 * 
+		 * Maximum entropy - nonlinear optimization problem / system of nonlinear equations with integrals
+		 * 
+		 */
+		typedef enum { 
+			TSOLVER_AUTO=0, /**< choose automatic solver */
+			TSOLVER_ENTROPY_DLIB=1, /**< CPU/GPU implementation of Spectral Projected Gradient method */
+			TSOLVER_ENTROPY_SPG=2 /**< CPU/GPU implementation of Spectral Projected Gradient method with special coefficient threatment */
+		} ThetaSolverType;
 
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
@@ -71,7 +83,8 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		
 		bool scalef;			/**< divide whole function by T */
 		
-		GammaSolverType gammasolvertype; /**< the type of used solver */
+		GammaSolverType gammasolvertype; /**< the type of used solver for gamma problem */
+		ThetaSolverType thetasolvertype; /**< the type of used solver for theta problem */
 		
 	public:
 
@@ -150,10 +163,13 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 
 	// TODO: enum in boost::program_options, not only int
 	int gammasolvertype_int;
-	consoleArg.set_option_value("entropyh1femmodel_gammasolvertype", &gammasolvertype_int, SOLVER_AUTO);
+	int thetasolvertype_int;
+	consoleArg.set_option_value("entropyh1femmodel_gammasolvertype", &gammasolvertype_int, GSOLVER_AUTO);
+	consoleArg.set_option_value("entropyh1femmodel_thetasolvertype", &thetasolvertype_int, TSOLVER_AUTO);
 	consoleArg.set_option_value("entropyh1femmodel_scalef", &scalef, GRAPHH1FEMMODEL_DEFAULT_SCALEF);
 	
 	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
+	this->thetasolvertype = static_cast<ThetaSolverType>(thetasolvertype_int);
 
 	/* set given parameters */
 	this->tsdata = &new_tsdata;
@@ -223,13 +239,21 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 
 	output <<  " - thetalength       : " << this->thetavectorlength_global << std::endl;
 
+	output <<  " - thetasolvertype   : ";
+	switch(this->thetasolvertype){
+		case(TSOLVER_AUTO): output << "AUTO"; break;
+		case(TSOLVER_ENTROPY_DLIB): output << "ENTROPY_DLIB solver"; break;
+		case(TSOLVER_ENTROPY_SPG): output << "ENTROPY_SPG solver"; break;
+	}
+	output << std::endl;
+
 	output <<  " - gammasolvertype   : ";
 	switch(this->gammasolvertype){
-		case(SOLVER_AUTO): output << "AUTO"; break;
-		case(SOLVER_SPGQP): output << "SPG-QP solver"; break;
-		case(SOLVER_SPGQP_COEFF): output << "SPG-QP-COEFF solver"; break;
-		case(SOLVER_PERMON): output << "PERMON QP solver"; break;
-		case(SOLVER_TAO): output << "TAO QP solver"; break;
+		case(GSOLVER_AUTO): output << "AUTO"; break;
+		case(GSOLVER_SPGQP): output << "SPG-QP solver"; break;
+		case(GSOLVER_SPGQP_COEFF): output << "SPG-QP-COEFF solver"; break;
+		case(GSOLVER_PERMON): output << "PERMON QP solver"; break;
+		case(GSOLVER_TAO): output << "TAO QP solver"; break;
 	}
 	output << std::endl;
 	
@@ -253,13 +277,20 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
 	output_global <<  "  - Km                : " << this->get_Km() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
+	output_global <<  "  - thetasolvertype   : ";
+	switch(this->thetasolvertype){
+		case(TSOLVER_AUTO): output_global << "AUTO"; break;
+		case(TSOLVER_ENTROPY_DLIB): output_global << "ENTROPY_DLIB solver"; break;
+		case(TSOLVER_ENTROPY_SPG): output_global << "ENTROPY_SPG solver"; break;
+	}
+	output_global << std::endl;
 	output_global <<  "  - gammasolvertype   : ";
 	switch(this->gammasolvertype){
-		case(SOLVER_AUTO): output_global << "AUTO"; break;
-		case(SOLVER_SPGQP): output_global << "SPG-QP solver"; break;
-		case(SOLVER_SPGQP_COEFF): output_global << "SPG-QP-COEFF solver"; break;
-		case(SOLVER_PERMON): output_global << "PERMON QP solver"; break;
-		case(SOLVER_TAO): output_global << "TAO QP solver"; break;
+		case(GSOLVER_AUTO): output_global << "AUTO"; break;
+		case(GSOLVER_SPGQP): output_global << "SPG-QP solver"; break;
+		case(GSOLVER_SPGQP_COEFF): output_global << "SPG-QP-COEFF solver"; break;
+		case(GSOLVER_PERMON): output_global << "PERMON QP solver"; break;
+		case(GSOLVER_TAO): output_global << "TAO QP solver"; break;
 	}
 	output_global << std::endl;
 
@@ -372,12 +403,12 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	gammadata->get_x0()->set_random();
 
 	/* automatic choice of solver */
-	if(this->gammasolvertype == SOLVER_AUTO){
-		this->gammasolvertype = SOLVER_SPGQP;
+	if(this->gammasolvertype == GSOLVER_AUTO){
+		this->gammasolvertype = GSOLVER_SPGQP;
 	}
 	
 	/* SPG-QP solver */
-	if(this->gammasolvertype == SOLVER_SPGQP){
+	if(this->gammasolvertype == GSOLVER_SPGQP){
 		/* the feasible set of QP is simplex */
 		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
 
@@ -386,7 +417,7 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	}
 
 	/* SPG-QP solver with special coefficient treatment */
-	if(this->gammasolvertype == SOLVER_SPGQP_COEFF){
+	if(this->gammasolvertype == GSOLVER_SPGQP_COEFF){
 		/* the feasible set of QP is simplex */
 		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
 
@@ -396,7 +427,7 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 
 	/* Permon solver */
 #ifdef USE_PERMON	
-	if(this->gammasolvertype == SOLVER_PERMON){
+	if(this->gammasolvertype == GSOLVER_PERMON){
 		/* the feasible set of QP is combination of linear equality constraints and bound inequality constraints */
 		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
 
@@ -406,7 +437,7 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 #endif
 
 	/* TAO QP solver */
-	if(this->gammasolvertype == SOLVER_TAO){
+	if(this->gammasolvertype == GSOLVER_TAO){
 		/* the feasible set of QP is simplex */
 		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
 
@@ -432,8 +463,22 @@ void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thet
 	thetadata->set_gamma(tsdata->get_gammavector());
 	thetadata->set_decomposition(tsdata->get_decomposition());
 
-	/* create solver */
-	*thetasolver = new EntropySolver<PetscVector>(*thetadata);
+	/* automatic choice of solver */
+	if(this->thetasolvertype == TSOLVER_AUTO){
+		this->thetasolvertype = TSOLVER_ENTROPY_DLIB;
+	}
+	
+	/* ENTROPY_DLIB solver */
+	if(this->thetasolvertype == TSOLVER_ENTROPY_DLIB){
+		/* create solver */
+		*thetasolver = new EntropySolverDlib<PetscVector>(*thetadata);
+	}
+
+	/* ENTROPY_SPG solver */
+	if(this->thetasolvertype == TSOLVER_ENTROPY_SPG){
+		/* create solver */
+		*thetasolver = new EntropySolverSPG<PetscVector>(*thetadata);
+	}
 
 	LOG_FUNC_END
 }
@@ -533,7 +578,19 @@ void EntropyH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver 
 	LOG_FUNC_BEGIN
 
 	/* gammadata->get_b() = this->residuum */
-	((EntropySolver<PetscVector> *)thetasolver)->compute_residuum(this->residuum); //TODO: retype?
+
+	/* ENTROPY_DLIB solver */
+	if(this->thetasolvertype == TSOLVER_ENTROPY_DLIB){
+		/* create solver */
+		((EntropySolverDlib<PetscVector> *)thetasolver)->compute_residuum(this->residuum); //TODO: retype?
+	}
+
+	/* ENTROPY_SPG solver */
+	if(this->thetasolvertype == TSOLVER_ENTROPY_SPG){
+		/* create solver */
+		((EntropySolverSPG<PetscVector> *)thetasolver)->compute_residuum(this->residuum); //TODO: retype?
+	}
+
 
 	LOG_FUNC_END
 }
