@@ -113,6 +113,8 @@ class TSSolver: public GeneralSolver {
 
 		void set_solution_theta(double *Theta);
 		void set_annealing(int annealing);
+		
+		double get_L() const;
 };
 
 
@@ -788,6 +790,11 @@ void TSSolver<VectorBase>::set_solution_theta(double *Theta) {
 
 	this->thetasolved = true;
 	LOG_FUNC_END
+}
+
+template<class VectorBase>
+double TSSolver<VectorBase>::get_L() const {
+	return this->L;
 }
 
 

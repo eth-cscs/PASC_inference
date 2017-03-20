@@ -32,7 +32,6 @@ int main( int argc, char *argv[] )
 		("test_Km", boost::program_options::value<int>(), "number of moments [int]")
 		("test_filename", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
-		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original signal data without noise (vector in PETSc format) [string]")
 		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
 		("test_save_all", boost::program_options::value<bool>(), "save results for all epssqr, not only for the best one [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
@@ -73,7 +72,6 @@ int main( int argc, char *argv[] )
 
 	std::string filename;
 	std::string filename_out;
-	std::string filename_solution;
 	std::string filename_gamma0;
 	std::string shortinfo_filename;
 	std::string shortinfo_header;
@@ -83,7 +81,6 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_Km", &Km, 1);
 	consoleArg.set_option_value("test_filename", &filename, "data/entropy_small_data.bin");
 	consoleArg.set_option_value("test_filename_out", &filename_out, "entropy_small");
-	consoleArg.set_option_value("test_filename_solution", &filename_solution, "data/entropy_small_solution.bin");
 	consoleArg.set_option_value("test_save_all", &save_all, false);
 	consoleArg.set_option_value("test_annealing", &annealing, 1);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
@@ -145,7 +142,6 @@ int main( int argc, char *argv[] )
 
 	coutMaster << " test_filename               = " << std::setw(30) << filename << " (name of input file with signal data)" << std::endl;
 	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)" << std::endl;
-	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)" << std::endl;
 	if(given_gamma0){
 		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
 	} else {
@@ -205,12 +201,6 @@ int main( int argc, char *argv[] )
 	/* print statistics */
 	if(printstats) mydata.printstats(coutMaster);
 
-/* 4.) prepare and load solution */
-	Vec solution_Vec;
-	TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
-	GeneralVector<PetscVector> solution(solution_Vec);
-	solution.load_global(filename_solution);
-
 /* 5.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 
@@ -243,13 +233,13 @@ int main( int argc, char *argv[] )
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr;
 	double epssqr_best = -1;
-	double abserr; /* actual error */
-	double abserr_best = std::numeric_limits<double>::max(); /* the error of best solution */
+	double L; /* actual value of object function */
+	double L_best = std::numeric_limits<double>::max(); /* best solution */
 
-	Vec gammavector_best_Vec; /* here we store solution with best abserr value */
+	Vec gammavector_best_Vec; /* here we store solution with best L */
 	TRYCXX( VecDuplicate(mydata.get_gammavector()->get_vector(),&gammavector_best_Vec) );
 
-	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
+	Vec thetavector_best_Vec; /* here we store solution with best L */
 	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
 
 	/* go throught given list of epssqr */
@@ -279,10 +269,10 @@ int main( int argc, char *argv[] )
 //			mydata.unscaledata(-1,1); //TODO: this is wrong
 		}
 
-		/* compute absolute error of computed solution */
-		abserr = mydata.compute_abserr_reconstructed(solution);
-		
-		coutMaster << " - abserr = " << abserr << std::endl;
+		/* get function value */
+		L = mysolver.get_L();
+
+		coutMaster << " - L = " << L << std::endl;
 //		mysolver.printtimer(coutMaster);
 //		mysolver.printstatus(coutMaster);	
 
@@ -295,35 +285,35 @@ int main( int argc, char *argv[] )
 		//}
 		
 
-		///* store short info */
-		//if(shortinfo_write_or_not){
-			///* add provided strings from console parameters and info about the problem */
-			//if(depth==0) oss_short_output_header << shortinfo_header << "K,epssqr,abserr,energy,";
-			//oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << abserr << "," << node_energy_it_sum << ",";
+		/* store short info */
+		if(shortinfo_write_or_not){
+			/* add provided strings from console parameters and info about the problem */
+			if(depth==0) oss_short_output_header << shortinfo_header << "K,epssqr,L,";
+			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << L << ",";
 			
-			///* append Theta solution */
-			//if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
-			//oss_short_output_values << mydata.print_thetavector(); 
+			/* append Theta solution */
+			if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
+			oss_short_output_values << mydata.print_thetavector(); 
 
-			///* print info from solver */
-			//mysolver.printshort(oss_short_output_header, oss_short_output_values);
+			/* print info from solver */
+			mysolver.printshort(oss_short_output_header, oss_short_output_values);
 
-			///* append end of line */
-			//if(depth==0) oss_short_output_header << "\n";
-			//oss_short_output_values << "\n";
+			/* append end of line */
+			if(depth==0) oss_short_output_header << "\n";
+			oss_short_output_values << "\n";
 
-			///* write to shortinfo file */
-			//if(depth==0) shortinfo.write(oss_short_output_header.str());
-			//shortinfo.write(oss_short_output_values.str());
+			/* write to shortinfo file */
+			if(depth==0) shortinfo.write(oss_short_output_header.str());
+			shortinfo.write(oss_short_output_values.str());
 			
-			///* clear streams for next writing */
-			//oss_short_output_header.str("");
-			//oss_short_output_values.str("");
-		//}
+			/* clear streams for next writing */
+			oss_short_output_header.str("");
+			oss_short_output_values.str("");
+		}
 	
 		/* if this solution is better then previous, then store it */
-		if(abserr < abserr_best){
-			abserr_best = abserr;
+		if(L < L_best){
+			L_best = L;
 			epssqr_best = epssqr;
 			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
 			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
