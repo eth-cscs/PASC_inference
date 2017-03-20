@@ -10,6 +10,22 @@
 #include "pascinference.h"
 #include "data/entropydata.h"
 
+/* this code is for Dlib */
+#ifndef USE_DLIB
+ #error 'ENTROPYSOLVER is for DLIB'
+#endif
+
+/* include Dlib stuff */
+#include "dlib/matrix.h"
+#include "dlib/numeric_constants.h"
+#include "dlib/numerical_integration.h"
+#include "dlib/optimization.h"
+
+#define STOP_TOLERANCE 1e-06
+
+/* Dlib column vector */
+typedef dlib::matrix<double,0,1> column_vector;
+
 namespace pascinference {
 namespace solver {
 
@@ -31,6 +47,12 @@ class EntropySolver: public GeneralSolver {
 		GeneralVector<VectorBase> *x_power; /**< temp vector for storing power of x */
 		GeneralVector<VectorBase> *x_power_gammak; /**< temp vector for storing power of x * gamma_k */
 
+		/* functions for Dlib */
+		double gg(double y, int order, column_vector& LM);
+		double get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps);
+		column_vector get_functions_grad(const column_vector& LM, const column_vector& Mom, int k);
+		dlib::matrix<double> get_functions_hess(const column_vector& LM, const column_vector& Mom, int k);
+
 	public:
 
 		EntropySolver();
@@ -50,6 +72,8 @@ class EntropySolver: public GeneralSolver {
 		EntropyData<VectorBase> *get_data() const;
 
 		void compute_moments();
+		
+		void compute_residuum(GeneralVector<VectorBase> *residuum) const;
 };
 
 
@@ -110,7 +134,6 @@ EntropySolver<VectorBase>::EntropySolver(EntropyData<VectorBase> &new_entropydat
 	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),PETSC_DECIDE) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
-	
 
 	LOG_FUNC_END
 }
@@ -190,6 +213,9 @@ void EntropySolver<VectorBase>::printstatus(std::ostringstream &output) const {
 	std::streamsize ss = std::cout.precision();
 
 	output << std::setprecision(17);
+	
+	//TODO
+	
 	output << std::setprecision(ss);
 
 	LOG_FUNC_END
@@ -243,66 +269,62 @@ void EntropySolver<VectorBase>::solve() {
 
 	this->compute_moments();
 	
-	coutMaster << "Moments: " << *moments << std::endl;
+//	coutMaster << "Moments: " << *moments << std::endl;
 
 	this->timer_solve.start(); 
 
+	/* get dimensions */
+	int K = entropydata->get_K();
+	int Km = entropydata->get_Km();
 
-	///* this solve does not anything */
-	//Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
-	//Vec theta_Vec = tsdata->get_thetavector()->get_vector();
-	//Vec data_Vec = tsdata->get_datavector()->get_vector();
+	/* Anna knows the purpose of this number */
+	double eps = 0.0;
 
-	///* I will use A_shared with coefficients equal to 1, therefore I set Theta=1 */
-	//TRYCXX( VecSet(tsdata->get_thetavector()->get_vector(),1.0) );
-	//TRYCXX( VecAssemblyBegin(tsdata->get_thetavector()->get_vector()) );
-	//TRYCXX( VecAssemblyEnd(tsdata->get_thetavector()->get_vector()) );
+	/* prepare objects for Dlib */
+    column_vector Mom(Km);
+    column_vector starting_point(Km);
 
-	///* subvectors */
-	//Vec gammak_Vec;
-	//Vec Agammak_Vec;
-	//IS gammak_is;
-	
-	//double gammakx;
-	//double gammaksum;
-	
-	///* get arrays */
-	//double *theta_arr;
-	//TRYCXX( VecGetArray(theta_Vec,&theta_arr) );
+	/* stuff for PETSc to Dlib */
+	Vec moments_Vec = moments->get_vector();
+	Vec lambda_Vec = entropydata->get_lambda()->get_vector();
+	double *moments_arr;
+	double *lambda_arr;
+	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
+	TRYCXX( VecGetArray(lambda_Vec, &lambda_arr) );
 
-	//int K = tsdata->get_K();
+	/* prepare lambda-functions for Dlib */
+	auto get_functions_obj_lambda = [&](const column_vector& x)->double { return get_functions_obj(x, Mom, eps);};
+	auto get_functions_grad_lambda = [&](const column_vector& x)->column_vector { return get_functions_grad(x, Mom, Km);};
+	auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return get_functions_hess(x, Mom, Km);};
 
-	//double coeff = 1.0;
+	/* through all clusters */
+	for(int k = 0; k < K; k++){
+		/* Mom: from PETSc vector to Dlib column_vector */
+		for(int km=0;km<Km;km++){
+			Mom(km) = moments_arr[k*Km+km];
+		}
 
-	///* through clusters */
-	//for(int k=0;k<K;k++){
-		
-		///* get gammak */
-		//this->tsdata->get_decomposition()->createIS_gammaK(&gammak_is, k);
-		//TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		/* initial value form starting_point */
+		starting_point = 0.0;
 
-		///* compute gammakx */
-		//TRYCXX( VecDot(data_Vec, gammak_Vec, &gammakx) );
+		coutMaster << "k=" << k << ": running Dlib miracle" << std::endl;
 
-		///* compute gammaksum */
-		//TRYCXX( VecSum(gammak_Vec, &gammaksum) );
+		/* solve using Dlib magic */
+		dlib::find_min_box_constrained(dlib::newton_search_strategy(get_functions_hess_lambda),
+                             dlib::objective_delta_stop_strategy(STOP_TOLERANCE).be_verbose(),
+                             get_functions_obj_lambda, get_functions_grad_lambda, starting_point, -1e12, 1e12 );
 
-		///* if Theta is not in penalty term, then the computation is based on kmeans */
-		//if(gammaksum != 0){
-			//theta_arr[k] = gammakx/gammaksum;
-		//} else {
-			//theta_arr[k] = 0.0;
-		//}
-	
-		//TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-		//TRYCXX( ISDestroy(&gammak_is) );
-	//}	
+//		coutMaster << "something computed" << std::endl;
 
-	///* restore arrays */
-	//TRYCXX( VecRestoreArray(theta_Vec,&theta_arr) );
+		/* store lambda (solution): from Dlib to Petsc */
+		for(int km=0;km<Km;km++){
+			lambda_arr[k*Km+km] = starting_point(km);
+		}
 
-	//TRYCXX( PetscBarrier(NULL));
+	} /* endfor through clusters */
 
+	TRYCXX( VecRestoreArray(lambda_Vec, &lambda_arr) );
+	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
 	
 	this->timer_solve.stop(); 
 
@@ -363,6 +385,146 @@ void EntropySolver<PetscVector>::compute_moments() {
 	LOG_FUNC_END
 }
 
+
+template<class VectorBase>
+double EntropySolver<VectorBase>::gg(double y, int order, column_vector& LM){
+    long  x_size = LM.size();
+    long  num_moments = x_size;
+    column_vector z(num_moments);
+    
+    z = 0;
+    for (int i = 0; i < num_moments; ++i)
+        z(i) = pow(y,i+1);
+    
+    
+    return pow(y,order)*(exp(-trans(LM)*z));
+}
+
+template<class VectorBase>
+double EntropySolver<VectorBase>::get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps){
+    /* compute normalization */
+    column_vector Vec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
+    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+    
+    return dlib::trans(Mom)*LM + log(F_);// + eps*sum(LM);	
+}
+
+template<class VectorBase>
+column_vector EntropySolver<VectorBase>::get_functions_grad(const column_vector& LM, const column_vector& Mom, int k){
+    column_vector grad(k);
+    column_vector I(k);
+    
+    /* compute normalization */
+    column_vector Vec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
+    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+    
+    /* theoretical moments */
+    int i = 0;
+    while (i < k)
+    {
+        auto mom_function = [&](double x)->double { return gg(x, i+1, Vec);};
+        I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+        i++;
+    }
+    
+    for (int i = 0; i < k; ++i)
+        grad(i) = Mom(i) - I(i)/F_;
+    
+//    double L1 = grad(0);
+//    double L2 = grad(1);
+    return grad;
+}
+
+template<class VectorBase>
+dlib::matrix<double> EntropySolver<VectorBase>::get_functions_hess(const column_vector& LM, const column_vector& Mom, int k){
+    dlib::matrix<double> hess(k, k);
+    
+    column_vector I(2*k);
+    
+    //compute normalization
+    column_vector Vec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
+    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+    
+    //theoretical moments
+    int i = 0;
+    while (i < 2*k)
+    {
+        auto mom_function = [&](double x)->double { return gg(x, i+1, Vec);};
+        I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+        i++;
+    }
+    
+    for (int i = 0; i < k; ++i)
+        for (int j = 0; j < k; ++j)
+            hess(i,j) = I(i+j+1)/F_ - I(i)*I(j)/(F_*F_);
+    
+//    double L1 = hess(0,0);
+//    double L2 = hess(0,1);
+//    double L3 = hess(1,0);
+//    double L4 = hess(1,1);
+    return hess;
+}
+
+template<>
+void EntropySolver<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const {
+	LOG_FUNC_BEGIN
+
+	int T = entropydata->get_T();
+	int Tlocal = entropydata->get_decomposition()->get_Tlocal();
+	int K = entropydata->get_K();
+	int Km = entropydata->get_Km();
+
+	/* lambda vector for Dlib integration */
+	column_vector lambda(Km);
+    auto mom_function = [&](double x)->double { return gg(x, 0, lambda);};
+    double F_;
+
+	/* update gamma_solver data - prepare new linear term */
+	/* theta includes all moments */
+	const double *lambda_arr;
+	TRYCXX( VecGetArrayRead(entropydata->get_lambda()->get_vector(), &lambda_arr) );
+	
+	const double *x_arr;
+	TRYCXX( VecGetArrayRead(entropydata->get_x()->get_vector(), &x_arr) );
+	
+	double *residuum_arr;
+	TRYCXX( VecGetArray(residuum->get_vector(), &residuum_arr) );
+
+	double mysum, x_power;
+	for(int k=0;k<K;k++){
+		/* compute int_X exp(-sum lambda_j x^j) dx for this cluster
+		/* from arr to Dlib-vec */
+		for(int km=0;km<Km;km++){
+			lambda(km) = lambda_arr[k*Km+km];
+		}
+		F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+		F_ = log(F_);
+
+		for(int t=0;t<Tlocal;t++){
+			/* compute sum_{j=1}^{Km} lambda_j*x^j */
+			mysum = 0.0;
+			x_power = x_arr[t]; /* x^1 */
+			for(int km=0;km<Km;km++){
+				mysum += lambda_arr[k*Km+km]*x_power;
+				x_power *= x_arr[t]; /* x_power = x^(km+1) */
+			}
+
+			residuum_arr[t*K + k] = mysum + F_;
+		}
+	}
+
+	/* coeffs of A_shared are updated via computation of Theta :) */
+
+	/* restore arrays */
+	TRYCXX( VecRestoreArray(residuum->get_vector(), &residuum_arr) );
+	TRYCXX( VecRestoreArrayRead(entropydata->get_x()->get_vector(), &x_arr) );
+	TRYCXX( VecRestoreArrayRead(entropydata->get_lambda()->get_vector(), &lambda_arr) );
+		
+	LOG_FUNC_END
+}
 
 }
 } /* end namespace */

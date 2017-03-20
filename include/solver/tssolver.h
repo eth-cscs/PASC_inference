@@ -24,7 +24,7 @@
 #include "solver/qpsolver.h"
 
 #define TSSOLVER_DEFAULT_MAXIT 300
-#define TSSOLVER_DEFAULT_EPS 1e-9
+#define TSSOLVER_DEFAULT_EPS 1e-6
 #define TSSOLVER_DEFAULT_INIT_PERMUTE true
 
 #define TSSOLVER_DEFAULT_DEBUGMODE 0

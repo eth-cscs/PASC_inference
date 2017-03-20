@@ -265,7 +265,7 @@ int main( int argc, char *argv[] )
 
 		/* scale data */
 		if(scaledata){
-			mydata.scaledata(-1,1,0,1);
+			mydata.scaledata(-1,1);
 		}
 		
 		/* !!! solve the problem */
@@ -276,7 +276,7 @@ int main( int argc, char *argv[] )
 
 		/* unscale data before save */
 		if(scaledata){
-			mydata.scaledata(0,1,-1,1);
+//			mydata.unscaledata(-1,1); //TODO: this is wrong
 		}
 
 		/* compute absolute error of computed solution */

@@ -371,9 +371,6 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
 
-	/* project random values to feasible set to be sure that initial approximation is feasible */
-//	gammadata->get_feasibleset()->project(*gammadata->get_x0());
-
 	/* automatic choice of solver */
 	if(this->gammasolvertype == SOLVER_AUTO){
 		this->gammasolvertype = SOLVER_SPGQP;
@@ -416,6 +413,9 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 		/* create solver */
 		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
 	}
+
+	/* project random values to feasible set to be sure that initial approximation is feasible */
+	gammadata->get_feasibleset()->project(*gammadata->get_x0());
 
 	LOG_FUNC_END
 }
@@ -502,42 +502,11 @@ template<>
 void EntropyH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
-	int T = this->tsdata->get_decomposition()->get_T();
-	int Tlocal = this->tsdata->get_decomposition()->get_Tlocal();
-
-	int K = this->tsdata->get_decomposition()->get_K();
-
-	/* update gamma_solver data - prepare new linear term */
-	/* theta includes all moments */
-	const double *theta_arr;
-	TRYCXX( VecGetArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
-	
-	const double *data_arr;
-	TRYCXX( VecGetArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
-	
-	double *residuum_arr;
-	TRYCXX( VecGetArray(this->residuum->get_vector(), &residuum_arr) );
-
-	for(int t=0;t<Tlocal;t++){
-		for(int k=0;k<K;k++){
-			residuum_arr[t*K + k] = (data_arr[t] - theta_arr[k])*(data_arr[t] - theta_arr[k]);
-		}
-	}
-
-	/* coeffs of A_shared are updated via computation of Theta :) */
-
-	/* restore arrays */
-	TRYCXX( VecRestoreArray(this->residuum->get_vector(), &residuum_arr) );
-	TRYCXX( VecRestoreArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
-	TRYCXX( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
-
 	/* multiplicate vector b by coefficient */
 	double coeff = -1.0;
 	if(this->scalef){
 		coeff *= (1.0/((double)(this->get_T())));
 	}
-	
-//	double coeff = (-1.0/((double)(this->get_T())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
@@ -562,6 +531,9 @@ void EntropyH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver
 template<>
 void EntropyH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
+
+	/* gammadata->get_b() = this->residuum */
+	((EntropySolver<PetscVector> *)thetasolver)->compute_residuum(this->residuum); //TODO: retype?
 
 	LOG_FUNC_END
 }
