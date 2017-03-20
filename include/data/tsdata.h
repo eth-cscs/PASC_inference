@@ -738,6 +738,7 @@ std::string TSData<PetscVector>::print_thetavector() const {
 	std::ostringstream out;
 
 	int theta_size = this->tsmodel->get_thetavectorlength_local();
+	
 	double *theta_arr;
 	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 	for(int i=0;i<theta_size;i++){

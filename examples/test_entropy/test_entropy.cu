@@ -292,7 +292,7 @@ int main( int argc, char *argv[] )
 			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << L << ",";
 			
 			/* append Theta solution */
-			if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
+			if(depth==0) for(int k=0; k < mymodel.get_thetavectorlength_local(); k++) oss_short_output_header << "Theta" << k << ",";
 			oss_short_output_values << mydata.print_thetavector(); 
 
 			/* print info from solver */
