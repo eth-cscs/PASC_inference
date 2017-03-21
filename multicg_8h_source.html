@@ -274,225 +274,227 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
 <div class="line"><a name="l00189"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a882d249616e30ac7cf254579a4002e21">  189</a></span>&#160;std::string <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a882d249616e30ac7cf254579a4002e21">MultiCGSolver&lt;VectorBase&gt;::get_name</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&quot;MultiCG&quot;</span>;</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;}</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    std::string return_value = <span class="stringliteral">&quot;MultiCGSolver&lt;&quot;</span> + <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html#a3469fc785f927d6099983731294d7d77">GeneralVector&lt;VectorBase&gt;::get_name</a>() + <span class="stringliteral">&quot;&gt;&quot;</span>;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordflow">return</span> return_value;</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;}</div>
 <div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="comment">/* solve the problem */</span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00196"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">  196</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">MultiCGSolver&lt;VectorBase&gt;::solve</a>() {</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <a class="code" href="logging_8h.html#a8be74b3fbba3c5303f82c9aa5179ba62">LOG_FUNC_BEGIN</a></div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="comment">/* for each block prepare CG solver and solve the problem */</span></div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;VectorBase&gt;</a> *cgsolver; <span class="comment">/* cg solver for one block */</span></div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <a class="code" href="classpascinference_1_1data_1_1QPData.html">QPData&lt;VectorBase&gt;</a> data_sub; <span class="comment">/* data of inner cg solver */</span></div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="comment">/* get number of blocks and blocks */</span></div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    BlockDiagMatrix&lt;VectorBase,LocalDenseMatrix&lt;VectorBase&gt; &gt; *A = <span class="keyword">dynamic_cast&lt;</span>BlockDiagMatrix&lt;VectorBase,LocalDenseMatrix&lt;VectorBase&gt; <span class="keyword">&gt;</span> *&gt;(qpdata-&gt;get_A());</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    LocalDenseMatrix&lt;VectorBase&gt; **blocks = A-&gt;get_blocks();</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    LocalDenseMatrix&lt;VectorBase&gt; *A_sub; </div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">int</span> nmb_blocks = A-&gt;get_nmb_blocks();   </div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordtype">int</span> blocksize = A-&gt;get_blocksize();</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    <span class="comment">/* get vectors */</span></div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> (&amp;pVector);</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    pVector b  = *(qpdata-&gt;get_b());</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    pVector x  = *(qpdata-&gt;get_x());</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    pVector x0 = *(qpdata-&gt;get_x0());</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> b_sub(blocksize);</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> x_sub(blocksize);</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> x0_sub(blocksize);</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="comment">/* through blocks */</span></div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0;i&lt;nmb_blocks;i++){</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        <span class="comment">/* get data for subproblem */</span></div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;        A_sub = blocks[i];</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;        b_sub = 1*b(i*blocksize, (i+1)*blocksize - 1); <span class="comment">// TODO: something is wrong with petscvector</span></div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;        x_sub = 1*x(i*blocksize, (i+1)*blocksize - 1); <span class="comment">// TODO: something is wrong with petscvector</span></div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;        x0_sub = 1*x0(i*blocksize, (i+1)*blocksize - 1); <span class="comment">// TODO: something is wrong with petscvector</span></div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        <span class="comment">/* set data of subproblem to ... subproblem data :) */</span></div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a79ca451af27229001b51095c2b4f1531">set_A</a>(A_sub);</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a3c219bc977f2abe0ad40740ca10379b3">set_b</a>(&amp;b_sub);</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#ac67fee31e929e08d8d33b28ac5a9e0a3">set_x</a>(&amp;x_sub);</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#aef9384871d4a18ac57130317bd52cfd1">set_x0</a>(&amp;x0_sub);</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;        </div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;        <span class="comment">/* create new instance of solver, during the constructor the new temp vectors are initialized */</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;        cgsolver = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;VectorBase&gt;</a>(data_sub);</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;        </div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;        <span class="comment">/* copy settings */</span></div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;        </div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;        <span class="comment">/* solve this subproblem */</span></div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;        cgsolver-&gt;<a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html#a44c14b7c9aa5e174be3f6e2d5bd6c3a1">solve</a>();</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;        <span class="comment">/* update iteration counter */</span></div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_fx() &gt; this-&gt;fx) this-&gt;fx = cgsolver-&gt;get_fx();</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_it() &gt; this-&gt;it_last) this-&gt;it_last = cgsolver-&gt;get_it();</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_hessmult() &gt; this-&gt;hessmult_last) this-&gt;hessmult_last = cgsolver-&gt;get_hessmult();</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;        <span class="comment">/* solution back to global vector */</span></div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;        x(i*blocksize, (i+1)*blocksize - 1) = x_sub;</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;        </div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;        free(cgsolver);</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;        <span class="comment">// TODO: deal with iteration counters (max?)</span></div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    }</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    </div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="comment">/* write info to log file */</span></div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <a class="code" href="logging_8h.html#ab41a3d1f3f78ad1488aed6d36e8ba810">LOG_IT</a>(this-&gt;it_last)   </div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <a class="code" href="logging_8h.html#a40f08f04918a1549bde21da25dd146b4">LOG_FX</a>(this-&gt;fx)</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <a class="code" href="logging_8h.html#a6f037511e6cf2a07a0fca4af51797642">LOG_FUNC_END</a></div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;}</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00263"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a8ee1818984089482aef600553040a090">  263</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a8ee1818984089482aef600553040a090">MultiCGSolver&lt;VectorBase&gt;::get_fx</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="keywordflow">if</span>(this-&gt;debugmode &gt;= 11) <a class="code" href="namespacepascinference_1_1common.html#a4c8daeded9a060bfded223ec8cb7c6c2">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(MultiCGSolver)FUNCTION: get_fx()&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    </div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="keywordflow">return</span> this-&gt;fx;    </div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;}</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00270"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a3cdd537fe42a7a964e7a6bd4f529a1c7">  270</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a3cdd537fe42a7a964e7a6bd4f529a1c7">MultiCGSolver&lt;VectorBase&gt;::get_it</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <span class="keywordflow">return</span> this-&gt;it_last;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;}</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
-<div class="line"><a name="l00275"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a263f85e8c13f3c1157fe2e8854fd2eb1">  275</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a263f85e8c13f3c1157fe2e8854fd2eb1">MultiCGSolver&lt;VectorBase&gt;::get_hessmult</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordflow">return</span> this-&gt;hessmult_last;</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;}</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="comment">/* solve the problem */</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00197"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">  197</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">MultiCGSolver&lt;VectorBase&gt;::solve</a>() {</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <a class="code" href="logging_8h.html#a8be74b3fbba3c5303f82c9aa5179ba62">LOG_FUNC_BEGIN</a></div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="comment">/* for each block prepare CG solver and solve the problem */</span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;VectorBase&gt;</a> *cgsolver; <span class="comment">/* cg solver for one block */</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <a class="code" href="classpascinference_1_1data_1_1QPData.html">QPData&lt;VectorBase&gt;</a> data_sub; <span class="comment">/* data of inner cg solver */</span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="comment">/* get number of blocks and blocks */</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    BlockDiagMatrix&lt;VectorBase,LocalDenseMatrix&lt;VectorBase&gt; &gt; *A = <span class="keyword">dynamic_cast&lt;</span>BlockDiagMatrix&lt;VectorBase,LocalDenseMatrix&lt;VectorBase&gt; <span class="keyword">&gt;</span> *&gt;(qpdata-&gt;get_A());</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    LocalDenseMatrix&lt;VectorBase&gt; **blocks = A-&gt;get_blocks();</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    LocalDenseMatrix&lt;VectorBase&gt; *A_sub; </div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordtype">int</span> nmb_blocks = A-&gt;get_nmb_blocks();   </div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">int</span> blocksize = A-&gt;get_blocksize();</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="comment">/* get vectors */</span></div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keyword">typedef</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> (&amp;pVector);</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    pVector b  = *(qpdata-&gt;get_b());</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    pVector x  = *(qpdata-&gt;get_x());</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    pVector x0 = *(qpdata-&gt;get_x0());</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> b_sub(blocksize);</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> x_sub(blocksize);</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;VectorBase&gt;</a> x0_sub(blocksize);</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="comment">/* through blocks */</span></div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0;i&lt;nmb_blocks;i++){</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;        <span class="comment">/* get data for subproblem */</span></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;        A_sub = blocks[i];</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;        b_sub = 1*b(i*blocksize, (i+1)*blocksize - 1); <span class="comment">// TODO: something is wrong with petscvector</span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;        x_sub = 1*x(i*blocksize, (i+1)*blocksize - 1); <span class="comment">// TODO: something is wrong with petscvector</span></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        x0_sub = 1*x0(i*blocksize, (i+1)*blocksize - 1); <span class="comment">// TODO: something is wrong with petscvector</span></div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;        <span class="comment">/* set data of subproblem to ... subproblem data :) */</span></div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a79ca451af27229001b51095c2b4f1531">set_A</a>(A_sub);</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a3c219bc977f2abe0ad40740ca10379b3">set_b</a>(&amp;b_sub);</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#ac67fee31e929e08d8d33b28ac5a9e0a3">set_x</a>(&amp;x_sub);</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#aef9384871d4a18ac57130317bd52cfd1">set_x0</a>(&amp;x0_sub);</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;        </div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;        <span class="comment">/* create new instance of solver, during the constructor the new temp vectors are initialized */</span></div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;        cgsolver = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;VectorBase&gt;</a>(data_sub);</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;        </div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;        <span class="comment">/* copy settings */</span></div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;        </div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;        <span class="comment">/* solve this subproblem */</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        cgsolver-&gt;<a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html#a44c14b7c9aa5e174be3f6e2d5bd6c3a1">solve</a>();</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;        <span class="comment">/* update iteration counter */</span></div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_fx() &gt; this-&gt;fx) this-&gt;fx = cgsolver-&gt;get_fx();</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_it() &gt; this-&gt;it_last) this-&gt;it_last = cgsolver-&gt;get_it();</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_hessmult() &gt; this-&gt;hessmult_last) this-&gt;hessmult_last = cgsolver-&gt;get_hessmult();</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;        <span class="comment">/* solution back to global vector */</span></div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;        x(i*blocksize, (i+1)*blocksize - 1) = x_sub;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;        </div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;        free(cgsolver);</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;        <span class="comment">// TODO: deal with iteration counters (max?)</span></div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    }</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    </div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="comment">/* write info to log file */</span></div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <a class="code" href="logging_8h.html#ab41a3d1f3f78ad1488aed6d36e8ba810">LOG_IT</a>(this-&gt;it_last)   </div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <a class="code" href="logging_8h.html#a40f08f04918a1549bde21da25dd146b4">LOG_FX</a>(this-&gt;fx)</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <a class="code" href="logging_8h.html#a6f037511e6cf2a07a0fca4af51797642">LOG_FUNC_END</a></div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;}</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00264"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a8ee1818984089482aef600553040a090">  264</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a8ee1818984089482aef600553040a090">MultiCGSolver&lt;VectorBase&gt;::get_fx</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="keywordflow">if</span>(this-&gt;debugmode &gt;= 11) <a class="code" href="namespacepascinference_1_1common.html#a4c8daeded9a060bfded223ec8cb7c6c2">coutMaster</a> &lt;&lt; <span class="stringliteral">&quot;(MultiCGSolver)FUNCTION: get_fx()&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    </div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keywordflow">return</span> this-&gt;fx;    </div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;}</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00271"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a3cdd537fe42a7a964e7a6bd4f529a1c7">  271</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a3cdd537fe42a7a964e7a6bd4f529a1c7">MultiCGSolver&lt;VectorBase&gt;::get_it</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keywordflow">return</span> this-&gt;it_last;</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;}</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> VectorBase&gt;</div>
+<div class="line"><a name="l00276"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a263f85e8c13f3c1157fe2e8854fd2eb1">  276</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a263f85e8c13f3c1157fe2e8854fd2eb1">MultiCGSolver&lt;VectorBase&gt;::get_hessmult</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="keywordflow">return</span> this-&gt;hessmult_last;</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;}</div>
 <div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;<span class="preprocessor">#ifdef USE_PETSCVECTOR</span></div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;<span class="keyword">typedef</span> <a class="code" href="classpetscvector_1_1PetscVector.html">petscvector::PetscVector</a> <a class="code" href="test__bgmgraph_8cu.html#a66cf29e1e7994f502573af1fdeadfe9d">PetscVector</a>;</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    </div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">MultiCGSolver&lt;PetscVector&gt;::solve</a>() {</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <a class="code" href="logging_8h.html#a8be74b3fbba3c5303f82c9aa5179ba62">LOG_FUNC_BEGIN</a></div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="comment">/* for each block prepare CG solver and solve the problem */</span></div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;PetscVector&gt;</a> *cgsolver; <span class="comment">/* cg solver for one block */</span></div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <a class="code" href="classpascinference_1_1data_1_1QPData.html">QPData&lt;PetscVector&gt;</a> data_sub; <span class="comment">/* data of inner cg solver */</span></div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="comment">/* get number of blocks and blocks */</span></div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    BlockDiagMatrix&lt;PetscVector,LocalDenseMatrix&lt;PetscVector&gt; &gt; *A = <span class="keyword">dynamic_cast&lt;</span>BlockDiagMatrix&lt;PetscVector,LocalDenseMatrix&lt;PetscVector&gt; <span class="keyword">&gt;</span> *&gt;(qpdata-&gt;get_A());</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    LocalDenseMatrix&lt;PetscVector&gt; **blocks = A-&gt;get_blocks();</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    LocalDenseMatrix&lt;PetscVector&gt; *A_sub; </div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="keywordtype">int</span> nmb_blocks = A-&gt;get_nmb_blocks();   </div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="keywordtype">int</span> blocksize = A-&gt;get_blocksize();</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="comment">/* get vectors (assuming seq) */</span></div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    Vec b  = qpdata-&gt;<a class="code" href="classpascinference_1_1data_1_1QPData.html#ae7c56e1d2f6a669d8e526b016c66a859">get_b</a>()-&gt;get_vector();</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    Vec x  = qpdata-&gt;get_x()-&gt;get_vector();</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    Vec x0 = qpdata-&gt;get_x0()-&gt;get_vector();</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    Vec b_sub;</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    Vec x_sub;</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    Vec x0_sub;</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    IS is_sub;</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a> *b_subGV;</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a> *x_subGV;</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a> *x0_subGV;</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="comment">/* through blocks */</span></div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0;i&lt;nmb_blocks;i++){</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;        <span class="comment">/* get data for subproblem */</span></div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;        A_sub = blocks[i];</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;        <span class="comment">/* get global xn_global */</span></div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( ISCreateStride(PETSC_COMM_SELF, blocksize, i*blocksize, 1, &amp;is_sub) );</div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(b,is_sub,&amp;b_sub) );</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(x,is_sub,&amp;x_sub) );</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(x0,is_sub,&amp;x0_sub) );</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;        <span class="comment">/* from petscvectors to general vectors */</span></div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;        b_subGV = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a>(b_sub);</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;        x_subGV = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a>(x_sub);</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        x0_subGV = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a>(x0_sub);</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;    </div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;        <span class="comment">/* set data of subproblem to ... subproblem data :) */</span></div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a79ca451af27229001b51095c2b4f1531">set_A</a>(A_sub);</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a3c219bc977f2abe0ad40740ca10379b3">set_b</a>(b_subGV);</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#ac67fee31e929e08d8d33b28ac5a9e0a3">set_x</a>(x_subGV);</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#aef9384871d4a18ac57130317bd52cfd1">set_x0</a>(x0_subGV);</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;        <span class="comment">/* create new instance of solver, during the constructor the new temp vectors are initialized */</span></div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        cgsolver = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;PetscVector&gt;</a>(data_sub);</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;        </div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;        <span class="comment">/* copy settings */</span></div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;<span class="preprocessor">#ifdef USE_PETSCVECTOR</span></div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;<span class="keyword">typedef</span> <a class="code" href="classpetscvector_1_1PetscVector.html">petscvector::PetscVector</a> <a class="code" href="namespacepascinference_1_1solver.html#aa477f055ec0a189586163cd27f98ffec">PetscVector</a>;</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    </div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00286"></a><span class="lineno"><a class="line" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a1eb72eac17f7c9862b3eda35f42d7f15">  286</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">MultiCGSolver&lt;PetscVector&gt;::solve</a>() {</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <a class="code" href="logging_8h.html#a8be74b3fbba3c5303f82c9aa5179ba62">LOG_FUNC_BEGIN</a></div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="comment">/* for each block prepare CG solver and solve the problem */</span></div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;PetscVector&gt;</a> *cgsolver; <span class="comment">/* cg solver for one block */</span></div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <a class="code" href="classpascinference_1_1data_1_1QPData.html">QPData&lt;PetscVector&gt;</a> data_sub; <span class="comment">/* data of inner cg solver */</span></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="comment">/* get number of blocks and blocks */</span></div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    BlockDiagMatrix&lt;PetscVector,LocalDenseMatrix&lt;PetscVector&gt; &gt; *A = <span class="keyword">dynamic_cast&lt;</span>BlockDiagMatrix&lt;PetscVector,LocalDenseMatrix&lt;PetscVector&gt; <span class="keyword">&gt;</span> *&gt;(qpdata-&gt;get_A());</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    LocalDenseMatrix&lt;PetscVector&gt; **blocks = A-&gt;get_blocks();</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    LocalDenseMatrix&lt;PetscVector&gt; *A_sub; </div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="keywordtype">int</span> nmb_blocks = A-&gt;get_nmb_blocks();   </div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="keywordtype">int</span> blocksize = A-&gt;get_blocksize();</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="comment">/* get vectors (assuming seq) */</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    Vec b  = qpdata-&gt;<a class="code" href="classpascinference_1_1data_1_1QPData.html#ae7c56e1d2f6a669d8e526b016c66a859">get_b</a>()-&gt;get_vector();</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    Vec x  = qpdata-&gt;get_x()-&gt;get_vector();</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    Vec x0 = qpdata-&gt;get_x0()-&gt;get_vector();</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    Vec b_sub;</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    Vec x_sub;</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    Vec x0_sub;</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    IS is_sub;</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a> *b_subGV;</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a> *x_subGV;</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a> *x0_subGV;</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="comment">/* through blocks */</span></div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0;i&lt;nmb_blocks;i++){</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;        <span class="comment">/* get data for subproblem */</span></div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;        A_sub = blocks[i];</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;        <span class="comment">/* get global xn_global */</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( ISCreateStride(PETSC_COMM_SELF, blocksize, i*blocksize, 1, &amp;is_sub) );</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(b,is_sub,&amp;b_sub) );</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(x,is_sub,&amp;x_sub) );</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecGetSubVector(x0,is_sub,&amp;x0_sub) );</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;        <span class="comment">/* from petscvectors to general vectors */</span></div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;        b_subGV = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a>(b_sub);</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        x_subGV = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a>(x_sub);</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        x0_subGV = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1algebra_1_1GeneralVector.html">GeneralVector&lt;PetscVector&gt;</a>(x0_sub);</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    </div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;        <span class="comment">/* set data of subproblem to ... subproblem data :) */</span></div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a79ca451af27229001b51095c2b4f1531">set_A</a>(A_sub);</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#a3c219bc977f2abe0ad40740ca10379b3">set_b</a>(b_subGV);</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#ac67fee31e929e08d8d33b28ac5a9e0a3">set_x</a>(x_subGV);</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;        data_sub.<a class="code" href="classpascinference_1_1data_1_1QPData.html#aef9384871d4a18ac57130317bd52cfd1">set_x0</a>(x0_subGV);</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        <span class="comment">/* create new instance of solver, during the constructor the new temp vectors are initialized */</span></div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;        cgsolver = <span class="keyword">new</span> <a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html">CGQPSolver&lt;PetscVector&gt;</a>(data_sub);</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;        </div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;        <span class="comment">/* copy settings */</span></div>
 <div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;        <span class="comment">/* solve this subproblem */</span></div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;        cgsolver-&gt;<a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html#a44c14b7c9aa5e174be3f6e2d5bd6c3a1">solve</a>();</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;        <span class="comment">/* update iteration counter */</span></div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_fx() &gt; this-&gt;fx) this-&gt;fx = cgsolver-&gt;get_fx();</div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_it() &gt; this-&gt;it_last) this-&gt;it_last = cgsolver-&gt;get_it();</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_hessmult() &gt; this-&gt;hessmult_last) this-&gt;hessmult_last = cgsolver-&gt;get_hessmult();</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;        <span class="comment">/* solution back to global vector */</span></div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;        <span class="comment">/* restore subvector with xn_global */</span></div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(b,is_sub,&amp;b_sub) );</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(x,is_sub,&amp;x_sub) );</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(x0,is_sub,&amp;x0_sub) );</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( ISDestroy(&amp;is_sub) );</div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;        </div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;        <span class="comment">/* destroy globalvectors */</span></div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;        free(b_subGV);</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;        free(x_subGV);</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;        free(x0_subGV);</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;            </div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;        <span class="comment">/* destroy sub solver */</span>    </div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;        free(cgsolver);</div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;        <span class="comment">/* solve this subproblem */</span></div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;        cgsolver-&gt;<a class="code" href="classpascinference_1_1solver_1_1CGQPSolver.html#a44c14b7c9aa5e174be3f6e2d5bd6c3a1">solve</a>();</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;        <span class="comment">/* update iteration counter */</span></div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_fx() &gt; this-&gt;fx) this-&gt;fx = cgsolver-&gt;get_fx();</div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_it() &gt; this-&gt;it_last) this-&gt;it_last = cgsolver-&gt;get_it();</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;        <span class="keywordflow">if</span>(cgsolver-&gt;get_hessmult() &gt; this-&gt;hessmult_last) this-&gt;hessmult_last = cgsolver-&gt;get_hessmult();</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;</div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;        <span class="comment">/* solution back to global vector */</span></div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;        <span class="comment">/* restore subvector with xn_global */</span></div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(b,is_sub,&amp;b_sub) );</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(x,is_sub,&amp;x_sub) );</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecRestoreSubVector(x0,is_sub,&amp;x0_sub) );</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;        <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( ISDestroy(&amp;is_sub) );</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;        </div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;        <span class="comment">/* destroy globalvectors */</span></div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;        free(b_subGV);</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;        free(x_subGV);</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;        free(x0_subGV);</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;            </div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;        <span class="comment">/* destroy sub solver */</span>    </div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;        free(cgsolver);</div>
 <div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;        <span class="comment">// TODO: deal with iteration counters (max?)</span></div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;    }</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;</div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    <a class="code" href="logging_8h.html#a6f037511e6cf2a07a0fca4af51797642">LOG_FUNC_END</a></div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;}</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;</div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;</div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;        <span class="comment">// TODO: deal with iteration counters (max?)</span></div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    }</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    <a class="code" href="logging_8h.html#a6f037511e6cf2a07a0fca4af51797642">LOG_FUNC_END</a></div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;}</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;</div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;}</div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;} <span class="comment">/* end namespace */</span></div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;</div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;}</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;} <span class="comment">/* end namespace */</span></div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html">pascinference::solver::MultiCGSolver</a></div><div class="ttdoc">Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. </div><div class="ttdef"><b>Definition:</b> multicg.h:34</div></div>
 <div class="ttc" id="multicg_8h_html_a9e2fc4aa8cd4edb648efaafa2a11b925"><div class="ttname"><a href="multicg_8h.html#a9e2fc4aa8cd4edb648efaafa2a11b925">MULTICGSOLVER_DEFAULT_DEBUGMODE</a></div><div class="ttdeci">#define MULTICGSOLVER_DEFAULT_DEBUGMODE</div><div class="ttdef"><b>Definition:</b> multicg.h:23</div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1QPSolver_html"><div class="ttname"><a href="classpascinference_1_1solver_1_1QPSolver.html">pascinference::solver::QPSolver</a></div><div class="ttdoc">General Quadratic Programming solver. </div><div class="ttdef"><b>Definition:</b> qpsolver.h:28</div></div>
 <div class="ttc" id="qpdata_8h_html"><div class="ttname"><a href="qpdata_8h.html">qpdata.h</a></div><div class="ttdoc">code for manipulation with Quadratic Programming data </div></div>
-<div class="ttc" id="test__bgmgraph_8cu_html_a66cf29e1e7994f502573af1fdeadfe9d"><div class="ttname"><a href="test__bgmgraph_8cu.html#a66cf29e1e7994f502573af1fdeadfe9d">PetscVector</a></div><div class="ttdeci">petscvector::PetscVector PetscVector</div><div class="ttdef"><b>Definition:</b> test_bgmgraph.cu:19</div></div>
 <div class="ttc" id="classpascinference_1_1common_1_1MemoryCheck_html_aa96529af3be5170d124af966a058bc1c"><div class="ttname"><a href="classpascinference_1_1common_1_1MemoryCheck.html#aa96529af3be5170d124af966a058bc1c">pascinference::common::MemoryCheck::get_virtual</a></div><div class="ttdeci">static double get_virtual()</div><div class="ttdoc">get the percentage usage of virtual memory </div><div class="ttdef"><b>Definition:</b> memorycheck.h:47</div></div>
 <div class="ttc" id="namespacepascinference_1_1common_html_a21fcc0f94eef5c4af586e88c70222e44"><div class="ttname"><a href="namespacepascinference_1_1common.html#a21fcc0f94eef5c4af586e88c70222e44">pascinference::common::consoleArg</a></div><div class="ttdeci">static ConsoleArgClass consoleArg</div><div class="ttdef"><b>Definition:</b> consoleinput.h:134</div></div>
+<div class="ttc" id="namespacepascinference_1_1solver_html_aa477f055ec0a189586163cd27f98ffec"><div class="ttname"><a href="namespacepascinference_1_1solver.html#aa477f055ec0a189586163cd27f98ffec">pascinference::solver::PetscVector</a></div><div class="ttdeci">petscvector::PetscVector PetscVector</div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:409</div></div>
 <div class="ttc" id="multicg_8h_html_a3fd4a3c8425a556d0800114bfa208c67"><div class="ttname"><a href="multicg_8h.html#a3fd4a3c8425a556d0800114bfa208c67">MULTICGSOLVER_DEFAULT_EPS</a></div><div class="ttdeci">#define MULTICGSOLVER_DEFAULT_EPS</div><div class="ttdef"><b>Definition:</b> multicg.h:22</div></div>
-<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a3cdd537fe42a7a964e7a6bd4f529a1c7"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a3cdd537fe42a7a964e7a6bd4f529a1c7">pascinference::solver::MultiCGSolver::get_it</a></div><div class="ttdeci">int get_it() const </div><div class="ttdoc">return number of iterations during last solve() </div><div class="ttdef"><b>Definition:</b> multicg.h:270</div></div>
-<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html_ae3969a74def1c66d1798483dc5588ebe"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html#ae3969a74def1c66d1798483dc5588ebe">pascinference::common::ConsoleOutput::pop</a></div><div class="ttdeci">void pop()</div><div class="ttdoc">decrease the size of offset </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:262</div></div>
-<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_ae7c56e1d2f6a669d8e526b016c66a859"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#ae7c56e1d2f6a669d8e526b016c66a859">pascinference::data::QPData::get_b</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * get_b() const </div><div class="ttdoc">get linear term </div><div class="ttdef"><b>Definition:</b> qpdata.h:367</div></div>
-<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_aef9384871d4a18ac57130317bd52cfd1"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#aef9384871d4a18ac57130317bd52cfd1">pascinference::data::QPData::set_x0</a></div><div class="ttdeci">void set_x0(GeneralVector&lt; VectorBase &gt; *x0)</div><div class="ttdoc">set new initial approximation </div><div class="ttdef"><b>Definition:</b> qpdata.h:372</div></div>
-<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a263f85e8c13f3c1157fe2e8854fd2eb1"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a263f85e8c13f3c1157fe2e8854fd2eb1">pascinference::solver::MultiCGSolver::get_hessmult</a></div><div class="ttdeci">int get_hessmult() const </div><div class="ttdoc">return number of Hessian multiplication during last solve() </div><div class="ttdef"><b>Definition:</b> multicg.h:275</div></div>
+<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a3cdd537fe42a7a964e7a6bd4f529a1c7"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a3cdd537fe42a7a964e7a6bd4f529a1c7">pascinference::solver::MultiCGSolver::get_it</a></div><div class="ttdeci">int get_it() const </div><div class="ttdoc">return number of iterations during last solve() </div><div class="ttdef"><b>Definition:</b> multicg.h:271</div></div>
+<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html_ae3969a74def1c66d1798483dc5588ebe"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html#ae3969a74def1c66d1798483dc5588ebe">pascinference::common::ConsoleOutput::pop</a></div><div class="ttdeci">void pop()</div><div class="ttdoc">decrease the size of offset </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:149</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_ae7c56e1d2f6a669d8e526b016c66a859"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#ae7c56e1d2f6a669d8e526b016c66a859">pascinference::data::QPData::get_b</a></div><div class="ttdeci">GeneralVector&lt; VectorBase &gt; * get_b() const </div><div class="ttdoc">get linear term </div><div class="ttdef"><b>Definition:</b> qpdata.h:377</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_aef9384871d4a18ac57130317bd52cfd1"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#aef9384871d4a18ac57130317bd52cfd1">pascinference::data::QPData::set_x0</a></div><div class="ttdeci">void set_x0(GeneralVector&lt; VectorBase &gt; *x0)</div><div class="ttdoc">set new initial approximation </div><div class="ttdef"><b>Definition:</b> qpdata.h:382</div></div>
+<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a263f85e8c13f3c1157fe2e8854fd2eb1"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a263f85e8c13f3c1157fe2e8854fd2eb1">pascinference::solver::MultiCGSolver::get_hessmult</a></div><div class="ttdeci">int get_hessmult() const </div><div class="ttdoc">return number of Hessian multiplication during last solve() </div><div class="ttdef"><b>Definition:</b> multicg.h:276</div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a882d249616e30ac7cf254579a4002e21"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a882d249616e30ac7cf254579a4002e21">pascinference::solver::MultiCGSolver::get_name</a></div><div class="ttdeci">std::string get_name() const </div><div class="ttdoc">get the name of solver </div><div class="ttdef"><b>Definition:</b> multicg.h:189</div></div>
 <div class="ttc" id="namespacepascinference_1_1common_html_a4c8daeded9a060bfded223ec8cb7c6c2"><div class="ttname"><a href="namespacepascinference_1_1common.html#a4c8daeded9a060bfded223ec8cb7c6c2">pascinference::common::coutMaster</a></div><div class="ttdeci">static ConsoleOutput coutMaster(std::cout, 0)</div></div>
+<div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html_a3469fc785f927d6099983731294d7d77"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html#a3469fc785f927d6099983731294d7d77">pascinference::algebra::GeneralVector::get_name</a></div><div class="ttdeci">static std::string get_name()</div><div class="ttdoc">get the name of the type </div><div class="ttdef"><b>Definition:</b> generalvector.h:114</div></div>
 <div class="ttc" id="classpascinference_1_1common_1_1ConsoleArgClass_html_a260bdeb77c1e0f0caf429de185b7eb2b"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleArgClass.html#a260bdeb77c1e0f0caf429de185b7eb2b">pascinference::common::ConsoleArgClass::set_option_value</a></div><div class="ttdeci">bool set_option_value(std::string name, Type *out_value)</div><div class="ttdoc">get the value of option </div><div class="ttdef"><b>Definition:</b> consoleinput.h:109</div></div>
 <div class="ttc" id="classpetscvector_1_1PetscVector_html"><div class="ttname"><a href="classpetscvector_1_1PetscVector.html">petscvector::PetscVector</a></div><div class="ttdoc">General class for manipulation with vectors. </div><div class="ttdef"><b>Definition:</b> petscvector.h:63</div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a115271f82b16f61d35b1c69e2541f610"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a115271f82b16f61d35b1c69e2541f610">pascinference::solver::MultiCGSolver::MultiCGSolver</a></div><div class="ttdeci">MultiCGSolver()</div><div class="ttdef"><b>Definition:</b> multicg.h:69</div></div>
 <div class="ttc" id="classpascinference_1_1algebra_1_1GeneralVector_html"><div class="ttname"><a href="classpascinference_1_1algebra_1_1GeneralVector.html">pascinference::algebra::GeneralVector</a></div><div class="ttdoc">general vector class </div><div class="ttdef"><b>Definition:</b> generalmatrix.h:17</div></div>
-<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html_a7ffad9df8cd75a39233be685f71e2503"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html#a7ffad9df8cd75a39233be685f71e2503">pascinference::common::ConsoleOutput::push</a></div><div class="ttdeci">void push()</div><div class="ttdoc">increase the size of offset </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:255</div></div>
+<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html_a7ffad9df8cd75a39233be685f71e2503"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html#a7ffad9df8cd75a39233be685f71e2503">pascinference::common::ConsoleOutput::push</a></div><div class="ttdeci">void push()</div><div class="ttdoc">increase the size of offset </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:142</div></div>
 <div class="ttc" id="multicg_8h_html_a1fbd9e897b3e85d23323c1affa7af1ec"><div class="ttname"><a href="multicg_8h.html#a1fbd9e897b3e85d23323c1affa7af1ec">MULTICGSOLVER_DEFAULT_MAXIT</a></div><div class="ttdeci">#define MULTICGSOLVER_DEFAULT_MAXIT</div><div class="ttdef"><b>Definition:</b> multicg.h:21</div></div>
-<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a8ee1818984089482aef600553040a090"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a8ee1818984089482aef600553040a090">pascinference::solver::MultiCGSolver::get_fx</a></div><div class="ttdeci">double get_fx() const </div><div class="ttdoc">return function value in last computed iteration </div><div class="ttdef"><b>Definition:</b> multicg.h:263</div></div>
+<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a8ee1818984089482aef600553040a090"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a8ee1818984089482aef600553040a090">pascinference::solver::MultiCGSolver::get_fx</a></div><div class="ttdeci">double get_fx() const </div><div class="ttdoc">return function value in last computed iteration </div><div class="ttdef"><b>Definition:</b> multicg.h:264</div></div>
 <div class="ttc" id="cgqpsolver_8h_html"><div class="ttname"><a href="cgqpsolver_8h.html">cgqpsolver.h</a></div><div class="ttdoc">Conjugate Gradient method for solving Quadratic Programs. </div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a4d8b9a4cae0c7f7b7c929eecc61066de"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a4d8b9a4cae0c7f7b7c929eecc61066de">pascinference::solver::MultiCGSolver::qpdata</a></div><div class="ttdeci">const QPData&lt; VectorBase &gt; * qpdata</div><div class="ttdef"><b>Definition:</b> multicg.h:36</div></div>
 <div class="ttc" id="classpascinference_1_1data_1_1QPData_html"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html">pascinference::data::QPData</a></div><div class="ttdoc">general class for manipulation with QP data </div><div class="ttdef"><b>Definition:</b> qpdata.h:26</div></div>
-<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a2745e834d7fa18c40c3d418cb1425812"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">pascinference::solver::MultiCGSolver::solve</a></div><div class="ttdeci">void solve()</div><div class="ttdoc">solve the problem </div><div class="ttdef"><b>Definition:</b> multicg.h:196</div></div>
-<div class="ttc" id="classpascinference_1_1solver_1_1CGQPSolver_html_a44c14b7c9aa5e174be3f6e2d5bd6c3a1"><div class="ttname"><a href="classpascinference_1_1solver_1_1CGQPSolver.html#a44c14b7c9aa5e174be3f6e2d5bd6c3a1">pascinference::solver::CGQPSolver::solve</a></div><div class="ttdeci">void solve()</div><div class="ttdoc">solve the problem </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:283</div></div>
+<div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a2745e834d7fa18c40c3d418cb1425812"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a2745e834d7fa18c40c3d418cb1425812">pascinference::solver::MultiCGSolver::solve</a></div><div class="ttdeci">void solve()</div><div class="ttdoc">solve the problem </div><div class="ttdef"><b>Definition:</b> multicg.h:197</div></div>
+<div class="ttc" id="classpascinference_1_1solver_1_1CGQPSolver_html_a44c14b7c9aa5e174be3f6e2d5bd6c3a1"><div class="ttname"><a href="classpascinference_1_1solver_1_1CGQPSolver.html#a44c14b7c9aa5e174be3f6e2d5bd6c3a1">pascinference::solver::CGQPSolver::solve</a></div><div class="ttdeci">void solve()</div><div class="ttdoc">solve the problem </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:284</div></div>
 <div class="ttc" id="petscvector_8h_html_a4d8d32bde1a2581a3bee278623465eaa"><div class="ttname"><a href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a></div><div class="ttdeci">#define TRYCXX(f)</div><div class="ttdef"><b>Definition:</b> petscvector.h:35</div></div>
-<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html_aa75c6c0b86d441d7665f6eb602ffe0ef"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html#aa75c6c0b86d441d7665f6eb602ffe0ef">pascinference::common::ConsoleOutput::synchronize</a></div><div class="ttdeci">void synchronize()</div><div class="ttdoc">synchronize the output on all processes </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:269</div></div>
-<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_a79ca451af27229001b51095c2b4f1531"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#a79ca451af27229001b51095c2b4f1531">pascinference::data::QPData::set_A</a></div><div class="ttdeci">void set_A(GeneralMatrix&lt; VectorBase &gt; *A)</div><div class="ttdoc">set new Hessian matrix </div><div class="ttdef"><b>Definition:</b> qpdata.h:352</div></div>
+<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html_aa75c6c0b86d441d7665f6eb602ffe0ef"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html#aa75c6c0b86d441d7665f6eb602ffe0ef">pascinference::common::ConsoleOutput::synchronize</a></div><div class="ttdeci">void synchronize()</div><div class="ttdoc">synchronize the output on all processes </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:157</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_a79ca451af27229001b51095c2b4f1531"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#a79ca451af27229001b51095c2b4f1531">pascinference::data::QPData::set_A</a></div><div class="ttdeci">void set_A(GeneralMatrix&lt; VectorBase &gt; *A)</div><div class="ttdoc">set new Hessian matrix </div><div class="ttdef"><b>Definition:</b> qpdata.h:362</div></div>
 <div class="ttc" id="qpsolver_8h_html"><div class="ttname"><a href="qpsolver_8h.html">qpsolver.h</a></div><div class="ttdoc">General Quadratic Programming solver. </div></div>
 <div class="ttc" id="logging_8h_html_a8be74b3fbba3c5303f82c9aa5179ba62"><div class="ttname"><a href="logging_8h.html#a8be74b3fbba3c5303f82c9aa5179ba62">LOG_FUNC_BEGIN</a></div><div class="ttdeci">#define LOG_FUNC_BEGIN</div><div class="ttdef"><b>Definition:</b> logging.h:30</div></div>
 <div class="ttc" id="logging_8h_html_ab41a3d1f3f78ad1488aed6d36e8ba810"><div class="ttname"><a href="logging_8h.html#ab41a3d1f3f78ad1488aed6d36e8ba810">LOG_IT</a></div><div class="ttdeci">#define LOG_IT(it_num)</div><div class="ttdef"><b>Definition:</b> logging.h:42</div></div>
@@ -500,20 +502,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="namespacepascinference_html"><div class="ttname"><a href="namespacepascinference.html">pascinference</a></div><div class="ttdoc">main namespace of the library </div><div class="ttdef"><b>Definition:</b> arrayoperation.h:12</div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1CGQPSolver_html"><div class="ttname"><a href="classpascinference_1_1solver_1_1CGQPSolver.html">pascinference::solver::CGQPSolver</a></div><div class="ttdoc">Conjugate Gradient method for solving Quadratic Programs. </div><div class="ttdef"><b>Definition:</b> cgqpsolver.h:27</div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a5e0f840aaac388cada98442b3e6177a9"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a5e0f840aaac388cada98442b3e6177a9">pascinference::solver::MultiCGSolver::~MultiCGSolver</a></div><div class="ttdeci">~MultiCGSolver()</div><div class="ttdef"><b>Definition:</b> multicg.h:105</div></div>
-<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html">pascinference::common::ConsoleOutput</a></div><div class="ttdoc">print only on master or on all processors </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:174</div></div>
+<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html">pascinference::common::ConsoleOutput</a></div><div class="ttdoc">print only on master or on all processors </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:73</div></div>
 <div class="ttc" id="logging_8h_html_a40f08f04918a1549bde21da25dd146b4"><div class="ttname"><a href="logging_8h.html#a40f08f04918a1549bde21da25dd146b4">LOG_FX</a></div><div class="ttdeci">#define LOG_FX(fx_value)</div><div class="ttdef"><b>Definition:</b> logging.h:45</div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_a35b43396e2dd346266a552df045e80de"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#a35b43396e2dd346266a552df045e80de">pascinference::solver::MultiCGSolver::printstatus</a></div><div class="ttdeci">void printstatus(ConsoleOutput &amp;output) const </div><div class="ttdoc">print status of solver </div><div class="ttdef"><b>Definition:</b> multicg.h:158</div></div>
 <div class="ttc" id="pascinference_8h_html"><div class="ttname"><a href="pascinference_8h.html">pascinference.h</a></div><div class="ttdoc">main header file </div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_abb34df2ab38ceb0f9fe9e0efa57f1978"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#abb34df2ab38ceb0f9fe9e0efa57f1978">pascinference::solver::MultiCGSolver::print</a></div><div class="ttdeci">void print(ConsoleOutput &amp;output) const </div><div class="ttdoc">print basic info about solver </div><div class="ttdef"><b>Definition:</b> multicg.h:113</div></div>
-<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_a3c219bc977f2abe0ad40740ca10379b3"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#a3c219bc977f2abe0ad40740ca10379b3">pascinference::data::QPData::set_b</a></div><div class="ttdeci">void set_b(GeneralVector&lt; VectorBase &gt; *b)</div><div class="ttdoc">set new linear term </div><div class="ttdef"><b>Definition:</b> qpdata.h:362</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_a3c219bc977f2abe0ad40740ca10379b3"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#a3c219bc977f2abe0ad40740ca10379b3">pascinference::data::QPData::set_b</a></div><div class="ttdeci">void set_b(GeneralVector&lt; VectorBase &gt; *b)</div><div class="ttdoc">set new linear term </div><div class="ttdef"><b>Definition:</b> qpdata.h:372</div></div>
 <div class="ttc" id="multicg_8h_html_a12a8780349b2e25a80de80578b1b048f"><div class="ttname"><a href="multicg_8h.html#a12a8780349b2e25a80de80578b1b048f">DEBUGMODE</a></div><div class="ttdeci">int DEBUGMODE</div></div>
 <div class="ttc" id="classpascinference_1_1solver_1_1MultiCGSolver_html_ace21c895dfc436a4c8f8994c1ddac39e"><div class="ttname"><a href="classpascinference_1_1solver_1_1MultiCGSolver.html#ace21c895dfc436a4c8f8994c1ddac39e">pascinference::solver::MultiCGSolver::printcontent</a></div><div class="ttdeci">void printcontent(ConsoleOutput &amp;output) const </div><div class="ttdoc">print content of all solver data </div><div class="ttdef"><b>Definition:</b> multicg.h:172</div></div>
-<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_ac67fee31e929e08d8d33b28ac5a9e0a3"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#ac67fee31e929e08d8d33b28ac5a9e0a3">pascinference::data::QPData::set_x</a></div><div class="ttdeci">void set_x(GeneralVector&lt; VectorBase &gt; *x)</div><div class="ttdoc">set new solution vector </div><div class="ttdef"><b>Definition:</b> qpdata.h:382</div></div>
+<div class="ttc" id="classpascinference_1_1data_1_1QPData_html_ac67fee31e929e08d8d33b28ac5a9e0a3"><div class="ttname"><a href="classpascinference_1_1data_1_1QPData.html#ac67fee31e929e08d8d33b28ac5a9e0a3">pascinference::data::QPData::set_x</a></div><div class="ttdeci">void set_x(GeneralVector&lt; VectorBase &gt; *x)</div><div class="ttdoc">set new solution vector </div><div class="ttdef"><b>Definition:</b> qpdata.h:392</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:04 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:01 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

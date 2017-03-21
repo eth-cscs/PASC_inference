@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['c',['c',['../classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#a237239951d062e8f2357c5dca303ddf1',1,'pascinference::algebra::SimplexFeasibleSet_LinEqBound']]],
+  ['c',['c',['../classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#a237239951d062e8f2357c5dca303ddf1',1,'pascinference::algebra::SimplexFeasibleSet_LinEqBound::c()'],['../classpascinference_1_1solver_1_1TaoSolver_1_1TAOCtx.html#a244b3a188ed114f711c91d36cf98530f',1,'pascinference::solver::TaoSolver::TAOCtx::c()']]],
+  ['ce',['cE',['../classpascinference_1_1solver_1_1TaoSolver_1_1TAOCtx.html#a46374cfab141b19b244bda69aaea58cd',1,'pascinference::solver::TaoSolver::TAOCtx']]],
   ['child_5fsolver',['child_solver',['../classpascinference_1_1solver_1_1QPSolver.html#a8305694b75b5b13f777b914d4a5e5131',1,'pascinference::solver::QPSolver']]],
   ['child_5fsolvertype',['child_solvertype',['../classpascinference_1_1solver_1_1QPSolver.html#a71043105f32cd8820aece1433c037775',1,'pascinference::solver::QPSolver']]],
   ['coeff',['coeff',['../classpetscvector_1_1PetscVectorWrapperCombNode.html#ab00185b2f1881e60f9c5ca02a640ef15',1,'petscvector::PetscVectorWrapperCombNode']]],

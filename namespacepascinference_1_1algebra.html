@@ -118,6 +118,7 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">sparse graph-based matrix for FEM-H1 model regularisation  <a href="classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html">Decomposition</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Manipulation with problem layout.  <a href="classpascinference_1_1algebra_1_1Decomposition.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1General__all__type.html">General_all_type</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">deal with vector(all)  <a href="classpascinference_1_1algebra_1_1General__all__type.html#details">More...</a><br /></td></tr>
@@ -154,6 +155,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a48c5bd75e2266599713cd3778d560eb6"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#a48c5bd75e2266599713cd3778d560eb6">print_array</a> (MyType *my_array, int my_size)</td></tr>
 <tr class="memdesc:a48c5bd75e2266599713cd3778d560eb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">print content of array to string  <a href="#a48c5bd75e2266599713cd3778d560eb6">More...</a><br /></td></tr>
 <tr class="separator:a48c5bd75e2266599713cd3778d560eb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a926f31a960004190ac23734fd6cf87"><td class="memTemplParams" colspan="2">template&lt;class MyType &gt; </td></tr>
+<tr class="memitem:a7a926f31a960004190ac23734fd6cf87"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#a7a926f31a960004190ac23734fd6cf87">print_array</a> (MyType *my_array, int my_size1, int my_size2)</td></tr>
+<tr class="memdesc:a7a926f31a960004190ac23734fd6cf87"><td class="mdescLeft">&#160;</td><td class="mdescRight">print content of array with subarrays to string  <a href="#a7a926f31a960004190ac23734fd6cf87">More...</a><br /></td></tr>
+<tr class="separator:a7a926f31a960004190ac23734fd6cf87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc7e4d36d426514e9624f05be5b47e00"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#acc7e4d36d426514e9624f05be5b47e00">parse_strings_to_doubles</a> (int K, int Km, std::vector&lt; std::string &gt; Theta_list, double *Theta_solution)</td></tr>
+<tr class="separator:acc7e4d36d426514e9624f05be5b47e00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91e34aa70aee14986beb179a6d05de0a"><td class="memTemplParams" colspan="2">template&lt;class MyType &gt; </td></tr>
 <tr class="memitem:a91e34aa70aee14986beb179a6d05de0a"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#a91e34aa70aee14986beb179a6d05de0a">print_vector</a> (std::vector&lt; MyType &gt; &amp;my_vector)</td></tr>
 <tr class="memdesc:a91e34aa70aee14986beb179a6d05de0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">print content of vector to string  <a href="#a91e34aa70aee14986beb179a6d05de0a">More...</a><br /></td></tr>
@@ -170,6 +177,14 @@ Functions</h2></td></tr>
 <tr class="memitem:ae998231265ae8bd7256a2d0fa177e1a1"><td class="memTemplItemLeft" align="right" valign="top">MyType&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#ae998231265ae8bd7256a2d0fa177e1a1">max_array</a> (int my_size, const MyType *my_array)</td></tr>
 <tr class="memdesc:ae998231265ae8bd7256a2d0fa177e1a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">find largest elements in array  <a href="#ae998231265ae8bd7256a2d0fa177e1a1">More...</a><br /></td></tr>
 <tr class="separator:ae998231265ae8bd7256a2d0fa177e1a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5b5cc386a3e05028f189c56f4d1c5f1"><td class="memTemplParams" colspan="2">template&lt;class MyType &gt; </td></tr>
+<tr class="memitem:ad5b5cc386a3e05028f189c56f4d1c5f1"><td class="memTemplItemLeft" align="right" valign="top">int&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#ad5b5cc386a3e05028f189c56f4d1c5f1">max_arg_array</a> (int my_size, const MyType *my_array)</td></tr>
+<tr class="memdesc:ad5b5cc386a3e05028f189c56f4d1c5f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">find the index of largest elements in array  <a href="#ad5b5cc386a3e05028f189c56f4d1c5f1">More...</a><br /></td></tr>
+<tr class="separator:ad5b5cc386a3e05028f189c56f4d1c5f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26e062981dd130be72babf0f628bee4f"><td class="memTemplParams" colspan="2">template&lt;class MyType &gt; </td></tr>
+<tr class="memitem:a26e062981dd130be72babf0f628bee4f"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#a26e062981dd130be72babf0f628bee4f">set_value_array</a> (int my_size, MyType *my_array, MyType my_value)</td></tr>
+<tr class="memdesc:a26e062981dd130be72babf0f628bee4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">set all elements in array to given value  <a href="#a26e062981dd130be72babf0f628bee4f">More...</a><br /></td></tr>
+<tr class="separator:a26e062981dd130be72babf0f628bee4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab5750f9dfbc7baaf538e94a97adf0fa"><td class="memTemplParams" colspan="2">template&lt;class MyType &gt; </td></tr>
 <tr class="memitem:aab5750f9dfbc7baaf538e94a97adf0fa"><td class="memTemplItemLeft" align="right" valign="top">MyType&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#aab5750f9dfbc7baaf538e94a97adf0fa">max_diff_array</a> (int my_size, const MyType *my_array)</td></tr>
 <tr class="memdesc:aab5750f9dfbc7baaf538e94a97adf0fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">find largest difference between cosequent elements in array  <a href="#aab5750f9dfbc7baaf538e94a97adf0fa">More...</a><br /></td></tr>
@@ -194,6 +209,11 @@ Functions</h2></td></tr>
 <tr class="memitem:af62b124cb8763c0d227159084f735091"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#af62b124cb8763c0d227159084f735091">mult_pw_array</a> (int my_size, MyType *my_array, const MyType *my_array1, const MyType *my_array2)</td></tr>
 <tr class="memdesc:af62b124cb8763c0d227159084f735091"><td class="mdescLeft">&#160;</td><td class="mdescRight">compute point-wise multiplication of two arrays  <a href="#af62b124cb8763c0d227159084f735091">More...</a><br /></td></tr>
 <tr class="separator:af62b124cb8763c0d227159084f735091"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adca7a28b0fa2cdb8a5e89412a06190db"><td class="memItemLeft" align="right" valign="top">__device__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#adca7a28b0fa2cdb8a5e89412a06190db">device_sort_bubble</a> (double *x_sorted, int t, int T, int K)</td></tr>
+<tr class="separator:adca7a28b0fa2cdb8a5e89412a06190db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6356aa054f24c6ccecf1410caf1a873f"><td class="memItemLeft" align="right" valign="top">__global__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#a6356aa054f24c6ccecf1410caf1a873f">kernel_project</a> (double *x, double *x_sorted, int T, int K)</td></tr>
+<tr class="memdesc:a6356aa054f24c6ccecf1410caf1a873f"><td class="mdescLeft">&#160;</td><td class="mdescRight">kernel projection onto simplex  <a href="#a6356aa054f24c6ccecf1410caf1a873f">More...</a><br /></td></tr>
+<tr class="separator:a6356aa054f24c6ccecf1410caf1a873f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5fd7fe1e31dcba69c1dd122fc09831c"><td class="memTemplParams" colspan="2">template&lt;class VectorBase2 &gt; </td></tr>
 <tr class="memitem:aa5fd7fe1e31dcba69c1dd122fc09831c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacepascinference_1_1algebra.html#aa5fd7fe1e31dcba69c1dd122fc09831c">operator&lt;&lt;</a> (<a class="el" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output, const <a class="el" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html">GeneralFeasibleSet</a>&lt; VectorBase2 &gt; &amp;feasibleset)</td></tr>
 <tr class="separator:aa5fd7fe1e31dcba69c1dd122fc09831c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -237,6 +257,44 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="adca7a28b0fa2cdb8a5e89412a06190db"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__device__ void pascinference::algebra::device_sort_bubble </td>
+          <td>(</td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname"><em>x_sorted</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>t</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>T</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>K</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a83864e4a9b9a9219acd5e08be5b0cb76"></a>
 <div class="memitem">
 <div class="memproto">
@@ -281,6 +339,58 @@ template&lt;class MyType &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a6356aa054f24c6ccecf1410caf1a873f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__global__ void pascinference::algebra::kernel_project </td>
+          <td>(</td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname"><em>x_sorted</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>T</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>K</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>kernel projection onto simplex </p>
+<p>computes a projection of a point onto simplex in nD</p>
+<p>take K-dimensional vector x[tK,tK+1,...tK+(K-1)] =: p and compute projection P(p) = arg min || p - y ||_2 subject to constraints (which define simplex) y_0 + ... y_{K-1} = 1 y_i &gt;= 0 for all i=0,...,K-1</p>
+<p>in practical applications K is much more lower number than T K - number of clusters (2 - 10^2) T - length of time-series (10^5 - 10^9)</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>values of whole vector in array </td></tr>
+    <tr><td class="paramname">x_sorted</td><td>allocated vector for manipulating with sorted x </td></tr>
+    <tr><td class="paramname">Tlocal</td><td>parameter of vector length </td></tr>
+    <tr><td class="paramname">K</td><td>parameter of vector length </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="ab3fa2e194bd3674758626f54e23cfb14"></a>
 <div class="memitem">
 <div class="memproto">
@@ -312,6 +422,43 @@ template&lt;class MyType &gt; </div>
   <table class="params">
     <tr><td class="paramname">a1</td><td>object </td></tr>
     <tr><td class="paramname">a2</td><td>object </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ad5b5cc386a3e05028f189c56f4d1c5f1"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class MyType &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">int pascinference::algebra::max_arg_array </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>my_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const MyType *&#160;</td>
+          <td class="paramname"><em>my_array</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>find the index of largest elements in array </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">my_size</td><td>the size of array (number of elements) </td></tr>
+    <tr><td class="paramname">my_array</td><td>pointer to array </td></tr>
   </table>
   </dd>
 </dl>
@@ -565,6 +712,44 @@ template&lt;class VectorBase &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="acc7e4d36d426514e9624f05be5b47e00"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool pascinference::algebra::parse_strings_to_doubles </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>K</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>Km</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::string &gt;&#160;</td>
+          <td class="paramname"><em>Theta_list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double *&#160;</td>
+          <td class="paramname"><em>Theta_solution</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a48c5bd75e2266599713cd3778d560eb6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -596,6 +781,50 @@ template&lt;class MyType &gt; </div>
   <table class="params">
     <tr><td class="paramname">my_array</td><td>pointer to array </td></tr>
     <tr><td class="paramname">my_size</td><td>the size of array (number of elements) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a7a926f31a960004190ac23734fd6cf87"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class MyType &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string pascinference::algebra::print_array </td>
+          <td>(</td>
+          <td class="paramtype">MyType *&#160;</td>
+          <td class="paramname"><em>my_array</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>my_size1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>my_size2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>print content of array with subarrays to string </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">my_array</td><td>pointer to array </td></tr>
+    <tr><td class="paramname">my_size1</td><td>the number of subarrays </td></tr>
+    <tr><td class="paramname">my_size2</td><td>the size of subarray </td></tr>
   </table>
   </dd>
 </dl>
@@ -666,6 +895,50 @@ template&lt;class MyType &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">my_vector</td><td>vector to print </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a26e062981dd130be72babf0f628bee4f"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class MyType &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void pascinference::algebra::set_value_array </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>my_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MyType *&#160;</td>
+          <td class="paramname"><em>my_array</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MyType&#160;</td>
+          <td class="paramname"><em>my_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>set all elements in array to given value </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">my_size</td><td>the size of array (number of elements) </td></tr>
+    <tr><td class="paramname">my_array</td><td>pointer to array </td></tr>
+    <tr><td class="paramname">my_value</td><td>new value of all elements </td></tr>
   </table>
   </dd>
 </dl>
@@ -770,7 +1043,7 @@ template&lt;class MyType &gt; </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:04 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

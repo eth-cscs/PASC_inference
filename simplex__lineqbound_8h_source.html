@@ -172,7 +172,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( MatGetOwnershipRangeColumn(B, &amp;col_begin, NULL) );</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="comment">/* set local content */</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">double</span> value = 1.0/(double)(this-&gt;K*this-&gt;T);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">double</span> value = 1.0;</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> t=0; t&lt;this-&gt;Tlocal;t++){</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">int</span> k=0;k&lt;this-&gt;K;k++){</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;            <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( MatSetValue(B, row_begin + t, col_begin + t*this-&gt;K+k, value, INSERT_VALUES) );</div>
@@ -188,7 +188,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecSet(c,value) );</div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecAssemblyBegin(c) );</div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecAssemblyEnd(c) );</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscObjectSetName((PetscObject)c,<span class="stringliteral">&quot;equality constraint&quot;</span>) );</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( PetscObjectSetName((PetscObject)c,<span class="stringliteral">&quot;RHS eq&quot;</span>) );</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="comment">/* create RHS vector of lower bounds */</span></div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <a class="code" href="petscvector_8h.html#a4d8d32bde1a2581a3bee278623465eaa">TRYCXX</a>( VecSet(lb,0.0) );</div>
@@ -280,7 +280,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound_html_a109d16b5b35995e4a2d9b0a963cc7a50"><div class="ttname"><a href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#a109d16b5b35995e4a2d9b0a963cc7a50">pascinference::algebra::SimplexFeasibleSet_LinEqBound::print</a></div><div class="ttdeci">void print(ConsoleOutput &amp;output) const </div><div class="ttdoc">print properties of this feasible set </div><div class="ttdef"><b>Definition:</b> simplex_lineqbound.h:153</div></div>
 <div class="ttc" id="simplex__lineqbound_8h_html_a66cf29e1e7994f502573af1fdeadfe9d"><div class="ttname"><a href="simplex__lineqbound_8h.html#a66cf29e1e7994f502573af1fdeadfe9d">PetscVector</a></div><div class="ttdeci">petscvector::PetscVector PetscVector</div><div class="ttdef"><b>Definition:</b> simplex_lineqbound.h:16</div></div>
 <div class="ttc" id="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound_html_aff598a9e1535e514673af5b8c8293f42"><div class="ttname"><a href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#aff598a9e1535e514673af5b8c8293f42">pascinference::algebra::SimplexFeasibleSet_LinEqBound::project</a></div><div class="ttdeci">void project(GeneralVector&lt; PetscVector &gt; &amp;x)</div><div class="ttdoc">compute projection onto feasible set </div></div>
-<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html">pascinference::common::ConsoleOutput</a></div><div class="ttdoc">print only on master or on all processors </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:174</div></div>
+<div class="ttc" id="classpascinference_1_1common_1_1ConsoleOutput_html"><div class="ttname"><a href="classpascinference_1_1common_1_1ConsoleOutput.html">pascinference::common::ConsoleOutput</a></div><div class="ttdoc">print only on master or on all processors </div><div class="ttdef"><b>Definition:</b> consoleoutput.h:73</div></div>
 <div class="ttc" id="pascinference_8h_html"><div class="ttname"><a href="pascinference_8h.html">pascinference.h</a></div><div class="ttdoc">main header file </div></div>
 <div class="ttc" id="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound_html_abe96b3f32f296980491a09135b8abcbb"><div class="ttname"><a href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#abe96b3f32f296980491a09135b8abcbb">pascinference::algebra::SimplexFeasibleSet_LinEqBound::T</a></div><div class="ttdeci">int T</div><div class="ttdef"><b>Definition:</b> simplex_lineqbound.h:41</div></div>
 <div class="ttc" id="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound_html_a23049cc1045502f2e3bd2d9eae3a9487"><div class="ttname"><a href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#a23049cc1045502f2e3bd2d9eae3a9487">pascinference::algebra::SimplexFeasibleSet_LinEqBound::SimplexFeasibleSet_LinEqBound</a></div><div class="ttdeci">SimplexFeasibleSet_LinEqBound(int T, int Tlocal, int K)</div><div class="ttdoc">default constructor </div><div class="ttdef"><b>Definition:</b> simplex_lineqbound.h:92</div></div>
@@ -288,7 +288,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:04 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:01 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

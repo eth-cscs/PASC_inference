@@ -1,0 +1,11 @@
+<map id="include/common/fem.h" name="include/common/fem.h">
+<area shape="rect" id="node2" href="$fem2D_8h.html" title="include/common/fem2D.h" alt="" coords="5,80,176,107"/>
+<area shape="rect" id="node5" href="$femhat_8h.html" title="class for reduction and prolongation on fem meshes using hat functions " alt="" coords="410,80,582,107"/>
+<area shape="rect" id="node8" href="$graphh1fem_8h.html" title="include/model/graphh1fem.h" alt="" coords="201,80,386,107"/>
+<area shape="rect" id="node3" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="33,155,180,196"/>
+<area shape="rect" id="node4" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="33,244,180,285"/>
+<area shape="rect" id="node6" href="$test__signal1D_8cu.html" title="test the kmeans problem solver on simple 1D signal problem " alt="" coords="401,155,564,196"/>
+<area shape="rect" id="node7" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="401,244,564,285"/>
+<area shape="rect" id="node9" href="$test__neuro_8cu.html" title="test the neuro filtering possibilities " alt="" coords="222,155,365,196"/>
+<area shape="rect" id="node10" href="$test__neuro_8cpp.html" title="examples/test_neuro\l/test_neuro.cpp" alt="" coords="222,244,365,285"/>
+</map>

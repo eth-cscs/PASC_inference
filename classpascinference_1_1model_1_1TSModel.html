@@ -112,7 +112,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="classpascinference_1_1model_1_1TSModel__inherit__graph.png" border="0" usemap="#pascinference_1_1model_1_1TSModel_3_01VectorBase_01_4_inherit__map" alt="Inheritance graph"/></div>
 <map name="pascinference_1_1model_1_1TSModel_3_01VectorBase_01_4_inherit__map" id="pascinference_1_1model_1_1TSModel_3_01VectorBase_01_4_inherit__map">
-<area shape="rect" id="node3" href="classpascinference_1_1model_1_1GraphH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation. " alt="" coords="5,549,243,876"/><area shape="rect" id="node2" href="classpascinference_1_1model_1_1GeneralModel.html" title="General class for manipulation with models. " alt="" coords="51,5,197,141"/></map>
+<area shape="rect" id="node3" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation and Entropy&#45;based Theta model..." alt="" coords="5,549,239,920"/><area shape="rect" id="node4" href="classpascinference_1_1model_1_1GraphH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation. " alt="" coords="263,549,501,920"/><area shape="rect" id="node2" href="classpascinference_1_1model_1_1GeneralModel.html" title="General class for manipulation with models. " alt="" coords="178,5,325,141"/></map>
 </div>
 <div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-1-trigger" src="closed.png" alt="+"/> Collaboration diagram for pascinference::model::TSModel&lt; VectorBase &gt;:</div>
@@ -121,7 +121,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-1-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="classpascinference_1_1model_1_1TSModel__coll__graph.png" border="0" usemap="#pascinference_1_1model_1_1TSModel_3_01VectorBase_01_4_coll__map" alt="Collaboration graph"/></div>
 <map name="pascinference_1_1model_1_1TSModel_3_01VectorBase_01_4_coll__map" id="pascinference_1_1model_1_1TSModel_3_01VectorBase_01_4_coll__map">
-<area shape="rect" id="node2" href="classpascinference_1_1model_1_1GeneralModel.html" title="General class for manipulation with models. " alt="" coords="5,1315,152,1451"/><area shape="rect" id="node3" href="classpascinference_1_1algebra_1_1Decomposition.html" title="{pascinference::algebra\l::Decomposition\n|# T\l# DDT_size\l# DDT_ranges\l# destroy_DDT_arrays\l# R\l# DDR_size\l# DDR_affiliation\l# DDR_permutation\l# DDR_invpermutation\l# DDR_lengths\land 6 more...\l|+ Decomposition()\l+ Decomposition()\l+ Decomposition()\l+ ~Decomposition()\l+ get_T()\l+ get_Tlocal()\l+ get_Tbegin()\l+ get_Tend()\l+ get_DDT_size()\l+ get_DDT_rank()\land 29 more...\l# compute_rank()\l}" alt="" coords="176,1183,331,1583"/><area shape="rect" id="node4" href="classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="176,661,331,1120"/><area shape="rect" id="node5" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n||+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l}" alt="" coords="157,419,350,599"/><area shape="rect" id="node6" href="classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="104,132,275,356"/><area shape="rect" id="node7" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="299,161,504,327"/></map>
+<area shape="rect" id="node2" href="classpascinference_1_1model_1_1GeneralModel.html" title="General class for manipulation with models. " alt="" coords="5,1271,152,1407"/><area shape="rect" id="node3" href="classpascinference_1_1algebra_1_1Decomposition.html" title="Manipulation with problem layout. " alt="" coords="176,1139,331,1539"/><area shape="rect" id="node4" href="classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="177,676,330,1076"/><area shape="rect" id="node5" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n|&#45; rnd\l|+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l+ get_name()\l}" alt="" coords="157,419,350,613"/><area shape="rect" id="node6" href="classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="104,132,275,356"/><area shape="rect" id="node7" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="299,132,504,356"/></map>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -161,12 +161,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa29009a49f4c707098f18921172bc230"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#aa29009a49f4c707098f18921172bc230">finalize_thetasolver</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> **thetasolver)</td></tr>
 <tr class="memdesc:aa29009a49f4c707098f18921172bc230"><td class="mdescLeft">&#160;</td><td class="mdescRight">free memory of Theta solver  <a href="#aa29009a49f4c707098f18921172bc230">More...</a><br /></td></tr>
 <tr class="separator:aa29009a49f4c707098f18921172bc230"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94c2f74abc697fd24c176f5e62c14727"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#a94c2f74abc697fd24c176f5e62c14727">update_gammasolver</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *gammasolver)</td></tr>
-<tr class="memdesc:a94c2f74abc697fd24c176f5e62c14727"><td class="mdescLeft">&#160;</td><td class="mdescRight">update data values of gamma solver  <a href="#a94c2f74abc697fd24c176f5e62c14727">More...</a><br /></td></tr>
-<tr class="separator:a94c2f74abc697fd24c176f5e62c14727"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a659300574e97ca79034c719c7ba3ccf7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#a659300574e97ca79034c719c7ba3ccf7">update_thetasolver</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *thetasolver)</td></tr>
-<tr class="memdesc:a659300574e97ca79034c719c7ba3ccf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">update data values of Theta solver  <a href="#a659300574e97ca79034c719c7ba3ccf7">More...</a><br /></td></tr>
-<tr class="separator:a659300574e97ca79034c719c7ba3ccf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17d7cf64572f2bf2ea4c833ff7985ee4"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#a17d7cf64572f2bf2ea4c833ff7985ee4">updatebeforesolve_gammasolver</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *gammasolver)</td></tr>
+<tr class="memdesc:a17d7cf64572f2bf2ea4c833ff7985ee4"><td class="mdescLeft">&#160;</td><td class="mdescRight">update data values of gamma solver before calling solve  <a href="#a17d7cf64572f2bf2ea4c833ff7985ee4">More...</a><br /></td></tr>
+<tr class="separator:a17d7cf64572f2bf2ea4c833ff7985ee4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acae21d4677591ab4f2c6f599efa0c52e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#acae21d4677591ab4f2c6f599efa0c52e">updatebeforesolve_thetasolver</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *thetasolver)</td></tr>
+<tr class="memdesc:acae21d4677591ab4f2c6f599efa0c52e"><td class="mdescLeft">&#160;</td><td class="mdescRight">update data values of Theta solver before calling solve  <a href="#acae21d4677591ab4f2c6f599efa0c52e">More...</a><br /></td></tr>
+<tr class="separator:acae21d4677591ab4f2c6f599efa0c52e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0bdb5ff90ea035dd7209945baf18e7cf"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#a0bdb5ff90ea035dd7209945baf18e7cf">updateaftersolve_gammasolver</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *gammasolver)</td></tr>
+<tr class="memdesc:a0bdb5ff90ea035dd7209945baf18e7cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">update data values of gamma solver after calling solve  <a href="#a0bdb5ff90ea035dd7209945baf18e7cf">More...</a><br /></td></tr>
+<tr class="separator:a0bdb5ff90ea035dd7209945baf18e7cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cb67406c88ff26cd16ab5efcf3c2004"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#a3cb67406c88ff26cd16ab5efcf3c2004">updateaftersolve_thetasolver</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *thetasolver)</td></tr>
+<tr class="memdesc:a3cb67406c88ff26cd16ab5efcf3c2004"><td class="mdescLeft">&#160;</td><td class="mdescRight">update data values of Theta solver before calling solve  <a href="#a3cb67406c88ff26cd16ab5efcf3c2004">More...</a><br /></td></tr>
+<tr class="separator:a3cb67406c88ff26cd16ab5efcf3c2004"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebad5441b2a9fd02a013e40dc7bc7f15"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1model_1_1TSModel.html#aebad5441b2a9fd02a013e40dc7bc7f15">get_L</a> (<a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *gammasolver, <a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *thetasolver)</td></tr>
 <tr class="memdesc:aebad5441b2a9fd02a013e40dc7bc7f15"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the value of object function L(gamma,Theta,data)  <a href="#aebad5441b2a9fd02a013e40dc7bc7f15">More...</a><br /></td></tr>
 <tr class="separator:aebad5441b2a9fd02a013e40dc7bc7f15"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -275,7 +281,7 @@ template&lt;class VectorBase&gt; </div>
 <p>free memory of gamma solver </p>
 <p>Deallocate memory for all data of gamma problem. </p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a33fee924c6ad2e9227907add3e45a21f">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a3cfbe54a1c733091d7c6d06e61073418">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a33fee924c6ad2e9227907add3e45a21f">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -306,7 +312,7 @@ template&lt;class VectorBase&gt; </div>
 <p>free memory of Theta solver </p>
 <p>Deallocate memory for all data of Theta problem. </p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a06a241a11f27bc0c1199c5e89f3f649a">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a27acbf14c5b0bd32765c44eb740cf0cb">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a06a241a11f27bc0c1199c5e89f3f649a">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -342,7 +348,7 @@ template&lt;class VectorBase &gt; </div>
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aaab6b25b901ab792bd2e2487dce29f02">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#abd680a004cf99aab38f26b857534d565">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aaab6b25b901ab792bd2e2487dce29f02">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -436,7 +442,7 @@ template&lt;class VectorBase&gt; </div>
 
 <p>get the value of object function L(gamma,Theta,data) </p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aef392a678824be62a0f09c3830f2ebce">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a7df3226a5bf423750c687938a02c61be">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aef392a678824be62a0f09c3830f2ebce">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -467,7 +473,7 @@ template&lt;class VectorBase &gt; </div>
 
 <p>Reimplemented from <a class="el" href="classpascinference_1_1model_1_1GeneralModel.html#a88329ee38bcaa923983bcdb9e9b33b9f">pascinference::model::GeneralModel</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a2584f20150c93ce762454b6825d98fa2">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a67b7cbedb9be4520b2bd778063e22287">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a2584f20150c93ce762454b6825d98fa2">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -548,7 +554,7 @@ template&lt;class VectorBase&gt; </div>
 <p>alloc memory for gamma solver </p>
 <p>Allocate memory for all data of gamma problem. </p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a35c360efdd71e86f2733324ed27edd81">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a591a798fc4c32b5465d0f9297691221e">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a35c360efdd71e86f2733324ed27edd81">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a70f52eeaad78be03697ebc46c40ea48d">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ae2ca3fbc72cd1c182a615dcc7ce313a9">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a591a798fc4c32b5465d0f9297691221e">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -579,7 +585,7 @@ template&lt;class VectorBase&gt; </div>
 <p>alloc memory for Theta solver </p>
 <p>Allocate memory for all data of Theta problem. </p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a28c410b60d857dcf75d8b33c467d9c2e">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a30db49ed21e897d2df15124a87024687">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a28c410b60d857dcf75d8b33c467d9c2e">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a3724b3366032e4aed88668b78ba5cc62">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#aee28f1f41ae53101256c17f365f1a974">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a30db49ed21e897d2df15124a87024687">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -611,11 +617,11 @@ template&lt;class VectorBase &gt; </div>
 
 <p>Reimplemented from <a class="el" href="classpascinference_1_1model_1_1GeneralModel.html#a67ed2ceebcf84fb880f2ce1e2e6e7fd8">pascinference::model::GeneralModel</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#acc56fe1d23f670f9673f12cf57718974">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a343b74d2e89db384394367e340266dbc">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#acc56fe1d23f670f9673f12cf57718974">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a94c2f74abc697fd24c176f5e62c14727"></a>
+<a class="anchor" id="a0bdb5ff90ea035dd7209945baf18e7cf"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -625,7 +631,7 @@ template&lt;class VectorBase&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="classpascinference_1_1model_1_1TSModel.html">pascinference::model::TSModel</a>&lt; VectorBase &gt;::update_gammasolver </td>
+          <td class="memname">virtual void <a class="el" href="classpascinference_1_1model_1_1TSModel.html">pascinference::model::TSModel</a>&lt; VectorBase &gt;::updateaftersolve_gammasolver </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *&#160;</td>
           <td class="paramname"><em>gammasolver</em></td><td>)</td>
@@ -639,14 +645,14 @@ template&lt;class VectorBase&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>update data values of gamma solver </p>
-<p>Update data values of gamma solver, prepare it to the solving. </p>
+<p>update data values of gamma solver after calling solve </p>
+<p>Update data values of gamma solver, postprocess solution process. </p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a804640966f7ade7c70a526bcab6ba363">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a4ab5ebc85aab942a09a62d96cd0c4608">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a52e6aeec38c74a701aa12f5e359e91ac">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a7c93b81751122c1d0b3456e000b9368a">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#aae9cd4218f70bb7e7dce79978a703d24">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a705263577f12197c121dc080d3e09586">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a659300574e97ca79034c719c7ba3ccf7"></a>
+<a class="anchor" id="a3cb67406c88ff26cd16ab5efcf3c2004"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -656,7 +662,7 @@ template&lt;class VectorBase&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="classpascinference_1_1model_1_1TSModel.html">pascinference::model::TSModel</a>&lt; VectorBase &gt;::update_thetasolver </td>
+          <td class="memname">virtual void <a class="el" href="classpascinference_1_1model_1_1TSModel.html">pascinference::model::TSModel</a>&lt; VectorBase &gt;::updateaftersolve_thetasolver </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *&#160;</td>
           <td class="paramname"><em>thetasolver</em></td><td>)</td>
@@ -670,10 +676,72 @@ template&lt;class VectorBase&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>update data values of Theta solver </p>
+<p>update data values of Theta solver before calling solve </p>
+<p>Update data values of Theta solver, postprocess solution process. </p>
+
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a2f6d97afbf03713a6fadd0aaa1093cda">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#aa7c0811cc974029db55406b61baabc56">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a736c1dac95f1f1867643e83455731079">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a5bca5a53916e63093860410d70ff2d78">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a17d7cf64572f2bf2ea4c833ff7985ee4"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorBase&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void <a class="el" href="classpascinference_1_1model_1_1TSModel.html">pascinference::model::TSModel</a>&lt; VectorBase &gt;::updatebeforesolve_gammasolver </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *&#160;</td>
+          <td class="paramname"><em>gammasolver</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>update data values of gamma solver before calling solve </p>
+<p>Update data values of gamma solver, prepare it to solution process. </p>
+
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a487705f2d5de62f9b4bb1596960d4f1c">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a55debedc3dc0bf5e0d5db5eaf7057559">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a7ff18f1e82c7e7804a89f812f5e61322">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aeac49ea819ea0c2f9b8237b38bae1598">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="acae21d4677591ab4f2c6f599efa0c52e"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorBase&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void <a class="el" href="classpascinference_1_1model_1_1TSModel.html">pascinference::model::TSModel</a>&lt; VectorBase &gt;::updatebeforesolve_thetasolver </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html">GeneralSolver</a> *&#160;</td>
+          <td class="paramname"><em>thetasolver</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>update data values of Theta solver before calling solve </p>
 <p>Update data values of Theta solver, prepare it to the solving. </p>
 
-<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a64a7d2213d5bc28d379ba3ce0b6a3349">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#afe4a02b0e19f6ded33109e3521eb2739">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ab6bdc880edba98f39ba1fbdbfa8303a0">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ad85ba572546de70352166c9f8b2e12ed">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ab6f06f46ab3b229797294d9d62769d46">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>, and <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a0290aa77be87e554af923ea52f35df63">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>.</p>
 
 </div>
 </div>
@@ -776,7 +844,7 @@ template&lt;class VectorBase&gt; </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:04 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

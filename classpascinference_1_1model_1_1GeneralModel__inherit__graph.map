@@ -1,4 +1,5 @@
 <map id="pascinference::model::GeneralModel" name="pascinference::model::GeneralModel">
-<area shape="rect" id="node2" href="$classpascinference_1_1model_1_1TSModel.html" title="General class for manipulation with global time&#45;series models. " alt="" coords="30,189,218,501"/>
-<area shape="rect" id="node3" href="$classpascinference_1_1model_1_1GraphH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation. " alt="" coords="5,549,243,876"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1model_1_1TSModel.html" title="General class for manipulation with global time&#45;series models. " alt="" coords="157,189,345,501"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1model_1_1EntropyH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation and Entropy&#45;based Theta model..." alt="" coords="5,549,239,920"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1model_1_1GraphH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation. " alt="" coords="263,549,501,920"/>
 </map>

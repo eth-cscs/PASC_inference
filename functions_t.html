@@ -17,8 +17,6 @@
   $(document).ready(function() { init_search(); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="my.css" rel="stylesheet" type="text/css"/>
-<link href="mytabs.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -108,6 +106,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_v.html#index_v"><span>v</span></a></li>
       <li><a href="functions_w.html#index_w"><span>w</span></a></li>
       <li><a href="functions_x.html#index_x"><span>x</span></a></li>
+      <li><a href="functions_y.html#index_y"><span>y</span></a></li>
       <li><a href="functions_~.html#index_~"><span>~</span></a></li>
     </ul>
   </div>
@@ -134,10 +133,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a4cecb6c5942bd4d540b523990b2ccfa4">pascinference::algebra::Decomposition</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#abe96b3f32f296980491a09135b8abcbb">pascinference::algebra::SimplexFeasibleSet_LinEqBound&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#aa1b44663efe38ab9ff05d8c99087c4ee">pascinference::algebra::SimplexFeasibleSet_Local&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#aa273352024509c88f23548d6b23e25c7">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
+</li>
+<li>TaoSolver()
+: <a class="el" href="classpascinference_1_1solver_1_1TaoSolver.html#a88f71a14bf263a49d0cf0e5580457d96">pascinference::solver::TaoSolver&lt; VectorBase &gt;</a>
+</li>
+<li>taosolver
+: <a class="el" href="classpascinference_1_1solver_1_1TaoSolver.html#a7ca9dfd3a3d7809bdcaaf85158b0ab29">pascinference::solver::TaoSolver&lt; VectorBase &gt;</a>
 </li>
 <li>temp
 : <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#aca3b596d4c013dd5486247e199707960">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a816a775bc476ef843fc4066030a036d1">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
+</li>
+<li>temp_vec
+: <a class="el" href="classpascinference_1_1solver_1_1TaoSolver_1_1TAOCtx.html#a2090e75a4e8141f15959a1c48a809627">pascinference::solver::TaoSolver&lt; VectorBase &gt;::TAOCtx</a>
 </li>
 <li>test_functiontobelogged()
 : <a class="el" href="classtest__namespace_1_1Testclass.html#a8325d652d6795e09364a16ca0e6eeeea">test_namespace::Testclass</a>
@@ -152,7 +161,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classtest__namespace_1_1Testclass.html#a14d5c1218bfbc23785aa8c37e434c566">test_namespace::Testclass</a>
 </li>
 <li>thetadata
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a8d0d655ddfc609f35336c8cbfe72bc5b">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#af04df09af320de1e8b113dfa637eefae">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a8d0d655ddfc609f35336c8cbfe72bc5b">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>thetasolved
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#a52ea2143aac5bf49bde161ae1263899d">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
@@ -168,6 +178,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>thetasolver_status
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#afde17d59c8d2582e6e014fecd2dcfe4a">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
+</li>
+<li>thetasolvertype
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ae5ae5122948d526a451eec8c78dc7acf">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+</li>
+<li>ThetaSolverType
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#aa5d909ca45c2f1b88ee7033e8b2cd475">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>thetavector
 : <a class="el" href="classpascinference_1_1data_1_1TSData.html#a266c965c44df7bccaebcb89a0785e4c0">pascinference::data::TSData&lt; VectorBase &gt;</a>
@@ -199,20 +215,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>time_sum
 : <a class="el" href="classpascinference_1_1common_1_1Timer.html#a12f68f3f85767d7514a2b280cee11c55">pascinference::common::Timer</a>
 </li>
+<li>timer_compute_moments
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#abf57dd0d692c463bdb4320eec9cffce2">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#ae06ebaecbcd3bf0c9143be82f9aca142">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+</li>
 <li>timer_dot
 : <a class="el" href="classpascinference_1_1solver_1_1DiagSolver.html#a0109dd93bd5dc930bca2e68009ec94c1">pascinference::solver::DiagSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#acdd9e148a9bdf595a4901d8cc00a50b5">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#af1a47bede31ff7f302836a5827b8bb52">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
 </li>
 <li>timer_fs
-: <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a1aa89e6cf84f4d4edc6b220be3ca6531">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a08fd458bbfd515a10b72a2d24da26262">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a1aa89e6cf84f4d4edc6b220be3ca6531">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a1cd72d8121f06877e0449fd7ba351929">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
+</li>
+<li>timer_g
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a5c6f0172156381503e87c6d0ba1333c6">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
 </li>
 <li>timer_gamma_solve
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#aada46c585e142893795fe00e553096e3">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
 </li>
 <li>timer_gamma_update
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#af09f3cb613e49351f9c5237de8bcd6b2">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
+</li>
+<li>timer_integrate
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a9284eec72e19bf2ff463d16ad0aa9b9b">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
 </li>
 <li>timer_matmult
 : <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a66bc41236c4fe296e5f3501a1b39190a">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
@@ -224,10 +251,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>timer_solve
 : <a class="el" href="classpascinference_1_1solver_1_1DiagSolver.html#a5a789068d858b0c46bb8b9eabdd32282">pascinference::solver::DiagSolver&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#a5bbc030ea6a7ba0e15b23d260cbd5bc2">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a306729183e2b3cb6811d4b7150abf191">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1PermonSolver.html#ae21ab5dfbbc22832f850616e9fe23d80">pascinference::solver::PermonSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SimpleSolver.html#a59c8716d90b67663afe6fcc98a3ea095">pascinference::solver::SimpleSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a595331110f6edd42accf20fec9504946">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a6d27a7714d7b335fe308705470fd2b2e">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1TaoSolver.html#a84e6ff916c6d37d4e067e53f8c32a047">pascinference::solver::TaoSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#ab6c3355c3eb4617dbee20f761537774f">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
 </li>
 <li>timer_stepsize
@@ -241,14 +271,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#a1683e505bc64c7f18438f5835d342152">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
 </li>
 <li>timer_update
-: <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a240c2d0568987736f8fc26f45b40e4aa">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a9da99972cb4c5547cad14c4f62585d45">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a240c2d0568987736f8fc26f45b40e4aa">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a7697c1e09ee9ef15bacf9ef90a481bb5">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
 </li>
 <li>Tlocal
 : <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#ab246e892f4ad88d66bfe52a577ea7420">pascinference::algebra::SimplexFeasibleSet_LinEqBound&lt; VectorBase &gt;</a>
 </li>
+<li>top_overlap
+: <a class="el" href="classpascinference_1_1common_1_1Fem2D.html#a83be6f86fba65e83919b83d92f345604">pascinference::common::Fem2D</a>
+</li>
 <li>Tpreliminary
-: <a class="el" href="classpascinference_1_1data_1_1Signal1DData.html#ab363052dad6ccd31c530583a27acc1a8">pascinference::data::Signal1DData&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1data_1_1EdfData.html#a95f0597ad6b0fe3df20d0ec7e5ced183">pascinference::data::EdfData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1data_1_1Signal1DData.html#ab363052dad6ccd31c530583a27acc1a8">pascinference::data::Signal1DData&lt; VectorBase &gt;</a>
 </li>
 <li>TSData()
 : <a class="el" href="classpascinference_1_1data_1_1TSData.html#a18a51789c6f440bfb7ce8f80a342fcd1">pascinference::data::TSData&lt; VectorBase &gt;</a>
@@ -261,7 +296,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1data_1_1TSData.html#a54f72b9caa1a9361f3028ab38c17ceea">pascinference::data::TSData&lt; VectorBase &gt;</a>
 </li>
 <li>TSModel()
-: <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a7d8e22150a9491a84fa42ec0dee5d86c">pascinference::model::TSModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a1612dd73f197cdc54ca68835275e31da">pascinference::model::TSModel&lt; VectorBase &gt;</a>
+</li>
+<li>TSOLVER_AUTO
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#aa5d909ca45c2f1b88ee7033e8b2cd475a155a1e9ea6540e45696e03a3648edce1">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+</li>
+<li>TSOLVER_ENTROPY_DLIB
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#aa5d909ca45c2f1b88ee7033e8b2cd475a5f0e0ad38fb2b0a88a398850f22ed1ed">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+</li>
+<li>TSOLVER_ENTROPY_SPG
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#aa5d909ca45c2f1b88ee7033e8b2cd475a8250a6089e05dfab050c39eec836ce2a">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>TSSolver()
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#a62b8feee33c345b7f7806005536dd558">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
@@ -271,7 +315,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:07 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

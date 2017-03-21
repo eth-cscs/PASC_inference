@@ -1,4 +1,11 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="5,20,176,47"/>
-<area shape="rect" id="node2" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;" alt="" coords="224,5,417,61"/>
+<area shape="rect" id="node1" href="$classpascinference_1_1data_1_1GeneralData.html" title="general class for manipulation with data " alt="" coords="5,136,141,177"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1data_1_1DiagData.html" title="data of diag(a) x = b " alt="" coords="198,5,375,47"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1data_1_1EntropyData.html" title="pascinference::data\l::EntropyData\&lt; VectorBase \&gt;" alt="" coords="189,71,384,112"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1data_1_1QPData.html" title="general class for manipulation with QP data " alt="" coords="202,136,371,177"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1data_1_1SimpleData.html" title="pascinference::data\l::SimpleData\&lt; VectorBase \&gt;" alt="" coords="191,201,382,243"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1data_1_1TSData.html" title="General Time&#45;series data. " alt="" coords="203,267,370,308"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1data_1_1EdfData.html" title="pascinference::data\l::EdfData\&lt; VectorBase \&gt;" alt="" coords="448,201,619,243"/>
+<area shape="rect" id="node8" href="$classpascinference_1_1data_1_1ImageData.html" title="pascinference::data\l::ImageData\&lt; VectorBase \&gt;" alt="" coords="440,267,627,308"/>
+<area shape="rect" id="node9" href="$classpascinference_1_1data_1_1Signal1DData.html" title="data of one&#45;dimensional signal " alt="" coords="432,332,635,373"/>
 </map>

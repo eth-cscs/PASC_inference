@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['memorycheck',['MemoryCheck',['../classpascinference_1_1common_1_1MemoryCheck.html',1,'pascinference::common']]],
-  ['multicgsolver',['MultiCGSolver',['../classpascinference_1_1solver_1_1MultiCGSolver.html',1,'pascinference::solver']]]
+  ['imagedata',['ImageData',['../classpascinference_1_1data_1_1ImageData.html',1,'pascinference::data']]]
 ];

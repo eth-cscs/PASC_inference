@@ -1,0 +1,4 @@
+<map id="pascinference::common::Fem" name="pascinference::common::Fem">
+<area shape="rect" id="node2" href="$classpascinference_1_1common_1_1Fem2D.html" title="{pascinference::common\l::Fem2D\n|# left_overlap\l# right_overlap\l# top_overlap\l# bottom_overlap\l# overlap1_idx_size\l# overlap1_idx\l# overlap2_idx_size\l# overlap2_idx\l# diff_x\l# diff_y\l# grid1\l# grid2\l# bounding_box1\l# bounding_box2\l|+ Fem2D()\l+ Fem2D()\l+ ~Fem2D()\l+ print()\l+ get_name()\l+ reduce_gamma()\l+ prolongate_gamma()\l+ compute_decomposition\l_reduced()\l# compute_overlaps()\l}" alt="" coords="5,483,180,897"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1common_1_1FemHat.html" title="Reduction/prolongation between FEM meshes using hat functions. " alt="" coords="204,541,379,839"/>
+</map>

@@ -1,3 +1,15 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpetscvector_1_1PetscVectorWrapperComb.html" title="Wrapper to allow linear combinations of vectors. " alt="" coords="5,5,176,47"/>
+<area shape="rect" id="node1" href="$classpascinference_1_1solver_1_1GeneralSolver.html" title="solver for solving problems " alt="" coords="5,183,152,224"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1solver_1_1DiagSolver.html" title="Solver for linear systems with diagonal matrix. " alt="" coords="223,5,409,47"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1solver_1_1EntropySolverDlib.html" title="Solver which solves problem with integrals using DLib library. " alt="" coords="243,70,389,126"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1solver_1_1EntropySolverSPG.html" title="Solver which solves problem with integrals using SPG algorithm. " alt="" coords="200,149,432,191"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1solver_1_1QPSolver.html" title="General Quadratic Programming solver. " alt="" coords="227,215,405,256"/>
+<area shape="rect" id="node12" href="$classpascinference_1_1solver_1_1SimpleSolver.html" title="Solver which doesn&#39;t do anything. " alt="" coords="217,280,415,321"/>
+<area shape="rect" id="node13" href="$classpascinference_1_1solver_1_1TSSolver.html" title="for solving time&#45;series problems " alt="" coords="228,345,404,387"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1solver_1_1CGQPSolver.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="489,51,687,92"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1solver_1_1MultiCGSolver.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="485,116,691,157"/>
+<area shape="rect" id="node8" href="$classpascinference_1_1solver_1_1PermonSolver.html" title="Interface with QP solvers implemented in Permon library. " alt="" coords="486,181,690,223"/>
+<area shape="rect" id="node9" href="$classpascinference_1_1solver_1_1SPGQPSolver.html" title="Spectral Projected Gradient method for Quadratic Programs. " alt="" coords="485,247,691,288"/>
+<area shape="rect" id="node10" href="$classpascinference_1_1solver_1_1SPGQPSolverC.html" title="Spectral Projected Gradient method for Quadratic Programs with special care of matrix coefficients..." alt="" coords="480,312,696,353"/>
+<area shape="rect" id="node11" href="$classpascinference_1_1solver_1_1TaoSolver.html" title="Interface with QP solvers implemented in TAO. " alt="" coords="497,377,679,419"/>
 </map>

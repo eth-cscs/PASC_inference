@@ -1,6 +1,10 @@
 <map id="include/solver/tssolver.h" name="include/solver/tssolver.h">
-<area shape="rect" id="node2" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="5,80,152,121"/>
-<area shape="rect" id="node4" href="$test__signal1D_8cu.html" title="examples/test_signal1D\l/test_signal1D.cu" alt="" coords="176,80,339,121"/>
-<area shape="rect" id="node3" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="5,169,152,211"/>
-<area shape="rect" id="node5" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="176,169,339,211"/>
+<area shape="rect" id="node2" href="$test__entropy_8cu.html" title="test the new entropy model (in collaboration with Anna) " alt="" coords="5,80,160,121"/>
+<area shape="rect" id="node4" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="184,80,331,121"/>
+<area shape="rect" id="node6" href="$test__neuro_8cu.html" title="test the neuro filtering possibilities " alt="" coords="355,80,498,121"/>
+<area shape="rect" id="node8" href="$test__signal1D_8cu.html" title="test the kmeans problem solver on simple 1D signal problem " alt="" coords="523,80,685,121"/>
+<area shape="rect" id="node3" href="$test__entropy_8cpp.html" title="examples/test_entropy\l/test_entropy.cpp" alt="" coords="5,169,160,211"/>
+<area shape="rect" id="node5" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="184,169,331,211"/>
+<area shape="rect" id="node7" href="$test__neuro_8cpp.html" title="examples/test_neuro\l/test_neuro.cpp" alt="" coords="355,169,498,211"/>
+<area shape="rect" id="node9" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="523,169,685,211"/>
 </map>

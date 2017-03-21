@@ -1,24 +1,29 @@
 <map id="examples/test_classes/algebra/test_blockgraphsparsematrix.cu" name="examples/test_classes/algebra/test_blockgraphsparsematrix.cu">
-<area shape="rect" id="node5" href="$pascinference_8h.html" title="main header file " alt="" coords="1277,169,1392,196"/>
-<area shape="rect" id="node40" href="$blockgraphsparse_8h.html" title="block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix&#45;vector multiplication imp..." alt="" coords="2385,95,2607,121"/>
-<area shape="rect" id="node13" href="$common_8h.html" title="commonly used stuff " alt="" coords="1762,244,1899,271"/>
-<area shape="rect" id="node30" href="$arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="307,244,469,271"/>
-<area shape="rect" id="node31" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="493,244,651,271"/>
-<area shape="rect" id="node32" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="675,244,832,271"/>
-<area shape="rect" id="node33" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="856,244,1040,271"/>
-<area shape="rect" id="node34" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="2140,244,2311,271"/>
-<area shape="rect" id="node36" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="1065,244,1194,271"/>
-<area shape="rect" id="node37" href="$list_8h.html" title="solver/list.h" alt="" coords="1218,244,1307,271"/>
-<area shape="rect" id="node38" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="1332,244,1481,271"/>
-<area shape="rect" id="node39" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="1505,244,1655,271"/>
-<area shape="rect" id="node18" href="$timer_8h.html" title="for measuring time " alt="" coords="807,319,923,345"/>
-<area shape="rect" id="node19" href="$memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="978,393,1147,420"/>
-<area shape="rect" id="node20" href="$globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="1327,393,1497,420"/>
-<area shape="rect" id="node21" href="$consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="1151,319,1319,345"/>
-<area shape="rect" id="node22" href="$consoleinput_8h.html" title="Manipulation with console arguments and parameters. " alt="" coords="2041,319,2201,345"/>
-<area shape="rect" id="node27" href="$logging_8h.html" title="Log files. " alt="" coords="948,319,1076,345"/>
-<area shape="rect" id="node28" href="$mvnrnd_8h.html" title="common/mvnrnd.h" alt="" coords="1556,319,1687,345"/>
-<area shape="rect" id="node29" href="$shortinfo_8h.html" title="Manipulation with output file which includes short final information. " alt="" coords="1343,319,1481,345"/>
-<area shape="rect" id="node25" href="$options_8h.html" title="define command line options " alt="" coords="2180,393,2255,420"/>
-<area shape="rect" id="node35" href="$bgmgraph_8h.html" title="class for manipulation with graphs " alt="" coords="2423,319,2559,345"/>
+<area shape="rect" id="node5" href="$pascinference_8h.html" title="main header file " alt="" coords="1903,169,2017,196"/>
+<area shape="rect" id="node50" href="$blockgraphsparse_8h.html" title="block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix&#45;vector multiplication imp..." alt="" coords="2957,95,3179,121"/>
+<area shape="rect" id="node15" href="$petscvector_8h.html" title="Header file with class delarations. " alt="" coords="2509,244,2611,271"/>
+<area shape="rect" id="node26" href="$common_8h.html" title="commonly used stuff " alt="" coords="3238,244,3375,271"/>
+<area shape="rect" id="node40" href="$arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="1138,244,1299,271"/>
+<area shape="rect" id="node41" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1324,244,1481,271"/>
+<area shape="rect" id="node42" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1505,244,1663,271"/>
+<area shape="rect" id="node43" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1687,244,1871,271"/>
+<area shape="rect" id="node44" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="4509,244,4680,271"/>
+<area shape="rect" id="node46" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="1895,244,2025,271"/>
+<area shape="rect" id="node47" href="$list_8h.html" title="solver/list.h" alt="" coords="2049,244,2138,271"/>
+<area shape="rect" id="node48" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="2163,244,2312,271"/>
+<area shape="rect" id="node49" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="2336,244,2485,271"/>
+<area shape="rect" id="node16" href="$petscvector__impl_8h.html" title="petscvector_impl.h" alt="" coords="2435,319,2567,345"/>
+<area shape="rect" id="node17" href="$wrappercomb__impl_8h.html" title="wrappercomb_impl.h" alt="" coords="1959,319,2102,345"/>
+<area shape="rect" id="node18" href="$wrappersub__impl_8h.html" title="wrappersub_impl.h" alt="" coords="2125,319,2256,345"/>
+<area shape="rect" id="node19" href="$wrappermul__impl_8h.html" title="wrappermul_impl.h" alt="" coords="2280,319,2411,345"/>
+<area shape="rect" id="node31" href="$timer_8h.html" title="for measuring time " alt="" coords="2950,319,3066,345"/>
+<area shape="rect" id="node32" href="$memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="3918,393,4087,420"/>
+<area shape="rect" id="node33" href="$powercheck_8h.html" title="common/powercheck.h" alt="" coords="3141,319,3299,345"/>
+<area shape="rect" id="node34" href="$globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="3307,393,3477,420"/>
+<area shape="rect" id="node35" href="$consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="3485,319,3653,345"/>
+<area shape="rect" id="node36" href="$consoleinput_8h.html" title="Manipulation with console arguments and parameters. " alt="" coords="3677,319,3837,345"/>
+<area shape="rect" id="node37" href="$logging_8h.html" title="Log files. " alt="" coords="4067,319,4195,345"/>
+<area shape="rect" id="node38" href="$mvnrnd_8h.html" title="common/mvnrnd.h" alt="" coords="3912,319,4043,345"/>
+<area shape="rect" id="node39" href="$shortinfo_8h.html" title="Manipulation with output file which includes short final information. " alt="" coords="3323,319,3461,345"/>
+<area shape="rect" id="node45" href="$bgmgraph_8h.html" title="class for manipulation with graphs " alt="" coords="4588,319,4724,345"/>
 </map>

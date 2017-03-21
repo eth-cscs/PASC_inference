@@ -17,8 +17,6 @@
   $(document).ready(function() { init_search(); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="my.css" rel="stylesheet" type="text/css"/>
-<link href="mytabs.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -108,6 +106,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_vars_v.html#index_v"><span>v</span></a></li>
       <li><a href="functions_vars_w.html#index_w"><span>w</span></a></li>
       <li><a href="functions_vars_x.html#index_x"><span>x</span></a></li>
+      <li><a href="functions_vars_y.html#index_y"><span>y</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -131,15 +130,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h3><a class="anchor" id="index_g"></a>- g -</h3><ul>
 <li>g
 : <a class="el" href="classpascinference_1_1solver_1_1CGQPSolver.html#a5fbe4f4371d8aee10b9e0af8afbda464">pascinference::solver::CGQPSolver&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a4ce8c4a1702e546a8ac645a684def2bc">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a76bdc19270ee78877f799c6a23474099">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a46c5c29228d7f098934fcfe0564939ed">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
 </li>
 <li>gamma
-: <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#af2b1a0de0d2c3bce43c1cbb2b13a4ca0">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#ab95733096a01e6dccb603589ad76d5fb">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#aee00d8e9346bb5e514b81ff8df378d52">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#af2b1a0de0d2c3bce43c1cbb2b13a4ca0">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a15e88f35f2334e697a00314c926c6e5d">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
 </li>
 <li>gammadata
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ad6973264c0fb5f103e2bb99bd100ec0e">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ab579d1333d327125b87c091f5d60a524">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ad6973264c0fb5f103e2bb99bd100ec0e">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>gammasolved
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#a3042f9077f01edb9f6c97af21a79fdf8">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
@@ -157,7 +160,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#afda79ef71c23ede99c861f7d533fb35c">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
 </li>
 <li>gammasolvertype
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a947695f862f41c54dc7aded4740fc645">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a23f2714c69a4e834bb589f2e346f69f7">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a947695f862f41c54dc7aded4740fc645">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>gammavector
 : <a class="el" href="classpascinference_1_1data_1_1TSData.html#a0f230a4cb081a14a7154ff182f6592a1">pascinference::data::TSData&lt; VectorBase &gt;</a>
@@ -165,20 +169,39 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>gammavector_temp
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#a5fe06d572593323dcf11dae86adb3ad0">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
 </li>
+<li>gnorms
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a2a4a6cd4ce4e4bf1a65f82c0d66e4578">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+</li>
 <li>gP
 : <a class="el" href="classpascinference_1_1solver_1_1PermonSolver.html#a4459695018e25f7e37e2137589905b22">pascinference::solver::PermonSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a852fe82ecfb4da2148b3ab2c9d117239">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a32abad0b7f7a9f32ce53978b57e99b73">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1TaoSolver.html#af7efb312c7069bf73926d60a99331d5b">pascinference::solver::TaoSolver&lt; VectorBase &gt;</a>
 </li>
 <li>graph
 : <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a63f66592319a13d7bd7ecf9a531c5be9">pascinference::algebra::Decomposition</a>
+</li>
+<li>grid1
+: <a class="el" href="classpascinference_1_1common_1_1Fem2D.html#a066bcb28a102762747c35626a30346b7">pascinference::common::Fem2D</a>
+</li>
+<li>grid2
+: <a class="el" href="classpascinference_1_1common_1_1Fem2D.html#a623abbb02eca1b2b4955f0a3983b3a16">pascinference::common::Fem2D</a>
+</li>
+<li>gridSize
+: <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#a0542083ae44fe013c8c8d63c229f6b83">pascinference::algebra::SimplexFeasibleSet_Local&lt; VectorBase &gt;</a>
+</li>
+<li>gridSize_prolongate
+: <a class="el" href="classpascinference_1_1common_1_1Fem.html#a5586e063a67087da6424d9de72a4dd71">pascinference::common::Fem</a>
+</li>
+<li>gridSize_reduce
+: <a class="el" href="classpascinference_1_1common_1_1Fem.html#a7ae2acc51f58c9c221dca5456ee9cc48">pascinference::common::Fem</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:07 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

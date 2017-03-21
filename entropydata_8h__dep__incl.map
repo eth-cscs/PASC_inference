@@ -1,0 +1,7 @@
+<map id="include/data/entropydata.h" name="include/data/entropydata.h">
+<area shape="rect" id="node2" href="$entropyh1fem_8h.html" title="include/model/entropyh1fem.h" alt="" coords="33,155,229,181"/>
+<area shape="rect" id="node5" href="$entropysolverdlib_8h.html" title="include/solver/entropysolverdlib.h" alt="" coords="23,80,238,107"/>
+<area shape="rect" id="node6" href="$entropysolverspg_8h.html" title="include/solver/entropysolverspg.h" alt="" coords="263,80,479,107"/>
+<area shape="rect" id="node3" href="$test__entropy_8cu.html" title="test the new entropy model (in collaboration with Anna) " alt="" coords="53,229,208,271"/>
+<area shape="rect" id="node4" href="$test__entropy_8cpp.html" title="examples/test_entropy\l/test_entropy.cpp" alt="" coords="53,319,208,360"/>
+</map>

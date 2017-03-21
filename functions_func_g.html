@@ -17,8 +17,6 @@
   $(document).ready(function() { init_search(); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="my.css" rel="stylesheet" type="text/css"/>
-<link href="mytabs.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -95,6 +93,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_i.html#index_i"><span>i</span></a></li>
       <li><a href="functions_func_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
+      <li><a href="functions_func_n.html#index_n"><span>n</span></a></li>
       <li><a href="functions_func_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_func_p.html#index_p"><span>p</span></a></li>
       <li><a href="functions_func_q.html#index_q"><span>q</span></a></li>
@@ -159,6 +158,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>get_aic()
 : <a class="el" href="classpascinference_1_1data_1_1TSData.html#aa4e371f307a7f5a65258135790fcdf2d">pascinference::data::TSData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#abd680a004cf99aab38f26b857534d565">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aaab6b25b901ab792bd2e2487dce29f02">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a94e90b6b645326829fc42602316597e9">pascinference::model::TSModel&lt; VectorBase &gt;</a>
 </li>
@@ -196,6 +196,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>get_data()
 : <a class="el" href="classpascinference_1_1solver_1_1DiagSolver.html#a9b2282b6cd052de8a40a24916325c8cd">pascinference::solver::DiagSolver&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#a598646c39f56bd845b36ac25d05ec239">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a8640e90426954ff6f171bfebd9ede542">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html#a803db3cec8d49e2ff749188d13ef518d">pascinference::solver::GeneralSolver</a>
 , <a class="el" href="classpascinference_1_1solver_1_1QPSolver.html#abad5c5c541b35268ec761de3badf8b6e">pascinference::solver::QPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SimpleSolver.html#a8704e05374dc7996c20660ad892edda0">pascinference::solver::SimpleSolver&lt; VectorBase &gt;</a>
@@ -259,10 +261,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html#a8f5da510524e151a6e0f0f62c05dd1e1">pascinference::solver::GeneralSolver</a>
 </li>
 <li>get_decomposition()
-: <a class="el" href="classpascinference_1_1data_1_1TSData.html#a2888bb4eb31b00b2970914aa55cf9207">pascinference::data::TSData&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#a5eebe796783bcbd88359c720238ed5b7">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1data_1_1TSData.html#a2888bb4eb31b00b2970914aa55cf9207">pascinference::data::TSData&lt; VectorBase &gt;</a>
+</li>
+<li>get_decomposition_original()
+: <a class="el" href="classpascinference_1_1common_1_1Fem.html#af02e81575f8326934d527430831a09c6">pascinference::common::Fem</a>
+</li>
+<li>get_decomposition_reduced()
+: <a class="el" href="classpascinference_1_1common_1_1Fem.html#a5c3086bc739c59537184f55c6a4966f7">pascinference::common::Fem</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a45d85bfdeb4678b9f8631f65a3888573">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>get_description()
 : <a class="el" href="classpascinference_1_1common_1_1ConsoleArgClass.html#aab09d581dae255d50d603267aeabe130">pascinference::common::ConsoleArgClass</a>
+</li>
+<li>get_device_energy()
+: <a class="el" href="classpascinference_1_1common_1_1PowerCheck.html#a795493a84346e7f609082690c212714d">pascinference::common::PowerCheck</a>
+</li>
+<li>get_diff()
+: <a class="el" href="classpascinference_1_1common_1_1Fem.html#a44a6b907c86d7c506505de8948d4c254">pascinference::common::Fem</a>
 </li>
 <li>get_dim()
 : <a class="el" href="classpascinference_1_1algebra_1_1BGMGraph.html#ac049c859a88f0325b513d903552e1f39">pascinference::algebra::BGMGraph</a>
@@ -273,8 +289,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>get_feasibleset()
 : <a class="el" href="classpascinference_1_1data_1_1QPData.html#a407906f4708924f5dc07b8020df72cb3">pascinference::data::QPData&lt; VectorBase &gt;</a>
 </li>
+<li>get_fem_reduce()
+: <a class="el" href="classpascinference_1_1common_1_1Fem.html#a474efaa4779f0eae1d7ce76070994fcb">pascinference::common::Fem</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a447dfad3d5bfa7846abc9f0b4cb7cd48">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+</li>
 <li>get_first_vector()
 : <a class="el" href="classpetscvector_1_1PetscVectorWrapperComb.html#aee41dd85d948095f6a3808b0556e3fcf">petscvector::PetscVectorWrapperComb</a>
+</li>
+<li>get_functions_grad()
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#a506166c417db6021f00535eef0a39a1a">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#af2401ad9233d2dd0f47dae40b654c932">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+</li>
+<li>get_functions_hess()
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#a3481a692f67194f7342aba4d255cacee">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a80d0f02827e3d7c230dea1121f0d831e">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+</li>
+<li>get_functions_obj()
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#a57ab4029b4693f299d4f7d7eed8685a6">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a0c074c67a9ac2464f237b11d5b536849">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
 </li>
 <li>get_fx()
 : <a class="el" href="classpascinference_1_1solver_1_1CGQPSolver.html#a623053fb9940a43dbc3e1ae19ca3809c">pascinference::solver::CGQPSolver&lt; VectorBase &gt;</a>
@@ -283,8 +315,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a8a79a2cb8245767bdc73c5d13a5532e3">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#abe0136cbff0685501f95893a76bcd26f">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
 </li>
+<li>get_gamma()
+: <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#aad44a0812f83617fdc091ad53b132357">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
+</li>
 <li>get_gammadata()
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ad712723d045bebe8321cd462fab90115">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ac77b36b73aafe1341192853bbe414ddf">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ad712723d045bebe8321cd462fab90115">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>get_gammasolver()
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#aed19cf3aae94d8c738f0cfb0c7a84326">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
@@ -294,7 +330,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>get_graph()
 : <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a323dd0dd745b37f9bd7218fdff9e886f">pascinference::algebra::Decomposition</a>
+, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a1a443918e853156a20b3549fb275def2">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a9f54b5f890912dc58d0f81608bb3f1ff">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+</li>
+<li>get_height()
+: <a class="el" href="classpascinference_1_1algebra_1_1BGMGraphGrid2D.html#a2b947b9a97c8c5bad3b3c5d90dc79ef6">pascinference::algebra::BGMGraphGrid2D</a>
 </li>
 <li>get_hessmult()
 : <a class="el" href="classpascinference_1_1solver_1_1CGQPSolver.html#afcb2fbb6d7f0e5a6e5111e75f1d3f019">pascinference::solver::CGQPSolver&lt; VectorBase &gt;</a>
@@ -316,17 +356,28 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>get_K()
 : <a class="el" href="classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#a48011315555853d612d7c583fae11907">pascinference::algebra::BlockGraphSparseMatrix&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ae40f8e1b48cddf6e673903f5455c6988">pascinference::algebra::Decomposition</a>
+, <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#ab0d18f9ac0f0b51767f82f192f93ad5b">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1TSData.html#a82171ac1c1863b81fe0a8a92d1fbc47f">pascinference::data::TSData&lt; VectorBase &gt;</a>
 </li>
+<li>get_Km()
+: <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#ac2e1aa5bab11f68d02644d01ecd43fef">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ac476e9823bc421d7b6fc9c44ade22509">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+</li>
 <li>get_L()
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aef392a678824be62a0f09c3830f2ebce">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a7df3226a5bf423750c687938a02c61be">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aef392a678824be62a0f09c3830f2ebce">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1model_1_1TSModel.html#aebad5441b2a9fd02a013e40dc7bc7f15">pascinference::model::TSModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#ab646f6021f3cb3889366d78d14920959">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
+</li>
+<li>get_lambda()
+: <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#a2f11d878dc596f4e5c6108a2d4f0cee9">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
 </li>
 <li>get_lb()
 : <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#a134fae25619dce9583a3256f350f85e6">pascinference::algebra::SimplexFeasibleSet_LinEqBound&lt; VectorBase &gt;</a>
 </li>
 <li>get_linear_quadratic()
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a0d687b1bb06758c9789d415ddc36a13b">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ae3159edac3a859a344e792b18a76a58a">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a0d687b1bb06758c9789d415ddc36a13b">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>get_listsize()
 : <a class="el" href="classpetscvector_1_1PetscVectorWrapperComb.html#aef700ce64230a47d7d04869f1505bf5c">petscvector::PetscVectorWrapperComb</a>
@@ -338,7 +389,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1algebra_1_1BGMGraph.html#a8b5db3abc527c1b6552775f0e54038b5">pascinference::algebra::BGMGraph</a>
 </li>
 <li>get_max()
-: <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver_1_1SPGQPSolver__fs.html#ad3f4390e94857d9b98acb8d0b47c7cb5">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;::SPGQPSolver_fs</a>
+: <a class="el" href="classpascinference_1_1solver_1_1SPG__fs.html#ac8ac8071b135e4044511b67d8bc15731">pascinference::solver::SPG_fs</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC_1_1SPGQPSolverC__fs.html#a60f18628f8c7f926f77fab6483064aa2">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;::SPGQPSolverC_fs</a>
 </li>
 <li>get_maxit()
@@ -351,23 +402,35 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1algebra_1_1BGMGraph.html#a2129f52fe42e7a5b80ef870560c78f25">pascinference::algebra::BGMGraph</a>
 </li>
 <li>get_name()
-: <a class="el" href="classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#adca28784368770641933f66b5aced2c3">pascinference::algebra::BlockGraphSparseMatrix&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1algebra_1_1BGMGraph.html#a12dee7757d74f94c2223954819fb8e6d">pascinference::algebra::BGMGraph</a>
+, <a class="el" href="classpascinference_1_1algebra_1_1BGMGraphGrid1D.html#ab34e9d7071946d044e4bb2918161553f">pascinference::algebra::BGMGraphGrid1D</a>
+, <a class="el" href="classpascinference_1_1algebra_1_1BGMGraphGrid2D.html#a1921cc1ec67d6146334dea7a099075e1">pascinference::algebra::BGMGraphGrid2D</a>
+, <a class="el" href="classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#adca28784368770641933f66b5aced2c3">pascinference::algebra::BlockGraphSparseMatrix&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1GeneralFeasibleSet.html#a096efaa338f66b45134e6c9896c1eaa2">pascinference::algebra::GeneralFeasibleSet&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1GeneralMatrix.html#a236c4dfb1c682758520edc1f1c2f1030">pascinference::algebra::GeneralMatrix&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1algebra_1_1GeneralVector.html#ae16c177945bfcb17c9b57d2193c7d567">pascinference::algebra::GeneralVector&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__LinEqBound.html#a6f94c03f9aaf50cb0c9b8368a4738e39">pascinference::algebra::SimplexFeasibleSet_LinEqBound&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#a7f32cd686da198154cbc2adc0599b21e">pascinference::algebra::SimplexFeasibleSet_Local&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1common_1_1Fem2D.html#a7aa2505a786aac0eefcb5ec2b3a3ec5b">pascinference::common::Fem2D</a>
+, <a class="el" href="classpascinference_1_1common_1_1Fem.html#a6594e61f7851b46d9bf74d59bc4c225c">pascinference::common::Fem</a>
+, <a class="el" href="classpascinference_1_1common_1_1FemHat.html#a55abf4566b35c837ee20062898c31e55">pascinference::common::FemHat</a>
 , <a class="el" href="classpascinference_1_1data_1_1DiagData.html#a71800abe0584b2c47fc23702b367bc47">pascinference::data::DiagData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1data_1_1EdfData.html#aefb52d47063d46fb3e076f6fcce03d69">pascinference::data::EdfData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#a8848f760626081fe6c20423468242465">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1GeneralData.html#a5cda61b6e29492dcfb5f68cbd49e0d9a">pascinference::data::GeneralData</a>
 , <a class="el" href="classpascinference_1_1data_1_1ImageData.html#adfe76e1f8358ebe019af4d76516c163e">pascinference::data::ImageData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1QPData.html#a50403bd0ffeabdc54a55af0d4d804a31">pascinference::data::QPData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1Signal1DData.html#ada98d6809e12f01a7b74d8b4a13cd0da">pascinference::data::Signal1DData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1SimpleData.html#a5ef3422749460aefb8fd4f7d2a191e8e">pascinference::data::SimpleData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1TSData.html#acd481fb8e364fa66bcce51f3029ded27">pascinference::data::TSData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a67b7cbedb9be4520b2bd778063e22287">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1model_1_1GeneralModel.html#a88329ee38bcaa923983bcdb9e9b33b9f">pascinference::model::GeneralModel</a>
 , <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a2584f20150c93ce762454b6825d98fa2">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a1c4d73b79e67de628184720cbe90ac0b">pascinference::model::TSModel&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1CGQPSolver.html#abdba8f55b2da91c46b759d26cde6bb48">pascinference::solver::CGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1DiagSolver.html#af6b53ec563601e167ef40cace1be8e70">pascinference::solver::DiagSolver&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#a005890f899d35ae9b5888ae6bc1c545b">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#ada190b1e19324d574f42a41d261f412f">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1GeneralSolver.html#acc6b2a30c7ac4a6bc33a8e237d4aed4e">pascinference::solver::GeneralSolver</a>
 , <a class="el" href="classpascinference_1_1solver_1_1MultiCGSolver.html#a882d249616e30ac7cf254579a4002e21">pascinference::solver::MultiCGSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1PermonSolver.html#a5d365324d67349e9307f03719667ffdb">pascinference::solver::PermonSolver&lt; VectorBase &gt;</a>
@@ -375,6 +438,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classpascinference_1_1solver_1_1SimpleSolver.html#a4fec4f5eeca85b9318e282168ae7945c">pascinference::solver::SimpleSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html#a85c33f2df8267408ec02e653c6d358ec">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC.html#a8f274435af5072785cd5be583a4f6f1b">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1TaoSolver.html#a4c8407b39c9762cbecc9ee6d292cbddc">pascinference::solver::TaoSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#a6162c3b59a8aa66af02051af46fe3603">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
 , <a class="el" href="classtest__namespace_1_1Testclass.html#a1402004b53ac7f5b36d5181061dfabaa">test_namespace::Testclass</a>
 </li>
@@ -390,11 +454,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>get_neighbor_nmbs_gpu()
 : <a class="el" href="classpascinference_1_1algebra_1_1BGMGraph.html#a85eacb47059e2f06bd90f3840cf6d7c5">pascinference::algebra::BGMGraph</a>
 </li>
+<li>get_node_energy()
+: <a class="el" href="classpascinference_1_1common_1_1PowerCheck.html#a4ce4524dbbf329cce238feac568f2fb9">pascinference::common::PowerCheck</a>
+</li>
 <li>get_ownership()
 : <a class="el" href="classpetscvector_1_1PetscVector.html#a49f5c93dd64251f6fb2bedf28b9112aa">petscvector::PetscVector</a>
 </li>
 <li>get_petscmatrix()
-: <a class="el" href="classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#ac0673026ac8ec6651f23c6ccbc2228ce">pascinference::algebra::BlockGraphSparseMatrix&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#a8e41641fd4dd018d63eb6cb9efa7fc96">pascinference::algebra::BlockGraphSparseMatrix&lt; VectorBase &gt;</a>
 </li>
 <li>get_physical()
 : <a class="el" href="classpascinference_1_1common_1_1MemoryCheck.html#a213779878a5890feb986f3c08dcb357c">pascinference::common::MemoryCheck</a>
@@ -409,6 +476,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>get_rank()
 : <a class="el" href="classpascinference_1_1common_1_1GlobalManagerClass.html#af8be4f440231f2a3bea10054766be439">pascinference::common::GlobalManagerClass</a>
+</li>
+<li>get_ranks_per_node()
+: <a class="el" href="classpascinference_1_1common_1_1PowerCheck.html#a9360f4e99b6695c3164d6355b22de692">pascinference::common::PowerCheck</a>
 </li>
 <li>get_Rbegin()
 : <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#aeda1fd8b9a5fd98e9f3f57502b114209">pascinference::algebra::Decomposition</a>
@@ -425,9 +495,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>get_size()
 : <a class="el" href="classpascinference_1_1common_1_1GlobalManagerClass.html#a7eab9bf2a9c42bec0e7b4bd705529956">pascinference::common::GlobalManagerClass</a>
-, <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver_1_1SPGQPSolver__fs.html#ad48c3157590ef89f3ea846ec648ccbae">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;::SPGQPSolver_fs</a>
+, <a class="el" href="classpascinference_1_1solver_1_1SPG__fs.html#a82e342d927d2504c72b5295a9f815814">pascinference::solver::SPG_fs</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC_1_1SPGQPSolverC__fs.html#a87af8eb796ccac6f9b1c34249155fc56">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;::SPGQPSolverC_fs</a>
 , <a class="el" href="classpetscvector_1_1PetscVectorWrapperCombNode.html#a91beddf16f324e69a45899390a50d79f">petscvector::PetscVectorWrapperCombNode</a>
+</li>
+<li>get_solution()
+: <a class="el" href="classpascinference_1_1data_1_1QPData.html#ab8ca2af8384cd3dbb9e979031e0495cf">pascinference::data::QPData&lt; VectorBase &gt;</a>
 </li>
 <li>get_subvector()
 : <a class="el" href="classpetscvector_1_1PetscVectorWrapperSub.html#a8c7a940d2561fa8d6b10fc418ede2920">petscvector::PetscVectorWrapperSub</a>
@@ -435,7 +508,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>get_T()
 : <a class="el" href="classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html#aa988915b86ab6440249ac3472acb1f1b">pascinference::algebra::BlockGraphSparseMatrix&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ab1c5efb69a8fdd05ba59aed9f37f4b7d">pascinference::algebra::Decomposition</a>
+, <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#a269d6c9a8265217291adeba551d1ae43">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1TSData.html#a3601c88945655fdc2b2a1ced97425053">pascinference::data::TSData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ab0187daabd286bacd6a0f05134fd01a9">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a638e181978a2597256cbb61bcbbb2070">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+</li>
+<li>get_T_reduced()
+: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a6e0805228f3a98f507945c8e99133996">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>get_Tbegin()
 : <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a51578e72215704c8172ab8e88fc9c779">pascinference::algebra::Decomposition</a>
@@ -446,7 +525,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classpascinference_1_1data_1_1TSData.html#a4b64d6ddfad8f820c0db6c6aa15681cc">pascinference::data::TSData&lt; VectorBase &gt;</a>
 </li>
 <li>get_thetadata()
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ab86eba8fbae083b50dd2e6d5fab892f0">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a08bb32e4b532373cd20f6580cf4379c6">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ab86eba8fbae083b50dd2e6d5fab892f0">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 <li>get_thetasolver()
 : <a class="el" href="classpascinference_1_1solver_1_1TSSolver.html#aac795e20fa9c268063e49f151ef8dc5d">pascinference::solver::TSSolver&lt; VectorBase &gt;</a>
@@ -469,7 +549,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classpascinference_1_1data_1_1TSData.html#a11383cfd09866e212767525add87d5e0">pascinference::data::TSData&lt; VectorBase &gt;</a>
 </li>
 <li>get_Tpreliminary()
-: <a class="el" href="classpascinference_1_1data_1_1Signal1DData.html#a5de59f80155c34f6038a036d0529eafe">pascinference::data::Signal1DData&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1data_1_1EdfData.html#a1ba85f4b0e41aec2b49e7c51fc046716">pascinference::data::EdfData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1data_1_1Signal1DData.html#a5de59f80155c34f6038a036d0529eafe">pascinference::data::Signal1DData&lt; VectorBase &gt;</a>
+</li>
+<li>get_type()
+: <a class="el" href="classpetscvector_1_1PetscVector.html#a61577d1e0c6ec9069d9f82ee2af0ef8d">petscvector::PetscVector</a>
 </li>
 <li>get_usethetainpenalty()
 : <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ac955858d4167a16bc11c6480e5805fe0">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
@@ -506,8 +590,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>get_virtual_used()
 : <a class="el" href="classpascinference_1_1common_1_1MemoryCheck.html#a237e827d6be47830856db64f5649518d">pascinference::common::MemoryCheck</a>
 </li>
+<li>get_width()
+: <a class="el" href="classpascinference_1_1algebra_1_1BGMGraphGrid1D.html#ab96f77279388900a0664a30be270e4f3">pascinference::algebra::BGMGraphGrid1D</a>
+, <a class="el" href="classpascinference_1_1algebra_1_1BGMGraphGrid2D.html#a8e0383ee61f651011021a008df6f203c">pascinference::algebra::BGMGraphGrid2D</a>
+</li>
 <li>get_x()
 : <a class="el" href="classpascinference_1_1data_1_1DiagData.html#a6b2216d84c49d6351ca847f9e87ba20a">pascinference::data::DiagData&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1data_1_1EntropyData.html#a3f4b898bb9560728970bce416aaf1155">pascinference::data::EntropyData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1QPData.html#a6f6185b0299654d6a4e1178d97b5721a">pascinference::data::QPData&lt; VectorBase &gt;</a>
 , <a class="el" href="classpascinference_1_1data_1_1SimpleData.html#a7eb7a73e90e43becf932b75c69ef9ac4">pascinference::data::SimpleData&lt; VectorBase &gt;</a>
 </li>
@@ -523,18 +612,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classpascinference_1_1common_1_1StackTimer.html#ab5cb16c227494dc6f183dd3cf06400dd">pascinference::common::StackTimer</a>
 , <a class="el" href="classpascinference_1_1common_1_1Timer.html#a5eeab3ca072daed9aa49783fe468e43c">pascinference::common::Timer</a>
 </li>
+<li>gg()
+: <a class="el" href="classpascinference_1_1solver_1_1EntropySolverDlib.html#afc19c1d1a645e0fb454f588c6acc62c1">pascinference::solver::EntropySolverDlib&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1solver_1_1EntropySolverSPG.html#a62a87e817c8840ad46a905759a1e1aa5">pascinference::solver::EntropySolverSPG&lt; VectorBase &gt;</a>
+</li>
 <li>GlobalManagerClass()
 : <a class="el" href="classpascinference_1_1common_1_1GlobalManagerClass.html#a73c7807bb9bf2c6f2a9d260bbc4bf864">pascinference::common::GlobalManagerClass</a>
 </li>
 <li>GraphH1FEMModel()
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a937683b2bf1e5159d5ae980d3e37b82f">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#ab58197260154f9a0f094c8fd31699efd">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:07 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

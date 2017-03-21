@@ -167,6 +167,14 @@ Private Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
+<tr class="memitem:ad7069fc5232fc9aead16ca3b69869ab3"><td class="memItemLeft" align="right" valign="top">double *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#ad7069fc5232fc9aead16ca3b69869ab3">x_sorted</a></td></tr>
+<tr class="separator:ad7069fc5232fc9aead16ca3b69869ab3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43010f04d1b4b65e994aab1c2963066e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#a43010f04d1b4b65e994aab1c2963066e">blockSize</a></td></tr>
+<tr class="separator:a43010f04d1b4b65e994aab1c2963066e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70c5c40d9793299dfe6704dd71344b69"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#a70c5c40d9793299dfe6704dd71344b69">minGridSize</a></td></tr>
+<tr class="separator:a70c5c40d9793299dfe6704dd71344b69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0542083ae44fe013c8c8d63c229f6b83"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#a0542083ae44fe013c8c8d63c229f6b83">gridSize</a></td></tr>
+<tr class="separator:a0542083ae44fe013c8c8d63c229f6b83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1b44663efe38ab9ff05d8c99087c4ee"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#aa1b44663efe38ab9ff05d8c99087c4ee">T</a></td></tr>
 <tr class="separator:aa1b44663efe38ab9ff05d8c99087c4ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac104879fdd144cace769611501b13b0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html#aac104879fdd144cace769611501b13b0">K</a></td></tr>
@@ -448,6 +456,52 @@ template&lt;class VectorBase &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="a43010f04d1b4b65e994aab1c2963066e"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorBase &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html">pascinference::algebra::SimplexFeasibleSet_Local</a>&lt; VectorBase &gt;::blockSize</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>block size returned by the launch configurator </p>
+
+</div>
+</div>
+<a class="anchor" id="a0542083ae44fe013c8c8d63c229f6b83"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorBase &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html">pascinference::algebra::SimplexFeasibleSet_Local</a>&lt; VectorBase &gt;::gridSize</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>the actual grid size needed, based on input size </p>
+
+</div>
+</div>
 <a class="anchor" id="aac104879fdd144cace769611501b13b0"></a>
 <div class="memitem">
 <div class="memproto">
@@ -468,6 +522,29 @@ template&lt;class VectorBase &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>size of each simplex subset </p>
+
+</div>
+</div>
+<a class="anchor" id="a70c5c40d9793299dfe6704dd71344b69"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorBase &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html">pascinference::algebra::SimplexFeasibleSet_Local</a>&lt; VectorBase &gt;::minGridSize</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>the minimum grid size needed to achieve the maximum occupancy for a full device launch </p>
 
 </div>
 </div>
@@ -494,6 +571,29 @@ template&lt;class VectorBase &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="ad7069fc5232fc9aead16ca3b69869ab3"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorBase &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double* <a class="el" href="classpascinference_1_1algebra_1_1SimplexFeasibleSet__Local.html">pascinference::algebra::SimplexFeasibleSet_Local</a>&lt; VectorBase &gt;::x_sorted</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>for manipulation with sorted data on GPU </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/algebra/feasibleset/<a class="el" href="simplex__local_8h_source.html">simplex_local.h</a></li>
 </ul>
@@ -501,7 +601,7 @@ template&lt;class VectorBase &gt; </div>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:04 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

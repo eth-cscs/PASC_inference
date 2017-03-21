@@ -1,5 +1,12 @@
 var searchData=
 [
+  ['edfdata',['EdfData',['../classpascinference_1_1data_1_1EdfData.html#a73805060c565e1a8b01eeddb58cbc90c',1,'pascinference::data::EdfData']]],
+  ['edfread',['edfRead',['../classpascinference_1_1data_1_1EdfData.html#ae695cfd7371fd5ed76169fb563127fb5',1,'pascinference::data::EdfData::edfRead(std::string filename, int max_record_nmb=-1)'],['../classpascinference_1_1data_1_1EdfData.html#a80dce7e3e71bc5278e649d885046eaa1',1,'pascinference::data::EdfData::edfRead(std::string filename, int max_record_nmb)']]],
   ['end',['end',['../classpascinference_1_1common_1_1LoggingClass.html#a106df4059ffc7188de41ca20e56d49eb',1,'pascinference::common::LoggingClass']]],
-  ['end_5ffunc',['end_func',['../classpascinference_1_1common_1_1LoggingClass.html#ac6193166182a5414a08ec76f3cb7aac6',1,'pascinference::common::LoggingClass']]]
+  ['end_5ffunc',['end_func',['../classpascinference_1_1common_1_1LoggingClass.html#ac6193166182a5414a08ec76f3cb7aac6',1,'pascinference::common::LoggingClass']]],
+  ['energy',['energy',['../classpascinference_1_1common_1_1Craypower.html#a0399ea58ddb93835960b8803467f5d83',1,'pascinference::common::Craypower']]],
+  ['entropydata',['EntropyData',['../classpascinference_1_1data_1_1EntropyData.html#a8aa63050077b5b2527650ffa9c86592e',1,'pascinference::data::EntropyData']]],
+  ['entropyh1femmodel',['EntropyH1FEMModel',['../classpascinference_1_1model_1_1EntropyH1FEMModel.html#a2d3eaf4746a5f48c542e28f35fe2fab5',1,'pascinference::model::EntropyH1FEMModel::EntropyH1FEMModel(TSData&lt; VectorBase &gt; &amp;tsdata, int Km, double epssqr)'],['../classpascinference_1_1model_1_1EntropyH1FEMModel.html#a1d1199f96d108e05de03d82836d04fe1',1,'pascinference::model::EntropyH1FEMModel::EntropyH1FEMModel(TSData&lt; PetscVector &gt; &amp;new_tsdata, int Km, double epssqr)']]],
+  ['entropysolverdlib',['EntropySolverDlib',['../classpascinference_1_1solver_1_1EntropySolverDlib.html#ade82039004b2f5f6cc3f041a181fe467',1,'pascinference::solver::EntropySolverDlib::EntropySolverDlib()'],['../classpascinference_1_1solver_1_1EntropySolverDlib.html#a5650791e60d1cb0069a0a3048c100037',1,'pascinference::solver::EntropySolverDlib::EntropySolverDlib(EntropyData&lt; VectorBase &gt; &amp;new_entropydata)']]],
+  ['entropysolverspg',['EntropySolverSPG',['../classpascinference_1_1solver_1_1EntropySolverSPG.html#aa296cad960c6473d214d85e88656ffc0',1,'pascinference::solver::EntropySolverSPG::EntropySolverSPG()'],['../classpascinference_1_1solver_1_1EntropySolverSPG.html#ae6363a9988b8a26be6de969f8b7cad12',1,'pascinference::solver::EntropySolverSPG::EntropySolverSPG(EntropyData&lt; VectorBase &gt; &amp;new_entropydata)']]]
 ];

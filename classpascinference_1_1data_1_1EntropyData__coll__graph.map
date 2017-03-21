@@ -1,0 +1,8 @@
+<map id="pascinference::data::EntropyData&lt; VectorBase &gt;" name="pascinference::data::EntropyData&lt; VectorBase &gt;">
+<area shape="rect" id="node2" href="$classpascinference_1_1data_1_1GeneralData.html" title="general class for manipulation with data " alt="" coords="5,1249,141,1429"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1algebra_1_1Decomposition.html" title="Manipulation with problem layout. " alt="" coords="165,1139,320,1539"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="166,676,319,1076"/>
+<area shape="rect" id="node5" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n|&#45; rnd\l|+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l+ get_name()\l}" alt="" coords="146,419,339,613"/>
+<area shape="rect" id="node6" href="$classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="93,132,264,356"/>
+<area shape="rect" id="node7" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="288,132,493,356"/>
+</map>

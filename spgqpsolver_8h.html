@@ -106,6 +106,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &quot;<a class="el" href="pascinference_8h_source.html">pascinference.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="qpsolver_8h_source.html">solver/qpsolver.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="qpdata_8h_source.html">data/qpdata.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="spg__fs_8h_source.html">solver/spg_fs.h</a>&quot;</code><br />
+<code>#include &lt;../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="blockgraphsparse_8h_source.html">algebra/matrix/blockgraphsparse.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="spgqpsolver__petsc_8h_source.html">solver/specific/spgqpsolver_petsc.h</a>&quot;</code><br />
 </div><div class="textblock"><div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Include dependency graph for spgqpsolver.h:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
@@ -113,7 +117,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="spgqpsolver_8h__incl.png" border="0" usemap="#include_2solver_2spgqpsolver_8h" alt=""/></div>
 <map name="include_2solver_2spgqpsolver_8h" id="include_2solver_2spgqpsolver_8h">
-<area shape="rect" id="node3" href="pascinference_8h.html" title="main header file " alt="" coords="1112,304,1226,331"/><area shape="rect" id="node38" href="qpsolver_8h.html" title="General Quadratic Programming solver. " alt="" coords="1108,80,1230,107"/><area shape="rect" id="node39" href="qpdata_8h.html" title="code for manipulation with Quadratic Programming data " alt="" coords="1022,229,1124,256"/><area shape="rect" id="node11" href="common_8h.html" title="commonly used stuff " alt="" coords="2095,379,2232,405"/><area shape="rect" id="node28" href="arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="528,379,690,405"/><area shape="rect" id="node29" href="generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="714,379,872,405"/><area shape="rect" id="node30" href="generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="896,379,1053,405"/><area shape="rect" id="node31" href="generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1077,379,1261,405"/><area shape="rect" id="node32" href="decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="1285,379,1456,405"/><area shape="rect" id="node34" href="generaldata_8h.html" title="general class for manipulation with data " alt="" coords="1480,379,1610,405"/><area shape="rect" id="node35" href="list_8h.html" title="solver/list.h" alt="" coords="1634,379,1723,405"/><area shape="rect" id="node36" href="generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="1748,379,1897,405"/><area shape="rect" id="node37" href="generalmodel_8h.html" title="class for manipulation with models " alt="" coords="1921,379,2070,405"/><area shape="rect" id="node16" href="timer_8h.html" title="for measuring time " alt="" coords="1215,453,1331,480"/><area shape="rect" id="node17" href="memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="1386,528,1555,555"/><area shape="rect" id="node18" href="globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="1734,528,1905,555"/><area shape="rect" id="node19" href="consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="1558,453,1726,480"/><area shape="rect" id="node20" href="consoleinput_8h.html" title="Manipulation with console arguments and parameters. " alt="" coords="2357,453,2517,480"/><area shape="rect" id="node25" href="logging_8h.html" title="Log files. " alt="" coords="1356,453,1484,480"/><area shape="rect" id="node26" href="mvnrnd_8h.html" title="common/mvnrnd.h" alt="" coords="1964,453,2094,480"/><area shape="rect" id="node27" href="shortinfo_8h.html" title="Manipulation with output file which includes short final information. " alt="" coords="1751,453,1888,480"/><area shape="rect" id="node23" href="options_8h.html" title="define command line options " alt="" coords="2496,528,2570,555"/><area shape="rect" id="node33" href="bgmgraph_8h.html" title="class for manipulation with graphs " alt="" coords="1054,453,1190,480"/><area shape="rect" id="node40" href="cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="1102,155,1236,181"/></map>
+<area shape="rect" id="node3" href="pascinference_8h.html" title="main header file " alt="" coords="2089,408,2204,435"/><area shape="rect" id="node44" href="qpsolver_8h.html" title="General Quadratic Programming solver. " alt="" coords="2618,177,2739,203"/><area shape="rect" id="node45" href="qpdata_8h.html" title="code for manipulation with Quadratic Programming data " alt="" coords="2676,333,2777,360"/><area shape="rect" id="node47" href="spg__fs_8h.html" title="solver/spg_fs.h" alt="" coords="3333,87,3443,114"/><area shape="rect" id="node49" href="blockgraphsparse_8h.html" title="block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix&#45;vector multiplication imp..." alt="" coords="3019,259,3240,285"/><area shape="rect" id="node50" href="spgqpsolver__petsc_8h.html" title="SPG&#45;QP PETSc specific implementation. " alt="" coords="2827,80,3007,121"/><area shape="rect" id="node13" href="petscvector_8h.html" title="Header file with class delarations. " alt="" coords="2184,483,2285,509"/><area shape="rect" id="node25" href="common_8h.html" title="commonly used stuff " alt="" coords="2479,483,2617,509"/><area shape="rect" id="node34" href="arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="711,483,873,509"/><area shape="rect" id="node35" href="generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="897,483,1055,509"/><area shape="rect" id="node36" href="generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1079,483,1236,509"/><area shape="rect" id="node37" href="generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1260,483,1444,509"/><area shape="rect" id="node38" href="decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="3332,483,3503,509"/><area shape="rect" id="node40" href="generaldata_8h.html" title="general class for manipulation with data " alt="" coords="1469,483,1598,509"/><area shape="rect" id="node41" href="list_8h.html" title="solver/list.h" alt="" coords="1622,483,1711,509"/><area shape="rect" id="node42" href="generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="1736,483,1885,509"/><area shape="rect" id="node43" href="generalmodel_8h.html" title="class for manipulation with models " alt="" coords="1909,483,2059,509"/><area shape="rect" id="node15" href="petscvector__impl_8h.html" title="petscvector_impl.h" alt="" coords="1467,557,1599,584"/><area shape="rect" id="node16" href="wrappercomb__impl_8h.html" title="wrappercomb_impl.h" alt="" coords="1623,557,1766,584"/><area shape="rect" id="node17" href="wrappersub__impl_8h.html" title="wrappersub_impl.h" alt="" coords="1789,557,1920,584"/><area shape="rect" id="node18" href="wrappermul__impl_8h.html" title="wrappermul_impl.h" alt="" coords="1944,557,2075,584"/><area shape="rect" id="node30" href="timer_8h.html" title="for measuring time " alt="" coords="2162,557,2278,584"/><area shape="rect" id="node31" href="memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="2302,557,2471,584"/><area shape="rect" id="node32" href="powercheck_8h.html" title="common/powercheck.h" alt="" coords="2496,557,2653,584"/><area shape="rect" id="node33" href="globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="2677,557,2848,584"/><area shape="rect" id="node39" href="bgmgraph_8h.html" title="class for manipulation with graphs " alt="" coords="3419,557,3555,584"/><area shape="rect" id="node46" href="cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="2554,259,2689,285"/></map>
 </div>
 </div><div class="textblock"><div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-1-trigger" src="closed.png" alt="+"/> This graph shows which files directly or indirectly include this file:</div>
@@ -122,7 +126,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-1-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="spgqpsolver_8h__dep__incl.png" border="0" usemap="#include_2solver_2spgqpsolver_8hdep" alt=""/></div>
 <map name="include_2solver_2spgqpsolver_8hdep" id="include_2solver_2spgqpsolver_8hdep">
-<area shape="rect" id="node2" href="graphh1fem_8h.html" title="include/model/graphh1fem.h" alt="" coords="96,244,281,271"/><area shape="rect" id="node7" href="qpsolver_8h.html" title="General Quadratic Programming solver. " alt="" coords="375,80,541,107"/><area shape="rect" id="node3" href="test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="253,319,399,360"/><area shape="rect" id="node5" href="test__signal1D_8cu.html" title="examples/test_signal1D\l/test_signal1D.cu" alt="" coords="493,319,655,360"/><area shape="rect" id="node4" href="test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="253,408,399,449"/><area shape="rect" id="node6" href="test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="493,408,655,449"/><area shape="rect" id="node8" href="cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="496,162,676,189"/><area shape="rect" id="node9" href="multicg_8h.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="379,244,537,271"/><area shape="rect" id="node10" href="permonsolver_8h.html" title="solve QP with solvers implemented in Permon library " alt="" coords="226,162,421,189"/><area shape="rect" id="node11" href="spgqpsolver__coeff_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs with special case of matrix coeffic..." alt="" coords="26,155,202,196"/><area shape="rect" id="node12" href="tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="562,244,725,271"/></map>
+<area shape="rect" id="node2" href="entropyh1fem_8h.html" title="include/model/entropyh1fem.h" alt="" coords="732,244,928,271"/><area shape="rect" id="node5" href="graphh1fem_8h.html" title="include/model/graphh1fem.h" alt="" coords="335,244,520,271"/><area shape="rect" id="node12" href="qpsolver_8h.html" title="General Quadratic Programming solver. " alt="" coords="344,80,511,107"/><area shape="rect" id="node3" href="test__entropy_8cu.html" title="test the new entropy model (in collaboration with Anna) " alt="" coords="738,319,893,360"/><area shape="rect" id="node4" href="test__entropy_8cpp.html" title="examples/test_entropy\l/test_entropy.cpp" alt="" coords="738,408,893,449"/><area shape="rect" id="node6" href="test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="391,319,538,360"/><area shape="rect" id="node8" href="test__neuro_8cu.html" title="test the neuro filtering possibilities " alt="" coords="563,319,705,360"/><area shape="rect" id="node10" href="test__signal1D_8cu.html" title="test the kmeans problem solver on simple 1D signal problem " alt="" coords="205,319,367,360"/><area shape="rect" id="node7" href="test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="391,408,538,449"/><area shape="rect" id="node9" href="test__neuro_8cpp.html" title="examples/test_neuro\l/test_neuro.cpp" alt="" coords="563,408,705,449"/><area shape="rect" id="node11" href="test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="205,408,367,449"/><area shape="rect" id="node13" href="cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="84,162,264,189"/><area shape="rect" id="node14" href="multicg_8h.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="5,244,164,271"/><area shape="rect" id="node15" href="permonsolver_8h.html" title="solve QP with solvers implemented in Permon library " alt="" coords="734,162,929,189"/><area shape="rect" id="node16" href="spgqpsolver__petsc_8h.html" title="SPG&#45;QP PETSc specific implementation. " alt="" coords="953,155,1104,196"/><area shape="rect" id="node17" href="spgqpsolver__coeff_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs with special case of matrix coeffic..." alt="" coords="339,155,515,196"/><area shape="rect" id="node18" href="taosolver_8h.html" title="solve QP with TAO solvers " alt="" coords="539,162,710,189"/><area shape="rect" id="node19" href="tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="545,244,707,271"/></map>
 </div>
 </div>
 <p><a href="spgqpsolver_8h_source.html">Go to the source code of this file.</a></p>
@@ -131,9 +135,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver.html">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spectral Projected Gradient method for Quadratic Programs.  <a href="classpascinference_1_1solver_1_1SPGQPSolver.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver_1_1SPGQPSolver__fs.html">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;::SPGQPSolver_fs</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">generalized Armijo condition  <a href="classpascinference_1_1solver_1_1SPGQPSolver_1_1SPGQPSolver__fs.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -147,7 +148,7 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a2e253144fa8cb9f25e5dcb3deb4971da"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a2e253144fa8cb9f25e5dcb3deb4971da">SPGQPSOLVER_DEFAULT_MAXIT</a>&#160;&#160;&#160;500</td></tr>
+<tr class="memitem:a2e253144fa8cb9f25e5dcb3deb4971da"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a2e253144fa8cb9f25e5dcb3deb4971da">SPGQPSOLVER_DEFAULT_MAXIT</a>&#160;&#160;&#160;1000</td></tr>
 <tr class="separator:a2e253144fa8cb9f25e5dcb3deb4971da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21e771815e63965a374ff072019e8efd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a21e771815e63965a374ff072019e8efd">SPGQPSOLVER_DEFAULT_EPS</a>&#160;&#160;&#160;1e-9</td></tr>
 <tr class="separator:a21e771815e63965a374ff072019e8efd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -163,7 +164,7 @@ Macros</h2></td></tr>
 <tr class="separator:af8c3c87d9536c162aa600e89038832c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ec21eb4e05415a127e96c3747440785"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a3ec21eb4e05415a127e96c3747440785">SPGQPSOLVER_DEFAULT_ALPHAINIT</a>&#160;&#160;&#160;2.0</td></tr>
 <tr class="separator:a3ec21eb4e05415a127e96c3747440785"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1bc449b3bb0740abae6d09550c55ea29"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a1bc449b3bb0740abae6d09550c55ea29">SPGQPSOLVER_STOP_NORMGP</a>&#160;&#160;&#160;true</td></tr>
+<tr class="memitem:a1bc449b3bb0740abae6d09550c55ea29"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a1bc449b3bb0740abae6d09550c55ea29">SPGQPSOLVER_STOP_NORMGP</a>&#160;&#160;&#160;false</td></tr>
 <tr class="separator:a1bc449b3bb0740abae6d09550c55ea29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afce92a308de37e61451f38d3f09fc8f7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#afce92a308de37e61451f38d3f09fc8f7">SPGQPSOLVER_STOP_ANORMGP</a>&#160;&#160;&#160;false</td></tr>
 <tr class="separator:afce92a308de37e61451f38d3f09fc8f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,8 +172,12 @@ Macros</h2></td></tr>
 <tr class="separator:ae97ca7a7b9c2967bf3576e18d64dd6b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ce1fa5625775e76293d768f71a5e318"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a1ce1fa5625775e76293d768f71a5e318">SPGQPSOLVER_STOP_ANORMGP_NORMB</a>&#160;&#160;&#160;false</td></tr>
 <tr class="separator:a1ce1fa5625775e76293d768f71a5e318"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae05aa5067c0ad8674ba30f953eb85d4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#aae05aa5067c0ad8674ba30f953eb85d4">SPGQPSOLVER_STOP_DIFFF</a>&#160;&#160;&#160;false</td></tr>
+<tr class="memitem:aae05aa5067c0ad8674ba30f953eb85d4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#aae05aa5067c0ad8674ba30f953eb85d4">SPGQPSOLVER_STOP_DIFFF</a>&#160;&#160;&#160;true</td></tr>
 <tr class="separator:aae05aa5067c0ad8674ba30f953eb85d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ddfb23e3aa6ee69ed4700a88e0e46b9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a6ddfb23e3aa6ee69ed4700a88e0e46b9">SPGQPSOLVER_MONITOR</a>&#160;&#160;&#160;false</td></tr>
+<tr class="separator:a6ddfb23e3aa6ee69ed4700a88e0e46b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e3430bfc22580ee049448b4c31e98ac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spgqpsolver_8h.html#a4e3430bfc22580ee049448b4c31e98ac">SPGQPSOLVER_DUMP</a>&#160;&#160;&#160;false</td></tr>
+<tr class="separator:a4e3430bfc22580ee049448b4c31e98ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Spectral Projected Gradient method for solving Quadratic Programs. </p>
@@ -243,7 +248,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SPGQPSOLVER_DEFAULT_MAXIT&#160;&#160;&#160;500</td>
+          <td class="memname">#define SPGQPSOLVER_DEFAULT_MAXIT&#160;&#160;&#160;1000</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -268,6 +273,30 @@ Macros</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">#define SPGQPSOLVER_DEFAULT_SIGMA2&#160;&#160;&#160;1.0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4e3430bfc22580ee049448b4c31e98ac"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SPGQPSOLVER_DUMP&#160;&#160;&#160;false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6ddfb23e3aa6ee69ed4700a88e0e46b9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SPGQPSOLVER_MONITOR&#160;&#160;&#160;false</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -303,7 +332,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SPGQPSOLVER_STOP_DIFFF&#160;&#160;&#160;false</td>
+          <td class="memname">#define SPGQPSOLVER_STOP_DIFFF&#160;&#160;&#160;true</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -315,7 +344,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SPGQPSOLVER_STOP_NORMGP&#160;&#160;&#160;true</td>
+          <td class="memname">#define SPGQPSOLVER_STOP_NORMGP&#160;&#160;&#160;false</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -338,7 +367,7 @@ Macros</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:04 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

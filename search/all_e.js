@@ -18,5 +18,10 @@ var searchData=
   ['operator_3d_3d',['operator==',['../classpetscvector_1_1PetscVectorWrapperSub.html#ac5d9a72753252a729aeaaab4bf9a39ad',1,'petscvector::PetscVectorWrapperSub::operator==()'],['../classpetscvector_1_1PetscVectorWrapperSub.html#a002ff38f61d40791fc3e5eb10fa9bca6',1,'petscvector::PetscVectorWrapperSub::operator==()'],['../namespacepetscvector.html#a9cc9abaa192fbb1d376db93986d16cc3',1,'petscvector::operator==(PetscVectorWrapperSub subvec, double alpha)'],['../namespacepetscvector.html#a2330b6c3fcd9ddae22bef209f2c2bb56',1,'petscvector::operator==(PetscVectorWrapperSub subvec1, PetscVectorWrapperSub subvec2)']]],
   ['operator_3e',['operator&gt;',['../classpetscvector_1_1PetscVectorWrapperSub.html#a38b68e334f8985ee754285cb690231f1',1,'petscvector::PetscVectorWrapperSub::operator&gt;()'],['../namespacepetscvector.html#a3bf8e4d6666a7c25cb8471fb3e83b843',1,'petscvector::operator&gt;()']]],
   ['options_2eh',['options.h',['../options_8h.html',1,'']]],
-  ['output',['output',['../classpascinference_1_1common_1_1ConsoleOutput_1_1ConsoleOutputBuf.html#a75d141db67a8060c9eaf44c155dece6d',1,'pascinference::common::ConsoleOutput::ConsoleOutputBuf']]]
+  ['output',['output',['../classpascinference_1_1common_1_1ConsoleOutput_1_1ConsoleOutputBuf.html#a75d141db67a8060c9eaf44c155dece6d',1,'pascinference::common::ConsoleOutput::ConsoleOutputBuf']]],
+  ['overlap1_5fidx',['overlap1_idx',['../classpascinference_1_1common_1_1Fem2D.html#ad4184bef8e99fde40db7a0a47a4f3116',1,'pascinference::common::Fem2D']]],
+  ['overlap1_5fidx_5fsize',['overlap1_idx_size',['../classpascinference_1_1common_1_1Fem2D.html#ac76f501b0495c5707af0b9aa576c4e42',1,'pascinference::common::Fem2D']]],
+  ['overlap2_5fidx',['overlap2_idx',['../classpascinference_1_1common_1_1Fem2D.html#ab535693b96aff3f7d56a6670bb028044',1,'pascinference::common::Fem2D']]],
+  ['overlap2_5fidx_5fsize',['overlap2_idx_size',['../classpascinference_1_1common_1_1Fem2D.html#a3319ff77a953c7cf2d0f1ada534aa888',1,'pascinference::common::Fem2D']]],
+  ['petscvector_5fall_5ftype',['petscvector_all_type',['../classpascinference_1_1algebra_1_1General__all__type.html#a3f5976257ebfb338eaf14f438575cf73',1,'pascinference::algebra::General_all_type']]]
 ];

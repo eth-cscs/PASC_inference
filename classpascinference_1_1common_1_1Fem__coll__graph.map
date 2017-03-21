@@ -1,0 +1,7 @@
+<map id="pascinference::common::Fem" name="pascinference::common::Fem">
+<area shape="rect" id="node2" href="$classpascinference_1_1algebra_1_1Decomposition.html" title="Manipulation with problem layout. " alt="" coords="77,1139,232,1539"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="78,676,231,1076"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n|&#45; rnd\l|+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l+ get_name()\l}" alt="" coords="58,419,251,613"/>
+<area shape="rect" id="node5" href="$classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="5,132,176,356"/>
+<area shape="rect" id="node6" href="$classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="200,132,405,356"/>
+</map>

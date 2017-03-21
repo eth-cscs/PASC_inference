@@ -1,48 +1,51 @@
 <map id="include/algebra/bgmgraph.h" name="include/algebra/bgmgraph.h">
-<area shape="rect" id="node2" href="$blockgraphsparse_8h.html" title="block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix&#45;vector multiplication imp..." alt="" coords="4807,229,4956,271"/>
-<area shape="rect" id="node10" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="3292,80,3508,107"/>
-<area shape="rect" id="node44" href="$imagedata_8h.html" title="class for manipulation with image data " alt="" coords="2926,519,3093,546"/>
-<area shape="rect" id="node3" href="$test__blockgraphsparsematrix_8cu.html" title="examples/test_classes\l/algebra/test_blockgraphsparsematrix.cu" alt="" coords="4755,326,5013,367"/>
-<area shape="rect" id="node5" href="$graphh1fem_8h.html" title="include/model/graphh1fem.h" alt="" coords="3665,601,3850,628"/>
-<area shape="rect" id="node4" href="$test__blockgraphsparsematrix_8cpp.html" title="test class and methods: BlockGraphSparseMatrix " alt="" coords="4751,423,5015,464"/>
-<area shape="rect" id="node6" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="3013,676,3160,717"/>
-<area shape="rect" id="node8" href="$test__signal1D_8cu.html" title="examples/test_signal1D\l/test_signal1D.cu" alt="" coords="3552,676,3715,717"/>
-<area shape="rect" id="node7" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="3013,765,3160,807"/>
-<area shape="rect" id="node9" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="3552,765,3715,807"/>
-<area shape="rect" id="node11" href="$pascinference_8h.html" title="main header file " alt="" coords="3321,155,3479,181"/>
-<area shape="rect" id="node12" href="$test__bgmgraph_8cu.html" title="examples/test_classes\l/algebra/test_bgmgraph.cu" alt="" coords="93,229,269,271"/>
-<area shape="rect" id="node14" href="$test__bgmgraphgrid1D_8cu.html" title="examples/test_classes\l/algebra/test_bgmgraphgrid1D.cu" alt="" coords="294,229,509,271"/>
-<area shape="rect" id="node16" href="$test__bgmgraphgrid2D_8cu.html" title="examples/test_classes\l/algebra/test_bgmgraphgrid2D.cu" alt="" coords="533,229,747,271"/>
-<area shape="rect" id="node18" href="$test__consolearg_8cpp.html" title="test class and methods: ConsoleArg " alt="" coords="772,229,969,271"/>
-<area shape="rect" id="node19" href="$test__consoleoutput_8cpp.html" title="test class and methods: ConsoleOutput " alt="" coords="994,229,1209,271"/>
-<area shape="rect" id="node20" href="$test__globalmanager_8cpp.html" title="test class and methods: GlobalManagerClass and GlobalManager " alt="" coords="1233,229,1452,271"/>
-<area shape="rect" id="node21" href="$test__logging_8cpp.html" title="test class and methods: LoggingClass and logging " alt="" coords="1477,229,1651,271"/>
-<area shape="rect" id="node22" href="$test__memorycheck_8cpp.html" title="test class and methods: MemoryCheck " alt="" coords="1676,229,1892,271"/>
-<area shape="rect" id="node23" href="$test__offset_8cpp.html" title="test class and methods: Offset " alt="" coords="1917,229,2083,271"/>
-<area shape="rect" id="node24" href="$test__shortinfo_8cpp.html" title="test class and methods: ShortinfoClass and shortinfo " alt="" coords="2108,229,2292,271"/>
-<area shape="rect" id="node25" href="$test__timer_8cpp.html" title="test class and methods: Timer and StackTimer " alt="" coords="2316,229,2479,271"/>
-<area shape="rect" id="node26" href="$simplex__lineqbound_8h.html" title="simplex feasible set defined by linear equality constraints and bound constraints ..." alt="" coords="2503,229,2679,271"/>
-<area shape="rect" id="node27" href="$simplex__local_8h.html" title="simplex feasible set for petscvector with local problems " alt="" coords="3528,423,3704,464"/>
-<area shape="rect" id="node28" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="2703,237,2932,263"/>
-<area shape="rect" id="node29" href="$diagdata_8h.html" title="class for manipulation with data for systems of linear equations with diagonal matrix ..." alt="" coords="3007,237,3163,263"/>
-<area shape="rect" id="node30" href="$diagsolver_8h.html" title="Solver for linear systems with diagonal matrix. " alt="" coords="2997,333,3173,360"/>
-<area shape="rect" id="node31" href="$tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="3117,519,3280,546"/>
-<area shape="rect" id="node32" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="3187,237,3362,263"/>
-<area shape="rect" id="node33" href="$qpdata_8h.html" title="code for manipulation with Quadratic Programming data " alt="" coords="4229,237,4376,263"/>
-<area shape="rect" id="node34" href="$cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="3929,333,4109,360"/>
-<area shape="rect" id="node35" href="$multicg_8h.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="4094,519,4253,546"/>
-<area shape="rect" id="node36" href="$qpsolver_8h.html" title="General Quadratic Programming solver. " alt="" coords="3907,430,4074,457"/>
-<area shape="rect" id="node37" href="$permonsolver_8h.html" title="solve QP with solvers implemented in Permon library " alt="" coords="3875,519,4069,546"/>
-<area shape="rect" id="node38" href="$spgqpsolver_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs. " alt="" coords="3664,519,3851,546"/>
-<area shape="rect" id="node39" href="$spgqpsolver__coeff_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs with special case of matrix coeffic..." alt="" coords="4277,512,4453,553"/>
-<area shape="rect" id="node40" href="$simpledata_8h.html" title="class for manipulation with data for problems where solution is computed elsewhere ..." alt="" coords="4552,237,4723,263"/>
-<area shape="rect" id="node41" href="$simplesolver_8h.html" title="Solver which doesn&#39;t do anything. " alt="" coords="4489,333,4679,360"/>
-<area shape="rect" id="node42" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="3741,237,3936,263"/>
-<area shape="rect" id="node43" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="3249,333,3412,360"/>
-<area shape="rect" id="node47" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="4011,237,4205,263"/>
-<area shape="rect" id="node13" href="$test__bgmgraph_8cpp.html" title="test class and methods: BGMGraph " alt="" coords="94,326,277,367"/>
-<area shape="rect" id="node15" href="$test__bgmgraphgrid1D_8cpp.html" title="test class and methods: BGMGraphGrid1D " alt="" coords="308,319,495,375"/>
-<area shape="rect" id="node17" href="$test__bgmgraphgrid2D_8cpp.html" title="test class and methods: BGMGraphGrid2D " alt="" coords="547,319,733,375"/>
-<area shape="rect" id="node45" href="$signal1Ddata_8h.html" title="class for manipulation with one dimensional data " alt="" coords="3305,519,3487,546"/>
-<area shape="rect" id="node46" href="$tsdata_8h.html" title="include/data/tsdata.h" alt="" coords="3259,430,3402,457"/>
+<area shape="rect" id="node2" href="$bgmgraphgrid1D_8h.html" title="class for manipulation with 1D grid " alt="" coords="5,80,151,121"/>
+<area shape="rect" id="node3" href="$bgmgraphgrid2D_8h.html" title="class for manipulation with 2D grid " alt="" coords="175,80,320,121"/>
+<area shape="rect" id="node6" href="$blockgraphsparse_8h.html" title="block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix&#45;vector multiplication imp..." alt="" coords="893,244,1042,285"/>
+<area shape="rect" id="node20" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="1893,87,2109,114"/>
+<area shape="rect" id="node48" href="$edfdata_8h.html" title="include/data/edfdata.h" alt="" coords="515,341,665,367"/>
+<area shape="rect" id="node49" href="$imagedata_8h.html" title="class for manipulation with image data " alt="" coords="324,341,491,367"/>
+<area shape="rect" id="node4" href="$fem2D_8h.html" title="include/common/fem2D.h" alt="" coords="150,169,321,196"/>
+<area shape="rect" id="node5" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="255,765,402,807"/>
+<area shape="rect" id="node7" href="$test__blockgraphsparsematrix_8cu.html" title="examples/test_classes\l/algebra/test_blockgraphsparsematrix.cu" alt="" coords="995,333,1252,375"/>
+<area shape="rect" id="node9" href="$entropyh1fem_8h.html" title="include/model/entropyh1fem.h" alt="" coords="2375,691,2571,717"/>
+<area shape="rect" id="node11" href="$graphh1fem_8h.html" title="include/model/graphh1fem.h" alt="" coords="1708,691,1893,717"/>
+<area shape="rect" id="node14" href="$spgqpsolver__petsc_8h.html" title="SPG&#45;QP PETSc specific implementation. " alt="" coords="1276,333,1427,375"/>
+<area shape="rect" id="node15" href="$spgqpsolver_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs. " alt="" coords="1393,430,1579,457"/>
+<area shape="rect" id="node8" href="$test__blockgraphsparsematrix_8cpp.html" title="test class and methods: BlockGraphSparseMatrix " alt="" coords="991,423,1255,464"/>
+<area shape="rect" id="node10" href="$test__entropy_8cu.html" title="test the new entropy model (in collaboration with Anna) " alt="" coords="2717,765,2871,807"/>
+<area shape="rect" id="node12" href="$test__neuro_8cu.html" title="test the neuro filtering possibilities " alt="" coords="1729,765,1872,807"/>
+<area shape="rect" id="node13" href="$test__signal1D_8cu.html" title="test the kmeans problem solver on simple 1D signal problem " alt="" coords="2374,765,2537,807"/>
+<area shape="rect" id="node16" href="$qpsolver_8h.html" title="General Quadratic Programming solver. " alt="" coords="1393,519,1560,546"/>
+<area shape="rect" id="node17" href="$cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="1265,609,1445,635"/>
+<area shape="rect" id="node18" href="$multicg_8h.html" title="Conjugate Gradient method for solving Quadratic Programs with BlockDiag matrix. " alt="" coords="1340,691,1499,717"/>
+<area shape="rect" id="node19" href="$permonsolver_8h.html" title="solve QP with solvers implemented in Permon library " alt="" coords="1990,609,2185,635"/>
+<area shape="rect" id="node21" href="$pascinference_8h.html" title="main header file " alt="" coords="3049,169,3208,196"/>
+<area shape="rect" id="node22" href="$test__bgmgraph_8cu.html" title="examples/test_classes\l/algebra/test_bgmgraph.cu" alt="" coords="2478,244,2654,285"/>
+<area shape="rect" id="node23" href="$test__bgmgraphgrid1D_8cu.html" title="examples/test_classes\l/algebra/test_bgmgraphgrid1D.cu" alt="" coords="2679,244,2893,285"/>
+<area shape="rect" id="node24" href="$test__bgmgraphgrid2D_8cu.html" title="examples/test_classes\l/algebra/test_bgmgraphgrid2D.cu" alt="" coords="2917,244,3132,285"/>
+<area shape="rect" id="node25" href="$test__dot_8cu.html" title="test the speed of dot product computation " alt="" coords="3156,244,3312,285"/>
+<area shape="rect" id="node26" href="$test__consolearg_8cpp.html" title="test class and methods: ConsoleArg " alt="" coords="3337,244,3534,285"/>
+<area shape="rect" id="node27" href="$test__consoleoutput_8cpp.html" title="test class and methods: ConsoleOutput " alt="" coords="3559,244,3773,285"/>
+<area shape="rect" id="node28" href="$test__globalmanager_8cpp.html" title="test class and methods: GlobalManagerClass and GlobalManager " alt="" coords="3798,244,4017,285"/>
+<area shape="rect" id="node29" href="$test__logging_8cpp.html" title="test class and methods: LoggingClass and logging " alt="" coords="4041,244,4216,285"/>
+<area shape="rect" id="node30" href="$test__memorycheck_8cpp.html" title="test class and methods: MemoryCheck " alt="" coords="4241,244,4457,285"/>
+<area shape="rect" id="node31" href="$test__offset_8cpp.html" title="test class and methods: Offset " alt="" coords="4481,244,4648,285"/>
+<area shape="rect" id="node32" href="$test__shortinfo_8cpp.html" title="test class and methods: ShortinfoClass and shortinfo " alt="" coords="4673,244,4857,285"/>
+<area shape="rect" id="node33" href="$test__timer_8cpp.html" title="test class and methods: Timer and StackTimer " alt="" coords="4881,244,5043,285"/>
+<area shape="rect" id="node34" href="$simplex__lineqbound_8h.html" title="simplex feasible set defined by linear equality constraints and bound constraints ..." alt="" coords="2134,512,2310,553"/>
+<area shape="rect" id="node35" href="$simplex__local_8h.html" title="simplex feasible set for petscvector with local problems " alt="" coords="2259,601,2435,643"/>
+<area shape="rect" id="node36" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="5067,251,5297,278"/>
+<area shape="rect" id="node37" href="$diagdata_8h.html" title="class for manipulation with data for systems of linear equations with diagonal matrix ..." alt="" coords="6259,251,6415,278"/>
+<area shape="rect" id="node38" href="$diagsolver_8h.html" title="Solver for linear systems with diagonal matrix. " alt="" coords="6269,341,6445,367"/>
+<area shape="rect" id="node39" href="$entropydata_8h.html" title="class for manipulation with data for entropy problems " alt="" coords="5372,251,5547,278"/>
+<area shape="rect" id="node40" href="$entropysolverdlib_8h.html" title="include/solver/entropysolverdlib.h" alt="" coords="2479,341,2693,367"/>
+<area shape="rect" id="node41" href="$entropysolverspg_8h.html" title="include/solver/entropysolverspg.h" alt="" coords="5351,341,5567,367"/>
+<area shape="rect" id="node42" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="5571,251,5745,278"/>
+<area shape="rect" id="node43" href="$qpdata_8h.html" title="code for manipulation with Quadratic Programming data " alt="" coords="1585,251,1731,278"/>
+<area shape="rect" id="node44" href="$simpledata_8h.html" title="class for manipulation with data for problems where solution is computed elsewhere ..." alt="" coords="1929,251,2099,278"/>
+<area shape="rect" id="node45" href="$simplesolver_8h.html" title="Solver which doesn&#39;t do anything. " alt="" coords="1959,341,2149,367"/>
+<area shape="rect" id="node46" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="5770,251,5965,278"/>
+<area shape="rect" id="node47" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="446,251,609,278"/>
+<area shape="rect" id="node50" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="5989,251,6183,278"/>
 </map>

@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpascinference_1_1algebra_1_1GeneralMatrixRHS.html" title="General class for manipulation with matrices. " alt="" coords="5,5,237,47"/>
+<area shape="rect" id="node1" href="$classpascinference_1_1algebra_1_1GeneralMatrix.html" title="General class for manipulation with matrices. " alt="" coords="5,13,208,54"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1algebra_1_1BlockGraphSparseMatrix.html" title="sparse graph&#45;based matrix for FEM&#45;H1 model regularisation " alt="" coords="256,5,431,61"/>
 </map>

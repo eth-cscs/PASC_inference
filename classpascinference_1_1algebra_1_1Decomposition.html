@@ -102,6 +102,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
+<p>Manipulation with problem layout.  
+ <a href="classpascinference_1_1algebra_1_1Decomposition.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="decomposition_8h_source.html">decomposition.h</a>&gt;</code></p>
 <div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Collaboration diagram for pascinference::algebra::Decomposition:</div>
@@ -110,7 +113,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div id="dynsection-0-content" class="dyncontent" style="display:none;">
 <div class="center"><img src="classpascinference_1_1algebra_1_1Decomposition__coll__graph.png" border="0" usemap="#pascinference_1_1algebra_1_1Decomposition_coll__map" alt="Collaboration graph"/></div>
 <map name="pascinference_1_1algebra_1_1Decomposition_coll__map" id="pascinference_1_1algebra_1_1Decomposition_coll__map">
-<area shape="rect" id="node2" href="classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="77,661,232,1120"/><area shape="rect" id="node3" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n||+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l}" alt="" coords="58,419,251,599"/><area shape="rect" id="node4" href="classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="5,132,176,356"/><area shape="rect" id="node5" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="200,161,405,327"/></map>
+<area shape="rect" id="node2" href="classpascinference_1_1algebra_1_1BGMGraph.html" title="General class for manipulation with graphs. " alt="" coords="78,676,231,1076"/><area shape="rect" id="node3" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="{pascinference::algebra\l::GeneralVector\&lt; petscvector\l::PetscVector \&gt;\n|&#45; rnd\l|+ GeneralVector()\l+ GeneralVector()\l+ GeneralVector()\l+ operator=()\l+ set_random()\l+ set_random2()\l+ get_name()\l}" alt="" coords="58,419,251,613"/><area shape="rect" id="node4" href="classpetscvector_1_1PetscVector.html" title="General class for manipulation with vectors. " alt="" coords="5,132,176,356"/><area shape="rect" id="node5" href="classpascinference_1_1algebra_1_1GeneralVector.html" title="general vector class " alt="" coords="200,132,405,356"/></map>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -128,30 +131,43 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:abdbd3b6f930d6ad5d1450ba2ff720b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">destructor  <a href="#abdbd3b6f930d6ad5d1450ba2ff720b67">More...</a><br /></td></tr>
 <tr class="separator:abdbd3b6f930d6ad5d1450ba2ff720b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1c5efb69a8fdd05ba59aed9f37f4b7d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ab1c5efb69a8fdd05ba59aed9f37f4b7d">get_T</a> () const </td></tr>
+<tr class="memdesc:ab1c5efb69a8fdd05ba59aed9f37f4b7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">get global time length  <a href="#ab1c5efb69a8fdd05ba59aed9f37f4b7d">More...</a><br /></td></tr>
 <tr class="separator:ab1c5efb69a8fdd05ba59aed9f37f4b7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf2b6d2024819ab88097d4125395598b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#abf2b6d2024819ab88097d4125395598b">get_Tlocal</a> () const </td></tr>
+<tr class="memdesc:abf2b6d2024819ab88097d4125395598b"><td class="mdescLeft">&#160;</td><td class="mdescRight">get local portion of time  <a href="#abf2b6d2024819ab88097d4125395598b">More...</a><br /></td></tr>
 <tr class="separator:abf2b6d2024819ab88097d4125395598b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51578e72215704c8172ab8e88fc9c779"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a51578e72215704c8172ab8e88fc9c779">get_Tbegin</a> () const </td></tr>
+<tr class="memdesc:a51578e72215704c8172ab8e88fc9c779"><td class="mdescLeft">&#160;</td><td class="mdescRight">get first local index of time in global scope  <a href="#a51578e72215704c8172ab8e88fc9c779">More...</a><br /></td></tr>
 <tr class="separator:a51578e72215704c8172ab8e88fc9c779"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d7ffc1f763cd30e080be6939f6bbea3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a6d7ffc1f763cd30e080be6939f6bbea3">get_Tend</a> () const </td></tr>
+<tr class="memdesc:a6d7ffc1f763cd30e080be6939f6bbea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">get last local index (+1) of time in global scope  <a href="#a6d7ffc1f763cd30e080be6939f6bbea3">More...</a><br /></td></tr>
 <tr class="separator:a6d7ffc1f763cd30e080be6939f6bbea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9cd25b840f7f37caec00586344b422cd"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a9cd25b840f7f37caec00586344b422cd">get_DDT_size</a> () const </td></tr>
+<tr class="memdesc:a9cd25b840f7f37caec00586344b422cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">get number of parts of time decomposition  <a href="#a9cd25b840f7f37caec00586344b422cd">More...</a><br /></td></tr>
 <tr class="separator:a9cd25b840f7f37caec00586344b422cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac28a91822dc928d8cac0ff5f04e5664b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ac28a91822dc928d8cac0ff5f04e5664b">get_DDT_rank</a> () const </td></tr>
+<tr class="memdesc:ac28a91822dc928d8cac0ff5f04e5664b"><td class="mdescLeft">&#160;</td><td class="mdescRight">get my coordinate in time decomposition  <a href="#ac28a91822dc928d8cac0ff5f04e5664b">More...</a><br /></td></tr>
 <tr class="separator:ac28a91822dc928d8cac0ff5f04e5664b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af62917033bd60fbaff0a7311e70b2e26"><td class="memItemLeft" align="right" valign="top">const int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#af62917033bd60fbaff0a7311e70b2e26">get_DDT_ranges</a> () const </td></tr>
+<tr class="memdesc:af62917033bd60fbaff0a7311e70b2e26"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the array with first indexes of local portion of time  <a href="#af62917033bd60fbaff0a7311e70b2e26">More...</a><br /></td></tr>
 <tr class="separator:af62917033bd60fbaff0a7311e70b2e26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98cc459050ef9b4f01aaac45c0e30f1a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a98cc459050ef9b4f01aaac45c0e30f1a">get_R</a> () const </td></tr>
+<tr class="memdesc:a98cc459050ef9b4f01aaac45c0e30f1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">get global space length  <a href="#a98cc459050ef9b4f01aaac45c0e30f1a">More...</a><br /></td></tr>
 <tr class="separator:a98cc459050ef9b4f01aaac45c0e30f1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeda1fd8b9a5fd98e9f3f57502b114209"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#aeda1fd8b9a5fd98e9f3f57502b114209">get_Rbegin</a> () const </td></tr>
+<tr class="memdesc:aeda1fd8b9a5fd98e9f3f57502b114209"><td class="mdescLeft">&#160;</td><td class="mdescRight">get first local index of space in global scope  <a href="#aeda1fd8b9a5fd98e9f3f57502b114209">More...</a><br /></td></tr>
 <tr class="separator:aeda1fd8b9a5fd98e9f3f57502b114209"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d1a529a92f7334403c5e566e134cecb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a1d1a529a92f7334403c5e566e134cecb">get_Rend</a> () const </td></tr>
+<tr class="memdesc:a1d1a529a92f7334403c5e566e134cecb"><td class="mdescLeft">&#160;</td><td class="mdescRight">get last local index (+1) of space decomposition in global scope  <a href="#a1d1a529a92f7334403c5e566e134cecb">More...</a><br /></td></tr>
 <tr class="separator:a1d1a529a92f7334403c5e566e134cecb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c37251a3c09dd9a134d03954bf3a3f5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a2c37251a3c09dd9a134d03954bf3a3f5">get_Rlocal</a> () const </td></tr>
+<tr class="memdesc:a2c37251a3c09dd9a134d03954bf3a3f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">get local portion of decomposed spatial graph  <a href="#a2c37251a3c09dd9a134d03954bf3a3f5">More...</a><br /></td></tr>
 <tr class="separator:a2c37251a3c09dd9a134d03954bf3a3f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37d5343091e4fd645fcf89f81b514492"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a37d5343091e4fd645fcf89f81b514492">get_DDR_size</a> () const </td></tr>
+<tr class="memdesc:a37d5343091e4fd645fcf89f81b514492"><td class="mdescLeft">&#160;</td><td class="mdescRight">get number of parts of space decomposition  <a href="#a37d5343091e4fd645fcf89f81b514492">More...</a><br /></td></tr>
 <tr class="separator:a37d5343091e4fd645fcf89f81b514492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ebf900c53fc75a30850d8ca9328c0ec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a0ebf900c53fc75a30850d8ca9328c0ec">get_DDR_rank</a> () const </td></tr>
+<tr class="memdesc:a0ebf900c53fc75a30850d8ca9328c0ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">get coordinate of this MPI process in space decomposition  <a href="#a0ebf900c53fc75a30850d8ca9328c0ec">More...</a><br /></td></tr>
 <tr class="separator:a0ebf900c53fc75a30850d8ca9328c0ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba847732b0f8e7ff1ecb863e52662562"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#aba847732b0f8e7ff1ecb863e52662562">get_DDR_affiliation</a> () const </td></tr>
 <tr class="separator:aba847732b0f8e7ff1ecb863e52662562"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,12 +180,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af1f11e0b881916046e01d6f5d95d4ab0"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#af1f11e0b881916046e01d6f5d95d4ab0">get_DDR_ranges</a> () const </td></tr>
 <tr class="separator:af1f11e0b881916046e01d6f5d95d4ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a323dd0dd745b37f9bd7218fdff9e886f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classpascinference_1_1algebra_1_1BGMGraph.html">BGMGraph</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a323dd0dd745b37f9bd7218fdff9e886f">get_graph</a> () const </td></tr>
+<tr class="memdesc:a323dd0dd745b37f9bd7218fdff9e886f"><td class="mdescLeft">&#160;</td><td class="mdescRight">get graph of space decomposition  <a href="#a323dd0dd745b37f9bd7218fdff9e886f">More...</a><br /></td></tr>
 <tr class="separator:a323dd0dd745b37f9bd7218fdff9e886f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abda08652e0c66d3e0fd1e54d5b07e21b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#abda08652e0c66d3e0fd1e54d5b07e21b">set_graph</a> (<a class="el" href="classpascinference_1_1algebra_1_1BGMGraph.html">BGMGraph</a> &amp;<a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a63f66592319a13d7bd7ecf9a531c5be9">graph</a>, int <a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a53e6f5a79c80cf6404494557c582a559">DDR_size</a>=1)</td></tr>
+<tr class="memdesc:abda08652e0c66d3e0fd1e54d5b07e21b"><td class="mdescLeft">&#160;</td><td class="mdescRight">set graph of space decomposition  <a href="#abda08652e0c66d3e0fd1e54d5b07e21b">More...</a><br /></td></tr>
 <tr class="separator:abda08652e0c66d3e0fd1e54d5b07e21b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae40f8e1b48cddf6e673903f5455c6988"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ae40f8e1b48cddf6e673903f5455c6988">get_K</a> () const </td></tr>
+<tr class="memdesc:ae40f8e1b48cddf6e673903f5455c6988"><td class="mdescLeft">&#160;</td><td class="mdescRight">get number of clusters  <a href="#ae40f8e1b48cddf6e673903f5455c6988">More...</a><br /></td></tr>
 <tr class="separator:ae40f8e1b48cddf6e673903f5455c6988"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07da688ff0106361cc6dcec0f0add006"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a07da688ff0106361cc6dcec0f0add006">get_xdim</a> () const </td></tr>
+<tr class="memdesc:a07da688ff0106361cc6dcec0f0add006"><td class="mdescLeft">&#160;</td><td class="mdescRight">get data dimension (number of components)  <a href="#a07da688ff0106361cc6dcec0f0add006">More...</a><br /></td></tr>
 <tr class="separator:a07da688ff0106361cc6dcec0f0add006"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a896f9c4e6148657274f8a739e5c113e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a896f9c4e6148657274f8a739e5c113e0">print</a> (<a class="el" href="classpascinference_1_1common_1_1ConsoleOutput.html">ConsoleOutput</a> &amp;output) const </td></tr>
 <tr class="memdesc:a896f9c4e6148657274f8a739e5c113e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">print informations of decomposition  <a href="#a896f9c4e6148657274f8a739e5c113e0">More...</a><br /></td></tr>
@@ -178,18 +198,25 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ade06f319578836f2f2f38c31a9521189"><td class="mdescLeft">&#160;</td><td class="mdescRight">print informations of decomposition  <a href="#ade06f319578836f2f2f38c31a9521189">More...</a><br /></td></tr>
 <tr class="separator:ade06f319578836f2f2f38c31a9521189"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba8289baaccd3eb77883a9604d8b21fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#aba8289baaccd3eb77883a9604d8b21fc">createGlobalVec_gamma</a> (Vec *x_Vec) const </td></tr>
+<tr class="memdesc:aba8289baaccd3eb77883a9604d8b21fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">create global PETSc gamma vector with respect to this decomposition  <a href="#aba8289baaccd3eb77883a9604d8b21fc">More...</a><br /></td></tr>
 <tr class="separator:aba8289baaccd3eb77883a9604d8b21fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ccb52f1c21b7ab05165539b38cc7406"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a5ccb52f1c21b7ab05165539b38cc7406">createGlobalCudaVec_gamma</a> (Vec *x_Vec) const </td></tr>
+<tr class="memdesc:a5ccb52f1c21b7ab05165539b38cc7406"><td class="mdescLeft">&#160;</td><td class="mdescRight">create global PETSc gamma vector on GPU with respect to this decomposition  <a href="#a5ccb52f1c21b7ab05165539b38cc7406">More...</a><br /></td></tr>
 <tr class="separator:a5ccb52f1c21b7ab05165539b38cc7406"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b5483f7a0c0af017da0d421f1b47e6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a7b5483f7a0c0af017da0d421f1b47e6c">createGlobalVec_data</a> (Vec *x_Vec) const </td></tr>
+<tr class="memdesc:a7b5483f7a0c0af017da0d421f1b47e6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">create global PETSc data vector with respect to this decomposition  <a href="#a7b5483f7a0c0af017da0d421f1b47e6c">More...</a><br /></td></tr>
 <tr class="separator:a7b5483f7a0c0af017da0d421f1b47e6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a152bca6fd20f41320665507710195917"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a152bca6fd20f41320665507710195917">createGlobalCudaVec_data</a> (Vec *x_Vec) const </td></tr>
+<tr class="memdesc:a152bca6fd20f41320665507710195917"><td class="mdescLeft">&#160;</td><td class="mdescRight">create global PETSc data vector on GPU with respect to this decomposition  <a href="#a152bca6fd20f41320665507710195917">More...</a><br /></td></tr>
 <tr class="separator:a152bca6fd20f41320665507710195917"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81d7412b987e4df3fb08f78d027c7e46"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a81d7412b987e4df3fb08f78d027c7e46">get_idxglobal</a> (int t_global, int r_global, int k) const </td></tr>
+<tr class="memdesc:a81d7412b987e4df3fb08f78d027c7e46"><td class="mdescLeft">&#160;</td><td class="mdescRight">get local index in gamma vector from global indexes  <a href="#a81d7412b987e4df3fb08f78d027c7e46">More...</a><br /></td></tr>
 <tr class="separator:a81d7412b987e4df3fb08f78d027c7e46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62f0a8150f88ebc88423826e5e33d5ce"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a62f0a8150f88ebc88423826e5e33d5ce">get_invPr</a> (int r_global) const </td></tr>
+<tr class="memdesc:a62f0a8150f88ebc88423826e5e33d5ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the index of node in original graph from index in permutated graph  <a href="#a62f0a8150f88ebc88423826e5e33d5ce">More...</a><br /></td></tr>
 <tr class="separator:a62f0a8150f88ebc88423826e5e33d5ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6a4573d50ef7479c71fad385f096e72"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ad6a4573d50ef7479c71fad385f096e72">get_Pr</a> (int r_global) const </td></tr>
+<tr class="memdesc:ad6a4573d50ef7479c71fad385f096e72"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the index of node in permutated graph from index in original graph  <a href="#ad6a4573d50ef7479c71fad385f096e72">More...</a><br /></td></tr>
 <tr class="separator:ad6a4573d50ef7479c71fad385f096e72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab723cdd32d7853e7c90d07f76d8e46a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ab723cdd32d7853e7c90d07f76d8e46a3">permute_TRxdim</a> (Vec orig_Vec, Vec new_Vec, bool invert=false) const </td></tr>
 <tr class="separator:ab723cdd32d7853e7c90d07f76d8e46a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,6 +225,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad65f8e0933b5539350a7c2e4ee584c33"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#ad65f8e0933b5539350a7c2e4ee584c33">permute_TRblocksize</a> (Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const </td></tr>
 <tr class="separator:ad65f8e0933b5539350a7c2e4ee584c33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29bd1cb54f891725ad29bbcaf6863618"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a29bd1cb54f891725ad29bbcaf6863618">createIS_gammaK</a> (IS *is, int k) const </td></tr>
+<tr class="memdesc:a29bd1cb54f891725ad29bbcaf6863618"><td class="mdescLeft">&#160;</td><td class="mdescRight">create PETSC index set with local gamma indexes which correspond to given cluster index  <a href="#a29bd1cb54f891725ad29bbcaf6863618">More...</a><br /></td></tr>
 <tr class="separator:a29bd1cb54f891725ad29bbcaf6863618"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
@@ -243,7 +271,9 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:a5300e80ea71bd7ce7664fb3c95670168"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpascinference_1_1algebra_1_1Decomposition.html#a5300e80ea71bd7ce7664fb3c95670168">DDR_rank</a></td></tr>
 <tr class="separator:a5300e80ea71bd7ce7664fb3c95670168"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Manipulation with problem layout. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a1ee3a7b7caa359afb9fa3f3684151ef4"></a>
 <div class="memitem">
 <div class="memproto">
@@ -385,6 +415,7 @@ Protected Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>decomposition in time and space </p>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000034">Todo:</a></b></dt><dd>has to be tested, probably is not working </dd></dl>
 
 </div>
 </div>
@@ -445,6 +476,15 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>create global PETSc data vector on GPU with respect to this decomposition </p>
+<p>VECMPICUDA</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x_Vec</td><td>pointer to new vector </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a class="anchor" id="a5ccb52f1c21b7ab05165539b38cc7406"></a>
@@ -460,6 +500,15 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>create global PETSc gamma vector on GPU with respect to this decomposition </p>
+<p>VECMPICUDA</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x_Vec</td><td>pointer to new gamma vector </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -477,6 +526,14 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>create global PETSc data vector with respect to this decomposition </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x_Vec</td><td>pointer to new vector </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a class="anchor" id="aba8289baaccd3eb77883a9604d8b21fc"></a>
@@ -492,6 +549,14 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>create global PETSc gamma vector with respect to this decomposition </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x_Vec</td><td>pointer to new gamma vector </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -518,6 +583,15 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>create PETSC index set with local gamma indexes which correspond to given cluster index </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">is</td><td>pointer to new index set </td></tr>
+    <tr><td class="paramname">k</td><td>index of cluster </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -609,6 +683,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get coordinate of this MPI process in space decomposition </p>
+<dl class="section return"><dt>Returns</dt><dd>coordinate of local part in graph decomposition </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a37d5343091e4fd645fcf89f81b514492"></a>
@@ -623,6 +700,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get number of parts of space decomposition </p>
+<dl class="section return"><dt>Returns</dt><dd>the number of parts of graph decomposition </dd></dl>
 
 </div>
 </div>
@@ -639,6 +719,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get the array with first indexes of local portion of time </p>
+<dl class="section return"><dt>Returns</dt><dd>the array (of size DDT_size+1) with global starting indexes </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="ac28a91822dc928d8cac0ff5f04e5664b"></a>
@@ -653,6 +736,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get my coordinate in time decomposition </p>
+<dl class="section return"><dt>Returns</dt><dd>the coortinate of this MPI process in time decomposition </dd></dl>
 
 </div>
 </div>
@@ -669,6 +755,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get number of parts of time decomposition </p>
+<dl class="section return"><dt>Returns</dt><dd>number of parts of time decomposition </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a323dd0dd745b37f9bd7218fdff9e886f"></a>
@@ -683,6 +772,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get graph of space decomposition </p>
+<dl class="section return"><dt>Returns</dt><dd>pointer to graph </dd></dl>
 
 </div>
 </div>
@@ -716,6 +808,17 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get local index in gamma vector from global indexes </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">t_global</td><td>global time index </td></tr>
+    <tr><td class="paramname">r_global</td><td>global space index </td></tr>
+    <tr><td class="paramname">k</td><td>index of cluster </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>local index in gamma vector </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a62f0a8150f88ebc88423826e5e33d5ce"></a>
@@ -732,6 +835,16 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get the index of node in original graph from index in permutated graph </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r_global</td><td>global node index in permutated graph </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>node index in original graph </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000035">Todo:</a></b></dt><dd>has to be tested </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="ae40f8e1b48cddf6e673903f5455c6988"></a>
@@ -746,6 +859,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get number of clusters </p>
+<dl class="section return"><dt>Returns</dt><dd>number of clusters </dd></dl>
 
 </div>
 </div>
@@ -763,6 +879,16 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get the index of node in permutated graph from index in original graph </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r_global</td><td>global node index in original graph </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>node index in permutated graph </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000036">Todo:</a></b></dt><dd>has to be tested </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a98cc459050ef9b4f01aaac45c0e30f1a"></a>
@@ -777,6 +903,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get global space length </p>
+<dl class="section return"><dt>Returns</dt><dd>number of nodes in spatial graph </dd></dl>
 
 </div>
 </div>
@@ -793,6 +922,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get first local index of space in global scope </p>
+<dl class="section return"><dt>Returns</dt><dd>starting index of local portion of graph nodes </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a1d1a529a92f7334403c5e566e134cecb"></a>
@@ -807,6 +939,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get last local index (+1) of space decomposition in global scope </p>
+<dl class="section return"><dt>Returns</dt><dd>last index of local portion of graph nodes plus one </dd></dl>
 
 </div>
 </div>
@@ -823,6 +958,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get local portion of decomposed spatial graph </p>
+<dl class="section return"><dt>Returns</dt><dd>local number of graph nodes </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="ab1c5efb69a8fdd05ba59aed9f37f4b7d"></a>
@@ -837,6 +975,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get global time length </p>
+<dl class="section return"><dt>Returns</dt><dd>global length of time </dd></dl>
 
 </div>
 </div>
@@ -853,6 +994,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get first local index of time in global scope </p>
+<dl class="section return"><dt>Returns</dt><dd>starting index of local portion of time steps </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a6d7ffc1f763cd30e080be6939f6bbea3"></a>
@@ -867,6 +1011,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get last local index (+1) of time in global scope </p>
+<dl class="section return"><dt>Returns</dt><dd>last index of local portion of time steps plus one </dd></dl>
 
 </div>
 </div>
@@ -883,6 +1030,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>get local portion of time </p>
+<dl class="section return"><dt>Returns</dt><dd>local number of time steps </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a07da688ff0106361cc6dcec0f0add006"></a>
@@ -897,6 +1047,9 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>get data dimension (number of components) </p>
+<dl class="section return"><dt>Returns</dt><dd>number of data components </dd></dl>
 
 </div>
 </div>
@@ -1077,6 +1230,15 @@ Protected Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>set graph of space decomposition </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">graph</td><td>the new graph of decomposition </td></tr>
+    <tr><td class="paramname">DDR_size</td><td>number of parts of graph decomposition </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1392,6 +1554,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>space - global length </p>
 
 </div>
 </div>
@@ -1412,6 +1575,7 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>time - global length </p>
 
 </div>
 </div>
@@ -1443,7 +1607,7 @@ Protected Attributes</h2></td></tr>
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:04 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

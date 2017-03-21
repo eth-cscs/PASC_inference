@@ -1,0 +1,33 @@
+<map id="examples/test_entropy/test_entropy.cpp" name="examples/test_entropy/test_entropy.cpp">
+<area shape="rect" id="node2" href="$test__entropy_8cu.html" title="test the new entropy model (in collaboration with Anna) " alt="" coords="1920,95,2032,121"/>
+<area shape="rect" id="node3" href="$pascinference_8h.html" title="main header file " alt="" coords="1676,587,1791,613"/>
+<area shape="rect" id="node32" href="$tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="1917,251,2035,278"/>
+<area shape="rect" id="node40" href="$signal1Ddata_8h.html" title="class for manipulation with one dimensional data " alt="" coords="2165,341,2304,367"/>
+<area shape="rect" id="node41" href="$entropyh1fem_8h.html" title="model/entropyh1fem.h" alt="" coords="1025,169,1175,196"/>
+<area shape="rect" id="node14" href="$petscvector_8h.html" title="Header file with class delarations. " alt="" coords="3541,661,3643,688"/>
+<area shape="rect" id="node22" href="$common_8h.html" title="commonly used stuff " alt="" coords="3329,661,3466,688"/>
+<area shape="rect" id="node23" href="$arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="1149,661,1310,688"/>
+<area shape="rect" id="node24" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1335,661,1492,688"/>
+<area shape="rect" id="node25" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1516,661,1673,688"/>
+<area shape="rect" id="node26" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1697,661,1881,688"/>
+<area shape="rect" id="node27" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="1905,661,2076,688"/>
+<area shape="rect" id="node28" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="2101,661,2230,688"/>
+<area shape="rect" id="node29" href="$list_8h.html" title="solver/list.h" alt="" coords="2254,661,2343,688"/>
+<area shape="rect" id="node30" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="2368,661,2517,688"/>
+<area shape="rect" id="node31" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="2541,661,2691,688"/>
+<area shape="rect" id="node33" href="$tsdata_8h.html" title="data/tsdata.h" alt="" coords="2088,430,2187,457"/>
+<area shape="rect" id="node34" href="$tsmodel_8h.html" title="class for manipulation with time&#45;series models " alt="" coords="2078,512,2197,539"/>
+<area shape="rect" id="node35" href="$qpsolver_8h.html" title="General Quadratic Programming solver. " alt="" coords="597,341,718,367"/>
+<area shape="rect" id="node39" href="$diagsolver_8h.html" title="Solver for linear systems with diagonal matrix. " alt="" coords="1808,430,1939,457"/>
+<area shape="rect" id="node36" href="$qpdata_8h.html" title="code for manipulation with Quadratic Programming data " alt="" coords="505,512,607,539"/>
+<area shape="rect" id="node37" href="$spgqpsolver_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs. " alt="" coords="695,430,838,457"/>
+<area shape="rect" id="node38" href="$blockgraphsparse_8h.html" title="block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix&#45;vector multiplication imp..." alt="" coords="800,512,1021,539"/>
+<area shape="rect" id="node42" href="$simplex__local_8h.html" title="simplex feasible set for petscvector with local problems " alt="" coords="1603,423,1733,464"/>
+<area shape="rect" id="node43" href="$spgqpsolver__coeff_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs with special case of matrix coeffic..." alt="" coords="135,244,265,285"/>
+<area shape="rect" id="node44" href="$taosolver_8h.html" title="solve QP with TAO solvers " alt="" coords="387,251,512,278"/>
+<area shape="rect" id="node45" href="$simplex__lineqbound_8h.html" title="simplex feasible set defined by linear equality constraints and bound constraints ..." alt="" coords="771,333,922,375"/>
+<area shape="rect" id="node46" href="$permonsolver_8h.html" title="solve QP with solvers implemented in Permon library " alt="" coords="582,251,733,278"/>
+<area shape="rect" id="node47" href="$entropydata_8h.html" title="class for manipulation with data for entropy problems " alt="" coords="1197,341,1328,367"/>
+<area shape="rect" id="node48" href="$entropysolverdlib_8h.html" title="solver/entropysolverdlib.h" alt="" coords="1163,251,1333,278"/>
+<area shape="rect" id="node49" href="$entropysolverspg_8h.html" title="solver/entropysolverspg.h" alt="" coords="1357,251,1528,278"/>
+</map>

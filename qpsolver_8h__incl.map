@@ -1,26 +1,29 @@
 <map id="include/solver/qpsolver.h" name="include/solver/qpsolver.h">
-<area shape="rect" id="node2" href="$pascinference_8h.html" title="main header file " alt="" coords="1415,229,1529,256"/>
-<area shape="rect" id="node38" href="$qpdata_8h.html" title="code for manipulation with Quadratic Programming data " alt="" coords="1325,155,1427,181"/>
-<area shape="rect" id="node39" href="$cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="1405,80,1539,107"/>
-<area shape="rect" id="node40" href="$spgqpsolver_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs. " alt="" coords="1186,80,1329,107"/>
-<area shape="rect" id="node11" href="$common_8h.html" title="commonly used stuff " alt="" coords="339,304,477,331"/>
-<area shape="rect" id="node28" href="$arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="831,304,993,331"/>
-<area shape="rect" id="node29" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1017,304,1175,331"/>
-<area shape="rect" id="node30" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1199,304,1356,331"/>
-<area shape="rect" id="node31" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1380,304,1564,331"/>
-<area shape="rect" id="node32" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="2253,304,2424,331"/>
-<area shape="rect" id="node34" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="1639,304,1769,331"/>
-<area shape="rect" id="node35" href="$list_8h.html" title="solver/list.h" alt="" coords="1793,304,1882,331"/>
-<area shape="rect" id="node36" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="1907,304,2056,331"/>
-<area shape="rect" id="node37" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="2080,304,2229,331"/>
-<area shape="rect" id="node16" href="$timer_8h.html" title="for measuring time " alt="" coords="102,379,218,405"/>
-<area shape="rect" id="node17" href="$memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="171,453,341,480"/>
-<area shape="rect" id="node18" href="$globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="365,453,536,480"/>
-<area shape="rect" id="node19" href="$consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="659,379,827,405"/>
-<area shape="rect" id="node20" href="$consoleinput_8h.html" title="Manipulation with console arguments and parameters. " alt="" coords="1639,379,1799,405"/>
-<area shape="rect" id="node25" href="$logging_8h.html" title="Log files. " alt="" coords="344,379,472,405"/>
-<area shape="rect" id="node26" href="$mvnrnd_8h.html" title="common/mvnrnd.h" alt="" coords="851,379,981,405"/>
-<area shape="rect" id="node27" href="$shortinfo_8h.html" title="Manipulation with output file which includes short final information. " alt="" coords="497,379,634,405"/>
-<area shape="rect" id="node23" href="$options_8h.html" title="define command line options " alt="" coords="1777,453,1852,480"/>
-<area shape="rect" id="node33" href="$bgmgraph_8h.html" title="class for manipulation with graphs " alt="" coords="2271,379,2407,405"/>
+<area shape="rect" id="node2" href="$pascinference_8h.html" title="main header file " alt="" coords="2044,333,2158,360"/>
+<area shape="rect" id="node44" href="$qpdata_8h.html" title="code for manipulation with Quadratic Programming data " alt="" coords="2101,251,2202,278"/>
+<area shape="rect" id="node45" href="$cgqpsolver_8h.html" title="Conjugate Gradient method for solving Quadratic Programs. " alt="" coords="2003,80,2138,107"/>
+<area shape="rect" id="node46" href="$spgqpsolver_8h.html" title="Spectral Projected Gradient method for solving Quadratic Programs. " alt="" coords="2232,80,2375,107"/>
+<area shape="rect" id="node13" href="$petscvector_8h.html" title="Header file with class delarations. " alt="" coords="2962,408,3064,435"/>
+<area shape="rect" id="node25" href="$common_8h.html" title="commonly used stuff " alt="" coords="3848,408,3986,435"/>
+<area shape="rect" id="node35" href="$arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="1084,408,1246,435"/>
+<area shape="rect" id="node36" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="1270,408,1428,435"/>
+<area shape="rect" id="node37" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="1452,408,1609,435"/>
+<area shape="rect" id="node38" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="1633,408,1817,435"/>
+<area shape="rect" id="node39" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="1841,408,2012,435"/>
+<area shape="rect" id="node40" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="2036,408,2166,435"/>
+<area shape="rect" id="node41" href="$list_8h.html" title="solver/list.h" alt="" coords="2190,408,2279,435"/>
+<area shape="rect" id="node42" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="2304,408,2453,435"/>
+<area shape="rect" id="node43" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="2477,408,2626,435"/>
+<area shape="rect" id="node15" href="$petscvector__impl_8h.html" title="petscvector_impl.h" alt="" coords="2946,483,3078,509"/>
+<area shape="rect" id="node16" href="$wrappercomb__impl_8h.html" title="wrappercomb_impl.h" alt="" coords="3102,483,3244,509"/>
+<area shape="rect" id="node17" href="$wrappersub__impl_8h.html" title="wrappersub_impl.h" alt="" coords="2573,483,2704,509"/>
+<area shape="rect" id="node18" href="$wrappermul__impl_8h.html" title="wrappermul_impl.h" alt="" coords="2728,483,2858,509"/>
+<area shape="rect" id="node30" href="$timer_8h.html" title="for measuring time " alt="" coords="4175,483,4291,509"/>
+<area shape="rect" id="node31" href="$memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="4315,483,4484,509"/>
+<area shape="rect" id="node32" href="$powercheck_8h.html" title="common/powercheck.h" alt="" coords="4509,483,4666,509"/>
+<area shape="rect" id="node33" href="$globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="3365,483,3536,509"/>
+<area shape="rect" id="node34" href="$consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="3560,483,3728,509"/>
+<area shape="rect" id="node47" href="$spg__fs_8h.html" title="solver/spg_fs.h" alt="" coords="2342,162,2452,189"/>
+<area shape="rect" id="node49" href="$blockgraphsparse_8h.html" title="block graph matrix with tridiag blocks used in GRAPHH1FEM model with matrix&#45;vector multiplication imp..." alt="" coords="2278,251,2500,278"/>
+<area shape="rect" id="node50" href="$spgqpsolver__petsc_8h.html" title="SPG&#45;QP PETSc specific implementation. " alt="" coords="2528,155,2708,196"/>
 </map>

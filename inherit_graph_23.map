@@ -1,3 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpetscvector_1_1petscvector__all__type.html" title="petscvector::petscvector\l_all_type" alt="" coords="5,5,172,47"/>
+<area shape="rect" id="node1" href="$classpascinference_1_1model_1_1GeneralModel.html" title="General class for manipulation with models. " alt="" coords="5,49,152,90"/>
+<area shape="rect" id="node2" href="$classpascinference_1_1model_1_1TSModel.html" title="General class for manipulation with global time&#45;series models. " alt="" coords="200,49,375,90"/>
+<area shape="rect" id="node3" href="$classpascinference_1_1model_1_1EntropyH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation and Entropy&#45;based Theta model..." alt="" coords="460,5,623,61"/>
+<area shape="rect" id="node4" href="$classpascinference_1_1model_1_1GraphH1FEMModel.html" title="time&#45;series model with quadratic penalty time&#45;space regularisation. " alt="" coords="423,85,660,126"/>
 </map>

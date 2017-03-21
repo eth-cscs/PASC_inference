@@ -17,8 +17,6 @@
   $(document).ready(function() { init_search(); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="my.css" rel="stylesheet" type="text/css"/>
-<link href="mytabs.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -95,6 +93,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_i.html#index_i"><span>i</span></a></li>
       <li><a href="functions_func_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
+      <li><a href="functions_func_n.html#index_n"><span>n</span></a></li>
       <li><a href="functions_func_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_func_p.html#index_p"><span>p</span></a></li>
       <li><a href="functions_func_q.html#index_q"><span>q</span></a></li>
@@ -130,23 +129,35 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classpascinference_1_1data_1_1TSData.html#a6a2639ff52b5be6b871fa158ba5efc39">pascinference::data::TSData&lt; VectorBase &gt;</a>
 </li>
 <li>update()
-: <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolver_1_1SPGQPSolver__fs.html#aca097674dda48883300cd70d8790bbdf">pascinference::solver::SPGQPSolver&lt; VectorBase &gt;::SPGQPSolver_fs</a>
+: <a class="el" href="classpascinference_1_1solver_1_1SPG__fs.html#a579ede425d77156da39370dd363fcee3">pascinference::solver::SPG_fs</a>
 , <a class="el" href="classpascinference_1_1solver_1_1SPGQPSolverC_1_1SPGQPSolverC__fs.html#acde7f57fe47d0180119e84b12bfdf176">pascinference::solver::SPGQPSolverC&lt; VectorBase &gt;::SPGQPSolverC_fs</a>
 </li>
-<li>update_gammasolver()
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a4ab5ebc85aab942a09a62d96cd0c4608">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
-, <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a94c2f74abc697fd24c176f5e62c14727">pascinference::model::TSModel&lt; VectorBase &gt;</a>
+<li>updateaftersolve_gammasolver()
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a7c93b81751122c1d0b3456e000b9368a">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a52e6aeec38c74a701aa12f5e359e91ac">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a0bdb5ff90ea035dd7209945baf18e7cf">pascinference::model::TSModel&lt; VectorBase &gt;</a>
 </li>
-<li>update_thetasolver()
-: <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a64a7d2213d5bc28d379ba3ce0b6a3349">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
-, <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a659300574e97ca79034c719c7ba3ccf7">pascinference::model::TSModel&lt; VectorBase &gt;</a>
+<li>updateaftersolve_thetasolver()
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a736c1dac95f1f1867643e83455731079">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a5bca5a53916e63093860410d70ff2d78">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a3cb67406c88ff26cd16ab5efcf3c2004">pascinference::model::TSModel&lt; VectorBase &gt;</a>
+</li>
+<li>updatebeforesolve_gammasolver()
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#a55debedc3dc0bf5e0d5db5eaf7057559">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#aeac49ea819ea0c2f9b8237b38bae1598">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1TSModel.html#a17d7cf64572f2bf2ea4c833ff7985ee4">pascinference::model::TSModel&lt; VectorBase &gt;</a>
+</li>
+<li>updatebeforesolve_thetasolver()
+: <a class="el" href="classpascinference_1_1model_1_1EntropyH1FEMModel.html#ab6f06f46ab3b229797294d9d62769d46">pascinference::model::EntropyH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1GraphH1FEMModel.html#a0290aa77be87e554af923ea52f35df63">pascinference::model::GraphH1FEMModel&lt; VectorBase &gt;</a>
+, <a class="el" href="classpascinference_1_1model_1_1TSModel.html#acae21d4677591ab4f2c6f599efa0c52e">pascinference::model::TSModel&lt; VectorBase &gt;</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <address class="footer"><small>
-Generated on Thu Nov 17 2016 13:17:07 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 21 2017 22:05:02 for PASC-Inference by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

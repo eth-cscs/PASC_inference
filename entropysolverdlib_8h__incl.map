@@ -1,0 +1,26 @@
+<map id="include/solver/entropysolverdlib.h" name="include/solver/entropysolverdlib.h">
+<area shape="rect" id="node2" href="$pascinference_8h.html" title="main header file " alt="" coords="2226,155,2341,181"/>
+<area shape="rect" id="node46" href="$entropydata_8h.html" title="class for manipulation with data for entropy problems " alt="" coords="2270,80,2401,107"/>
+<area shape="rect" id="node13" href="$petscvector_8h.html" title="Header file with class delarations. " alt="" coords="685,229,786,256"/>
+<area shape="rect" id="node25" href="$common_8h.html" title="commonly used stuff " alt="" coords="1284,229,1421,256"/>
+<area shape="rect" id="node37" href="$arrayoperation_8h.html" title="class for manipulation with arrays " alt="" coords="2651,229,2812,256"/>
+<area shape="rect" id="node38" href="$generalmatrix_8h.html" title="class for manipulation with matrices " alt="" coords="2837,229,2994,256"/>
+<area shape="rect" id="node39" href="$generalvector_8h.html" title="class for manipulation with vectors " alt="" coords="3018,229,3175,256"/>
+<area shape="rect" id="node40" href="$generalfeasibleset_8h.html" title="class for manipulation with feasible set " alt="" coords="3199,229,3383,256"/>
+<area shape="rect" id="node41" href="$decomposition_8h.html" title="class for storing and manipulation with decomposition informations " alt="" coords="3407,229,3578,256"/>
+<area shape="rect" id="node42" href="$generaldata_8h.html" title="general class for manipulation with data " alt="" coords="3603,229,3732,256"/>
+<area shape="rect" id="node43" href="$list_8h.html" title="solver/list.h" alt="" coords="3756,229,3845,256"/>
+<area shape="rect" id="node44" href="$generalsolver_8h.html" title="General solver for solving problems. " alt="" coords="3870,229,4019,256"/>
+<area shape="rect" id="node45" href="$generalmodel_8h.html" title="class for manipulation with models " alt="" coords="4043,229,4193,256"/>
+<area shape="rect" id="node15" href="$petscvector__impl_8h.html" title="petscvector_impl.h" alt="" coords="84,304,216,331"/>
+<area shape="rect" id="node16" href="$wrappercomb__impl_8h.html" title="wrappercomb_impl.h" alt="" coords="240,304,383,331"/>
+<area shape="rect" id="node17" href="$wrappersub__impl_8h.html" title="wrappersub_impl.h" alt="" coords="406,304,537,331"/>
+<area shape="rect" id="node18" href="$wrappermul__impl_8h.html" title="wrappermul_impl.h" alt="" coords="561,304,691,331"/>
+<area shape="rect" id="node30" href="$timer_8h.html" title="for measuring time " alt="" coords="2197,304,2313,331"/>
+<area shape="rect" id="node31" href="$memorycheck_8h.html" title="common/memorycheck.h" alt="" coords="944,379,1113,405"/>
+<area shape="rect" id="node32" href="$powercheck_8h.html" title="common/powercheck.h" alt="" coords="1333,304,1490,331"/>
+<area shape="rect" id="node33" href="$globalmanager_8h.html" title="Manipulation with information about processes &#45; MPI_COMM size and rank. " alt="" coords="1174,379,1345,405"/>
+<area shape="rect" id="node34" href="$consoleoutput_8h.html" title="common/consoleoutput.h" alt="" coords="1514,304,1682,331"/>
+<area shape="rect" id="node35" href="$consoleinput_8h.html" title="Manipulation with console arguments and parameters. " alt="" coords="1706,304,1866,331"/>
+<area shape="rect" id="node36" href="$logging_8h.html" title="Log files. " alt="" coords="1015,304,1143,331"/>
+</map>

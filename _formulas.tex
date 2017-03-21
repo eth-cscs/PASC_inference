@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage{epsfig}
+\pagestyle{empty}
+\begin{document}
+\[ \Omega = \left\lbrace x \in R^{KT}: \forall t = 0,\dots,T-1: \sum\limits_{k=0}^{K-1} x_{tK+k} = 1, x \geq 0 \right\rbrace \]
+\pagebreak
+
+\[ y = Ax \]
+\pagebreak
+
+\[ \mathrm{this}~ = \underbrace{Av}_{= \mathrm{rhs}} \]
+\pagebreak
+
+\[\mathrm{result} = \langle x,y \rangle = \sum\limits_{i = 0}^{size-1} x_i y_i\]
+\pagebreak
+
+\[\mathrm{result} = \max \lbrace x_i, i = 0, \dots size-1 \rbrace\]
+\pagebreak
+
+\[\mathrm{result} = \min \lbrace x_i, i = 0, \dots size-1 \rbrace\]
+\pagebreak
+
+\[\mathrm{result} = \sum\limits_{i = 0}^{size-1} x_i \]
+\pagebreak
+
+\[\mathrm{result} = \Vert x \Vert_2 = \sqrt{\sum\limits_{i = 0}^{size-1} x_i^2} \]
+\pagebreak
+
+\[ x_i = \frac{x_i}{y_i}, ~~\forall i = 0, \dots, size-1 \]
+\pagebreak
+
+\[\mathrm{mul}_i = x_i y_i \]
+\pagebreak
+
+\[ \left[ \begin{array}{ccc} a_1 & & \\ & \ddots & \\ & & a_n \end{array} \right] \left[ \begin{array}{c} x_1 \\ \vdots \\ x_n \end{array} \right] = \left[ \begin{array}{c} b_1 \\ \vdots \\ b_n \end{array} \right] \]
+\pagebreak
+
+\[ \min \frac{1}{2} \langle Ax,x \rangle - \langle b,x \rangle ~\mathrm{s.t.}~ x \in feasible~set \]
+\pagebreak
+
+\end{document}

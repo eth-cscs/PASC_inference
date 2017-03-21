@@ -1,7 +1,11 @@
 <map id="include/solver/diagsolver.h" name="include/solver/diagsolver.h">
-<area shape="rect" id="node2" href="$tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="87,80,249,107"/>
-<area shape="rect" id="node3" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="5,155,152,196"/>
-<area shape="rect" id="node5" href="$test__signal1D_8cu.html" title="examples/test_signal1D\l/test_signal1D.cu" alt="" coords="176,155,339,196"/>
-<area shape="rect" id="node4" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="5,244,152,285"/>
-<area shape="rect" id="node6" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="176,244,339,285"/>
+<area shape="rect" id="node2" href="$tssolver_8h.html" title="Time&#45;series solver. " alt="" coords="260,80,423,107"/>
+<area shape="rect" id="node3" href="$test__entropy_8cu.html" title="test the new entropy model (in collaboration with Anna) " alt="" coords="5,155,160,196"/>
+<area shape="rect" id="node5" href="$test__image_8cu.html" title="test the kmeans problem solver on image processing problem " alt="" coords="184,155,331,196"/>
+<area shape="rect" id="node7" href="$test__neuro_8cu.html" title="test the neuro filtering possibilities " alt="" coords="355,155,498,196"/>
+<area shape="rect" id="node9" href="$test__signal1D_8cu.html" title="test the kmeans problem solver on simple 1D signal problem " alt="" coords="523,155,685,196"/>
+<area shape="rect" id="node4" href="$test__entropy_8cpp.html" title="examples/test_entropy\l/test_entropy.cpp" alt="" coords="5,244,160,285"/>
+<area shape="rect" id="node6" href="$test__image_8cpp.html" title="examples/test_image\l/test_image.cpp" alt="" coords="184,244,331,285"/>
+<area shape="rect" id="node8" href="$test__neuro_8cpp.html" title="examples/test_neuro\l/test_neuro.cpp" alt="" coords="355,244,498,285"/>
+<area shape="rect" id="node10" href="$test__signal1D_8cpp.html" title="examples/test_signal1D\l/test_signal1D.cpp" alt="" coords="523,244,685,285"/>
 </map>
