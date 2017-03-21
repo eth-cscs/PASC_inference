@@ -69,7 +69,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		bool monitor;				/**< export the descend into .m file */
 
-		int m;						/**< size of SPGQPSolver_fs */
+		int m;						/**< size of SPG_fs */
 		double gamma;				/**< parameter of Armijo condition */
 		double sigma1;				/**< to enforce progress */
 		double sigma2;				/**< to enforce progress */
@@ -201,9 +201,9 @@ void SPGQPSolver<VectorBase>::set_settings_from_console() {
 		debug_print_scalars = true;
 	}
 
-	consoleArg.set_option_value("tssolver_debug_print_it",		&debug_print_it, 		debug_print_it);
-	consoleArg.set_option_value("tssolver_debug_print_vectors", &debug_print_vectors,	false);
-	consoleArg.set_option_value("tssolver_debug_print_scalars", &debug_print_scalars, 	debug_print_scalars);
+	consoleArg.set_option_value("spgqpsolver_debug_print_it",		&debug_print_it, 		debug_print_it);
+	consoleArg.set_option_value("spgqpsolver_debug_print_vectors", &debug_print_vectors,	false);
+	consoleArg.set_option_value("spgqpsolver_debug_print_scalars", &debug_print_scalars, 	debug_print_scalars);
 
 }
 
