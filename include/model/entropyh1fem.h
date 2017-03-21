@@ -25,8 +25,8 @@ typedef petscvector::PetscVector PetscVector;
 
 /* theta problem */
 #include "data/entropydata.h"
-#include "solver/entropysolver_dlib.h"
-#include "solver/entropysolver_spg.h"
+#include "solver/entropysolverdlib.h"
+#include "solver/entropysolverspg.h"
 
 #include "data/tsdata.h"
 

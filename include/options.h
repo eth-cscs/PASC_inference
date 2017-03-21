@@ -120,7 +120,24 @@ static void add_options(boost::program_options::options_description *description
 			("taosolver_use_upperbound", boost::program_options::value<bool>(), "use additional upper bound x<=1 [bool]")
 			("taosolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_taosolver);
-	
+
+		/* ENTROPYSOLVERSPG */
+		boost::program_options::options_description opt_entropysolverspg("ENTROPYSOLVERSPG", console_nmb_cols);
+		opt_entropysolverspg.add_options()
+			("entropysolverspg_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
+			("entropysolverspg_eps", boost::program_options::value<double>(), "precision [double]")
+			("entropysolverspg_m", boost::program_options::value<int>(), "parameter of generalized Armijo condition [int]")
+			("entropysolverspg_gamma", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
+			("entropysolverspg_sigma1", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
+			("entropysolverspg_sigma2", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
+			("entropysolverspg_alphainit", boost::program_options::value<double>(), "initial BB step-size [double]")
+			("entropysolverspg_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
+			("entropysolverspg_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
+			("entropysolverspg_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
+			("entropysolverspg_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations")
+			("entropysolverspg_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
+		opt_solvers.add(opt_entropysolverspg);
+
 	description->add(opt_solvers);
 
 

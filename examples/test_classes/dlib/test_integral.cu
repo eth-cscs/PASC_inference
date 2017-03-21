@@ -36,7 +36,7 @@ double gg(double y, int order, column_vector& LM)
 double mymc(column_vector& LM, int order, int N)
 {
 	double mysum = 0.0;
-	double x,y;
+	double x;
 
     int num_moments = LM.size();
     column_vector z(num_moments);
@@ -45,21 +45,20 @@ double mymc(column_vector& LM, int order, int N)
 	
 	for(int i=0; i < N; i++){
 		x = -1.0 + 2.0*rand01();
-		for(int j=0; j < N; j++){
-			y = -1.0 + 2.0*rand01();
 
-			z = 0;
-			for (int k = 0; k < num_moments; ++k)
-				z(k) = pow(x,k+1);
+		z = 0;
+		for (int k = 0; k < num_moments; ++k)
+			z(k) = pow(x,k+1);
 
-			f = pow(y,order)*(exp(-trans(LM)*z));
-			if(y <= f){
-				mysum+=f;
-			}
-		}
+		f = pow(x,order)*(exp(-trans(LM)*z));
+		
+//		std::cout << x << ": " << f << std::endl;
+		
+		mysum+=f;
+
 	}
 	
-	return 4.0*mysum/((double)(N*N));
+	return 2*mysum/((double)(N));
 }
 
 int main(int argc, const char * argv[]) {
@@ -79,12 +78,12 @@ int main(int argc, const char * argv[]) {
 	lambda(3) = 2;
 	lambda(4) = 0.3;
     
-    auto mom_function = [&](double x)->double { return gg(x, 0, lambda);};
+    auto mom_function = [&](double x)->double { return gg(x, 3, lambda);};
     double F_Dlib = integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
     std::cout << " - Dlib  : " << F_Dlib << std::endl;
 
 
-	double F_mc = mymc(lambda, 0, 1000);
+	double F_mc = mymc(lambda, 3, 1000000);
     std::cout << " - myMC  : " << F_mc << std::endl;
     
     return 0;

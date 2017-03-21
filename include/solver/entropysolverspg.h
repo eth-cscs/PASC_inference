@@ -1,19 +1,14 @@
 /** @file entropysolver_dlib.h
- *  @brief Solver which solves problem with integrals using DLib library
- *
- *  @author Anna Marchenko & Lukas Pospisil 
+ *  @brief Solver which solves problem with integrals using SPG algorithm
+ *  
+ *  @author Lukas Pospisil 
  */
  
-#ifndef PASC_ENTROPYSOLVER_DLIB_H
-#define	PASC_ENTROPYSOLVER_DLIB_H
+#ifndef PASC_ENTROPYSOLVERSPG_H
+#define	PASC_ENTROPYSOLVERSPG_H
 
 #include "pascinference.h"
 #include "data/entropydata.h"
-
-/* this code is for Dlib */
-#ifndef USE_DLIB
- #error 'ENTROPYSOLVER_DLIB is for DLIB'
-#endif
 
 /* include Dlib stuff */
 #include "dlib/matrix.h"
@@ -21,7 +16,17 @@
 #include "dlib/numerical_integration.h"
 #include "dlib/optimization.h"
 
-#define STOP_TOLERANCE 1e-06
+#define ENTROPYSOLVERSPG_DEFAULT_MAXIT 1000
+#define ENTROPYSOLVERSPG_DEFAULT_EPS 1e-9
+#define ENTROPYSOLVERSPG_DEFAULT_DEBUGMODE 0
+
+#define ENTROPYSOLVERSPG_DEFAULT_M 1
+#define ENTROPYSOLVERSPG_DEFAULT_GAMMA 0.9
+#define ENTROPYSOLVERSPG_DEFAULT_SIGMA1 0.000
+#define ENTROPYSOLVERSPG_DEFAULT_SIGMA2 1.0
+#define ENTROPYSOLVERSPG_DEFAULT_ALPHAINIT 1.0
+
+#define ENTROPYSOLVERSPG_MONITOR false
 
 /* Dlib column vector */
 typedef dlib::matrix<double,0,1> column_vector;
@@ -29,14 +34,68 @@ typedef dlib::matrix<double,0,1> column_vector;
 namespace pascinference {
 namespace solver {
 
-/** \class EntropySolverDlib
- *  \brief Solver which solves problem with integrals using DLib library
+/** \class EntropySolverSPG
+ *  \brief Solver which solves problem with integrals using SPG algorithm
  *
  *  Operates on EntropyData.
 */
 template<class VectorBase>
-class EntropySolverDlib: public GeneralSolver {
+class EntropySolverSPG: public GeneralSolver {
 	protected:
+		/** \class EntropySolverSPG_fs
+		 *  \brief generalized Armijo condition
+		 *
+		 *  For manipulation with fs - function values for generalized Armijo condition used in SPG.
+		*/
+		class EntropySolverSPG_fs {
+			private:
+				int m; /**< the length of list */
+				double *fs_list; /**< the list with function values */
+				int last_idx;
+
+			public: 
+				/** @brief constructor
+				*
+				* @param new_m length of lists
+				*/
+				EntropySolverSPG_fs(int new_m);
+
+				/** @brief deconstructor
+				*
+				*/
+				~EntropySolverSPG_fs();
+
+				/** @brief set all values to given one
+				*
+				* At the begining of computation, all values are the same, set them using this function.
+				* 
+				* @param fx function value
+				*/
+				void init(double fx);
+
+				/** @brief return maximum value from the list
+				*
+				*/
+				double get_max();		
+
+				/** @brief return length of lists
+				*
+				*/
+				int get_size();
+		
+				/** @brief update list - add new value and remove oldest one
+				*
+				*/
+				void update(double new_fx);
+		
+				/** @brief print content of the lists
+				*
+				* @param output where to print
+				*/
+				void print(ConsoleOutput &output);
+		};
+	
+	
 		Timer timer_solve; /**< total solution time */
 		Timer timer_compute_moments; /**< time of moment computation */
 
@@ -55,9 +114,9 @@ class EntropySolverDlib: public GeneralSolver {
 
 	public:
 
-		EntropySolverDlib();
-		EntropySolverDlib(EntropyData<VectorBase> &new_entropydata); 
-		~EntropySolverDlib();
+		EntropySolverSPG();
+		EntropySolverSPG(EntropyData<VectorBase> &new_entropydata); 
+		~EntropySolverSPG();
 
 		void solve();
 
@@ -88,7 +147,7 @@ namespace solver {
 
 /* constructor */
 template<class VectorBase>
-EntropySolverDlib<VectorBase>::EntropySolverDlib(){
+EntropySolverSPG<VectorBase>::EntropySolverSPG(){
 	LOG_FUNC_BEGIN
 	
 	entropydata = NULL;
@@ -106,7 +165,7 @@ EntropySolverDlib<VectorBase>::EntropySolverDlib(){
 }
 
 template<class VectorBase>
-EntropySolverDlib<VectorBase>::EntropySolverDlib(EntropyData<VectorBase> &new_entropydata){
+EntropySolverSPG<VectorBase>::EntropySolverSPG(EntropyData<VectorBase> &new_entropydata){
 	LOG_FUNC_BEGIN
 
 	entropydata = &new_entropydata;
@@ -140,7 +199,7 @@ EntropySolverDlib<VectorBase>::EntropySolverDlib(EntropyData<VectorBase> &new_en
 
 /* destructor */
 template<class VectorBase>
-EntropySolverDlib<VectorBase>::~EntropySolverDlib(){
+EntropySolverSPG<VectorBase>::~EntropySolverSPG(){
 	LOG_FUNC_BEGIN
 
 	free(x_power);
@@ -153,7 +212,7 @@ EntropySolverDlib<VectorBase>::~EntropySolverDlib(){
 
 /* print info about problem */
 template<class VectorBase>
-void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
+void EntropySolverSPG<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -175,7 +234,7 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
 
 /* print info about problem */
 template<class VectorBase>
-void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void EntropySolverSPG<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -197,7 +256,7 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 }
 
 template<class VectorBase>
-void EntropySolverDlib<VectorBase>::printstatus(ConsoleOutput &output) const {
+void EntropySolverSPG<VectorBase>::printstatus(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -207,7 +266,7 @@ void EntropySolverDlib<VectorBase>::printstatus(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
-void EntropySolverDlib<VectorBase>::printstatus(std::ostringstream &output) const {
+void EntropySolverSPG<VectorBase>::printstatus(std::ostringstream &output) const {
 	LOG_FUNC_BEGIN
 
 	std::streamsize ss = std::cout.precision();
@@ -223,7 +282,7 @@ void EntropySolverDlib<VectorBase>::printstatus(std::ostringstream &output) cons
 
 /* print content of solver */
 template<class VectorBase>
-void EntropySolverDlib<VectorBase>::printcontent(ConsoleOutput &output) const {
+void EntropySolverSPG<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
@@ -240,7 +299,7 @@ void EntropySolverDlib<VectorBase>::printcontent(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
-void EntropySolverDlib<VectorBase>::printtimer(ConsoleOutput &output) const {
+void EntropySolverSPG<VectorBase>::printtimer(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -253,18 +312,18 @@ void EntropySolverDlib<VectorBase>::printtimer(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
-std::string EntropySolverDlib<VectorBase>::get_name() const {
-	std::string return_value = "EntropySolverDlib<" + GeneralVector<VectorBase>::get_name() + ">";
+std::string EntropySolverSPG<VectorBase>::get_name() const {
+	std::string return_value = "EntropySolverSPG<" + GeneralVector<VectorBase>::get_name() + ">";
 	return return_value;
 }
 
 template<class VectorBase>
-EntropyData<VectorBase> *EntropySolverDlib<VectorBase>::get_data() const {
+EntropyData<VectorBase> *EntropySolverSPG<VectorBase>::get_data() const {
 	return entropydata;
 }
 
 template<class VectorBase>
-void EntropySolverDlib<VectorBase>::solve() {
+void EntropySolverSPG<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
 	this->compute_moments();
@@ -332,7 +391,7 @@ void EntropySolverDlib<VectorBase>::solve() {
 }
 
 template<>
-void EntropySolverDlib<PetscVector>::compute_moments() {
+void EntropySolverSPG<PetscVector>::compute_moments() {
 	LOG_FUNC_BEGIN
 
 	this->timer_compute_moments.start(); 
@@ -387,7 +446,7 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 
 
 template<class VectorBase>
-double EntropySolverDlib<VectorBase>::gg(double y, int order, column_vector& LM){
+double EntropySolverSPG<VectorBase>::gg(double y, int order, column_vector& LM){
     long  x_size = LM.size();
     long  num_moments = x_size;
     column_vector z(num_moments);
@@ -401,7 +460,7 @@ double EntropySolverDlib<VectorBase>::gg(double y, int order, column_vector& LM)
 }
 
 template<class VectorBase>
-double EntropySolverDlib<VectorBase>::get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps){
+double EntropySolverSPG<VectorBase>::get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps){
     /* compute normalization */
     column_vector Vec = LM;
     auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
@@ -411,7 +470,7 @@ double EntropySolverDlib<VectorBase>::get_functions_obj(const column_vector& LM,
 }
 
 template<class VectorBase>
-column_vector EntropySolverDlib<VectorBase>::get_functions_grad(const column_vector& LM, const column_vector& Mom, int k){
+column_vector EntropySolverSPG<VectorBase>::get_functions_grad(const column_vector& LM, const column_vector& Mom, int k){
     column_vector grad(k);
     column_vector I(k);
     
@@ -438,7 +497,7 @@ column_vector EntropySolverDlib<VectorBase>::get_functions_grad(const column_vec
 }
 
 template<class VectorBase>
-dlib::matrix<double> EntropySolverDlib<VectorBase>::get_functions_hess(const column_vector& LM, const column_vector& Mom, int k){
+dlib::matrix<double> EntropySolverSPG<VectorBase>::get_functions_hess(const column_vector& LM, const column_vector& Mom, int k){
     dlib::matrix<double> hess(k, k);
     
     column_vector I(2*k);
@@ -469,7 +528,7 @@ dlib::matrix<double> EntropySolverDlib<VectorBase>::get_functions_hess(const col
 }
 
 template<>
-void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const {
+void EntropySolverSPG<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const {
 	LOG_FUNC_BEGIN
 
 	int T = entropydata->get_T();
@@ -525,6 +584,8 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 		
 	LOG_FUNC_END
 }
+
+
 
 }
 } /* end namespace */

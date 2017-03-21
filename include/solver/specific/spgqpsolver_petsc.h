@@ -32,6 +32,10 @@ template<> void SPGQPSolver<PetscVector>::solve();
 template<> double SPGQPSolver<PetscVector>::get_fx() const;
 template<> void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const;
 
+
+/* --- implementation --- */
+//TODO: move to impls
+
 template<>
 std::string SPGQPSolver<PetscVector>::get_name() const {
 	return "SPGQPSolver for PETSc"; /* better to see than simple "SPGQPSolver<PetscVector>" */
@@ -117,7 +121,7 @@ void SPGQPSolver<PetscVector>::solve() {
 
 	double fx; /* function value */
 	double fx_old; /* f(x_{it - 1}) */
-	SPGQPSolver_fs fs(this->m); /* store function values for generalized Armijo condition */
+	SPG_fs fs(this->m); /* store function values for generalized Armijo condition */
 	double fx_max; /* max(fs) */
 	double xi, beta_bar, beta_hat, beta; /* for Armijo condition */
 	double dd; /* dot(d,d) */
