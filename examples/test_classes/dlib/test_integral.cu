@@ -14,6 +14,9 @@
 
 using namespace dlib;
 
+/* random number from 0,1 */
+double rand01() { return (double)std::rand() / RAND_MAX; }
+
 typedef matrix<double,0,1> column_vector;
 #define STOP_TOLERANCE 1e-06
 
@@ -38,24 +41,25 @@ double mymc(column_vector& LM, int order, int N)
     int num_moments = LM.size();
     column_vector z(num_moments);
 	
-	
+	double f;
 	
 	for(int i=0; i < N; i++){
-		x = ((double) std::rand() / (RAND_MAX));
+		x = -1.0 + 2.0*rand01();
 		for(int j=0; j < N; j++){
-			y = ((double) std::rand() / (RAND_MAX));
+			y = -1.0 + 2.0*rand01();
 
 			z = 0;
 			for (int k = 0; k < num_moments; ++k)
 				z(k) = pow(x,k+1);
 
-			if(y <= pow(y,order)*(exp(-trans(LM)*z)) ){
-				mysum++;
+			f = pow(y,order)*(exp(-trans(LM)*z));
+			if(y <= f){
+				mysum+=f;
 			}
 		}
 	}
 	
-	return mysum/((double)(N*N));
+	return 4.0*mysum/((double)(N*N));
 }
 
 int main(int argc, const char * argv[]) {
