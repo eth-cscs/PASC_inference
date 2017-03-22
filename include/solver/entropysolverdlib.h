@@ -1,4 +1,4 @@
-/** @file entropysolver_dlib.h
+/** @file entropysolverdlib.h
  *  @brief Solver which solves problem with integrals using DLib library
  *
  *  @author Anna Marchenko & Lukas Pospisil 

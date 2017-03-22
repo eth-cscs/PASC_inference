@@ -139,6 +139,20 @@ static void add_options(boost::program_options::options_description *description
 			("entropysolverspg_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
 		opt_solvers.add(opt_entropysolverspg);
 
+		/* ENTROPYSOLVERNEWTON */
+		boost::program_options::options_description opt_entropysolvernewton("ENTROPYSOLVERNEWTON", console_nmb_cols);
+		opt_entropysolvernewton.add_options()
+			("entropysolvernewton_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
+			("entropysolvernewton_maxit_cg", boost::program_options::value<int>(), "maximum number of inner CG iterations [int]")
+			("entropysolvernewton_eps", boost::program_options::value<double>(), "precision [double]")
+			("entropysolvernewton_eps_cg", boost::program_options::value<double>(), "precision of inner CG solver [double]")
+			("entropysolvernewton_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
+			("entropysolvernewton_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
+			("entropysolvernewton_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations")
+			("entropysolvernewton_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations")
+			("entropysolvernewton_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations");
+		opt_solvers.add(opt_entropysolvernewton);
+
 	description->add(opt_solvers);
 
 
@@ -162,7 +176,7 @@ static void add_options(boost::program_options::options_description *description
 		boost::program_options::options_description opt_entropyh1femmodel("ENTROPYH1FEMMODEL", console_nmb_cols);
 		opt_entropyh1femmodel.add_options()
 			("entropyh1femmodel_scalef", boost::program_options::value<bool>(), "scale function by 1/T [bool]")
-			("entropyh1femmodel_thetasolvertype", boost::program_options::value<int>(), "type of used inner Entropy solver [0=SOLVER_AUTO/1=SOLVER_ENTROPY_DLIB/2=SOLVER_ENTROPY_SPG]")			
+			("entropyh1femmodel_thetasolvertype", boost::program_options::value<int>(), "type of used inner Entropy solver [0=SOLVER_AUTO/1=SOLVER_ENTROPY_DLIB/2=SOLVER_ENTROPY_SPG/3=SOLVER_ENTROPY_NEWTON]")			
 			("entropyh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]");
 		opt_models.add(opt_entropyh1femmodel);
 
