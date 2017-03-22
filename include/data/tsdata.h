@@ -352,16 +352,17 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 		this->destroy_gammavector = true;
 	}
 
+	/* Theta vector is sequential */
 	if(!this->thetavector){
 		Vec thetavector_Vec;
 
-		TRYCXX( VecCreate(PETSC_COMM_WORLD,&thetavector_Vec) );
+		TRYCXX( VecCreate(PETSC_COMM_SELF,&thetavector_Vec) );
 		#ifdef USE_CUDA
-			TRYCXX(VecSetType(thetavector_Vec, VECMPICUDA));
+			TRYCXX(VecSetType(thetavector_Vec, VECSEQCUDA));
 		#else
-			TRYCXX(VecSetType(thetavector_Vec, VECMPI));
+			TRYCXX(VecSetType(thetavector_Vec, VECSEQ));
 		#endif
-		TRYCXX( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),this->tsmodel->get_thetavectorlength_global()) );
+		TRYCXX( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),this->tsmodel->get_thetavectorlength_local()) );
 		TRYCXX( VecSetFromOptions(thetavector_Vec) );
 		
 		this->thetavector = new GeneralVector<PetscVector>(thetavector_Vec);

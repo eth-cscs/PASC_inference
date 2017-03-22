@@ -58,7 +58,7 @@ class EntropySolverSPG: public GeneralSolver {
 		EntropyData<VectorBase> *entropydata; /**< data on which the solver operates */
 
 		/* aux vectors */
-		GeneralVector<VectorBase> *moments_data; /**< vector of computed moments */
+		GeneralVector<VectorBase> *moments_data; /**< local vector of computed moments */
 		GeneralVector<VectorBase> *x_power; /**< temp vector for storing power of x */
 		GeneralVector<VectorBase> *x_power_gammak; /**< temp vector for storing power of x * gamma_k */
 
@@ -97,10 +97,11 @@ class EntropySolverSPG: public GeneralSolver {
 		*/
 		void free_temp_vectors();
 
-		GeneralVector<VectorBase> *g; 		/**< gradient */
-		GeneralVector<VectorBase> *y; 		/**< g_old, g-g_old */
-		GeneralVector<VectorBase> *s; 		/**< x_old, x-x_old */
+		GeneralVector<VectorBase> *g; 		/**< local gradient */
+		GeneralVector<VectorBase> *y; 		/**< gl_old, gl-gl_old */
+		GeneralVector<VectorBase> *s; 		/**< xl_old, xl-xl_old */
 
+		void compute_gradient(GeneralVector<VectorBase> g, const GeneralVector<VectorBase> lambda);
 
 	public:
 
@@ -182,13 +183,13 @@ void EntropySolverSPG<VectorBase>::allocate_temp_vectors(){
 	
 	/* create aux vector for the computation of moments */
 	Vec moments_Vec;
-	TRYCXX( VecCreate(PETSC_COMM_WORLD,&moments_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_SELF,&moments_Vec) );
 	#ifdef USE_CUDA
-		TRYCXX(VecSetType(moments_Vec, VECMPICUDA));
+		TRYCXX(VecSetType(moments_Vec, VECSEQCUDA));
 	#else
-		TRYCXX(VecSetType(moments_Vec, VECMPI));
+		TRYCXX(VecSetType(moments_Vec, VECSEQ));
 	#endif
-	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),PETSC_DECIDE) );
+	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),entropydata->get_K()*entropydata->get_Km()) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	this->moments_data = new GeneralVector<PetscVector>(moments_Vec);
 
@@ -455,55 +456,59 @@ void EntropySolverSPG<VectorBase>::solve() {
 	int K = entropydata->get_K();
 	int Km = entropydata->get_Km();
 
-	/* Anna knows the purpose of this number */
-	double eps = 0.0;
-
-	/* prepare objects for Dlib */
-    column_vector Mom(Km);
-    column_vector starting_point(Km);
-
-	/* stuff for PETSc to Dlib */
+	/* get PETSc vecs - LOCAL */
 	Vec moments_Vec = moments_data->get_vector();
-	Vec lambda_Vec = entropydata->get_lambda()->get_vector();
-	double *moments_arr;
-	double *lambda_arr;
-	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
-	TRYCXX( VecGetArray(lambda_Vec, &lambda_arr) );
+	Vec x_Vec = entropydata->get_lambda()->get_vector(); /* x:=lambda is unknowns */
+	Vec g_Vec = g->get_vector();
+	Vec y_Vec = y->get_vector();
+	Vec s_Vec = s->get_vector();
 
-	/* prepare lambda-functions for Dlib */
-	auto get_functions_obj_lambda = [&](const column_vector& x)->double { return get_functions_obj(x, Mom, eps);};
-	auto get_functions_grad_lambda = [&](const column_vector& x)->column_vector { return get_functions_grad(x, Mom, Km);};
-	auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return get_functions_hess(x, Mom, Km);};
+	/* stuff for clusters (subvectors) - LOCAL */
+	IS k_is;
+	Vec xk_Vec;
+	Vec gk_Vec;
+	Vec yk_Vec;
+	Vec sk_Vec;
+	Vec momentsk_Vec;
 
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
-		/* Mom: from PETSc vector to Dlib column_vector */
-		for(int km=0;km<Km;km++){
-			Mom(km) = moments_arr[k*Km+km];
+		
+		coutMaster << "k=" << k << std::endl;
+		
+		/* prepare index set to get subvectors from moments, x, g, s, y */
+		TRYCXX( ISCreateStride(PETSC_COMM_SELF, Km, k*Km, 1, &k_is) ); /* Theta is LOCAL ! */
+	
+		/* get subvectors for this cluster */
+		TRYCXX( VecGetSubVector(x_Vec, k_is, &xk_Vec) );
+		TRYCXX( VecGetSubVector(g_Vec, k_is, &gk_Vec) );
+		TRYCXX( VecGetSubVector(y_Vec, k_is, &yk_Vec) );
+		TRYCXX( VecGetSubVector(s_Vec, k_is, &sk_Vec) );
+		TRYCXX( VecGetSubVector(moments_Vec, k_is, &momentsk_Vec) );
+
+		//TODO: temp
+		double *x_arr;
+		TRYCXX( VecGetArray(xk_Vec, &x_arr));
+		for(int km = 0; km < Km; km++){
+			x_arr[km] = (k+1)*10 + (km+1);
 		}
+		
+		TRYCXX( VecRestoreArray(xk_Vec, &x_arr) );
 
-		/* initial value form starting_point */
-		starting_point = 0.0;
 
-		coutMaster << "k=" << k << ": running Dlib miracle" << std::endl;
+		/* restore subvectors */
+		TRYCXX( VecRestoreSubVector(x_Vec, k_is, &xk_Vec) );
+		TRYCXX( VecRestoreSubVector(g_Vec, k_is, &gk_Vec) );
+		TRYCXX( VecRestoreSubVector(y_Vec, k_is, &yk_Vec) );
+		TRYCXX( VecRestoreSubVector(s_Vec, k_is, &sk_Vec) );
+		TRYCXX( VecRestoreSubVector(moments_Vec, k_is, &momentsk_Vec) );
 
-		/* solve using Dlib magic */
-		dlib::find_min_box_constrained(dlib::newton_search_strategy(get_functions_hess_lambda),
-                             dlib::objective_delta_stop_strategy(STOP_TOLERANCE).be_verbose(),
-                             get_functions_obj_lambda, get_functions_grad_lambda, starting_point, -1e12, 1e12 );
-
-//		coutMaster << "something computed" << std::endl;
-
-		/* store lambda (solution): from Dlib to Petsc */
-		for(int km=0;km<Km;km++){
-			lambda_arr[k*Km+km] = starting_point(km);
-		}
+		/* destroy index set */
+		TRYCXX( ISDestroy(&k_is) );	
 
 	} /* endfor through clusters */
 
-	TRYCXX( VecRestoreArray(lambda_Vec, &lambda_arr) );
-	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
-	
+
 	this->timer_solve.stop(); 
 
 	LOG_FUNC_END

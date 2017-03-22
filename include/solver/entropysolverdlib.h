@@ -118,6 +118,7 @@ EntropySolverDlib<VectorBase>::EntropySolverDlib(EntropyData<VectorBase> &new_en
 
 	/* prepare timers */
 	this->timer_solve.restart();	
+	this->timer_compute_moments.restart();
 
 	/* prepare auxiliary vectors */
 	x_power = new GeneralVector<PetscVector>(*entropydata->get_x());
@@ -125,13 +126,13 @@ EntropySolverDlib<VectorBase>::EntropySolverDlib(EntropyData<VectorBase> &new_en
 	
 	/* create aux vector for the computation of moments */
 	Vec moments_Vec;
-	TRYCXX( VecCreate(PETSC_COMM_WORLD,&moments_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_SELF,&moments_Vec) );
 	#ifdef USE_CUDA
-		TRYCXX(VecSetType(moments_Vec, VECMPICUDA));
+		TRYCXX(VecSetType(moments_Vec, VECSEQCUDA));
 	#else
-		TRYCXX(VecSetType(moments_Vec, VECMPI));
+		TRYCXX(VecSetType(moments_Vec, VECSEQ));
 	#endif
-	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),PETSC_DECIDE) );
+	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),entropydata->get_K()*entropydata->get_Km()) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 
