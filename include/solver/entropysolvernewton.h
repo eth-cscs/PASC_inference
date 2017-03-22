@@ -10,6 +10,9 @@
 #include "pascinference.h"
 #include "data/entropydata.h"
 
+/* petsc stuff */
+#include <petscksp.h>
+
 /* include Dlib stuff */
 #include "dlib/matrix.h"
 #include "dlib/numeric_constants.h"
@@ -41,19 +44,19 @@ class EntropySolverNewton: public GeneralSolver {
 		double *fxs;					/**< function values in clusters */
 		double *gnorms;					/**< norm of gradient in clusters (stopping criteria) */
 	
-		int maxit_cg;
-		double eps_cg;
+		int maxit_ksp;
+		double eps_ksp;
 		int *it_sums;					/**< sums of all iterations for each cluster */
 		int *it_lasts;					/**< number of iterations from last solve() call for each cluster */
-		int *itcg_sums;					/**< sums of all cg iterations for each cluster */
-		int *itcg_lasts;				/**< sums of all cg iterations in this outer iteration */
+		int *itksp_sums;					/**< sums of all cg iterations for each cluster */
+		int *itksp_lasts;				/**< sums of all cg iterations in this outer iteration */
 	
 		Timer timer_compute_moments;	/**< time for computing moments from data */
-		Timer timer_solve; 				/**< total solution time of SPG algorithm */
-//		Timer timer_update; 			/**< total time of vector updates */
+		Timer timer_solve; 				/**< total solution time of Newton algorithm */
+		Timer timer_ksp; 				/**< total solution time of KSP algorithm */
+		Timer timer_update; 			/**< total time of vector updates */
 		Timer timer_g;			 		/**< total time of gradient computation */
-//		Timer timer_hess;				/**< total time of gradient computation */
-//		Timer timer_dot;		 		/**< total time of dot computation */
+		Timer timer_H;			 		/**< total time of Hessian computation */
 		Timer timer_fs; 				/**< total time of manipulation with function values during iterations */
 		Timer timer_integrate;	 		/**< total time of integration */
 
@@ -77,6 +80,7 @@ class EntropySolverNewton: public GeneralSolver {
 		bool debug_print_it;		/**< print simple info about outer iterations */
 		bool debug_print_vectors;	/**< print content of vectors during iterations */
 		bool debug_print_scalars;	/**< print values of computed scalars during iterations */ 
+		bool debug_print_ksp;		/**< print info about inner KSP every outer Newton iteration */
 
 		bool monitor;				/**< export the descend into .m file */
 
@@ -90,13 +94,16 @@ class EntropySolverNewton: public GeneralSolver {
 		*/
 		void free_temp_vectors();
 
-		/* CG stuff (for problem of size Km) */
+		/* KSP stuff (for problem of size Km) */
 		GeneralVector<VectorBase> *g; 		/**< local gradient, size Km */
-//		GeneralVector<VectorBase> *y; 		/**< g_old, g-g_old, size Km */
-//		GeneralVector<VectorBase> *s; 		/**< x_old, x-x_old, size Km */
+		GeneralVector<VectorBase> *delta;	/**< vetor used in Newton method, size Km */
+		Mat H_petsc;						/**< Hessian matrix */
+		KSP ksp;							/**< linear solver context */
+		PC pc;           					/**< preconditioner context **/
 		
 
 		void compute_gradient(Vec &g_Vec, Vec &integrals_Vec, Vec &moments_Vec);					/**< g = nabla_lambda f(lambda, moments) */
+		void compute_hessian(Vec &integrals_Vec);													/**< Hessian matrix */
 		double compute_function_value(Vec &lambda_Vec, Vec &integrals_Vec, Vec &moments_Vec);		/**< compute function value from already computed integrals and moments */
 		void compute_integrals(Vec &integrals_Vec, Vec &lambda_Vec, bool compute_all);				/**< compute integrals int x^{0,..,Km} exp(-dot(lambda,x^{1,..,Km})) */
 
@@ -136,9 +143,9 @@ namespace solver {
 template<class VectorBase>
 void EntropySolverNewton<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolvernewton_maxit", &this->maxit, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT);
-	consoleArg.set_option_value("entropysolvernewton_maxit_cg", &this->maxit_cg, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_CG);
+	consoleArg.set_option_value("entropysolvernewton_maxit_ksp", &this->maxit_ksp, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_CG);
 	consoleArg.set_option_value("entropysolvernewton_eps", &this->eps, ENTROPYSOLVERNEWTON_DEFAULT_EPS);
-	consoleArg.set_option_value("entropysolvernewton_eps_cg", &this->eps_cg, ENTROPYSOLVERNEWTON_DEFAULT_EPS_CG);
+	consoleArg.set_option_value("entropysolvernewton_eps_ksp", &this->eps_ksp, ENTROPYSOLVERNEWTON_DEFAULT_EPS_CG);
 	
 	consoleArg.set_option_value("entropysolvernewton_monitor", &this->monitor, ENTROPYSOLVERNEWTON_MONITOR);	
 
@@ -157,11 +164,13 @@ void EntropySolverNewton<VectorBase>::set_settings_from_console() {
 	if(debugmode == 2){
 		debug_print_it = true;
 		debug_print_scalars = true;
+		debug_print_ksp = true;
 	}
 
 	consoleArg.set_option_value("entropysolvernewton_debug_print_it",		&debug_print_it, 		debug_print_it);
-	consoleArg.set_option_value("entropysolvernewton_debug_print_vectors", &debug_print_vectors,	false);
-	consoleArg.set_option_value("entropysolvernewton_debug_print_scalars", &debug_print_scalars, 	debug_print_scalars);
+	consoleArg.set_option_value("entropysolvernewton_debug_print_vectors", 	&debug_print_vectors,	false);
+	consoleArg.set_option_value("entropysolvernewton_debug_print_scalars", 	&debug_print_scalars, 	debug_print_scalars);
+	consoleArg.set_option_value("entropysolvernewton_debug_print_ksp", 		&debug_print_ksp, 		debug_print_ksp);
 
 }
 
@@ -187,7 +196,7 @@ void EntropySolverNewton<VectorBase>::allocate_temp_vectors(){
 		TRYCXX(VecSetType(integrals_Vec, VECSEQ));
 	#endif
 	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),entropydata->get_K()*entropydata->get_Km()) );
-	TRYCXX( VecSetSizes(integrals_Vec,entropydata->get_K()*(entropydata->get_Km()+1),entropydata->get_K()*(entropydata->get_Km()+1)) );
+	TRYCXX( VecSetSizes(integrals_Vec,entropydata->get_K()*(2*entropydata->get_Km()+1),entropydata->get_K()*(2*entropydata->get_Km()+1)) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	TRYCXX( VecSetFromOptions(integrals_Vec) );
 	this->moments_data = new GeneralVector<PetscVector>(moments_Vec);
@@ -204,8 +213,24 @@ void EntropySolverNewton<VectorBase>::allocate_temp_vectors(){
 	TRYCXX( VecSetSizes(g_Vec,entropydata->get_Km(),entropydata->get_Km()) );
 	TRYCXX( VecSetFromOptions(g_Vec) );
 	this->g = new GeneralVector<PetscVector>(g_Vec);
-//	this->y = new GeneralVector<PetscVector>(*g);
-//	this->s = new GeneralVector<PetscVector>(*g);
+	this->delta = new GeneralVector<PetscVector>(*g);
+
+
+	/* create Hessian matrix */
+	TRYCXX( MatCreate(PETSC_COMM_WORLD, &H_petsc) );
+	TRYCXX( MatSetSizes(H_petsc,entropydata->get_Km(),entropydata->get_Km(),entropydata->get_Km(),entropydata->get_Km()) );
+	#ifdef USE_CUDA
+		TRYCXX( MatSetType(H_petsc,MATMPIAIJCUSPARSE) ); 
+	#else
+		TRYCXX( MatSetType(H_petsc,MATMPIAIJ) ); 
+	#endif
+	TRYCXX( MatSetFromOptions(H_petsc) );
+	TRYCXX( MatMPIAIJSetPreallocation(H_petsc,entropydata->get_Km(),NULL,entropydata->get_Km()-1,NULL) ); 
+	TRYCXX( MatSeqAIJSetPreallocation(H_petsc,entropydata->get_Km(),NULL) );
+
+	TRYCXX( MatAssemblyBegin(H_petsc,MAT_FLUSH_ASSEMBLY) );
+	TRYCXX( MatAssemblyEnd(H_petsc,MAT_FLUSH_ASSEMBLY) );
+	TRYCXX( PetscObjectSetName((PetscObject)H_petsc,"Hessian matrix") );
 
 	LOG_FUNC_END
 }
@@ -221,8 +246,9 @@ void EntropySolverNewton<VectorBase>::free_temp_vectors(){
 	free(integrals);
 
 	free(g);
-//	free(y);
-//	free(s);
+	free(delta);
+
+	TRYCXX( MatDestroy(&H_petsc) );
 
 	LOG_FUNC_END
 }
@@ -238,15 +264,15 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(){
 	/* initial values */
 	this->it_sums = new int [1];
 	this->it_lasts = new int [1];
-	this->itcg_sums = new int [1];
-	this->itcg_lasts = new int [1];
+	this->itksp_sums = new int [1];
+	this->itksp_lasts = new int [1];
 	this->fxs = new double [1];
 	this->gnorms = new double [1];
 
 	set_value_array(1, this->it_sums, 0);
 	set_value_array(1, this->it_lasts, 0);
-	set_value_array(1, this->itcg_sums, 0);
-	set_value_array(1, this->itcg_lasts, 0);
+	set_value_array(1, this->itksp_sums, 0);
+	set_value_array(1, this->itksp_lasts, 0);
 	set_value_array(1, this->fxs, std::numeric_limits<double>::max());
 	set_value_array(1, this->gnorms, std::numeric_limits<double>::max());
 	
@@ -261,9 +287,10 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(){
 	/* prepare timers */
 	this->timer_compute_moments.restart();	
 	this->timer_solve.restart();	
-//	this->timer_update.restart();
+	this->timer_ksp.restart();	
+	this->timer_update.restart();
 	this->timer_g.restart();
-//	this->timer_dot.restart();
+	this->timer_H.restart();
 	this->timer_fs.restart();
 	this->timer_integrate.restart();
 
@@ -280,15 +307,15 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(EntropyData<VectorBase> &ne
 	/* initial values */
 	this->it_sums = new int [K];
 	this->it_lasts = new int [K];
-	this->itcg_sums = new int [K];
-	this->itcg_lasts = new int [K];
+	this->itksp_sums = new int [K];
+	this->itksp_lasts = new int [K];
 	this->fxs = new double [K];
 	this->gnorms = new double [K];
 
 	set_value_array(K, this->it_sums, 0);
 	set_value_array(K, this->it_lasts, 0);
-	set_value_array(K, this->itcg_sums, 0);
-	set_value_array(K, this->itcg_lasts, 0);
+	set_value_array(K, this->itksp_sums, 0);
+	set_value_array(K, this->itksp_lasts, 0);
 	set_value_array(K, this->fxs, std::numeric_limits<double>::max());
 	set_value_array(K, this->gnorms, std::numeric_limits<double>::max());
 
@@ -302,10 +329,11 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(EntropyData<VectorBase> &ne
 
 	/* prepare timers */
 	this->timer_compute_moments.restart();	
-	this->timer_solve.restart();	
-//	this->timer_update.restart();
+	this->timer_solve.restart();
+	this->timer_ksp.restart();
+	this->timer_update.restart();
 	this->timer_g.restart();
-//	this->timer_dot.restart();
+	this->timer_H.restart();
 	this->timer_fs.restart();
 	this->timer_integrate.restart();
 
@@ -321,8 +349,8 @@ EntropySolverNewton<VectorBase>::~EntropySolverNewton(){
 
 	free(this->it_sums);
 	free(this->it_lasts);
-	free(this->itcg_sums);
-	free(this->itcg_lasts);
+	free(this->itksp_sums);
+	free(this->itksp_lasts);
 	free(this->fxs);
 	free(this->gnorms);
 
@@ -342,9 +370,9 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output) const {
 	
 	/* print settings */
 	output <<  " - maxit      : " << this->maxit << std::endl;
-	output <<  " - maxit_cg   : " << this->maxit_cg << std::endl;
+	output <<  " - maxit_ksp   : " << this->maxit_ksp << std::endl;
 	output <<  " - eps        : " << this->eps << std::endl;
-	output <<  " - eps_cg     : " << this->eps_cg << std::endl;
+	output <<  " - eps_ksp     : " << this->eps_ksp << std::endl;
 	output <<  " - debugmode  : " << this->debugmode << std::endl;
 
 	/* print data */
@@ -366,9 +394,9 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output_global, Consol
 	
 	/* print settings */
 	output_global <<  " - maxit      : " << this->maxit << std::endl;
-	output_global <<  " - maxit_cg   : " << this->maxit_cg << std::endl;
+	output_global <<  " - maxit_ksp   : " << this->maxit_ksp << std::endl;
 	output_global <<  " - eps        : " << this->eps << std::endl;
-	output_global <<  " - eps_cg     : " << this->eps_cg << std::endl;
+	output_global <<  " - eps_ksp     : " << this->eps_ksp << std::endl;
 	output_global <<  " - debugmode  : " << this->debugmode << std::endl;
 
 	/* print data */
@@ -438,16 +466,17 @@ void EntropySolverNewton<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - it all        = " << print_array(this->it_sums,K) << std::endl;
-	output <<  " - itcg all     = " << print_array(this->itcg_sums,K) << std::endl;
+	output <<  " - itksp all     = " << print_array(this->itksp_sums,K) << std::endl;
 	output <<  " - timers" << std::endl;
 	output <<  "  - t_moments    = " << this->timer_compute_moments.get_value_sum() << std::endl;
 	output <<  "  - t_solve      = " << this->timer_solve.get_value_sum() << std::endl;
-//	output <<  "  - t_update     = " << this->timer_update.get_value_sum() << std::endl;
+	output <<  "  - t_ksp        = " << this->timer_ksp.get_value_sum() << std::endl;
+	output <<  "  - t_update     = " << this->timer_update.get_value_sum() << std::endl;
 	output <<  "  - t_g          = " << this->timer_g.get_value_sum() << std::endl;
-//	output <<  "  - t_dot        = " << this->timer_dot.get_value_sum() << std::endl;
+	output <<  "  - t_H          = " << this->timer_H.get_value_sum() << std::endl;
 	output <<  "  - t_fs         = " << this->timer_fs.get_value_sum() << std::endl;
 	output <<  "  - t_integrate  = " << this->timer_integrate.get_value_sum() << std::endl;
-//	output <<  "  - t_other      = " << this->timer_solve.get_value_sum() - (this->timer_integrate.get_value_sum() + this->timer_dot.get_value_sum() + this->timer_update.get_value_sum() + this->timer_g.get_value_sum() + this->timer_fs.get_value_sum()) << std::endl;
+	output <<  "  - t_other      = " << this->timer_solve.get_value_sum() - (this->timer_integrate.get_value_sum() + this->timer_H.get_value_sum() + this->timer_update.get_value_sum() + this->timer_g.get_value_sum() + this->timer_fs.get_value_sum() + this->timer_ksp.get_value_sum()) << std::endl;
 
 	LOG_FUNC_END
 }
@@ -474,8 +503,9 @@ void EntropySolverNewton<VectorBase>::solve() {
 //	coutMaster << "Moments: " << *moments << std::endl;
 
 	this->timer_solve.start(); 
-	int it, itcg; /* actual number of iterations */
-
+	int it; /* actual number of iterations */
+	int itksp, itksp_one_newton_iteration; /* number of all KSP iterations, number of KSP iterations in one newton iteration */
+	
 	/* get dimensions */
 	int K = entropydata->get_K();
 	int Km = entropydata->get_Km();
@@ -484,8 +514,7 @@ void EntropySolverNewton<VectorBase>::solve() {
 	Vec moments_Vec = moments_data->get_vector();
 	Vec x_Vec = entropydata->get_lambda()->get_vector(); /* x:=lambda is unknowns */
 	Vec g_Vec = g->get_vector();
-//	Vec y_Vec = y->get_vector();
-//	Vec s_Vec = s->get_vector();
+	Vec delta_Vec = delta->get_vector();
 	Vec integrals_Vec = integrals->get_vector();
 
 	/* stuff for clusters (subvectors) - LOCAL */
@@ -495,9 +524,8 @@ void EntropySolverNewton<VectorBase>::solve() {
 	Vec momentsk_Vec;
 	Vec integralsk_Vec;
 
-	double gnorm, fx, fx_old, fx_max, delta, beta, beta_temp; /* BB & GLL stuff */
-	int itcg_temp;
-	double sTs, sTy;
+	double gnorm, fx; /* norm(g),f(x) */
+	double deltanorm; /* norm(delta) - for debug */
 
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
@@ -513,9 +541,9 @@ void EntropySolverNewton<VectorBase>::solve() {
 		TRYCXX( VecGetSubVector(moments_Vec, k_is, &momentsk_Vec) );
 		TRYCXX( VecGetSubVector(integrals_Vec, integralsk_is, &integralsk_Vec) );
 
-		/* -------------- SPG algorithm (for k-th problem) ------------ */
+		/* -------------- Newton algorithm (for k-th problem) ------------ */
 		it = 0;
-		itcg = 0;
+		itksp = 0;
 		
 		/* compute integrals and gradient */
 		this->timer_integrate.start();
@@ -530,129 +558,90 @@ void EntropySolverNewton<VectorBase>::solve() {
 
 		while(it < this->maxit){
 			/* compute stopping criteria - norm of gradient */
-//			TRYCXX( VecNorm(g_Vec, NORM_2, &gnorm) );
-//			if(gnorm < this->eps){
+			TRYCXX( VecNorm(g_Vec, NORM_2, &gnorm) );
+			if(gnorm < this->eps){
 				break;
-//			}
+			}
 
-			///* store previous iteration */
-			//fx_old = fx;
-			//TRYCXX( VecCopy(xk_Vec,s_Vec) ); /* s := x_old; */
-			//TRYCXX( VecCopy(g_Vec,y_Vec) ); /* y := g_old; */
-		
-			///* update */
-			//this->timer_update.start();
-			 //TRYCXX( VecAXPY(xk_Vec, -alpha_bb, y_Vec) ); /* x = x - alpha_bb*g */
-			//this->timer_update.stop();
-
-			///* we have new approximation => compute integrals and gradient */
-			//this->timer_integrate.start();
-			 //compute_integrals(integralsk_Vec, xk_Vec, false);
-			//this->timer_integrate.stop();
-			//this->timer_fs.start();
-			 //fx = compute_function_value(xk_Vec, integralsk_Vec, momentsk_Vec);
-			//this->timer_fs.stop();
-
-			///* ------------- modify approximation using GLL ------------- */
-			///* fx_old := f(x_old)  = f(x0); */
-			///* s      := x_old     = x0; */
-			///* y      := g_old     = g0; */ 
-			///* fx     := f(x_temp); */
-			///* x      := x_temp; */
-			///* g      := g_temp; */
+			/* prepare Hessian matrix */
+			this->timer_H.start();
+			 compute_hessian(integralsk_Vec);
+			this->timer_H.stop();
 			
-				///* delta = dot(g0,d) */
-				//this->timer_dot.start();
-				 //TRYCXX( VecDot(y_Vec,y_Vec,&delta) );
-				//this->timer_dot.stop();
-				//delta = -alpha_bb*delta;
-
-				///* fx_max = max(fs) */
-				//this->timer_fs.start();
-				 //fx_max = fs.get_max();
-				//this->timer_fs.stop();
-
-				///* initial cutting parameter */
-				//beta = 1.0;
-				//itcg_temp = 0;
-				
-				///* while f_temp > f_max + gamma*beta*delta */
-				//while(fx > fx_max + this->gamma*beta*delta && itcg_temp < this->maxit_cg ){
-					///* beta_temp = -0.5*beta^2*delta/(f_temp - f_0 - beta*delta); */
-					//beta_temp = -0.5*beta*beta*delta/(fx - fx_old - beta*delta);
-					
-					//if(beta_temp >= this->sigma1 && beta_temp <= this->sigma2*beta){
-						//beta = beta_temp;
-					//} else {
-						//beta = 0.9*beta;
-					//}
-					
-					///* update approximation */
-					//this->timer_update.start();
-					 //TRYCXX( VecCopy(s_Vec, xk_Vec) ); /* x = x_old */
-					 //TRYCXX( VecAXPY(xk_Vec, (-1)*alpha_bb*beta, y_Vec) ); /* x = x + beta*g */
-					//this->timer_update.stop();
-
-					///* we have new approximation => compute integrals */
-					//this->timer_integrate.start();
-					 //compute_integrals(integralsk_Vec, xk_Vec, false);
-					//this->timer_integrate.stop();
-					//this->timer_fs.start();
-					 //fx = compute_function_value(xk_Vec, integralsk_Vec, momentsk_Vec);
-					//this->timer_fs.stop();
-					
-					//itcg_temp++;
-				//}
-				
-				///* update gll iterator */
-				//itcg += itcg_temp;
-
-			///* ------------- end of GLL ------------- */
-
-			///* store last computed function value */
-			//this->timer_fs.start();
-			 //fs.update(fx);
-			//this->timer_fs.stop();
-
-			///* compute all integrals and gradient in new approximation */
-			//this->timer_integrate.start();
-			 //compute_integrals(integralsk_Vec, xk_Vec, true);
-			//this->timer_integrate.stop();
-			//this->timer_g.start();
-			 //compute_gradient(g_Vec, integralsk_Vec, momentsk_Vec);
-			//this->timer_g.stop();
-
-
-			///* compute s = x - x_old; y = g - g_old; */
-			//this->timer_update.start();
-			 //TRYCXX( VecAYPX(s_Vec, -1.0, xk_Vec) );
-			 //TRYCXX( VecAYPX(y_Vec, -1.0, g_Vec) );
-			//this->timer_update.stop();
-
-			///* compute new bb-step */
-			//this->timer_dot.start();
-			 //TRYCXX( VecDot(s_Vec, s_Vec, &sTs) );
-			 //TRYCXX( VecDot(s_Vec, y_Vec, &sTy) );
-			//this->timer_dot.stop();
-
-			//alpha_bb = sTs/sTy;
-////			alpha_bb = sTy/sTs;
-
-			//it++;
-
-			///* print progress of algorithm */
-			//if(debug_print_it){
-				//coutMaster << "\033[33m   it = \033[0m" << it;
+			/* ------ KSP Solver ----- */
+			/* for solving H*delta=-g */
+			TRYCXX( VecScale(g_Vec,-1.0) );
 			
-				//std::streamsize ss = std::cout.precision();
-				//coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
-				//coutMaster << ", \t\033[36malpha_bb = \033[0m" << std::setprecision(17) << alpha_bb << std::setprecision(ss);
-				//coutMaster << ", \t\033[36mbeta_gll = \033[0m" << std::setprecision(17) << beta << std::setprecision(ss);
-				//coutMaster << ", \t\033[36mgnorm = \033[0m" << gnorm << std::endl;
+			/* Create linear solver context */
+			TRYCXX( KSPCreate(PETSC_COMM_SELF,&ksp) ); // TODO: really every iteration?
+			
+			/* Set operators. Here the matrix that defines the linear system */
+			/* also serves as the preconditioning matrix. */
+			TRYCXX( KSPSetOperators(ksp,H_petsc,H_petsc) ); 
+			
+			/* precondition - maybe we can try LU factorization - then system will be solved in one iteration */
+			TRYCXX( KSPGetPC(ksp,&pc) );
+			TRYCXX( PCSetType(pc,PCJACOBI) );
+			
+			/* set stopping criteria */
+			TRYCXX( KSPSetTolerances(ksp,this->eps_ksp,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT) ); // TODO: look onto all arguments
 
-				///* log function value */
-				//LOG_FX(fx)
-			//}
+			/* some funny stuff can be loaded from petsc console parameters */
+			TRYCXX( KSPSetFromOptions(ksp) );
+			
+			/* I think that these thing will use actual values in delta as initial approximation */
+			TRYCXX( KSPSetInitialGuessNonzero(ksp,PETSC_TRUE) );
+			
+			/* Solve linear system */
+			this->timer_ksp.start();
+			 TRYCXX( KSPSolve(ksp,g_Vec,delta_Vec) );
+			this->timer_ksp.stop();
+			
+			/* get some informations about solution process */
+			TRYCXX( KSPGetIterationNumber(ksp,&itksp_one_newton_iteration) );
+			itksp += itksp_one_newton_iteration;
+			
+			/* print info about KSP */
+			if(debug_print_ksp){
+				TRYCXX( KSPView(ksp,PETSC_VIEWER_STDOUT_SELF) );
+			}
+			
+			/* destroy KSP solver */
+			TRYCXX( KSPDestroy(&ksp) ); 
+			
+			
+			/* use solution from KSP to update newton iterations */
+			this->timer_update.start();
+			 TRYCXX( VecAXPY(xk_Vec,1.0,delta_Vec)); /* x = x + delta; */
+			this->timer_update.stop();
+			
+			/* recompute integrals, gradient, function value */
+			this->timer_integrate.start();
+			 compute_integrals(integralsk_Vec, xk_Vec, true);
+			this->timer_integrate.stop();
+			this->timer_g.start();
+			 compute_gradient(g_Vec, integralsk_Vec, momentsk_Vec);
+			this->timer_g.stop();
+			this->timer_fs.start();
+			 fx = compute_function_value(xk_Vec, integralsk_Vec, momentsk_Vec);
+			this->timer_fs.stop();			
+			
+			it++;
+
+			/* print progress of algorithm */
+			if(debug_print_it){
+				TRYCXX( VecNorm(delta_Vec, NORM_2, &deltanorm) );
+				
+				coutMaster << "\033[33m   it = \033[0m" << it;
+				std::streamsize ss = std::cout.precision();
+				coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
+				coutMaster << ", \t\033[36mnorm(delta) = \033[0m" << std::setprecision(17) << deltanorm << std::setprecision(ss);
+				coutMaster << ", \t\033[36mnorm(g) = \033[0m" << gnorm << std::endl;
+
+				/* log function value */
+				LOG_FX(fx)
+			}
+
 
 			///* monitor - export values of stopping criteria */
 			//if(this->monitor && GlobalManager.get_rank() == 0){
@@ -677,8 +666,8 @@ void EntropySolverNewton<VectorBase>::solve() {
 		/* store number of iterations */
 		this->it_lasts[k] = it;
 		this->it_sums[k] += it;
-		this->itcg_lasts[k] = itcg;
-		this->itcg_sums[k] += itcg;
+		this->itksp_lasts[k] = itksp;
+		this->itksp_sums[k] += itksp;
 		this->fxs[k] = fx;
 		this->gnorms[k] = gnorm;
 
@@ -851,6 +840,33 @@ void EntropySolverNewton<PetscVector>::compute_gradient(Vec &g_Vec, Vec &integra
 }
 
 template<>
+void EntropySolverNewton<PetscVector>::compute_hessian(Vec &integrals_Vec) {
+	LOG_FUNC_BEGIN
+
+	int Km = entropydata->get_Km();
+    
+    double *integrals_arr;
+
+	TRYCXX( VecGetArray(integrals_Vec, &integrals_arr) );
+
+    /* fill Hessian matrix */
+	for(int km1=0; km1 < Km; km1++){
+		for(int km2=0; km2 < Km; km2++){
+			double value =  integrals_arr[km1+km2+2]/integrals_arr[0] - integrals_arr[km1+1]*integrals_arr[km2+1]/(integrals_arr[0]*integrals_arr[0]);
+			TRYCXX( MatSetValue(H_petsc, km1, km2, value, INSERT_VALUES) );
+		}
+	} 
+
+	/* assemble matrix */
+	TRYCXX( MatAssemblyBegin(H_petsc,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( MatAssemblyEnd(H_petsc,MAT_FINAL_ASSEMBLY) );	
+
+	TRYCXX( VecRestoreArray(integrals_Vec, &integrals_arr) );
+	
+	LOG_FUNC_END
+}
+
+template<>
 double EntropySolverNewton<PetscVector>::compute_function_value(Vec &lambda_Vec, Vec &integrals_Vec, Vec &moments_Vec) {
 	LOG_FUNC_BEGIN
 	
@@ -875,7 +891,7 @@ void EntropySolverNewton<PetscVector>::compute_integrals(Vec &integrals_Vec, Vec
 	int Km = entropydata->get_Km();
 	int Km_int; /* number of computed integrals */
 	if(compute_all){
-		Km_int = Km;
+		Km_int = 2*Km;
 	} else {
 		Km_int = 0;
 	}
