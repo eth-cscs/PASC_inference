@@ -1,4 +1,11 @@
+/** @file spg_fs.h
+ *  @brief For manipulation with Armijo condition in GLL
+ *
+ *  @author Lukas Pospisil
+ */
 
+#ifndef PASC_SPG_FS_H
+#define	PASC_SPG_FS_H
 
 namespace pascinference {
 namespace solver {
@@ -149,3 +156,4 @@ void SPG_fs::print(ConsoleOutput &output)
 } /* end namespace */
 
 
+#endif

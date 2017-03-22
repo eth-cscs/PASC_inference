@@ -125,6 +125,7 @@ static void add_options(boost::program_options::options_description *description
 		boost::program_options::options_description opt_entropysolverspg("ENTROPYSOLVERSPG", console_nmb_cols);
 		opt_entropysolverspg.add_options()
 			("entropysolverspg_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
+			("entropysolverspg_maxit_gll", boost::program_options::value<int>(), "maximum number of GLL iterations [int]")
 			("entropysolverspg_eps", boost::program_options::value<double>(), "precision [double]")
 			("entropysolverspg_m", boost::program_options::value<int>(), "parameter of generalized Armijo condition [int]")
 			("entropysolverspg_gamma", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
