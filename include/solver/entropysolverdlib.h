@@ -48,7 +48,7 @@ class EntropySolverDlib: public GeneralSolver {
 		GeneralVector<VectorBase> *x_power_gammak; /**< temp vector for storing power of x * gamma_k */
 
 		/* functions for Dlib */
-		double gg(double y, int order, column_vector& LM);
+		static double gg(double y, int order, const column_vector& LM);
 		double get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps);
 		column_vector get_functions_grad(const column_vector& LM, const column_vector& Mom, int k);
 		dlib::matrix<double> get_functions_hess(const column_vector& LM, const column_vector& Mom, int k);
@@ -388,7 +388,7 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 
 
 template<class VectorBase>
-double EntropySolverDlib<VectorBase>::gg(double y, int order, column_vector& LM){
+double EntropySolverDlib<VectorBase>::gg(double y, int order, const column_vector& LM){
     long  x_size = LM.size();
     long  num_moments = x_size;
     column_vector z(num_moments);
@@ -417,15 +417,15 @@ column_vector EntropySolverDlib<VectorBase>::get_functions_grad(const column_vec
     column_vector I(k);
     
     /* compute normalization */
-    column_vector Vec = LM;
-    auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
+    column_vector LMVec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, LMVec);};//std::bind(gg, _1,  1, 2);
     double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
     
     /* theoretical moments */
     int i = 0;
     while (i < k)
     {
-        auto mom_function = [&](double x)->double { return gg(x, i+1, Vec);};
+        auto mom_function = [&](double x)->double { return gg(x, i+1, LMVec);};
         I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
         i++;
     }
@@ -445,15 +445,15 @@ dlib::matrix<double> EntropySolverDlib<VectorBase>::get_functions_hess(const col
     column_vector I(2*k);
     
     //compute normalization
-    column_vector Vec = LM;
-    auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
+    column_vector LMVec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, LMVec);};//std::bind(gg, _1,  1, 2);
     double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
     
     //theoretical moments
     int i = 0;
     while (i < 2*k)
     {
-        auto mom_function = [&](double x)->double { return gg(x, i+1, Vec);};
+        auto mom_function = [&](double x)->double { return gg(x, i+1, LMVec);};
         I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
         i++;
     }
@@ -479,8 +479,8 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 	int Km = entropydata->get_Km();
 
 	/* lambda vector for Dlib integration */
-	column_vector lambda(Km);
-    auto mom_function = [&](double x)->double { return gg(x, 0, lambda);};
+	column_vector lambda_Dlib(Km);
+    auto mom_function = [&](double x)->double { return gg(x, 0, lambda_Dlib);};
     double F_;
 
 	/* update gamma_solver data - prepare new linear term */
@@ -499,7 +499,7 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 		/* compute int_X exp(-sum lambda_j x^j) dx for this cluster
 		/* from arr to Dlib-vec */
 		for(int km=0;km<Km;km++){
-			lambda(km) = lambda_arr[k*Km+km];
+			lambda_Dlib(km) = lambda_arr[k*Km+km];
 		}
 		F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
 		F_ = log(F_);

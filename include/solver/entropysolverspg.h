@@ -19,14 +19,14 @@
 
 #define ENTROPYSOLVERSPG_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERSPG_DEFAULT_MAXIT_GLL 100
-#define ENTROPYSOLVERSPG_DEFAULT_EPS 1e-9
+#define ENTROPYSOLVERSPG_DEFAULT_EPS 1e-6
 #define ENTROPYSOLVERSPG_DEFAULT_DEBUGMODE 0
 
-#define ENTROPYSOLVERSPG_DEFAULT_M 10
+#define ENTROPYSOLVERSPG_DEFAULT_M 20
 #define ENTROPYSOLVERSPG_DEFAULT_GAMMA 0.9
-#define ENTROPYSOLVERSPG_DEFAULT_SIGMA1 0.0001
-#define ENTROPYSOLVERSPG_DEFAULT_SIGMA2 0.9999
-#define ENTROPYSOLVERSPG_DEFAULT_ALPHAINIT 1.0
+#define ENTROPYSOLVERSPG_DEFAULT_SIGMA1 0.0
+#define ENTROPYSOLVERSPG_DEFAULT_SIGMA2 1.0
+#define ENTROPYSOLVERSPG_DEFAULT_ALPHAINIT 0.1
 
 #define ENTROPYSOLVERSPG_MONITOR false
 
@@ -70,7 +70,7 @@ class EntropySolverSPG: public GeneralSolver {
 		GeneralVector<VectorBase> *x_power_gammak; /**< global temp vector for storing power of x * gamma_k */
 
 		/* functions for Dlib */
-		double gg(double y, int order, column_vector& LM);
+		static double gg(double y, int order, column_vector& LM);
 
 		/** @brief set settings of algorithm from arguments in console
 		* 
@@ -611,13 +611,13 @@ void EntropySolverSPG<VectorBase>::solve() {
 					if(beta_temp >= this->sigma1 && beta_temp <= this->sigma2*beta){
 						beta = beta_temp;
 					} else {
-						beta = 0.5*beta;
+						beta = 0.9*beta;
 					}
 					
 					/* update approximation */
 					this->timer_update.start();
 					 TRYCXX( VecCopy(s_Vec, xk_Vec) ); /* x = x_old */
-					 TRYCXX( VecAXPY(xk_Vec, -alpha_bb*beta, y_Vec) ); /* x = x + beta*g */
+					 TRYCXX( VecAXPY(xk_Vec, (-1)*alpha_bb*beta, y_Vec) ); /* x = x + beta*g */
 					this->timer_update.stop();
 
 					/* we have new approximation => compute integrals */
@@ -663,7 +663,7 @@ void EntropySolverSPG<VectorBase>::solve() {
 			this->timer_dot.stop();
 
 			alpha_bb = sTs/sTy;
-
+//			alpha_bb = sTy/sTs;
 
 			it++;
 
