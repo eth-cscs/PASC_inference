@@ -576,7 +576,8 @@ void EntropySolverNewton<VectorBase>::solve() {
 	Vec integralsk_Vec;
 
 	double gnorm, fx; /* norm(g),f(x) */
-	double deltanorm; /* norm(delta) - for debug */
+	double deltanorm = std::numeric_limits<double>::max(); /* norm(delta) - for debug */
+	double deltanorm_old;
 
 	/* postprocess */
 	Vec g_inner_Vec;
@@ -645,7 +646,7 @@ void EntropySolverNewton<VectorBase>::solve() {
 			TRYCXX( KSPSetFromOptions(ksp) );
 			
 			/* I think that these thing will use actual values in delta as initial approximation */
-			TRYCXX( KSPSetInitialGuessNonzero(ksp,PETSC_TRUE) );
+//			TRYCXX( KSPSetInitialGuessNonzero(ksp,PETSC_TRUE) );
 			
 			/* Solve linear system */
 			this->timer_ksp.start();
@@ -691,6 +692,13 @@ void EntropySolverNewton<VectorBase>::solve() {
 			this->timer_fs.stop();			
 			
 			it++;
+
+			deltanorm_old = deltanorm;
+			TRYCXX( VecNorm(delta_Vec, NORM_2, &deltanorm) );
+
+			if(deltanorm > deltanorm_old){
+				break; //TODO: hotfix
+			}
 
 			/* print progress of algorithm */
 			if(debug_print_it){
