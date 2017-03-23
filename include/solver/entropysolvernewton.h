@@ -23,6 +23,7 @@
 #define ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_CG 100
 #define ENTROPYSOLVERNEWTON_DEFAULT_EPS 1e-6
 #define ENTROPYSOLVERNEWTON_DEFAULT_EPS_CG 1e-6
+#define ENTROPYSOLVERNEWTON_DEFAULT_NEWTON_COEFF 0.9
 #define ENTROPYSOLVERNEWTON_DEFAULT_DEBUGMODE 0
 
 #define ENTROPYSOLVERNEWTON_MONITOR false
@@ -48,8 +49,9 @@ class EntropySolverNewton: public GeneralSolver {
 		double eps_ksp;
 		int *it_sums;					/**< sums of all iterations for each cluster */
 		int *it_lasts;					/**< number of iterations from last solve() call for each cluster */
-		int *itksp_sums;					/**< sums of all cg iterations for each cluster */
+		int *itksp_sums;				/**< sums of all cg iterations for each cluster */
 		int *itksp_lasts;				/**< sums of all cg iterations in this outer iteration */
+		double newton_coeff;			/**< newton step-size coefficient x_{k+1} = x_k + coeff*delta */
 	
 		Timer timer_compute_moments;	/**< time for computing moments from data */
 		Timer timer_solve; 				/**< total solution time of Newton algorithm */
@@ -146,6 +148,7 @@ void EntropySolverNewton<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolvernewton_maxit_ksp", &this->maxit_ksp, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_CG);
 	consoleArg.set_option_value("entropysolvernewton_eps", &this->eps, ENTROPYSOLVERNEWTON_DEFAULT_EPS);
 	consoleArg.set_option_value("entropysolvernewton_eps_ksp", &this->eps_ksp, ENTROPYSOLVERNEWTON_DEFAULT_EPS_CG);
+	consoleArg.set_option_value("entropysolvernewton_newton_coeff", &this->newton_coeff, ENTROPYSOLVERNEWTON_DEFAULT_NEWTON_COEFF);
 	
 	consoleArg.set_option_value("entropysolvernewton_monitor", &this->monitor, ENTROPYSOLVERNEWTON_MONITOR);	
 
@@ -195,8 +198,8 @@ void EntropySolverNewton<VectorBase>::allocate_temp_vectors(){
 		TRYCXX(VecSetType(moments_Vec, VECSEQ));
 		TRYCXX(VecSetType(integrals_Vec, VECSEQ));
 	#endif
-	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),entropydata->get_K()*entropydata->get_Km()) );
-	TRYCXX( VecSetSizes(integrals_Vec,entropydata->get_K()*(2*entropydata->get_Km()+1),entropydata->get_K()*(2*entropydata->get_Km()+1)) );
+	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),PETSC_DECIDE) );
+	TRYCXX( VecSetSizes(integrals_Vec,entropydata->get_K()*(2*entropydata->get_Km()+1),PETSC_DECIDE) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	TRYCXX( VecSetFromOptions(integrals_Vec) );
 	this->moments_data = new GeneralVector<PetscVector>(moments_Vec);
@@ -217,12 +220,12 @@ void EntropySolverNewton<VectorBase>::allocate_temp_vectors(){
 
 
 	/* create Hessian matrix */
-	TRYCXX( MatCreate(PETSC_COMM_WORLD, &H_petsc) );
-	TRYCXX( MatSetSizes(H_petsc,entropydata->get_Km(),entropydata->get_Km(),entropydata->get_Km(),entropydata->get_Km()) );
+	TRYCXX( MatCreate(PETSC_COMM_SELF, &H_petsc) );
+	TRYCXX( MatSetSizes(H_petsc,entropydata->get_Km(),entropydata->get_Km(),PETSC_DECIDE,PETSC_DECIDE) );
 	#ifdef USE_CUDA
-		TRYCXX( MatSetType(H_petsc,MATMPIAIJCUSPARSE) ); 
+		TRYCXX( MatSetType(H_petsc,MATSEQAIJCUSPARSE) ); 
 	#else
-		TRYCXX( MatSetType(H_petsc,MATMPIAIJ) ); 
+		TRYCXX( MatSetType(H_petsc,MATSEQAIJ) ); 
 	#endif
 	TRYCXX( MatSetFromOptions(H_petsc) );
 	TRYCXX( MatMPIAIJSetPreallocation(H_petsc,entropydata->get_Km(),NULL,entropydata->get_Km()-1,NULL) ); 
@@ -369,11 +372,13 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit      : " << this->maxit << std::endl;
-	output <<  " - maxit_ksp   : " << this->maxit_ksp << std::endl;
-	output <<  " - eps        : " << this->eps << std::endl;
-	output <<  " - eps_ksp     : " << this->eps_ksp << std::endl;
-	output <<  " - debugmode  : " << this->debugmode << std::endl;
+	output <<  " - maxit        : " << this->maxit << std::endl;
+	output <<  " - maxit_ksp    : " << this->maxit_ksp << std::endl;
+	output <<  " - eps          : " << this->eps << std::endl;
+	output <<  " - eps_ksp      : " << this->eps_ksp << std::endl;
+	output <<  " - newton_coeff : " << this->newton_coeff << std::endl;
+	
+	output <<  " - debugmode    : " << this->debugmode << std::endl;
 
 	/* print data */
 	if(entropydata){
@@ -393,11 +398,13 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output_global, Consol
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit      : " << this->maxit << std::endl;
-	output_global <<  " - maxit_ksp   : " << this->maxit_ksp << std::endl;
-	output_global <<  " - eps        : " << this->eps << std::endl;
-	output_global <<  " - eps_ksp     : " << this->eps_ksp << std::endl;
-	output_global <<  " - debugmode  : " << this->debugmode << std::endl;
+	output_global <<  " - maxit        : " << this->maxit << std::endl;
+	output_global <<  " - maxit_ksp    : " << this->maxit_ksp << std::endl;
+	output_global <<  " - eps          : " << this->eps << std::endl;
+	output_global <<  " - eps_ksp      : " << this->eps_ksp << std::endl;
+	output_global <<  " - newton_coeff : " << this->newton_coeff << std::endl;
+
+	output_global <<  " - debugmode    : " << this->debugmode << std::endl;
 
 	/* print data */
 	if(entropydata){
@@ -527,6 +534,10 @@ void EntropySolverNewton<VectorBase>::solve() {
 	double gnorm, fx; /* norm(g),f(x) */
 	double deltanorm; /* norm(delta) - for debug */
 
+	/* postprocess */
+	Vec g_inner_Vec;
+	double gnorm_inner;
+
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
 		
@@ -608,11 +619,20 @@ void EntropySolverNewton<VectorBase>::solve() {
 			
 			/* destroy KSP solver */
 			TRYCXX( KSPDestroy(&ksp) ); 
-			
+
+			/* compute norm of inner error */
+			if(debug_print_it){
+				/* compute norm(H*delta-g) */
+				TRYCXX( VecDuplicate(g_Vec,&g_inner_Vec) );
+				TRYCXX( MatMult(H_petsc,delta_Vec,g_inner_Vec) );
+				TRYCXX( VecAXPY(g_inner_Vec,-1.0,g_Vec) );
+				
+				TRYCXX( VecNorm(g_inner_Vec, NORM_2, &gnorm_inner) );
+			}
 			
 			/* use solution from KSP to update newton iterations */
 			this->timer_update.start();
-			 TRYCXX( VecAXPY(xk_Vec,1.0,delta_Vec)); /* x = x + delta; */
+			 TRYCXX( VecAXPY(xk_Vec,this->newton_coeff,delta_Vec)); /* x = x + delta; */
 			this->timer_update.stop();
 			
 			/* recompute integrals, gradient, function value */
@@ -636,7 +656,8 @@ void EntropySolverNewton<VectorBase>::solve() {
 				std::streamsize ss = std::cout.precision();
 				coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
 				coutMaster << ", \t\033[36mnorm(delta) = \033[0m" << std::setprecision(17) << deltanorm << std::setprecision(ss);
-				coutMaster << ", \t\033[36mnorm(g) = \033[0m" << gnorm << std::endl;
+				coutMaster << ", \t\033[36mnorm(g_inner) = \033[0m" << gnorm_inner;
+				coutMaster << ", \t\033[36mnorm(g_outer) = \033[0m" << gnorm << std::endl;
 
 				/* log function value */
 				LOG_FX(fx)

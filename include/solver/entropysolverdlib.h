@@ -132,7 +132,7 @@ EntropySolverDlib<VectorBase>::EntropySolverDlib(EntropyData<VectorBase> &new_en
 	#else
 		TRYCXX(VecSetType(moments_Vec, VECSEQ));
 	#endif
-	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),entropydata->get_K()*entropydata->get_Km()) );
+	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),PETSC_DECIDE) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 

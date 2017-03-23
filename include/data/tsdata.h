@@ -362,7 +362,7 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 		#else
 			TRYCXX(VecSetType(thetavector_Vec, VECSEQ));
 		#endif
-		TRYCXX( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),this->tsmodel->get_thetavectorlength_local()) );
+		TRYCXX( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),PETSC_DECIDE) );
 		TRYCXX( VecSetFromOptions(thetavector_Vec) );
 		
 		this->thetavector = new GeneralVector<PetscVector>(thetavector_Vec);

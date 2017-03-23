@@ -200,8 +200,8 @@ void EntropySolverSPG<VectorBase>::allocate_temp_vectors(){
 		TRYCXX(VecSetType(moments_Vec, VECSEQ));
 		TRYCXX(VecSetType(integrals_Vec, VECSEQ));
 	#endif
-	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),entropydata->get_K()*entropydata->get_Km()) );
-	TRYCXX( VecSetSizes(integrals_Vec,entropydata->get_K()*(entropydata->get_Km()+1),entropydata->get_K()*(entropydata->get_Km()+1)) );
+	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),PETSC_DECIDE) );
+	TRYCXX( VecSetSizes(integrals_Vec,entropydata->get_K()*(entropydata->get_Km()+1),PETSC_DECIDE) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	TRYCXX( VecSetFromOptions(integrals_Vec) );
 	this->moments_data = new GeneralVector<PetscVector>(moments_Vec);

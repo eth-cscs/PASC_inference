@@ -146,6 +146,7 @@ static void add_options(boost::program_options::options_description *description
 			("entropysolvernewton_maxit_ksp", boost::program_options::value<int>(), "maximum number of inner KSP iterations [int]")
 			("entropysolvernewton_eps", boost::program_options::value<double>(), "precision [double]")
 			("entropysolvernewton_eps_ksp", boost::program_options::value<double>(), "precision of inner KSP solver [double]")
+			("entropysolvernewton_newton_coeff", boost::program_options::value<double>(), "step-size coefficient of Newton update [double]")
 			("entropysolvernewton_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
 			("entropysolvernewton_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("entropysolvernewton_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations [bool]")
