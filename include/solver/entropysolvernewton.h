@@ -10,6 +10,9 @@
 #include "pascinference.h"
 #include "data/entropydata.h"
 
+/* include integration algorithms */
+#include "algebra/integration/entropyintegration.h"
+
 /* petsc stuff */
 #include <petscksp.h>
 
@@ -66,7 +69,7 @@ class EntropySolverNewton: public GeneralSolver {
 		int *itksp_lasts;						/**< sums of all cg iterations in this outer iteration */
 		double newton_coeff;					/**< newton step-size coefficient x_{k+1} = x_k + coeff*delta */
 		IntegrationType integrationtype;	 	/**< the type of numerical integration */
-		
+		EntropyIntegration *entropyintegration;	/**< instance of integration tool */
 	
 		Timer timer_compute_moments;			/**< time for computing moments from data */
 		Timer timer_solve; 						/**< total solution time of Newton algorithm */
@@ -82,8 +85,8 @@ class EntropySolverNewton: public GeneralSolver {
 		/* aux vectors */
 		GeneralVector<VectorBase> *moments_data; /**< vector of computed moments from data, size K*Km */
 		GeneralVector<VectorBase> *integrals; /**< vector of computed integrals, size K*(Km+1) */
-		GeneralVector<VectorBase> *x_power; /**< global temp vector for storing power of x */
-		GeneralVector<VectorBase> *x_power_gammak; /**< global temp vector for storing power of x * gamma_k */
+		GeneralVector<VectorBase> *x_gammak; /**< global temp vector for storing x*gamma_k */
+		GeneralVector<VectorBase> *x_gammak_power; /**< global temp vector for storing power of x * gamma_k */
 
 		/* functions for Dlib */
 		static double gg(double y, int order, column_vector& LM);
@@ -213,8 +216,8 @@ void EntropySolverNewton<VectorBase>::allocate_temp_vectors(){
 	LOG_FUNC_BEGIN
 
 	/* prepare auxiliary vectors */
-	x_power = new GeneralVector<PetscVector>(*entropydata->get_x());
-	x_power_gammak = new GeneralVector<PetscVector>(*entropydata->get_x());
+	x_gammak = new GeneralVector<PetscVector>(*entropydata->get_x());
+	x_gammak_power = new GeneralVector<PetscVector>(*entropydata->get_x());
 	
 	/* create aux vector for the computation of moments and integrals */
 	Vec moments_Vec;
@@ -273,8 +276,8 @@ template<class VectorBase>
 void EntropySolverNewton<VectorBase>::free_temp_vectors(){
 	LOG_FUNC_BEGIN
 
-	free(x_power);
-	free(x_power_gammak);
+	free(x_gammak);
+	free(x_gammak_power);
 	free(moments_data);
 	free(integrals);
 
@@ -327,6 +330,8 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(){
 	this->timer_fs.restart();
 	this->timer_integrate.restart();
 
+	this->entropyintegration = NULL;
+
 	LOG_FUNC_END
 }
 
@@ -371,6 +376,8 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(EntropyData<VectorBase> &ne
 	this->timer_integrate.restart();
 
 	allocate_temp_vectors();
+
+	this->entropyintegration = NULL; /* not now, the integrator will be initialized with first integration call */
 	
 	LOG_FUNC_END
 }
@@ -389,6 +396,11 @@ EntropySolverNewton<VectorBase>::~EntropySolverNewton(){
 
 	/* free temp vectors */
 	free_temp_vectors();
+
+	/* free tool for integration */
+	if(this->entropyintegration){
+		free(this->entropyintegration);
+	}
 
 	LOG_FUNC_END
 }
@@ -748,31 +760,31 @@ void EntropySolverNewton<PetscVector>::compute_moments_data() {
 	LOG_FUNC_BEGIN
 
 	Vec x_Vec = entropydata->get_x()->get_vector();
-	Vec x_power_Vec = x_power->get_vector();
-	Vec x_power_gammak_Vec = x_power_gammak->get_vector();
+	Vec x_gammak_Vec = x_gammak->get_vector();
+	Vec x_gammak_power_Vec = x_gammak_power->get_vector();
+
 	Vec gamma_Vec = entropydata->get_gamma()->get_vector();
 	Vec moments_Vec = moments_data->get_vector();
 	
 	Vec gammak_Vec;
 	IS gammak_is;
-	
-	TRYCXX( VecCopy(x_Vec,x_power_Vec) ); /* x^1 */
-	
+
 	double *moments_arr, mysum, gammaksum;
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
-	for(int km=0; km < entropydata->get_Km(); km++){
+	for(int k=0;k<entropydata->get_K();k++){
+		/* get gammak */
+		this->entropydata->get_decomposition()->createIS_gammaK(&gammak_is, k);
+		TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+
+		/* compute gammaksum */
+		TRYCXX( VecSum(gammak_Vec, &gammaksum) );
+
+		TRYCXX( VecPointwiseMult(x_gammak_Vec, gammak_Vec, x_Vec) ); /* (gammak.*x)^1 */
+		TRYCXX( VecCopy(x_gammak_Vec, x_gammak_power_Vec) );
+
+		for(int km=0; km < entropydata->get_Km(); km++){
 		
-		for(int k=0;k<entropydata->get_K();k++){
-			/* get gammak */
-			this->entropydata->get_decomposition()->createIS_gammaK(&gammak_is, k);
-			TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-
-			/* compute x_power_gammak */
-			TRYCXX( VecPointwiseMult(x_power_gammak_Vec, gammak_Vec, x_power_Vec) ); /* x_power_gammak = x_power.*gammak */
-
-			/* compute gammaksum */
-			TRYCXX( VecSum(gammak_Vec, &gammaksum) );
-			TRYCXX( VecSum(x_power_gammak_Vec, &mysum) );
+			TRYCXX( VecSum(x_gammak_power_Vec, &mysum) );
 
 			/* store computed moment */
 			if(gammaksum != 0){
@@ -781,13 +793,15 @@ void EntropySolverNewton<PetscVector>::compute_moments_data() {
 				moments_arr[k*this->entropydata->get_Km() + km] = 0.0;
 			}
 	
-			TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-			TRYCXX( ISDestroy(&gammak_is) );	
+			/* compute x_power_gammak */
+			TRYCXX( VecPointwiseMult(x_gammak_power_Vec, x_gammak_power_Vec, x_gammak_Vec) ); 
 		}
-		
-		TRYCXX( VecPointwiseMult(x_power_Vec, x_Vec, x_power_Vec) ); /* x_power = x_power.*x */
-	}
+
+		TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
 	
+	}
+
 	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
 
 	LOG_FUNC_END
@@ -947,6 +961,11 @@ void EntropySolverNewton<PetscVector>::compute_integrals(Vec &integrals_Vec, Vec
 		Km_int = 2*Km;
 	} else {
 		Km_int = 0;
+	}
+
+	/* create instance of integration tool (if not been created before) */
+	if(!this->entropyintegration){
+		this->entropyintegration = new EntropyIntegration(Km, Km_int);
 	}
 
 	double *integrals_arr;

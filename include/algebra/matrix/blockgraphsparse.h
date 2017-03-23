@@ -104,7 +104,7 @@ BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_de
 	#ifndef USE_CUDA
 		TRYCXX( MatSetType(A_petsc,MATMPIAIJ) ); 
 	#else
-		TRYCXX( MatSetType(A_petsc,MATMPIAIJCUSPARSE) ); 
+		TRYCXX( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
 	#endif
 
 	/* compute preallocation of number of non-zero elements in matrix */
