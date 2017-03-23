@@ -60,6 +60,10 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 			GSOLVER_TAO=4				/**< TAO solver */
 		} GammaSolverType;
 
+		/** @brief return name of gamma solver in string format
+		 */
+		std::string print_gammasolvertype(GammaSolverType gammasolvertype_in) const;
+
 		/** @brief type of solver used to solve inner theta problem 
 		 * 
 		 * Maximum entropy - nonlinear optimization problem / system of nonlinear equations with integrals
@@ -71,6 +75,10 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 			TSOLVER_ENTROPY_SPG=2,		/**< SPG (unconstrained) for solving integral problem */
 			TSOLVER_ENTROPY_NEWTON=3	/**< Newton method for solving integral problem */
 		} ThetaSolverType;
+
+		/** @brief return name of theta solver in string format
+		 */
+		std::string print_thetasolvertype(ThetaSolverType thetasolvertype_in) const;
 
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
@@ -158,6 +166,31 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 namespace pascinference {
 namespace model {
 
+template<class VectorBase>
+std::string EntropyH1FEMModel<VectorBase>::print_gammasolvertype(GammaSolverType gammasolvertype_in) const {
+	std::string return_value = "?";
+	switch(gammasolvertype_in){
+		case(GSOLVER_AUTO): 			return_value = "AUTO"; break;
+		case(GSOLVER_SPGQP): 			return_value = "SPG-QP solver"; break;
+		case(GSOLVER_SPGQP_COEFF):	 	return_value = "SPG-QP-COEFF solver"; break;
+		case(GSOLVER_PERMON): 			return_value = "PERMON QP solver"; break;
+		case(GSOLVER_TAO): 				return_value = "TAO QP solver"; break;
+	}
+	return return_value;
+}
+
+template<class VectorBase>
+std::string EntropyH1FEMModel<VectorBase>::print_thetasolvertype(ThetaSolverType thetasolvertype_in) const {
+	std::string return_value = "?";
+	switch(thetasolvertype_in){
+		case(TSOLVER_AUTO): 			return_value = "AUTO"; break;
+		case(TSOLVER_ENTROPY_DLIB): 	return_value = "ENTROPY_DLIB solver"; break;
+		case(TSOLVER_ENTROPY_SPG): 		return_value = "ENTROPY_SPG solver"; break;
+		case(TSOLVER_ENTROPY_NEWTON): 	return_value = "ENTROPY_NEWTON solver"; break;
+	}
+	return return_value;
+}
+
 /* constructor */
 template<>
 EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdata, int Km, double epssqr) {
@@ -240,26 +273,9 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output.pop();
 
 	output <<  " - thetalength       : " << this->thetavectorlength_global << std::endl;
+	output <<  " - thetasolvertype   : " << print_thetasolvertype(this->thetasolvertype) << std::endl;
+	output <<  " - gammasolvertype   : " << print_gammasolvertype(this->gammasolvertype) << std::endl;
 
-	output <<  " - thetasolvertype   : ";
-	switch(this->thetasolvertype){
-		case(TSOLVER_AUTO): output << "AUTO"; break;
-		case(TSOLVER_ENTROPY_DLIB): output << "ENTROPY_DLIB solver"; break;
-		case(TSOLVER_ENTROPY_SPG): output << "ENTROPY_SPG solver"; break;
-		case(TSOLVER_ENTROPY_NEWTON): output << "ENTROPY_NEWTON solver"; break;
-	}
-	output << std::endl;
-
-	output <<  " - gammasolvertype   : ";
-	switch(this->gammasolvertype){
-		case(GSOLVER_AUTO): output << "AUTO"; break;
-		case(GSOLVER_SPGQP): output << "SPG-QP solver"; break;
-		case(GSOLVER_SPGQP_COEFF): output << "SPG-QP-COEFF solver"; break;
-		case(GSOLVER_PERMON): output << "PERMON QP solver"; break;
-		case(GSOLVER_TAO): output << "TAO QP solver"; break;
-	}
-	output << std::endl;
-	
 	output.synchronize();	
 
 	LOG_FUNC_END
@@ -280,23 +296,8 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
 	output_global <<  "  - Km                : " << this->get_Km() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
-	output_global <<  "  - thetasolvertype   : ";
-	switch(this->thetasolvertype){
-		case(TSOLVER_AUTO): output_global << "AUTO"; break;
-		case(TSOLVER_ENTROPY_DLIB): output_global << "ENTROPY_DLIB solver"; break;
-		case(TSOLVER_ENTROPY_SPG): output_global << "ENTROPY_SPG solver"; break;
-		case(TSOLVER_ENTROPY_NEWTON): output_global << "ENTROPY_NEWTON solver"; break;
-	}
-	output_global << std::endl;
-	output_global <<  "  - gammasolvertype   : ";
-	switch(this->gammasolvertype){
-		case(GSOLVER_AUTO): output_global << "AUTO"; break;
-		case(GSOLVER_SPGQP): output_global << "SPG-QP solver"; break;
-		case(GSOLVER_SPGQP_COEFF): output_global << "SPG-QP-COEFF solver"; break;
-		case(GSOLVER_PERMON): output_global << "PERMON QP solver"; break;
-		case(GSOLVER_TAO): output_global << "TAO QP solver"; break;
-	}
-	output_global << std::endl;
+	output_global <<  "  - thetasolvertype   : " << print_thetasolvertype(this->thetasolvertype) << std::endl;
+	output_global <<  "  - gammasolvertype   : " << print_gammasolvertype(this->gammasolvertype) << std::endl;
 
 	output_global.push();
 	this->get_graph()->print(output_global);

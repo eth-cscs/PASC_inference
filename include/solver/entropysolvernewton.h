@@ -42,25 +42,40 @@ namespace solver {
 template<class VectorBase>
 class EntropySolverNewton: public GeneralSolver {
 	protected:
-		double *fxs;					/**< function values in clusters */
-		double *gnorms;					/**< norm of gradient in clusters (stopping criteria) */
+		/** @brief type of numerical integration
+		 * 
+		 */
+		typedef enum { 
+			INTEGRATION_AUTO=0,					/**< choose automatic solver */
+			INTEGRATION_DLIB=1,					/**< use Dlib library to compute integrals */
+			INTEGRATION_MC=2					/**< use Monte Carlo integration method */
+		} IntegrationType;
+
+		/** @brief return name of integration solver in string format
+		 */
+		std::string print_integrationtype(IntegrationType integrationtype_in) const;
+	
+		double *fxs;							/**< function values in clusters */
+		double *gnorms;							/**< norm of gradient in clusters (stopping criteria) */
 	
 		int maxit_ksp;
 		double eps_ksp;
-		int *it_sums;					/**< sums of all iterations for each cluster */
-		int *it_lasts;					/**< number of iterations from last solve() call for each cluster */
-		int *itksp_sums;				/**< sums of all cg iterations for each cluster */
-		int *itksp_lasts;				/**< sums of all cg iterations in this outer iteration */
-		double newton_coeff;			/**< newton step-size coefficient x_{k+1} = x_k + coeff*delta */
+		int *it_sums;							/**< sums of all iterations for each cluster */
+		int *it_lasts;							/**< number of iterations from last solve() call for each cluster */
+		int *itksp_sums;						/**< sums of all cg iterations for each cluster */
+		int *itksp_lasts;						/**< sums of all cg iterations in this outer iteration */
+		double newton_coeff;					/**< newton step-size coefficient x_{k+1} = x_k + coeff*delta */
+		IntegrationType integrationtype;	 	/**< the type of numerical integration */
+		
 	
-		Timer timer_compute_moments;	/**< time for computing moments from data */
-		Timer timer_solve; 				/**< total solution time of Newton algorithm */
-		Timer timer_ksp; 				/**< total solution time of KSP algorithm */
-		Timer timer_update; 			/**< total time of vector updates */
-		Timer timer_g;			 		/**< total time of gradient computation */
-		Timer timer_H;			 		/**< total time of Hessian computation */
-		Timer timer_fs; 				/**< total time of manipulation with function values during iterations */
-		Timer timer_integrate;	 		/**< total time of integration */
+		Timer timer_compute_moments;			/**< time for computing moments from data */
+		Timer timer_solve; 						/**< total solution time of Newton algorithm */
+		Timer timer_ksp; 						/**< total solution time of KSP algorithm */
+		Timer timer_update; 					/**< total time of vector updates */
+		Timer timer_g;			 				/**< total time of gradient computation */
+		Timer timer_H;			 				/**< total time of Hessian computation */
+		Timer timer_fs; 						/**< total time of manipulation with function values during iterations */
+		Timer timer_integrate;	 				/**< total time of integration */
 
 		EntropyData<VectorBase> *entropydata; /**< data on which the solver operates */
 
@@ -143,12 +158,27 @@ namespace pascinference {
 namespace solver {
 
 template<class VectorBase>
+std::string EntropySolverNewton<VectorBase>::print_integrationtype(IntegrationType integrationtype_in) const{
+	std::string return_value = "?";
+	switch(integrationtype_in){
+		case(INTEGRATION_AUTO): return_value = "AUTO"; break;
+		case(INTEGRATION_DLIB): return_value = "DLIB"; break;
+		case(INTEGRATION_MC):   return_value = "Monte Carlo"; break;
+	}
+	return return_value;
+}
+
+template<class VectorBase>
 void EntropySolverNewton<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolvernewton_maxit", &this->maxit, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT);
 	consoleArg.set_option_value("entropysolvernewton_maxit_ksp", &this->maxit_ksp, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_CG);
 	consoleArg.set_option_value("entropysolvernewton_eps", &this->eps, ENTROPYSOLVERNEWTON_DEFAULT_EPS);
 	consoleArg.set_option_value("entropysolvernewton_eps_ksp", &this->eps_ksp, ENTROPYSOLVERNEWTON_DEFAULT_EPS_CG);
 	consoleArg.set_option_value("entropysolvernewton_newton_coeff", &this->newton_coeff, ENTROPYSOLVERNEWTON_DEFAULT_NEWTON_COEFF);
+	
+	int integrationtype_int;
+	consoleArg.set_option_value("entropysolvernewton_integrationtype", &integrationtype_int, INTEGRATION_AUTO);
+	this->integrationtype = static_cast<IntegrationType>(integrationtype_int);
 	
 	consoleArg.set_option_value("entropysolvernewton_monitor", &this->monitor, ENTROPYSOLVERNEWTON_MONITOR);	
 
@@ -372,13 +402,14 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit        : " << this->maxit << std::endl;
-	output <<  " - maxit_ksp    : " << this->maxit_ksp << std::endl;
-	output <<  " - eps          : " << this->eps << std::endl;
-	output <<  " - eps_ksp      : " << this->eps_ksp << std::endl;
-	output <<  " - newton_coeff : " << this->newton_coeff << std::endl;
+	output <<  " - maxit            : " << this->maxit << std::endl;
+	output <<  " - maxit_ksp        : " << this->maxit_ksp << std::endl;
+	output <<  " - eps              : " << this->eps << std::endl;
+	output <<  " - eps_ksp          : " << this->eps_ksp << std::endl;
+	output <<  " - newton_coeff     : " << this->newton_coeff << std::endl;
+	output <<  " - integrationtype  : " << print_integrationtype(this->integrationtype) << std::endl;
 	
-	output <<  " - debugmode    : " << this->debugmode << std::endl;
+	output <<  " - debugmode        : " << this->debugmode << std::endl;
 
 	/* print data */
 	if(entropydata){
@@ -398,11 +429,12 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output_global, Consol
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit        : " << this->maxit << std::endl;
-	output_global <<  " - maxit_ksp    : " << this->maxit_ksp << std::endl;
-	output_global <<  " - eps          : " << this->eps << std::endl;
-	output_global <<  " - eps_ksp      : " << this->eps_ksp << std::endl;
-	output_global <<  " - newton_coeff : " << this->newton_coeff << std::endl;
+	output_global <<  " - maxit            : " << this->maxit << std::endl;
+	output_global <<  " - maxit_ksp        : " << this->maxit_ksp << std::endl;
+	output_global <<  " - eps              : " << this->eps << std::endl;
+	output_global <<  " - eps_ksp          : " << this->eps_ksp << std::endl;
+	output_global <<  " - newton_coeff     : " << this->newton_coeff << std::endl;
+	output_global <<  " - integrationtype  : " << print_integrationtype(this->integrationtype) << std::endl;
 
 	output_global <<  " - debugmode    : " << this->debugmode << std::endl;
 
