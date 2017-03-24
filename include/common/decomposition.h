@@ -194,27 +194,11 @@ class Decomposition {
 		*/
 		void createGlobalVec_gamma(Vec *x_Vec) const;
 
-		/** @brief create global PETSc gamma vector on GPU with respect to this decomposition
-		 * 
-		 * VECMPICUDA
-		 * 
-		 * @param x_Vec pointer to new gamma vector
-		*/
-		void createGlobalCudaVec_gamma(Vec *x_Vec) const;
-
 		/** @brief create global PETSc data vector with respect to this decomposition
 		 * 
 		 * @param x_Vec pointer to new vector
 		*/
 		void createGlobalVec_data(Vec *x_Vec) const;
-
-		/** @brief create global PETSc data vector on GPU with respect to this decomposition
-		 * 
-		 * VECMPICUDA
-		 * 
-		 * @param x_Vec pointer to new vector
-		*/
-		void createGlobalCudaVec_data(Vec *x_Vec) const;
 
 		/** @brief get local index in gamma vector from global indexes
 		 * 
@@ -639,25 +623,10 @@ void Decomposition::createGlobalVec_gamma(Vec *x_Vec) const {
 
 	#ifdef USE_CUDA
 		TRYCXX(VecSetType(*x_Vec, VECMPICUDA));
+	#else
+		TRYCXX(VecSetType(*x_Vec, VECMPI));
 	#endif
 
-	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
-	TRYCXX( VecSetFromOptions(*x_Vec) );
-
-	LOG_FUNC_END
-}
-
-void Decomposition::createGlobalCudaVec_gamma(Vec *x_Vec) const { //TODO: how about call it with GeneralVector<PetscVector> ?
-	LOG_FUNC_BEGIN
-
-	int T = this->get_T();
-	int R = this->get_R();
-	int K = this->get_K();
-	int Tlocal = this->get_Tlocal();
-	int Rlocal = this->get_Rlocal();
-
-	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-	TRYCXX( VecSetType(*x_Vec, VECMPICUDA) );
 	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*K,T*R*K) );
 	TRYCXX( VecSetFromOptions(*x_Vec) );
 
@@ -677,30 +646,12 @@ void Decomposition::createGlobalVec_data(Vec *x_Vec) const { //TODO: how about c
 	
 	#ifdef USE_CUDA
 		TRYCXX(VecSetType(*x_Vec,VECMPICUDA));
+	#else
+		TRYCXX(VecSetType(*x_Vec,VECMPI));
 	#endif
 
 	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
 	TRYCXX( VecSetFromOptions(*x_Vec) );
-
-	LOG_FUNC_END
-}
-
-void Decomposition::createGlobalCudaVec_data(Vec *x_Vec) const { //TODO: how about call it with GeneralVector<PetscVector> ?
-	LOG_FUNC_BEGIN
-
-	int T = this->get_T();
-	int R = this->get_R();
-	int xdim = this->get_xdim();
-	int Tlocal = this->get_Tlocal();
-	int Rlocal = this->get_Rlocal();
-
-	TRYCXX( VecCreate(PETSC_COMM_WORLD,x_Vec) );
-	TRYCXX( VecSetType(*x_Vec, VECMPICUDA) );
-	TRYCXX( VecSetSizes(*x_Vec,Tlocal*Rlocal*xdim,T*R*xdim) );
-	TRYCXX( VecSetFromOptions(*x_Vec) );
-
-//	TRYCXX( VecAssemblyBegin(*x_Vec));
-//	TRYCXX( VecAssemblyEnd(*x_Vec));
 
 	LOG_FUNC_END
 }

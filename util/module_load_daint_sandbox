@@ -1,7 +1,9 @@
 #
-# MINLIN library
+# PASC_Inference library
 # this script loads the right modules on CSCS DAINT machine
 #
+
+module load CMake
 
 module load daint-gpu
 #module swap PrgEnv-cray PrgEnv-gnu

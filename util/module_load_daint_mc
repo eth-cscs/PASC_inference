@@ -1,7 +1,9 @@
 #
-# MINLIN library
+# PASC_Inference library
 # this script loads the right modules on CSCS DAINT machine
 #
+
+module load CMake
 
 module load daint-mc
 module load gcc
@@ -17,8 +19,6 @@ module load cray-mpich
 
 # we need the petsc module (we use $PETSC_DIR)
 module load cray-petsc
-
-#module load CMake
 
 # we need the intel module for mkl (we use $MKLROOT)
 #module load intel

@@ -146,7 +146,7 @@ function (getListOfVarsStartingWith _prefix _varResult)
     set (${_varResult} ${_matchedVars} PARENT_SCOPE)
 endfunction()
 
-include(load_dlib) # DLIB
+
 include(load_cuda) # CUDA
 include(load_gpu) # GPU
 include(load_petsc) # PETSC
@@ -157,6 +157,7 @@ include(load_mkl) # MKL
 include(load_minlin) # MinLin
 include(load_metis) # METIS
 include(load_craypower) # for measuring power consumption on Piz Daint
+include(load_dlib) # DLIB
 include(load_pascinference) # PascInference
 
 
