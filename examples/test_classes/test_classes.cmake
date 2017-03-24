@@ -90,6 +90,7 @@ endif()
 option(TEST_DLIB "TEST_DLIB" OFF)
 option(TEST_DLIB_ANNA "TEST_DLIB_ANNA" OFF)
 option(TEST_DLIB_INTEGRAL "TEST_DLIB_INTEGRAL" OFF)
+option(TEST_DLIB_GUI "TEST_DLIB_GUI" OFF)
 if(${TEST_DLIB})
 	# define shortcut to compile all tests of this group
 	getListOfVarsStartingWith("TEST_DLIB_" matchedVars)
@@ -144,6 +145,7 @@ printinfo_onoff(" TEST_SOLVER                               (...)               
 printinfo_onoff(" TEST_DLIB                                 (...)                      " "${TEST_DLIB}")
 printinfo_onoff("  TEST_DLIB_ANNA                            (benchmark from Anna)       " "${TEST_DLIB_ANNA}")
 printinfo_onoff("  TEST_DLIB_INTEGRAL                        (numerical integration)     " "${TEST_DLIB_INTEGRAL}")
+printinfo_onoff("  TEST_DLIB_GUI                             (fun with X11)              " "${TEST_DLIB_GUI}")
  
 
 # ----- COMMON -----
@@ -271,3 +273,12 @@ if(${TEST_DLIB_INTEGRAL})
 
 endif()
 
+if(${TEST_DLIB_GUI})
+	# test graphical user interface
+	if(${USE_CUDA})
+		pascadd_executable("test_classes/dlib/test_gui.cu" "test_gui")
+	else()
+		pascadd_executable("test_classes/dlib/test_gui.cpp" "test_gui")
+	endif()
+
+endif()
