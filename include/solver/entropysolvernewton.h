@@ -586,7 +586,10 @@ void EntropySolverNewton<VectorBase>::solve() {
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
 		
-		coutMaster << "k=" << k << std::endl;
+		/* print iteration info */
+		if(debug_print_it){
+			coutMaster << "cluster = " << k << std::endl;
+		}
 		
 		/* prepare index set to get subvectors from moments, x, g, s, y */
 		TRYCXX( ISCreateStride(PETSC_COMM_SELF, Km, k*Km, 1, &k_is) ); /* Theta is LOCAL ! */

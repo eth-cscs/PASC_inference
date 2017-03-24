@@ -559,11 +559,11 @@ void EntropyH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver
 	LOG_FUNC_BEGIN
 
 	/* multiplicate vector b by coefficient */
-//	double coeff = -1.0;
-//	if(this->scalef){
-//		coeff *= (1.0/((double)(this->get_T())));
-//	}
-//	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
+	double coeff = -1.0;
+	if(this->scalef){
+		coeff *= (1.0/((double)(this->get_T())));
+	}
+	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
 	LOG_FUNC_END
 }
