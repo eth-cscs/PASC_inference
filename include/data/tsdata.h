@@ -340,13 +340,7 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 	if(!this->gammavector){
 		Vec gammavector_Vec;
 
-		#ifndef USE_CUDA
-			/* classic MPI vector */
-			decomposition->createGlobalVec_gamma(&gammavector_Vec);
-		#else
-			/* CudaMPI vector */
-			decomposition->createGlobalCudaVec_gamma(&gammavector_Vec);
-		#endif
+		decomposition->createGlobalVec_gamma(&gammavector_Vec);
 
 		this->gammavector = new GeneralVector<PetscVector>(gammavector_Vec);
 		this->destroy_gammavector = true;
