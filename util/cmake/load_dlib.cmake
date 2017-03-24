@@ -13,7 +13,7 @@ if(${USE_DLIB})
 	set(FLAGS_DEF_D "-DUSE_DLIB ${FLAGS_DEF_D}")
 
 	# include header files
-	link_directories("${DLIB_ROOT}")
+	link_directories("${PASCINFERENCE_ROOT}/util/dlib/")
 
 	# link library
 	set(LIBRARIES_DEF "dlib::dlib;${LIBRARIES_DEF}")
