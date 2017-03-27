@@ -44,9 +44,10 @@ for idfile in range(100):
     myfile.write("\n\n")
     for idSigma in range(10):
         for fem_id in range(len(fem_reduces)):
-            outname_full = "%s_idSigma%s_%s" % (outname, idSigma+1, fem_reduces_names[fem_id]);
+            outname2 = "%s_idSigma%s" % (outname, idSigma+1);
+            outname_full = "%s_%s" % (outname2, fem_reduces_names[fem_id]);
             params_list = [];
-            params_list.append("--test_filename=data/%s.bin" %(outname))
+            params_list.append("--test_filename=data/%s.bin" %(outname2))
             params_list.append("--test_filename_solution=data/signal1D_solution.bin")
             params_list.append("--test_filename_out=results/%s.bin" % (outname_full))
             params_list.append("--test_shortinfo_filename=shortinfo/%s.txt" % (outname_full))
