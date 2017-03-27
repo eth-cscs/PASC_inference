@@ -10,7 +10,7 @@ epssqrs="--test_epssqr=1e0 --test_epssqr=2e0 --test_epssqr=3e0 --test_epssqr=4e0
 solver="--test_annealing=1 --tssolver_maxit=1 --tssolver_debugmode=0 --spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
 general="--test_K=2 --test_Theta=1.0 --test_Theta=2.0"
 
-fem_reduces=["--test_fem_type=0 --test_fem_reduce=1.0", "--test_fem_type=0 --test_fem_reduce=0.1", "--test_fem_type=0 --test_fem_reduce=0.01"];
+fem_reduces=["", "--test_fem_type=1 --test_fem_reduce=0.1", "--test_fem_type=1 --test_fem_reduce=0.01"];
 fem_reduces_names = ["fem1", "fem01", "fem001"];
 fem_reduces_values = [1.0,0.1,0.01];
 
@@ -49,10 +49,10 @@ for idfile in range(100):
             params_list = [];
             params_list.append("--test_filename=data/%s.bin" %(outname2))
             params_list.append("--test_filename_solution=data/signal1D_solution.bin")
-            params_list.append("--test_filename_out=results/%s.bin" % (outname_full))
+            params_list.append("--test_filename_out=%s" % (outname_full))
             params_list.append("--test_shortinfo_filename=shortinfo/%s.txt" % (outname_full))
             params_list.append("%s %s %s %s" %(epssqrs,solver,general,data_properties))
-            params_list.append("%s --test_shortinfo=true --test_shortinfo_header=fem_reduce,idfile,idSigma, --test_shortinfo_values=%f,%f,%f " %(fem_reduces[fem_id], fem_reduces_values[fem_id],idfile+1,idSigma+1))
+            params_list.append("%s --test_shortinfo=true --test_shortinfo_header=fem_reduce,idfile,idSigma, --test_shortinfo_values=%f,%f,%f, " %(fem_reduces[fem_id], fem_reduces_values[fem_id],idfile+1,idSigma+1))
             params = ' '.join(params_list);
             myfile.write("srun -n 1 ./test_signal1D %s > batch_out/%s.txt\n\n\n" %(params,outname_full))
         
