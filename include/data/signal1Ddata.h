@@ -415,7 +415,7 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 		/* add to recovered image */
 		TRYCXX( VecAXPY(data_abserr_Vec, theta_arr[k], gammak_Vec) );
 
-		TRYCXX( VecRestoreSubVector(gammavector_Vec gammak_is, &gammak_Vec) );
+		TRYCXX( VecRestoreSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );
 	}	
 
