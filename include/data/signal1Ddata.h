@@ -380,15 +380,26 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 
 	double abserr;
 
+	Vec data_Vec = this->datavector->get_vector();
+	Vec solution_Vec = solution.get_vector();
+	Vec gammavector_Vec = this->gammavector->get_vector();
+
+	/* transfer data to GPU */
+	#ifdef USE_GPU
+		TRYCXX( VecCUDACopyToGPU(data_Vec) );
+		TRYCXX( VecCUDACopyToGPU(solution_Vec) );
+		TRYCXX( VecCUDACopyToGPU(gammavector_Vec) );
+	#endif
+
 	/* compute recovered signal */
 	Vec gammak_Vec;
 	IS gammak_is;
 
 	Vec data_abserr_Vec;
-	TRYCXX( VecDuplicate(this->datavector->get_vector(), &data_abserr_Vec) );
+	TRYCXX( VecDuplicate(data_Vec, &data_abserr_Vec) );
 	
 	/* abserr = -solution */
-	TRYCXX( VecCopy(solution.get_vector(),data_abserr_Vec)); 
+	TRYCXX( VecCopy(solution_Vec,data_abserr_Vec)); 
 	TRYCXX( VecScale(data_abserr_Vec,-1.0));
 
 	double *theta_arr;
@@ -399,12 +410,12 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 	for(int k=0;k<K;k++){ 
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
-		TRYCXX( VecGetSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( VecGetSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */
 		TRYCXX( VecAXPY(data_abserr_Vec, theta_arr[k], gammak_Vec) );
 
-		TRYCXX( VecRestoreSubVector(this->gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( VecRestoreSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );
 	}	
 
