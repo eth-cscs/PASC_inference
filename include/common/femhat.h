@@ -406,9 +406,6 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 		TRYCXX( ISDestroy(&gammak2_is) );
 	}
 
-	TRYCXX( VecRestoreArray(gamma1_Vec,&gammak1_arr) );
-	TRYCXX( VecRestoreArray(gamma2_Vec,&gammak2_arr) );
-
 	LOG_FUNC_END
 }
 
