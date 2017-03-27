@@ -22,29 +22,29 @@ print "GPU: Preparing batch scripts:"
 
 batchfile_list = [];
 for idfile in range(10):
+    outname = "signal1D_id%s" % (idfile+1);
+    print "- preparing batch script: %s" % (outname)
+    batchfile_name = "batch/%s.batch" % (outname);
+    myfile = open(batchfile_name, 'w+');
+    myfile.write("#!/bin/bash -l\n")
+    myfile.write("\n## sbatch settings\n")
+    myfile.write("#SBATCH --nodes=1\n")
+    myfile.write("#SBATCH --ntasks-per-node=1\n")
+    myfile.write("#SBATCH --ntasks-per-core=1\n")
+    myfile.write("#SBATCH --threads-per-core=1\n")
+    myfile.write("#SBATCH --time=00:15:00\n")
+    myfile.write("#SBATCH --partition=normal\n")
+    myfile.write("#SBATCH --output=batch_out/%s.%%j.o\n" % (outname))
+    myfile.write("#SBATCH --error=batch_out/%s.%%j.e\n" % (outname))
+    myfile.write("\n## load modules\n")
+    myfile.write("source %s/util/module_load_daint_sandbox\n" % (library_path))
+    myfile.write("\n## set number of threads\n")
+    myfile.write("export OMP_NUM_THREADS=1\n")
+    myfile.write("\n## run the jobs\n")
+    myfile.write("\n\n")
     for idSigma in range(10):
-        outname = "signal1D_id%s_idSigma%s" % (idfile+1, idSigma+1);
-        print "- preparing batch script: %s" % (outname)
-        batchfile_name = "batch/%s.batch" % (outname);
-        myfile = open(batchfile_name, 'w+');
-        myfile.write("#!/bin/bash -l\n")
-        myfile.write("\n## sbatch settings\n")
-        myfile.write("#SBATCH --nodes=1\n")
-        myfile.write("#SBATCH --ntasks-per-node=1\n")
-        myfile.write("#SBATCH --ntasks-per-core=1\n")
-        myfile.write("#SBATCH --threads-per-core=1\n")
-        myfile.write("#SBATCH --time=00:05:00\n")
-        myfile.write("#SBATCH --partition=normal\n")
-        myfile.write("#SBATCH --output=batch_out/%s.%%j.o\n" % (outname))
-        myfile.write("#SBATCH --error=batch_out/%s.%%j.e\n" % (outname))
-        myfile.write("\n## load modules\n")
-        myfile.write("source %s/util/module_load_daint_sandbox\n" % (library_path))
-        myfile.write("\n## set number of threads\n")
-        myfile.write("export OMP_NUM_THREADS=1\n")
-        myfile.write("\n## run the jobs\n")
-        myfile.write("\n\n")
         for fem_id in range(len(fem_reduces)):
-            outname_full = "%s_%s" % (outname, fem_reduces_names[fem_id]);
+            outname_full = "%s_idSigma%s_%s" % (outname, idSigma+1, fem_reduces_names[fem_id]);
             params_list = [];
             params_list.append("--test_filename=data/%s.bin" %(outname))
             params_list.append("--test_filename_solution=data/signal1D_solution.bin")
@@ -55,14 +55,15 @@ for idfile in range(10):
             params = ' '.join(params_list);
             myfile.write("srun -n 1 ./test_signal1D %s > batch_out/%s.txt\n\n\n" %(params,outname_full))
         
-        myfile.close()
-        batchfile_list.append(batchfile_name);
+    myfile.close()
+    batchfile_list.append(batchfile_name);
 
 filename_run = "send_batch.runme"
 print "Preparing run script: %s" % (filename_run)
 myfile_run = open(filename_run, 'w+');
 myfile_run.write("#!/bin/bash\n\n")
 for batchfile_id in range(len(batchfile_list)):
+    myfile_run.write("echo %s/%s"%(batchfile_id,len(batchfile_list)))
     print "- adding file: %s" % (batchfile_list[batchfile_id])
     myfile_run.write("sbatch --account=c11 --constraint=gpu ")
     myfile_run.write(batchfile_list[batchfile_id])
