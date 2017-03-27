@@ -12,7 +12,7 @@ general="--test_K=2 --test_Theta=1.0 --test_Theta=2.0"
 
 fem_reduces=["--test_fem_type=0 --test_fem_reduce=1.0", "--test_fem_type=0 --test_fem_reduce=0.1", "--test_fem_type=0 --test_fem_reduce=0.01"];
 fem_reduces_names = ["fem1", "fem01", "fem001"];
-
+fem_reduces_values = [1.0,0.1,0.01];
 
 # path to exec folder
 library_path = "~/soft/PASC_inference/";
@@ -52,7 +52,7 @@ for idfile in range(100):
             params_list.append("--test_filename_out=results/%s.bin" % (outname_full))
             params_list.append("--test_shortinfo_filename=shortinfo/%s.txt" % (outname_full))
             params_list.append("%s %s %s %s" %(epssqrs,solver,general,data_properties))
-            params_list.append("%s --test_shortinfo=true --test_shortinfo_header=fem_reduce,idfile,idSigma, --test_shortinfo_values=%s,%s,%s " %(fem_reduces[fem_id], fem_reduces_names[fem_id],idfile+1,idSigma+1))
+            params_list.append("%s --test_shortinfo=true --test_shortinfo_header=fem_reduce,idfile,idSigma, --test_shortinfo_values=%f,%f,%f " %(fem_reduces[fem_id], fem_reduces_values[fem_id],idfile+1,idSigma+1))
             params = ' '.join(params_list);
             myfile.write("srun -n 1 ./test_signal1D %s > batch_out/%s.txt\n\n\n" %(params,outname_full))
         
