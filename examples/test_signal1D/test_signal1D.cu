@@ -40,6 +40,7 @@ int main( int argc, char *argv[] )
 		("test_cutdata", boost::program_options::value<bool>(), "cut data to interval {0,1} [bool]")
 		("test_printstats", boost::program_options::value<bool>(), "print basic statistics of data [bool]")
 		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]")
+		("test_saveresult", boost::program_options::value<bool>(), "save the solution [bool]")
 		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
@@ -71,7 +72,7 @@ int main( int argc, char *argv[] )
 	}
 
 	int K, annealing, fem_type; 
-	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, save_all;
+	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, save_all, saveresult;
 	double fem_reduce;
 
 	std::string filename;
@@ -95,6 +96,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_cutdata", &cutdata, false);
 	consoleArg.set_option_value("test_printstats", &printstats, false);
 	consoleArg.set_option_value("test_printinfo", &printinfo, false);
+	consoleArg.set_option_value("test_saveresult", &saveresult, true);
 	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
@@ -161,6 +163,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
 	coutMaster << " test_cutdata                = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
 	coutMaster << " test_scaledata              = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
+	coutMaster << " test_saveresult             = " << std::setw(30) << saveresult << " (save reconstructed signal)" << std::endl;
 	coutMaster << " test_printstats             = " << std::setw(30) << printbool(printstats) << " (print basic statistics of data)" << std::endl;
 	coutMaster << " test_printinfo              = " << std::setw(30) << printbool(printinfo) << " (print informations about created objects)" << std::endl;
 	coutMaster << " test_shortinfo              = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
@@ -311,7 +314,7 @@ int main( int argc, char *argv[] )
 //		mysolver.printstatus(coutMaster);	
 
 		/* store obtained solution */
-		if(save_all){
+		if(save_all && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
 			mydata.saveSignal1D(oss.str(),false);
@@ -360,11 +363,13 @@ int main( int argc, char *argv[] )
 	TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
 
 /* 8.) store best solution */
-	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-	coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
-	oss << filename_out;
-	mydata.saveSignal1D(oss.str(),false);
-	oss.str("");
+	if(saveresult){
+		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
+		oss << filename_out;
+		mydata.saveSignal1D(oss.str(),false);
+		oss.str("");
+	}
 
 	/* print solution */
 	coutMaster << "--- THETA SOLUTION ---" << std::endl;
