@@ -82,7 +82,6 @@ macro(TESTADD_EXECUTABLE filename outname)
 	endif()	
 
 	# link pasc inference library
-	print("KOKOT: ${LIBRARIES_DEF}")
 	target_link_libraries(${outname} ${LIBRARIES_DEF})
 
 endmacro()
