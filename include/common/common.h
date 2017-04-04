@@ -38,7 +38,7 @@ namespace common {
 /* global variables */
 int DEBUG_MODE; /**< the debug mode of the library */ //TODO: old and unnecessary?
 
-#ifdef USE_PETSCVECTOR
+#ifdef USE_PETSC
  extern bool PETSC_INITIALIZED;
 #endif
 

@@ -7,8 +7,8 @@
 #ifndef PASC_TSSOLVER_H
 #define	PASC_TSSOLVER_H
 
-#ifndef USE_PETSCVECTOR
- #error 'TSSOLVER is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'TSSOLVER is for PETSC'
  typedef petscvector::PetscVector PetscVector;
 #endif
 

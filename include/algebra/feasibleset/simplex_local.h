@@ -12,8 +12,8 @@ extern int DEBUG_MODE;
 
 #include "pascinference.h"
 
-#ifndef USE_PETSCVECTOR
- #error 'SIMPLEXFEASIBLESET_LOCAL is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'SIMPLEXFEASIBLESET_LOCAL is for PETSC'
 #endif
 
 typedef petscvector::PetscVector PetscVector;

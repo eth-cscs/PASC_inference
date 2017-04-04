@@ -7,8 +7,8 @@
 #ifndef PASC_TSMODEL_H
 #define	PASC_TSMODEL_H
 
-#ifndef USE_PETSCVECTOR
- #error 'TSMODEL is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'TSMODEL is for PETSC'
 #endif
 
 /* for debugging, if >= 100, then print info about ach called function */

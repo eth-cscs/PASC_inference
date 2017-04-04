@@ -19,6 +19,16 @@ namespace pascinference {
 * @param description boost program options instance
 * @param console_nmb_cols number of columns in console
 */
+static void add_options(boost::program_options::options_description *description, int console_nmb_cols);
+
+
+}
+
+
+
+
+namespace pascinference {
+
 static void add_options(boost::program_options::options_description *description, int console_nmb_cols){
 
 	/* ----- LOG ---- */
@@ -198,5 +208,7 @@ static void add_options(boost::program_options::options_description *description
 }
 
 }
+
+
 
 #endif

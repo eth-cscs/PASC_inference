@@ -1,8 +1,8 @@
 #ifndef PASC_ENTROPYH1FEMMODEL_H
 #define PASC_ENTROPYH1FEMMODEL_H
 
-#ifndef USE_PETSCVECTOR
- #error 'ENTROPYH1FEMMODEL is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'ENTROPYH1FEMMODEL is for PETSC'
 #endif
 
 typedef petscvector::PetscVector PetscVector;

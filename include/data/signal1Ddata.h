@@ -7,8 +7,8 @@
 #ifndef PASC_SIGNAL1DDATA_H
 #define	PASC_SIGNAL1DDATA_H
 
-#ifndef USE_PETSCVECTOR
- #error 'SIGNAL1DDATA is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'SIGNAL1DDATA is for PETSC'
 #endif
 
 typedef petscvector::PetscVector PetscVector;

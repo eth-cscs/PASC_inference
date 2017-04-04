@@ -7,8 +7,8 @@
 #ifndef PASC_FEMHAT_H
 #define	PASC_FEMHAT_H
 
-#ifndef USE_PETSCVECTOR
- #error 'FEMHAT is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'FEMHAT is for PETSC'
 #endif
 
 #include "common/fem.h"

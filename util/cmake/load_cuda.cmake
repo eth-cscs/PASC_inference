@@ -27,3 +27,22 @@ macro(PRINTSETTING_CUDA)
 
 endmacro()
 
+macro(PASCADD_EXECUTABLE_CUDA filename outname)
+	# --- compile with CUDA ---
+	if(NOT ${USE_CUDA})
+		message(FATAL_ERROR "${Red}Cannot compile .cu file without USE_CUDA=ON!${ColourReset}")
+	endif()
+		
+	# add executable file
+	cuda_add_executable(${outname} ${filename}
+			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
+			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
+	# link external libraries	
+	target_link_libraries(${outname} ${LIBRARIES_DEF})
+
+	# set the name of output file
+	set_target_properties(${outname} PROPERTIES
+		OUTPUT_NAME ${outname}
+	)
+endmacro()

@@ -30,14 +30,8 @@ printsetting_cuda()
 # boost
 printsetting_boost()
 
-# gpu
-printsetting_gpu()
-
 # Petsc
 printsetting_petsc()
-
-# PetscVector
-printsetting_petscvector()
 
 # PERMON
 printsetting_permon()
@@ -58,7 +52,7 @@ printsetting_craypower()
 printsetting_dlib()
 
 # PASCInference
-#printsetting_pascinference()
+printsetting_pascinference()
 
 
 message("\n----------------------------------------------------------\n")

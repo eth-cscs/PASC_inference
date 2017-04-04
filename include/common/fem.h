@@ -7,8 +7,8 @@
 #ifndef PASC_FEM_H
 #define	PASC_FEM_H
 
-#ifndef USE_PETSCVECTOR
- #error 'FEM is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'FEM is for PETSC'
 #endif
 
 /* this class is for petscvector */

@@ -103,7 +103,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		double *Mdots_val; /**< for manipulation with mdot */
 
-		#ifdef USE_PETSCVECTOR
+		#ifdef USE_PETSC
 			Vec *Mdots_vec; /**< for manipulation with mdot */
 		#endif
 
@@ -156,7 +156,7 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 /* ------------- implementation ----------- */
 //TODO: move to impls
 
-#ifdef USE_PETSCVECTOR
+#ifdef USE_PETSC
 	/* petscvector-specific inplementation */
 	#include "solver/specific/spgqpsolver_petsc.h"
 #endif

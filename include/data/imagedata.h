@@ -7,8 +7,8 @@
 #ifndef PASC_IMAGEDATA_H
 #define	PASC_IMAGEDATA_H
 
-#ifndef USE_PETSCVECTOR
- #error 'IMAGEDATA is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'IMAGEDATA is for PETSC'
 #endif
 
 typedef petscvector::PetscVector PetscVector;

@@ -278,7 +278,7 @@ int MultiCGSolver<VectorBase>::get_hessmult() const {
 }
 
 
-#ifdef USE_PETSCVECTOR
+#ifdef USE_PETSC
 
 typedef petscvector::PetscVector PetscVector;
 	

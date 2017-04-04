@@ -30,7 +30,7 @@ class GlobalManagerClass {
 		 */
 		void init(){
 			if(!initialized){
-			#ifdef USE_PETSCVECTOR
+			#ifdef USE_PETSC
 				/* can be set after initialize of petsc */
 				if(petscvector::PETSC_INITIALIZED){
 					TRYCXX(PetscBarrier(NULL));

@@ -29,7 +29,7 @@
 #define SPGQPSOLVER_COEFF_STOP_ANORMGP_NORMB false
 #define SPGQPSOLVER_COEFF_STOP_DIFFF true
 
-#ifdef USE_PETSCVECTOR
+#ifdef USE_PETSC
 	typedef petscvector::PetscVector PetscVector;
 #endif
 
@@ -150,7 +150,7 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 
 		double *Mdots_val; /**< for manipulation with mdot */
 
-		#ifdef USE_PETSCVECTOR
+		#ifdef USE_PETSC
 			Vec *Mdots_vec; /**< for manipulation with mdot */
 		#endif
 
@@ -342,7 +342,7 @@ void SPGQPSolverC<VectorBase>::allocate_temp_vectors(){
 
 	//TODO: prepare Mdot without petsc?
 	/* prepare for Mdot */
-	#ifdef USE_PETSCVECTOR
+	#ifdef USE_PETSC
 		/* without cuda */
 		TRYCXX( PetscMalloc1(3,&Mdots_val) );
 		TRYCXX( PetscMalloc1(3,&Mdots_vec) );
@@ -366,7 +366,7 @@ void SPGQPSolverC<VectorBase>::free_temp_vectors(){
 	free(Ad);
 	free(temp);
 	
-	#ifdef USE_PETSCVECTOR
+	#ifdef USE_PETSC
 		TRYCXX( PetscFree(Mdots_val) );
 		TRYCXX( PetscFree(Mdots_vec) );
 	#endif

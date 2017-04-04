@@ -9,8 +9,8 @@
 
 #include "pascinference.h"
 
-#ifndef USE_PETSCVECTOR
- #error 'SIMPLEX_LINEQBOUNDFEASIBLESET is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'SIMPLEX_LINEQBOUNDFEASIBLESET is for PETSC'
 #endif
 
 typedef petscvector::PetscVector PetscVector;

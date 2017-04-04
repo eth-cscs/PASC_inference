@@ -10,8 +10,8 @@
 #include "pascinference.h"
 #include "algebra/bgmgraph.h"
 
-#ifndef USE_PETSCVECTOR
- #error 'BLOCKGRAPHSPARSEMATRIX is for PETSCVECTOR only, sorry'
+#ifndef USE_PETSC
+ #error 'BLOCKGRAPHSPARSEMATRIX is for PETSC only, sorry'
 #endif
 
 #ifdef USE_CUDA
@@ -35,7 +35,7 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 
 		double alpha; /**< general matrix multiplicator */
 		
-		#ifdef USE_PETSCVECTOR
+		#ifdef USE_PETSC
 			/* Petsc stuff */ 
 			PetscMatrix A_petsc;
 		#endif

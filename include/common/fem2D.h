@@ -7,8 +7,8 @@
 #ifndef PASC_FEM2D_H
 #define	PASC_FEM2D_H
 
-#ifndef USE_PETSCVECTOR
- #error 'FEM2D is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'FEM2D is for PETSC'
 #endif
 
 #include "common/fem.h"

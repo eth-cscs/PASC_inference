@@ -67,56 +67,15 @@ endmacro()
 
 # add executable file
 macro(PASCADD_EXECUTABLE filename outname)
-	# choose compiler subject to file extension
-	get_filename_component(FILE_EXT ${filename} EXT)
-
-	#remove leading whitespaces
-#	string(STRIP ${LIBRARIES_DEF} LIBRARIES_DEF)
-	
-	if(${FILE_EXT} MATCHES ".cu")
-#		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (CUDA)${ColourReset}")
-
-		# --- compile with CUDA ---
-		if(NOT ${USE_CUDA})
-			message(FATAL_ERROR "${Red}Cannot compile .cu file without USE_CUDA=ON!${ColourReset}")
-		endif()
-		
-		# add executable file
-		cuda_add_executable(${outname} ${filename}
-			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
-			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-
-		# add dependency - build pasc library first and then this exec
-		if(${COMPILE_PASCINFERENCE})
-			add_dependencies(${outname} libpascinference)
-		endif()
-	
-		# link external libraries	
-		target_link_libraries(${outname} ${LIBRARIES_DEF})
-
-		# set the name of output file
-		set_target_properties(${outname} PROPERTIES
-			OUTPUT_NAME ${outname}
-		)
-		
-		# if there are dependencies, then add it
-		if(${COMPILE_FIRST})
-			add_dependencies(${outname} ${COMPILE_FIRST})
-		endif()
-	endif()	
-
-	if(${FILE_EXT} MATCHES ".cpp")
-#		message(STATUS "${Yellow}adding ${Green}${filename}${Yellow} (C++)${ColourReset}")
-
-		# compile with g++
-
-		# add executable file
 		add_executable(${outname} ${filename})
 
 		# add dependency - build pasc library first and then this exec
 		if(${COMPILE_PASCINFERENCE})
 			add_dependencies(${outname} libpascinference)
 		endif()
+
+		# link pasc inference library
+		target_link_libraries(${outname} ${PASCINFERENCE_LIB_LOCATION})
 
 		# link external libraries	
 		target_link_libraries(${outname} ${LIBRARIES_DEF})
@@ -129,14 +88,15 @@ macro(PASCADD_EXECUTABLE filename outname)
 			OUTPUT_NAME ${outname}
 #			DEBUG ${CMAKE_CXX_FLAGS_DEBUG}
 		)
-		
-		# if there are dependencies, then add it
-		if(${COMPILE_FIRST})
-			add_dependencies(${outname} ${COMPILE_FIRST})
-		endif()
-	endif()	
-	
-	
+endmacro()
+
+# define print info (will be called in printsetting.cmake)
+macro(PRINTSETTING_PASCINFERENCE)
+	print("PASCINFERENCE")
+	printinfo(" - PASCINFERENCE_ROOT\t\t" "${PASCINFERENCE_ROOT}")
+	printinfo(" - include\t\t\t" "${PASCINFERENCE_INCLUDE}")
+	printinfo(" - src\t\t\t\t" "${PASCINFERENCE_SRC}")
+
 endmacro()
 
 # get the list of variables which start with some prefix
@@ -146,18 +106,23 @@ function (getListOfVarsStartingWith _prefix _varResult)
     set (${_varResult} ${_matchedVars} PARENT_SCOPE)
 endfunction()
 
-
-include(load_cuda) # CUDA
-include(load_gpu) # GPU
-include(load_petsc) # PETSC
-include(load_petscvector) # PetscVector
-include(load_permon) # PERMON
-include(load_boost) # BOOST
-include(load_mkl) # MKL
-include(load_minlin) # MinLin
-include(load_metis) # METIS
-include(load_craypower) # for measuring power consumption on Piz Daint
-include(load_dlib) # DLIB
-include(load_pascinference) # PascInference
+# add library with extension
+function (pascinference_add_library _extension _varResult)
+    get_cmake_property(_vars VARIABLES)
+    string (REGEX MATCHALL "(^|;)${_prefix}[A-Za-z0-9_]*" _matchedVars "${_vars}")
+    set (${_varResult} ${_matchedVars} PARENT_SCOPE)
+endfunction()
 
 
+macro(PASCINFERENCE_ADD_LIBRARY extension)
+	find_library(PASCINFERENCE_LIB "pascinference_${extension}" "${PASCINFERENCE_ROOT}/build/lib/")
+	if(NOT PASCINFERENCE_LIB)
+		# if the library doesn't exist, then give error
+		message(FATAL_ERROR "\n${Red}PASC_Inference_${extension} not found, did you forget to compile it? : ${PASCINFERENCE_LIB} ${ColourReset}\n")
+	else()
+		# library found
+		message(STATUS "${Blue}PASC_Inference_${extension} library found in: ${PASCINFERENCE_LIB} ${ColourReset}")
+	endif()
+	
+	set(LIBRARIES_DEF "${LIBRARIES_DEF};${PASCINFERENCE_LIB}")
+endmacro()

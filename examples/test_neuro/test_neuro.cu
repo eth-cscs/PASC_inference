@@ -11,8 +11,8 @@
 #include "data/edfdata.h"
 #include "model/graphh1fem.h"
 
-#ifndef USE_PETSCVECTOR
- #error 'This example is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'This example is for PETSC'
 #endif
  
 using namespace pascinference;

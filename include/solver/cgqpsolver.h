@@ -404,7 +404,7 @@ int CGQPSolver<VectorBase>::get_hessmult() const {
 	return this->hessmult_last;
 }
 
-#ifdef USE_PETSCVECTOR
+#ifdef USE_PETSC
 
 typedef petscvector::PetscVector PetscVector;
 

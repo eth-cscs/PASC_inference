@@ -1,8 +1,8 @@
 #ifndef PASC_GRAPHH1FEMMODEL_H
 #define PASC_GRAPHH1FEMMODEL_H
 
-#ifndef USE_PETSCVECTOR
- #error 'GRAPHH1FEMMODEL is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'GRAPHH1FEMMODEL is for PETSC'
 #endif
 
 typedef petscvector::PetscVector PetscVector;

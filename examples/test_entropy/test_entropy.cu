@@ -11,8 +11,8 @@
 
 #include <vector>
 
-#ifndef USE_PETSCVECTOR
- #error 'This example is for PETSCVECTOR'
+#ifndef USE_PETSC
+ #error 'This example is for PETSC'
 #endif
 
 #ifndef USE_DLIB

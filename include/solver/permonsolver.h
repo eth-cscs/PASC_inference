@@ -19,11 +19,11 @@
 #define PERMONSOLVER_USE_LAMBDAMAX false
 #define PERMONSOLVER_DUMP false
 
-#ifndef USE_PETSCVECTOR
-	#error 'BLOCKGRAPHSPARSEMATRIX is for PETSCVECTOR only, sorry'
-#else
-	typedef petscvector::PetscVector PetscVector;
+#ifndef USE_PETSC
+	#error 'BLOCKGRAPHSPARSEMATRIX is for PETSC only, sorry'
 #endif
+
+typedef petscvector::PetscVector PetscVector;
 
 #ifndef USE_PERMON
 	#error 'PERMONSOLVER cannot be used without -DUSE_PERMON=ON'

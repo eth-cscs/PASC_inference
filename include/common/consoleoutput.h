@@ -194,7 +194,7 @@ class ConsoleOutput : public std::ostream {
 				*/
 				void set_rank(){
 					if(!rankset){
-						#ifdef USE_PETSCVECTOR
+						#ifdef USE_PETSC
 							/* can be set after initialize of petsc */
 							if(petscvector::PETSC_INITIALIZED){
 								TRYCXX(PetscBarrier(NULL));
@@ -212,7 +212,7 @@ class ConsoleOutput : public std::ostream {
 				virtual int sync ( ){
 					set_rank();
 					if(this->rank == print_rank || this->print_rank == -1){
-						#ifdef USE_PETSCVECTOR
+						#ifdef USE_PETSC
 							/* write here also a rank of processor */
 							output << "[" << this->rank << "] " << offset << str();
 
@@ -225,7 +225,7 @@ class ConsoleOutput : public std::ostream {
 					    str("");
 					}
 
-					#ifdef USE_PETSCVECTOR
+					#ifdef USE_PETSC
 						TRYCXX(PetscBarrier(NULL)); /* barrier after each cout */
 					#endif
 

@@ -51,7 +51,7 @@ namespace algebra {
 	class GeneralVector : public VectorBase {
 		private:
 			/* random vector generator */
-			#ifdef USE_PETSCVECTOR
+			#ifdef USE_PETSC
 				PetscRandom rnd; /**< PETSc random generator */
 			#endif
 
@@ -60,7 +60,7 @@ namespace algebra {
 			*
 			*/
 			GeneralVector(): VectorBase() {
-				#ifdef USE_PETSCVECTOR
+				#ifdef USE_PETSC
 					this->rnd=NULL;
 				#endif
 			}
@@ -70,7 +70,7 @@ namespace algebra {
 			* @todo for general number of arguments
 			*/
 			template<class ArgType> GeneralVector(ArgType arg): VectorBase(arg) {
-				#ifdef USE_PETSCVECTOR
+				#ifdef USE_PETSC
 					this->rnd=NULL;
 				#endif
 			}
@@ -80,7 +80,7 @@ namespace algebra {
 			* @todo for general number of arguments
 			*/
 			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2): VectorBase(arg1,arg2) {
-				#ifdef USE_PETSCVECTOR
+				#ifdef USE_PETSC
 					this->rnd=NULL;
 				#endif
 			}
@@ -125,7 +125,7 @@ namespace pascinference {
 namespace algebra {
 
 /* ------- PETSCVECTOR ------- */	
-#ifdef USE_PETSCVECTOR
+#ifdef USE_PETSC
 typedef petscvector::PetscVector PetscVector;
 
 template<>

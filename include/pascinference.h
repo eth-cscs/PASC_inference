@@ -49,11 +49,9 @@
 		PETSC_EXTERN PetscErrorCode VecCreateSeqCUDA(MPI_Comm,PetscInt,Vec*);
 		PETSC_EXTERN PetscErrorCode VecCreateMPICUDA(MPI_Comm,PetscInt,PetscInt,Vec*);
 	#endif
-#endif
 
-/* PetscVector */
-#ifdef USE_PETSCVECTOR
-	#include "petscvector.h"
+	/* PetscVector */
+	#include "algebra/vector/petscvector/petscvector.h"
 #endif
 
 /* cuda stuff */
