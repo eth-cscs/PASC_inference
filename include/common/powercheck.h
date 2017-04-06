@@ -2,7 +2,7 @@
 #define	PASC_COMMON_POWERCHECK_H
 
 #ifdef USE_CRAYPOWER
- #include "common/craypower.h"
+ #include "external/craypower/common/craypower.h"
 #endif
 
 namespace pascinference {

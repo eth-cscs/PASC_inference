@@ -34,32 +34,34 @@ option(USE_METIS "USE_METIS" ON)
 option(USE_CRAYPOWER "USE_CRAYPOWER" ON)
 option(USE_DLIB "USE_DLIB" OFF)
 
-
 # include cmake functions
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_CMAKE}" ${CMAKE_MODULE_PATH})
-include(common) # include common cmake functions
-include(load_boost) # BOOST
-include(load_cuda) # CUDA
-include(load_petsc) # PETSC
-include(load_permon) # PERMON
-include(load_mkl) # MKL
-include(load_minlin) # MinLin
-include(load_metis) # METIS
-include(load_craypower) # for measuring power consumption on Piz Daint
-include(load_dlib) # DLIB
+include(pascinference) # include common cmake functions
 
+# write something funny
 message(STATUS "${Blue}compiling PASCInference library${ColourReset}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") # we are compiling shared library
 
 # include header files
 include_directories("${PASCINFERENCE_INCLUDE}")
 
 # add files to library
 add_subdirectory("${PASCINFERENCE_SRC}/general/")
+add_subdirectory("${PASCINFERENCE_SRC}/boost/")
+add_subdirectory("${PASCINFERENCE_SRC}/cuda/")
 
-#pascadd_lib_general()
-#pascadd_lib_cuda()
+# create list of targets
+set(PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_GENERAL>)
+if(${USE_BOOST})
+	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_BOOST>)
+endif()
+if(${USE_CUDA})
+	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_CUDA>)
+endif()
 
 
+# add library from created list
+add_library(pascinference SHARED ${PASC_TARGETS})
 
 
 # print information about settings

@@ -13,7 +13,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "options.h"
+#include "external/boost/options.h"
 
 namespace pascinference {
 namespace common {

@@ -31,6 +31,19 @@ option(USE_DLIB "USE_DLIB" OFF)
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake/" ${CMAKE_MODULE_PATH})
 include(pascinference) # include common cmake functions
 
+# include pasinference shared library
+find_library(PASCINFERENCE_LIB "pascinference" "${PASCINFERENCE_ROOT}/build/lib/")
+if(NOT PASCINFERENCE_LIB)
+	# if the library doesn't exist, then give error
+	message(FATAL_ERROR "\n${Red}PASC_Inference_${extension} not found, did you forget to compile it? : ${PASCINFERENCE_LIB} ${ColourReset}\n")
+else()
+	# library found
+	message(STATUS "${Blue}PASC_Inference_${extension} library found in: ${PASCINFERENCE_LIB} ${ColourReset}")
+endif()
+set(LIBRARIES_DEF "${PASCINFERENCE_LIB};${LIBRARIES_DEF}")
+
+print("KUNDA: ${LIBRARIES_DEF}")
+
 # include PASC_Inference header files
 include_directories("${PASCINFERENCE_ROOT}/include")
 
@@ -79,9 +92,10 @@ macro(TESTADD_EXECUTABLE filename outname)
 			OUTPUT_NAME ${outname}
 #			DEBUG ${CMAKE_CXX_FLAGS_DEBUG}
 		)
+
 	endif()	
 
-	# link pasc inference library
+	# link shared libraries
 	target_link_libraries(${outname} ${LIBRARIES_DEF})
 
 endmacro()

@@ -51,7 +51,7 @@
 	#endif
 
 	/* PetscVector */
-	#include "algebra/vector/petscvector/petscvector.h"
+	#include "external/petsc/algebra/vector/petscvector/petscvector.h"
 #endif
 
 /* cuda stuff */

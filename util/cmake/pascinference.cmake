@@ -1,5 +1,3 @@
-
-
 # ------- GENERAL ------------
 include(common) # include common cmake functions
 include(load_boost) # BOOST
@@ -11,7 +9,4 @@ include(load_minlin) # MinLin
 include(load_metis) # METIS
 include(load_craypower) # for measuring power consumption on Piz Daint
 include(load_dlib) # DLIB
-
-
-pascinference_add_library("general")
 
