@@ -53,24 +53,12 @@ message(STATUS "${Blue}compiling PASCInference library${ColourReset}")
 # include header files
 include_directories("${PASCINFERENCE_INCLUDE}")
 
-# compile general functions
-file(GLOB LIBPASCINFERENCE_SOURCES "${PASCINFERENCE_SRC}/general/*.cpp") # locate all cpp files in source directory
-set_source_files_properties(${LIBPASCINFERENCE_SOURCES}	COMPILE_FLAGS ${FLAGS_DEF_D})
-add_library(pascinference_general SHARED ${LIBPASCINFERENCE_SOURCES})
+# add files to library
+add_subdirectory("${PASCINFERENCE_SRC}/general/")
 
-# compile cuda functions
-if(${USE_CUDA})
-	file(GLOB LIBPASCINFERENCE_CUDA_SOURCES "${PASCINFERENCE_SRC}/cuda/*.cu")
-	set_source_files_properties(${LIBPASCINFERENCE_CUDA_SOURCES} COMPILE_FLAGS ${FLAGS_DEF_D})
-	cuda_add_library(pascinference_cuda SHARED ${LIBPASCINFERENCE_CUDA_SOURCES})
-endif()
+#pascadd_lib_general()
+#pascadd_lib_cuda()
 
-# compile petsc functions
-if(${USE_PETSC})
-#	file(GLOB LIBPASCINFERENCE_PETSC_SOURCES "${PASCINFERENCE_SRC}/petsc/*.cpp")
-#	set_source_files_properties(${LIBPASCINFERENCE_PETSC_SOURCES} COMPILE_FLAGS ${FLAGS_DEF_D})
-#	add_library(pascinference_petsc SHARED ${LIBPASCINFERENCE_PETSC_SOURCES})
-endif()
 
 
 

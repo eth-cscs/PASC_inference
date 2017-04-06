@@ -46,3 +46,5 @@ macro(PASCADD_EXECUTABLE_CUDA filename outname)
 		OUTPUT_NAME ${outname}
 	)
 endmacro()
+
+

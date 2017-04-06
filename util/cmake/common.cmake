@@ -106,23 +106,5 @@ function (getListOfVarsStartingWith _prefix _varResult)
     set (${_varResult} ${_matchedVars} PARENT_SCOPE)
 endfunction()
 
-# add library with extension
-function (pascinference_add_library _extension _varResult)
-    get_cmake_property(_vars VARIABLES)
-    string (REGEX MATCHALL "(^|;)${_prefix}[A-Za-z0-9_]*" _matchedVars "${_vars}")
-    set (${_varResult} ${_matchedVars} PARENT_SCOPE)
-endfunction()
 
 
-macro(PASCINFERENCE_ADD_LIBRARY extension)
-	find_library(PASCINFERENCE_LIB "pascinference_${extension}" "${PASCINFERENCE_ROOT}/build/lib/")
-	if(NOT PASCINFERENCE_LIB)
-		# if the library doesn't exist, then give error
-		message(FATAL_ERROR "\n${Red}PASC_Inference_${extension} not found, did you forget to compile it? : ${PASCINFERENCE_LIB} ${ColourReset}\n")
-	else()
-		# library found
-		message(STATUS "${Blue}PASC_Inference_${extension} library found in: ${PASCINFERENCE_LIB} ${ColourReset}")
-	endif()
-	
-	set(LIBRARIES_DEF "${LIBRARIES_DEF};${PASCINFERENCE_LIB}")
-endmacro()
