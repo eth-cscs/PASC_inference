@@ -8,7 +8,7 @@
 #define	PASC_BLOCKGRAPHSPARSEMATRIX_H
 
 #include "pascinference.h"
-#include "algebra/bgmgraph.h"
+#include "algebra/graph/bgmgraph.h"
 
 #ifndef USE_PETSC
  #error 'BLOCKGRAPHSPARSEMATRIX is for PETSC only, sorry'

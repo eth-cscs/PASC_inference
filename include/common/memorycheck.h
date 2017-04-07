@@ -1,6 +1,8 @@
 #ifndef PASC_COMMON_MEMORYCHECK_H
 #define	PASC_COMMON_MEMORYCHECK_H
 
+#include <sys/sysinfo.h>
+
 namespace pascinference {
 namespace common {
 
@@ -17,51 +19,22 @@ class MemoryCheck {
 		 * The value of (sysinfo.totalram + sysinfo.totalswap) * sysinfo.mem_unit
 		 * 
 		 */ 
-		static long long get_virtual_all() {
-			struct sysinfo memInfo;
-			sysinfo (&memInfo);
-			long long totalVirtualMem = memInfo.totalram;
-			totalVirtualMem += memInfo.totalswap;
-			totalVirtualMem *= memInfo.mem_unit;
-			
-			return totalVirtualMem;
-		}
+		static long long get_virtual_all();
 
 		/** @brief get the size of used virtual memory in bytes
 		 * 
 		 */ 
-		static long long get_virtual_used() {
-			struct sysinfo memInfo;
-			sysinfo (&memInfo);
-		    long long virtualMemUsed = memInfo.totalram - memInfo.freeram;
-
-			virtualMemUsed += memInfo.totalswap - memInfo.freeswap;
-			virtualMemUsed *= memInfo.mem_unit;
-			
-			return virtualMemUsed;
-		}
+		static long long get_virtual_used();
 
 		/** @brief get the percentage usage of virtual memory
 		 * 
 		 */ 
-		static double get_virtual(){
-			struct sysinfo memInfo;
-			sysinfo (&memInfo);
-			
-			return 100*((memInfo.totalram - memInfo.freeram) + (memInfo.totalram - memInfo.freeram))/(double)(memInfo.totalram + memInfo.totalram);
-		}
+		static double get_virtual();
 
 		/** @brief get the size of physical memory in bytes
 		 * 
 		 */ 
-		static long long get_physical() {
-			struct sysinfo memInfo;
-			sysinfo (&memInfo);
-			long long totalPhysMem = memInfo.totalram;
-			totalPhysMem *= memInfo.mem_unit;
-			
-			return totalPhysMem;
-		}
+		static long long get_physical();
 	
 };
 

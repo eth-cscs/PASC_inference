@@ -45,18 +45,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") # we are compiling shared librar
 # include header files
 include_directories("${PASCINFERENCE_INCLUDE}")
 
-# add files to library
-add_subdirectory("${PASCINFERENCE_SRC}/general/")
-add_subdirectory("${PASCINFERENCE_SRC}/boost/")
-add_subdirectory("${PASCINFERENCE_SRC}/cuda/")
-
 # create list of targets
 set(PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_GENERAL>)
+add_subdirectory("${PASCINFERENCE_SRC}/general/")
+
 if(${USE_BOOST})
+	add_subdirectory("${PASCINFERENCE_SRC}/boost/")
 	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_BOOST>)
 endif()
 if(${USE_CUDA})
+	add_subdirectory("${PASCINFERENCE_SRC}/cuda/")
 	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_CUDA>)
+endif()
+if(${USE_PETSC})
+	add_subdirectory("${PASCINFERENCE_SRC}/petsc/")
+	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_PETSC>)
 endif()
 
 

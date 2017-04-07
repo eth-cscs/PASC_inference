@@ -63,7 +63,6 @@ class GeneralData {
 
 /* general print, call virtual print() */
 ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralData &data){
-	if(DEBUG_MODE >= 100) coutMaster << "(GeneralData)OPERATOR: <<" << std::endl;
 	output << data.get_name();
 	return output;
 }

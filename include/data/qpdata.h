@@ -7,9 +7,6 @@
 #ifndef PASC_QPDATA_H
 #define	PASC_QPDATA_H
 
-/* for debugging, if >= 100, then print info about each called function */
-extern int DEBUG_MODE;
-
 #include "pascinference.h"
 
 namespace pascinference {

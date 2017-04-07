@@ -1,6 +1,4 @@
-#ifndef PETSCVECTOR_WRAPPERMUL_IMPL_H
-#define	PETSCVECTOR_WRAPPERMUL_IMPL_H
-
+#include "external/petsc/algebra/vector/petscvector.h"
 
 namespace petscvector {
 
@@ -38,4 +36,3 @@ Vec PetscVectorWrapperMul::get_vector2() const {
 
 } /* end of petscvector namespace */
 
-#endif

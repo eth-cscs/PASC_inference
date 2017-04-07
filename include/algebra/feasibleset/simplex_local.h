@@ -7,9 +7,6 @@
 #ifndef PASC_SIMPLEXFEASIBLESET_LOCAL_H
 #define	PASC_SIMPLEXFEASIBLESET_LOCAL_H
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
-
 #include "pascinference.h"
 
 #ifndef USE_PETSC

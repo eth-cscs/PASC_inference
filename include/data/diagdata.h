@@ -7,9 +7,6 @@
 #ifndef PASC_DIAGDATA_H
 #define	PASC_DIAGDATA_H
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
-
 #include "pascinference.h"
 
 namespace pascinference {

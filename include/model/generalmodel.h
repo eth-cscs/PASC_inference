@@ -45,7 +45,6 @@ class GeneralModel {
 
 /* general print, call virtual print() */
 ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralModel &model){
-	if(DEBUG_MODE >= 100) coutMaster << "(GeneralData)OPERATOR: <<" << std::endl;
 	output << model.get_name();
 	return output;
 }

@@ -1,6 +1,4 @@
-#ifndef PETSCVECTOR_WRAPPERSUB_IMPL_H
-#define	PETSCVECTOR_WRAPPERSUB_IMPL_H
-
+#include "external/petsc/algebra/vector/petscvector.h"
 
 namespace petscvector {
 
@@ -325,4 +323,3 @@ PetscVectorWrapperMul mul(PetscVectorWrapperSub subvec1, PetscVectorWrapperSub s
 
 } /* end of petscvector namespace */
 
-#endif

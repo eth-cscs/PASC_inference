@@ -7,6 +7,10 @@
 #ifndef PASC_COMMON_SHORTINFO_H
 #define	PASC_COMMON_SHORTINFO_H
 
+#include <stdio.h>
+#include <fstream>
+#include <string>
+
 #include "common/globalmanager.h"
 
 namespace pascinference {
@@ -29,15 +33,11 @@ class ShortinfoClass {
 		 *  Defaultly do not generate shortinfo file, wait until begin() with filename is called.
 		 * 
 		 */
-		ShortinfoClass(){
-			shortinfo_or_not = false;
-		}
+		ShortinfoClass();
 
 		/** @brief destructor
 		 */
-		~ShortinfoClass(){
-	
-		}
+		~ShortinfoClass();
 
 		/** @brief start to generate new shortinfo file
 		 * 
@@ -45,17 +45,7 @@ class ShortinfoClass {
 		 * 
 		 * @param new_filename the name of shortinfo file
 		 */
-		void begin(std::string new_filename){
-			shortinfo_or_not = true;
-
-			this->filename = new std::string(new_filename);
-
-			/* open file, i.e. create it or delete content */
-			if( GlobalManager.get_rank() == 0){
-				myfile.open(filename->c_str());
-				myfile.close();
-			}
-		}
+		void begin(std::string new_filename);
 
 		/** @brief write sting info shortinfo file
 		 * 
@@ -63,24 +53,11 @@ class ShortinfoClass {
 		 * 
 		 * @param what_to_write the string which will be written into file
 		 */
-		void write(std::string what_to_write){
-			/* master writes the file with short info (used in batch script for quick computation) */
-			if( GlobalManager.get_rank() == 0 && shortinfo_or_not){
-				myfile.open(filename->c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
-
-				myfile << what_to_write;
-		
-				myfile.close();
-			}
-
-			/* wait for master */
-			TRYCXX( PetscBarrier(NULL) );
-		}
+		void write(std::string what_to_write);
 		
 };
 
-ShortinfoClass shortinfo; /**< global instance of class for manipulating with shortinfo */
-
+extern ShortinfoClass shortinfo; /**< global instance of class for manipulating with shortinfo */
 
 }
 } /* end of namespace */

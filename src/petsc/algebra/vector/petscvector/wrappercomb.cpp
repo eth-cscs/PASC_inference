@@ -1,5 +1,4 @@
-#ifndef PETSCVECTOR_WRAPPERCOMB_IMPL_H
-#define	PETSCVECTOR_WRAPPERCOMB_IMPL_H
+#include "external/petsc/algebra/vector/petscvector.h"
 
 namespace petscvector {
 
@@ -405,4 +404,3 @@ int PetscVectorWrapperCombNode::get_value(int index) const{
 
 } /* end of petscvector namespace */
 
-#endif

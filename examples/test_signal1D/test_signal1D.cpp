@@ -9,6 +9,7 @@
 #include "data/signal1Ddata.h"
 #include "model/graphh1fem.h"
 #include "common/femhat.h"
+#include "common/powercheck.h"
 
 #include <vector>
 

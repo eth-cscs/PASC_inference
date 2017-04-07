@@ -4,9 +4,16 @@
  *  @author Lukas Pospisil
  */
 
-
 #ifndef PASC_COMMON_GLOBALMANAGER_H
 #define	PASC_COMMON_GLOBALMANAGER_H
+
+#ifdef USE_PETSC
+	#include "petsc.h"
+	#include "petscsys.h"
+
+	#include "external/petsc/algebra/vector/petscvector.h"
+#endif
+
 
 namespace pascinference {
 namespace common {

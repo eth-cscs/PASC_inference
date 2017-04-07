@@ -1,8 +1,10 @@
-#ifndef PETSCVECTOR_IMPL_H
-#define	PETSCVECTOR_IMPL_H
-
+#include "external/petsc/algebra/vector/petscvector.h"
 
 namespace petscvector {
+
+int DEBUG_MODE_PETSCVECTOR; 
+bool PETSC_INITIALIZED = false;
+petscvector_all_type all;
 
 PetscVector::PetscVector(){
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)CONSTRUCTOR: empty" << std::endl;
@@ -509,4 +511,3 @@ PetscVectorWrapperMul mul(const PetscVector &vec1, const PetscVector &vec2)
 
 } /* end of petscvector namespace */
 
-#endif

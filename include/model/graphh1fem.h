@@ -7,9 +7,6 @@
 
 typedef petscvector::PetscVector PetscVector;
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
-
 #include "pascinference.h"
 
 /* for reduction and prolongation of data */

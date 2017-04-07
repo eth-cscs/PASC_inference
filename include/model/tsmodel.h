@@ -11,9 +11,6 @@
  #error 'TSMODEL is for PETSC'
 #endif
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUG_MODE;
-
 #include "pascinference.h"
 #include "data/tsdata.h"
 

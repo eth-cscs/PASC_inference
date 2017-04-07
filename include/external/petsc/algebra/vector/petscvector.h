@@ -37,11 +37,12 @@ static PetscErrorCode ierr; /**< to deal with PetscError */
 /* we are using namespace petscvector */
 namespace petscvector {
 
-int DEBUG_MODE_PETSCVECTOR = true; /**< defines the debug mode of the functions */
-bool PETSC_INITIALIZED = false; /**< to deal with PetscInitialize and PetscFinalize outside this class */
+extern int DEBUG_MODE_PETSCVECTOR; /**< defines the debug mode of the functions */
+extern bool PETSC_INITIALIZED; /**< to deal with PetscInitialize and PetscFinalize outside this class */
 
 /* define "all" stuff */
-class petscvector_all_type {} all; /**< brings an opportunity to call PetscVector(all) */
+class petscvector_all_type {};
+extern petscvector_all_type all; /**< brings an opportunity to call PetscVector(all) */
 
 /* wrapper to allow manipulation with linear combinations of vectors */
 class PetscVectorWrapperComb;
@@ -331,7 +332,7 @@ class PetscVector {
 		*  @todo print local portion of the vector
 		*/ 
 		friend std::ostream &operator<<(std::ostream &output, const PetscVector &vector);
-
+		
 		/** @brief Compute dot product.
 		*
 		*  Computes dot product of two given vectors.
@@ -413,6 +414,23 @@ class PetscVector {
 		std::string get_type() const;
 
 };
+
+extern void operator*=(PetscVector &vec1, double alpha);
+extern std::ostream &operator<<(std::ostream &output, const PetscVector &vector);
+extern void operator*=(PetscVector &vec1, double alpha);
+extern void operator+=(const PetscVector &vec1, const PetscVectorWrapperComb comb);
+extern void operator-=(PetscVector &vec1, const PetscVectorWrapperComb comb);
+extern std::ostream &operator<<(std::ostream &output, const PetscVector &vector);
+extern double dot(const PetscVector &x, const PetscVector &y);
+extern double dot(const PetscVector &x, const PetscVectorWrapperSub y);
+extern double dot(const PetscVectorWrapperSub x, const PetscVector &y);
+extern double max(const PetscVector &x);
+extern double min(const PetscVector &x);
+extern double sum(const PetscVector &x);
+extern double norm(const PetscVector &x);
+extern const PetscVector operator/(const PetscVector &x, const PetscVector &y);
+extern PetscVectorWrapperMul mul(const PetscVector &x, const PetscVector &y);
+
 
 
 /** \class PetscVectorWrapperComb
@@ -557,6 +575,14 @@ class PetscVectorWrapperComb
 
 };
 
+extern std::ostream &operator<<(std::ostream &output, PetscVectorWrapperComb comb);
+extern const PetscVectorWrapperComb operator*(double alpha, PetscVectorWrapperComb comb);
+extern const PetscVectorWrapperComb operator+(PetscVectorWrapperComb comb1, PetscVectorWrapperComb comb2);
+extern const PetscVectorWrapperComb operator-(PetscVectorWrapperComb comb1, PetscVectorWrapperComb comb2);
+extern const PetscVectorWrapperComb operator+(PetscVectorWrapperComb comb1, double scalar);
+extern const PetscVectorWrapperComb operator+(double scalar,PetscVectorWrapperComb comb2);
+
+
 
 /*! \class PetscVectorWrapperComb
     \brief Wrapper with one node in the linear combinations.
@@ -661,6 +687,22 @@ class PetscVectorWrapperSub
 
 };
 
+extern std::ostream &operator<<(std::ostream &output, const PetscVectorWrapperSub &wrapper);				
+extern void operator*=(const PetscVectorWrapperSub &subvec1, double alpha);
+extern void operator+=(const PetscVectorWrapperSub &subvec1, const PetscVectorWrapperComb comb);
+extern void operator-=(const PetscVectorWrapperSub &subvec1, const PetscVectorWrapperComb comb);
+extern void operator/=(const PetscVectorWrapperSub &subvec1, const PetscVectorWrapperSub subvec2);
+extern bool operator==(PetscVectorWrapperSub subvec1, double alpha);
+extern bool operator==(PetscVectorWrapperSub subvec1, PetscVectorWrapperSub subvec2);
+extern bool operator>(PetscVectorWrapperSub vec1, PetscVectorWrapperSub vec2);
+extern double sum(const PetscVectorWrapperSub subvec1);
+extern double dot(const PetscVectorWrapperSub subvec1, const PetscVectorWrapperSub subvec2);
+extern double dot(const PetscVector &x, const PetscVectorWrapperSub y);
+extern double dot(const PetscVectorWrapperSub x, const PetscVector &y);
+extern PetscVectorWrapperMul mul(PetscVectorWrapperSub subvec1, PetscVectorWrapperSub subvec2);
+
+
+
 /*! \class PetscVectorWrapperMul
     \brief Wrapper for manipulation with mul(v1,v2).
 */
@@ -694,11 +736,5 @@ class PetscVectorWrapperMul
 
 } /* end of petsc vector namespace */
 
-
-/* add implementations */
-#include "petscvector_impl.h"
-#include "wrappercomb_impl.h"
-#include "wrappersub_impl.h"
-#include "wrappermul_impl.h"
 
 #endif

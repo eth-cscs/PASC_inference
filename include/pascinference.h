@@ -51,7 +51,7 @@
 	#endif
 
 	/* PetscVector */
-	#include "external/petsc/algebra/vector/petscvector/petscvector.h"
+	#include "external/petsc/algebra/vector/petscvector.h"
 #endif
 
 /* cuda stuff */
@@ -140,9 +140,9 @@ namespace pascinference {
 #include "common/common.h"
 
 #include "algebra/arrayoperation.h"
-#include "algebra/generalmatrix.h"
-#include "algebra/generalvector.h"
-#include "algebra/generalfeasibleset.h"
+#include "algebra/matrix/generalmatrix.h"
+#include "algebra/vector/generalvector.h"
+#include "algebra/feasibleset/generalfeasibleset.h"
 #include "common/decomposition.h"
 
 #include "data/generaldata.h"

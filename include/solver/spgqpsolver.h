@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "pascinference.h"
+#include "common/common.h"
 #include "solver/qpsolver.h"
 #include "data/qpdata.h"
 #include "solver/spg_fs.h"

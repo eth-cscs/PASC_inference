@@ -9,6 +9,19 @@
 #ifndef PASC_COMMON_CONSOLEOUTPUT_H
 #define	PASC_COMMON_CONSOLEOUTPUT_H
 
+#include <iostream>
+#include <string>
+
+#ifdef USE_PETSC
+	#include "petsc.h"
+	#include "petscsys.h"
+
+	#include "external/petsc/algebra/vector/petscvector.h"
+#endif
+
+#include "common/globalmanager.h"
+
+
 namespace pascinference {
 namespace common {
 
@@ -28,38 +41,23 @@ class OffsetClass {
 		*  Set initial size of offset to zero equal to zero.
 		*
 		*/
-		OffsetClass() {
-			size = 0;
-		}
+		OffsetClass();
 		
 		/** @brief increase the size of offset
 		*
 		*/
-		void push(){
-			size += 3;
-		}
+		void push();
 
 		/** @brief decrease the size of offset
 		*
 		*/
-		void pop(){
-			size -= 3;
-			if(size < 0) size = 0;
-		}
+		void pop();
 
 		friend std::ostream &operator<<(std::ostream &output, const OffsetClass &my_offset);
 
 };
 
-std::ostream &operator<<(std::ostream &output, const OffsetClass &my_offset){
-	int i;
-	for(i=0;i<my_offset.size;i++){
-		output << " ";
-	}
-	return output;
-}
-
-OffsetClass offset; /**< global instance of output offset */
+extern OffsetClass offset; /**< global instance of output offset */
 
 
 #ifdef USE_PETSC
@@ -81,44 +79,11 @@ class ConsoleOutput : public std::ostream {
 				int print_rank; /**< which rank to print, -1 if all **/
 				int rank; /**< rank of this process */
 
-				ConsoleOutputBuf(std::ostream& str):output(str){
-				}
+				ConsoleOutputBuf(std::ostream& str);
 
-				~ConsoleOutputBuf(){
-				}
+				~ConsoleOutputBuf();
 
-				virtual int sync ( ){
-					if(this->rank == print_rank || this->print_rank == -1){
-						std::stringstream output_string;
-
-						/* write here also a rank of processor */
-						if(GlobalManager.get_size() > 1){
-							output_string << "[" << GlobalManager.get_rank() << "] " << offset << str();
-						} else {
-							output_string << offset << str();
-						}
-						str("");
-
-//						output_string << output.rdbuf();
-
-						if(this->print_rank == 0 || GlobalManager.get_size() <= 1){
-							/* master prints */
-							TRYCXX( PetscPrintf(PETSC_COMM_WORLD, output_string.str().c_str()) );
-						} else {
-							/* all prints */
-							TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, output_string.str().c_str()) );
-						}
-
-						output_string.str("");
-						output_string.clear();
-
-					} else {
-					    str("");
-					}
-
-//					output.flush();
-					return 0;
-				}
+				virtual int sync ();
 				
 		};
 
@@ -130,36 +95,23 @@ class ConsoleOutput : public std::ostream {
 		*
 		* @param std output stream (for example std::cout)
 		*/
-		ConsoleOutput(std::ostream& str, int rank = -1) : std::ostream(&buffer), buffer(str) {
-			buffer.print_rank = rank;
-			buffer.rank = GlobalManager.get_rank();
-
-		}
+		ConsoleOutput(std::ostream& str, int rank = -1);
 
 		/** @brief increase the size of offset
 		*
 		*/
-		void push(){
-			offset.push();
-		}
+		void push();
 
 		/** @brief decrease the size of offset
 		*
 		*/
-		void pop(){
-			offset.pop();
-		}
+		void pop();
 
 		/** @brief synchronize the output on all processes
 		*
 		*  In the case of PETSC call PetscSynchronizedFlush.
 		*/
-		void synchronize(){
-			if(buffer.print_rank == -1){
-				TRYCXX( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
-			}
-		}
-
+		void synchronize();
 		
 };
 
@@ -183,54 +135,16 @@ class ConsoleOutput : public std::ostream {
 				bool rankset; /**< the rank was already obtained */
 				int print_rank; /**< which rank to print, -1 if all **/
 
-				ConsoleOutputBuf(std::ostream& str):output(str){
-				}
+				ConsoleOutputBuf(std::ostream& str);
 
-				~ConsoleOutputBuf(){
-				}
+				~ConsoleOutputBuf();
 
 				/** @brief set rank of this processor
 				*
 				*/
-				void set_rank(){
-					if(!rankset){
-						#ifdef USE_PETSC
-							/* can be set after initialize of petsc */
-							if(petscvector::PETSC_INITIALIZED){
-								TRYCXX(PetscBarrier(NULL));
-						
-								MPI_Comm_rank(MPI_COMM_WORLD, &this->rank);
-								rankset = true;
-						
-							}	
-						#else
-							rankset = true; /* if it is not with petsc, then this is always master */
-						#endif
-					}
-				}
+				void set_rank();
 				
-				virtual int sync ( ){
-					set_rank();
-					if(this->rank == print_rank || this->print_rank == -1){
-						#ifdef USE_PETSC
-							/* write here also a rank of processor */
-							output << "[" << this->rank << "] " << offset << str();
-
-						#else
-							output << offset << str();
-						#endif
-						str("");
-						output.flush();
-					} else {
-					    str("");
-					}
-
-					#ifdef USE_PETSC
-						TRYCXX(PetscBarrier(NULL)); /* barrier after each cout */
-					#endif
-
-					return 0;
-				}
+				virtual int sync ( );
 				
 		};
 
@@ -243,32 +157,22 @@ class ConsoleOutput : public std::ostream {
 		* @param str output stream (for example std::cout)
 		* @param rank rank of the processor which prints, if -1 then all print
 		*/
-		ConsoleOutput(std::ostream& str, int rank = -1) : std::ostream(&buffer), buffer(str) {
-			buffer.rankset = false;
-			buffer.set_rank();
-			buffer.print_rank = rank;
-		}
+		ConsoleOutput(std::ostream& str, int rank = -1);
 
 		/** @brief increase the size of offset
 		*
 		*/
-		void push(){
-			offset.push();
-		}
+		void push();
 
 		/** @brief decrease the size of offset
 		*
 		*/
-		void pop(){
-			offset.pop();
-		}
+		void pop();
 
 		/** @brief synchronize the output on all processes
 		*
 		*/
-		void synchronize(){
-		}
-		
+		void synchronize();		
 };
 
 #endif

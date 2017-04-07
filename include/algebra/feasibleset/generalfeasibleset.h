@@ -65,7 +65,6 @@ class GeneralFeasibleSet {
 /* general print, call virtual print() */
 template<class VectorBase2>
 ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralFeasibleSet<VectorBase2> &feasibleset){
-	if(DEBUG_MODE >= 100) coutMaster <<  "(GeneralFeasibleSet)OPERATOR: <<" << std::endl;
 	output << feasibleset.get_name();
 	return output;
 }

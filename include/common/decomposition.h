@@ -7,7 +7,7 @@
 #ifndef PASC_COMMON_DECOMPOSITION_H
 #define	PASC_COMMON_DECOMPOSITION_H
 
-#include "algebra/bgmgraph.h"
+#include "algebra/graph/bgmgraph.h"
 
 /* this class is for petscvector */
 typedef petscvector::PetscVector PetscVector;

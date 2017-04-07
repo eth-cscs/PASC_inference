@@ -42,8 +42,6 @@ else()
 endif()
 set(LIBRARIES_DEF "${PASCINFERENCE_LIB};${LIBRARIES_DEF}")
 
-print("KUNDA: ${LIBRARIES_DEF}")
-
 # include PASC_Inference header files
 include_directories("${PASCINFERENCE_ROOT}/include")
 
