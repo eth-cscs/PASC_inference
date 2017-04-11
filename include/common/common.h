@@ -30,7 +30,7 @@
 	#include "petsc.h"
 	#include "petscsys.h"
 
-	#include "external/petsc/algebra/vector/petscvector.h"
+	#include "external/petsc/algebra/vector/generalvector.h"
 #endif
 
 #ifdef USE_CUDA

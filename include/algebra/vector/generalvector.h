@@ -10,6 +10,11 @@
 #ifndef PASC_GENERALVECTOR_H
 #define	PASC_GENERALVECTOR_H
 
+#include "algebra/matrix/generalmatrixrhs.h"
+
+//#include <iostream>
+#include <string>
+
 namespace pascinference {
 namespace algebra {
 
@@ -22,11 +27,12 @@ namespace algebra {
 	*/ 
 	class General_all_type {
 		public:
-			#ifdef USE_PETSCVECTOR
+			#ifdef USE_PETSC
 				/* convert to PetscVector all */
-				operator petscvector::petscvector_all_type() const { 
-					return petscvector::all;
-				}
+//TODO:
+//				operator petscvector::petscvector_all_type() const { 
+//					return petscvector::all;
+//				}
 			#endif
 
 			#ifdef USE_MINLIN
@@ -37,7 +43,8 @@ namespace algebra {
 				}
 			#endif
 
-	} gall;
+	};
+	static General_all_type gall;
 
 
 	/** @class GeneralVector
@@ -49,41 +56,23 @@ namespace algebra {
 	*/ 
 	template<class VectorBase>
 	class GeneralVector : public VectorBase {
-		private:
-			/* random vector generator */
-			#ifdef USE_PETSC
-				PetscRandom rnd; /**< PETSc random generator */
-			#endif
-
 		public:
 			/** @brief call original constructor without arguments
 			*
 			*/
-			GeneralVector(): VectorBase() {
-				#ifdef USE_PETSC
-					this->rnd=NULL;
-				#endif
-			}
+			GeneralVector();
 
 			/** @brief call original constructor with one argument
 			*
 			* @todo for general number of arguments
 			*/
-			template<class ArgType> GeneralVector(ArgType arg): VectorBase(arg) {
-				#ifdef USE_PETSC
-					this->rnd=NULL;
-				#endif
-			}
+			template<class ArgType> GeneralVector(ArgType arg);
 
 			/** @brief call original constructor with two arguments
 			*
 			* @todo for general number of arguments
 			*/
-			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2): VectorBase(arg1,arg2) {
-				#ifdef USE_PETSC
-					this->rnd=NULL;
-				#endif
-			}
+			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2);
 			
 			/** @brief matrix vector multiplication
 			*
@@ -93,10 +82,7 @@ namespace algebra {
 			*  
 			*  @param rhs right hand-size vector from A*v
 			*/
-			GeneralVector<VectorBase> &operator=(GeneralMatrixRHS<VectorBase> rhs){
-				rhs.matmult(*this);
-				return *this;
-			}
+			GeneralVector<VectorBase> &operator=(GeneralMatrixRHS<VectorBase> rhs);
 
 			/** @brief set random values
 			*
@@ -111,25 +97,23 @@ namespace algebra {
 			/** @brief get the name of the type
 			*
 			*/
-			static std::string get_name() {
-				return "GeneralVector";
-			}
+			static std::string get_name();
 			
 	};
 
 }
 }
 
+/* ------- PETSCVECTOR ------- */	
+#ifdef USE_PETSC
+ #include "external/petsc/algebra/vector/petscvector.h"
+ #include "external/petsc/algebra/vector/generalvector.h"
+#endif
+
+
 // TODO: move to impl
 namespace pascinference {
 namespace algebra {
-
-/* ------- PETSCVECTOR ------- */	
-#ifdef USE_PETSC
-
-#include "external/petsc/algebra/vector/petscvector.h"
-
-#endif
 
 /* ------- MINLIN ------- */	
 #ifdef USE_MINLIN

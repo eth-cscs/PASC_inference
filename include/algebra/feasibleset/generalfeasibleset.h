@@ -7,9 +7,14 @@
 #ifndef PASC_GENERALFEASIBLESET_H
 #define	PASC_GENERALFEASIBLESET_H
 
-#include "pascinference.h"
+#include "common/logging.h"
+#include "common/consoleoutput.h"
+#include "algebra/vector/generalvector.h"
+
 
 namespace pascinference {
+using namespace common;
+	
 namespace algebra {
 
 /** \class GeneralFeasibleSet

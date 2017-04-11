@@ -7,7 +7,16 @@
 #ifndef PASC_GENERALMATRIX_H
 #define	PASC_GENERALMATRIX_H
 
+#include "common/logging.h"
+#include "common/consoleoutput.h"
+#include "algebra/vector/generalvector.h"
+#include "algebra/matrix/generalmatrixrhs.h"
+
+
+
 namespace pascinference {
+using namespace common;
+
 namespace algebra {
 
 /* there will be a class with vectors inside namespace vector... later defined, but I need it now */
@@ -102,48 +111,6 @@ template<class VectorBase>
 void GeneralMatrix<VectorBase>::set_coeff(double coeff) {
 	// TODO: write here something really funny
 }
-
-
-/** \class GeneralMatrixRHS
- *  \brief General class for manipulation with matrices.
- *
- *  Right hand-side vector of y=A*x - will be provided into overloaded operator y = RHS
- *	
-*/
-template<class VectorBase>
-class GeneralMatrixRHS{
-	private:
-		const GeneralMatrix<VectorBase> *matrix; /**< pointer to general matrix */
-		const GeneralVector<VectorBase> *x; /**< pointer to input vector */
-	public:
-
-		/** @brief constructor from matrix and vector
-		 * 
-		 * create RHS from given pointers to matrix & vector, rhs = A*x
-		 * 
-		 * @param newmatrix pointer to input matrix on right side of y=A*x
-		 * @param newx pointer to input vector on right side of y=A*x
-		 */ 
-		GeneralMatrixRHS(const GeneralMatrix<VectorBase> *newmatrix, const GeneralVector<VectorBase> *newx){
-			matrix = newmatrix;
-			x = newx;
-		}	
-
-		/** @brief multiplicate and store result
-		 * 
-		 * Call multiplication function from matrix class to perform y = A*x 
-		 * 
-		 * @param y result vector y=A*x
-		 */ 
-		void matmult(GeneralVector<VectorBase> &y){ 
-			LOG_FUNC_BEGIN
-			
-			(*matrix).matmult(y, *x); /* call virtual function (of Matrix) for multiplication */
-
-			LOG_FUNC_END
-		}	
-
-};
 
 
 

@@ -7,9 +7,6 @@
 #ifndef PASC_DIAGSOLVER_H
 #define	PASC_DIAGSOLVER_H
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUGMODE;
-
 #include "pascinference.h"
 #include "data/diagdata.h"
 

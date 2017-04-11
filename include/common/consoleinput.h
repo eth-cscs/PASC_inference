@@ -12,6 +12,7 @@
 /* do deal with get console size */
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <iostream>
 
 #include "external/boost/options.h"
 

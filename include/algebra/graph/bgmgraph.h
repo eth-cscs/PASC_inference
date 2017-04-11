@@ -9,6 +9,11 @@
 #ifndef PASC_COMMON_BGMGRAPH_H
 #define	PASC_COMMON_BGMGRAPH_H
 
+#ifdef USE_PETSC
+ #include "external/petsc/algebra/vector/generalvector.h"
+#endif
+
+
 namespace pascinference {
 namespace algebra {
 

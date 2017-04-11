@@ -154,7 +154,6 @@ void ConsoleOutput::synchronize(){
 
 #endif
 
-
 }
 } /* end of namespace */
 
