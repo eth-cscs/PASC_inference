@@ -4,11 +4,6 @@
  #error 'SIMPLEX_LINEQBOUNDFEASIBLESET is for PETSC'
 #endif
 
-#include "algebra/feasibleset/simplex_lineqbound.h"
-
-typedef petscvector::PetscVector PetscVector;
-
-
 namespace pascinference {
 namespace algebra {
 

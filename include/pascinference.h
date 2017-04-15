@@ -22,46 +22,17 @@
 
 /* include MINLIN */ 
 #ifdef USE_MINLIN
-	#include <minlin/minlin.h>
-	#include <minlin/modules/threx/threx.h>
-
-	namespace minlin {
-		namespace threx {
-			MINLIN_INIT
-		}
-	}
+ #include "external/minlin/pascinference.h"
 #endif
 
 /* include Petsc */
 #ifdef USE_PETSC
-	#include "petsc.h"
-	#include "petscsys.h"
-
-	#ifdef USE_CUDA
-	/* anselm hotfix */
-		typedef struct _p_PetscCUDAIndices* PetscCUDAIndices;
-		typedef struct _p_VecScatterCUDAIndices_StoS* VecScatterCUDAIndices_StoS;
-		typedef struct _p_VecScatterCUDAIndices_PtoP* VecScatterCUDAIndices_PtoP;
-		PETSC_EXTERN PetscErrorCode VecCUDACopyToGPUSome_Public(Vec,PetscCUDAIndices);
-		PETSC_EXTERN PetscErrorCode VecCUDACopyFromGPUSome_Public(Vec,PetscCUDAIndices);
-		PETSC_EXTERN PetscErrorCode VecScatterInitializeForGPU(VecScatter,Vec,ScatterMode);
-		PETSC_EXTERN PetscErrorCode VecScatterFinalizeForGPU(VecScatter);
-		PETSC_EXTERN PetscErrorCode VecCreateSeqCUDA(MPI_Comm,PetscInt,Vec*);
-		PETSC_EXTERN PetscErrorCode VecCreateMPICUDA(MPI_Comm,PetscInt,PetscInt,Vec*);
-	#endif
-
-	/* PetscVector */
-	#include "external/petsc/algebra/vector/petscvector.h"
+ #include "external/petsc/pascinference.h"
 #endif
 
 /* cuda stuff */
 #ifdef USE_CUDA
-	#include <stdio.h> /* printf in cuda */
-
-	#include <cuda.h>
-	#include <cuda_runtime_api.h>
-	#include <device_launch_parameters.h>
-	#include <device_functions.h>
+ #include "external/cuda/pascinference.h"
 #endif
 
 /* PERMON */
@@ -71,19 +42,7 @@
 
 /* boost stuff */
 #ifdef USE_BOOST
-	#ifdef USE_CUDA
-		#undef _GLIBCXX_ATOMIC_BUILTINS
-	#endif
-
-	/* load console parameters with boost */
-	#include <boost/program_options.hpp>
-	#include <boost/filesystem.hpp>
-
-#endif
-
-/* include metis */
-#ifdef USE_METIS
-	#include "metis.h"
+ #include "external/boost/pascinference.h"
 #endif
 
 /** 
@@ -126,7 +85,6 @@ namespace pascinference {
 	*
 	*/
 	namespace model {}
-
 
 	// TODO: is this good idea?
 	using namespace common;

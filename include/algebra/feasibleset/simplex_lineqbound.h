@@ -4,8 +4,8 @@
  *  @author Lukas Pospisil
  */
 
-#ifndef PASC_SIMPLEX_LINEQBOUNDFEASIBLESET_LOCAL_H
-#define	PASC_SIMPLEX_LINEQBOUNDFEASIBLESET_LOCAL_H
+#ifndef PASC_SIMPLEX_LINEQBOUNDFEASIBLESET_H
+#define	PASC_SIMPLEX_LINEQBOUNDFEASIBLESET_H
 
 #include "algebra/feasibleset/generalfeasibleset.h"
 
@@ -75,5 +75,9 @@ class SimplexFeasibleSet_LinEqBound: public GeneralFeasibleSet<VectorBase> {
 
 }
 } /* end of namespace */
+
+#ifdef USE_PETSC
+ #include "external/petsc/algebra/feasibleset/simplex_lineqbound.h"
+#endif
 
 #endif

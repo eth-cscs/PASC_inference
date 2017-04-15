@@ -21,7 +21,6 @@
 namespace pascinference {
 namespace algebra {
 
-typedef petscvector::PetscVector PetscVector;
 typedef Mat PetscMatrix;
 
 /** \class BlockGraphSparseMatrix

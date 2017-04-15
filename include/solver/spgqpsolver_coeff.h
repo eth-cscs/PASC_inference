@@ -29,14 +29,6 @@
 #define SPGQPSOLVER_COEFF_STOP_ANORMGP_NORMB false
 #define SPGQPSOLVER_COEFF_STOP_DIFFF true
 
-#ifdef USE_PETSC
-	typedef petscvector::PetscVector PetscVector;
-#endif
-
-#ifdef USE_CUDA
-//    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
-#endif
-
 namespace pascinference {
 namespace solver {
 

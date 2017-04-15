@@ -1,8 +1,8 @@
-#include "external/petsc/algebra/vector/generalvector.h"
+
+#include "algebra/vector/generalvector.h"
 
 namespace pascinference {
 namespace algebra {
-
 
 template<>
 void GeneralVector<PetscVector>::set_random() { 

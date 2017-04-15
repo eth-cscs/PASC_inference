@@ -4,7 +4,6 @@
 namespace pascinference {
 namespace common {
 
-/* for loading PETSc options */
 char **argv_petsc;
 int argc_petsc;
 

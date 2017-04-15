@@ -5,8 +5,6 @@
  #error 'GRAPHH1FEMMODEL is for PETSC'
 #endif
 
-typedef petscvector::PetscVector PetscVector;
-
 #include "pascinference.h"
 
 /* for reduction and prolongation of data */

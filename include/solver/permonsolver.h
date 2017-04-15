@@ -23,8 +23,6 @@
 	#error 'BLOCKGRAPHSPARSEMATRIX is for PETSC only, sorry'
 #endif
 
-typedef petscvector::PetscVector PetscVector;
-
 #ifndef USE_PERMON
 	#error 'PERMONSOLVER cannot be used without -DUSE_PERMON=ON'
 #else

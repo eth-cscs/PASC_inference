@@ -9,9 +9,6 @@
 
 #include "algebra/graph/bgmgraph.h"
 
-/* this class is for petscvector */
-typedef petscvector::PetscVector PetscVector;
-
 namespace pascinference {
 namespace algebra {
 

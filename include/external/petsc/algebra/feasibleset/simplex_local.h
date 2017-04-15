@@ -10,8 +10,6 @@
 #include "pascinference.h"
 #include "algebra/feasibleset/simplex_local.h"
 
-typedef petscvector::PetscVector PetscVector;
-
 namespace pascinference {
 namespace algebra {
 

@@ -234,7 +234,6 @@ DiagData<VectorBase> *DiagSolver<VectorBase>::get_data() const {
 
 /* ---------- PETSCVECTOR ------------ */
 #ifdef USE_PETSC
-typedef petscvector::PetscVector PetscVector;
 
 /* Petsc: constructor from given right PetscVector */
 template<>

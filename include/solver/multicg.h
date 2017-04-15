@@ -7,9 +7,6 @@
 #ifndef PASC_MULTICGSOLVER_H
 #define	PASC_MULTICGSOLVER_H
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUGMODE;
-
 #include "pascinference.h"
 #include "solver/qpsolver.h"
 #include "solver/cgqpsolver.h"

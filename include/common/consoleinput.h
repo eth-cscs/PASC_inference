@@ -132,10 +132,7 @@ class ConsoleArgClass {
 		}		
 };
 
-static ConsoleArgClass consoleArg; /**< global instance to manipulate with console input arguments */
-
-//TODO: define aliases
-//typedef boost::program_options::value<int>() ConsoleInt;
+extern ConsoleArgClass consoleArg; /**< global instance to manipulate with console input arguments */
 
 
 }

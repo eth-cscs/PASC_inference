@@ -13,8 +13,6 @@
  #error 'SIMPLEXFEASIBLESET_LOCAL is for PETSC'
 #endif
 
-typedef petscvector::PetscVector PetscVector;
-
 namespace pascinference {
 namespace algebra {
 

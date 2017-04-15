@@ -21,8 +21,6 @@
 #define TAOSOLVER_USE_UPPERBOUND false
 #define TAOSOLVER_DUMP false
 
-typedef petscvector::PetscVector PetscVector;
-
 namespace pascinference {
 namespace solver {
 

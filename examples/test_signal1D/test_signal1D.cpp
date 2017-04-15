@@ -19,8 +19,6 @@
  
 using namespace pascinference;
 
-typedef petscvector::PetscVector PetscVector;
-
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
@@ -71,6 +69,9 @@ int main( int argc, char *argv[] )
 		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters" << std::endl;
 		return 0;
 	}
+
+	coutMaster << "kunda?" << std::endl;
+
 
 	int K, annealing, fem_type; 
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, save_all, saveresult;

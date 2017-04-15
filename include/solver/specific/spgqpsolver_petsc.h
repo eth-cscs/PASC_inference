@@ -20,8 +20,6 @@
 
 #include "algebra/matrix/blockgraphsparse.h"
 
-typedef petscvector::PetscVector PetscVector;
-
 namespace pascinference {
 namespace solver {
 

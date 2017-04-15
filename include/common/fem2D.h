@@ -14,9 +14,6 @@
 #include "common/fem.h"
 #include "algebra/graph/bgmgraphgrid2D.h"
 
-/* this class is for petscvector */
-typedef petscvector::PetscVector PetscVector;
-
 namespace pascinference {
 namespace common {
 

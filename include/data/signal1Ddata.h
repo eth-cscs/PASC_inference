@@ -11,8 +11,6 @@
  #error 'SIGNAL1DDATA is for PETSC'
 #endif
 
-typedef petscvector::PetscVector PetscVector;
-
 #include <iostream>
 #include "common/common.h"
 #include "model/tsmodel.h"

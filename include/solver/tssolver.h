@@ -9,9 +9,7 @@
 
 #ifndef USE_PETSC
  #error 'TSSOLVER is for PETSC'
- typedef petscvector::PetscVector PetscVector;
 #endif
-
 
 #include "pascinference.h"
 

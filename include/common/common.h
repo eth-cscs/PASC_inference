@@ -27,10 +27,11 @@
 #include <limits>
 
 #ifdef USE_PETSC
-	#include "petsc.h"
-	#include "petscsys.h"
+// #include "external/petsc/common/common.h"
+//	#include "petsc.h"
+//	#include "petscsys.h"
 
-	#include "external/petsc/algebra/vector/generalvector.h"
+//	#include "external/petsc/algebra/vector/generalvector.h"
 #endif
 
 #ifdef USE_CUDA
@@ -58,7 +59,11 @@ namespace pascinference {
 namespace common {
 
 #ifdef USE_PETSC
- extern bool PETSC_INITIALIZED;
+ static bool PETSC_INITIALIZED;
+
+ /* for loading PETSc options */
+ extern char **argv_petsc;
+ extern int argc_petsc;
 #endif
 
 /** @brief initialize the library

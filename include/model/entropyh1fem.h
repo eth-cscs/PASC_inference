@@ -5,8 +5,6 @@
  #error 'ENTROPYH1FEMMODEL is for PETSC'
 #endif
 
-typedef petscvector::PetscVector PetscVector;
-
 #include "pascinference.h"
 
 /* gamma problem */

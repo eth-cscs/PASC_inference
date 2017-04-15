@@ -10,6 +10,11 @@
 #ifndef PASC_GENERALVECTOR_H
 #define	PASC_GENERALVECTOR_H
 
+/* ------- PETSCVECTOR ------- */	
+#ifdef USE_PETSC
+ #include "external/petsc/algebra/vector/petscvector.h"
+#endif
+
 #include "algebra/matrix/generalmatrixrhs.h"
 
 //#include <iostream>
@@ -60,19 +65,22 @@ namespace algebra {
 			/** @brief call original constructor without arguments
 			*
 			*/
-			GeneralVector();
+			GeneralVector() : VectorBase() {
+			};
 
 			/** @brief call original constructor with one argument
 			*
 			* @todo for general number of arguments
 			*/
-			template<class ArgType> GeneralVector(ArgType arg);
+			template<class ArgType> GeneralVector(ArgType arg) : VectorBase(arg) {
+			};
 
 			/** @brief call original constructor with two arguments
 			*
 			* @todo for general number of arguments
 			*/
-			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2);
+			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2) : VectorBase(arg1,arg2){
+			};
 			
 			/** @brief matrix vector multiplication
 			*
@@ -104,12 +112,9 @@ namespace algebra {
 }
 }
 
-/* ------- PETSCVECTOR ------- */	
 #ifdef USE_PETSC
- #include "external/petsc/algebra/vector/petscvector.h"
  #include "external/petsc/algebra/vector/generalvector.h"
 #endif
-
 
 // TODO: move to impl
 namespace pascinference {

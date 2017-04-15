@@ -406,8 +406,6 @@ int CGQPSolver<VectorBase>::get_hessmult() const {
 
 #ifdef USE_PETSC
 
-typedef petscvector::PetscVector PetscVector;
-
 /* prepare temp_vectors */
 template<>
 void CGQPSolver<PetscVector>::allocate_temp_vectors(){

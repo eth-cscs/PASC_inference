@@ -11,8 +11,6 @@
  #error 'IMAGEDATA is for PETSC'
 #endif
 
-typedef petscvector::PetscVector PetscVector;
-
 #include <iostream>
 #include "common/common.h"
 #include "algebra/bgmgraph.h"

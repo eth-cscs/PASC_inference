@@ -13,9 +13,6 @@
 
 #include "common/fem.h"
 
-/* this class is for petscvector */
-typedef petscvector::PetscVector PetscVector;
-
 namespace pascinference {
 namespace common {
 
