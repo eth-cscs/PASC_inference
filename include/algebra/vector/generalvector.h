@@ -16,6 +16,7 @@
 #endif
 
 #include "algebra/matrix/generalmatrixrhs.h"
+#include "algebra/arrayoperation.h"
 
 //#include <iostream>
 #include <string>

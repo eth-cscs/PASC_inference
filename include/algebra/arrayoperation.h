@@ -9,8 +9,14 @@
 #ifndef PASC_COMMON_ARRAYOPERATION_H
 #define	PASC_COMMON_ARRAYOPERATION_H
 
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
 namespace pascinference {
 namespace algebra {
+
 
 /** @brief print content of array to string
 *
@@ -18,16 +24,7 @@ namespace algebra {
 *  @param my_size the size of array (number of elements)
 */
 template<class MyType>
-std::string print_array(MyType *my_array, int my_size){
-	std::ostringstream out;
-	out << "[";
-	for(int i=0;i<my_size;i++){
-		out << my_array[i];
-		if(i<my_size-1) out << ",";
-	}	
-	out << "]";
-	return out.str();
-}
+std::string print_array(MyType *my_array, int my_size);
 
 /** @brief print content of array with subarrays to string
 *
@@ -36,67 +33,19 @@ std::string print_array(MyType *my_array, int my_size){
 *  @param my_size2 the size of subarray
 */
 template<class MyType>
-std::string print_array(MyType *my_array, int my_size1, int my_size2){
-	std::ostringstream out;
-	out << "{";
-	for(int i=0;i<my_size1;i++){
-		out << "[";
-		for(int j=0;j<my_size2;j++){
-			out << my_array[i*my_size2+j];
-			if(j<my_size2-1) out << ",";
-		}
-		out << "]";
-		if(i<my_size1-1) out << ",";
-	}	
-	out << "}";
-	return out.str();
-}
+std::string print_array(MyType *my_array, int my_size1, int my_size2);
 
-bool parse_strings_to_doubles(int K, int Km, std::vector<std::string> Theta_list, double *Theta_solution) {
-	std::string token; 
-	size_t pos;
-	int counter=0;
-	
-	for(int k=0;k < K;k++){
-		pos = 0;
-		
-		while ((pos = Theta_list[k].find(",")) != std::string::npos) {
-			token = Theta_list[k].substr(0, pos);
 
-			if(counter >= K*Km) return false;
-			Theta_solution[counter] = atof(token.c_str());
-			counter++;
+bool parse_strings_to_doubles(int K, int Km, std::vector<std::string> Theta_list, double *Theta_solution);
 
-			Theta_list[k].erase(0, pos + 1);
-		}
-
-		if(counter >= K*Km) return false;
-		Theta_solution[counter] = atof(Theta_list[k].c_str());
-		counter++;
-	}
-
-	if(counter != K*Km){
-		return false;
-	} else {
-		return true;
-	}
-}
 
 /** @brief print content of vector to string
 *
 *  @param my_vector vector to print
 */
 template<class MyType>
-std::string print_vector(std::vector<MyType> &my_vector){
-	std::ostringstream out;
-	out << "[";
-	for(int i=0;i<my_vector.size();i++){
-		out << my_vector[i];
-		if(i<my_vector.size()-1) out << ",";
-	}	
-	out << "]";
-	return out.str();
-}
+std::string print_vector(std::vector<MyType> &my_vector);
+
 
 /** @brief print content of array
 *
@@ -105,14 +54,8 @@ std::string print_vector(std::vector<MyType> &my_vector){
 *  @param my_array pointer to array
 */
 template<class MyType>
-void print_array(std::ostream &output, int my_size, MyType *my_array){
-	output << "[";
-	for(int i=0;i<my_size;i++){
-		output << my_array[i];
-		if(i<my_size-1) output << ",";
-	}	
-	output << "]";
-}
+void print_array(std::ostream &output, int my_size, MyType *my_array);
+
 
 /** @brief compute sum of elements in array
 *
@@ -120,13 +63,8 @@ void print_array(std::ostream &output, int my_size, MyType *my_array){
 *  @param my_array pointer to array
 */
 template<class MyType>
-MyType sum_array(int my_size, const MyType *my_array){
-	MyType sum = 0;
-	for(int i=0;i<my_size;i++){
-		sum += my_array[i];
-	}	
-	return sum;
-}
+MyType sum_array(int my_size, const MyType *my_array);
+
 
 /** @brief find largest elements in array
 *
@@ -134,15 +72,8 @@ MyType sum_array(int my_size, const MyType *my_array){
 *  @param my_array pointer to array
 */
 template<class MyType>
-MyType max_array(int my_size, const MyType *my_array){
-	MyType return_value = my_array[0];
-	for(int i=1;i<my_size;i++){
-		if(my_array[i] > return_value){
-			return_value = my_array[i];
-		}
-	}	
-	return return_value;
-}
+MyType max_array(int my_size, const MyType *my_array);
+
 
 /** @brief find the index of largest elements in array
 *
@@ -150,17 +81,8 @@ MyType max_array(int my_size, const MyType *my_array){
 *  @param my_array pointer to array
 */
 template<class MyType>
-int max_arg_array(int my_size, const MyType *my_array){
-	MyType max_value = my_array[0];
-	int return_value;
-	for(int i=1;i<my_size;i++){
-		if(my_array[i] > return_value){
-			max_value = my_array[i];
-			return_value = i;
-		}
-	}	
-	return return_value;
-}
+int max_arg_array(int my_size, const MyType *my_array);
+
 
 /** @brief set all elements in array to given value
 *
@@ -169,11 +91,8 @@ int max_arg_array(int my_size, const MyType *my_array){
 *  @param my_value new value of all elements
 */
 template<class MyType>
-void set_value_array(int my_size, MyType *my_array, MyType my_value){
-	for(int i=0;i<my_size;i++){
-		my_array[i] = my_value;
-	}	
-}
+void set_value_array(int my_size, MyType *my_array, MyType my_value);
+
 
 /** @brief find largest difference between cosequent elements in array
 *
@@ -181,15 +100,8 @@ void set_value_array(int my_size, MyType *my_array, MyType my_value){
 *  @param my_array pointer to array
 */
 template<class MyType>
-MyType max_diff_array(int my_size, const MyType *my_array){
-	MyType return_value = my_array[1] - my_array[0];
-	for(int i=2;i<my_size;i++){
-		if((my_array[i]-my_array[i-1]) > return_value){
-			return_value = my_array[i]-my_array[i-1];
-		}
-	}	
-	return return_value;
-}
+MyType max_diff_array(int my_size, const MyType *my_array);
+
 
 /** @brief compute sum of some elements in array
 *
@@ -198,13 +110,8 @@ MyType max_diff_array(int my_size, const MyType *my_array){
 *  @param my_array pointer to array
 */
 template<class MyType>
-MyType sum_subarray(int start, int end, const MyType *my_array){
-	MyType sum = 0;
-	for(int i=start;i<=end;i++){
-		sum += my_array[i];
-	}	
-	return sum;
-}
+MyType sum_subarray(int start, int end, const MyType *my_array);
+
 
 /** @brief compute dot product of two arrays
 *
@@ -213,13 +120,8 @@ MyType sum_subarray(int start, int end, const MyType *my_array){
 *  @param my_array2 pointer to array
 */
 template<class MyType>
-MyType dot_arrays(int size, const MyType *my_array1, const MyType *my_array2){
-	MyType sum = 0;
-	for(int i=0;i<=size;i++){
-		sum += my_array1[i]*my_array2[i];
-	}	
-	return sum;
-}
+MyType dot_arrays(int size, const MyType *my_array1, const MyType *my_array2);
+
 
 /** @brief compare two object and return larger one
 *
@@ -227,13 +129,8 @@ MyType dot_arrays(int size, const MyType *my_array1, const MyType *my_array2){
 *  @param a2 object
 */
 template<class MyType>
-MyType max(const MyType a1, const MyType a2){
-	MyType return_value = a1;
-	if(a2 > a1){
-		return_value = a2;
-	}
-	return return_value;
-}
+MyType max(const MyType a1, const MyType a2);
+
 
 /** @brief compare two object and return smaller one
 *
@@ -241,13 +138,8 @@ MyType max(const MyType a1, const MyType a2){
 *  @param a2 object
 */
 template<class MyType>
-MyType min(const MyType a1, const MyType a2){
-	MyType return_value = a1;
-	if(a2 < a1){
-		return_value = a2;
-	}
-	return return_value;
-}
+MyType min(const MyType a1, const MyType a2);
+
 
 /** @brief compute point-wise multiplication of two arrays
 *
@@ -259,11 +151,7 @@ MyType min(const MyType a1, const MyType a2){
 *  @param my_array2 pointer to input array
 */
 template<class MyType>
-void mult_pw_array(int my_size, MyType *my_array, const MyType *my_array1, const MyType *my_array2){
-	for(int i=0;i<my_size;i++){
-		my_array[i] = my_array1[i]*my_array2[i];
-	}	
-}
+void mult_pw_array(int my_size, MyType *my_array, const MyType *my_array1, const MyType *my_array2);
 
 
 
