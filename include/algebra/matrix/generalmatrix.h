@@ -58,7 +58,9 @@ class GeneralMatrix {
 
 		/** @brief get the type name of matrix
 		 */ 
-		virtual std::string get_name() const;
+		virtual std::string get_name() const {
+			return "GeneralMatrix";
+		}
 
 		/** @brief perform matrix-vector multiplication
 		 * 
@@ -78,8 +80,13 @@ class GeneralMatrix {
 		template<class VectorBase2>
 		friend ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralMatrix<VectorBase2> &matrix);
 
-		virtual double get_coeff() const;
-		virtual void set_coeff(double coeff);
+		virtual double get_coeff() const {
+			return 1.0;
+		}
+
+		virtual void set_coeff(double coeff){
+			// TODO: write here something really funny
+		}
 
 };
 
@@ -90,32 +97,19 @@ ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralMatrix<VectorBase>
 	return output;
 }
 
-template<class VectorBase>
-std::string GeneralMatrix<VectorBase>::get_name() const {
-	return "GeneralMatrix";
-}
-
-
 /* operator A*x (creates RHS to be proceeded into overloaded operator Vector = RHS */
 template<class VectorBase>
 GeneralMatrixRHS<VectorBase> operator*(const GeneralMatrix<VectorBase> &matrix, const GeneralVector<VectorBase> &x){
 	return GeneralMatrixRHS<VectorBase>(&matrix,&x);	
 }
 
-template<class VectorBase>
-double GeneralMatrix<VectorBase>::get_coeff() const {
-	return 1.0;
-}
-
-template<class VectorBase>
-void GeneralMatrix<VectorBase>::set_coeff(double coeff) {
-	// TODO: write here something really funny
-}
-
-
 
 }
 } /* end of namespace */
+
+#ifdef USE_PETSC
+ #include "external/petsc/algebra/matrix/generalmatrix.h"
+#endif
 
 
 #endif

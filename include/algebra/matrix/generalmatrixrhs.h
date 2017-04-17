@@ -9,6 +9,7 @@
 
 #include "common/logging.h"
 #include "common/consoleoutput.h"
+#include "algebra/matrix/generalmatrix.h"
 
 namespace pascinference {
 using namespace common;
@@ -42,7 +43,7 @@ class GeneralMatrixRHS{
 		GeneralMatrixRHS(const GeneralMatrix<VectorBase> *newmatrix, const GeneralVector<VectorBase> *newx){
 			matrix = newmatrix;
 			x = newx;
-		}	
+		}
 
 		/** @brief multiplicate and store result
 		 * 
@@ -51,16 +52,12 @@ class GeneralMatrixRHS{
 		 * @param y result vector y=A*x
 		 */ 
 		void matmult(GeneralVector<VectorBase> &y){ 
-//			LOG_FUNC_BEGIN
-			
-//			(*matrix).matmult(y, *x); /* call virtual function (of Matrix) for multiplication */
-
-	//		LOG_FUNC_END
-		}	
+			LOG_FUNC_BEGIN
+			(*matrix).matmult(y, *x); /* call virtual function (of Matrix) for multiplication */
+			LOG_FUNC_END
+		}
 
 };
-
-
 
 }
 } /* end of namespace */
