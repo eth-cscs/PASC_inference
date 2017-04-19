@@ -285,5 +285,8 @@ void BGMGraphGrid2D::decompose(BGMGraphGrid2D *finer_grid, int *bounding_box1, i
 }
 } /* end of namespace */
 
+#ifdef USE_CUDA
+ #include "external/cuda/algebra/graph/bgmgraphgrid2D.cuh"
+#endif
 
 #endif

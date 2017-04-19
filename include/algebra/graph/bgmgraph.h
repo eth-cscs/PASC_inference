@@ -51,6 +51,9 @@ class BGMGraph {
 			int *neighbor_nmbs_gpu; /**< copy of values on GPU */
 			int **neighbor_ids_cpugpu; /**< pointers to GPU arrays on CPU */
 			int **neighbor_ids_gpu; /**< copy of values on GPU */
+			
+			void cuda_destroy();
+			void cuda_process();
 		#endif
 
 		/** @brief compute distance between two vertices
@@ -223,12 +226,7 @@ BGMGraph::~BGMGraph(){
 		free(neighbor_ids);
 
 		#ifdef USE_CUDA
-			gpuErrchk( cudaFree(neighbor_nmbs_gpu) );
-			for(i=0;i<n;i++){
-				gpuErrchk( cudaFree(neighbor_ids_cpugpu[i]) );
-			}
-			free(neighbor_ids_cpugpu);
-			gpuErrchk( cudaFree(neighbor_ids_gpu) );
+			cuda_destroy();
 		#endif
 
 	}
@@ -486,25 +484,7 @@ void BGMGraph::process(double threshold) {
 	TRYCXX( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 
 	#ifdef USE_CUDA
-		/* copy data to gpu */
-		gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );
-		gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
-		
-		/* allocate pointers on CPU */
-		neighbor_ids_cpugpu = (int**)malloc(n*sizeof(int*));
-		
-		for(int i=0;i<n;i++){
-			int mysize = neighbor_nmbs[i];
-		
-			gpuErrchk( cudaMalloc((void **)&(neighbor_ids_cpugpu[i]), mysize*sizeof(int)) );
-			gpuErrchk( cudaMemcpy( neighbor_ids_cpugpu[i], neighbor_ids[i], mysize*sizeof(int), cudaMemcpyHostToDevice) );
-		}
-
-		/* copy pointers to arrays from CPU to GPU */
-		gpuErrchk( cudaMalloc((void **)&neighbor_ids_gpu, n*sizeof(int*)) );
-		gpuErrchk( cudaMemcpy( neighbor_ids_gpu, neighbor_ids_cpugpu, n*sizeof(int*), cudaMemcpyHostToDevice) );
-
-		gpuErrchk( cudaDeviceSynchronize() );
+		cuda_process();
 	#endif
 	
 	processed = true;
@@ -713,5 +693,8 @@ void BGMGraph::saveVTK(std::string filename) const {
 }
 } /* end of namespace */
 
+#ifdef USE_CUDA
+ #include "external/cuda/algebra/graph/bgmgraph.cuh"
+#endif
 
 #endif

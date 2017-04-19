@@ -131,5 +131,8 @@ int BGMGraphGrid1D::get_width() const {
 }
 } /* end of namespace */
 
+#ifdef USE_CUDA
+ #include "external/cuda/algebra/graph/bgmgraphgrid1D.cuh"
+#endif
 
 #endif

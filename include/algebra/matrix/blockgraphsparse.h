@@ -7,15 +7,10 @@
 #ifndef PASC_BLOCKGRAPHSPARSEMATRIX_H
 #define	PASC_BLOCKGRAPHSPARSEMATRIX_H
 
-#include "pascinference.h"
 #include "algebra/graph/bgmgraph.h"
 
 #ifndef USE_PETSC
  #error 'BLOCKGRAPHSPARSEMATRIX is for PETSC only, sorry'
-#endif
-
-#ifdef USE_CUDA
-//    #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
 namespace pascinference {
