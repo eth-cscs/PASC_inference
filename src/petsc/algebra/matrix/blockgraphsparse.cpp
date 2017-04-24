@@ -4,7 +4,7 @@ namespace pascinference {
 namespace algebra {
 	
 template<>
-BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition &new_decomposition, double alpha, GeneralVector<PetscVector> *new_coeffs){
+BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscVector> &new_decomposition, double alpha, GeneralVector<PetscVector> *new_coeffs){
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;

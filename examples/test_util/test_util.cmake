@@ -5,6 +5,7 @@ option(TEST_UTIL "TEST_UTIL" OFF)
 option(TEST_UTIL_DIFF_NORM_VEC "TEST_UTIL_DIFF_NORM_VEC" OFF)
 option(TEST_UTIL_STAT_VEC "TEST_UTIL_STAT_VEC" OFF)
 option(TEST_UTIL_PRECISION "TEST_UTIL_PRECISION" OFF)
+option(TEST_UTIL_SHOW_VEC "TEST_UTIL_SHOW_VEC" OFF)
 
 if(${TEST_UTIL})
 	# define shortcut to compile all utils
@@ -21,6 +22,7 @@ printinfo_onoff(" TEST_UTIL                                 (...)               
 printinfo_onoff("  TEST_UTIL_DIFF_NORM_VEC                   (ConsoleArg)               " "${TEST_UTIL_DIFF_NORM_VEC}")
 printinfo_onoff("  TEST_UTIL_STAT_VEC                        (ConsoleArg)               " "${TEST_UTIL_STAT_VEC}")
 printinfo_onoff("  TEST_UTIL_PRECISION                       (ConsoleArg)               " "${TEST_UTIL_PRECISION}")
+printinfo_onoff("  TEST_UTIL_SHOW_VEC                        (ConsoleArg)               " "${TEST_UTIL_SHOW_VEC}")
 
 if(${TEST_UTIL_DIFF_NORM_VEC})
 	testadd_executable("test_util/diff_norm_vec.cpp" "diff_norm_vec")
@@ -36,5 +38,9 @@ if(${TEST_UTIL_PRECISION})
 #	else()
 #		testadd_executable("test_util/precision.cpp" "precision")
 #	endif()
+endif()
+
+if(${TEST_UTIL_SHOW_VEC})
+	testadd_executable("test_util/show_vec.cpp" "show_vec")
 endif()
 

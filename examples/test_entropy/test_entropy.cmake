@@ -9,11 +9,7 @@ printinfo_onoff(" TEST_ENTROPY                                                  
 
 if(${TEST_ENTROPY})
 	# this is signal processing test
-	if(${USE_CUDA})
-		pascadd_executable("test_entropy/test_entropy.cu" "test_entropy")
-	else()
-		pascadd_executable("test_entropy/test_entropy.cpp" "test_entropy")
-	endif()
+	pascadd_executable("test_entropy/test_entropy.cpp" "test_entropy")
 
 	# copy scripts
 	make_directory("scripts/test_entropy/")

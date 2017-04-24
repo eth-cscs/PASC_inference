@@ -10,3 +10,5 @@ include(load_metis) # METIS
 include(load_craypower) # for measuring power consumption on Piz Daint
 include(load_dlib) # DLIB
 
+include(printsetting) # print info about settings
+

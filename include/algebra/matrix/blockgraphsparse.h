@@ -22,7 +22,7 @@ namespace algebra {
 template<class VectorBase>
 class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 	private:
-		Decomposition *decomposition;
+		Decomposition<VectorBase> *decomposition;
 
 		double alpha; /**< general matrix multiplicator */
 		
@@ -34,7 +34,7 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 		GeneralVector<VectorBase> *coeffs; /**< vector of coefficient for each block */
 
 	public:
-		BlockGraphSparseMatrix(Decomposition &decomposition, double alpha=1.0, GeneralVector<VectorBase> *new_coeffs=NULL);
+		BlockGraphSparseMatrix(Decomposition<VectorBase> &decomposition, double alpha=1.0, GeneralVector<VectorBase> *new_coeffs=NULL);
 		~BlockGraphSparseMatrix(); /* destructor - destroy inner matrix */
 
 		void print(ConsoleOutput &output) const; /* print matrix */
@@ -68,30 +68,8 @@ std::string BlockGraphSparseMatrix<VectorBase>::get_name() const {
 
 
 template<class VectorBase>
-BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition &new_decomposition, double alpha, GeneralVector<VectorBase> *new_coeffs){
+BlockGraphSparseMatrix<VectorBase>::BlockGraphSparseMatrix(Decomposition<VectorBase> &new_decomposition, double alpha, GeneralVector<VectorBase> *new_coeffs){
 	LOG_FUNC_BEGIN
-
-	this->decomposition = &new_decomposition;
-	
-	this->alpha = alpha;
-	this->coeffs = new_coeffs;
-
-	int K = get_K();
-	
-	int T = get_T();
-	int Tlocal = get_Tlocal();
-	int Tbegin = decomposition->get_Tbegin();
-	int Tend = decomposition->get_Tend();
-	int R = get_R();
-	int Rlocal = get_Rlocal();
-	int Rbegin = decomposition->get_Rbegin();
-	int Rend = decomposition->get_Rend();
-
-	int* neighbor_nmbs = decomposition->get_graph()->get_neighbor_nmbs();
-	int **neightbor_ids = decomposition->get_graph()->get_neighbor_ids();
-
-	/* create matrix */
-	//TODO: what to do in general case?
 
 	LOG_FUNC_END
 }	

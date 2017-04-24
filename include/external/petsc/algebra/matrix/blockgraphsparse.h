@@ -7,7 +7,7 @@
 namespace pascinference {
 namespace algebra {
 
-template<> BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition &new_decomposition, double alpha, GeneralVector<PetscVector> *new_coeffs);
+template<> BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscVector> &new_decomposition, double alpha, GeneralVector<PetscVector> *new_coeffs);
 template<> BlockGraphSparseMatrix<PetscVector>::~BlockGraphSparseMatrix();
 template<> void BlockGraphSparseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const;
 template<> void BlockGraphSparseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const;

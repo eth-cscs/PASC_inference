@@ -7,7 +7,7 @@
 #ifndef PASC_ENTROPYDATA_H
 #define	PASC_ENTROPYDATA_H
 
-#include "pascinference.h"
+#include <iostream>
 
 namespace pascinference {
 namespace data {
@@ -79,7 +79,6 @@ class EntropyData: public GeneralData {
 } /* end of namespace */
 
 /* ------------- implementation ----------- */
-//TODO: move to impls
 
 namespace pascinference {
 namespace data {
