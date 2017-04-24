@@ -209,7 +209,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 	Vec gamma1_Vec = gamma1->get_vector();
 	Vec gamma2_Vec = gamma2->get_vector();
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		TRYCXX( VecCUDACopyToGPU(gamma1_Vec) );
 		TRYCXX( VecCUDACopyToGPU(gamma2_Vec) );
 	#endif
@@ -321,7 +321,7 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 	Vec gamma1_Vec = gamma1->get_vector();
 	Vec gamma2_Vec = gamma2->get_vector();
 
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		TRYCXX( VecCUDACopyToGPU(gamma1_Vec) );
 		TRYCXX( VecCUDACopyToGPU(gamma2_Vec) );
 	#endif

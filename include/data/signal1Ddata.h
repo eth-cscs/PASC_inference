@@ -380,7 +380,7 @@ double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<Vect
 	Vec gammavector_Vec = this->gammavector->get_vector();
 
 	/* transfer data to GPU */
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		TRYCXX( VecCUDACopyToGPU(data_Vec) );
 		TRYCXX( VecCUDACopyToGPU(solution_Vec) );
 		TRYCXX( VecCUDACopyToGPU(gammavector_Vec) );
