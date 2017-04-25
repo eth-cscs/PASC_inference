@@ -20,7 +20,8 @@ namespace common {
  *  \brief Reduction/prolongation between FEM meshes using hat functions.
  *
 */
-class FemHat : public Fem {
+template<class VectorBase>
+class FemHat : public Fem<VectorBase> {
 	protected:
 		bool left_overlap;		/**< is there overlap to the left side of time axis? */
 		bool right_overlap;		/**< is there overlap to the right side of time axis? */
@@ -36,7 +37,7 @@ class FemHat : public Fem {
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
-		FemHat(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce);
+		FemHat(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
 		 * 
@@ -52,8 +53,8 @@ class FemHat : public Fem {
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
 		
-		void reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
-		void prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const;
+		void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
+		void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
 
 		void compute_decomposition_reduced();
 
@@ -68,7 +69,8 @@ __global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int 
 
 
 /* ----------------- Fem implementation ------------- */
-FemHat::FemHat(double fem_reduce) : Fem(fem_reduce){
+template <class VectorBase>
+FemHat<VectorBase>::FemHat(double fem_reduce) : Fem<VectorBase>(fem_reduce){
 	LOG_FUNC_BEGIN
 
 	/* some implicit values */
@@ -85,7 +87,8 @@ FemHat::FemHat(double fem_reduce) : Fem(fem_reduce){
 }
 
 
-FemHat::FemHat(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce) : Fem(decomposition1, decomposition2, fem_reduce){
+template<class VectorBase>
+FemHat<VectorBase>::FemHat(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce) : Fem<VectorBase>(decomposition1, decomposition2, fem_reduce){
 	LOG_FUNC_BEGIN
 
 	#ifdef USE_CUDA
@@ -97,32 +100,35 @@ FemHat::FemHat(Decomposition *decomposition1, Decomposition *decomposition2, dou
 		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
-	diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
+	this->diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
 
 	compute_overlaps();
 
 	LOG_FUNC_END
 }
 
-FemHat::~FemHat(){
+template <class VectorBase>
+FemHat<VectorBase>::~FemHat(){
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END
 }
 
-std::string FemHat::get_name() const {
+template <class VectorBase>
+std::string FemHat<VectorBase>::get_name() const {
 	return "FEM-HAT";
 }
 
-void FemHat::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+template <class VectorBase>
+void FemHat<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
 	
 	/* information of reduced problem */
-	output_global <<  " - is reduced       : " << printbool(is_reduced()) << std::endl;
-	output_global <<  " - diff             : " << diff << std::endl;
-	output_global <<  " - fem_reduce       : " << fem_reduce << std::endl;
+	output_global <<  " - is reduced       : " << printbool(this->is_reduced()) << std::endl;
+	output_global <<  " - diff             : " << this->diff << std::endl;
+	output_global <<  " - fem_reduce       : " << this->fem_reduce << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
 	
 	output_global <<  " - overlap" << std::endl;
@@ -134,21 +140,21 @@ void FemHat::print(ConsoleOutput &output_global, ConsoleOutput &output_local) co
 	output_local <<   "     - right_t2_idx : " << this->right_t2_idx << std::endl;
 	output_local.synchronize();
  	
-	if(decomposition1 == NULL){
+	if(this->decomposition1 == NULL){
 		output_global <<  " - decomposition1   : NO" << std::endl;
 	} else {
 		output_global <<  " - decomposition1   : YES" << std::endl;
 		output_global.push();
-		decomposition1->print(output_global);
+		this->decomposition1->print(output_global);
 		output_global.pop();
 	}
 
-	if(decomposition2 == NULL){
+	if(this->decomposition2 == NULL){
 		output_global <<  " - decomposition2   : NO" << std::endl;
 	} else {
 		output_global <<  " - decomposition2   : YES" << std::endl;
 		output_global.push();
-		decomposition2->print(output_global);
+		this->decomposition2->print(output_global);
 		output_global.pop();
 	}
 	
@@ -157,7 +163,8 @@ void FemHat::print(ConsoleOutput &output_global, ConsoleOutput &output_local) co
 	LOG_FUNC_END
 }
 
-void FemHat::compute_overlaps() {
+template <class VectorBase>
+void FemHat<VectorBase>::compute_overlaps() {
 	LOG_FUNC_BEGIN
 	
 	/* indicator of begin and end overlap */
@@ -175,32 +182,33 @@ void FemHat::compute_overlaps() {
 
 	/* compute appropriate indexes in fine grid */
 	if(this->left_overlap){
-		this->left_t1_idx = floor(this->diff*(decomposition2->get_Tbegin()-1));
+		this->left_t1_idx = floor(this->diff*(this->decomposition2->get_Tbegin()-1));
 	} else {
-		this->left_t1_idx = floor(this->diff*(decomposition2->get_Tbegin()));
+		this->left_t1_idx = floor(this->diff*(this->decomposition2->get_Tbegin()));
 	}
 	if(this->right_overlap){
-		this->right_t1_idx = floor(this->diff*(decomposition2->get_Tend()-1+1));
+		this->right_t1_idx = floor(this->diff*(this->decomposition2->get_Tend()-1+1));
 	} else {
-		this->right_t1_idx = floor(this->diff*(decomposition2->get_Tend()-1));
+		this->right_t1_idx = floor(this->diff*(this->decomposition2->get_Tend()-1));
 	}
 
 	/* compute appropriate indexes in coarse grid */
 	if(this->left_overlap){
-		this->left_t2_idx = floor((decomposition1->get_Tbegin())/this->diff)-1;
+		this->left_t2_idx = floor((this->decomposition1->get_Tbegin())/this->diff)-1;
 	} else {
-		this->left_t2_idx = floor(decomposition1->get_Tbegin()/this->diff);
+		this->left_t2_idx = floor(this->decomposition1->get_Tbegin()/this->diff);
 	}
 	if(this->right_overlap){
-		this->right_t2_idx = floor((decomposition1->get_Tend()-1)/this->diff)+1;
+		this->right_t2_idx = floor((this->decomposition1->get_Tend()-1)/this->diff)+1;
 	} else {
-		this->right_t2_idx = floor((decomposition1->get_Tend()-1)/this->diff);
+		this->right_t2_idx = floor((this->decomposition1->get_Tend()-1)/this->diff);
 	}
 
 	LOG_FUNC_END
 }
 
-void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
+template <>
+void FemHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -224,11 +232,11 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 	IS gammak1_sublocal_is;
 	Vec gammak1_sublocal_Vec;
 
-	for(int k=0;k<decomposition2->get_K();k++){
+	for(int k=0;k<this->decomposition2->get_K();k++){
 
 		/* get gammak */
-		decomposition1->createIS_gammaK(&gammak1_is, k);
-		decomposition2->createIS_gammaK(&gammak2_is, k);
+		this->decomposition1->createIS_gammaK(&gammak1_is, k);
+		this->decomposition2->createIS_gammaK(&gammak2_is, k);
 
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
@@ -242,10 +250,10 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 			TRYCXX( VecGetArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
-			int Tbegin2 = decomposition2->get_Tbegin();
+			int Tbegin2 = this->decomposition2->get_Tbegin();
 
 			//TODO: OpenMP?
-			for(int t2=0; t2 < decomposition2->get_Tlocal(); t2++){
+			for(int t2=0; t2 < this->decomposition2->get_Tlocal(); t2++){
 				double center_t1 = (Tbegin2+t2)*diff;
 				double left_t1 = (Tbegin2+t2-1)*diff;
 				double right_t1 = (Tbegin2+t2+1)*diff;
@@ -289,7 +297,7 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
+			kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
@@ -312,7 +320,8 @@ void FemHat::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<Pets
 	LOG_FUNC_END
 }
 
-void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
+template<>
+void FemHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -336,11 +345,11 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 	IS gammak2_sublocal_is;
 	Vec gammak2_sublocal_Vec;
 
-	for(int k=0;k<decomposition2->get_K();k++){
+	for(int k=0;k<this->decomposition2->get_K();k++){
 
 		/* get gammak */
-		decomposition1->createIS_gammaK(&gammak1_is, k);
-		decomposition2->createIS_gammaK(&gammak2_is, k);
+		this->decomposition1->createIS_gammaK(&gammak1_is, k);
+		this->decomposition2->createIS_gammaK(&gammak2_is, k);
 
 		TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
 		TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
@@ -352,10 +361,10 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 			TRYCXX( VecGetArray(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecGetArray(gammak2_sublocal_Vec,&gammak2_arr) );
 
-			int Tbegin1 = decomposition1->get_Tbegin();
+			int Tbegin1 = this->decomposition1->get_Tbegin();
 
 			//TODO: OpenMP?
-			for(int t1=0; t1 < decomposition1->get_Tlocal(); t1++){
+			for(int t1=0; t1 < this->decomposition1->get_Tlocal(); t1++){
 				int t2_left_id_orig = floor((t1 + Tbegin1)/diff);
 				int t2_right_id_orig = floor((t1 + Tbegin1)/diff) + 1;
 
@@ -383,7 +392,7 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );
 
-			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition1->get_Tbegin(), decomposition2->get_Tbegin(), decomposition1->get_Tlocal(), decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
+			kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 			gpuErrchk( cudaDeviceSynchronize() );
 			MPI_Barrier( MPI_COMM_WORLD );
 
@@ -406,35 +415,36 @@ void FemHat::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<
 	LOG_FUNC_END
 }
 
-void FemHat::compute_decomposition_reduced() {
+template<class VectorBase>
+void FemHat<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 	
-	if(is_reduced()){
-		int T_reduced = ceil(decomposition1->get_T()*fem_reduce);
+	if(this->is_reduced()){
+		int T_reduced = ceil(this->decomposition1->get_T()*this->fem_reduce);
 		
 		/* compute new decomposition */
-		decomposition2 = new Decomposition(T_reduced, 
-				*(decomposition1->get_graph()), 
-				decomposition1->get_K(), 
-				decomposition1->get_xdim(), 
-				decomposition1->get_DDT_size(), 
-				decomposition1->get_DDR_size());
+		this->decomposition2 = new Decomposition<VectorBase>(T_reduced, 
+				*(this->decomposition1->get_graph()), 
+				this->decomposition1->get_K(), 
+				this->decomposition1->get_xdim(), 
+				this->decomposition1->get_DDT_size(), 
+				this->decomposition1->get_DDR_size());
 
 	} else {
 		/* there is not reduction of the data, we can reuse the decomposition */
-		decomposition2 = decomposition1;
+		this->decomposition2 = this->decomposition1;
 	}
 
 	#ifdef USE_CUDA
 		/* compute optimal kernel calls */
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_femhat_reduce_data, 0, 0) );
-		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
+		gridSize_reduce = (this->decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
 
 		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
-		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
+		gridSize_prolongate = (this->decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 	#endif
 
-	diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
+	this->diff = (this->decomposition1->get_T() - 1)/(double)(this->decomposition2->get_T() - 1);
 
 	compute_overlaps();
 	

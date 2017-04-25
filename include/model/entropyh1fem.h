@@ -144,7 +144,7 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		
 		QPData<VectorBase> *get_gammadata() const;
 		EntropyData<VectorBase> *get_thetadata() const;
-		BGMGraph *get_graph() const;
+		BGMGraph<VectorBase> *get_graph() const;
 
 		double get_aic(double L) const;
 		int get_Km() const;
@@ -222,13 +222,13 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 	 * represents the situation and can be used for matrix-graph-based manipulation
 	*/
 	if(get_graph() == NULL){
-		BGMGraph *graph = this->tsdata->get_decomposition()->get_graph();
+		BGMGraph<PetscVector> *graph = this->tsdata->get_decomposition()->get_graph();
 		double coordinates_array[this->tsdata->get_R()];
 
 		for(int r=0;r<this->tsdata->get_R();r++){
 			coordinates_array[r] = r;
 		} 
-		graph = new BGMGraph(coordinates_array, this->tsdata->get_R(), 1);
+		graph = new BGMGraph<PetscVector>(coordinates_array, this->tsdata->get_R(), 1);
 		graph->process(0.0);
 		
 		this->tsdata->get_decomposition()->set_graph(*graph);
@@ -548,7 +548,7 @@ EntropyData<VectorBase>* EntropyH1FEMModel<VectorBase>::get_thetadata() const {
 }
 
 template<class VectorBase>
-BGMGraph *EntropyH1FEMModel<VectorBase>::get_graph() const {
+BGMGraph<VectorBase> *EntropyH1FEMModel<VectorBase>::get_graph() const {
 	return this->tsdata->get_decomposition()->get_graph();
 }
 

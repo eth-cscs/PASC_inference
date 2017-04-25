@@ -45,7 +45,7 @@ class Signal1DData: public TSData<VectorBase> {
 		void saveSignal1D(std::string filename, bool save_original=true) const;
 
 		int get_Tpreliminary() const;
-		void set_decomposition(Decomposition &decomposition);
+		void set_decomposition(Decomposition<VectorBase> &decomposition);
 		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
 
 };
@@ -98,7 +98,7 @@ Signal1DData<VectorBase>::~Signal1DData(){
 
 /* set decomposition - from preliminary to real data */
 template<class VectorBase>
-void Signal1DData<VectorBase>::set_decomposition(Decomposition &new_decomposition) {
+void Signal1DData<VectorBase>::set_decomposition(Decomposition<VectorBase> &new_decomposition) {
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;

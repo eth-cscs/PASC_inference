@@ -45,16 +45,16 @@ class TSData: public GeneralData {
 
 		double aic_solution; /**< AIC value in solution */
 
-		Decomposition *decomposition;
+		Decomposition<VectorBase> *decomposition;
 
 		/* scaling variables */
 		double scale_max;
 		double scale_min;
 		
 	public:
-		TSData(Decomposition &decomposition, GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new);
-		TSData(Decomposition &decomposition);
-		TSData(Decomposition &decomposition, std::string filename);
+		TSData(Decomposition<VectorBase> &decomposition, GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new);
+		TSData(Decomposition<VectorBase> &decomposition);
+		TSData(Decomposition<VectorBase> &decomposition, std::string filename);
 		TSData();
 
 		~TSData();
@@ -89,7 +89,7 @@ class TSData: public GeneralData {
 		double get_aic() const;
 		
 		TSModel<VectorBase> *get_model() const;
-		Decomposition *get_decomposition() const;
+		Decomposition<VectorBase> *get_decomposition() const;
 
 		GeneralVector<VectorBase> *get_datavector() const;
 		GeneralVector<VectorBase> *get_gammavector() const;
@@ -173,7 +173,7 @@ TSData<VectorBase>::TSData(){
 }
 
 template<>
-TSData<PetscVector>::TSData(Decomposition &new_decomposition, GeneralVector<PetscVector> *datavector_new, GeneralVector<PetscVector> *gammavector_new, GeneralVector<PetscVector> *thetavector_new){
+TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition, GeneralVector<PetscVector> *datavector_new, GeneralVector<PetscVector> *gammavector_new, GeneralVector<PetscVector> *thetavector_new){
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;
@@ -209,7 +209,7 @@ TSData<PetscVector>::TSData(Decomposition &new_decomposition, GeneralVector<Pets
 
 /* no datavector provided - prepare own data vector */
 template<>
-TSData<PetscVector>::TSData(Decomposition &new_decomposition){
+TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition){
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;
@@ -237,7 +237,7 @@ TSData<PetscVector>::TSData(Decomposition &new_decomposition){
 }
 
 template<>
-TSData<PetscVector>::TSData(Decomposition &new_decomposition, std::string filename){
+TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition, std::string filename){
 	LOG_FUNC_BEGIN
 
 	//TODO: check if file exists
@@ -609,7 +609,7 @@ TSModel<VectorBase> *TSData<VectorBase>::get_model() const{
 }
 
 template<class VectorBase>
-Decomposition *TSData<VectorBase>::get_decomposition() const {
+Decomposition<VectorBase> *TSData<VectorBase>::get_decomposition() const {
 	return this->decomposition;
 }
 

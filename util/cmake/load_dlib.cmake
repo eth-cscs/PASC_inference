@@ -15,7 +15,7 @@ if(${USE_DLIB})
 	set(DLIB_LINK_WITH_SQLITE3 0)
 
 	# set the root to DLib library
-	set(DLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../util/dlib/")
+	set(DLIB_ROOT "${PASCINFERENCE_ROOT}/util/dlib/")
 
 	# include some funny cmake functions from DLib
 	include("${DLIB_ROOT}/dlib/cmake/")

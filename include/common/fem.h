@@ -22,8 +22,8 @@ namespace common {
 template<class VectorBase>
 class Fem {
 	protected:
-		Decomposition *decomposition1; /**< decomposition of the larger problem */
-		Decomposition *decomposition2; /**< decomposition of smaller problem */
+		Decomposition<VectorBase> *decomposition1; /**< decomposition of the larger problem */
+		Decomposition<VectorBase> *decomposition2; /**< decomposition of smaller problem */
 		
 		#ifdef USE_CUDA
 			int blockSize_reduce; /**< block size returned by the launch configurator */
@@ -41,7 +41,7 @@ class Fem {
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
-		Fem(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce);
+		Fem(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
 		 * 
@@ -68,13 +68,13 @@ class Fem {
 		double get_fem_reduce() const;
 		virtual std::string get_name() const;
 
-		void set_decomposition_original(Decomposition *decomposition1);
-		void set_decomposition_reduced(Decomposition *decomposition2);
+		void set_decomposition_original(Decomposition<VectorBase> *decomposition1);
+		void set_decomposition_reduced(Decomposition<VectorBase> *decomposition2);
 
 		virtual void compute_decomposition_reduced();
 
-		Decomposition* get_decomposition_original() const;
-		Decomposition* get_decomposition_reduced() const;
+		Decomposition<VectorBase>* get_decomposition_original() const;
+		Decomposition<VectorBase>* get_decomposition_reduced() const;
 
 		bool is_reduced() const;
 };
@@ -96,7 +96,7 @@ Fem<VectorBase>::Fem(double fem_reduce){
 }
 
 template<class VectorBase>
-Fem<VectorBase>::Fem(Decomposition *decomposition1, Decomposition *decomposition2, double fem_reduce){
+Fem<VectorBase>::Fem(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce){
 	LOG_FUNC_BEGIN
 
 	this->fem_reduce = fem_reduce;
@@ -187,7 +187,7 @@ double Fem<VectorBase>::get_fem_reduce() const {
 }
 
 template<class VectorBase>
-void Fem<VectorBase>::set_decomposition_original(Decomposition *decomposition1) {
+void Fem<VectorBase>::set_decomposition_original(Decomposition<VectorBase> *decomposition1) {
 	LOG_FUNC_BEGIN
 
 	this->decomposition1 = decomposition1;
@@ -196,7 +196,7 @@ void Fem<VectorBase>::set_decomposition_original(Decomposition *decomposition1) 
 }
 
 template<class VectorBase>
-void Fem<VectorBase>::set_decomposition_reduced(Decomposition *decomposition2) {
+void Fem<VectorBase>::set_decomposition_reduced(Decomposition<VectorBase> *decomposition2) {
 	LOG_FUNC_BEGIN
 
 	this->decomposition2 = decomposition2;
@@ -205,12 +205,12 @@ void Fem<VectorBase>::set_decomposition_reduced(Decomposition *decomposition2) {
 }
 
 template<class VectorBase>
-Decomposition* Fem<VectorBase>::get_decomposition_original() const {
+Decomposition<VectorBase>* Fem<VectorBase>::get_decomposition_original() const {
 	return decomposition1;
 }
 
 template<class VectorBase>
-Decomposition* Fem<VectorBase>::get_decomposition_reduced() const {
+Decomposition<VectorBase>* Fem<VectorBase>::get_decomposition_reduced() const {
 	return decomposition2;
 }
 
@@ -222,7 +222,7 @@ void Fem<VectorBase>::compute_decomposition_reduced() {
 		int T_reduced = ceil(decomposition1->get_T()*fem_reduce);
 		
 		/* compute new decomposition */
-		decomposition2 = new Decomposition(T_reduced, 
+		decomposition2 = new Decomposition<VectorBase>(T_reduced, 
 				*(decomposition1->get_graph()), 
 				decomposition1->get_K(), 
 				decomposition1->get_xdim(), 
@@ -263,11 +263,11 @@ bool Fem<VectorBase>::is_reduced() const {
 } /* end of namespace */
 
 #ifdef USE_PETSC
- #include "external/petsc/common/bgmgraph.h"
+ #include "external/petsc/common/fem.h"
 #endif
 
 #ifdef USE_CUDA
- #include "external/cuda/common/bgmgraph.cuh"
+ #include "external/cuda/common/fem.cuh"
 #endif
 
 #endif

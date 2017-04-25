@@ -30,7 +30,7 @@ namespace model {
 template<class VectorBase>
 class TSModel: public GeneralModel {
 	protected:
-		Decomposition *decomposition;
+		Decomposition<VectorBase> *decomposition;
 		TSData<VectorBase> *tsdata;
 
 		int thetavectorlength_global; /**< global length of thetavector (model parameters) */

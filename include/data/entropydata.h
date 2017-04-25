@@ -20,7 +20,7 @@ class EntropyData: public GeneralData {
 		GeneralVector<VectorBase> *x; /**< vector with data */
 		GeneralVector<VectorBase> *gamma; /**< cluster indicator functions */
 
-		Decomposition *decomposition;
+		Decomposition<VectorBase> *decomposition;
 
 		int K; /**< number of clusters */
 		int Km; /**< number of moments */
@@ -65,8 +65,8 @@ class EntropyData: public GeneralData {
 		void set_gamma(GeneralVector<VectorBase> *gamma);
 		GeneralVector<VectorBase> *get_gamma() const;
 
-		void set_decomposition(Decomposition *decomposition);
-		Decomposition *get_decomposition() const;
+		void set_decomposition(Decomposition<VectorBase> *decomposition);
+		Decomposition<VectorBase> *get_decomposition() const;
 
 		int get_T() const;
 		int get_K() const;
@@ -287,12 +287,12 @@ int EntropyData<VectorBase>::get_Km() const {
 }
 
 template<class VectorBase>
-void EntropyData<VectorBase>::set_decomposition(Decomposition *decomposition){
+void EntropyData<VectorBase>::set_decomposition(Decomposition<VectorBase> *decomposition){
 	this->decomposition = decomposition;
 }
 
 template<class VectorBase>
-Decomposition *EntropyData<VectorBase>::get_decomposition() const {
+Decomposition<VectorBase> *EntropyData<VectorBase>::get_decomposition() const {
 	return this->decomposition;
 }
 

@@ -199,7 +199,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on preloaded data */
-	Decomposition decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
+	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
@@ -224,12 +224,12 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
 
 	/* prepare FEM reduction */
-	Fem *fem;
+	Fem<PetscVector> *fem;
 	if(fem_type == 0){
-		fem = new Fem(fem_reduce);
+		fem = new Fem<PetscVector>(fem_reduce);
 	}
 	if(fem_type == 1){
-		fem = new FemHat(fem_reduce);
+		fem = new FemHat<PetscVector>(fem_reduce);
 	}
 
 	/* prepare model on the top of given data */

@@ -76,7 +76,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		
 		GammaSolverType gammasolvertype; /**< the type of used solver */
 		
-		Fem *fem;
+		Fem<VectorBase> *fem;
 
 	public:
 
@@ -85,7 +85,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		 * @param tsdata time-series data on which model operates
 		 * @param epssqr regularisation constant
 		 */ 	
-		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, Fem *new_fem = NULL, bool usethetainpenalty = false);
+		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, Fem<VectorBase> *new_fem = NULL, bool usethetainpenalty = false);
 
 		/** @brief destructor 
 		 */ 
@@ -128,7 +128,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		
 		QPData<VectorBase> *get_gammadata() const;
 		SimpleData<VectorBase> *get_thetadata() const;
-		BGMGraph *get_graph() const;
+		BGMGraph<VectorBase> *get_graph() const;
 
 		GeneralVector<VectorBase> *get_coordinatesVTK() const;
 		int get_coordinatesVTK_dim() const;
@@ -140,7 +140,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		
 		int get_T_reduced() const;
 		int get_T() const;
-		Decomposition *get_decomposition_reduced() const;
+		Decomposition<VectorBase> *get_decomposition_reduced() const;
 		double get_fem_reduce() const;
 
 };
@@ -158,7 +158,7 @@ namespace model {
 
 /* constructor */
 template<>
-GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, Fem *new_fem, bool usethetainpenalty) {
+GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, Fem<PetscVector> *new_fem, bool usethetainpenalty) {
 	LOG_FUNC_BEGIN
 
 	// TODO: enum in boost::program_options, not only int
@@ -186,13 +186,13 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	 * represents the situation and can be used for matrix-graph-based manipulation
 	*/
 	if(get_graph() == NULL){
-		BGMGraph *graph = this->tsdata->get_decomposition()->get_graph();
+		BGMGraph<PetscVector> *graph = this->tsdata->get_decomposition()->get_graph();
 		double coordinates_array[this->tsdata->get_R()];
 
 		for(int r=0;r<this->tsdata->get_R();r++){
 			coordinates_array[r] = r;
 		} 
-		graph = new BGMGraph(coordinates_array, this->tsdata->get_R(), 1);
+		graph = new BGMGraph<PetscVector>(coordinates_array, this->tsdata->get_R(), 1);
 		graph->process(0.0);
 		
 		this->tsdata->get_decomposition()->set_graph(*graph);
@@ -201,7 +201,7 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	/* prepare parameters and decomposition of reduced problem */
 	/* if FEM is not given, then prepare FEM without reduction */
 	if(new_fem == NULL){
-		this->fem = new Fem(1.0);
+		this->fem = new Fem<PetscVector>(1.0);
 	} else {
 		this->fem = new_fem;
 	}
@@ -588,7 +588,7 @@ SimpleData<VectorBase>* GraphH1FEMModel<VectorBase>::get_thetadata() const {
 }
 
 template<class VectorBase>
-BGMGraph *GraphH1FEMModel<VectorBase>::get_graph() const {
+BGMGraph<VectorBase> *GraphH1FEMModel<VectorBase>::get_graph() const {
 	return this->tsdata->get_decomposition()->get_graph();
 }
 
@@ -800,7 +800,7 @@ double GraphH1FEMModel<VectorBase>::get_fem_reduce() const {
 }
 
 template<class VectorBase>
-Decomposition *GraphH1FEMModel<VectorBase>::get_decomposition_reduced() const {
+Decomposition<VectorBase> *GraphH1FEMModel<VectorBase>::get_decomposition_reduced() const {
 	return this->fem->get_decomposition_reduced();
 }
 

@@ -21,8 +21,6 @@
  
 using namespace pascinference;
 
-typedef petscvector::PetscVector PetscVector;
-
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
@@ -186,7 +184,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on preloaded data */
-	Decomposition decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
+	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
