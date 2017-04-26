@@ -12,10 +12,9 @@
 #include "general/solver/solver.h"
 
 //#include "external/petscvector/solver/generalsolver.h"
-//#include "external/petscvector/solver/list.h"
 
 //#include "external/petscvector/solver/tssolver.h"
-//#include "external/petscvector/solver/cgqpsolver.h"
+#include "external/petscvector/solver/cgqpsolver.h"
 //#include "external/petscvector/solver/diagsolver.h"
 //#include "external/petscvector/solver/entropysolverdlib.h"
 //#include "external/petscvector/solver/entropysolvernewton.h"

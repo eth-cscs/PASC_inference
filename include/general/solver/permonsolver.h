@@ -9,7 +9,6 @@
 
 #include <iostream>
 
-#include "pascinference.h"
 #include "general/solver/qpsolver.h"
 #include "general/data/qpdata.h"
 
@@ -18,10 +17,6 @@
 #define PERMONSOLVER_USE_UPPERBOUND false
 #define PERMONSOLVER_USE_LAMBDAMAX false
 #define PERMONSOLVER_DUMP false
-
-#ifndef USE_PETSC
-	#error 'BLOCKGRAPHSPARSEMATRIX is for PETSC only, sorry'
-#endif
 
 #ifndef USE_PERMON
 	#error 'PERMONSOLVER cannot be used without -DUSE_PERMON=ON'

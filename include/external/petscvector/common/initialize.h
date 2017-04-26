@@ -20,9 +20,9 @@ extern bool PETSC_INITIALIZED;
 extern char **argv_petsc;
 extern int argc_petsc;
 
-extern template bool Initialize<PetscVector>(int argc, char *argv[]);
-extern template void Finalize<PetscVector>();
-extern template void allbarrier<PetscVector>();
+template<> bool Initialize<PetscVector>(int argc, char *argv[]);
+template<> void Finalize<PetscVector>();
+template<> void allbarrier<PetscVector>();
 
 }
 } /* end of namespace */

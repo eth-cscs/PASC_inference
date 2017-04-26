@@ -3,6 +3,8 @@
 namespace pascinference {
 namespace common {
 
+bool PETSC_INITIALIZED;
+
 char **argv_petsc;
 int argc_petsc;
 

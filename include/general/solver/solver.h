@@ -11,7 +11,7 @@
 
 #include "general/solver/tssolver.h"
 #include "general/solver/cgqpsolver.h"
-#include "general/solver/diagsolver.h"
+//#include "general/solver/diagsolver.h"
 //#include "general/solver/entropysolverdlib.h"
 //#include "general/solver/entropysolvernewton.h"
 //#include "general/solver/entropysolverspg.h"

@@ -7,14 +7,6 @@
 #ifndef PASC_INITIALIZE_H
 #define	PASC_INITIALIZE_H
 
-#ifdef USE_PETSC
-// #include "external/petsc/common/common.h"
-//	#include "petsc.h"
-//	#include "petscsys.h"
-
-//	#include "external/petsc/algebra/vector/generalvector.h"
-#endif
-
 #define RANDOM_BY_TIME false  /* if false, then random generator is initialized subject to time, else generated random data are always the same */
 
 #include <string>
@@ -26,15 +18,6 @@ namespace pascinference {
 using namespace algebra;	
 	
 namespace common {
-
-//TODO: !!!
-#ifdef USE_PETSC
- static bool PETSC_INITIALIZED;
-
- /* for loading PETSc options */
- extern char **argv_petsc;
- extern int argc_petsc;
-#endif
 
 /** @brief initialize the library
  * 

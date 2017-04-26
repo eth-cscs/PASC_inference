@@ -7,7 +7,7 @@
 #ifndef PASC_DIAGSOLVER_H
 #define	PASC_DIAGSOLVER_H
 
-#include "pascinference.h"
+#include "general/solver/generalsolver.h"
 #include "general/data/diagdata.h"
 
 #define DIAGSOLVER_DEFAULT_DEBUGMODE 0;
@@ -232,30 +232,17 @@ DiagData<VectorBase> *DiagSolver<VectorBase>::get_data() const {
 	return diagdata;
 }
 
-/* ---------- PETSCVECTOR ------------ */
-#ifdef USE_PETSC
-
-/* Petsc: constructor from given right PetscVector */
-template<>
-void DiagSolver<PetscVector>::solve() {
+template<class VectorBase>
+void DiagSolver<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
-	this->timer_solve.start(); 
-
-
-	this->timer_dot.start(); 
-	 TRYCXX( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );
-	this->timer_dot.stop(); 
-
-	diagdata->get_x()->valuesUpdate();
-	
-	this->timer_solve.stop(); 
+	//TODO
 
 	LOG_FUNC_END
 }
 
-#endif
 
+//TODO: !!!
 /* --------------- MINLIN ----------------- */
 #ifdef USE_MINLIN
 

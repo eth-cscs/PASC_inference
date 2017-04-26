@@ -1,0 +1,26 @@
+#include "external/petscvector/solver/diagsolver.h"
+
+namespace pascinference {
+namespace solver {
+
+template<>  void DiagSolver<PetscVector>::solve() {
+	LOG_FUNC_BEGIN
+
+	this->timer_solve.start(); 
+
+	this->timer_dot.start(); 
+	 TRYCXX( VecPointwiseDivide(diagdata->get_x()->get_vector(),diagdata->get_b()->get_vector(),diagdata->get_a()->get_vector() ) );
+	this->timer_dot.stop(); 
+
+	diagdata->get_x()->valuesUpdate();
+	
+	this->timer_solve.stop(); 
+
+	LOG_FUNC_END
+}
+
+
+
+}
+} /* end namespace */
+
