@@ -1,4 +1,4 @@
-#include "common/logging.h"
+#include "general/common/logging.h"
 
 namespace pascinference {
 namespace common {

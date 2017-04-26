@@ -1,5 +1,5 @@
 
-#include "common/mvnrnd.h"
+#include "general/common/mvnrnd.h"
 
 
 namespace pascinference {

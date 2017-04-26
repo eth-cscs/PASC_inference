@@ -20,19 +20,17 @@
 #include <stack>
 #include <limits>
 
+/* include general templated functions */
+#include "general/general.h"
+
 /* include MINLIN */ 
 #ifdef USE_MINLIN
- #include "external/minlin/pascinference.h"
+ #include "external/minlin/minlin.h"
 #endif
 
 /* include Petsc */
 #ifdef USE_PETSC
- #include "external/petsc/pascinference.h"
-#endif
-
-/* cuda stuff */
-#ifdef USE_CUDA
- #include "external/cuda/pascinference.h"
+ #include "external/petscvector/petscvector.h"
 #endif
 
 /* PERMON */
@@ -42,7 +40,7 @@
 
 /* boost stuff */
 #ifdef USE_BOOST
- #include "external/boost/pascinference.h"
+ #include "external/boost/boost.h"
 #endif
 
 /** 
@@ -95,18 +93,6 @@ namespace pascinference {
 	
 }
 
-#include "common/common.h"
-
-#include "algebra/arrayoperation.h"
-#include "algebra/matrix/generalmatrix.h"
-#include "algebra/vector/generalvector.h"
-#include "algebra/feasibleset/generalfeasibleset.h"
-#include "common/decomposition.h"
-
-#include "data/generaldata.h"
-#include "solver/list.h"
-#include "solver/generalsolver.h"
-#include "model/generalmodel.h"
 
 
 #endif

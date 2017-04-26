@@ -1,4 +1,4 @@
-#include "common/shortinfo.h"
+#include "general/common/shortinfo.h"
 
 namespace pascinference {
 namespace common {

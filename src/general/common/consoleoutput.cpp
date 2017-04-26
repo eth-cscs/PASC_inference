@@ -1,4 +1,4 @@
-#include "common/consoleoutput.h"
+#include "general/common/consoleoutput.h"
 
 namespace pascinference {
 namespace common {

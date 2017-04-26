@@ -5,11 +5,6 @@
  */
 
 #include "pascinference.h"
-#include "solver/tssolver.h"
-#include "data/signal1Ddata.h"
-#include "model/graphh1fem.h"
-#include "common/femhat.h"
-#include "common/powercheck.h"
 
 #include <vector>
 
@@ -48,7 +43,7 @@ int main( int argc, char *argv[] )
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
-	if(!Initialize(argc, argv)){
+	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
 	}
 
@@ -426,7 +421,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "- end program" << std::endl;
 
 	logging.end();
-	Finalize();
+	Finalize<PetscVector>();
 
 	return 0;
 }
