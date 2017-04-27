@@ -403,26 +403,6 @@ int CGQPSolver<VectorBase>::get_hessmult() const {
 	return this->hessmult_last;
 }
 
-/* prepare temp_vectors */
-template<class VectorBase>
-void CGQPSolver<VectorBase>::allocate_temp_vectors(){
-	LOG_FUNC_BEGIN
-
-	//TODO
-	
-	LOG_FUNC_END
-}
-
-/* destroy temp_vectors */
-template<class VectorBase>
-void CGQPSolver<VectorBase>::free_temp_vectors(){
-	LOG_FUNC_BEGIN
-
-	//TODO
-	
-	LOG_FUNC_END
-}
-
 
 }
 } /* end namespace */

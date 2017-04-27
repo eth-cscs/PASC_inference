@@ -27,7 +27,8 @@ namespace common {
  * @todo process input arguments (use boost library?)
  */
 template<class VectorBase> bool Initialize(int, char**){
-	//TODO
+	//TODO: for now this is quite LOL
+	return false;	
 } 
 
 /** @brief finalize the library

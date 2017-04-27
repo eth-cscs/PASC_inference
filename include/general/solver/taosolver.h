@@ -9,7 +9,6 @@
 
 #include <iostream>
 
-#include "pascinference.h"
 #include "general/solver/qpsolver.h"
 #include "general/data/qpdata.h"
 

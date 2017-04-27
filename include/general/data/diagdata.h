@@ -7,7 +7,7 @@
 #ifndef PASC_DIAGDATA_H
 #define	PASC_DIAGDATA_H
 
-#include "pascinference.h"
+#include "general/data/generaldata.h"
 
 namespace pascinference {
 namespace data {

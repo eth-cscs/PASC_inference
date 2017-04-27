@@ -9,17 +9,10 @@
 
 #include <iostream>
 
-#include "pascinference.h"
 #include "general/common/common.h"
 #include "general/solver/qpsolver.h"
 #include "general/data/qpdata.h"
 #include "general/solver/spg_fs.h"
-
-
-#ifdef USE_CUDA
- #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
-#endif
-
 #include "general/algebra/matrix/blockgraphsparse.h"
 
 
@@ -155,12 +148,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 } /* end of namespace */
 
 /* ------------- implementation ----------- */
-//TODO: move to impls
-
-#ifdef USE_PETSC
-	/* petscvector-specific inplementation */
-	#include "general/solver/specific/spgqpsolver_petsc.h"
-#endif
 
 namespace pascinference {
 namespace solver {

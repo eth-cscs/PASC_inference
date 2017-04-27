@@ -11,8 +11,6 @@
  #error 'TSSOLVER is for PETSC'
 #endif
 
-#include "pascinference.h"
-
 #include "general/data/tsdata.h"
 #include "general/model/tsmodel.h"
 

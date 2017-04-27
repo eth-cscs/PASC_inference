@@ -7,7 +7,6 @@
 #ifndef PASC_MULTICGSOLVER_H
 #define	PASC_MULTICGSOLVER_H
 
-#include "pascinference.h"
 #include "general/solver/qpsolver.h"
 #include "general/solver/cgqpsolver.h"
 #include "general/data/qpdata.h"

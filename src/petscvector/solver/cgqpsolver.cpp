@@ -1,4 +1,4 @@
-#include "external/petsvector/solver/qpsolver.h"
+#include "external/petscvector/solver/cgqpsolver.h"
 
 namespace pascinference {
 namespace solver {

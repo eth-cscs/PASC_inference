@@ -5,9 +5,6 @@
  */
 
 #include "pascinference.h"
-#include "solver/tssolver.h"
-#include "data/signal1Ddata.h"
-#include "model/entropyh1fem.h"
 
 #include <vector>
 
@@ -16,7 +13,7 @@
 #endif
 
 #ifndef USE_DLIB
- #error 'This example is for DLIB'
+// #error 'This example is for DLIB'
 #endif
  
 using namespace pascinference;
@@ -47,7 +44,7 @@ int main( int argc, char *argv[] )
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
-	if(!Initialize(argc, argv)){
+	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
 	}
 
@@ -353,7 +350,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "- end program" << std::endl;
 
 	logging.end();
-	Finalize();
+	Finalize<PetscVector>();
 
 	return 0;
 }

@@ -7,7 +7,7 @@
 #ifndef PASC_GENERALMODEL_H
 #define	PASC_GENERALMODEL_H
 
-
+#include "general/common/common.h"
 
 namespace pascinference {
 namespace model {
@@ -44,19 +44,7 @@ class GeneralModel {
 };
 
 /* general print, call virtual print() */
-ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralModel &model){
-	output << model.get_name();
-	return output;
-}
-
-void GeneralModel::print(ConsoleOutput &output) const {
-	output <<  this->get_name() << std::endl;
-	output.synchronize();
-}
-
-std::string GeneralModel::get_name() const {
-	return "GeneralModel";
-}
+extern ConsoleOutput &operator<<(ConsoleOutput &output, const GeneralModel &model);
 
 
 }

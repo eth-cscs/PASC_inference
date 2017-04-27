@@ -7,7 +7,8 @@
 #ifndef PASC_QPDATA_H
 #define	PASC_QPDATA_H
 
-#include "pascinference.h"
+#include "general/common/common.h"
+#include "general/algebra/feasibleset/generalfeasibleset.h"
 
 namespace pascinference {
 namespace data {

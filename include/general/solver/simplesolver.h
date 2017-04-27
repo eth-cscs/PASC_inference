@@ -7,10 +7,6 @@
 #ifndef PASC_SIMPLESOLVER_H
 #define	PASC_SIMPLESOLVER_H
 
-/* for debugging, if >= 100, then print info about ach called function */
-extern int DEBUGMODE;
-
-#include "pascinference.h"
 #include "general/data/simpledata.h"
 
 namespace pascinference {

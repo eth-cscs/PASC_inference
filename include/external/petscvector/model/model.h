@@ -13,8 +13,8 @@
 
 //#include "external/petscvector/model/generalmodel.h"
 //#include "external/petscvector/model/tsmodel.h"
-//#include "external/petscvector/model/entropyh1fem.h"
-//#include "external/petscvector/model/graphh1fem.h"
+#include "external/petscvector/model/entropyh1fem.h"
+#include "external/petscvector/model/graphh1fem.h"
 
 
 #endif

@@ -9,7 +9,6 @@
 
 #include <iostream>
 
-#include "pascinference.h"
 #include "general/solver/qpsolver.h"
 #include "general/data/qpdata.h"
 
@@ -142,6 +141,7 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 
 		double *Mdots_val; /**< for manipulation with mdot */
 
+		//TODO: !!!!
 		#ifdef USE_PETSC
 			Vec *Mdots_vec; /**< for manipulation with mdot */
 		#endif
@@ -331,19 +331,6 @@ void SPGQPSolverC<VectorBase>::allocate_temp_vectors(){
 	d = new GeneralVector<VectorBase>(*pattern);
 	Ad = new GeneralVector<VectorBase>(*pattern);	
 	temp = new GeneralVector<VectorBase>(*pattern);	
-
-	//TODO: prepare Mdot without petsc?
-	/* prepare for Mdot */
-	#ifdef USE_PETSC
-		/* without cuda */
-		TRYCXX( PetscMalloc1(3,&Mdots_val) );
-		TRYCXX( PetscMalloc1(3,&Mdots_vec) );
-
-		Mdots_vec[0] = d->get_vector();
-		Mdots_vec[1] = Ad->get_vector();
-		Mdots_vec[2] = g->get_vector();
-
-	#endif
 	
 	LOG_FUNC_END
 }
@@ -357,11 +344,6 @@ void SPGQPSolverC<VectorBase>::free_temp_vectors(){
 	free(d);
 	free(Ad);
 	free(temp);
-	
-	#ifdef USE_PETSC
-		TRYCXX( PetscFree(Mdots_val) );
-		TRYCXX( PetscFree(Mdots_vec) );
-	#endif
 	
 	LOG_FUNC_END
 }
@@ -983,23 +965,6 @@ void SPGQPSolverC<VectorBase>::SPGQPSolverC_fs::print(ConsoleOutput &output)
 	output << " ]";
 }
 
-
-/* ----------- PETSC special stuff ------------- */
-#ifdef USE_PETSC
-/* compute dot products */
-template<>
-void SPGQPSolverC<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const {
-	LOG_FUNC_BEGIN
-
-	TRYCXX(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
-
-	*dd = Mdots_val[0];
-	*dAd = Mdots_val[1];
-	*gd = Mdots_val[2];
-
-	LOG_FUNC_END
-}
-#endif
 
 
 }

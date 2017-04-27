@@ -1,39 +1,7 @@
-/** @file spgqpsolver_petsc.h
- *  @brief SPG-QP PETSc specific implementation
- *
- *  @author Lukas Pospisil
- */
-
-#ifndef PASC_SPGQPSOLVER_PETSC_H
-#define	PASC_SPGQPSOLVER_PETSC_H
-
-#include <iostream>
-
-#include "pascinference.h"
-#include "general/common/common.h"
-#include "general/solver/qpsolver.h"
-#include "general/data/qpdata.h"
-
-#ifdef USE_CUDA
- #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
-#endif
-
-#include "general/algebra/matrix/blockgraphsparse.h"
+#include "external/petscvector/solver/spgqpsolver.h"
 
 namespace pascinference {
 namespace solver {
-
-/* in this file, I provide these specializations for PetscVector */
-template<> std::string SPGQPSolver<PetscVector>::get_name() const;
-template<> void SPGQPSolver<PetscVector>::allocate_temp_vectors();
-template<> void SPGQPSolver<PetscVector>::free_temp_vectors();
-template<> void SPGQPSolver<PetscVector>::solve();
-template<> double SPGQPSolver<PetscVector>::get_fx() const;
-template<> void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const;
-
-
-/* --- implementation --- */
-//TODO: move to impls
 
 template<>
 std::string SPGQPSolver<PetscVector>::get_name() const {
@@ -396,6 +364,4 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 }
 
 }
-} /* end namespace */
-
-#endif
+}
