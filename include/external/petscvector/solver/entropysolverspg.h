@@ -14,6 +14,10 @@
 namespace pascinference {
 namespace solver {
 
+template<> class EntropySolverSPG<PetscVector>::ExternalContent {
+	int mynumber;
+};
+
 template<> void EntropySolverSPG<PetscVector>::allocate_temp_vectors();
 template<> void EntropySolverSPG<PetscVector>::free_temp_vectors();
 

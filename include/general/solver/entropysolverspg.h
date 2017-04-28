@@ -49,30 +49,33 @@ namespace solver {
 template<class VectorBase>
 class EntropySolverSPG: public GeneralSolver {
 	protected:
-		double *fxs;					/**< function values in clusters */
-		double *gnorms;					/**< norm of gradient in clusters (stopping criteria) */
+		class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 	
-		int maxit_gll;
-		int *it_sums;					/**< sums of all iterations for each cluster */
-		int *it_lasts;					/**< number of iterations from last solve() call for each cluster */
-		int *itgll_sums;				/**< sums of all gll iterations for each cluster */
-		int *itgll_lasts;				/**< sums of all gll iterations in this outer iteration */
+		double *fxs;								/**< function values in clusters */
+		double *gnorms;								/**< norm of gradient in clusters (stopping criteria) */
 	
-		Timer timer_compute_moments;	/**< time for computing moments from data */
-		Timer timer_solve; 				/**< total solution time of SPG algorithm */
-		Timer timer_update; 			/**< total time of vector updates */
-		Timer timer_g;			 		/**< total time of gradient computation */
-		Timer timer_dot;		 		/**< total time of dot computation */
-		Timer timer_fs; 				/**< total time of manipulation with fs vector during iterations */
-		Timer timer_integrate;	 		/**< total time of integration */
+		int maxit_gll;								/**< the upper bound of GLL iterations */ 
+		int *it_sums;								/**< sums of all iterations for each cluster */
+		int *it_lasts;								/**< number of iterations from last solve() call for each cluster */
+		int *itgll_sums;							/**< sums of all gll iterations for each cluster */
+		int *itgll_lasts;							/**< sums of all gll iterations in this outer iteration */
+	
+		Timer timer_compute_moments;				/**< time for computing moments from data */
+		Timer timer_solve; 							/**< total solution time of SPG algorithm */
+		Timer timer_update; 						/**< total time of vector updates */
+		Timer timer_g;			 					/**< total time of gradient computation */
+		Timer timer_dot;		 					/**< total time of dot computation */
+		Timer timer_fs; 							/**< total time of manipulation with fs vector during iterations */
+		Timer timer_integrate;	 					/**< total time of integration */
 
-		EntropyData<VectorBase> *entropydata; /**< data on which the solver operates */
+		EntropyData<VectorBase> *entropydata;	 	/**< data on which the solver operates */
 
 		/* aux vectors */
-		GeneralVector<VectorBase> *moments_data; /**< vector of computed moments from data, size K*Km */
-		GeneralVector<VectorBase> *integrals; /**< vector of computed integrals, size K*(Km+1) */
-		GeneralVector<VectorBase> *x_power; /**< global temp vector for storing power of x */
-		GeneralVector<VectorBase> *x_power_gammak; /**< global temp vector for storing power of x * gamma_k */
+		GeneralVector<VectorBase> *moments_data;	/**< vector of computed moments from data, size K*Km */
+		GeneralVector<VectorBase> *integrals; 		/**< vector of computed integrals, size K*(Km+1) */
+		GeneralVector<VectorBase> *x_power; 		/**< global temp vector for storing power of x */
+		GeneralVector<VectorBase> *x_power_gammak; 	/**< global temp vector for storing power of x * gamma_k */
 
 		/* functions for Dlib */
 		#ifdef USE_DLIB
