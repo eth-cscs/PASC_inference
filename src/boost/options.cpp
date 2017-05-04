@@ -112,24 +112,24 @@ void add_options(boost::program_options::options_description *description, int c
 			("taosolver_dump", boost::program_options::value<bool>(), "dump solver data [bool]");
 		opt_solvers.add(opt_taosolver);
 
-		/* ENTROPYSOLVERSPG */
-		boost::program_options::options_description opt_entropysolverspg("ENTROPYSOLVERSPG", console_nmb_cols);
-		opt_entropysolverspg.add_options()
-			("entropysolverspg_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
-			("entropysolverspg_maxit_gll", boost::program_options::value<int>(), "maximum number of GLL iterations [int]")
-			("entropysolverspg_eps", boost::program_options::value<double>(), "precision [double]")
-			("entropysolverspg_m", boost::program_options::value<int>(), "parameter of generalized Armijo condition [int]")
-			("entropysolverspg_gamma", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
-			("entropysolverspg_sigma1", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
-			("entropysolverspg_sigma2", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
-			("entropysolverspg_alphainit", boost::program_options::value<double>(), "initial BB step-size [double]")
-			("entropysolverspg_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
-			("entropysolverspg_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
-			("entropysolverspg_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations [bool]")
-			("entropysolverspg_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations [bool]")
-			("entropysolverspg_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations [bool]");
-		opt_solvers.add(opt_entropysolverspg);
-
+		/* ENTROPYSOLVERDLIB */
+/*		boost::program_options::options_description opt_entropysolverdlib("ENTROPYSOLVERDLIB", console_nmb_cols);
+		opt_entropysolverdlib.add_options()
+			("entropysolverdlib_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
+			("entropysolverdlib_maxit_gll", boost::program_options::value<int>(), "maximum number of GLL iterations [int]")
+			("entropysolverdlib_eps", boost::program_options::value<double>(), "precision [double]")
+			("entropysolverdlib_m", boost::program_options::value<int>(), "parameter of generalized Armijo condition [int]")
+			("entropysolverdlib_gamma", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
+			("entropysolverdlib_sigma1", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
+			("entropysolverdlib_sigma2", boost::program_options::value<double>(), "parameter of generalized Armijo condition [double]")
+			("entropysolverdlib_alphainit", boost::program_options::value<double>(), "initial BB step-size [double]")
+			("entropysolverdlib_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
+			("entropysolverdlib_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
+			("entropysolverdlib_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations [bool]")
+			("entropysolverdlib_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations [bool]")
+			("entropysolverdlib_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations [bool]");
+		opt_solvers.add(opt_entropysolverdlib);
+*/
 		/* ENTROPYSOLVERNEWTON */
 		boost::program_options::options_description opt_entropysolvernewton("ENTROPYSOLVERNEWTON", console_nmb_cols);
 		opt_entropysolvernewton.add_options()
@@ -170,7 +170,7 @@ void add_options(boost::program_options::options_description *description, int c
 		boost::program_options::options_description opt_entropyh1femmodel("ENTROPYH1FEMMODEL", console_nmb_cols);
 		opt_entropyh1femmodel.add_options()
 			("entropyh1femmodel_scalef", boost::program_options::value<bool>(), "scale function by 1/T [bool]")
-			("entropyh1femmodel_thetasolvertype", boost::program_options::value<int>(), "type of used inner Entropy solver [0=SOLVER_AUTO/1=SOLVER_ENTROPY_DLIB/2=SOLVER_ENTROPY_SPG/3=SOLVER_ENTROPY_NEWTON]")			
+			("entropyh1femmodel_thetasolvertype", boost::program_options::value<int>(), "type of used inner Entropy solver [0=SOLVER_AUTO/1=SOLVER_ENTROPY_DLIB/2=SOLVER_ENTROPY_NEWTON]")			
 			("entropyh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]");
 		opt_models.add(opt_entropyh1femmodel);
 

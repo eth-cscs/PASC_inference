@@ -135,7 +135,7 @@ class TSData: public GeneralData {
 
 		virtual void load_gammavector(std::string filename) const;
 		virtual void load_gammavector(VectorBase &gamma0) const;
-		
+
 };
 
 

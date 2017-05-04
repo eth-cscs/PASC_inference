@@ -14,7 +14,6 @@
 //#include "general/solver/diagsolver.h"
 #include "general/solver/entropysolverdlib.h"
 #include "general/solver/entropysolvernewton.h"
-#include "general/solver/entropysolverspg.h"
 //#include "general/solver/multicg.h"
 //#include "general/solver/permonsolver.h"
 #include "general/solver/qpsolver.h"

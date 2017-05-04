@@ -18,7 +18,6 @@
 //#include "external/petscvector/solver/diagsolver.h"
 #include "external/petscvector/solver/entropysolverdlib.h"
 #include "external/petscvector/solver/entropysolvernewton.h"
-#include "external/petscvector/solver/entropysolverspg.h"
 //#include "external/petscvector/solver/multicg.h"
 //#include "external/petscvector/solver/permonsolver.h"
 //#include "external/petscvector/solver/qpsolver.h"

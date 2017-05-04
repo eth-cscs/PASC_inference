@@ -137,10 +137,10 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 #ifdef USE_PERMON	
 	if(this->gammasolvertype == GSOLVER_PERMON){
 		/* the feasible set of QP is combination of linear equality constraints and bound inequality constraints */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
+//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
 
 		/* create solver */
-		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
+//		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
 	}
 #endif
 
@@ -180,12 +180,6 @@ void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thet
 		/* create solver */
 		*thetasolver = new EntropySolverDlib<PetscVector>(*thetadata);
 	}
-
-	/* ENTROPY_SPG solver */
-	if(this->thetasolvertype == TSOLVER_ENTROPY_SPG){
-		/* create solver */
-		*thetasolver = new EntropySolverSPG<PetscVector>(*thetadata);
-	}
 	
 	/* ENTROPY_NEWTON solver */
 	if(this->thetasolvertype == TSOLVER_ENTROPY_NEWTON){
@@ -221,6 +215,9 @@ template<>
 void EntropyH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
+	/* make sure that solved gamma is feasible */
+	gammadata->get_feasibleset()->project(*(gammadata->get_x()));
+
 	LOG_FUNC_END
 }
 
@@ -234,12 +231,6 @@ void EntropyH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver 
 	if(this->thetasolvertype == TSOLVER_ENTROPY_DLIB){
 		/* create solver */
 		((EntropySolverDlib<PetscVector> *)thetasolver)->compute_residuum(this->residuum); //TODO: retype?
-	}
-
-	/* ENTROPY_SPG solver */
-	if(this->thetasolvertype == TSOLVER_ENTROPY_SPG){
-		/* create solver */
-		((EntropySolverSPG<PetscVector> *)thetasolver)->compute_residuum(this->residuum); //TODO: retype?
 	}
 
 	/* ENTROPY_NEWTON solver */

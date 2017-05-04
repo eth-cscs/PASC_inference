@@ -10,17 +10,6 @@
 #include "general/solver/generalsolver.h"
 #include "general/data/entropydata.h"
 
-/* include Dlib stuff */
-#ifdef USE_DLIB
-	#include "dlib/matrix.h"
-	#include "dlib/numeric_constants.h"
-	#include "dlib/numerical_integration.h"
-	#include "dlib/optimization.h"
-
-	/* Dlib column vector */
-	typedef dlib::matrix<double,0,1> column_vector;
-#endif
-
 #define STOP_TOLERANCE 1e-06
 
 namespace pascinference {
@@ -34,6 +23,11 @@ namespace solver {
 template<class VectorBase>
 class EntropySolverDlib: public GeneralSolver {
 	protected:
+		class ExternalContent;
+
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		Timer timer_solve; /**< total solution time */
 		Timer timer_compute_moments; /**< time of moment computation */
 
@@ -43,14 +37,6 @@ class EntropySolverDlib: public GeneralSolver {
 		GeneralVector<VectorBase> *moments; /**< vector of computed moments */
 		GeneralVector<VectorBase> *x_power; /**< temp vector for storing power of x */
 		GeneralVector<VectorBase> *x_power_gammak; /**< temp vector for storing power of x * gamma_k */
-
-		#ifdef USE_DLIB
-			/* functions for Dlib */
-			static double gg(double y, int order, const column_vector& LM);
-			double get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps);
-			column_vector get_functions_grad(const column_vector& LM, const column_vector& Mom, int k);
-			dlib::matrix<double> get_functions_hess(const column_vector& LM, const column_vector& Mom, int k);
-		#endif
 
 	public:
 
@@ -273,92 +259,11 @@ void EntropySolverDlib<VectorBase>::compute_residuum(GeneralVector<VectorBase> *
 	LOG_FUNC_END
 }
 
-
-#ifdef USE_DLIB
-
+/* define blank external content for general VectorBase */
 template<class VectorBase>
-double EntropySolverDlib<VectorBase>::gg(double y, int order, const column_vector& LM){
-    long  x_size = LM.size();
-    long  num_moments = x_size;
-    column_vector z(num_moments);
-    
-    z = 0;
-    for (int i = 0; i < num_moments; ++i)
-        z(i) = pow(y,i+1);
-    
-    
-    return pow(y,order)*(exp(-trans(LM)*z));
-}
+class EntropySolverDlib<VectorBase>::ExternalContent {
+};
 
-template<class VectorBase>
-double EntropySolverDlib<VectorBase>::get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps){
-    /* compute normalization */
-    column_vector Vec = LM;
-    auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
-    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
-    
-    return dlib::trans(Mom)*LM + log(F_);// + eps*sum(LM);	
-}
-
-template<class VectorBase>
-column_vector EntropySolverDlib<VectorBase>::get_functions_grad(const column_vector& LM, const column_vector& Mom, int k){
-    column_vector grad(k);
-    column_vector I(k);
-    
-    /* compute normalization */
-    column_vector LMVec = LM;
-    auto mom_function = [&](double x)->double { return gg(x, 0, LMVec);};//std::bind(gg, _1,  1, 2);
-    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
-    
-    /* theoretical moments */
-    int i = 0;
-    while (i < k)
-    {
-        auto mom_function = [&](double x)->double { return gg(x, i+1, LMVec);};
-        I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
-        i++;
-    }
-    
-    for (int i = 0; i < k; ++i)
-        grad(i) = Mom(i) - I(i)/F_;
-    
-//    double L1 = grad(0);
-//    double L2 = grad(1);
-    return grad;
-}
-
-template<class VectorBase>
-dlib::matrix<double> EntropySolverDlib<VectorBase>::get_functions_hess(const column_vector& LM, const column_vector& Mom, int k){
-    dlib::matrix<double> hess(k, k);
-    
-    column_vector I(2*k);
-    
-    //compute normalization
-    column_vector LMVec = LM;
-    auto mom_function = [&](double x)->double { return gg(x, 0, LMVec);};//std::bind(gg, _1,  1, 2);
-    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
-    
-    //theoretical moments
-    int i = 0;
-    while (i < 2*k)
-    {
-        auto mom_function = [&](double x)->double { return gg(x, i+1, LMVec);};
-        I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
-        i++;
-    }
-    
-    for (int i = 0; i < k; ++i)
-        for (int j = 0; j < k; ++j)
-            hess(i,j) = I(i+j+1)/F_ - I(i)*I(j)/(F_*F_);
-    
-//    double L1 = hess(0,0);
-//    double L2 = hess(0,1);
-//    double L3 = hess(1,0);
-//    double L4 = hess(1,1);
-    return hess;
-}
-
-#endif /* USE_DLIB */
 
 }
 } /* end namespace */

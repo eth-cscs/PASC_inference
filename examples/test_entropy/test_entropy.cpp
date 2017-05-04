@@ -1,7 +1,7 @@
 /** @file test_entropy.cu
- *  @brief test the new entropy model (in collaboration with Anna)
+ *  @brief test the new entropy model
  *
- *  @author Lukas Pospisil
+ *  @author Lukas Pospisil, Anna Marchenko
  */
 
 #include "pascinference.h"
@@ -198,8 +198,6 @@ int main( int argc, char *argv[] )
 
 /* 5.) prepare model */
 	coutMaster << "--- PREPARING MODEL ---" << std::endl;
-
-	/* prepare FEM reduction */
 
 	/* prepare model on the top of given data */
 	EntropyH1FEMModel<PetscVector> mymodel(mydata, Km, epssqr_list[0]);

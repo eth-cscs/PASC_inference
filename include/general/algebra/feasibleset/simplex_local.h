@@ -192,8 +192,6 @@ template<class VectorBase>
 void SimplexFeasibleSet_Local<VectorBase>::project(GeneralVector<VectorBase> &x) {
 	LOG_FUNC_BEGIN
 
-	//TODO
-
 	LOG_FUNC_END
 }
 

@@ -19,7 +19,6 @@
 /* theta problem */
 #include "general/data/entropydata.h"
 #include "general/solver/entropysolverdlib.h"
-#include "general/solver/entropysolverspg.h"
 #include "general/solver/entropysolvernewton.h"
 #include "general/data/tsdata.h"
 
@@ -62,8 +61,7 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		typedef enum { 
 			TSOLVER_AUTO=0,				/**< choose automatic solver */
 			TSOLVER_ENTROPY_DLIB=1,		/**< use Dlib to solve integral problem */
-			TSOLVER_ENTROPY_SPG=2,		/**< SPG (unconstrained) for solving integral problem */
-			TSOLVER_ENTROPY_NEWTON=3	/**< Newton method for solving integral problem */
+			TSOLVER_ENTROPY_NEWTON=2	/**< Newton method for solving integral entropy problem */
 		} ThetaSolverType;
 
 		/** @brief return name of theta solver in string format
@@ -175,7 +173,6 @@ std::string EntropyH1FEMModel<VectorBase>::print_thetasolvertype(ThetaSolverType
 	switch(thetasolvertype_in){
 		case(TSOLVER_AUTO): 			return_value = "AUTO"; break;
 		case(TSOLVER_ENTROPY_DLIB): 	return_value = "ENTROPY_DLIB solver"; break;
-		case(TSOLVER_ENTROPY_SPG): 		return_value = "ENTROPY_SPG solver"; break;
 		case(TSOLVER_ENTROPY_NEWTON): 	return_value = "ENTROPY_NEWTON solver"; break;
 	}
 	return return_value;

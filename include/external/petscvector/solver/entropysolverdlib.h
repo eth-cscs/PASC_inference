@@ -8,8 +8,26 @@
 
 #ifdef USE_DLIB
 
+/* include Dlib stuff */
+#include "dlib/matrix.h"
+#include "dlib/numeric_constants.h"
+#include "dlib/numerical_integration.h"
+#include "dlib/optimization.h"
+
+/* Dlib column vector */
+typedef dlib::matrix<double,0,1> column_vector;
+
 namespace pascinference {
 namespace solver {
+
+/* external-specific stuff */
+template<> class EntropySolverDlib<PetscVector>::ExternalContent {
+	public:
+		double gg(double y, int order, const column_vector& LM);
+		double get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps);
+		column_vector get_functions_grad(const column_vector& LM, const column_vector& Mom, int k);
+		dlib::matrix<double> get_functions_hess(const column_vector& LM, const column_vector& Mom, int k);
+};
 
 template<> EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_entropydata);
 template<> void EntropySolverDlib<PetscVector>::solve();

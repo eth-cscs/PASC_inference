@@ -100,7 +100,7 @@ endmacro()
 
 
 # --------- include test cmake functions --------
-include("test_util/test_util.cmake")
+include("util/util.cmake")
 include("test_classes/test_classes.cmake")
 include("test_signal1D/test_signal1D.cmake")
 include("test_entropy/test_entropy.cmake")

@@ -29,9 +29,9 @@ void BGMGraph<PetscVector>::process(double threshold) {
 	this->threshold = threshold;
 	
 	/* prepare array for number of neighbors */
-	neighbor_nmbs = (int*)malloc(n*sizeof(int));
+	neighbor_nmbs = (int*)malloc(this->n*sizeof(int));
 
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		neighbor_nmbs[i] = 0;
 	}
@@ -42,8 +42,8 @@ void BGMGraph<PetscVector>::process(double threshold) {
 	
 	/* go throught graph - compute number of neighbors */
 //	#pragma omp parallel for
-	for(int i=0;i<n;i++){
-		for(int j=i+1;j<n;j++){
+	for(int i=0;i<this->n;i++){
+		for(int j=i+1;j<this->n;j++){
 			if(compute_normsqr(coordinates_arr, i, j) < threshold*threshold){
 				neighbor_nmbs[i] += 1;
 				neighbor_nmbs[j] += 1;
@@ -52,25 +52,25 @@ void BGMGraph<PetscVector>::process(double threshold) {
 	}
 
 	/* prepare storages for neightbors ids */
-	neighbor_ids = (int**)malloc(n*sizeof(int*));
+	neighbor_ids = (int**)malloc(this->n*sizeof(int*));
 
-	#pragma omp parallel for
-	for(int i=0;i<n;i++){
+//	#pragma omp parallel for
+	for(int i=0;i<this->n;i++){
 		neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
 	}
 
 	/* go throught graph - fill indexes of neighbors */
 	int *counters;
-	counters = (int*)malloc(n*sizeof(int));
+	counters = (int*)malloc(this->n*sizeof(int));
 
-	#pragma omp parallel for
-	for(int i=0;i<n;i++){
+//	#pragma omp parallel for
+	for(int i=0;i<this->n;i++){
 		counters[i] = 0;
 	}
 
 //	#pragma omp parallel for // TODO: here is a problem, cannot be used, maybe because of couter arrays?
-	for(int i=0;i<n;i++){
-		for(int j=i+1;j<n;j++){
+	for(int i=0;i<this->n;i++){
+		for(int j=i+1;j<this->n;j++){
 			if(compute_normsqr(coordinates_arr, i, j) < threshold*threshold){
 				neighbor_ids[i][counters[i]] = j;
 				neighbor_ids[j][counters[j]] = i;
@@ -96,7 +96,7 @@ void BGMGraph<PetscVector>::process(double threshold) {
 		cuda_BGMGraph_process(neighbor_nmbs_gpu, neighbor_ids_gpu, neighbor_ids_cpugpu, n);
 	#endif
 	
-	processed = true;
+	this->processed = true;
 
 	LOG_FUNC_END
 }

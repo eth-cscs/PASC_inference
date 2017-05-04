@@ -36,6 +36,10 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 
+
+	/* prepare external content with PETSc-DLIB stuff */
+	externalcontent = new ExternalContent();
+
 	LOG_FUNC_END
 }
 
@@ -69,9 +73,9 @@ void EntropySolverDlib<PetscVector>::solve() {
 	TRYCXX( VecGetArray(lambda_Vec, &lambda_arr) );
 
 	/* prepare lambda-functions for Dlib */
-	auto get_functions_obj_lambda = [&](const column_vector& x)->double { return get_functions_obj(x, Mom, eps);};
-	auto get_functions_grad_lambda = [&](const column_vector& x)->column_vector { return get_functions_grad(x, Mom, Km);};
-	auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return get_functions_hess(x, Mom, Km);};
+	auto get_functions_obj_lambda = [&](const column_vector& x)->double { return externalcontent->get_functions_obj(x, Mom, eps);};
+	auto get_functions_grad_lambda = [&](const column_vector& x)->column_vector { return externalcontent->get_functions_grad(x, Mom, Km);};
+	auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return externalcontent->get_functions_hess(x, Mom, Km);};
 
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
@@ -90,10 +94,11 @@ void EntropySolverDlib<PetscVector>::solve() {
                              dlib::objective_delta_stop_strategy(STOP_TOLERANCE).be_verbose(),
                              get_functions_obj_lambda, get_functions_grad_lambda, starting_point, -1e12, 1e12 );
 
-//		coutMaster << "something computed" << std::endl;
+		coutMaster << "something computed" << std::endl;
 
 		/* store lambda (solution): from Dlib to Petsc */
 		for(int km=0;km<Km;km++){
+			coutMaster << km << ". " << starting_point(km) << std::endl;
 			lambda_arr[k*Km+km] = starting_point(km);
 		}
 
@@ -172,7 +177,7 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 
 	/* lambda vector for Dlib integration */
 	column_vector lambda_Dlib(Km);
-    auto mom_function = [&](double x)->double { return gg(x, 0, lambda_Dlib);};
+    auto mom_function = [&](double x)->double { return externalcontent->gg(x, 0, lambda_Dlib);};
     double F_;
 
 	/* update gamma_solver data - prepare new linear term */
@@ -217,6 +222,86 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 	TRYCXX( VecRestoreArrayRead(entropydata->get_lambda()->get_vector(), &lambda_arr) );
 		
 	LOG_FUNC_END
+}
+
+
+/* External content */
+double EntropySolverDlib<PetscVector>::ExternalContent::gg(double y, int order, const column_vector& LM){
+    long  x_size = LM.size();
+    long  num_moments = x_size;
+    column_vector z(num_moments);
+    
+    z = 0;
+    for (int i = 0; i < num_moments; ++i)
+        z(i) = pow(y,i+1);
+    
+    
+    return pow(y,order)*(exp(-trans(LM)*z));
+}
+
+double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps){
+    /* compute normalization */
+    column_vector Vec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, Vec);};//std::bind(gg, _1,  1, 2);
+    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+    
+    return dlib::trans(Mom)*LM + log(F_);// + eps*sum(LM);	
+}
+
+column_vector EntropySolverDlib<PetscVector>::ExternalContent::get_functions_grad(const column_vector& LM, const column_vector& Mom, int k){
+    column_vector grad(k);
+    column_vector I(k);
+    
+    /* compute normalization */
+    column_vector LMVec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, LMVec);};//std::bind(gg, _1,  1, 2);
+    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+    
+    /* theoretical moments */
+    int i = 0;
+    while (i < k)
+    {
+        auto mom_function = [&](double x)->double { return gg(x, i+1, LMVec);};
+        I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+        i++;
+    }
+    
+    for (int i = 0; i < k; ++i)
+        grad(i) = Mom(i) - I(i)/F_;
+    
+//    double L1 = grad(0);
+//    double L2 = grad(1);
+    return grad;
+}
+
+dlib::matrix<double> EntropySolverDlib<PetscVector>::ExternalContent::get_functions_hess(const column_vector& LM, const column_vector& Mom, int k){
+    dlib::matrix<double> hess(k, k);
+    
+    column_vector I(2*k);
+    
+    //compute normalization
+    column_vector LMVec = LM;
+    auto mom_function = [&](double x)->double { return gg(x, 0, LMVec);};//std::bind(gg, _1,  1, 2);
+    double F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+    
+    //theoretical moments
+    int i = 0;
+    while (i < 2*k)
+    {
+        auto mom_function = [&](double x)->double { return gg(x, i+1, LMVec);};
+        I(i) = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
+        i++;
+    }
+    
+    for (int i = 0; i < k; ++i)
+        for (int j = 0; j < k; ++j)
+            hess(i,j) = I(i+j+1)/F_ - I(i)*I(j)/(F_*F_);
+    
+//    double L1 = hess(0,0);
+//    double L2 = hess(0,1);
+//    double L3 = hess(1,0);
+//    double L4 = hess(1,1);
+    return hess;
 }
 
 

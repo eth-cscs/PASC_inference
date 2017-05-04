@@ -541,8 +541,10 @@ void TSSolver<VectorBase>::solve() {
 		L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
 		deltaL = L;
 
-		/* project init approximation to feasible set */
-//		gammasolver->get_data()->get_feasibleset()->project(*gammadata->get_x0());
+		/* project init approximation to feasible set */ 
+		//TODO: I have no access to feasible set, init gamma should be already projected
+		//TODO: I will check that in the updatebeforesolve_thetasolver
+//		(*QPData<PetscVector>)(gammasolver->get_data()->get_feasibleset()->project(*(gammasolver->get_data()->gammadata->get_x0()));
 		
 		/* main cycle */
 		coutMaster.push();

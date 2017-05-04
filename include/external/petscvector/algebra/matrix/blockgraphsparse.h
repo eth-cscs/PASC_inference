@@ -4,6 +4,9 @@
 #include "general/algebra/matrix/blockgraphsparse.h"
 #include "external/petscvector/algebra/vector/generalvector.h"
 #include "external/petscvector/algebra/matrix/generalmatrix.h"
+#include "external/petscvector/common/decomposition.h"
+#include "external/petscvector/algebra/graph/bgmgraph.h"
+
 
 namespace pascinference {
 namespace algebra {
