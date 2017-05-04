@@ -7,9 +7,10 @@
 //#include "algebra/matrix/blockgraphfree.h" // TODO: implement?
 #include "general/algebra/matrix/blockgraphsparse.h"
 #include "general/algebra/feasibleset/simplex_local.h"
+#include "general/algebra/feasibleset/simplex_lineqbound.h"
 #include "general/solver/spgqpsolver.h"
 #include "general/solver/spgqpsolver_coeff.h"
-#include "general/solver/taosolver.h"
+//#include "general/solver/taosolver.h"
 #include "general/data/qpdata.h"
 
 /* theta problem */

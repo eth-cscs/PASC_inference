@@ -417,8 +417,8 @@ void EntropySolverSPG<PetscVector>::compute_residuum(GeneralVector<PetscVector> 
 	LOG_FUNC_END
 }
 
-template<class VectorBase>
-void EntropySolverSPG<VectorBase>::compute_gradient(Vec &g_Vec, Vec &integrals_Vec, Vec &moments_Vec) {
+template<>
+void EntropySolverSPG<PetscVector>::compute_gradient(Vec &g_Vec, Vec &integrals_Vec, Vec &moments_Vec) {
 	LOG_FUNC_BEGIN
 
 	int Km = entropydata->get_Km();

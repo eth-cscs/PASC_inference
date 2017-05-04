@@ -10,6 +10,8 @@
 #include "external/petscvector/algebra/matrix/blockgraphsparse.h"
 
 #include "external/petscvector/algebra/feasibleset/simplex_local.h"
+#include "external/petscvector/algebra/feasibleset/simplex_lineqbound.h"
+
 #include "external/petscvector/solver/spgqpsolver.h"
 //#include "external/petscvector/solver/spgqpsolver_coeff.h"
 //#include "external/petscvector/solver/taosolver.h"
@@ -17,7 +19,7 @@
 
 //TODO: !!!
 #ifdef USE_PERMON
-	#include "external/petscvector/solver/permonsolver.h"
+//	#include "external/petscvector/solver/permonsolver.h"
 	#include "external/petscvector/algebra/feasibleset/simplex_lineqbound.h"
 #endif
 

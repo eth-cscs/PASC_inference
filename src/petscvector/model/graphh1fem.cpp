@@ -204,10 +204,10 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* TAO QP solver */
 	if(this->gammasolvertype == SOLVER_TAO){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(get_decomposition_reduced()->get_T()*get_decomposition_reduced()->get_R(),get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
+//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(get_decomposition_reduced()->get_T()*get_decomposition_reduced()->get_R(),get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
 
 		/* create solver */
-		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
+//		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
 	}
 
 	LOG_FUNC_END

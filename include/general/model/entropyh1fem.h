@@ -9,7 +9,7 @@
 #include "general/algebra/feasibleset/simplex_local.h"
 #include "general/solver/spgqpsolver.h"
 #include "general/solver/spgqpsolver_coeff.h"
-#include "general/solver/taosolver.h"
+//#include "general/solver/taosolver.h"
 
 #ifdef USE_PERMON
 	#include "general/algebra/feasibleset/simplex_lineqbound.h"

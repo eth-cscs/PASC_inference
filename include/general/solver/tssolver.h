@@ -14,11 +14,6 @@
 #include "general/data/tsdata.h"
 #include "general/model/tsmodel.h"
 
-//temp
-#include "general/solver/qpsolver.h"
-#include "general/solver/diagsolver.h"
-#include "general/solver/qpsolver.h"
-
 #define TSSOLVER_DEFAULT_MAXIT 300
 #define TSSOLVER_DEFAULT_EPS 1e-6
 #define TSSOLVER_DEFAULT_INIT_PERMUTE true

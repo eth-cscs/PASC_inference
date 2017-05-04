@@ -147,10 +147,10 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	/* TAO QP solver */
 	if(this->gammasolvertype == GSOLVER_TAO){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
+//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
 
 		/* create solver */
-		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
+//		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
 	}
 
 	/* project random values to feasible set to be sure that initial approximation is feasible */
