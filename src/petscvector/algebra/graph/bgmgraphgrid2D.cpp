@@ -20,7 +20,7 @@ BGMGraphGrid2D<PetscVector>::BGMGraphGrid2D(int width, int height) : BGMGraph<Pe
 	double *coordinates_arr;
 	TRYCXX( VecGetArray(coordinates_Vec, &coordinates_arr) );
 
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int idx=0;idx<width*height;idx++){
 		int i = idx/(double)width; /* index of row */
 		int j = idx - i*width; /* index of column */	

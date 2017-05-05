@@ -88,7 +88,7 @@ void BGMGraphGrid2D<VectorBase>::process_grid(){
 	this->neighbor_nmbs = (int*)malloc(this->n*sizeof(int));
 	this->neighbor_ids = (int**)malloc(this->n*sizeof(int*));
 
-	#pragma omp parallel for
+//	#pragma omp parallel for
 	for(int idx=0;idx<width*height;idx++){
 		int i = idx/(double)width; /* index of row */
 		int j = idx - i*width; /* index of column */	
