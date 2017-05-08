@@ -20,37 +20,13 @@ cmake_minimum_required(VERSION 2.8.11)
 
 # set PASC_Inference library path
 set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}/../")
-
-# default settings
-#option(USE_BOOST "USE_BOOST" ON)
-#option(USE_CUDA "USE_CUDA" OFF)
-#option(USE_MINLIN "USE_MINLIN" OFF)
-#option(USE_MKL "USE_MKL" OFF)
-#option(USE_PETSC "USE_PETSC" ON)
-#option(FIND_PETSC "FIND_PETSC" ON)
-#option(USE_PERMON "USE_PERMON" OFF)
-#option(USE_METIS "USE_METIS" ON)
-#option(USE_CRAYPOWER "USE_CRAYPOWER" ON)
-#option(USE_DLIB "USE_DLIB" OFF)
-
-#make_directory("${CMAKE_CURRENT_BINARY_DIR}/pascinference_build")
-include("${PASCINFERENCE_ROOT}/cmake")
 include_directories("${PASCINFERENCE_ROOT}/include")
 
 # we can use pascinference things to include external stuff and libraries
+include("${PASCINFERENCE_ROOT}/cmake")
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake" ${CMAKE_MODULE_PATH})
 include(pascinference)
 
-# however, dlib library has to be build separately
-#if (NOT TARGET dlib)
-#    add_subdirectory("${PASCINFERENCE_ROOT}/util/dlib" dlib_build)
-#endif()
-#include("${PASCINFERENCE_ROOT}/util/dlib/dlib/cmake")
-#link_directories("${PASCINFERENCE_ROOT}/util/dlib/dlib/")
-#include_directories("${PASCINFERENCE_ROOT}/util/dlib/dlib/")
-
-
-	
 # print info about library
 include(printsetting)
 

@@ -12,7 +12,7 @@
 #include <sstream>
 #include <string>
 
-#define NUMBER_OF_LABELS 8
+#define NUMBER_OF_LABELS 9
 
 using namespace dlib;
 using namespace pascinference;
@@ -103,7 +103,7 @@ show_vec_window::show_vec_window() : /* All widgets take their parent window as 
 
     /* prepare position of labels of vector properties */
     labels_myvector_properties[0]->set_pos(10,30);
-	for(int i=1; i < 8; i++){
+	for(int i=1; i < 9; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
 
@@ -195,6 +195,7 @@ void show_vec_window::load_vector( const std::string& file_name ) {
 	set_label_myvector_properties(5, "sum:     ", myvector_sum);
 	set_label_myvector_properties(6, "max:     ", myvector_max);
 	set_label_myvector_properties(7, "min:     ", myvector_min);
+	set_label_myvector_properties(8, "mean:    ", myvector_sum/(double)myvector_size);
 
 }
 
@@ -224,7 +225,6 @@ void graphplotter::draw(const canvas& c) const {
 	if(myvector_loaded){
 		plot_vector(c);
 	}
-
 
 }
 
