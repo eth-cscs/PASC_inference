@@ -32,18 +32,14 @@ namespace algebra {
 template<class VectorBase>
 class SimplexFeasibleSet_LinEqBound: public GeneralFeasibleSet<VectorBase> {
 	private:
+		class ExternalContent;
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 		
 		int T; /**< number of global disjoint simplex subsets */
 		int Tlocal; /**< number of local disjoint simplex subsets */
 		int K; /**< size of each simplex subset */
 
-//TODO: !!!
-#ifdef USE_PETSC
-		Mat B; /**< matrix of equality constraints Bx=c */
-		Vec c; /**< vector of equality constraints Bx=c */
-		Vec lb; /**< vector of lower bounds */
-#endif
-		
 	public:
 		/** @brief default constructor
 		*/ 	
@@ -69,9 +65,7 @@ class SimplexFeasibleSet_LinEqBound: public GeneralFeasibleSet<VectorBase> {
 		 */		
 		void project(GeneralVector<VectorBase> &x);
 		
-		Mat get_B() const;
-		Vec get_c() const;
-		Vec get_lb() const;
+//		SimplexFeasibleSet_LinEqBound<VectorBase>::ExternalContent *get_externalcontent() const;
 		
 };
 
@@ -136,7 +130,15 @@ void SimplexFeasibleSet_LinEqBound<VectorBase>::project(GeneralVector<VectorBase
 	LOG_FUNC_END
 }
 
+/* define blank external content for general VectorBase */
+template<class VectorBase>
+class SimplexFeasibleSet_LinEqBound<VectorBase>::ExternalContent {
+};
 
+/*SimplexFeasibleSet_LinEqBound<VectorBase>::ExternalContent *SimplexFeasibleSet_LinEqBound<VectorBase>::get_externalcontent() const {
+	return externalcontent;
+}
+*/
 
 }
 } 

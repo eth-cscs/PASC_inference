@@ -17,7 +17,9 @@
 project(PASC_INFERENCE_LIBRARY)
 cmake_minimum_required(VERSION 2.8.11)
 
-set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}")
+if(NOT ${PASCINFERENCE_ROOT} AND NOT ${PASCINFERENCE_IN_PROJECT_BUILD})
+	set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}")
+endif()
 set(PASCINFERENCE_INCLUDE "${PASCINFERENCE_ROOT}/include/")
 set(PASCINFERENCE_SRC "${PASCINFERENCE_ROOT}/src/")
 set(PASCINFERENCE_CMAKE "${PASCINFERENCE_ROOT}/util/cmake/")
@@ -37,6 +39,11 @@ option(USE_DLIB "USE_DLIB" OFF)
 # include cmake functions
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_CMAKE}" ${CMAKE_MODULE_PATH})
 include(pascinference) # include common cmake functions
+
+# print info about settings
+if(NOT ${PASCINFERENCE_IN_PROJECT_BUILD})
+	include(printsetting)
+endif()
 
 # write something funny
 message(STATUS "${Blue}compiling PASCInference library${ColourReset}")
@@ -61,9 +68,5 @@ endif()
 
 # add library from created list
 add_library(pascinference SHARED ${PASC_TARGETS})
-
-
-# print information about settings
-include(printsetting)
-
+#install(TARGETS pascinference DESTINATION lib)
 

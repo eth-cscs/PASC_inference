@@ -7,11 +7,15 @@
 namespace pascinference {
 namespace algebra {
 
-template<> SimplexFeasibleSet_LinEqBound<PetscVector>::SimplexFeasibleSet_LinEqBound(int T, int Tlocal, int K);
+/* external-specific stuff */
+template<> class SimplexFeasibleSet_LinEqBound<PetscVector>::ExternalContent {
+	public:
+		Mat B; /**< matrix of equality constraints Bx=c */
+		Vec c; /**< vector of equality constraints Bx=c */
+		Vec lb; /**< vector of lower bounds */
+};
 
-template<> Mat SimplexFeasibleSet_LinEqBound<PetscVector>::get_B() const;
-template<> Vec SimplexFeasibleSet_LinEqBound<PetscVector>::get_c() const;
-template<> Vec SimplexFeasibleSet_LinEqBound<PetscVector>::get_lb() const;
+template<> SimplexFeasibleSet_LinEqBound<PetscVector>::SimplexFeasibleSet_LinEqBound(int T, int Tlocal, int K);
 
 
 }

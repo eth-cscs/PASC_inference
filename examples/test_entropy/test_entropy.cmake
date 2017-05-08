@@ -9,7 +9,7 @@ printinfo_onoff(" TEST_ENTROPY                                                  
 
 if(${TEST_ENTROPY})
 	# this is signal processing test
-	pascadd_executable("test_entropy/test_entropy.cpp" "test_entropy")
+	testadd_executable("test_entropy/test_entropy.cpp" "test_entropy")
 
 	# copy scripts
 	make_directory("scripts/test_entropy/")
