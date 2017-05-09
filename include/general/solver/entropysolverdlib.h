@@ -10,7 +10,9 @@
 #include "general/solver/generalsolver.h"
 #include "general/data/entropydata.h"
 
-#define STOP_TOLERANCE 1e-06
+#define ENTROPYSOLVERDLIB_DEFAULT_MAXIT 1000
+#define ENTROPYSOLVERDLIB_DEFAULT_EPS 1e-6
+#define ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
 namespace solver {
@@ -37,6 +39,17 @@ class EntropySolverDlib: public GeneralSolver {
 		GeneralVector<VectorBase> *moments; /**< vector of computed moments */
 		GeneralVector<VectorBase> *x_power; /**< temp vector for storing power of x */
 		GeneralVector<VectorBase> *x_power_gammak; /**< temp vector for storing power of x * gamma_k */
+
+		/** @brief set settings of algorithm from arguments in console
+		* 
+		*/
+		void set_settings_from_console();
+
+		/* debug */
+		int debugmode;				/**< basic debug mode schema [0/1/2] */
+		bool debug_print_it;		/**< print simple info about outer iterations */
+		bool debug_print_moments;	/**< print moments during iterations */
+
 
 	public:
 
@@ -68,6 +81,28 @@ class EntropySolverDlib: public GeneralSolver {
 /* ------------- implementation ----------- */
 namespace pascinference {
 namespace solver {
+			
+template<class VectorBase>
+void EntropySolverDlib<VectorBase>::set_settings_from_console() {
+	consoleArg.set_option_value("entropysolverdlib_maxit", &this->maxit, ENTROPYSOLVERDLIB_DEFAULT_MAXIT);
+	consoleArg.set_option_value("entropysolverdlib_eps", &this->eps, ENTROPYSOLVERDLIB_DEFAULT_EPS);
+
+	/* set debug mode */
+	consoleArg.set_option_value("entropysolverdlib_debugmode", &this->debugmode, ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE);
+	
+	if(debugmode == 1){
+		debug_print_it = true;
+	}
+
+	if(debugmode == 2){
+		debug_print_moments = true;
+	}
+
+	consoleArg.set_option_value("entropysolverdlib_debug_print_it",		&debug_print_it, 		debug_print_it);
+	consoleArg.set_option_value("entropysolverdlib_debug_print_moments",&debug_print_moments, 		debug_print_moments);
+
+}
+
 
 /* constructor */
 template<class VectorBase>
@@ -81,6 +116,9 @@ EntropySolverDlib<VectorBase>::EntropySolverDlib(){
 	this->eps = 0;
 	this->debugmode = 0;
 
+	/* settings */
+	set_settings_from_console();
+	
 	/* prepare timers */
 	this->timer_solve.restart();	
 	this->timer_compute_moments.restart();
@@ -98,6 +136,9 @@ EntropySolverDlib<VectorBase>::EntropySolverDlib(EntropyData<VectorBase> &new_en
 	this->maxit = 0;
 	this->eps = 0;
 	this->debugmode = 0;
+
+	/* settings */
+	set_settings_from_console();
 
 	/* prepare timers */
 	this->timer_solve.restart();	

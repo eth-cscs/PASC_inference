@@ -17,8 +17,12 @@ if(${USE_DLIB})
 	# set the root to DLib library
 	set(DLIB_ROOT "${PASCINFERENCE_ROOT}/util/dlib/")
 
-	# include some funny cmake functions from DLib
-	include("${DLIB_ROOT}/dlib/cmake/")
+	# the compilation of external library has to be solved separately
+	# if the library is build as a part of different project
+#	if(NOT ${PASCINFERENCE_IN_PROJECT_BUILD})
+		# include some funny cmake functions from DLib
+		include("${DLIB_ROOT}/dlib/cmake/")
+#	endif()
 
 	# append to flags definitions
 	set(FLAGS_DEF "-USE_DLIB ${FLAGS_DEF}")

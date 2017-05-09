@@ -16,6 +16,9 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	this->eps = 0;
 	this->debugmode = 0;
 
+	/* settings */
+	set_settings_from_console();
+
 	/* prepare timers */
 	this->timer_solve.restart();	
 	this->timer_compute_moments.restart();
@@ -48,8 +51,10 @@ void EntropySolverDlib<PetscVector>::solve() {
 	LOG_FUNC_BEGIN
 
 	this->compute_moments();
-	
-//	coutMaster << "Moments: " << *moments << std::endl;
+
+	if(debug_print_moments){
+		coutMaster << "Moments: " << *moments << std::endl;
+	}
 
 	this->timer_solve.start(); 
 
@@ -72,11 +77,6 @@ void EntropySolverDlib<PetscVector>::solve() {
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
 	TRYCXX( VecGetArray(lambda_Vec, &lambda_arr) );
 
-	/* prepare lambda-functions for Dlib */
-	auto get_functions_obj_lambda = [&](const column_vector& x)->double { return externalcontent->get_functions_obj(x, Mom, eps);};
-	auto get_functions_grad_lambda = [&](const column_vector& x)->column_vector { return externalcontent->get_functions_grad(x, Mom, Km);};
-	auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return externalcontent->get_functions_hess(x, Mom, Km);};
-
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
 		/* Mom: from PETSc vector to Dlib column_vector */
@@ -84,24 +84,38 @@ void EntropySolverDlib<PetscVector>::solve() {
 			Mom(km) = moments_arr[k*Km+km];
 		}
 
+		/* prepare lambda-functions for Dlib */
+		auto get_functions_obj_lambda = [&](const column_vector& x)->double { return externalcontent->get_functions_obj(x, Mom, eps);};
+		auto get_functions_grad_lambda = [&](const column_vector& x)->column_vector { return externalcontent->get_functions_grad(x, Mom, Km);};
+		auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return externalcontent->get_functions_hess(x, Mom, Km);};
+
 		/* initial value form starting_point */
 		starting_point = 0.0;
 
-		coutMaster << "k=" << k << ": running Dlib miracle" << std::endl;
-
+		/* print cluster info */
+		if(debug_print_it){
+			coutMaster << "cluster = " << k << std::endl;
+		}
+		
 		/* solve using Dlib magic */
-		dlib::find_min_box_constrained(dlib::newton_search_strategy(get_functions_hess_lambda),
-                             dlib::objective_delta_stop_strategy(STOP_TOLERANCE).be_verbose(),
+		if(debug_print_it){
+			/* give it info */
+			dlib::find_min_box_constrained(dlib::newton_search_strategy(get_functions_hess_lambda),
+                             dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
                              get_functions_obj_lambda, get_functions_grad_lambda, starting_point, -1e12, 1e12 );
-
-		coutMaster << "something computed" << std::endl;
+		} else {
+			/* be quite */
+			dlib::find_min_box_constrained(dlib::newton_search_strategy(get_functions_hess_lambda),
+                             dlib::objective_delta_stop_strategy(this->eps),
+                             get_functions_obj_lambda, get_functions_grad_lambda, starting_point, -1e12, 1e12 );
+			
+		}
 
 		/* store lambda (solution): from Dlib to Petsc */
 		for(int km=0;km<Km;km++){
-			coutMaster << km << ". " << starting_point(km) << std::endl;
 			lambda_arr[k*Km+km] = starting_point(km);
 		}
-
+		
 	} /* endfor through clusters */
 
 	TRYCXX( VecRestoreArray(lambda_Vec, &lambda_arr) );

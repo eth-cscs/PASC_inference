@@ -8,42 +8,27 @@
 #
 # cmake -DFIND_PETSC=ON -DCMAKE_CXX_COMPILER=/usr/bin/mpicxx ..
 #
+# test dependencies with:
+# cmake [PARAMETERS] .. --graphviz=test.graph
+# dotty test.graph
+#
+
+
 
 project(PASC_INFERENCE_TEST)
 cmake_minimum_required(VERSION 2.8.11)
 
 # set PASC_Inference library path
 set(PASCINFERENCE_ROOT "${CMAKE_SOURCE_DIR}/../")
-
-# default settings
-option(USE_BOOST "USE_BOOST" ON)
-option(USE_CUDA "USE_CUDA" OFF)
-option(USE_MINLIN "USE_MINLIN" OFF)
-option(USE_MKL "USE_MKL" OFF)
-option(USE_PETSC "USE_PETSC" ON)
-option(FIND_PETSC "FIND_PETSC" ON)
-option(USE_PERMON "USE_PERMON" OFF)
-option(USE_METIS "USE_METIS" ON)
-option(USE_CRAYPOWER "USE_CRAYPOWER" ON)
-option(USE_DLIB "USE_DLIB" OFF)
-
-# include pascinference cmake functions
-set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake/" ${CMAKE_MODULE_PATH})
-include(pascinference) # include common cmake functions
-
-# include pasinference shared library
-find_library(PASCINFERENCE_LIB "pascinference" "${PASCINFERENCE_ROOT}/build/lib/")
-if(NOT PASCINFERENCE_LIB)
-	# if the library doesn't exist, then give error
-	message(FATAL_ERROR "\n${Red}PASC_Inference_${extension} not found, did you forget to compile it? : ${PASCINFERENCE_LIB} ${ColourReset}\n")
-else()
-	# library found
-	message(STATUS "${Blue}PASC_Inference_${extension} library found in: ${PASCINFERENCE_LIB} ${ColourReset}")
-endif()
-set(LIBRARIES_DEF "${PASCINFERENCE_LIB};${LIBRARIES_DEF}")
-
-# include PASC_Inference header files
 include_directories("${PASCINFERENCE_ROOT}/include")
+
+# we can use pascinference things to include external stuff and libraries
+include("${PASCINFERENCE_ROOT}/cmake")
+set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake" ${CMAKE_MODULE_PATH})
+include(pascinference)
+
+# print info about library
+include(printsetting)
 
 # prepare directories
 make_directory("results")
@@ -56,6 +41,7 @@ make_directory("log")
 
 # prepare macros for simple example compilation
 macro(TESTADD_EXECUTABLE filename outname)
+
 	# choose compiler subject to file extension
 	get_filename_component(FILE_EXT ${filename} EXT)
 	
@@ -94,6 +80,7 @@ macro(TESTADD_EXECUTABLE filename outname)
 	endif()	
 
 	# link shared libraries
+	target_link_libraries(${outname} pascinference)
 	target_link_libraries(${outname} ${LIBRARIES_DEF})
 
 endmacro()
