@@ -5,9 +5,11 @@ option(UTIL "UTIL" OFF)
 option(UTIL_DIFF_NORM_VEC "UTIL_DIFF_NORM_VEC" OFF)
 option(UTIL_STAT_VEC "UTIL_STAT_VEC" OFF)
 option(UTIL_PRECISION "UTIL_PRECISION" OFF)
+option(UTIL_PRECISION "UTIL_PROCESS_LOG" OFF)
 
 option(UTIL_GUI "UTIL_GUI" OFF)
 option(UTIL_GUI_SHOW_VEC "UTIL_GUI_SHOW_VEC" OFF)
+option(UTIL_GUI_SHOW_GAMMA "UTIL_GUI_SHOW_GAMMA" OFF)
 
 if(${UTIL})
 	# define shortcut to compile all utils
@@ -32,8 +34,10 @@ printinfo_onoff(" UTIL                                 (...)                    
 printinfo_onoff("  UTIL_DIFF_NORM_VEC                   (ConsoleArg)               " "${UTIL_DIFF_NORM_VEC}")
 printinfo_onoff("  UTIL_STAT_VEC                        (ConsoleArg)               " "${UTIL_STAT_VEC}")
 printinfo_onoff("  UTIL_PRECISION                       (ConsoleArg)               " "${UTIL_PRECISION}")
+printinfo_onoff("  UTIL_PROCESS_LOG                     (ConsoleArg)               " "${UTIL_PROCESS_LOG}")
 printinfo_onoff("  UTIL_GUI                             (ConsoleArg)               " "${UTIL_GUI}")
 printinfo_onoff("   UTIL_GUI_SHOW_VEC                    (ConsoleArg)               " "${UTIL_GUI_SHOW_VEC}")
+printinfo_onoff("   UTIL_GUI_SHOW_GAMMA                  (ConsoleArg)               " "${UTIL_GUI_SHOW_GAMMA}")
 
 if(${UTIL_DIFF_NORM_VEC})
 	testadd_executable("util/diff_norm_vec.cpp" "diff_norm_vec")
@@ -51,7 +55,14 @@ if(${UTIL_PRECISION})
 #	endif()
 endif()
 
+if(${UTIL_PROCESS_LOG})
+	testadd_executable("util/process_log.cpp" "process_log")
+endif()
+
 if(${UTIL_GUI_SHOW_VEC})
 	testadd_executable("util/gui_show_vec.cpp" "gui_show_vec")
 endif()
 
+if(${UTIL_GUI_SHOW_GAMMA})
+	testadd_executable("util/gui_show_gamma.cpp" "gui_show_gamma")
+endif()

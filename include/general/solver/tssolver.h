@@ -638,7 +638,17 @@ void TSSolver<VectorBase>::solve() {
 				coutMaster << "  - ";
 				coutMaster << "L_old = " << std::setw(12) << L_old << ", ";
 				coutMaster << "L = " << std::setw(12) << L << ", ";
-				coutMaster << "|L - L_old| = " << std::setw(12) << deltaL << std::endl;
+				coutMaster << "|L - L_old| = " << std::setw(12) << deltaL << ", ";
+				coutMaster << "L - L_old = " << std::setw(12) << L - L_old << std::endl;
+				
+				
+				//TODO: temp, throw exception!
+				if(L - L_old > 0){
+					coutMaster << "------------------------------------------------------------------------------------------------------------------------------------------------- ERROR ---" << std::endl;
+					
+					int age;
+					std::cin >> age;
+				}
 			}
 
 			/* global stopping criteria */

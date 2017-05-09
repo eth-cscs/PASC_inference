@@ -3,6 +3,14 @@
 namespace pascinference {
 namespace common {
 
+std::string print_bool(bool input){
+	if(input){
+		return "YES";
+	} else {
+		return "NO";
+	}
+}
+
 OffsetClass::OffsetClass() {
 	size = 0;
 }

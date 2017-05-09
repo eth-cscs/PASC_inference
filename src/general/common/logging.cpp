@@ -13,6 +13,7 @@ double LoggingClass::getUnixTime(void){
 
 void LoggingClass::openfile(){
 	myfile.open(filename->c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+	myfile << std::setprecision(17);
 }
 		
 void LoggingClass::closefile(){
@@ -84,6 +85,8 @@ void LoggingClass::begin_func(std::string name_class,std::string name_function, 
 	if(log_or_not && log_or_not_func_call){
 		openfile();
 		myfile << getUnixTime()-reference_time << LOG_SEPARATOR;
+
+
 		if(log_or_not_level){
 			myfile << level << LOG_SEPARATOR;
 		}
@@ -219,21 +222,41 @@ void LoggingClass::set_log_or_not(bool new_value){
 	log_or_not = new_value;
 }				
 
+bool LoggingClass::get_log_or_not() const {
+	return log_or_not;
+}
+
 void LoggingClass::set_log_or_not_func_call(bool new_value){
 	log_or_not_func_call = new_value;
 }				
+
+bool LoggingClass::get_log_or_not_func_call() const {
+	return log_or_not_func_call;
+}
 
 void LoggingClass::set_log_or_not_file_line(bool new_value){
 	log_or_not_file_line = new_value;
 }				
 
+bool LoggingClass::get_log_or_not_file_line() const {
+	return log_or_not_file_line;
+}
+
 void LoggingClass::set_log_or_not_level(bool new_value){
 	log_or_not_level = new_value;
 }				
 
+bool LoggingClass::get_log_or_not_level() const {
+	return log_or_not_level;
+}
+
 void LoggingClass::set_log_or_not_memory(bool new_value){
 	log_or_not_memory = new_value;
 }				
+
+bool LoggingClass::get_log_or_not_memory() const {
+	return log_or_not_memory;
+}
 
 LoggingClass logging;	/**< global instance of logging class */
 

@@ -141,7 +141,7 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	Vec gammak_Vec;
 	IS gammak_is;
 	
-	TRYCXX( VecCopy(x_Vec,x_power_Vec) ); /* x^1 */
+	TRYCXX( VecCopy(x_Vec,x_power_Vec) ); /* x_power_Vec := x_Vec , i.e. x^1 */
 	
 	double *moments_arr, mysum, gammaksum;
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
@@ -168,6 +168,9 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	
 			TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 			TRYCXX( ISDestroy(&gammak_is) );	
+			
+			
+			coutMaster << "k = " << k << ", km = " << km << ": sum(gammak) = " << gammaksum << std::endl;
 		}
 		
 		TRYCXX( VecPointwiseMult(x_power_Vec, x_Vec, x_power_Vec) ); /* x_power = x_power.*x */

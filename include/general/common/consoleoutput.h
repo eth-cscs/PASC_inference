@@ -26,6 +26,8 @@
 namespace pascinference {
 namespace common {
 
+extern std::string print_bool(bool input);
+
 /** @class OffsetClass
  *  @brief to control the space at the beginning of print
  * 

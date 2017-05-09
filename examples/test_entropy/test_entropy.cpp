@@ -269,13 +269,13 @@ int main( int argc, char *argv[] )
 //		mysolver.printtimer(coutMaster);
 //		mysolver.printstatus(coutMaster);	
 
-		///* store obtained solution */
-		//if(save_all){
-			//coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-			//oss << filename_out << "_epssqr" << epssqr;
-			//mydata.saveSignal1D(oss.str(),false);
-			//oss.str("");
-		//}
+		/* store obtained solution */
+		if(save_all){
+			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+			oss << filename_out << "_epssqr" << epssqr;
+			mydata.saveSignal1D(oss.str(),false);
+			oss.str("");
+		}
 		
 
 		/* store short info */
@@ -319,11 +319,11 @@ int main( int argc, char *argv[] )
 	TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
 
 ///* 8.) store best solution */
-	//coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-	//coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
-	//oss << filename_out;
-	//mydata.saveSignal1D(oss.str(),false);
-	//oss.str("");
+	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
+	coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
+	oss << filename_out;
+	mydata.saveSignal1D(oss.str(),false);
+	oss.str("");
 
 	/* print solution */
 	coutMaster << "--- THETA SOLUTION ---" << std::endl;

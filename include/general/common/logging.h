@@ -181,7 +181,7 @@ class LoggingClass {
 		 * @param new_value new value of member variable log_or_not
 		 */
 		void set_log_or_not(bool new_value);
-
+		
 		/** @brief set logging LOG_FUNC_(STATIC)_BEGIN/LOG_FUNC_(STATIC)_END on/off
 		 *
 		 * @param new_value new value of member variable log_or_not_func_call
@@ -205,6 +205,14 @@ class LoggingClass {
 		 * @param new_value new value of member variable log_or_not_memory
 		 */
 		void set_log_or_not_memory(bool new_value);
+
+		/* get functions */
+		// TODO: comment!
+		bool get_log_or_not() const;
+		bool get_log_or_not_func_call() const;
+		bool get_log_or_not_file_line() const;
+		bool get_log_or_not_level() const;
+		bool get_log_or_not_memory() const;
 
 };
 
