@@ -286,6 +286,8 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
 	int j = 0;
+
+	/* I assume the format of original data as blockTR */
 	/* fill orig_local_arr */
 	for(int t=Tbegin;t<Tend;t++){
 		for(int i=0;i<R;i++){
@@ -298,7 +300,7 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 		}
 	}
 
-
+	/* I assume the new format as TRblock */
 	/* fill new_local_arr */
 	int *new_local_arr;
 	new_local_arr = new int [local_size];
@@ -306,15 +308,15 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 	for(int k=0;k<blocksize;k++){
 		for(int i=Rbegin;i<Rend;i++){
 			for(int t=Tbegin;t<Tend;t++){
-				new_local_arr[m] = Tbegin*R*blocksize + Rbegin*blocksize + m;
+				new_local_arr[m] = Tbegin*R*blocksize + Rbegin*blocksize + t*R*blocksize + i*blocksize + k;
 				m++;
 			}
 		}
 	}
 
-	for(int i=0; i<local_size;i++){
-		coutMaster << i << ". = " << new_local_arr[i] << std::endl;
-	}
+//	for(int i=0; i<local_size;i++){
+//		coutMaster << i << ". = " << new_local_arr[i] << std::endl;
+//	}
 
 	
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
@@ -322,10 +324,6 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, new_local_arr, PETSC_COPY_VALUES,&new_local_is) );
 //	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, local_size, Tbegin*R*blocksize + Rbegin*blocksize, 1, &new_local_is) );
-
-
-	coutMaster << "************************************************************************************ call from decomposition:" << invert << std::endl;
-//	TRYCXX( ISView(orig_local_is, PETSC_VIEWER_STDOUT_WORLD) );
 
 	/* get subvector with local values from original data */
 	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );

@@ -12,7 +12,7 @@
 #include <sstream>
 #include <string>
 
-#define NUMBER_OF_LABELS 10
+#define NUMBER_OF_LABELS 11
 
 using namespace dlib;
 using namespace pascinference;
@@ -22,7 +22,9 @@ class gammaplotter : public drawable {
 		Vec *myvector_Vec;
 		bool myvector_loaded;
 		int K;
+		int T;
 		std::string filename;
+		int myvector_size;
 
 		void draw (const canvas& c) const;
 		void plot_vector(const canvas& c) const;
@@ -38,6 +40,7 @@ class gammaplotter : public drawable {
 		
 		void set_K(int new_K);
 		int get_K() const;
+		int get_T() const;
 		
 		std::string get_filename() const;
 };
@@ -117,7 +120,7 @@ show_gamma_window::show_gamma_window() : /* All widgets take their parent window
 
     /* prepare position of labels of vector properties */
     labels_myvector_properties[0]->set_pos(10,100);
-	for(int i=1; i < 10; i++){
+	for(int i=1; i < 11; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
 
@@ -221,14 +224,15 @@ void show_gamma_window::fill_labels() {
 	/* print properties of vectors to labels */
 	set_label_myvector_properties(0, "name:    ", cut_filename(mygammaplotter.get_filename()));
 	set_label_myvector_properties(1, "K:       ", mygammaplotter.get_K());
-	set_label_myvector_properties(2, "size:    ", myvector_size);
-	set_label_myvector_properties(3, "norm2:   ", myvector_norm2);
-	set_label_myvector_properties(4, "norm1:   ", myvector_norm1);
-	set_label_myvector_properties(5, "normInf: ", myvector_normInf);
-	set_label_myvector_properties(6, "sum:     ", myvector_sum);
-	set_label_myvector_properties(7, "max:     ", myvector_max);
-	set_label_myvector_properties(8, "min:     ", myvector_min);
-	set_label_myvector_properties(9, "mean:    ", myvector_sum/(double)myvector_size);	
+	set_label_myvector_properties(2, "T:       ", mygammaplotter.get_T());
+	set_label_myvector_properties(3, "size:    ", myvector_size);
+	set_label_myvector_properties(4, "norm2:   ", myvector_norm2);
+	set_label_myvector_properties(5, "norm1:   ", myvector_norm1);
+	set_label_myvector_properties(6, "normInf: ", myvector_normInf);
+	set_label_myvector_properties(7, "sum:     ", myvector_sum);
+	set_label_myvector_properties(8, "max:     ", myvector_max);
+	set_label_myvector_properties(9, "min:     ", myvector_min);
+	set_label_myvector_properties(10, "mean:    ", myvector_sum/(double)myvector_size);	
 }	
 
 template<class ValueType>
@@ -281,6 +285,7 @@ gammaplotter::gammaplotter(drawable_window& w):
 	
 	/* default number of clusters */
 	K = 1;
+	T = 0;
 	
 	enable_events();
 }
@@ -319,6 +324,10 @@ void gammaplotter::load_vector( const std::string& file_name ) {
 
 	myvector_loaded = true;
 
+	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
+	this->T = myvector_size/(double)K;
+
+
 	/* the whole rectangle with plotted graph will be repainted */
 	parent.invalidate_rectangle(rect);
 
@@ -344,20 +353,17 @@ void gammaplotter::plot_vector(const canvas& c) const{
 	unsigned long y_size = this->height();
 
 	/* get the length of the signal */
-	int    myvector_size;
 	double myvector_max = 1;
 	double myvector_min = 0;
-	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
-	
-	int T = myvector_size/(double)K;
 
 	/* free space parameters */
 	double px_min = 0.01*x_size;
 	double px_max = 0.99*x_size;
 	double py_min = 0.1*y_size;
 	double py_max = 0.9*y_size;
+	double py_space = 0.1*y_size;
 
-	double py_step = (py_max-py_min)/(double)K;
+	double py_step = (py_max-py_min - (K-1)*py_space)/(double)K;
 
 	double *values;
 	TRYCXX( VecGetArray(*myvector_Vec,&values) );
@@ -367,8 +373,8 @@ void gammaplotter::plot_vector(const canvas& c) const{
 		double bx = px_max - ax*T;
 
 		/* coefficients of mapping value to y */
-		double ay = ((py_max + (k+1)*py_step) - (py_min + k*py_step))/(double)(myvector_max - myvector_min);
-		double by = (py_max + (k+1)*py_step) - ay*myvector_max;
+		double ay = (py_step)/(double)(myvector_max - myvector_min);
+		double by = py_step - ay*myvector_max;
 
 		/* I will use these points */
 		point mypoint1;
@@ -376,10 +382,15 @@ void gammaplotter::plot_vector(const canvas& c) const{
 
 		for(int t=1;t<T;t++){
 			mypoint1(0) = x_begin + ax*(t-1) + bx;
-			mypoint1(1) = y_begin + (y_size - (ay*values[(t-1)*K+k] + by));
+			mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*values[k*T+t-1] + by));
 
 			mypoint2(0) = x_begin + ax*t + bx;
-			mypoint2(1) = y_begin + (y_size - (ay*values[t*K+k] + by));
+			mypoint2(1) = y_begin + py_min + k*py_step + (py_step - (ay*values[k*T+t] + by));
+		
+			if(k>=1){
+				mypoint1(1) += k*py_space;
+				mypoint2(1) += k*py_space;
+			}
 		
 			draw_line(c,mypoint1,mypoint2, rgb_pixel(255,0,0));
 
@@ -394,7 +405,12 @@ void gammaplotter::plot_vector(const canvas& c) const{
 
 void gammaplotter::set_K(int new_K){
 	this->K = new_K;
-	
+
+	if(myvector_loaded){
+		TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
+		this->T = myvector_size/(double)K;
+	}
+		
 	/* repaint ! */
 	parent.invalidate_rectangle(rect);
 }
@@ -403,3 +419,6 @@ int gammaplotter::get_K() const {
 	return K;
 }
 
+int gammaplotter::get_T() const {
+	return T;
+}
