@@ -22,7 +22,10 @@ namespace solver {
 
 /* external-specific stuff */
 template<> class EntropySolverDlib<PetscVector>::ExternalContent {
+	private:
+		double integration_eps;
 	public:
+		ExternalContent(double new_integration_eps);
 		double gg(double y, int order, const column_vector& LM);
 		double get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps);
 		column_vector get_functions_grad(const column_vector& LM, const column_vector& Mom, int k);

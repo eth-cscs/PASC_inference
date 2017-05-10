@@ -12,6 +12,7 @@
 
 #define ENTROPYSOLVERDLIB_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERDLIB_DEFAULT_EPS 1e-6
+#define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_EPS 1e-10
 #define ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
@@ -44,6 +45,8 @@ class EntropySolverDlib: public GeneralSolver {
 		* 
 		*/
 		void set_settings_from_console();
+
+		double integration_eps;		/**< precision of integration in Dlib adaptive simpson rule */
 
 		/* debug */
 		int debugmode;				/**< basic debug mode schema [0/1/2] */
@@ -86,6 +89,7 @@ template<class VectorBase>
 void EntropySolverDlib<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolverdlib_maxit", &this->maxit, ENTROPYSOLVERDLIB_DEFAULT_MAXIT);
 	consoleArg.set_option_value("entropysolverdlib_eps", &this->eps, ENTROPYSOLVERDLIB_DEFAULT_EPS);
+	consoleArg.set_option_value("entropysolverdlib_integration_eps", &this->integration_eps, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_EPS);
 
 	/* set debug mode */
 	consoleArg.set_option_value("entropysolverdlib_debugmode", &this->debugmode, ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE);
@@ -170,9 +174,10 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit:      " << this->maxit << std::endl;
-	output <<  " - eps:        " << this->eps << std::endl;
-	output <<  " - debugmode: " << this->debugmode << std::endl;
+	output <<  " - maxit           : " << this->maxit << std::endl;
+	output <<  " - eps             : " << this->eps << std::endl;
+	output <<  " - integration_eps : " << this->integration_eps << std::endl;
+	output <<  " - debugmode       : " << this->debugmode << std::endl;
 
 	/* print data */
 	if(entropydata){
@@ -192,13 +197,13 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit:      " << this->maxit << std::endl;
-	output_global <<  " - eps:        " << this->eps << std::endl;
-	output_global <<  " - debugmode: " << this->debugmode << std::endl;
-
+	output_global <<  " - maxit           : " << this->maxit << std::endl;
+	output_global <<  " - eps             : " << this->eps << std::endl;
+	output_global <<  " - integration_eps : " << this->integration_eps << std::endl;
+	output_global <<  " - debugmode       : " << this->debugmode << std::endl;
 	/* print data */
 	if(entropydata){
-		output_global << "- data:" << std::endl;
+		output_global <<  " - data            : " << std::endl;
 		coutMaster.push();
 		entropydata->print(output_global,output_local);
 		coutMaster.pop();

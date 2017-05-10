@@ -117,6 +117,7 @@ void add_options(boost::program_options::options_description *description, int c
 		opt_entropysolverdlib.add_options()
 			("entropysolverdlib_maxit", boost::program_options::value<int>(), "maximum number of Theta iterations [int]")
 			("entropysolverdlib_eps", boost::program_options::value<double>(), "precision [double]")
+			("entropysolverdlib_integration_eps", boost::program_options::value<double>(), "precision of integration (adaptive simpson rule) [double]")
 			("entropysolverdlib_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("entropysolverdlib_debug_print_moments", boost::program_options::value<bool>(), "print computed moments [bool]")
 			("entropysolverdlib_debug_print_it", boost::program_options::value<bool>(), "print simple info about iterations [bool]");
