@@ -318,7 +318,7 @@ int main( int argc, char *argv[] )
 	TRYCXX(VecCopy(gammavector_best_Vec,mydata.get_gammavector()->get_vector()));
 	TRYCXX(VecCopy(thetavector_best_Vec, mydata.get_thetavector()->get_vector()));
 
-///* 8.) store best solution */
+	/* 8.) store best solution */
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 	oss << filename_out;

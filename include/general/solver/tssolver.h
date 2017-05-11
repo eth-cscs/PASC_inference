@@ -541,11 +541,6 @@ void TSSolver<VectorBase>::solve() {
 		L = std::numeric_limits<double>::max(); // TODO: the computation of L should be done in the different way
 		deltaL = L;
 
-		/* project init approximation to feasible set */ 
-		//TODO: I have no access to feasible set, init gamma should be already projected
-		//TODO: I will check that in the updatebeforesolve_thetasolver
-//		(*QPData<PetscVector>)(gammasolver->get_data()->get_feasibleset()->project(*(gammasolver->get_data()->gammadata->get_x0()));
-		
 		/* main cycle */
 		coutMaster.push();
 		for(it=0;it < this->maxit;it++){
@@ -746,8 +741,15 @@ template<class VectorBase>
 void TSSolver<VectorBase>::prepare_temp_annealing(){
 	LOG_FUNC_BEGIN
 
-	gammavector_temp = new GeneralVector<VectorBase>();
-	thetavector_temp = new GeneralVector<VectorBase>();
+	if(annealing > 1){
+		/* duplicate vectors, here we will store temporary best solution */
+		gammavector_temp = new GeneralVector<VectorBase>(*(tsdata->get_gammavector()));
+		thetavector_temp = new GeneralVector<VectorBase>(*(tsdata->get_thetavector()));
+	} else {
+		/* these vectors are unused */
+		gammavector_temp = new GeneralVector<VectorBase>();
+		thetavector_temp = new GeneralVector<VectorBase>();
+	}
 
 	LOG_FUNC_END
 }
