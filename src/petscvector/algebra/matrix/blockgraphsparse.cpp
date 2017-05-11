@@ -26,21 +26,24 @@ BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscV
 	int* neighbor_nmbs = decomposition->get_graph()->get_neighbor_nmbs();
 	int **neightbor_ids = decomposition->get_graph()->get_neighbor_ids();
 
+	/* prepare external content with PETSc stuff */
+	externalcontent = new ExternalContent();
+
 	/* create matrix */
-	TRYCXX( MatCreate(PETSC_COMM_WORLD,&A_petsc) );
-	TRYCXX( MatSetSizes(A_petsc,K*Rlocal*Tlocal,K*Rlocal*Tlocal,K*R*T,K*R*T) );
+	TRYCXX( MatCreate(PETSC_COMM_WORLD,&(externalcontent->A_petsc)) );
+	TRYCXX( MatSetSizes(externalcontent->A_petsc,K*Rlocal*Tlocal,K*Rlocal*Tlocal,K*R*T,K*R*T) );
 
 	#ifndef USE_CUDA
-		TRYCXX( MatSetType(A_petsc,MATMPIAIJ) ); 
+		TRYCXX( MatSetType(externalcontent->A_petsc,MATMPIAIJ) ); 
 	#else
-		TRYCXX( MatSetType(A_petsc,MATAIJCUSPARSE) ); 
+		TRYCXX( MatSetType(externalcontent->A_petsc,MATAIJCUSPARSE) ); 
 	#endif
 
 	/* compute preallocation of number of non-zero elements in matrix */
-	TRYCXX( MatMPIAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL,2*(decomposition->get_graph()->get_m_max()+1),NULL) ); 
-	TRYCXX( MatSeqAIJSetPreallocation(A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL) );
+	TRYCXX( MatMPIAIJSetPreallocation(externalcontent->A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL,2*(decomposition->get_graph()->get_m_max()+1),NULL) ); 
+	TRYCXX( MatSeqAIJSetPreallocation(externalcontent->A_petsc,3*(1+2*decomposition->get_graph()->get_m_max()),NULL) );
 
-	TRYCXX( MatSetFromOptions(A_petsc) ); 
+	TRYCXX( MatSetFromOptions(externalcontent->A_petsc) ); 
 	
 	double coeff = 1.0;
 	
@@ -71,17 +74,17 @@ BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscV
 				}
 				
 				/* diagonal entry */
-				TRYCXX( MatSetValue(A_petsc, diag_idx, diag_idx, coeff*Wsum, INSERT_VALUES) );
+				TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, diag_idx, coeff*Wsum, INSERT_VALUES) );
 
 				/* my nondiagonal entries */
 				if(T>1){
 					if(t > 0) {
 						/* t - 1 */
-						TRYCXX( MatSetValue(A_petsc, diag_idx, diag_idx-R*K, -2*coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, diag_idx-R*K, -2*coeff, INSERT_VALUES) );
 					}
 					if(t < T-1) {
 						/* t + 1 */
-						TRYCXX( MatSetValue(A_petsc, diag_idx, diag_idx+R*K, -2*coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, diag_idx+R*K, -2*coeff, INSERT_VALUES) );
 					}
 				}
 
@@ -90,13 +93,13 @@ BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscV
 					int r_new = decomposition->get_Pr(neightbor_ids[r_orig][neighbor]);
 					int idx2 = t*R*K + r_new*K + k;
 
-					TRYCXX( MatSetValue(A_petsc, diag_idx, idx2, -coeff, INSERT_VALUES) );
-//					TRYCXX( MatSetValue(A_petsc, idx2, diag_idx, -coeff, INSERT_VALUES) );
+					TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, idx2, -coeff, INSERT_VALUES) );
+//					TRYCXX( MatSetValue(externalcontent->A_petsc, idx2, diag_idx, -coeff, INSERT_VALUES) );
 					if(t > 0) {
-						TRYCXX( MatSetValue(A_petsc, diag_idx, idx2-R*K, -coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, idx2-R*K, -coeff, INSERT_VALUES) );
 					}
 					if(t < T-1) {
-						TRYCXX( MatSetValue(A_petsc, diag_idx, idx2+R*K, -coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, idx2+R*K, -coeff, INSERT_VALUES) );
 					}
 				}
 			} /* end T */
@@ -109,9 +112,9 @@ BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscV
 	TRYCXX( PetscBarrier(NULL) );
 
 	/* assemble matrix */
-	TRYCXX( MatAssemblyBegin(A_petsc,MAT_FINAL_ASSEMBLY) );
-	TRYCXX( MatAssemblyEnd(A_petsc,MAT_FINAL_ASSEMBLY) );
-	TRYCXX( PetscObjectSetName((PetscObject)A_petsc,"Hessian matrix") );
+	TRYCXX( MatAssemblyBegin(externalcontent->A_petsc,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( MatAssemblyEnd(externalcontent->A_petsc,MAT_FINAL_ASSEMBLY) );
+	TRYCXX( PetscObjectSetName((PetscObject)(externalcontent->A_petsc),"Regularization matrix") );
 
 	LOG_FUNC_END
 }	
@@ -122,7 +125,7 @@ BlockGraphSparseMatrix<PetscVector>::~BlockGraphSparseMatrix(){
 	LOG_FUNC_BEGIN
 	
 	if(petscvector::PETSC_INITIALIZED){ /* maybe Petsc was already finalized and there is nothing to destroy */
-		TRYCXX( MatDestroy(&A_petsc) );
+		TRYCXX( MatDestroy(&(externalcontent->A_petsc)) );
 	}
 	
 	LOG_FUNC_END	
@@ -137,7 +140,7 @@ void BlockGraphSparseMatrix<PetscVector>::printcontent(ConsoleOutput &output) co
 	output << "BlockGraphMatrix (sorry, 'only' MatView from Petsc follows):" << std::endl;
 	output << "----------------------------------------------------------" << std::endl;
 	
-	TRYCXX( MatView(A_petsc, PETSC_VIEWER_STDOUT_WORLD) );
+	TRYCXX( MatView(externalcontent->A_petsc, PETSC_VIEWER_STDOUT_WORLD) );
 
 	output << "----------------------------------------------------------" << std::endl;
 	
@@ -152,7 +155,7 @@ void BlockGraphSparseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 	// TODO: maybe y is not initialized, who knows
 
 	/* multiply with constant part of matrix */
-	TRYCXX( MatMult(A_petsc, x.get_vector(), y.get_vector()) );
+	TRYCXX( MatMult(externalcontent->A_petsc, x.get_vector(), y.get_vector()) );
 
 	/* multiply with coeffs */
 	if(coeffs){
@@ -192,7 +195,7 @@ void BlockGraphSparseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 
 template<>
 Mat BlockGraphSparseMatrix<PetscVector>::get_petscmatrix() const {
-	return this->A_petsc; // TODO: are you sure that I can use this also without USE_PETSC ?
+	return this->externalcontent->A_petsc; // TODO: are you sure that I can use this also without USE_PETSC ?
 }
 
 

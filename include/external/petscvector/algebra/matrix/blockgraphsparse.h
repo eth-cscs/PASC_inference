@@ -11,6 +11,12 @@
 namespace pascinference {
 namespace algebra {
 
+/* external-specific stuff */
+template<> class BlockGraphSparseMatrix<PetscVector>::ExternalContent {
+	public:
+		Mat A_petsc; /**< internal PETSc matrix */
+};
+
 template<> BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscVector> &new_decomposition, double alpha, GeneralVector<PetscVector> *new_coeffs);
 template<> BlockGraphSparseMatrix<PetscVector>::~BlockGraphSparseMatrix();
 template<> void BlockGraphSparseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const;
