@@ -1,6 +1,7 @@
 #include "external/petscvector/solver/entropysolverdlib.h"
 
 #ifdef USE_DLIB
+/* if DLib is not used, then this class is quite useless */
 
 namespace pascinference {
 namespace solver {

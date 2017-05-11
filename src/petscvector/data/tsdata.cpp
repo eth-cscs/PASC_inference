@@ -626,6 +626,35 @@ void TSData<PetscVector>::load_gammavector(std::string filename) const {
 	LOG_FUNC_END
 }
 
+template<>
+double TSData<PetscVector>::compute_gammavector_nbins() {
+	LOG_FUNC_BEGIN
+
+	double nbins = 1;
+	bool is_changed;
+
+	int K = this->get_K();
+	int T = this->get_T();
+	
+	double *gamma_arr;
+	TRYCXX( VecGetArray(gammavector->get_vector(), &gamma_arr) );
+	
+	for(int t=0;t<T-1;t++){
+		is_changed = false;
+		for(int k=0;k<K;k++){
+			if(std::abs(gamma_arr[t*K + k] - gamma_arr[(t+1)*K+k]) > 1e-10 ){
+				is_changed = true;
+			}
+		}
+		
+		if(is_changed) nbins++;
+	}
+	TRYCXX( VecRestoreArray(gammavector->get_vector(), &gamma_arr) );
+
+	LOG_FUNC_END
+	
+	return nbins;
+}
 
 
 }

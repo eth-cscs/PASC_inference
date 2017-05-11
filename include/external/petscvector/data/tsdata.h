@@ -34,6 +34,7 @@ template<> void TSData<PetscVector>::shiftdata(double a);
 template<> void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double scale_max);
 template<> void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const;
 template<> void TSData<PetscVector>::load_gammavector(std::string filename) const;
+template<> double TSData<PetscVector>::compute_gammavector_nbins();
 
 
 }

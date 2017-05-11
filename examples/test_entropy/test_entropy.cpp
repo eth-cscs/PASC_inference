@@ -227,6 +227,7 @@ int main( int argc, char *argv[] )
 	double epssqr;
 	double epssqr_best = -1;
 	double L; /* actual value of object function */
+	double nbins;
 	double L_best = std::numeric_limits<double>::max(); /* best solution */
 
 	Vec gammavector_best_Vec; /* here we store solution with best L */
@@ -264,8 +265,9 @@ int main( int argc, char *argv[] )
 
 		/* get function value */
 		L = mysolver.get_L();
+		nbins = mydata.compute_gammavector_nbins();
 
-		coutMaster << " - L = " << L << std::endl;
+		coutMaster << " - L = " << L << ", nbins = " << nbins << std::endl;
 //		mysolver.printtimer(coutMaster);
 //		mysolver.printstatus(coutMaster);	
 
@@ -287,6 +289,10 @@ int main( int argc, char *argv[] )
 			/* append Theta solution */
 			if(depth==0) for(int k=0; k < mymodel.get_thetavectorlength_local(); k++) oss_short_output_header << "Theta" << k << ",";
 			oss_short_output_values << mydata.print_thetavector(); 
+
+			/* append nbins */
+			if(depth==0) oss_short_output_header << "Gamma nbins,";
+			oss_short_output_values << nbins << ","; 
 
 			/* print info from solver */
 			mysolver.printshort(oss_short_output_header, oss_short_output_values);

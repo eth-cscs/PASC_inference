@@ -136,6 +136,10 @@ class TSData: public GeneralData {
 		virtual void load_gammavector(std::string filename) const;
 		virtual void load_gammavector(VectorBase &gamma0) const;
 
+		/** @brief compute nbins of actual gammavector 
+		 */ 
+		double compute_gammavector_nbins();
+
 };
 
 
@@ -648,6 +652,17 @@ void TSData<VectorBase>::load_gammavector(std::string filename) const {
 	//TODO
 	
 	LOG_FUNC_END
+}
+
+template<class VectorBase>
+double TSData<VectorBase>::compute_gammavector_nbins() {
+	LOG_FUNC_BEGIN
+	
+	//TODO
+	
+	LOG_FUNC_END
+	
+	return 0.0;
 }
 
 

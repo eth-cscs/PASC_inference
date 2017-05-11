@@ -127,15 +127,15 @@ void add_options(boost::program_options::options_description *description, int c
 		boost::program_options::options_description opt_entropysolvernewton("ENTROPYSOLVERNEWTON", console_nmb_cols);
 		opt_entropysolvernewton.add_options()
 			("entropysolvernewton_maxit", boost::program_options::value<int>(), "maximum number of iterations [int]")
-			("entropysolvernewton_maxit_ksp", boost::program_options::value<int>(), "maximum number of inner KSP iterations [int]")
+			("entropysolvernewton_maxit_Axb", boost::program_options::value<int>(), "maximum number of inner KSP iterations [int]")
 			("entropysolvernewton_eps", boost::program_options::value<double>(), "precision [double]")
-			("entropysolvernewton_eps_ksp", boost::program_options::value<double>(), "precision of inner KSP solver [double]")
+			("entropysolvernewton_eps_Axb", boost::program_options::value<double>(), "precision of inner Ax=b solver [double]")
 			("entropysolvernewton_newton_coeff", boost::program_options::value<double>(), "step-size coefficient of Newton update [double]")
 			("entropysolvernewton_integrationtype", boost::program_options::value<int>(), "type of numerical integration [0=INTEGRATION_AUTO/1=INTEGRATION_DLIB/2=INTEGRATION_MC]")
 			("entropysolvernewton_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
 			("entropysolvernewton_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("entropysolvernewton_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations [bool]")
-			("entropysolvernewton_debug_print_ksp", boost::program_options::value<bool>(), "print info about inner KSP every outer Newton iteration [bool]")
+			("entropysolvernewton_debug_print_Axb", boost::program_options::value<bool>(), "print info about inner Ax=b every outer Newton iteration [bool]")
 			("entropysolvernewton_debug_print_vectors", boost::program_options::value<bool>(), "print content of vectors during iterations [bool]")
 			("entropysolvernewton_debug_print_scalars", boost::program_options::value<bool>(), "print values of computed scalars during iterations [bool]");
 		opt_solvers.add(opt_entropysolvernewton);

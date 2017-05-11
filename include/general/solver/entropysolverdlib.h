@@ -27,7 +27,6 @@ template<class VectorBase>
 class EntropySolverDlib: public GeneralSolver {
 	protected:
 		class ExternalContent;
-
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
