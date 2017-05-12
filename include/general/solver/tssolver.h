@@ -639,10 +639,7 @@ void TSSolver<VectorBase>::solve() {
 
 			//TODO: temp, throw exception!
 			if(L - L_old > 0){
-				coutMaster << "------------------------------------------------------------------------------------------------------------------------------------------------- ERROR ---" << std::endl;
-					
-				int age;
-				std::cin >> age;
+				coutMaster << "ERROR: objective function increased" << std::endl;
 			}
 
 			/* global stopping criteria */
