@@ -17,12 +17,20 @@
 namespace pascinference {
 namespace solver {
 
+/* external-specific stuff */
+template<> class SPGQPSolver<PetscVector>::ExternalContent {
+	public:
+		Vec *Mdots_vec; /**< for manipulation with mdot */
+};
+
 template<> std::string SPGQPSolver<PetscVector>::get_name() const;
 template<> void SPGQPSolver<PetscVector>::allocate_temp_vectors();
 template<> void SPGQPSolver<PetscVector>::free_temp_vectors();
 template<> void SPGQPSolver<PetscVector>::solve();
 template<> double SPGQPSolver<PetscVector>::get_fx() const;
 template<> void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const;
+
+template<> SPGQPSolver<PetscVector>::ExternalContent * SPGQPSolver<PetscVector>::get_externalcontent() const;
 
 }
 } /* end namespace */

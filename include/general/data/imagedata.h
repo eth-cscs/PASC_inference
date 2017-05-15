@@ -7,10 +7,6 @@
 #ifndef PASC_IMAGEDATA_H
 #define	PASC_IMAGEDATA_H
 
-#ifndef USE_PETSC
- #error 'IMAGEDATA is for PETSC'
-#endif
-
 #include <iostream>
 #include "general/common/common.h"
 #include "general/algebra/graph/bgmgraph.h"

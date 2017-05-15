@@ -15,13 +15,16 @@ void SPGQPSolverC<PetscVector>::allocate_temp_vectors(){
 	Ad = new GeneralVector<PetscVector>(*pattern);	
 	temp = new GeneralVector<PetscVector>(*pattern);	
 
+	/* prepare external content with PETSc stuff */
+	externalcontent = new ExternalContent();
+
 	/* without cuda */
 	TRYCXX( PetscMalloc1(3,&Mdots_val) );
-	TRYCXX( PetscMalloc1(3,&Mdots_vec) );
+	TRYCXX( PetscMalloc1(3,&(externalcontent->Mdots_vec)) );
 
-	Mdots_vec[0] = d->get_vector();
-	Mdots_vec[1] = Ad->get_vector();
-	Mdots_vec[2] = g->get_vector();
+	externalcontent->Mdots_vec[0] = d->get_vector();
+	externalcontent->Mdots_vec[1] = Ad->get_vector();
+	externalcontent->Mdots_vec[2] = g->get_vector();
 
 	LOG_FUNC_END
 }
@@ -37,7 +40,7 @@ void SPGQPSolverC<PetscVector>::free_temp_vectors(){
 	free(temp);
 	
 	TRYCXX( PetscFree(Mdots_val) );
-	TRYCXX( PetscFree(Mdots_vec) );
+	TRYCXX( PetscFree(externalcontent->Mdots_vec) );
 	
 	LOG_FUNC_END
 }
@@ -46,13 +49,18 @@ template<>
 void SPGQPSolverC<PetscVector>::compute_dots(double *dd, double *dAd, double *gd) const {
 	LOG_FUNC_BEGIN
 
-	TRYCXX(VecMDot( Mdots_vec[0], 3, Mdots_vec, Mdots_val) );
+	TRYCXX(VecMDot( externalcontent->Mdots_vec[0], 3, externalcontent->Mdots_vec, Mdots_val) );
 
 	*dd = Mdots_val[0];
 	*dAd = Mdots_val[1];
 	*gd = Mdots_val[2];
 
 	LOG_FUNC_END
+}
+
+template<> 
+SPGQPSolverC<PetscVector>::ExternalContent * SPGQPSolverC<PetscVector>::get_externalcontent() const {
+	return this->externalcontent;	
 }
 
 

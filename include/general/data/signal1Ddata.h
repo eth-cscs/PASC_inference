@@ -7,10 +7,6 @@
 #ifndef PASC_SIGNAL1DDATA_H
 #define	PASC_SIGNAL1DDATA_H
 
-#ifndef USE_PETSC
- #error 'SIGNAL1DDATA is for PETSC'
-#endif
-
 #include <iostream>
 #include "general/common/common.h"
 #include "general/model/tsmodel.h"

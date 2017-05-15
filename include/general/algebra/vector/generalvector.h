@@ -10,11 +10,6 @@
 #ifndef PASC_GENERALVECTOR_H
 #define	PASC_GENERALVECTOR_H
 
-/* ------- PETSCVECTOR ------- */	
-#ifdef USE_PETSC
-// #include "external/petsc/algebra/vector/petscvector.h"
-#endif
-
 #include "general/algebra/matrix/generalmatrixrhs.h"
 #include "general/algebra/arrayoperation.h"
 

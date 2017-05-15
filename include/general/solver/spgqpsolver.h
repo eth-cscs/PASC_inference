@@ -46,7 +46,13 @@ namespace solver {
 */
 template<class VectorBase>
 class SPGQPSolver: public QPSolver<VectorBase> {
+	public:
+		class ExternalContent;
+	
 	private:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		Timer timer_solve; 			/**< total solution time of SPG algorithm */
 		Timer timer_projection;		/**< the sum of time necessary to perform projections */
 		Timer timer_matmult; 		/**< the sum of time necessary to perform matrix multiplication */
@@ -97,10 +103,6 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 
 		double *Mdots_val; /**< for manipulation with mdot */
 
-		#ifdef USE_PETSC
-			Vec *Mdots_vec; /**< for manipulation with mdot */
-		#endif
-
 		/** @brief set settings of algorithm from arguments in console
 		* 
 		*/
@@ -141,6 +143,8 @@ class SPGQPSolver: public QPSolver<VectorBase> {
 		void printshort(std::ostringstream &header, std::ostringstream &values) const;
 		void printshort_sum(std::ostringstream &header, std::ostringstream &values) const;
 		std::string get_name() const;
+
+		ExternalContent *get_externalcontent() const;
 
 };
 

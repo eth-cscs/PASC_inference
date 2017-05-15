@@ -38,7 +38,14 @@ namespace solver {
 */
 template<class VectorBase>
 class SPGQPSolverC: public QPSolver<VectorBase> {
+	public:
+		class ExternalContent;
+	
 	private:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
+
 		/** \class SPGQPSolverC_fs
 		 *  \brief generalized Armijo condition
 		 *
@@ -141,11 +148,6 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 
 		double *Mdots_val; /**< for manipulation with mdot */
 
-		//TODO: !!!!
-		#ifdef USE_PETSC
-			Vec *Mdots_vec; /**< for manipulation with mdot */
-		#endif
-
 		/** @brief set settings of algorithm from arguments in console
 		* 
 		*/
@@ -186,6 +188,8 @@ class SPGQPSolverC: public QPSolver<VectorBase> {
 		void printshort(std::ostringstream &header, std::ostringstream &values) const;
 		void printshort_sum(std::ostringstream &header, std::ostringstream &values) const;
 		std::string get_name() const;
+
+		ExternalContent * get_externalcontent() const;
 
 };
 

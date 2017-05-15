@@ -7,10 +7,6 @@
 #ifndef PASC_TSSOLVER_H
 #define	PASC_TSSOLVER_H
 
-#ifndef USE_PETSC
- #error 'TSSOLVER is for PETSC'
-#endif
-
 #include "general/data/tsdata.h"
 #include "general/model/tsmodel.h"
 
