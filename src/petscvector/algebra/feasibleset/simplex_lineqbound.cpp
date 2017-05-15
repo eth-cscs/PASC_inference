@@ -57,6 +57,9 @@ SimplexFeasibleSet_LinEqBound<PetscVector>::SimplexFeasibleSet_LinEqBound(int T,
 	LOG_FUNC_END
 }
 
+template<> SimplexFeasibleSet_LinEqBound<PetscVector>::ExternalContent * SimplexFeasibleSet_LinEqBound<PetscVector>::get_externalcontent() const {
+	return this->externalcontent;
+}
 
 
 }

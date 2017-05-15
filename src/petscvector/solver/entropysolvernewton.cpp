@@ -577,6 +577,11 @@ void EntropySolverNewton<PetscVector>::ExternalContent::compute_integrals(Vec &i
 	LOG_FUNC_END
 }
 
+template<> EntropySolverNewton<PetscVector>::ExternalContent * EntropySolverNewton<PetscVector>::get_externalcontent() const {
+	return externalcontent;
+}
+
+
 #ifdef USE_DLIB
 double EntropySolverNewton<PetscVector>::ExternalContent::gg(double y, int order, column_vector& LM){
     long  x_size = LM.size();

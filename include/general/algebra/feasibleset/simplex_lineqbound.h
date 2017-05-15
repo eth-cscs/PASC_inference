@@ -31,8 +31,10 @@ namespace algebra {
 */
 template<class VectorBase>
 class SimplexFeasibleSet_LinEqBound: public GeneralFeasibleSet<VectorBase> {
-	private:
+	public:
 		class ExternalContent;
+
+	private:
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 		
@@ -64,8 +66,8 @@ class SimplexFeasibleSet_LinEqBound: public GeneralFeasibleSet<VectorBase> {
 		 * @param x point which will be projected
 		 */		
 		void project(GeneralVector<VectorBase> &x);
-		
-//		SimplexFeasibleSet_LinEqBound<VectorBase>::ExternalContent *get_externalcontent() const;
+
+		ExternalContent *get_externalcontent() const;		
 		
 };
 

@@ -194,10 +194,9 @@ void BlockGraphSparseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 }
 
 template<>
-Mat BlockGraphSparseMatrix<PetscVector>::get_petscmatrix() const {
-	return this->externalcontent->A_petsc; // TODO: are you sure that I can use this also without USE_PETSC ?
+BlockGraphSparseMatrix<PetscVector>::ExternalContent * BlockGraphSparseMatrix<PetscVector>::get_externalcontent() const {
+	return this->externalcontent;
 }
-
 
 }
 } /* end of namespace */

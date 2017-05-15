@@ -25,8 +25,10 @@ namespace solver {
 */
 template<class VectorBase>
 class EntropySolverDlib: public GeneralSolver {
-	protected:
+	public:
 		class ExternalContent;
+
+	protected:
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
@@ -74,6 +76,8 @@ class EntropySolverDlib: public GeneralSolver {
 		void compute_moments();
 		
 		void compute_residuum(GeneralVector<VectorBase> *residuum) const;
+		
+		ExternalContent *get_externalcontent() const;
 };
 
 

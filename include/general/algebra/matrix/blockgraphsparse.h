@@ -21,12 +21,14 @@ namespace algebra {
 */
 template<class VectorBase>
 class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
+	public:
+		class ExternalContent;	/**< class which includes external content, has to be public because of get_externalcontent() return type */
+
 	private:
 		Decomposition<VectorBase> *decomposition;
 
 		double alpha; /**< general matrix multiplicator */
 
-		class ExternalContent;
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
@@ -52,10 +54,7 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 		double get_coeff() const;
 		void set_coeff(double coeff);
 
-//TODO: this should be NOT here: (rather return ExternalContent)
-#ifdef USE_PETSC
-		Mat get_petscmatrix() const;
-#endif
+		ExternalContent *get_externalcontent() const;
 
 };
 
@@ -187,14 +186,6 @@ template<class VectorBase>
 void BlockGraphSparseMatrix<VectorBase>::set_coeff(double coeff) {
 	this->alpha = coeff;
 }
-
-//TODO: this should be somewhere else
-#ifdef USE_PETSC
-template<class VectorBase>
-Mat BlockGraphSparseMatrix<VectorBase>::get_petscmatrix() const {
-	return this->A_petsc;
-}
-#endif
 
 }
 } /* end of namespace */

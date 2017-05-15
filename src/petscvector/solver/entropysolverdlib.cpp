@@ -324,6 +324,10 @@ dlib::matrix<double> EntropySolverDlib<PetscVector>::ExternalContent::get_functi
     return hess;
 }
 
+template<> EntropySolverDlib<PetscVector>::ExternalContent * EntropySolverDlib<PetscVector>::get_externalcontent() const {
+	return externalcontent;
+}
+
 
 }
 } /* end namespace */

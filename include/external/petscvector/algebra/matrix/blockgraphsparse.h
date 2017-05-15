@@ -21,7 +21,8 @@ template<> BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposi
 template<> BlockGraphSparseMatrix<PetscVector>::~BlockGraphSparseMatrix();
 template<> void BlockGraphSparseMatrix<PetscVector>::printcontent(ConsoleOutput &output) const;
 template<> void BlockGraphSparseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const;
-template<> Mat BlockGraphSparseMatrix<PetscVector>::get_petscmatrix() const;
+
+template<> BlockGraphSparseMatrix<PetscVector>::ExternalContent * BlockGraphSparseMatrix<PetscVector>::get_externalcontent() const;
 
 }
 } /* end of namespace */

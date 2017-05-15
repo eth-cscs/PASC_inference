@@ -61,7 +61,7 @@ void SPGQPSolver<PetscVector>::solve() {
 	GeneralVector<PetscVector> *d_p = dynamic_cast<GeneralVector<PetscVector> *>(this->d);
 	GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
 
-	Mat A_Mat = Abgs->get_petscmatrix(); 
+	Mat A_Mat = Abgs->get_externalcontent()->A_petsc; 
 	Vec b_Vec = b_p->get_vector();
 	Vec x_Vec = x_p->get_vector();
 	Vec x0_Vec = x0_p->get_vector();

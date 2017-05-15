@@ -44,6 +44,8 @@ template<> void EntropySolverNewton<PetscVector>::solve();
 template<> void EntropySolverNewton<PetscVector>::compute_moments_data();
 template<> void EntropySolverNewton<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const;
 
+template<> EntropySolverNewton<PetscVector>::ExternalContent * EntropySolverNewton<PetscVector>::get_externalcontent() const;
+
 
 }
 } /* end namespace */

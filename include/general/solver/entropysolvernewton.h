@@ -44,8 +44,10 @@ namespace solver {
 */
 template<class VectorBase>
 class EntropySolverNewton: public GeneralSolver {
-	protected:
+	public:
 		class ExternalContent;
+
+	protected:
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
@@ -140,6 +142,8 @@ class EntropySolverNewton: public GeneralSolver {
 		void compute_moments_data();
 		
 		void compute_residuum(GeneralVector<VectorBase> *residuum) const;
+		
+		ExternalContent *get_externalcontent() const;
 };
 
 

@@ -37,6 +37,8 @@ template<> void EntropySolverDlib<PetscVector>::solve();
 template<> void EntropySolverDlib<PetscVector>::compute_moments();
 template<> void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const;
 
+template<> EntropySolverDlib<PetscVector>::ExternalContent * EntropySolverDlib<PetscVector>::get_externalcontent() const;
+
 }
 } /* end namespace */
 
