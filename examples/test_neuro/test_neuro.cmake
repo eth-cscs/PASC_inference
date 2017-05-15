@@ -4,16 +4,13 @@ include_directories("${CMAKE_SOURCE_DIR}/test_neuro/")
 option(TEST_NEURO "TEST_NEURO" OFF)
 
 # print info
-print("\nNeuro tests")
-printinfo_onoff(" TEST_NEURO                                                           " "${TEST_NEURO}")
+print("Neuro tests")
+printinfo_onoff(" TEST_NEURO                                                                           " "${TEST_NEURO}")
+
 
 if(${TEST_NEURO})
 	# this is neuro test
-	if(${USE_CUDA})
-		pascadd_executable("test_neuro/test_neuro.cu" "test_neuro")
-	else()
-		pascadd_executable("test_neuro/test_neuro.cpp" "test_neuro")
-	endif()
+	testadd_executable("test_neuro/test_neuro.cpp" "test_neuro")
 
 	# copy scripts
 	make_directory("scripts/test_neuro/")

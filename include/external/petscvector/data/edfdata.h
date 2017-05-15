@@ -1,6 +1,13 @@
 #ifndef PASC_PETSCVECTOR_EDFDATA_H
 #define	PASC_PETSCVECTOR_EDFDATA_H
 
+#ifdef USE_BOOST
+	#include <boost/filesystem.hpp>
+#endif
+
+//TODO: if USE_BOOST is not defined?
+
+
 #include "external/petscvector/algebra/vector/generalvector.h"
 #include "general/data/edfdata.h"
 #include "external/petscvector/data/tsdata.h"

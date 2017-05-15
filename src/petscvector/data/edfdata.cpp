@@ -1,4 +1,4 @@
-#include "data/edfdata.h"
+#include "external/petscvector/data/edfdata.h"
 
 namespace pascinference {
 namespace data {
@@ -155,7 +155,7 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 
 /* set decomposition - from preliminary to real data */
 template<>
-void EdfData<PetscVector>::set_decomposition(Decomposition &new_decomposition) {
+void EdfData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_decomposition) {
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;

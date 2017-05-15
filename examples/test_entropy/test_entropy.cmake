@@ -4,8 +4,8 @@ include_directories("${CMAKE_SOURCE_DIR}/test_entropy/")
 option(TEST_ENTROPY "TEST_ENTROPY" OFF)
 
 # print info
-print("\nEntropy tests")
-printinfo_onoff(" TEST_ENTROPY                                                         " "${TEST_ENTROPY}")
+print("Entropy tests")
+printinfo_onoff(" TEST_ENTROPY                                                                         " "${TEST_ENTROPY}")
 
 if(${TEST_ENTROPY})
 	# this is signal processing test

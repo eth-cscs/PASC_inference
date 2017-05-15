@@ -1,4 +1,4 @@
-/** @file test_dot.cu
+/** @file test_petscvector_dot.cpp
  *  @brief test the speed of dot product computation
  *
  *  @author Lukas Pospisil
@@ -8,17 +8,10 @@
 #include <list>
 #include <algorithm>
 
-//#include "pascinference.h"
-#include "common/common.h"
-#include "algebra/vector/generalvector.h"
+#include "pascinference.h"
 
-//#include "../src/vec/vec/impls/mpi/mpicuda/mpicuda.cu"
-
-typedef petscvector::PetscVector PetscVector;
-
-using namespace pascinference;
-
-//extern int pascinference::DEBUG_MODE;
+/* decide which vector to use for computation */
+typedef petscvector::PetscVector TestVector;
 
 int main( int argc, char *argv[] )
 {

@@ -23,6 +23,9 @@
 /* include general templated functions */
 #include "general/general.h"
 
+/* include seqarrayvector */
+#include "external/seqarrayvector/seqarrayvector.h"
+
 /* include MINLIN */ 
 #ifdef USE_MINLIN
  #include "external/minlin/minlin.h"

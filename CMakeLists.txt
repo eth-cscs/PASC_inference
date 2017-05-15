@@ -52,10 +52,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") # we are compiling shared librar
 # include header files
 include_directories("${PASCINFERENCE_INCLUDE}")
 
-# create list of targets
+# create list of general targets
 set(PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_GENERAL>)
 add_subdirectory("${PASCINFERENCE_SRC}/general/")
 
+# add seqarrayvector
+add_subdirectory("${PASCINFERENCE_SRC}/seqarrayvector/")
+list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_SEQARRAYVECTOR>)
+
+# add other external stuff
 if(${USE_BOOST})
 	add_subdirectory("${PASCINFERENCE_SRC}/boost/")
 	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_BOOST>)
