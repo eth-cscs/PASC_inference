@@ -10,11 +10,7 @@ printinfo_onoff(" TEST_IMAGE                                                    
 
 if(${TEST_IMAGE})
 	# this is image processing test
-	if(${USE_CUDA})
-		testadd_executable("test_image/test_image.cu" "test_image")
-	else()
-		testadd_executable("test_image/test_image.cpp" "test_image")
-	endif()
+	testadd_executable("test_image/test_image.cpp" "test_image")
 
 	# copy scripts
 	make_directory("scripts/test_image/")

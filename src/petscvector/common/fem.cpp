@@ -164,6 +164,9 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 	LOG_FUNC_END
 }
 
+template<> Fem<PetscVector>::ExternalContent * Fem<PetscVector>::get_externalcontent() const {
+	return externalcontent;
+}
 
 
 }

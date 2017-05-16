@@ -4,6 +4,88 @@ namespace pascinference {
 namespace common {
 
 template<>
+Fem2D<PetscVector>::Fem2D(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
+	LOG_FUNC_BEGIN
+
+	this->grid1 = (BGMGraphGrid2D<PetscVector>*)(this->decomposition1->get_graph());
+	this->grid2 = (BGMGraphGrid2D<PetscVector>*)(this->decomposition2->get_graph());
+
+	#ifdef USE_CUDA
+		/* compute optimal kernel calls */
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_femhat_reduce_data, 0, 0) );
+		gridSize_reduce = (this->decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
+
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
+		gridSize_prolongate = (this->decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
+	#endif
+
+	this->diff = 1; /* time */
+	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
+	this->diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
+
+	if(this->is_reduced()){
+		this->bounding_box1 = new int[4];
+		set_value_array(4, this->bounding_box1, 0); /* initial values */
+		this->bounding_box2 = new int[4];
+		set_value_array(4, this->bounding_box2, 0); /* initial values */
+
+		compute_overlaps();
+	}
+
+	LOG_FUNC_END
+}
+
+template<>
+void Fem2D<PetscVector>::compute_decomposition_reduced() {
+	LOG_FUNC_BEGIN
+	
+	/* decomposition1 has to be set */
+	this->grid1 = (BGMGraphGrid2D<PetscVector>*)(this->decomposition1->get_graph());
+
+	if(this->is_reduced()){
+		int T_reduced = 1;
+		int width_reduced = ceil(grid1->get_width()*this->fem_reduce);
+		int height_reduced = ceil(grid1->get_height()*this->fem_reduce);
+		
+		this->grid2 = new BGMGraphGrid2D<PetscVector>(width_reduced, height_reduced);
+		this->grid2->process_grid();
+		
+		/* decompose second grid based on the decomposition of the first grid */
+		this->grid2->decompose(this->grid1, this->bounding_box1, this->bounding_box2);
+		this->grid2->print(coutMaster);
+		
+		/* compute new decomposition */
+		this->decomposition2 = new Decomposition<PetscVector>(T_reduced, 
+				*(this->grid2), 
+				this->decomposition1->get_K(), 
+				this->decomposition1->get_xdim(), 
+				this->decomposition1->get_DDT_size(), 
+				this->decomposition1->get_DDR_size());
+
+		compute_overlaps();
+	} else {
+		/* there is not reduction of the data, we can reuse the decomposition */
+		this->set_decomposition_reduced(this->decomposition1);
+		this->grid2 = this->grid1;
+	}
+
+	#ifdef USE_CUDA
+		/* compute optimal kernel calls */
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_femhat_reduce_data, 0, 0) );
+		gridSize_reduce = (this->decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
+
+		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
+		gridSize_prolongate = (this->decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
+	#endif
+
+	this->diff = 1; /* time */
+	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
+	this->diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
+			
+	LOG_FUNC_END
+}
+
+template<>
 void Fem2D<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 

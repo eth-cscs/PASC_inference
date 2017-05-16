@@ -21,19 +21,15 @@ namespace common {
 */
 template<class VectorBase>
 class Fem {
+	public:
+		class ExternalContent;
+
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+	
 		Decomposition<VectorBase> *decomposition1; /**< decomposition of the larger problem */
 		Decomposition<VectorBase> *decomposition2; /**< decomposition of smaller problem */
-		
-		#ifdef USE_CUDA
-			int blockSize_reduce; /**< block size returned by the launch configurator */
-			int minGridSize_reduce; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
-			int gridSize_reduce; /**< the actual grid size needed, based on input size */
-
-			int blockSize_prolongate; /**< block size returned by the launch configurator */
-			int minGridSize_prolongate; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
-			int gridSize_prolongate; /**< the actual grid size needed, based on input size */
-		#endif
 		
 		double diff;
 		
@@ -77,6 +73,8 @@ class Fem {
 		Decomposition<VectorBase>* get_decomposition_reduced() const;
 
 		bool is_reduced() const;
+		
+		ExternalContent *get_externalcontent() const;		
 };
 
 

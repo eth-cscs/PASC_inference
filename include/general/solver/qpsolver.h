@@ -23,7 +23,13 @@ namespace solver {
 */
 template<class VectorBase>
 class QPSolver: public GeneralSolver {
+	public:
+		class ExternalContent;
+
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		QPData<VectorBase> *qpdata; /**< data on which the solver operates */
 		
 		double fx; /**< function value in actual iteration */
@@ -82,6 +88,7 @@ class QPSolver: public GeneralSolver {
 		*/		
 		virtual int get_hessmult() const;
 
+		ExternalContent *get_externalcontent() const;
 };
 
 

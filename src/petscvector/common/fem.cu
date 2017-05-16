@@ -1,14 +1,17 @@
-#include "common/fem.h"
+#include "external/petscvector/common/fem.h"
 
 namespace pascinference {
 namespace common {
 
-void cuda_Fem_cuda_occupancy(int *minGridSize_reduce, int *blockSize_reduce, int *minGridSize_prolongate, int *kernel_Fem_prolongate_data){
+void Fem<PetscVector>::ExternalContent::cuda_Fem_cuda_occupancy(){
 	LOG_FUNC_BEGIN
 
 	/* compute optimal kernel calls */
-	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( minGridSize_reduce, blockSize_reduce, kernel_Fem_reduce_data, 0, 0) );
-	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( minGridSize_prolongate, blockSize_prolongate, kernel_Fem_prolongate_data, 0, 0) );
+	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_fem_reduce_data, 0, 0) );
+	gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
+
+	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_fem_prolongate_data, 0, 0) );
+	gridSize_prolongate = (decomposition2->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 
 	LOG_FUNC_END
 }

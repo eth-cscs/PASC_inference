@@ -13,8 +13,6 @@
  
 using namespace pascinference;
 
-//typedef pascinference::algebra::PetscVector PetscVector;
-
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
@@ -24,7 +22,7 @@ int main( int argc, char *argv[] )
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
-	if(!Initialize(argc, argv)){
+	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
 	} 
 
@@ -48,7 +46,7 @@ int main( int argc, char *argv[] )
 
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&in_Vec) );
 
-	GeneralVector<pascinference::algebra::PetscVector> in(in_Vec);
+	GeneralVector<PetscVector> in(in_Vec);
 
 	in.load_local(in_filename);
 
@@ -62,7 +60,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " max       = " << std::setw(30) << max(in) << std::endl;
 	coutMaster << " min       = " << std::setw(30) << min(in) << std::endl;
 
-	Finalize();
+	Finalize<PetscVector>();
 
 	return 0;
 }

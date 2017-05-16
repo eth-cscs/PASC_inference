@@ -1,4 +1,4 @@
-/** @file precision.cu
+/** @file test_precision.cu
  *  @brief test the precision of stored values (float/double?)
  *
  *  @author Lukas Pospisil
@@ -24,7 +24,7 @@ __global__ void print_precision(){
 int main( int argc, char *argv[] )
 {
 	/* call initialize */
-	if(!Initialize(argc, argv)){
+	if(!Initialize<SeqArrayVector>(argc, argv)){
 		return 0;
 	} 
 	
@@ -47,7 +47,7 @@ int main( int argc, char *argv[] )
 
 #endif
 
-	Finalize();
+	Finalize<SeqArrayVector>();
 	
 	return 0;
 }

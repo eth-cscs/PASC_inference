@@ -5,7 +5,6 @@
  */
 
 #include "pascinference.h"
-
 #include <vector>
 
 #ifndef USE_PETSC

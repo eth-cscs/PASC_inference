@@ -10,10 +10,8 @@
 #ifndef USE_PETSC
  #error 'This example is for PETSC'
 #endif
- 
-using namespace pascinference;
 
-//typedef pascinference::algebra::PetscVector PetscVector;
+using namespace pascinference;
 
 int main( int argc, char *argv[] )
 {
@@ -25,7 +23,7 @@ int main( int argc, char *argv[] )
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
-	if(!Initialize(argc, argv)){
+	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
 	} 
 
@@ -53,8 +51,8 @@ int main( int argc, char *argv[] )
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&in1_Vec) );
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&in2_Vec) );
 
-	GeneralVector<pascinference::algebra::PetscVector> in1(in1_Vec);
-	GeneralVector<pascinference::algebra::PetscVector> in2(in2_Vec);
+	GeneralVector<PetscVector> in1(in1_Vec);
+	GeneralVector<PetscVector> in2(in2_Vec);
 
 	in1.load_local(in1_filename);
 	in2.load_local(in2_filename);
@@ -81,7 +79,7 @@ int main( int argc, char *argv[] )
 	double mynorm = norm(in1 - in2);
 	coutMaster << " norm(in1 - in2) = " << mynorm << std::endl;
 
-	Finalize();
+	Finalize<PetscVector>();
 
 	return 0;
 }

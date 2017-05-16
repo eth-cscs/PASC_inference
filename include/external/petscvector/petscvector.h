@@ -7,7 +7,14 @@
 #include "petscsys.h"
 
 #ifdef USE_CUDA
-/* anselm hotfix */
+	#include <stdio.h> /* printf in cuda */
+
+	#include <cuda.h>
+	#include <cuda_runtime_api.h>
+	#include <device_launch_parameters.h>
+	#include <device_functions.h>
+
+	/* anselm hotfix */
 	typedef struct _p_PetscCUDAIndices* PetscCUDAIndices;
 	typedef struct _p_VecScatterCUDAIndices_StoS* VecScatterCUDAIndices_StoS;
 	typedef struct _p_VecScatterCUDAIndices_PtoP* VecScatterCUDAIndices_PtoP;

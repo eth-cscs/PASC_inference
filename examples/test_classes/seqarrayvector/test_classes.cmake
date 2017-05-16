@@ -20,6 +20,7 @@ endif()
 
 # ----- ALGEBRA -----
 option(TEST_SEQARRAYVECTOR_ALGEBRA						"TEST_SEQARRAYVECTOR_ALGEBRA" OFF)
+option(TEST_SEQARRAYVECTOR_ALGEBRA_PRECISION					  "TEST_SEQARRAYVECTOR_ALGEBRA_PRECISION" OFF)
 option(TEST_SEQARRAYVECTOR_ALGEBRA_DOT					  "TEST_SEQARRAYVECTOR_ALGEBRA_DOT" OFF)
 option(TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPH			  "TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPH" OFF)
 option(TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPHGRID1D		  "TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPHGRID1D" OFF)
@@ -120,6 +121,7 @@ printinfo_onoff("   TEST_SEQARRAYVECTOR_COMMON                            (...) 
 #printinfo_onoff("     TEST_SEQARRAYVECTOR_COMMON_SHORTINFO                  (Shortinfo)                " "${TEST_SEQARRAYVECTOR_COMMON_SHORTINFO}")
 #printinfo_onoff("     TEST_SEQARRAYVECTOR_COMMON_TIMER                      (Timer,StackTimer)         " "${TEST_SEQARRAYVECTOR_COMMON_TIMER}")
 printinfo_onoff("   TEST_SEQARRAYVECTOR_ALGEBRA                           (...)                        " "${TEST_SEQARRAYVECTOR_ALGEBRA}")
+printinfo_onoff("     TEST_SEQARRAYVECTOR_ALGEBRA_PRECISION                 (test precision)           " "${TEST_SEQARRAYVECTOR_ALGEBRA_PRECISION}")
 printinfo_onoff("     TEST_SEQARRAYVECTOR_ALGEBRA_DOT                       (dot product)              " "${TEST_SEQARRAYVECTOR_ALGEBRA_DOT}")
 #printinfo_onoff("     TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPH                  (BGMGraph)                 " "${TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPH}")
 #printinfo_onoff("     TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPHGRID1D            (BGMGraphGrid1D)           " "${TEST_SEQARRAYVECTOR_ALGEBRA_BGMGRAPHGRID1D}")
@@ -200,6 +202,10 @@ if(${TEST_SEQARRAYVECTOR_COMMON_TIMER})
 endif()
 
 # ----- ALGEBRA -----
+
+if(${TEST_SEQARRAYVECTOR_ALGEBRA_PRECISION})
+	testadd_executable("test_classes/seqarrayvector/algebra/test_precision.cpp" "test_seqarrayvector_precision")
+endif()
 
 if(${TEST_SEQARRAYVECTOR_ALGEBRA_DOT})
 	# dot product

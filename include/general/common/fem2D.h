@@ -19,7 +19,13 @@ namespace common {
 */
 template<class VectorBase>
 class Fem2D : public Fem<VectorBase> {
+	public:
+		class ExternalContent;
+
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		bool left_overlap;			/**< is there overlap to the left side of space? */
 		bool right_overlap;			/**< is there overlap to the right side of space? */
 		bool top_overlap;			/**< is there overlap to the top side of space? */
@@ -64,15 +70,8 @@ class Fem2D : public Fem<VectorBase> {
 
 		void compute_decomposition_reduced();
 
+		ExternalContent *get_externalcontent() const;	
 };
-
-/* cuda kernels cannot be a member of class */
-#ifdef USE_CUDA
-__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
-__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
-#endif
-
-
 
 /* ----------------- Fem implementation ------------- */
 template<class VectorBase>
@@ -102,15 +101,6 @@ Fem2D<VectorBase>::Fem2D(Decomposition<VectorBase> *decomposition1, Decompositio
 
 	this->grid1 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition1->get_graph());
 	this->grid2 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition2->get_graph());
-
-	#ifdef USE_CUDA
-		/* compute optimal kernel calls */
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_femhat_reduce_data, 0, 0) );
-		gridSize_reduce = (this->decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
-
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
-		gridSize_prolongate = (this->decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
-	#endif
 
 	this->diff = 1; /* time */
 	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
@@ -289,7 +279,7 @@ void Fem2D<VectorBase>::compute_decomposition_reduced() {
 		compute_overlaps();
 	} else {
 		/* there is not reduction of the data, we can reuse the decomposition */
-		set_decomposition_reduced(this->decomposition1);
+		this->set_decomposition_reduced(this->decomposition1);
 		this->grid2 = this->grid1;
 	}
 

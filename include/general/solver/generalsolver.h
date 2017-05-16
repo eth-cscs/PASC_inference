@@ -23,7 +23,13 @@ namespace solver {
  * 
  */ 
 class GeneralSolver {
+	public:
+		class ExternalContent;
+
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		GeneralData *data; /**< pointer to data on which the solver operates */
 		bool dump_or_not;  /**< dump the data of problem which is solved */
 
@@ -129,6 +135,8 @@ class GeneralSolver {
 
 		virtual double get_eps() const;
 		virtual void set_eps(double eps);
+
+		ExternalContent *get_externalcontent() const;		
 
 };
 
