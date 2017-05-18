@@ -21,9 +21,14 @@ namespace algebra {
 */
 template<class VectorBase>
 class BGMGraphGrid1D: public BGMGraph<VectorBase> {
+	public:
+		class ExternalContent;
+	
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		int width;
-		void process_grid_cuda();
 		
 	public:
 		BGMGraphGrid1D(int width);
@@ -36,6 +41,8 @@ class BGMGraphGrid1D: public BGMGraph<VectorBase> {
 		virtual void process_grid();
 
 		int get_width() const;
+		
+		ExternalContent *get_externalcontent() const;
 };
 
 }
@@ -79,7 +86,6 @@ void BGMGraphGrid1D<VectorBase>::process_grid(){
 	this->neighbor_nmbs = (int*)malloc(this->n*sizeof(int));
 	this->neighbor_ids = (int**)malloc(this->n*sizeof(int*));
 
-//	#pragma omp parallel for
 	for(int i=0;i<width;i++){
 		int idx = i;
 
@@ -105,10 +111,6 @@ void BGMGraphGrid1D<VectorBase>::process_grid(){
 			nmb++;
 		}
 	}
-
-	#ifdef USE_CUDA
-		process_grid_cuda();
-	#endif
 	
 	this->processed = true;
 }

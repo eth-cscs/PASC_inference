@@ -29,7 +29,13 @@ namespace algebra {
 */
 template<class VectorBase>
 class BGMGraph {
+	public:
+		class ExternalContent;
+	
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		GeneralVector<VectorBase> *coordinates; /**< vector with coordinates [p1_x, ... pn_x, p1_y, ... pn_y] */
 		int dim; /**< dimension of coordinates */	
 		int n; /**< number of nodes */
@@ -48,12 +54,6 @@ class BGMGraph {
 		int *DD_invpermutation; /**< inverse permutation of global indexes Rnew = invP(Rorig) */
 		int *DD_lengths; /**< array of local lengths */
 		int *DD_ranges; /**< ranges in permutation array */
-		
-		#ifdef USE_CUDA
-			int *neighbor_nmbs_gpu; /**< copy of values on GPU */
-			int **neighbor_ids_cpugpu; /**< pointers to GPU arrays on CPU */
-			int **neighbor_ids_gpu; /**< copy of values on GPU */
-		#endif
 
 		/** @brief compute distance between two vertices
 		*
@@ -147,6 +147,8 @@ class BGMGraph {
 		/** @brief save content of graph to VTK
 		*/
 		void saveVTK(std::string filename) const;
+		
+		ExternalContent *get_externalcontent() const;
 };
 
 

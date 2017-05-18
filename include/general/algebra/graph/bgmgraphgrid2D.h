@@ -22,7 +22,13 @@ namespace algebra {
 */
 template<class VectorBase>
 class BGMGraphGrid2D: public BGMGraph<VectorBase> {
+	public:
+		class ExternalContent;
+	
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		int width; /**< dimension of grid */
 		int height; /**< dimension of grid */
 		
@@ -42,6 +48,8 @@ class BGMGraphGrid2D: public BGMGraph<VectorBase> {
 		int get_height() const;
 
 		void decompose(BGMGraphGrid2D<VectorBase> *finer_grid, int *bounding_box1, int *bounding_box2);
+
+		ExternalContent *get_externalcontent() const;
 };
 
 

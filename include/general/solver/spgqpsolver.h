@@ -48,10 +48,12 @@ template<class VectorBase>
 class SPGQPSolver: public QPSolver<VectorBase> {
 	public:
 		class ExternalContent;
-	
-	private:
+
+	protected:
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+	
+	private:
 
 		Timer timer_solve; 			/**< total solution time of SPG algorithm */
 		Timer timer_projection;		/**< the sum of time necessary to perform projections */

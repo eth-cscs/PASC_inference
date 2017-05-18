@@ -7,7 +7,8 @@
 #ifndef PASC_SPG_FS_H
 #define	PASC_SPG_FS_H
 
-#include "general/common/common.h"
+#include "general/common/timer.h"
+#include "general/common/logging.h"
 
 namespace pascinference {
 namespace solver {

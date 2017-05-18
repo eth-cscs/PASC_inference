@@ -5,6 +5,8 @@ namespace algebra {
 
 template<>
 BGMGraph<PetscVector>::BGMGraph(const double *coordinates_array, int n, int dim){
+	LOG_FUNC_BEGIN
+
 	/* prepare vector from values */
 	Vec vec_arr;
 	TRYCXX( VecCreateSeqWithArray(PETSC_COMM_SELF,1,n*dim,coordinates_array,&vec_arr) );
@@ -20,6 +22,11 @@ BGMGraph<PetscVector>::BGMGraph(const double *coordinates_array, int n, int dim)
 	processed = false;
 
 	DD_decomposed = false;
+	
+	/* prepare external content with PETSc stuff */
+	externalcontent = new ExternalContent();
+	
+	LOG_FUNC_END
 }
 
 template<>
@@ -185,6 +192,9 @@ void BGMGraph<PetscVector>::saveVTK(std::string filename) const {
 	LOG_FUNC_END
 }
 
+template<> BGMGraph<PetscVector>::ExternalContent * BGMGraph<PetscVector>::get_externalcontent() const {
+	return externalcontent;
+}
 
 }
 } /* end of namespace */

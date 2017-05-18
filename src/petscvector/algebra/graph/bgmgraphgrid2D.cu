@@ -1,10 +1,11 @@
-#include "algebra/graph/bgmgraphgrid1D.h"
-#include "external/cuda/common/common.cuh"
+#include "external/petscvector/algebra/graph/bgmgraphgrid2D.h"
 
 namespace pascinference {
 namespace algebra {
 
-void BGMGraphGrid1D::process_grid_cuda(){
+void BGMGraphGrid2D<PetscVector>::ExternalContent::process_grid_cuda(){
+	LOG_FUNC_BEGIN
+
 	/* copy data to gpu */
 	gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
 	gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
@@ -24,11 +25,10 @@ void BGMGraphGrid1D::process_grid_cuda(){
 	gpuErrchk( cudaMemcpy( neighbor_ids_gpu, neighbor_ids_cpugpu, n*sizeof(int*), cudaMemcpyHostToDevice) );
 
 	gpuErrchk( cudaDeviceSynchronize() );
+	
+	LOG_FUNC_END
 }
-
-
 
 
 }
 } /* end of namespace */
-
