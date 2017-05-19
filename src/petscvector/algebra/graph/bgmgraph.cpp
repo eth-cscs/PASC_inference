@@ -25,8 +25,53 @@ BGMGraph<PetscVector>::BGMGraph(const double *coordinates_array, int n, int dim)
 	
 	/* prepare external content with PETSc stuff */
 	externalcontent = new ExternalContent();
+	externalcontent->n = n;
 	
 	LOG_FUNC_END
+}
+
+template<>
+BGMGraph<PetscVector>::~BGMGraph(){
+	/* if the graph was processed, then free memory */
+	if(processed){
+		free(neighbor_nmbs);
+		int i;
+		for(i=0;i<n;i++){
+			free(neighbor_ids[i]);
+		}
+		free(neighbor_ids);
+
+		#ifdef USE_CUDA
+			externalcontent->cuda_destroy();
+		#endif
+
+	}
+	
+	if(DD_decomposed){
+		free(DD_affiliation);
+		free(DD_permutation);
+		free(DD_invpermutation);
+		free(DD_lengths);
+		free(DD_ranges);
+	}
+}
+
+template<>
+int *BGMGraph<PetscVector>::get_neighbor_nmbs_gpu() const {
+	#ifdef USE_CUDA
+		return this->externalcontent->neighbor_nmbs_gpu;
+	#else
+		return this->neighbor_nmbs;
+	#endif
+}
+
+template<>
+int **BGMGraph<PetscVector>::get_neighbor_ids_gpu() const {
+	#ifdef USE_CUDA
+		return this->externalcontent->neighbor_ids_gpu;
+	#else
+		return this->neighbor_ids;
+	#endif
 }
 
 template<>
@@ -100,7 +145,7 @@ void BGMGraph<PetscVector>::process(double threshold) {
 	TRYCXX( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 
 	#ifdef USE_CUDA
-		cuda_BGMGraph_process(neighbor_nmbs_gpu, neighbor_ids_gpu, neighbor_ids_cpugpu, n);
+		externalcontent->cuda_process();
 	#endif
 	
 	this->processed = true;

@@ -4,6 +4,26 @@ namespace pascinference {
 namespace common {
 
 template<>
+Fem<PetscVector>::Fem(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce){
+	LOG_FUNC_BEGIN
+
+	this->fem_reduce = fem_reduce;
+
+	this->set_decomposition_original(decomposition1);
+	this->set_decomposition_reduced(decomposition2);
+
+	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
+
+	#ifdef USE_CUDA
+		externalcontent->cuda_occupancy();
+		externalcontent->gridSize_reduce = (decomposition2->get_Tlocal() + externalcontent->blockSize_reduce - 1)/ externalcontent->blockSize_reduce;
+		externalcontent->gridSize_prolongate = (decomposition2->get_Tlocal() + externalcontent->blockSize_prolongate - 1)/ externalcontent->blockSize_prolongate;
+	#endif
+
+	LOG_FUNC_END
+}
+
+template<>
 void Fem<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
@@ -62,9 +82,8 @@ void Fem<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralV
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_fem_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
-			gpuErrchk( cudaDeviceSynchronize() );
-			MPI_Barrier( MPI_COMM_WORLD );
+			/* call cuda kernel */
+			externalcontent->cuda_fem_reduce_data(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
 		
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
@@ -141,10 +160,8 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			kernel_fem_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
-			gpuErrchk( cudaDeviceSynchronize() );
-			MPI_Barrier( MPI_COMM_WORLD );
-		
+			externalcontent->cuda_fem_prolongate_data(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
+	
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
 
@@ -161,6 +178,37 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 		TRYCXX( ISDestroy(&gammak2_is) );
 	}
 
+	LOG_FUNC_END
+}
+
+template<>
+void Fem<PetscVector>::compute_decomposition_reduced() {
+	LOG_FUNC_BEGIN
+	
+	if(is_reduced()){
+		int T_reduced = ceil(decomposition1->get_T()*fem_reduce);
+		
+		/* compute new decomposition */
+		decomposition2 = new Decomposition<PetscVector>(T_reduced, 
+				*(decomposition1->get_graph()), 
+				decomposition1->get_K(), 
+				decomposition1->get_xdim(), 
+				decomposition1->get_DDT_size(), 
+				decomposition1->get_DDR_size());
+
+	} else {
+		/* there is not reduction of the data, we can reuse the decomposition */
+		this->set_decomposition_reduced(decomposition1);
+	}
+
+	#ifdef USE_CUDA
+		externalcontent->cuda_occupancy();
+		externalcontent->gridSize_reduce = (decomposition2->get_Tlocal() + externalcontent->blockSize_reduce - 1)/ externalcontent->blockSize_reduce;
+		externalcontent->gridSize_prolongate = (decomposition2->get_Tlocal() + externalcontent->blockSize_prolongate - 1)/ externalcontent->blockSize_prolongate;
+	#endif
+
+	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
+	
 	LOG_FUNC_END
 }
 

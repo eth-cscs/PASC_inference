@@ -217,11 +217,6 @@ BGMGraph<VectorBase>::~BGMGraph(){
 			free(neighbor_ids[i]);
 		}
 		free(neighbor_ids);
-
-		#ifdef USE_CUDA
-			cuda_BGMGraph_destroy(neighbor_nmbs_gpu, neighbor_ids_gpu, neighbor_ids_cpugpu, int n);
-		#endif
-
 	}
 	
 	if(DD_decomposed){
@@ -275,20 +270,12 @@ int **BGMGraph<VectorBase>::get_neighbor_ids() const {
 
 template<class VectorBase>
 int *BGMGraph<VectorBase>::get_neighbor_nmbs_gpu() const {
-	#ifdef USE_CUDA
-		return this->neighbor_nmbs_gpu;
-	#else
-		return this->neighbor_nmbs;
-	#endif
+	return this->neighbor_nmbs;
 }
 
 template<class VectorBase>
 int **BGMGraph<VectorBase>::get_neighbor_ids_gpu() const {
-	#ifdef USE_CUDA
-		return this->neighbor_ids_gpu;
-	#else
-		return this->neighbor_ids;
-	#endif
+	return this->neighbor_ids;
 }
 
 template<class VectorBase>

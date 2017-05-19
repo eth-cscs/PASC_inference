@@ -3,7 +3,42 @@
 namespace pascinference {
 namespace common {
 
-__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
+__global__ void kernel_fem2D_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
+__global__ void kernel_fem2D_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
+
+
+
+void Fem2D<PetscVector>::ExternalContent::cuda_occupancy(){
+	LOG_FUNC_BEGIN
+
+	/* compute optimal kernel calls */
+	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_fem2D_reduce_data, 0, 0) );
+	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_fem2D_prolongate_data, 0, 0) );
+
+	LOG_FUNC_END
+}
+
+void Fem2D<PetscVector>::ExternalContent::cuda_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff){
+	LOG_FUNC_BEGIN
+
+	kernel_fem2D_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(data1, data2, T1, T2, Tbegin1, Tbegin2, T1local, T2local, left_t1_idx, left_t2_idx, diff);
+	gpuErrchk( cudaDeviceSynchronize() );
+	MPI_Barrier( MPI_COMM_WORLD );	
+
+	LOG_FUNC_END
+}
+
+void Fem2D<PetscVector>::ExternalContent::cuda_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff){
+	LOG_FUNC_BEGIN
+
+	kernel_fem2D_prolongate_data(data1, data2, T1, T2, Tbegin1, Tbegin2, T1local, T2local, left_t1_idx, left_t2_idx, diff);
+	gpuErrchk( cudaDeviceSynchronize() );
+	MPI_Barrier( MPI_COMM_WORLD );	
+
+	LOG_FUNC_END
+}
+
+__global__ void kernel_fem2D_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t2 < T2local){
@@ -40,7 +75,7 @@ __global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, 
 }
 
 
-__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
+__global__ void kernel_fem2D_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff) {
 	int t1 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t1 < T1local){

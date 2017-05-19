@@ -138,10 +138,6 @@ void BGMGraphGrid2D<VectorBase>::process_grid(){
 		}
 	}
 
-	#ifdef USE_CUDA
-		process_grid_cuda();
-	#endif
-	
 	this->processed = true;
 
 	LOG_FUNC_END

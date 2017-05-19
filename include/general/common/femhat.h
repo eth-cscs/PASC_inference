@@ -19,7 +19,13 @@ namespace common {
 */
 template<class VectorBase>
 class FemHat : public Fem<VectorBase> {
+	public:
+		class ExternalContent;
+
 	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		bool left_overlap;		/**< is there overlap to the left side of time axis? */
 		bool right_overlap;		/**< is there overlap to the right side of time axis? */
 		
@@ -57,13 +63,6 @@ class FemHat : public Fem<VectorBase> {
 
 };
 
-/* cuda kernels cannot be a member of class */
-#ifdef USE_CUDA
-__global__ void kernel_femhat_reduce_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff);
-__global__ void kernel_femhat_prolongate_data(double *data1, double *data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff);
-#endif
-
-
 
 /* ----------------- Fem implementation ------------- */
 template <class VectorBase>
@@ -87,15 +86,6 @@ FemHat<VectorBase>::FemHat(double fem_reduce) : Fem<VectorBase>(fem_reduce){
 template<class VectorBase>
 FemHat<VectorBase>::FemHat(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce) : Fem<VectorBase>(decomposition1, decomposition2, fem_reduce){
 	LOG_FUNC_BEGIN
-
-	#ifdef USE_CUDA
-		/* compute optimal kernel calls */
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_femhat_reduce_data, 0, 0) );
-		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
-
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
-		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
-	#endif
 
 	this->diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
 

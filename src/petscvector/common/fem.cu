@@ -3,18 +3,41 @@
 namespace pascinference {
 namespace common {
 
-void Fem<PetscVector>::ExternalContent::cuda_Fem_cuda_occupancy(){
+/* cuda kernels cannot be a member of class */
+__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
+__global__ void kernel_fem_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
+
+void Fem<PetscVector>::ExternalContent::cuda_occupancy(){
 	LOG_FUNC_BEGIN
 
 	/* compute optimal kernel calls */
 	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_fem_reduce_data, 0, 0) );
-	gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
-
 	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_fem_prolongate_data, 0, 0) );
-	gridSize_prolongate = (decomposition2->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
 
 	LOG_FUNC_END
 }
+
+void Fem<PetscVector>::ExternalContent::cuda_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff){
+	LOG_FUNC_BEGIN
+
+	kernel_fem_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(data1, data2, T1, T2, T2local, diff);
+	gpuErrchk( cudaDeviceSynchronize() );
+	MPI_Barrier( MPI_COMM_WORLD );
+
+	LOG_FUNC_END
+}
+
+void Fem<PetscVector>::ExternalContent::cuda_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff){
+	LOG_FUNC_BEGIN
+
+	kernel_fem_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(data1, data2, T1, T2, T2local, diff);
+	gpuErrchk( cudaDeviceSynchronize() );
+	MPI_Barrier( MPI_COMM_WORLD );
+
+	LOG_FUNC_END
+}
+
+
 
 __global__ void kernel_Fem_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;

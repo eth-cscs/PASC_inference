@@ -104,12 +104,6 @@ Fem<VectorBase>::Fem(Decomposition<VectorBase> *decomposition1, Decomposition<Ve
 
 	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
 
-	#ifdef USE_CUDA
-		cuda_Fem_cuda_occupancy(&minGridSize_reduce, &blockSize_reduce, &minGridSize_prolongate, &kernel_Fem_prolongate_data);
-		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
-		gridSize_prolongate = (decomposition2->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
-	#endif
-
 	LOG_FUNC_END
 }
 
@@ -231,12 +225,6 @@ void Fem<VectorBase>::compute_decomposition_reduced() {
 		/* there is not reduction of the data, we can reuse the decomposition */
 		this->set_decomposition_reduced(decomposition1);
 	}
-
-	#ifdef USE_CUDA
-		cuda_Fem_cuda_occupancy(&minGridSize_reduce, &blockSize_reduce, &minGridSize_prolongate, &kernel_Fem_prolongate_data);
-		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
-		gridSize_prolongate = (decomposition2->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
-	#endif
 
 	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
 	
