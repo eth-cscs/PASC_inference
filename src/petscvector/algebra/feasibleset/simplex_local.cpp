@@ -4,6 +4,37 @@ namespace pascinference {
 namespace algebra {
 
 template<>
+SimplexFeasibleSet_Local<PetscVector>::SimplexFeasibleSet_Local(int T, int K){
+	LOG_FUNC_BEGIN
+
+	/* set initial content */
+	this->T = T;
+	this->K = K;
+
+	/* prepare external content with PETSc stuff */
+	externalcontent = new ExternalContent();
+	
+	#ifdef USE_CUDA
+		externalcontent->cuda_create(T,K);
+	#endif
+
+	LOG_FUNC_END
+}
+
+/* general destructor */
+template<>
+SimplexFeasibleSet_Local<PetscVector>::~SimplexFeasibleSet_Local(){
+	LOG_FUNC_BEGIN
+	
+	#ifdef USE_CUDA
+		externalcontent->cuda_destroy();
+	#endif	
+	
+	LOG_FUNC_END	
+}
+
+
+template<>
 void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &x) {
 	LOG_FUNC_BEGIN
 	
@@ -15,9 +46,7 @@ void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &
 
 		/* use kernel to compute projection */
 		//TODO: here should be actually the comparison of Vec type! not simple use_gpu
-		kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K);
-		gpuErrchk( cudaDeviceSynchronize() );
-		MPI_Barrier( MPI_COMM_WORLD );
+		externalcontent->cuda_project(x_arr,x_sorted,T,K);
 
 		TRYCXX( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
 	#else

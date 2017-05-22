@@ -11,6 +11,39 @@
 namespace pascinference {
 namespace algebra {
 
+__device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
+__global__ void kernel_project(double *x, double *x_sorted, int T, int K);
+
+
+void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_create(int T, int K){
+	LOG_FUNC_BEGIN
+
+	/* allocate space for sorting */
+	gpuErrchk( cudaMalloc((void **)&x_sorted,K*T*sizeof(double)) );
+	gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_project, 0, 0) );
+	gridSize = (T + blockSize - 1)/ blockSize;
+
+	LOG_FUNC_END
+}
+
+/* destroy space for sorting */
+void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_destroy(){
+	LOG_FUNC_BEGIN
+
+	gpuErrchk( cudaFree(&x_sorted) );
+
+	LOG_FUNC_END
+}
+
+void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_project(double *x, double *x_sorted, int T, int K){
+	LOG_FUNC_BEGIN
+
+	kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K);
+	gpuErrchk( cudaDeviceSynchronize() );
+	MPI_Barrier( MPI_COMM_WORLD );
+	
+	LOG_FUNC_END
+}
 
 __device__ void device_sort_bubble(double *x_sorted, int t, int T, int K){
 	int i;

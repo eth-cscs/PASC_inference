@@ -27,8 +27,13 @@ namespace algebra {
 */
 template<class VectorBase>
 class SimplexFeasibleSet_Local: public GeneralFeasibleSet<VectorBase> {
-	private:
-		
+	public:
+		class ExternalContent;
+
+	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		/** @brief sort array using bubble sort
 		 * 
 		 * @param x array with values
@@ -58,13 +63,6 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<VectorBase> {
 		*/ 		
 		void project_sub(double *x, int t, int T, int K);
 
-		#ifdef USE_CUDA
-			double *x_sorted; /**< for manipulation with sorted data on GPU */
-			int blockSize; /**< block size returned by the launch configurator */
-			int minGridSize; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
-			int gridSize; /**< the actual grid size needed, based on input size */
-		#endif
-
 		int T; /**< number of local disjoint simplex subsets */
 		int K; /**< size of each simplex subset */
 				
@@ -92,35 +90,10 @@ class SimplexFeasibleSet_Local: public GeneralFeasibleSet<VectorBase> {
 		 * @param x point which will be projected
 		 */		
 		void project(GeneralVector<VectorBase> &x);
-		
+
+		ExternalContent *get_externalcontent() const;		
+	
 };
-
-/* cuda kernels cannot be a member of class */
-#ifdef USE_CUDA
-__device__ void device_sort_bubble(double *x_sorted, int t, int T, int K);
-
-/** @brief kernel projection onto simplex
- *
- * computes a projection of a point onto simplex in nD
- *
- * take K-dimensional vector x[tK,tK+1,...tK+(K-1)] =: p
- * and compute projection
- * P(p) = arg min || p - y ||_2
- * subject to constraints (which define simplex)
- * y_0 + ... y_{K-1} = 1
- * y_i >= 0 for all i=0,...,K-1
- *
- * in practical applications K is much more lower number than T
- * K - number of clusters (2 - 10^2)
- * T - length of time-series (10^5 - 10^9) 
- * 
- * @param x values of whole vector in array
- * @param x_sorted allocated vector for manipulating with sorted x
- * @param Tlocal parameter of vector length
- * @param K parameter of vector length
- */ 
-__global__ void kernel_project(double *x, double *x_sorted, int T, int K);
-#endif
 
 
 }
@@ -140,13 +113,6 @@ SimplexFeasibleSet_Local<VectorBase>::SimplexFeasibleSet_Local(int T, int K){
 	this->T = T;
 	this->K = K;
 
-	#ifdef USE_CUDA
-		/* allocate space for sorting */
-		gpuErrchk( cudaMalloc((void **)&x_sorted,K*T*sizeof(double)) );
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,kernel_project, 0, 0) );
-		gridSize = (T + blockSize - 1)/ blockSize;
-	#endif
-
 	LOG_FUNC_END
 }
 
@@ -154,11 +120,6 @@ SimplexFeasibleSet_Local<VectorBase>::SimplexFeasibleSet_Local(int T, int K){
 template<class VectorBase>
 SimplexFeasibleSet_Local<VectorBase>::~SimplexFeasibleSet_Local(){
 	LOG_FUNC_BEGIN
-	
-	#ifdef USE_CUDA
-		/* destroy space for sorting */
-		gpuErrchk( cudaFree(&x_sorted) );
-	#endif	
 	
 	LOG_FUNC_END	
 }
@@ -173,12 +134,6 @@ void SimplexFeasibleSet_Local<VectorBase>::print(ConsoleOutput &output) const {
 	/* give information about presence of the data */
 	output <<  " - nmb of subsets:     " << T << std::endl;
 	output <<  " - size of subset:     " << K << std::endl;
-
-	#ifdef USE_CUDA
-		output <<  " - blockSize:   " << blockSize << std::endl;
-		output <<  " - gridSize:    " << gridSize << std::endl;
-		output <<  " - minGridSize: " << minGridSize << std::endl;
-	#endif
 
 	LOG_FUNC_END
 }

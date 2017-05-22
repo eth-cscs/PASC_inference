@@ -14,6 +14,8 @@ Fem<PetscVector>::Fem(Decomposition<PetscVector> *decomposition1, Decomposition<
 
 	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
 
+	externalcontent = new ExternalContent();
+
 	#ifdef USE_CUDA
 		externalcontent->cuda_occupancy();
 		externalcontent->gridSize_reduce = (decomposition2->get_Tlocal() + externalcontent->blockSize_reduce - 1)/ externalcontent->blockSize_reduce;
