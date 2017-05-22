@@ -9,6 +9,8 @@ namespace algebra {
 
 /* external-specific stuff */
 template<> class SimplexFeasibleSet_Local<PetscVector>::ExternalContent {
+	public:
+
 	#ifdef USE_CUDA
 		double *x_sorted; /**< for manipulation with sorted data on GPU */
 		int blockSize; /**< block size returned by the launch configurator */
@@ -36,7 +38,7 @@ template<> class SimplexFeasibleSet_Local<PetscVector>::ExternalContent {
 		* @param Tlocal parameter of vector length
 		* @param K parameter of vector length
 		*/ 
-		void cuda_project(double *x, double *x_sorted, int T, int K);
+		void cuda_project(double *x, int T, int K);
 		
 		void cuda_create(int T, int K);
 		void cuda_destroy();

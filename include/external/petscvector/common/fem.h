@@ -10,6 +10,8 @@ namespace common {
 
 /* external-specific stuff */
 template<> class Fem<PetscVector>::ExternalContent {
+	public:
+	
 	#ifdef USE_CUDA
 		int blockSize_reduce; /**< block size returned by the launch configurator */
 		int minGridSize_reduce; /**< the minimum grid size needed to achieve the maximum occupancy for a full device launch */
@@ -22,8 +24,6 @@ template<> class Fem<PetscVector>::ExternalContent {
 		void cuda_occupancy();
 		void cuda_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
 		void cuda_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff);
-
-
 	#endif
 };
 

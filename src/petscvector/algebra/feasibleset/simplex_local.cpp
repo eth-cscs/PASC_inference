@@ -46,7 +46,7 @@ void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &
 
 		/* use kernel to compute projection */
 		//TODO: here should be actually the comparison of Vec type! not simple use_gpu
-		externalcontent->cuda_project(x_arr,x_sorted,T,K);
+		externalcontent->cuda_project(x_arr,T,K);
 
 		TRYCXX( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
 	#else

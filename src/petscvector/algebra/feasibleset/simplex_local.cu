@@ -35,7 +35,7 @@ void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_destroy(){
 	LOG_FUNC_END
 }
 
-void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_project(double *x, double *x_sorted, int T, int K){
+void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_project(double *x, int T, int K){
 	LOG_FUNC_BEGIN
 
 	kernel_project<<<gridSize, blockSize>>>(x_arr,x_sorted,T,K);
