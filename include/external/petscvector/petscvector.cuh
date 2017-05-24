@@ -8,7 +8,7 @@
 #include <device_launch_parameters.h>
 #include <device_functions.h>
 
- #include "petsccuda.h"
+#include "petsccuda.h"
 
 /* cuda error check */ 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
