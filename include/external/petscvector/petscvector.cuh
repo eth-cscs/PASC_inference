@@ -8,6 +8,8 @@
 #include <device_launch_parameters.h>
 #include <device_functions.h>
 
+ #include "petsccuda.h"
+
 /* cuda error check */ 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)

@@ -3,10 +3,6 @@
 
 #include "petsc.h"
 #include "petscsys.h"
-#ifdef USE_CUDA
- /* include additional petsc-cuda stuff */
- #include "petsccuda.h"
-#endif
 
 #include "external/petscvector/algebra/vector/generalvector.h"
 #include "general/common/initialize.h"
@@ -25,8 +21,8 @@ template<> void Finalize<PetscVector>();
 template<> void allbarrier<PetscVector>();
 
 #ifdef USE_GPU
-	extern cuda_warmup();
-	extern cuda_barrier();
+	extern void cuda_warmup();
+	extern void cuda_barrier();
 #endif
 
 }
