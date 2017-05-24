@@ -11,6 +11,7 @@
 
 #ifdef USE_CUDA
  #include "petsccuda.h"
+ #include <petsc/private/vecimpl.h> 
  #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
@@ -22,10 +23,6 @@ namespace solver {
 template<> class SPGQPSolver<PetscVector>::ExternalContent {
 	public:
 		Vec *Mdots_vec; /**< for manipulation with mdot */
-		
-		#ifdef USE_CUDA
-			void cuda_copytogpu(Vec &x) const;
-		#endif
 };
 
 template<> std::string SPGQPSolver<PetscVector>::get_name() const;
