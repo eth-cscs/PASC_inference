@@ -212,7 +212,7 @@ void FemHat<PetscVector>::compute_decomposition_reduced() {
 		int T_reduced = ceil(this->decomposition1->get_T()*this->fem_reduce);
 		
 		/* compute new decomposition */
-		this->decomposition2 = new Decomposition<VectorBase>(T_reduced, 
+		this->decomposition2 = new Decomposition<PetscVector>(T_reduced, 
 				*(this->decomposition1->get_graph()), 
 				this->decomposition1->get_K(), 
 				this->decomposition1->get_xdim(), 
