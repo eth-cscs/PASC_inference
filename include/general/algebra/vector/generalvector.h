@@ -62,21 +62,21 @@ namespace algebra {
 			*
 			*/
 			GeneralVector() : VectorBase() {
-			};
+			}
 
 			/** @brief call original constructor with one argument
 			*
 			* @todo for general number of arguments
 			*/
 			template<class ArgType> GeneralVector(ArgType arg) : VectorBase(arg) {
-			};
+			}
 
 			/** @brief call original constructor with two arguments
 			*
 			* @todo for general number of arguments
 			*/
 			template<class ArgType1,class ArgType2> GeneralVector(ArgType1 arg1, ArgType2 arg2) : VectorBase(arg1,arg2){
-			};
+			}
 			
 			/** @brief matrix vector multiplication
 			*

@@ -17,7 +17,7 @@ void cuda_barrier(){
 }
 
 void cuda_copytoGPU(Vec &x){
-	TRYCXX( VecCUDACopyToGPU(b_Vec) );	
+	TRYCXX( VecCUDACopyToGPU(x) );	
 }
 
 }

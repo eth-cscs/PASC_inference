@@ -9,6 +9,7 @@
 #include <device_functions.h>
 
 #include "petsccuda.h"
+#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 
 /* cuda error check */ 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
