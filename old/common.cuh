@@ -15,6 +15,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 	}
 }
 
+extern void cuda_copytoGPU(Vec &x);
 
 }
 } /* end of namespace */
