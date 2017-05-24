@@ -4,7 +4,7 @@
 namespace pascinference {
 namespace algebra {
 	
-void BGMGraph<PetscVector>::ExternalContent::cuda_destroy(int *neighbor_nmbs_gpu, int **neighbor_ids_gpu, int **neighbor_ids_cpugpu, int n){
+void BGMGraph<PetscVector>::ExternalContent::cuda_destroy(){
 	LOG_FUNC_BEGIN
 
 	gpuErrchk( cudaFree(neighbor_nmbs_gpu) );
@@ -17,7 +17,7 @@ void BGMGraph<PetscVector>::ExternalContent::cuda_destroy(int *neighbor_nmbs_gpu
 	LOG_FUNC_END
 }
 
-void BGMGraph<PetscVector>::ExternalContent::cuda_process(int *neighbor_nmbs_gpu, int **neighbor_ids_gpu, int **neighbor_ids_cpugpu, int n){
+void BGMGraph<PetscVector>::ExternalContent::cuda_process(int *neighbor_nmbs, int **neighbor_ids){
 	LOG_FUNC_BEGIN
 
 	/* copy data to gpu */

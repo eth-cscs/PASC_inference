@@ -17,8 +17,8 @@ template<> class BGMGraph<PetscVector>::ExternalContent {
 			int **neighbor_ids_cpugpu; /**< pointers to GPU arrays on CPU */
 			int **neighbor_ids_gpu; /**< copy of values on GPU */
 
+			void cuda_process(int *neighbor_nmbs, int **neighbor_ids);
 			void cuda_destroy();
-			void cuda_process();
 		#endif
 		
 };

@@ -145,7 +145,7 @@ void BGMGraph<PetscVector>::process(double threshold) {
 	TRYCXX( VecRestoreArrayRead(coordinates->get_vector(),&coordinates_arr) );
 
 	#ifdef USE_CUDA
-		externalcontent->cuda_process();
+		externalcontent->cuda_process(neighbor_nmbs, neighbor_ids);
 	#endif
 	
 	this->processed = true;

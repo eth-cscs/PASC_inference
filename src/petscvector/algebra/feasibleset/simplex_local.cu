@@ -46,7 +46,7 @@ void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_project(Vec &x
 	gpuErrchk( cudaDeviceSynchronize() );
 	MPI_Barrier( MPI_COMM_WORLD );
 
-	TRYCXX( VecCUDARestoreArrayReadWrite(x.get_vector(),&x_arr) );
+	TRYCXX( VecCUDARestoreArrayReadWrite(x_Vec,&x_arr) );
 	
 	LOG_FUNC_END
 }
