@@ -11,7 +11,7 @@ namespace algebra {
 template<> class BGMGraphGrid1D<PetscVector>::ExternalContent : public BGMGraph<PetscVector>::ExternalContent {
 	public:
 		#ifdef USE_CUDA
-			void process_grid_cuda();
+			void process_grid_cuda(int *neighbor_nmbs, int **neighbor_ids);
 		#endif
 };
 

@@ -4,7 +4,7 @@
 namespace pascinference {
 namespace algebra {
 
-void BGMGraphGrid2D<PetscVector>::ExternalContent::process_grid_cuda(){
+void BGMGraphGrid2D<PetscVector>::ExternalContent::process_grid_cuda(int *neighbor_nmbs, int **neighbor_ids){
 	LOG_FUNC_BEGIN
 
 	/* copy data to gpu */
