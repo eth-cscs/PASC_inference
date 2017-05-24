@@ -114,7 +114,7 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	Vec datapreload_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&datapreload_Vec) );
 	#ifdef USE_CUDA
-		TRYCXX(VecSetType(datepreload_Vec, VECMPICUDA));
+		TRYCXX(VecSetType(datapreload_Vec, VECMPICUDA));
 	#endif
 
 	TRYCXX( VecSetSizes(datapreload_Vec,PETSC_DECIDE,Tpreliminary*R) );
