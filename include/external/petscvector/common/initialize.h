@@ -24,6 +24,11 @@ template<> bool Initialize<PetscVector>(int argc, char *argv[]);
 template<> void Finalize<PetscVector>();
 template<> void allbarrier<PetscVector>();
 
+#ifdef USE_GPU
+	extern cuda_warmup();
+	extern cuda_barrier();
+#endif
+
 }
 } /* end of namespace */
 

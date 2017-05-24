@@ -1,3 +1,4 @@
+#include "external/petscvector/petscvector.cuh"
 #include "external/petscvector/common/fem.h"
 
 namespace pascinference {

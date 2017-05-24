@@ -1,3 +1,4 @@
+#include "external/petscvector/petscvector.cuh"
 #include "external/petscvector/algebra/graph/bgmgraphgrid1D.h"
 
 namespace pascinference {

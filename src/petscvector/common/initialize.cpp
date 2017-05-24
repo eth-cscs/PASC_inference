@@ -50,8 +50,7 @@ bool Initialize<PetscVector>(int argc, char *argv[]){
 	
 	/* cuda warm up */
 	#ifdef USE_CUDA
-		kernel_warmup<<<1,1>>>();
-		gpuErrchk( cudaDeviceSynchronize() );
+		cuda_warmup();
 	#endif
 	
 	return true;
@@ -76,13 +75,14 @@ void Finalize<PetscVector>(){
 template<>
 void allbarrier<PetscVector>() {
 	#ifdef USE_GPU
-		gpuErrchk( cudaDeviceSynchronize() );
+		cuda_barrier();
 	#endif
 
 	#ifdef USE_PETSC
 		TRYCXX(PetscBarrier(NULL));
 	#endif
 }
+
 
 
 }

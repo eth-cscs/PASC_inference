@@ -6,7 +6,8 @@
  *  @author Lukas Pospisil
  */
 
-#include "algebra/feasibleset/simplex_local.h"
+#include "external/petscvector/petscvector.cuh"
+#include "external/petscvector/algebra/feasibleset/simplex_local.h"
 
 namespace pascinference {
 namespace algebra {

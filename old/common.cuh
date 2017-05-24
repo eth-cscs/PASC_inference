@@ -1,5 +1,5 @@
-#ifndef PASC_COMMON_CUDA_H
-#define	PASC_COMMON_CUDA_H
+#ifndef PASC_PETSCVECTOR_COMMON_CUDA_H
+#define	PASC_PETSCVECTOR_COMMON_CUDA_H
 
 namespace pascinference {
 namespace common {
@@ -14,10 +14,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 		if (abort) exit(code);
 	}
 }
-	
-__global__ void kernel_warmup(){
-	
-}
+
 
 }
 } /* end of namespace */
