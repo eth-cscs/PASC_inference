@@ -8,9 +8,6 @@ if(${USE_PETSC})
 	add_library(${PROJECT_NAME} OBJECT ${SOURCES_PETSC})
 endif()
 
-
-project(PASC_INFERENCE_LIBRARY_PETSC_CUDA)
-
 if(${USE_PETSC})
 	# compile cuda cu files
 	if(${USE_CUDA})
