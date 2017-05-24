@@ -80,15 +80,7 @@ void Fem<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralV
 			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 		#else
-			/* cuda version */
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
-
-			/* call cuda kernel */
-			externalcontent->cuda_fem_reduce_data(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
-		
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
+			externalcontent->cuda_fem_reduce(gammak1_sublocal_Vec,gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
 		#endif
 
 		/* restore local necessary part for local computation */
@@ -159,14 +151,7 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 		#else
 			/* cuda version */
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
-
-			externalcontent->cuda_fem_prolongate_data(gammak1_arr, gammak2_arr, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
-	
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );			
-
+			externalcontent->cuda_fem_prolongate_data(gammak1_sublocal_Vec, gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
 		#endif
 
 		/* restore local necessary part for local computation */
