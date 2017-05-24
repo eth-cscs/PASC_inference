@@ -20,7 +20,7 @@ template<> bool Initialize<PetscVector>(int argc, char *argv[]);
 template<> void Finalize<PetscVector>();
 template<> void allbarrier<PetscVector>();
 
-#ifdef USE_GPU
+#ifdef USE_CUDA
 	void cuda_warmup();
 	void cuda_barrier();
 #endif
