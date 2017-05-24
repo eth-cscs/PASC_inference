@@ -8,6 +8,7 @@
 
 #ifdef USE_CUDA
 	 #include "petsccuda.h"
+	 #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
 /* the petscvector variant of general.h */
