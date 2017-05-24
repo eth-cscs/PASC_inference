@@ -80,7 +80,7 @@ void Fem<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralV
 			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 		#else
-			externalcontent->cuda_fem_reduce(gammak1_sublocal_Vec,gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
+			externalcontent->cuda_reduce_data(gammak1_sublocal_Vec,gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
 		#endif
 
 		/* restore local necessary part for local computation */
@@ -151,7 +151,7 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 		#else
 			/* cuda version */
-			externalcontent->cuda_fem_prolongate_data(gammak1_sublocal_Vec, gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
+			externalcontent->cuda_prolongate_data(gammak1_sublocal_Vec, gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
 		#endif
 
 		/* restore local necessary part for local computation */
