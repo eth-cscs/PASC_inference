@@ -10,9 +10,8 @@
 #include "external/petscvector/algebra/matrix/blockgraphsparse.h"
 
 #ifdef USE_CUDA
- #include "petsccuda.h"
- #include <petsc/private/vecimpl.h> 
- #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+ #include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */
+ #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
 #endif
 
 
