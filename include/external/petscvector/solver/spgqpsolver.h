@@ -10,6 +10,7 @@
 #include "external/petscvector/algebra/matrix/blockgraphsparse.h"
 
 #ifdef USE_CUDA
+ #include "petsccuda.h"
  #include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
 #endif
 
