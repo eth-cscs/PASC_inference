@@ -54,6 +54,7 @@ include_directories("${PASCINFERENCE_INCLUDE}")
 
 # create list of general targets
 set(PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_GENERAL>)
+set(PASC_TARGETS_CUDA "")
 add_subdirectory("${PASCINFERENCE_SRC}/general/" ${CMAKE_BINARY_DIR}/pascinference/general)
 
 # add seqarrayvector
@@ -69,10 +70,7 @@ if(${USE_PETSC})
 	add_subdirectory("${PASCINFERENCE_SRC}/petscvector/" ${CMAKE_BINARY_DIR}/pascinference/petscvector)
 	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_PETSC>)
 	if(${USE_CUDA})
-		set(PASC_TARGETS_CUDA ${PASC_INFERENCE_PETSC_CUDA_SOURCES})
-#		message("kunda: ${SOURCES_PETSC_CUDA}")
-#		list(APPEND PASC_TARGETS ${MYCUDA_O})
-#		target_link_libraries(pascinference CUDASSS)
+		list(APPEND PASC_TARGETS_CUDA ${PASC_INFERENCE_PETSC_CUDA_SOURCES})
 	endif()
 endif()
 
@@ -80,6 +78,7 @@ endif()
 # add library from created list
 add_library(pascinference SHARED ${PASC_TARGETS})
 if(${USE_CUDA})
+	#TODO: PASC_TARGETS_CUDA empty?
 	cuda_add_library(pascinference_cuda SHARED ${PASC_TARGETS_CUDA})
 endif()
 #install(TARGETS pascinference DESTINATION lib)
