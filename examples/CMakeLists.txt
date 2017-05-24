@@ -82,6 +82,10 @@ macro(TESTADD_EXECUTABLE filename outname)
 	# link shared libraries
 	target_link_libraries(${outname} pascinference)
 	target_link_libraries(${outname} ${LIBRARIES_DEF})
+	if(${USE_CUDA})
+		target_link_libraries(${outname} pascinference_cuda)
+	endif()
+
 
 endmacro()
 
