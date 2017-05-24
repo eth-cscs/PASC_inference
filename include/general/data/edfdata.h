@@ -80,6 +80,8 @@ template<class VectorBase>
 void EdfData<VectorBase>::edfRead(std::string filename, int max_record_nmb){
 	LOG_FUNC_BEGIN
 
+	//TODO
+
 	LOG_FUNC_END
 }
 
@@ -87,6 +89,8 @@ void EdfData<VectorBase>::edfRead(std::string filename, int max_record_nmb){
 template<class VectorBase>
 void EdfData<VectorBase>::set_decomposition(Decomposition<VectorBase> &new_decomposition) {
 	LOG_FUNC_BEGIN
+
+	//TODO
 	
 	LOG_FUNC_END
 }
@@ -97,6 +101,8 @@ template<class VectorBase>
 EdfData<VectorBase>::EdfData(std::string filename_data, int max_record_nmb){
 	LOG_FUNC_BEGIN
 
+	//TODO
+
 	LOG_FUNC_END
 }
 
@@ -104,6 +110,8 @@ EdfData<VectorBase>::EdfData(std::string filename_data, int max_record_nmb){
 template<class VectorBase>
 EdfData<VectorBase>::~EdfData(){
 	LOG_FUNC_BEGIN
+
+	//TODO
 
 	LOG_FUNC_END
 }
