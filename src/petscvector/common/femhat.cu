@@ -21,6 +21,10 @@ void FemHat<PetscVector>::ExternalContent::cuda_occupancy(){
 void FemHat<PetscVector>::ExternalContent::cuda_reduce_data(Vec &data1, Vec &data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff){
 	LOG_FUNC_BEGIN
 
+	//TODO: really?
+//	TRYCXX( VecCUDACopyToGPU(data1_Vec) );
+//	TRYCXX( VecCUDACopyToGPU(data2_Vec) );
+
 	double *data1_arr;
 	double *data2_arr;
 
@@ -40,6 +44,10 @@ void FemHat<PetscVector>::ExternalContent::cuda_reduce_data(Vec &data1, Vec &dat
 
 void FemHat<PetscVector>::ExternalContent::cuda_prolongate_data(Vec &data1, Vec &data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff){
 	LOG_FUNC_BEGIN
+
+	//TODO: really?
+//	TRYCXX( VecCUDACopyToGPU(data1_Vec) );
+//	TRYCXX( VecCUDACopyToGPU(data2_Vec) );
 
 	double *data1_arr;
 	double *data2_arr;

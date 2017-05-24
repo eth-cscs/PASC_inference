@@ -10,8 +10,8 @@ FemHat<PetscVector>::FemHat(Decomposition<PetscVector> *decomposition1, Decompos
 	#ifdef USE_CUDA
 		/* compute optimal kernel calls */
 		externalcontent->cuda_occupancy();
-		gridSize_reduce = (decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
-		gridSize_prolongate = (decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
+		externalcontent->gridSize_reduce = (decomposition2->get_Tlocal() + externalcontent->blockSize_reduce - 1)/ externalcontent->blockSize_reduce;
+		externalcontent->gridSize_prolongate = (decomposition1->get_Tlocal() + externalcontent->blockSize_prolongate - 1)/ externalcontent->blockSize_prolongate;
 	#endif
 
 	this->diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
@@ -32,11 +32,6 @@ void FemHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gener
 
 	Vec gamma1_Vec = gamma1->get_vector();
 	Vec gamma2_Vec = gamma2->get_vector();
-
-	#ifdef USE_CUDA
-		TRYCXX( VecCUDACopyToGPU(gamma1_Vec) );
-		TRYCXX( VecCUDACopyToGPU(gamma2_Vec) );
-	#endif
 
 	Vec gammak1_Vec;
 	Vec gammak2_Vec;
@@ -137,11 +132,6 @@ void FemHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, G
 
 	Vec gamma1_Vec = gamma1->get_vector();
 	Vec gamma2_Vec = gamma2->get_vector();
-
-	#ifdef USE_CUDA
-		TRYCXX( VecCUDACopyToGPU(gamma1_Vec) );
-		TRYCXX( VecCUDACopyToGPU(gamma2_Vec) );
-	#endif
 
 	Vec gammak1_Vec;
 	Vec gammak2_Vec;
