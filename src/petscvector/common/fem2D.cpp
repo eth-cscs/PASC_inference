@@ -168,7 +168,7 @@ void Fem2D<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Genera
 			
 		#else
 			/* cuda version */
-			externalcontent->cuda_femhat_reduce_data(gammak1_overlap_Vec, gammak2_Vec, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
+			externalcontent->cuda_reduce_data(gammak1_overlap_Vec, gammak2_Vec, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
 		#endif
 
 		/* restore local necessary part for local computation */
@@ -262,7 +262,7 @@ void Fem2D<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Ge
 			
 		#else
 			/* cuda version */
-			externalcontent->cuda_femhat_reduce_data(gammak1_overlap_Vec, gammak2_Vec, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
+			externalcontent->cuda_reduce_data(gammak1_overlap_Vec, gammak2_Vec, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
 		#endif
 
 		/* restore local necessary part for local computation */
