@@ -79,7 +79,9 @@ endif()
 add_library(pascinference SHARED ${PASC_TARGETS})
 if(${USE_CUDA})
 	#TODO: PASC_TARGETS_CUDA empty?
-	cuda_add_library(pascinference_cuda SHARED ${PASC_TARGETS_CUDA})
+	cuda_add_library(pascinference_cuda SHARED ${PASC_TARGETS_CUDA} 
+			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
+			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 endif()
 #install(TARGETS pascinference DESTINATION lib)
 
