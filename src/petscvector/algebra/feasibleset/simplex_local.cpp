@@ -38,20 +38,22 @@ template<>
 void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &x) {
 	LOG_FUNC_BEGIN
 	
+	Vec x_Vec = x.get_vector();
+	
 	#ifdef USE_CUDA
 		/* use kernel to compute projection */
-		externalcontent->cuda_project(x.get_vector(),T,K);
+		externalcontent->cuda_project(x_Vec,T,K);
 	#else
 		/* get local array */
 		double *x_arr;
 
-		TRYCXX( VecGetArray(x.get_vector(),&x_arr) );
+		TRYCXX( VecGetArray(x_Vec,&x_arr) );
 	
 		for(int t=0;t<T;t++){
 			project_sub(x_arr,t,T,K);
 		}
 
-		TRYCXX( VecRestoreArray(x.get_vector(),&x_arr) );
+		TRYCXX( VecRestoreArray(x_Vec,&x_arr) );
 	#endif
 
 	TRYCXX( PetscBarrier(NULL) );
