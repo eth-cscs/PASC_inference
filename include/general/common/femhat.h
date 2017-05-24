@@ -232,15 +232,6 @@ void FemHat<VectorBase>::compute_decomposition_reduced() {
 		this->decomposition2 = this->decomposition1;
 	}
 
-	#ifdef USE_CUDA
-		/* compute optimal kernel calls */
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_reduce, &blockSize_reduce, kernel_femhat_reduce_data, 0, 0) );
-		gridSize_reduce = (this->decomposition2->get_Tlocal() + blockSize_reduce - 1)/ blockSize_reduce;
-
-		gpuErrchk( cudaOccupancyMaxPotentialBlockSize( &minGridSize_prolongate, &blockSize_prolongate, kernel_femhat_prolongate_data, 0, 0) );
-		gridSize_prolongate = (this->decomposition1->get_Tlocal() + blockSize_prolongate - 1)/ blockSize_prolongate;
-	#endif
-
 	this->diff = (this->decomposition1->get_T() - 1)/(double)(this->decomposition2->get_T() - 1);
 
 	compute_overlaps();

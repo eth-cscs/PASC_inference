@@ -214,7 +214,39 @@ void FemHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, G
 	LOG_FUNC_END
 }
 
+template<>
+void FemHat<PetscVector>::compute_decomposition_reduced() {
+	LOG_FUNC_BEGIN
+	
+	if(this->is_reduced()){
+		int T_reduced = ceil(this->decomposition1->get_T()*this->fem_reduce);
+		
+		/* compute new decomposition */
+		this->decomposition2 = new Decomposition<VectorBase>(T_reduced, 
+				*(this->decomposition1->get_graph()), 
+				this->decomposition1->get_K(), 
+				this->decomposition1->get_xdim(), 
+				this->decomposition1->get_DDT_size(), 
+				this->decomposition1->get_DDR_size());
 
+	} else {
+		/* there is not reduction of the data, we can reuse the decomposition */
+		this->decomposition2 = this->decomposition1;
+	}
+
+	#ifdef USE_CUDA
+		/* compute optimal kernel calls */
+		externalcontent->cuda_occupancy();
+		externalcontent->gridSize_reduce = (this->decomposition2->get_Tlocal() + externalcontent->blockSize_reduce - 1)/ externalcontent->blockSize_reduce;
+		externalcontent->gridSize_prolongate = (this->decomposition1->get_Tlocal() + externalcontent->blockSize_prolongate - 1)/ externalcontent->blockSize_prolongate;
+	#endif
+
+	this->diff = (this->decomposition1->get_T() - 1)/(double)(this->decomposition2->get_T() - 1);
+
+	compute_overlaps();
+	
+	LOG_FUNC_END
+}
 
 }
 } /* end of namespace */

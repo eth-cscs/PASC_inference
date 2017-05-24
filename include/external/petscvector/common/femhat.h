@@ -21,6 +21,7 @@ template<> class FemHat<PetscVector>::ExternalContent : public Fem<PetscVector>:
 template<> FemHat<PetscVector>::FemHat(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce);
 template<> void FemHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
 template<> void FemHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const;
+template<> void FemHat<PetscVector>::compute_decomposition_reduced();
 
 }
 } /* end of namespace */
