@@ -4,6 +4,7 @@
 #include "external/petscvector/algebra/vector/generalvector.h"
 #include "general/data/imagedata.h"
 #include "external/petscvector/data/tsdata.h"
+#include "external/petscvector/common/common.h"
 
 namespace pascinference {
 namespace data {

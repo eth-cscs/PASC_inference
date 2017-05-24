@@ -3,6 +3,7 @@
 
 #include "external/petscvector/algebra/vector/generalvector.h"
 #include "general/data/tsdata.h"
+#include "external/petscvector/common/common.h"
 
 namespace pascinference {
 
