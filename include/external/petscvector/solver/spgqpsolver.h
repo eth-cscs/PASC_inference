@@ -21,6 +21,10 @@ namespace solver {
 template<> class SPGQPSolver<PetscVector>::ExternalContent {
 	public:
 		Vec *Mdots_vec; /**< for manipulation with mdot */
+		
+		#ifdef USE_CUDA
+			void cuda_copytogpu(Vec &x) const;
+		#endif
 };
 
 template<> std::string SPGQPSolver<PetscVector>::get_name() const;
