@@ -21,8 +21,8 @@ template<> void Finalize<PetscVector>();
 template<> void allbarrier<PetscVector>();
 
 #ifdef USE_GPU
-	extern void cuda_warmup();
-	extern void cuda_barrier();
+	void cuda_warmup();
+	void cuda_barrier();
 #endif
 
 }
