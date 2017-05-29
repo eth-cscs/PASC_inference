@@ -14,7 +14,7 @@
 #
 
 
-project(PASC_INFERENCE_LIBRARY)
+#project(PASC_INFERENCE_LIBRARY)
 cmake_minimum_required(VERSION 2.8.11)
 
 if(NOT ${PASCINFERENCE_ROOT} AND NOT ${PASCINFERENCE_IN_PROJECT_BUILD})
@@ -52,36 +52,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") # we are compiling shared librar
 # include header files
 include_directories("${PASCINFERENCE_INCLUDE}")
 
-# create list of general targets
-set(PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_GENERAL>)
-set(PASC_TARGETS_CUDA "")
+# create list of general targets and seqarrayvector
 add_subdirectory("${PASCINFERENCE_SRC}/general/" ${CMAKE_BINARY_DIR}/pascinference/general)
-
-# add seqarrayvector
 add_subdirectory("${PASCINFERENCE_SRC}/seqarrayvector/" ${CMAKE_BINARY_DIR}/pascinference/seqarrayvector)
-list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_SEQARRAYVECTOR>)
+add_library(pascinference SHARED $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_GENERAL> $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_SEQARRAYVECTOR>)
 
 # add other external stuff
 if(${USE_BOOST})
 	add_subdirectory("${PASCINFERENCE_SRC}/boost/" ${CMAKE_BINARY_DIR}/pascinference/boost)
-	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_BOOST>)
 endif()
 if(${USE_PETSC})
 	add_subdirectory("${PASCINFERENCE_SRC}/petscvector/" ${CMAKE_BINARY_DIR}/pascinference/petscvector)
-	list(APPEND PASC_TARGETS $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_PETSC>)
-	if(${USE_CUDA})
-		list(APPEND PASC_TARGETS_CUDA ${PASC_INFERENCE_PETSC_CUDA_SOURCES})
-	endif()
 endif()
 
-
-# add library from created list
-add_library(pascinference SHARED ${PASC_TARGETS})
-if(${USE_CUDA})
-	#TODO: PASC_TARGETS_CUDA empty?
-	cuda_add_library(pascinference_cuda SHARED ${PASC_TARGETS_CUDA} 
-			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
-			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-endif()
 #install(TARGETS pascinference DESTINATION lib)
 

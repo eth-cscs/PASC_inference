@@ -13,11 +13,11 @@ endif()
 
 if(${USE_BOOST})
 	# append to flags definitions
-        set(FLAGS_DEF "-USE_BOOST ${FLAGS_DEF}")
-        set(FLAGS_DEF_D "-DUSE_BOOST ${FLAGS_DEF_D}")
+    set(FLAGS_DEF "-USE_BOOST ${FLAGS_DEF}")
+    set(FLAGS_DEF_D "-DUSE_BOOST ${FLAGS_DEF_D}")
 
-        # todo: here write all used libraries of boost
-        set(LIBRARIES_DEF "${LIBRARIES_DEF};boost_system;boost_filesystem;boost_program_options")
+    # todo: here write all used libraries of boost
+    set(LIBRARIES_DEF "${LIBRARIES_DEF};boost_system;boost_filesystem;boost_program_options")
 endif()
 
 # define print info (will be called in printsetting.cmake)

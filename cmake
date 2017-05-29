@@ -11,7 +11,7 @@ if(NOT ${PASCINFERENCE_ROOT})
 	set(PASCINFERENCE_ROOT ${CMAKE_CURRENT_LIST_DIR})
 endif()
 
-# Don't add dlib if it's already been added to the cmake project
+# Don't add pascinference if it's already been added to the cmake project
 if (NOT TARGET pascinference)
     add_subdirectory(${PASCINFERENCE_ROOT} pascinference_build)
 endif()
