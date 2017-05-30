@@ -38,7 +38,6 @@ option(USE_DLIB "USE_DLIB" OFF)
 
 # include cmake functions
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_CMAKE}" ${CMAKE_MODULE_PATH})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 include(pascinference) # include common cmake functions
 
 # print info about settings
@@ -56,6 +55,7 @@ include_directories("${PASCINFERENCE_INCLUDE}")
 # create list of general targets and seqarrayvector
 add_subdirectory("${PASCINFERENCE_SRC}/general/" ${CMAKE_BINARY_DIR}/pascinference/general)
 add_subdirectory("${PASCINFERENCE_SRC}/seqarrayvector/" ${CMAKE_BINARY_DIR}/pascinference/seqarrayvector)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 add_library(pascinference SHARED $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_GENERAL> $<TARGET_OBJECTS:PASC_INFERENCE_LIBRARY_SEQARRAYVECTOR>)
 
 # add other external stuff

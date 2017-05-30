@@ -16,9 +16,8 @@ if(${USE_PERMON})
 	set(FLAGS_DEF_D "-DUSE_PERMON ${FLAGS_DEF_D}")
 
 	# try to find PERMON library
-	find_library(PERMON_LIB_LOCATION "permon" PATH "$ENV{PERMON_DIR}/$ENV{PETSC_ARCH}/lib/")
-
-	if(NOT PERMON_LIB_LOCATION)
+#	if(NOT $ENV{PERMON_DIR})
+	if(NOT EXISTS "${CMAKE_BINARY_DIR}/lib/libpermon.so")
 		# add metis library for compilation
 		if (NOT TARGET project_permon)
 			# if the library doesn't exist, then we will compile it from source code
@@ -28,6 +27,7 @@ if(${USE_PERMON})
 			include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 		
 			set( ENV{PERMON_DIR} "${PASCINFERENCE_ROOT}/util/permon")
+			set( PERMON_LIB_LOCATION "$ENV{PERMON_DIR}/$ENV{PETSC_ARCH}/lib/")
 		
 			ExternalProject_Add(project_permon
 				SOURCE_DIR ${PASCINFERENCE_ROOT}/util/permon/
@@ -48,15 +48,17 @@ if(${USE_PERMON})
 			
 		endif()
 
-	else()
-		# library found
-		message(STATUS "${Blue}PERMON library found in: ${PERMON_LIB_LOCATION} ${ColourReset}")
+#	else()
+		# find library
+#		find_library(PERMON_LIB_LOCATION "permon" PATH "$ENV{PERMON_DIR}/$ENV{PETSC_ARCH}/lib/")
+		
+#		message(STATUS "${Blue}PERMON library found in: ${PERMON_LIB_LOCATION} ${ColourReset}")
 	endif()
 
 #	link_directories("$ENV{PERMON_DIR}/$ENV{PETSC_ARCH}/lib/")
 
 	# include header files
-	set(PERMON_INCLUDE_DIR "$ENV{PERMON_DIR}/include")
+	set(PERMON_INCLUDE_DIR "${PASCINFERENCE_ROOT}/util/permon/include")
 
 	if(${USE_CUDA})
 		include_directories(${PERMON_INCLUDE_DIR})

@@ -21,7 +21,9 @@ if(${USE_DLIB})
 	# if the library is build as a part of different project
 #	if(NOT ${PASCINFERENCE_IN_PROJECT_BUILD})
 		# include some funny cmake functions from DLib
+#	if(NOT EXISTS "${CMAKE_BINARY_DIR}/pascinference_build/dlib_build/libdlib.a")
 		include("${DLIB_ROOT}/dlib/cmake/")
+#	endif()
 #	endif()
 
 	# append to flags definitions
