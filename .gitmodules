@@ -1,10 +1,9 @@
 [submodule "util/minlin"]
 	path = util/minlin
 	url = https://github.com/bcumming/minlin.git
-[submodule "util/permon"]
-	path = util/permon
-	url = https://github.com/haplav/permon.git
-	ignore = dirty
 [submodule "util/dlib"]
 	path = util/dlib
 	url = https://github.com/davisking/dlib.git
+[submodule "util/permon"]
+	path = util/permon
+	url = https://github.com/It4innovations/permon.git
