@@ -41,10 +41,10 @@ if(${USE_DLIB})
 #				GIT_SUBMODULES util/dlib
 #				URL ${PASCINFERENCE_ROOT}/util/dlib/
 				PREFIX ${CMAKE_BINARY_DIR}/dlib_build
-#				CMAKE_ARGS "-DSHARED=ON shared=1"
-				EXCLUDE_FROM_ALL TRUE
+				CMAKE_ARGS "-DCMAKE_BUILD_TYPE=Release --config Release"
+#				EXCLUDE_FROM_ALL TRUE
 				STEP_TARGETS build
-				INSTALL_COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/dlib_build/src/project_dlib-build/dlib/libdlib.so ${CMAKE_BINARY_DIR}/lib/libdlib.so
+				INSTALL_COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/dlib_build/src/project_dlib-build/dlib/libdlib.a ${CMAKE_BINARY_DIR}/lib/libdlib.a
 			)
 
 			add_library(dlib SHARED IMPORTED)
@@ -59,8 +59,14 @@ if(${USE_DLIB})
 	link_directories("${PASCINFERENCE_ROOT}/util/dlib/")
 	include_directories("${PASCINFERENCE_ROOT}/util/dlib/")
 
+	# Now it is safe to include other dlib infrustucture - it won't build dlib again.
+
+
 	# link library
 	set(LIBRARIES_DEF "dlib;${LIBRARIES_DEF}")
+
+#	set(LIBRARIES_DEF "dlib;pthread;X11;${LIBRARIES_DEF}")
+
 endif()
 
 
