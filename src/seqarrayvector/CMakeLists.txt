@@ -1,5 +1,6 @@
 project(PASC_INFERENCE_LIBRARY_SEQARRAYVECTOR)
 cmake_minimum_required(VERSION 2.8.11)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 
 # compile general cpp files
 file(GLOB_RECURSE SOURCES_GENERAL "${PASCINFERENCE_SRC}/seqarrayvector/*.cpp") # locate all cpp files in source directory

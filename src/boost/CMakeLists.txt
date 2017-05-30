@@ -1,5 +1,6 @@
 project(PASC_INFERENCE_LIBRARY_BOOST)
 cmake_minimum_required(VERSION 2.8.11)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 
 # compile cpp files with boost 
 if(${USE_BOOST})

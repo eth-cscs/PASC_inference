@@ -38,6 +38,7 @@ option(USE_DLIB "USE_DLIB" OFF)
 
 # include cmake functions
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_CMAKE}" ${CMAKE_MODULE_PATH})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 include(pascinference) # include common cmake functions
 
 # print info about settings

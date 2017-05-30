@@ -1,5 +1,6 @@
 project(PASC_INFERENCE_LIBRARY_PETSC)
 cmake_minimum_required(VERSION 2.8.11)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 
 # compile cpp files with petsc
 if(${USE_PETSC})
@@ -16,5 +17,16 @@ if(${USE_PETSC})
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
 	endif()
+	
+	# if there is metis, then add it as a dependency
+	if(${USE_METIS} AND TARGET project_metis)
+		add_dependencies(pascinference_petsc project_metis)
+	endif()
+
+	# if there is permon, then add it as a dependency
+	if(${USE_PERMON} AND TARGET project_permon)
+		add_dependencies(pascinference_petsc project_permon)
+	endif()
+
 endif()
 

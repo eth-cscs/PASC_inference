@@ -4,6 +4,10 @@
 #include "petsc.h"
 #include "petscsys.h"
 
+#ifdef USE_PERMON
+	#include "fllopsys.h"
+#endif
+
 #include "external/petscvector/algebra/vector/generalvector.h"
 #include "general/common/initialize.h"
 

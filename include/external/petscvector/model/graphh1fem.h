@@ -13,6 +13,8 @@
 #include "external/petscvector/algebra/feasibleset/simplex_lineqbound.h"
 
 #include "external/petscvector/solver/spgqpsolver.h"
+#include "external/petscvector/solver/permonsolver.h"
+
 //#include "external/petscvector/solver/spgqpsolver_coeff.h"
 //#include "external/petscvector/solver/taosolver.h"
 //#include "external/petscvector/data/qpdata.h"
