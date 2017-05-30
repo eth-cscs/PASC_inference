@@ -20,15 +20,10 @@
 #include "external/petscvector/algebra/matrix/blockgraphsparse.h"
 
 #ifdef USE_PERMON
-	#include "fllopqp.h" /* manipulation with quadratic programming problems (QP) */
-	#include "fllopqps.h" /* manipulation with solvers (QPS) */
-#endif
+/* if permon is not defined, then this class does not make any sence */
 
-#define PERMONSOLVER_DEFAULT_MAXIT 1000
-#define PERMONSOLVER_DEFAULT_EPS 1e-9
-#define PERMONSOLVER_USE_UPPERBOUND false
-#define PERMONSOLVER_USE_LAMBDAMAX false
-#define PERMONSOLVER_DUMP false
+#include "fllopqp.h" /* manipulation with quadratic programming problems (QP) */
+#include "fllopqps.h" /* manipulation with solvers (QPS) */
 
 namespace pascinference {
 namespace solver {
@@ -55,6 +50,7 @@ template<> void PermonSolver<PetscVector>::solve();
 
 template<> PermonSolver<PetscVector>::ExternalContent * PermonSolver<PetscVector>::get_externalcontent() const;
 
+#endif
 
 }
 } /* end namespace */

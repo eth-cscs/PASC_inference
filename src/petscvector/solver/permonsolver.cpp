@@ -3,6 +3,8 @@
 namespace pascinference {
 namespace solver {
 
+#ifdef USE_PERMON
+
 template<>
 PermonSolver<PetscVector>::PermonSolver(QPData<PetscVector> &new_qpdata){
 	LOG_FUNC_BEGIN
@@ -208,6 +210,7 @@ PermonSolver<PetscVector>::ExternalContent * PermonSolver<PetscVector>::get_exte
 }
 
 
+#endif
 
 }
 }

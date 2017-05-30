@@ -17,7 +17,12 @@ if(${USE_PETSC})
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
 	endif()
-	
+
+	# if there is dlib, then add it as a dependency
+	if(${USE_DLIB} AND TARGET project_dlib)
+		add_dependencies(pascinference_petsc project_dlib)
+	endif()
+		
 	# if there is metis, then add it as a dependency
 	if(${USE_METIS} AND TARGET project_metis)
 		add_dependencies(pascinference_petsc project_metis)
