@@ -56,24 +56,22 @@ PermonSolver<PetscVector>::PermonSolver(QPData<PetscVector> &new_qpdata){
 	Vec lb = fs_lineqbound->get_externalcontent()->lb;
 
 	/* prepare permon QP */
-	QP qp = externalcontent->qp;
-	
-	TRYCXX( QPCreate(PETSC_COMM_WORLD, &qp) );
-	TRYCXX( QPSetOperator(qp, A) ); /* set stiffness matrix */
-	TRYCXX( QPSetInitialVector(qp, x0) ); /* set initial approximation */
+	TRYCXX( QPCreate(PETSC_COMM_WORLD, &(externalcontent->qp)) );
+	TRYCXX( QPSetOperator(externalcontent->qp, A) ); /* set stiffness matrix */
+	TRYCXX( QPSetInitialVector(externalcontent->qp, x0) ); /* set initial approximation */
 
-	TRYCXX( QPAddEq(qp,B,c) ); /* add equality constraints Bx=c */
+	TRYCXX( QPAddEq(externalcontent->qp,B,c) ); /* add equality constraints Bx=c */
 	if(this->use_upperbound){
 		Vec ub;
 		TRYCXX( VecDuplicate(lb,&ub) );
 		TRYCXX( VecSet(ub,1.0) ); //TODO: destroy?
-		TRYCXX( QPSetBox(qp, lb, ub) ); /* add box constraints */
+		TRYCXX( QPSetBox(externalcontent->qp, lb, ub) ); /* add box constraints */
 	} else {
-		TRYCXX( QPSetBox(qp, lb, PETSC_NULL) ); /* add lowerbound */
+		TRYCXX( QPSetBox(externalcontent->qp, lb, PETSC_NULL) ); /* add lowerbound */
 	}
 	
 	/* print some infos about QPS */
-//	TRYCXX( QPSView(qps, PETSC_VIEWER_STDOUT_WORLD) );
+	TRYCXX( QPView(externalcontent->qp, PETSC_VIEWER_STDOUT_WORLD) );
 
 	LOG_FUNC_END
 }

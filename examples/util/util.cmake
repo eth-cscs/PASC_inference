@@ -50,16 +50,11 @@ if(${UTIL_PROCESS_LOG})
 endif()
 
 if(${UTIL_GUI_SHOW_VEC})
+	set(CMAKE_BUILD_TYPE Release)
 	testadd_executable("util/gui_show_vec.cpp" "gui_show_vec")
-#	target_link_libraries(gui_show_vec "dlib_build/src/project_dlib-build/dlib/libdlib.a")
-#	target_link_libraries(gui_show_vec "X11")
 endif()
 
 if(${UTIL_GUI_SHOW_GAMMA})
 	set(CMAKE_BUILD_TYPE Release)
 	testadd_executable("util/gui_show_gamma.cpp" "gui_show_gamma")
-#	include_directories("${CMAKE_BINARY_DIR}/dlib_build/src/project_dlib-build/dlib/")
-#	target_link_libraries(gui_show_gamma "${CMAKE_BINARY_DIR}/dlib_build/src/project_dlib-build/dlib/libdlib.so.19.4.99")
-#	target_link_libraries(gui_show_gamma "X11")
-
 endif()

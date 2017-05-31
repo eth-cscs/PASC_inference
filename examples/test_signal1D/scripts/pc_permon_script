@@ -1,0 +1,26 @@
+#!/bin/bash   
+
+PARAM_FILENAME="--test_filename=data/mysample.bin --test_filename_solution=data/mysample_solution.bin --test_filename_gamma0=data/mysample_gamma0_K3.bin --test_filename_out=mysample"
+PARAM_BASIC="--test_K=3 --test_Theta=1.0 --test_Theta=2.0 --test_Theta=3.0 --test_annealing=1"
+PARAM_EPSSQR="--test_epssqr=1e2"
+PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
+PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_debugmode=0"
+PARAM_SHORTINFO="--test_shortinfo=false"
+PARAM_LOG="--log_or_not=false"
+
+## for permon:
+PARAM_USE_PERMON="--graphh1femmodel_gammasolvertype=3"
+PARAM_QPSOLVER="--permonsolver_maxit=10000 --permonsolver_eps=1e-5 --permonsolver_debugmode=2 --permonsolver_use_upperbound=true --permonsolver_use_lambdamax=true --permonsolver_dump=false"
+
+## for my spqqp:
+#PARAM_USE_PERMON="--graphh1femmodel_gammasolvertype=1"
+#PARAM_QPSOLVER="--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-8"
+
+## additional PETSc parameters
+PARAM_PETSC="--petsc_options=\"\""
+
+## concrenate all parameters
+PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_USE_PERMON $PARAM_QPSOLVER $PARAM_PETSC"
+
+## run the job
+./test_signal1D $PARAM_ALL

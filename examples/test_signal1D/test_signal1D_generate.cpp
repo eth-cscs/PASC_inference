@@ -15,6 +15,7 @@
 #define DEFAULT_TPERIOD 10
 #define DEFAULT_REPEAT_NMB 5
 #define DEFAULT_NOISE 0.1
+#define DEFAULT_K 3
  
 using namespace pascinference;
 
@@ -75,6 +76,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_filename_solution", &filename_solution, "data/samplesignal_solution.bin");
 	consoleArg.set_option_value("test_filename_gamma0", &filename_gamma0, "data/samplesignal_gamma0.bin");
 	consoleArg.set_option_value("test_Tperiod", &Tperiod, DEFAULT_TPERIOD);
+	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
 	consoleArg.set_option_value("test_repeat_nmb", &repeat_nmb, DEFAULT_REPEAT_NMB);
 	consoleArg.set_option_value("test_noise", &noise, DEFAULT_NOISE);
 	consoleArg.set_option_value("test_generate_data", &generate_data, true);
