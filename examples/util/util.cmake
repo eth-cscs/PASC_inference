@@ -9,6 +9,7 @@ option(UTIL_PROCESS_LOG "UTIL_PROCESS_LOG" OFF)
 option(UTIL_GUI "UTIL_GUI" OFF)
 option(UTIL_GUI_SHOW_VEC "UTIL_GUI_SHOW_VEC" OFF)
 option(UTIL_GUI_SHOW_GAMMA "UTIL_GUI_SHOW_GAMMA" OFF)
+option(UTIL_GUI_SHOW_IMAGE "UTIL_GUI_SHOW_IMAGE" OFF)
 
 if(${UTIL})
 	# define shortcut to compile all utils
@@ -36,6 +37,7 @@ printinfo_onoff("   UTIL_PROCESS_LOG                                      (Conso
 printinfo_onoff("   UTIL_GUI                                              (ConsoleArg)                 " "${UTIL_GUI}")
 printinfo_onoff("     UTIL_GUI_SHOW_VEC                                     (ConsoleArg)               " "${UTIL_GUI_SHOW_VEC}")
 printinfo_onoff("     UTIL_GUI_SHOW_GAMMA                                   (ConsoleArg)               " "${UTIL_GUI_SHOW_GAMMA}")
+printinfo_onoff("     UTIL_GUI_SHOW_IMAGE                                   (ConsoleArg)               " "${UTIL_GUI_SHOW_IMAGE}")
 
 if(${UTIL_DIFF_NORM_VEC})
 	testadd_executable("util/diff_norm_vec.cpp" "diff_norm_vec")
@@ -58,3 +60,9 @@ if(${UTIL_GUI_SHOW_GAMMA})
 	set(CMAKE_BUILD_TYPE Release)
 	testadd_executable("util/gui_show_gamma.cpp" "gui_show_gamma")
 endif()
+
+if(${UTIL_GUI_SHOW_IMAGE})
+	set(CMAKE_BUILD_TYPE Release)
+	testadd_executable("util/gui_show_image.cpp" "gui_show_image")
+endif()
+
