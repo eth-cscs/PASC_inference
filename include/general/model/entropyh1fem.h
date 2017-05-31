@@ -424,7 +424,7 @@ void EntropyH1FEMModel<VectorBase>::updateaftersolve_thetasolver(GeneralSolver *
 
 template<class VectorBase>
 double EntropyH1FEMModel<VectorBase>::get_aic(double L) const{
-	return 2*log(L) + this->tsdata->get_K();
+	return 2*L + this->tsdata->get_K();
 }
 
 template<class VectorBase>

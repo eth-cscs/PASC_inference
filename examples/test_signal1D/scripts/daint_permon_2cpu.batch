@@ -30,7 +30,7 @@ PARAM_LOG="--log_or_not=false"
 PARAM_USE_PERMON="--graphh1femmodel_gammasolvertype=3"
 PARAM_QPSOLVER="--permonsolver_maxit=10000 --permonsolver_eps=1e-5 --permonsolver_debugmode=2 --permonsolver_use_upperbound=true --permonsolver_use_lambdamax=true --permonsolver_dump=false"
 
-## for my spqqp:
+## for my spgqp:
 #PARAM_USE_PERMON="--graphh1femmodel_gammasolvertype=1"
 #PARAM_QPSOLVER="--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-8"
 

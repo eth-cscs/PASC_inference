@@ -1,20 +1,24 @@
- #!/bin/bash
+#!/bin/bash
 
-BASIC_PARAM="--test_K=3 --test_Km=2 --test_filename=data/y_data.bin --test_annealing=1"
-GAMMA0_PARAM="--test_filename_gamma0=data/y_K3_gamma0.bin"
-EPSSQR_PARAM="--test_epssqr=1e2"
-PRINT_PARAM="--test_printstats=true --test_printinfo=true"
-THETA_PARAM="" #--test_Theta
-SHORTINFO_PARAM="--test_shortinfo=true" # --test_shortinfo_header --test_shortinfo_values --test_shortinfo_filename
-LOG_PARAM="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
+PARAM_BASIC="--test_K=3 --test_Km=2 --test_filename=data/y_data.bin --test_annealing=10 --test_scaledata=true"
+#PARAM_GAMMA0="--test_filename_gamma0=data/y_K3_gamma0.bin"
+PARAM_EPSSQR="--test_epssqr=1e2"
+#PARAM_EPSSQR="--test_epssqr=1e-1 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5"
+PARAM_PRINT="--test_printstats=true --test_printinfo=true"
+PARAM_THETA="" #--test_Theta
+PARAM_SHORTINFO="--test_shortinfo=true" # --test_shortinfo_header --test_shortinfo_values --test_shortinfo_filename
+PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
  
-TSSOLVER_PARAM="--tssolver_maxit=100 --tssolver_init_permute=true"
-TSSOLVER_PRINT_PARAM="--tssolver_debug_print_it=true"
+PARAM_TSSOLVER="--tssolver_maxit=100 --tssolver_init_permute=true"
+PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=false --tssolver_debug_print_annealing=true"
  
-QPSOLVER_PARAM="--spgqpsolver_maxit=1000 --spgqpsolver_eps=1e-4 --spgqpsolver_stop_difff=true --spgqpsolver_stop_normgp=true"
-QPSOLVER_PRINT_PARAM="--spgqpsolver_debug_print_it=true" 
+PARAM_QPSOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
+PARAM_QPSOLVER_PRINT="--spgqpsolver_debug_print_it=false" 
 
-ENTROPSOLVER_PARAM="--entropysolverdlib_maxit=20  --entropysolverdlib_eps=1e-5 --entropysolverdlib_integration_eps=1e-10"
-ENTROPSOLVER_PRINT_PARAM="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true"
+PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=1"
+PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=20  --entropysolverdlib_eps=1e-4 --entropysolverdlib_integration_eps=1e-8"
+PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=false"
 
-mpiexec -n 1 ./test_entropy $BASIC_PARAM $GAMMA0_PARAM $EPSSQR_PARAM $PRINT_PARAM $THETA_PARAM $SHORTINFO_PARAM $LOG_PARAM $TSSOLVER_PARAM $TSSOLVER_PRINT_PARAM $QPSOLVER_PARAM $QPSOLVER_PRINT_PARAM $ENTROPSOLVER_PARAM $ENTROPSOLVER_PRINT_PARAM
+PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT"
+
+mpiexec -n 1 ./test_entropy $PARAM_ALL

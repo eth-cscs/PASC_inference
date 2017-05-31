@@ -216,7 +216,7 @@ void EntropyH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver
 	LOG_FUNC_BEGIN
 
 	/* make sure that solved gamma is feasible */
-//	gammadata->get_feasibleset()->project(*(gammadata->get_x()));
+	gammadata->get_feasibleset()->project(*(gammadata->get_x()));
 
 	LOG_FUNC_END
 }
