@@ -9,6 +9,7 @@
 #endif
 
 #define ENABLE_ASSERTS
+//#define DLIB_DISABLE_ASSERTS
 
 #include <dlib/gui_widgets.h>
 #include <sstream>
