@@ -1,4 +1,4 @@
-/** @file process_log.cpp
+/** @file util_process_log.cpp
  *  @brief process log file
  *
  *  @author Lukas Pospisil

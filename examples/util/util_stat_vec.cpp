@@ -1,4 +1,4 @@
-/** @file stat_vec.cpp
+/** @file util_stat_vec.cpp
  *  @brief print the properties of given PETSc vector
  *
  *  @author Lukas Pospisil

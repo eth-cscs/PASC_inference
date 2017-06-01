@@ -1,4 +1,4 @@
-/** @file diff_norm_vec.cpp
+/** @file util_diff_norm_vec.cpp
  *  @brief compute the difference of two PETSc vectors stored in given files
  *
  *  @author Lukas Pospisil

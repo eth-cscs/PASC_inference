@@ -101,6 +101,7 @@ endmacro()
 
 # --------- include test cmake functions --------
 include("util/util.cmake")
+include("gui/gui.cmake")
 
 include("test_classes/test_classes.cmake")
 include("test_signal1D/test_signal1D.cmake")
