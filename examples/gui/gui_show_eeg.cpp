@@ -19,6 +19,7 @@
 using namespace dlib;
 using namespace pascinference;
 
+
 class eegimageplotter : public drawable {
 	private:
 		Vec *myvector_Vec;
@@ -66,12 +67,15 @@ private:
 	label label_scale;
 	button button_apply_size;
 
+	scroll_bar *timescroll;
+
     void load_image( const std::string& file_name );
 
 	/* menu events */
     void on_menu_file_open ();
     void on_menu_file_quit ();
     void on_menu_help_about();
+    void on_timescroll();
 	
 	/* general window events */
 	void on_window_resized();
@@ -183,6 +187,15 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 	button_apply_size.set_name("apply size");
 	button_apply_size.set_pos(120,120);
 
+	/* prepare time scroll_bar */
+	timescroll = new scroll_bar(*this, scroll_bar::HORIZONTAL);
+	timescroll->set_pos(10,120);
+	timescroll->set_length(100);
+	timescroll->set_max_slider_pos(200);
+	timescroll->set_slider_pos(10);
+	timescroll->set_jump_size(timescroll->max_slider_pos()/10.0);
+	timescroll->set_scroll_handler( *this, &show_image_window::on_timescroll );
+
 	/* arrange the window */
 	on_window_resized();
 
@@ -191,6 +204,8 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 
 show_image_window::~show_image_window(){
 
+	delete timescroll;
+	
 	/* destroy labels */
 	for(int i=0; i < NUMBER_OF_LABELS; i++){
 		free(labels_myvector_properties[i]);
@@ -226,6 +241,12 @@ void show_image_window::on_window_resized() {
 	drawable_window::on_window_resized();
 
 	
+}
+
+void show_image_window::on_timescroll() {
+
+	std::cout << "slider position: " << timescroll->slider_pos() << "/" << timescroll->max_slider_pos() << std::endl;
+
 }
 
 void show_image_window::load_image( const std::string& file_name ) {
