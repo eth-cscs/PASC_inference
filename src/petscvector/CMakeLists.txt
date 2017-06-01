@@ -15,7 +15,9 @@ if(${USE_PETSC})
 
 	# compile cuda cu files
 	if(${USE_CUDA})
-		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*.cu") # locate all cu files in source directory
+		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*initialize.cu") # locate all cu files in source directory
+		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*.cu")
+
 #		set_source_files_properties(${SOURCES_PETSC_CUDA} COMPILE_FLAGS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\"")
 		cuda_add_library(pascinference_petsc_cuda SHARED ${SOURCES_PETSC_CUDA} 
 			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"-fPIC ${CUDA_CXX_FLAGS} \""

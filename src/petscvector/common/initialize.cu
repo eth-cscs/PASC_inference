@@ -16,5 +16,9 @@ void cuda_barrier(){
 	gpuErrchk( cudaDeviceSynchronize() );
 }
 
+void cuda_copytoGPU(Vec &x) {
+//	TRYCXX( VecCUDACopyToGPU(x) );
+}
+
 }
 } /* end of namespace */

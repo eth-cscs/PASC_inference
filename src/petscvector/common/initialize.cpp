@@ -83,15 +83,6 @@ void allbarrier<PetscVector>() {
 	#endif
 }
 
-#ifdef USE_CUDA
-//#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
-
-//PetscErrorCode VecCUDACopyToGPU(_p_Vec*& x);
-
-void cuda_copytoGPU(Vec &x) {
-	TRYCXX( VecCUDACopyToGPU(x) );
-}
-#endif
 
 }
 } /* end of namespace */
