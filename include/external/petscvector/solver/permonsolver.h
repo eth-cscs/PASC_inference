@@ -50,9 +50,10 @@ template<> void PermonSolver<PetscVector>::solve();
 
 template<> PermonSolver<PetscVector>::ExternalContent * PermonSolver<PetscVector>::get_externalcontent() const;
 
-#endif
 
 }
 } /* end namespace */
+
+#endif
 
 #endif
