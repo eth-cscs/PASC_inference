@@ -108,7 +108,7 @@ void FemHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gener
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );		
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 
-			externalcontent->cuda_reduce_data(gammak1_sublocal_Vec, gammak2_Vec, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
+			externalcontent->cuda_reduce_data(gammak1_sublocal_arr, gammak2_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );
@@ -196,7 +196,7 @@ void FemHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, G
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );
 			
-			externalcontent->cuda_prolongate_data(gammak1_Vec, gammak2_sublocal_Vec, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
+			externalcontent->cuda_prolongate_data(gammak1_arr, gammak2_sublocal_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_sublocal_Vec,&gammak2_arr) );

@@ -45,7 +45,7 @@ void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &
 		/* use kernel to compute projection */
 		TRYCXX( VecCUDAGetArrayReadWrite(x_Vec,&x_arr) );		
 
-		externalcontent->cuda_project(x_Vec,T,K);
+		externalcontent->cuda_project(x_arr,T,K);
 
 		TRYCXX( VecCUDARestoreArrayReadWrite(x_Vec,&x_arr) );		
 	#else
