@@ -18,11 +18,7 @@
 
 #ifdef USE_CUDA
 	#include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */
-//	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
-
-	extern "c" {
-		PETSC_INTERN PetscErrorCode VecCUDACopyToGPU(Vec);
-	}
+	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
 
 	/* anselm hotfix */
 	typedef struct _p_PetscCUDAIndices* PetscCUDAIndices;
