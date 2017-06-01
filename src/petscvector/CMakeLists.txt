@@ -17,7 +17,7 @@ if(${USE_PETSC})
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
 		# link external libraries	
-		target_link_libraries(pascinference_petsc_cuda ${LIBRARIES_DEF})
+#		target_link_libraries(pascinference_petsc_cuda ${LIBRARIES_DEF})
 	endif()
 
 	# if there is dlib, then add it as a dependency
