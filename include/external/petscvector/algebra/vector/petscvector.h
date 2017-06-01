@@ -21,7 +21,7 @@
 //	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
 
 	extern "C" {
-		PetscErrorCode VecCUDACopyToGPU(Vec);
+		extern PetscErrorCode VecCUDACopyToGPU(Vec);
 	}
 
 	/* anselm hotfix */
