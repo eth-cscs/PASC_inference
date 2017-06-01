@@ -11,7 +11,7 @@ if(${USE_PETSC})
 	add_library(pascinference_petsc SHARED ${SOURCES_PETSC})
 
 	# link external libraries	
-	target_link_libraries(pascinference_petsc ${PETSC_LIBRARIES})
+#	target_link_libraries(pascinference_petsc ${PETSC_LIBRARIES})
 
 	# compile cuda cu files
 	if(${USE_CUDA})
