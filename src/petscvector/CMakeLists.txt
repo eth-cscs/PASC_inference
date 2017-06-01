@@ -16,6 +16,8 @@ if(${USE_PETSC})
 			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
+		add_dependencies(pascinference_petsc_cuda pascinference_petsc)
+
 	endif()
 
 	# if there is dlib, then add it as a dependency
