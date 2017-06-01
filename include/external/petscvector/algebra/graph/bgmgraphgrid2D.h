@@ -15,8 +15,8 @@ template<> class BGMGraphGrid2D<PetscVector>::ExternalContent : public BGMGraph<
 		#endif
 };
 
-
 template<> BGMGraphGrid2D<PetscVector>::BGMGraphGrid2D(int width, int height);
+template<> void BGMGraphGrid2D<PetscVector>::process_grid();
 
 template<> BGMGraphGrid2D<PetscVector>::ExternalContent * BGMGraphGrid2D<PetscVector>::get_externalcontent() const;
 

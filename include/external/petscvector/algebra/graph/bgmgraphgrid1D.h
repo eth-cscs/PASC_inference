@@ -1,8 +1,8 @@
 #ifndef PASC_PETSCVECTOR_COMMON_BGMGRAPHGRID1D_H
 #define	PASC_PETSCVECTOR_COMMON_BGMGRAPHGRID1D_H
 
-#include "external/petscvector/algebra/vector/generalvector.h"
 #include "general/algebra/graph/bgmgraphgrid1D.h"
+#include "external/petscvector/algebra/graph/bgmgraph.h"
 
 namespace pascinference {
 namespace algebra {
