@@ -19,6 +19,9 @@ if(${USE_PETSC})
 			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"-fPIC ${CUDA_CXX_FLAGS} \""
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
+		# add dependency to original petsc library
+		add_dependencies(pascinference_petsc pascinference_petsc_cuda)
+
 		# link external libraries	
 #		target_link_libraries(pascinference_petsc_cuda ${LIBRARIES_DEF})
 	endif()
