@@ -25,10 +25,11 @@ class imageplotter : public drawable {
 		bool myvector_loaded;
 
 		void draw (const canvas& c) const;
-		void plot_vector(const canvas& c) const;
+		void plot_image(const canvas& c) const;
 
 		int image_width;
 		int image_height;
+		double image_scale;
 		std::string filename;
 
 	public: 
@@ -40,10 +41,11 @@ class imageplotter : public drawable {
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
 		
-		void set_size(int new_width);
+		void set_size(int new_width, double new_scale);
 		
 		int get_width() const;
 		int get_height() const;
+		double get_scale() const;
 
 		std::string get_filename() const;		
 };
@@ -58,6 +60,8 @@ private:
 	label label_width;
 	text_field select_height;
 	label label_height;
+	text_field select_scale;
+	label label_scale;
 	button button_apply_size;
 
     void load_image( const std::string& file_name );
@@ -114,6 +118,8 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 		label_width(*this),
         select_height(*this),
 		label_height(*this),
+        select_scale(*this),
+		label_scale(*this),
         button_apply_size(*this),
         myimageplotter(*this)
 {
@@ -128,7 +134,7 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 	}
 
     /* prepare position of labels of vector properties */
-    labels_myvector_properties[0]->set_pos(10,130);
+    labels_myvector_properties[0]->set_pos(10,160);
 	for(int i=1; i < 9; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
@@ -163,11 +169,16 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 	label_height.set_text("height :");
 	select_height.disable();
 
+	select_scale.set_pos(120,90);
+	select_scale.set_width(70);
+	select_scale.set_text("1.0");
+	label_scale.set_pos(10,95);
+	label_scale.set_text("scale  :");
 
 	/* register button for changing the size */
 	button_apply_size.set_click_handler(*this, &show_image_window::on_button_apply_size);
 	button_apply_size.set_name("apply size");
-	button_apply_size.set_pos(120,90);
+	button_apply_size.set_pos(120,120);
 
 
 	/* arrange the window */
@@ -271,8 +282,9 @@ std::string show_image_window::cut_filename(const std::string &input){
 
 void show_image_window::on_button_apply_size(){
 	int new_width = std::stoi(trim(select_width.text()));
+	double new_scale = std::stod(trim(select_scale.text()));
 	
-	myimageplotter.set_size(new_width);
+	myimageplotter.set_size(new_width,new_scale);
 
 	/* get recomputed height and set value */
 	select_height.set_text(std::to_string(myimageplotter.get_height()));
@@ -291,7 +303,7 @@ void imageplotter::draw(const canvas& c) const {
 	
 	/* plot vector */
 	if(myvector_loaded){
-		plot_vector(c);
+		plot_image(c);
 	}
 
 }
@@ -303,6 +315,10 @@ imageplotter::imageplotter(drawable_window& w):
 	myvector_Vec = new Vec();
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,myvector_Vec) );
 	myvector_loaded = false;
+	
+	image_width = 0;
+	image_height = 0;
+	image_scale = 1.0;
 	
 	enable_events();
 }
@@ -355,7 +371,7 @@ bool imageplotter::get_myvector_loaded(){
 	return myvector_loaded;
 }
 
-void imageplotter::plot_vector(const canvas& c) const{
+void imageplotter::plot_image(const canvas& c) const{
 	unsigned long x_begin = this->left();
 	unsigned long y_begin = this->top();
 	
@@ -406,8 +422,9 @@ void imageplotter::plot_vector(const canvas& c) const{
 	
 }
 
-void imageplotter::set_size(int new_width){
+void imageplotter::set_size(int new_width, double new_scale){
 	this->image_width = new_width;
+	this->image_scale = new_scale;
 
 	/* compute height */
 	if(new_width > 0 && myvector_loaded){
@@ -430,6 +447,10 @@ int imageplotter::get_width() const {
 
 int imageplotter::get_height() const {
 	return image_height;
+}
+
+double imageplotter::get_scale() const {
+	return image_scale;
 }
 
 std::string imageplotter::get_filename() const{
