@@ -11,7 +11,11 @@ printinfo_onoff(" TEST_SIGNAL1D_GENERATE                                        
 
 if(${TEST_SIGNAL1D})
 	# this is signal processing test
-	testadd_executable("test_signal1D/test_signal1D.cpp" "test_signal1D")
+	if(${USE_CUDA})
+		testadd_executable("test_signal1D/test_signal1D.cu" "test_signal1D")
+	else()
+		testadd_executable("test_signal1D/test_signal1D.cpp" "test_signal1D")
+	endif()
 
 	# copy scripts
 	make_directory("scripts/test_signal1D/")
