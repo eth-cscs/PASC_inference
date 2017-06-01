@@ -26,6 +26,8 @@ include_directories("${PASCINFERENCE_ROOT}/include")
 include("${PASCINFERENCE_ROOT}/cmake")
 set(CMAKE_MODULE_PATH "${PASCINFERENCE_ROOT}/util/cmake" ${CMAKE_MODULE_PATH})
 include(pascinference)
+#link_directories(${PROJECT_BINARY_DIR}/lib)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
 # print info about library
 include(printsetting)
