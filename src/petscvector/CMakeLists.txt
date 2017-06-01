@@ -13,11 +13,11 @@ if(${USE_PETSC})
 		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*.cu") # locate all cu files in source directory
 #		set_source_files_properties(${SOURCES_PETSC_CUDA} COMPILE_FLAGS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\"")
 		cuda_add_library(pascinference_petsc_cuda SHARED ${SOURCES_PETSC_CUDA} 
-			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
+			OPTIONS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"-fPIC ${CUDA_CXX_FLAGS} \""
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
-		add_dependencies(pascinference_petsc_cuda pascinference_petsc)
-
+		# link external libraries	
+		target_link_libraries(pascinference_petsc_cuda ${LIBRARIES_DEF})
 	endif()
 
 	# if there is dlib, then add it as a dependency
