@@ -127,7 +127,7 @@ template<class VectorBase>
 void SimplexFeasibleSet_LinEqBound<VectorBase>::project(GeneralVector<VectorBase> &x) {
 	LOG_FUNC_BEGIN
 	
-	//TODO: give error, the projection is not defined for this type of feasible set
+	//TODO: at least implement projection onto box constraints
 
 	LOG_FUNC_END
 }

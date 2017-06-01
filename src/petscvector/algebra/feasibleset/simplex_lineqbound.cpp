@@ -57,6 +57,31 @@ SimplexFeasibleSet_LinEqBound<PetscVector>::SimplexFeasibleSet_LinEqBound(int T,
 	LOG_FUNC_END
 }
 
+template<> void SimplexFeasibleSet_LinEqBound<PetscVector>::project(GeneralVector<PetscVector> &x){
+	LOG_FUNC_BEGIN
+
+	Vec x_Vec = x.get_vector();
+	
+	/* get local size */
+	int local_size;
+	TRYCXX( VecGetLocalSize(x_Vec, &local_size) );
+	
+	/* projection onto box */
+	double *x_arr;
+	TRYCXX( VecGetArray(x_Vec, &x_arr) );
+	for(int i=0;i<local_size;i++){
+		if(x_arr[i] > 1.0){
+			x_arr[i] = 1.0;
+		}
+		if(x_arr[i] < 0.0){
+			x_arr[i] = 0.0;
+		}
+	}
+	TRYCXX( VecRestoreArray(x_Vec, &x_arr) );
+	
+	LOG_FUNC_END
+}
+
 template<> SimplexFeasibleSet_LinEqBound<PetscVector>::ExternalContent * SimplexFeasibleSet_LinEqBound<PetscVector>::get_externalcontent() const {
 	return this->externalcontent;
 }

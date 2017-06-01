@@ -27,6 +27,10 @@ class imageplotter : public drawable {
 		void draw (const canvas& c) const;
 		void plot_vector(const canvas& c) const;
 
+		int image_width;
+		int image_height;
+		std::string filename;
+
 	public: 
 		imageplotter(drawable_window& w);
 		~imageplotter();	
@@ -35,6 +39,13 @@ class imageplotter : public drawable {
 		void load_image( const std::string& file_name );
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
+		
+		void set_size(int new_width);
+		
+		int get_width() const;
+		int get_height() const;
+
+		std::string get_filename() const;		
 };
 
 class show_image_window : public drawable_window {
@@ -43,6 +54,11 @@ private:
 	imageplotter myimageplotter; /* gui: canvas for drawing */
  
     label **labels_myvector_properties;
+	text_field select_width;
+	label label_width;
+	text_field select_height;
+	label label_height;
+	button button_apply_size;
 
     void load_image( const std::string& file_name );
 
@@ -57,6 +73,9 @@ private:
 	template<class ValueType>
 	void set_label_myvector_properties(int label_idx, const std::string &text, ValueType value);
 	std::string cut_filename(const std::string &input);
+	void on_button_apply_size();
+
+	void fill_labels();
 
 public:
     show_image_window();
@@ -91,6 +110,11 @@ int main( int argc, char *argv[] ) {
 
 show_image_window::show_image_window() : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
+        select_width(*this),
+		label_width(*this),
+        select_height(*this),
+		label_height(*this),
+        button_apply_size(*this),
         myimageplotter(*this)
 {
 
@@ -104,13 +128,13 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 	}
 
     /* prepare position of labels of vector properties */
-    labels_myvector_properties[0]->set_pos(10,30);
+    labels_myvector_properties[0]->set_pos(10,130);
 	for(int i=1; i < 9; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
 
 	/* window title */
-	set_title("Show PETSc Vector utility");
+	set_title("Show PETSc image utility");
         
 	/* create menu bar */
     mbar.set_number_of_menus(2);
@@ -124,6 +148,27 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 
     /* Add the entries to the Help menu. */
     mbar.menu(1).add_menu_item(menu_item_text("About",  *this, &show_image_window::on_menu_help_about,   'A'));
+
+	/* register input for size */
+	select_width.set_pos(120,30);
+	select_width.set_width(70);
+	select_width.set_text("0");
+	label_width.set_pos(10,35);
+	label_width.set_text("width  :");
+	
+	select_height.set_pos(120,60);
+	select_height.set_width(70);
+	select_height.set_text("0");
+	label_height.set_pos(10,65);
+	label_height.set_text("height :");
+	select_height.disable();
+
+
+	/* register button for changing the size */
+	button_apply_size.set_click_handler(*this, &show_image_window::on_button_apply_size);
+	button_apply_size.set_name("apply size");
+	button_apply_size.set_pos(120,90);
+
 
 	/* arrange the window */
 	on_window_resized();
@@ -170,6 +215,13 @@ void show_image_window::on_window_resized() {
 void show_image_window::load_image( const std::string& file_name ) {
 	myimageplotter.load_image(file_name);
 
+	if(myimageplotter.get_myvector_loaded()){
+		fill_labels();
+	}
+}
+
+void show_image_window::fill_labels() {
+
 	Vec *myvector_Vec = myimageplotter.get_myvector_Vec();
 
 	/* compute basic properties of loaded vector */
@@ -189,7 +241,7 @@ void show_image_window::load_image( const std::string& file_name ) {
 	TRYCXX( VecMin(*myvector_Vec, NULL, &myvector_min) );
 
 	/* print properties of vectors to labels */
-	set_label_myvector_properties(0, "name:    ", cut_filename(file_name));
+	set_label_myvector_properties(0, "name:    ", cut_filename(myimageplotter.get_filename()));
 	set_label_myvector_properties(1, "size:    ", myvector_size);
 	set_label_myvector_properties(2, "norm2:   ", myvector_norm2);
 	set_label_myvector_properties(3, "norm1:   ", myvector_norm1);
@@ -215,6 +267,20 @@ std::string show_image_window::cut_filename(const std::string &input){
 	sout << p.filename();
 
 	return sout.str();
+}
+
+void show_image_window::on_button_apply_size(){
+	int new_width = std::stoi(trim(select_width.text()));
+	
+	myimageplotter.set_size(new_width);
+
+	/* get recomputed height and set value */
+	select_height.set_text(std::to_string(myimageplotter.get_height()));
+
+	if(myimageplotter.get_myvector_loaded()){
+		fill_labels();
+	}
+
 }
 
 /* ------------------------- graph plotter -------------- */
@@ -253,6 +319,8 @@ void imageplotter::set_plotting_area(rectangle area){
 }
 
 void imageplotter::load_image( const std::string& file_name ) {
+	this->filename = file_name;
+
 	if(myvector_loaded){
 		/* destroy existing vector */
 		TRYCXX( VecDestroy(myvector_Vec) );
@@ -336,4 +404,34 @@ void imageplotter::plot_vector(const canvas& c) const{
 	
 	/* plot a line */
 	
+}
+
+void imageplotter::set_size(int new_width){
+	this->image_width = new_width;
+
+	/* compute height */
+	if(new_width > 0 && myvector_loaded){
+		int    myvector_size;
+		TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
+		
+		this->image_height = (int)(myvector_size/(double)new_width);
+	
+	} else {
+		this->image_height = 0;
+	}
+
+	/* repaint ! */
+	parent.invalidate_rectangle(rect);
+}
+
+int imageplotter::get_width() const {
+	return image_width;
+}
+
+int imageplotter::get_height() const {
+	return image_height;
+}
+
+std::string imageplotter::get_filename() const{
+	return this->filename;
 }

@@ -16,6 +16,7 @@ template<> class SimplexFeasibleSet_LinEqBound<PetscVector>::ExternalContent {
 };
 
 template<> SimplexFeasibleSet_LinEqBound<PetscVector>::SimplexFeasibleSet_LinEqBound(int T, int Tlocal, int K);
+template<> void SimplexFeasibleSet_LinEqBound<PetscVector>::project(GeneralVector<PetscVector> &x);
 
 template<> SimplexFeasibleSet_LinEqBound<PetscVector>::ExternalContent * SimplexFeasibleSet_LinEqBound<PetscVector>::get_externalcontent() const;
 
