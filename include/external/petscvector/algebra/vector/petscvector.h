@@ -20,7 +20,7 @@
 	#include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */
 //	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
 
-	PetscErrorCode VecCUDACopyToGPU(Vec);
+	PETSC_INTERN PetscErrorCode VecCUDACopyToGPU(Vec);
 
 	/* anselm hotfix */
 	typedef struct _p_PetscCUDAIndices* PetscCUDAIndices;
