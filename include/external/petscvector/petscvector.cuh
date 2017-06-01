@@ -19,19 +19,6 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 	}
 }
 
-/* anselm hotfix */
-/*
-typedef struct _p_PetscCUDAIndices* PetscCUDAIndices;
-typedef struct _p_VecScatterCUDAIndices_StoS* VecScatterCUDAIndices_StoS;
-typedef struct _p_VecScatterCUDAIndices_PtoP* VecScatterCUDAIndices_PtoP;
-PETSC_EXTERN PetscErrorCode VecCUDACopyToGPUSome_Public(Vec,PetscCUDAIndices);
-PETSC_EXTERN PetscErrorCode VecCUDACopyFromGPUSome_Public(Vec,PetscCUDAIndices);
-PETSC_EXTERN PetscErrorCode VecScatterInitializeForGPU(VecScatter,Vec,ScatterMode);
-PETSC_EXTERN PetscErrorCode VecScatterFinalizeForGPU(VecScatter);
-PETSC_EXTERN PetscErrorCode VecCreateSeqCUDA(MPI_Comm,PetscInt,Vec*);
-PETSC_EXTERN PetscErrorCode VecCreateMPICUDA(MPI_Comm,PetscInt,PetscInt,Vec*);
-*/
-
 #endif
 
 
