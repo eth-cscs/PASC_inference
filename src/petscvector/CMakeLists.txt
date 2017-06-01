@@ -20,7 +20,7 @@ if(${USE_PETSC})
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 
 		# add dependency to original petsc library
-		add_dependencies(pascinference_petsc pascinference_petsc_cuda)
+#		add_dependencies(pascinference_petsc pascinference_petsc_cuda)
 
 		# link external libraries	
 #		target_link_libraries(pascinference_petsc_cuda ${LIBRARIES_DEF})
