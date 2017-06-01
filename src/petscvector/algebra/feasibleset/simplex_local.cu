@@ -36,17 +36,11 @@ void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_destroy(){
 	LOG_FUNC_END
 }
 
-void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_project(Vec &x_Vec, int T, int K){
+void SimplexFeasibleSet_Local<PetscVector>::ExternalContent::cuda_project(double *x_arr, int T, int K){
 	LOG_FUNC_BEGIN
-
-	double *x_arr;
-	TRYCXX( VecCUDAGetArrayReadWrite(x_Vec,&x_arr) );
 
 	kernel_project<<<gridSize, blockSize>>>(x_arr,this->x_sorted,T,K);
 	gpuErrchk( cudaDeviceSynchronize() );
-	MPI_Barrier( MPI_COMM_WORLD );
-
-	TRYCXX( VecCUDARestoreArrayReadWrite(x_Vec,&x_arr) );
 	
 	LOG_FUNC_END
 }

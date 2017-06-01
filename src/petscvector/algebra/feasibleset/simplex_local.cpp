@@ -39,14 +39,17 @@ void SimplexFeasibleSet_Local<PetscVector>::project(GeneralVector<PetscVector> &
 	LOG_FUNC_BEGIN
 	
 	Vec x_Vec = x.get_vector();
+	double *x_arr;
 	
 	#ifdef USE_CUDA
 		/* use kernel to compute projection */
+		TRYCXX( VecCUDAGetArrayReadWrite(x_Vec,&x_arr) );		
+
 		externalcontent->cuda_project(x_Vec,T,K);
+
+		TRYCXX( VecCUDARestoreArrayReadWrite(x_Vec,&x_arr) );		
 	#else
 		/* get local array */
-		double *x_arr;
-
 		TRYCXX( VecGetArray(x_Vec,&x_arr) );
 	
 		for(int t=0;t<T;t++){

@@ -27,7 +27,6 @@ template<> void allbarrier<PetscVector>();
 #ifdef USE_CUDA
 	extern void cuda_warmup();
 	extern void cuda_barrier();
-	extern void cuda_copytoGPU(Vec &x);
 #endif
 
 }

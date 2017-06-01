@@ -19,50 +19,20 @@ void FemHat<PetscVector>::ExternalContent::cuda_occupancy(){
 	LOG_FUNC_END
 }
 
-void FemHat<PetscVector>::ExternalContent::cuda_reduce_data(Vec &data1, Vec &data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff){
+void FemHat<PetscVector>::ExternalContent::cuda_reduce_data(double *data1_arr, double *data2_arr, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff){
 	LOG_FUNC_BEGIN
-
-	//TODO: really?
-//	TRYCXX( VecCUDACopyToGPU(data1_Vec) );
-//	TRYCXX( VecCUDACopyToGPU(data2_Vec) );
-
-	double *data1_arr;
-	double *data2_arr;
-
-	/* cuda version */
-	TRYCXX( VecCUDAGetArrayReadWrite(data1,&data1_arr) );
-	TRYCXX( VecCUDAGetArrayReadWrite(data2,&data2_arr) );
 
 	kernel_femhat_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(data1_arr, data2_arr, T1, T2, Tbegin1, Tbegin2, T1local, T2local, left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 	gpuErrchk( cudaDeviceSynchronize() );
-	MPI_Barrier( MPI_COMM_WORLD );	
-
-	TRYCXX( VecCUDARestoreArrayReadWrite(data1,&data1_arr) );
-	TRYCXX( VecCUDARestoreArrayReadWrite(data2,&data2_arr) );
 
 	LOG_FUNC_END
 }
 
-void FemHat<PetscVector>::ExternalContent::cuda_prolongate_data(Vec &data1, Vec &data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff){
+void FemHat<PetscVector>::ExternalContent::cuda_prolongate_data(double *data1_arr, double *data2_arr, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int right_t1_idx, int left_t2_idx, int right_t2_idx, double diff){
 	LOG_FUNC_BEGIN
-
-	//TODO: really?
-//	TRYCXX( VecCUDACopyToGPU(data1_Vec) );
-//	TRYCXX( VecCUDACopyToGPU(data2_Vec) );
-
-	double *data1_arr;
-	double *data2_arr;
-
-	/* cuda version */
-	TRYCXX( VecCUDAGetArrayReadWrite(data1,&data1_arr) );
-	TRYCXX( VecCUDAGetArrayReadWrite(data2,&data2_arr) );
 
 	kernel_femhat_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(data1_arr, data2_arr, T1, T2, Tbegin1, Tbegin2, T1local, T2local, left_t1_idx, right_t1_idx, left_t2_idx, right_t2_idx, diff);
 	gpuErrchk( cudaDeviceSynchronize() );
-	MPI_Barrier( MPI_COMM_WORLD );	
-
-	TRYCXX( VecCUDARestoreArrayReadWrite(data1,&data1_arr) );
-	TRYCXX( VecCUDARestoreArrayReadWrite(data2,&data2_arr) );
 
 	LOG_FUNC_END
 }

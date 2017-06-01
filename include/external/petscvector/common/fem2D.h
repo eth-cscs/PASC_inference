@@ -13,8 +13,8 @@ template<> class Fem2D<PetscVector>::ExternalContent : public Fem<PetscVector>::
 	#ifdef USE_CUDA
 		void cuda_occupancy();
 
-		void cuda_reduce_data(Vec &data1, Vec &data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
-		void cuda_prolongate_data(Vec &data1, Vec &data2, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
+		void cuda_reduce_data(double *data1_arr, double *data2_arr, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
+		void cuda_prolongate_data(double *data1_arr, double *data2_arr, int T1, int T2, int Tbegin1, int Tbegin2, int T1local, int T2local, int left_t1_idx, int left_t2_idx, double diff);
 	#endif
 };
 

@@ -16,6 +16,11 @@
 /* include petsc */
 #include "petsc.h"
 
+#ifdef USE_CUDA
+	#include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */
+	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
+#endif
+
 /* std:list for linear combinations */
 #include <list>
 

@@ -38,7 +38,7 @@ template<> class SimplexFeasibleSet_Local<PetscVector>::ExternalContent {
 		* @param Tlocal parameter of vector length
 		* @param K parameter of vector length
 		*/ 
-		void cuda_project(Vec &x_Vec, int T, int K);
+		void cuda_project(double *x_arr, int T, int K);
 		
 		void cuda_create(int T, int K);
 		void cuda_destroy();

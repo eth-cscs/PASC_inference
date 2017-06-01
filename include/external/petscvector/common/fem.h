@@ -22,8 +22,8 @@ template<> class Fem<PetscVector>::ExternalContent {
 		int gridSize_prolongate; /**< the actual grid size needed, based on input size */
 
 		void cuda_occupancy();
-		void cuda_reduce_data(Vec &data1, Vec &data2, int T1, int T2, int T2local, double diff);
-		void cuda_prolongate_data(Vec &data1, Vec &data2, int T1, int T2, int T2local, double diff);
+		void cuda_reduce_data(double *data1_arr, double *data2_arr, int T1, int T2, int T2local, double diff);
+		void cuda_prolongate_data(double *data1_arr, double *data2_arr, int T1, int T2, int T2local, double diff);
 	#endif
 };
 

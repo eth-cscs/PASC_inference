@@ -36,8 +36,8 @@ void Fem<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralV
 	Vec gamma2_Vec = gamma2->get_vector();
 
 	#ifdef USE_GPU
-		cuda_copytoGPU(gamma1_Vec);
-		cuda_copytoGPU(gamma2_Vec);
+		TRYCXX( VecCUDACopyToGPU(gamma1_Vec) );	
+		TRYCXX( VecCUDACopyToGPU(gamma2_Vec) );	
 	#endif
 
 	Vec gammak1_Vec;
@@ -80,7 +80,14 @@ void Fem<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralV
 			TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 		#else
+			/* cuda version */
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
+
 			externalcontent->cuda_reduce_data(gammak1_sublocal_Vec,gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
+
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 		#endif
 
 		/* restore local necessary part for local computation */
@@ -109,8 +116,8 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 	Vec gamma2_Vec = gamma2->get_vector();
 
 	#ifdef USE_GPU
-		cuda_copytoGPU(gamma1_Vec);
-		cuda_copytoGPU(gamma2_Vec);
+		TRYCXX( VecCUDACopyToGPU(gamma1_Vec) );	
+		TRYCXX( VecCUDACopyToGPU(gamma2_Vec) );	
 	#endif
 
 	Vec gammak1_Vec;
@@ -151,7 +158,13 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 			TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 		#else
 			/* cuda version */
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
+
 			externalcontent->cuda_prolongate_data(gammak1_sublocal_Vec, gammak2_Vec, decomposition1->get_T(), decomposition2->get_T(), decomposition2->get_Tlocal(), diff);
+
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_sublocal_Vec,&gammak1_arr) );
+			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 		#endif
 
 		/* restore local necessary part for local computation */

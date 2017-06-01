@@ -74,12 +74,12 @@ void SPGQPSolver<PetscVector>::solve() {
 
 	#ifdef USE_CUDA
 		/* make sure that we are computing on GPU */
-		cuda_copytoGPU(b_Vec);
-		cuda_copytoGPU(x_Vec);
-		cuda_copytoGPU(x0_Vec);
-		cuda_copytoGPU(g_Vec);
-		cuda_copytoGPU(d_Vec);
-		cuda_copytoGPU(Ad_Vec);
+		TRYCXX( VecCUDACopyToGPU(b_Vec) );	
+		TRYCXX( VecCUDACopyToGPU(x_Vec) );	
+		TRYCXX( VecCUDACopyToGPU(x0_Vec) );	
+		TRYCXX( VecCUDACopyToGPU(g_Vec) );	
+		TRYCXX( VecCUDACopyToGPU(d_Vec) );	
+		TRYCXX( VecCUDACopyToGPU(Ad_Vec) );	
 	#endif
 	
 	allbarrier<PetscVector>();
