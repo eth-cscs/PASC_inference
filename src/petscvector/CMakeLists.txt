@@ -4,8 +4,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 
 # compile cpp files with petsc
 if(${USE_PETSC})
-#	file(GLOB_RECURSE SOURCES_PETSC "${PASCINFERENCE_SRC}/petscvector/*.cpp")
-	file(GLOB_RECURSE SOURCES_PETSC "${PASCINFERENCE_SRC}/petscvector/*initialize.cpp")
+	file(GLOB_RECURSE SOURCES_PETSC "${PASCINFERENCE_SRC}/petscvector/*.cpp")
+#	file(GLOB_RECURSE SOURCES_PETSC "${PASCINFERENCE_SRC}/petscvector/*initialize.cpp")
 
 	set_source_files_properties(${SOURCES_PETSC} COMPILE_FLAGS "${FLAGS_DEF_D}")
 	add_library(pascinference_petsc SHARED ${SOURCES_PETSC})
@@ -15,7 +15,7 @@ if(${USE_PETSC})
 
 	# compile cuda cu files
 	if(${USE_CUDA})
-		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*initialize.cu") # locate all cu files in source directory
+#		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*initialize.cu") # locate all cu files in source directory
 		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*.cu")
 
 #		set_source_files_properties(${SOURCES_PETSC_CUDA} COMPILE_FLAGS "${FLAGS_DEF_D} -arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\"")
