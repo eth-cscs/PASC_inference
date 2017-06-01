@@ -20,8 +20,8 @@
 	#include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */
 //	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
 
-	extern "C" {
-		PetscErrorCode VecCUDACopyToGPU(Vec);
+	extern "c" {
+		PETSC_INTERN PetscErrorCode VecCUDACopyToGPU(Vec);
 	}
 
 	/* anselm hotfix */
