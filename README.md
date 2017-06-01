@@ -18,17 +18,8 @@ cd PASC_inference
 - be sure that right modules are loaded and PETSc library is installed (and `PETSC_DIR`, `PETSC_ARCH` are properly set); if you are compiling the code on PIZ Daint, you can use scripts, which automatically set right modules and PETSc
 ```
 source util/module_load_daint
-source util/set_petsc_daint
 ```
-- compile METIS library (for graph decomposition in image denoising example)
-```
-cd util/metis/
-mkdir build
-cd build
-cmake -DSHARED=ON ..
-make
-```
-- get back to PASC_inference folder and compile examples
+- compile examples
 ```
 cd examples
 mkdir build
