@@ -169,13 +169,13 @@ void Fem2D<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Genera
 		#else
 			/* cuda version */
 			//TODO:!
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
+//			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
+//			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 			
-//			externalcontent->cuda_reduce_data(gammak1_overlap_arr, gammak2_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
+//			externalcontent->cuda_reduce_data(gammak1_arr, gammak2_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
 
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
-			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );
+//			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_overlap_Vec,&gammak1_arr) );
+//			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_Vec,&gammak2_arr) );
 		#endif
 
 		/* restore local necessary part for local computation */
@@ -273,7 +273,7 @@ void Fem2D<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Ge
 //			TRYCXX( VecCUDAGetArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 //			TRYCXX( VecCUDAGetArrayReadWrite(gammak2_overlap_Vec,&gammak2_arr) );
 
-//			externalcontent->cuda_reduce_data(gammak1_overlap_arr, gammak2_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
+//			externalcontent->cuda_reduce_data(gammak1_arr, gammak2_arr, this->decomposition1->get_T(), this->decomposition2->get_T(), this->decomposition1->get_Tbegin(), this->decomposition2->get_Tbegin(), this->decomposition1->get_Tlocal(), this->decomposition2->get_Tlocal(), left_t1_idx, left_t2_idx, this->diff);
 
 //			TRYCXX( VecCUDARestoreArrayReadWrite(gammak1_Vec,&gammak1_arr) );
 //			TRYCXX( VecCUDARestoreArrayReadWrite(gammak2_overlap_Vec,&gammak2_arr) );
