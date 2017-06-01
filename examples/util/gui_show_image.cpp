@@ -41,13 +41,15 @@ class imageplotter : public drawable {
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
 		
-		void set_size(int new_width, double new_scale);
+		void set_size(int new_width);
 		
 		int get_width() const;
 		int get_height() const;
 		double get_scale() const;
 
-		std::string get_filename() const;		
+		std::string get_filename() const;
+		
+		void recompute_scale();
 };
 
 class show_image_window : public drawable_window {
@@ -174,12 +176,12 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 	select_scale.set_text("1.0");
 	label_scale.set_pos(10,95);
 	label_scale.set_text("scale  :");
+	select_scale.disable();
 
 	/* register button for changing the size */
 	button_apply_size.set_click_handler(*this, &show_image_window::on_button_apply_size);
 	button_apply_size.set_name("apply size");
 	button_apply_size.set_pos(120,120);
-
 
 	/* arrange the window */
 	on_window_resized();
@@ -200,7 +202,7 @@ show_image_window::~show_image_window(){
 }
 
 void show_image_window::on_menu_help_about(){
-     message_box("About","This application is for PETSc vector visualisation\n");
+     message_box("About","This application is for PETSc image visualisation\n");
 }
 
 void show_image_window::on_menu_file_open(){
@@ -218,17 +220,28 @@ void show_image_window::on_window_resized() {
 	unsigned long width,height;
     get_size(width,height);
 	myimageplotter.set_plotting_area(rectangle(200,mbar.bottom(),width,height));
+	myimageplotter.recompute_scale();
+	select_scale.set_text(std::to_string(myimageplotter.get_scale()));
 
 	drawable_window::on_window_resized();
 
+	
 }
 
 void show_image_window::load_image( const std::string& file_name ) {
 	myimageplotter.load_image(file_name);
 
 	if(myimageplotter.get_myvector_loaded()){
+		/* get recomputed height and set value */
+		select_width.set_text(std::to_string(myimageplotter.get_width()));
+		select_height.set_text(std::to_string(myimageplotter.get_height()));
+
 		fill_labels();
 	}
+
+	myimageplotter.recompute_scale();
+	select_scale.set_text(std::to_string(myimageplotter.get_scale()));
+
 }
 
 void show_image_window::fill_labels() {
@@ -282,12 +295,14 @@ std::string show_image_window::cut_filename(const std::string &input){
 
 void show_image_window::on_button_apply_size(){
 	int new_width = std::stoi(trim(select_width.text()));
-	double new_scale = std::stod(trim(select_scale.text()));
 	
-	myimageplotter.set_size(new_width,new_scale);
+	myimageplotter.set_size(new_width);
+	myimageplotter.recompute_scale();
 
 	/* get recomputed height and set value */
+	select_width.set_text(std::to_string(myimageplotter.get_width()));
 	select_height.set_text(std::to_string(myimageplotter.get_height()));
+	select_scale.set_text(std::to_string(myimageplotter.get_scale()));
 
 	if(myimageplotter.get_myvector_loaded()){
 		fill_labels();
@@ -357,6 +372,18 @@ void imageplotter::load_image( const std::string& file_name ) {
 
 	myvector_loaded = true;
 
+	/* compute some implicit width */
+	int myvector_size;
+	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
+	int x_size = rect.width();
+	if(myvector_size < x_size){ 
+		image_width = myvector_size;
+	} else {
+		image_width = x_size;
+	}
+	image_height = (int)(myvector_size/(double)image_width);
+	image_scale = 1.0;
+
 	/* the whole rectangle with plotted graph will be repainted */
 	parent.invalidate_rectangle(rect);
 
@@ -379,52 +406,49 @@ void imageplotter::plot_image(const canvas& c) const{
 	unsigned long y_size = this->height();
 
 	/* get the length of the signal */
-	int    myvector_size;
-	double myvector_max;
-	double myvector_min;
+	int myvector_size;
 	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
-	TRYCXX( VecMax(*myvector_Vec, NULL, &myvector_max) );
-	TRYCXX( VecMin(*myvector_Vec, NULL, &myvector_min) );
-
-	/* free space parameters */
-	double px_min = 0.01*x_size;
-	double px_max = 0.99*x_size;
-	double py_min = 0.1*y_size;
-	double py_max = 0.9*y_size;
 
 	/* coefficients of mapping t to x */
-	double ax = (px_max - px_min)/(double)(myvector_size - 1);
-	double bx = px_max - ax*myvector_size;
+//	double ax = (px_max - px_min)/(double)(myvector_size - 1);
+//	double bx = px_max - ax*myvector_size;
 
 	/* coefficients of mapping value to y */
-	double ay = (py_max - py_min)/(double)(myvector_max - myvector_min);
-	double by = py_max - ay*myvector_max;
+//	double ay = (py_max - py_min)/(double)(myvector_max - myvector_min);
+//	double by = py_max - ay*myvector_max;
 
-	/* I will use these points */
-	point mypoint1;
-	point mypoint2;
+	/* get some plotting variables */
+	rectangle rect_pixel;
+	int x_coor, y_coor;
+	double pixel_size_x = x_size/(double)image_width;
+	double pixel_size_y = y_size/(double)image_height;
+	double pixel_size;
+	if(pixel_size_x < pixel_size_y){
+		pixel_size = pixel_size_x;
+	} else {
+		pixel_size = pixel_size_y;
+	}
 
+	
 	double *values;
 	TRYCXX( VecGetArray(*myvector_Vec,&values) );
 	for(int t=1;t<myvector_size;t++){
-		mypoint1(0) = x_begin + ax*(t-1) + bx;
-		mypoint1(1) = y_begin + (y_size - (ay*values[t-1] + by));
+		y_coor = t/(double)image_width;
+		x_coor = t - y_coor*image_width;
 
-		mypoint2(0) = x_begin + ax*t + bx;
-		mypoint2(1) = y_begin + (y_size - (ay*values[t] + by));
-		
-		draw_line(c,mypoint1,mypoint2, rgb_pixel(0,0,255));
+		rect_pixel.set_left(x_begin + x_coor*pixel_size);
+		rect_pixel.set_top(y_begin + y_coor*pixel_size);
+		rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
+		rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
 
+		fill_rect(c,rect_pixel,rgb_pixel(values[t-1]*255,values[t-1]*255,values[t-1]*255));		
 	}
 	TRYCXX( VecRestoreArray(*myvector_Vec,&values) );
 	
-	/* plot a line */
-	
 }
 
-void imageplotter::set_size(int new_width, double new_scale){
+void imageplotter::set_size(int new_width){
 	this->image_width = new_width;
-	this->image_scale = new_scale;
 
 	/* compute height */
 	if(new_width > 0 && myvector_loaded){
@@ -455,4 +479,23 @@ double imageplotter::get_scale() const {
 
 std::string imageplotter::get_filename() const{
 	return this->filename;
+}
+
+void imageplotter::recompute_scale() {
+	if(!myvector_loaded){
+		image_scale = 1.0;
+	} else {
+		unsigned long x_size = this->width();
+		unsigned long y_size = this->height();
+
+		double pixel_size_x = x_size/(double)image_width;
+		double pixel_size_y = y_size/(double)image_height;
+		
+		if(pixel_size_x < pixel_size_y){
+			image_scale = pixel_size_x;
+		} else {
+			image_scale = pixel_size_y;
+		}
+		
+	}
 }
