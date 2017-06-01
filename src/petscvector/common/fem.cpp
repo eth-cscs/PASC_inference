@@ -116,8 +116,8 @@ void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, Gene
 	Vec gamma2_Vec = gamma2->get_vector();
 
 	#ifdef USE_GPU
-		TRYCXX( VecCUDACopyToGPU(gamma1_Vec) );	
-		TRYCXX( VecCUDACopyToGPU(gamma2_Vec) );	
+		cuda_copytoGPU(gamma1_Vec);
+		cuda_copytoGPU(gamma2_Vec);
 	#endif
 
 	Vec gammak1_Vec;

@@ -142,9 +142,9 @@ double Signal1DData<PetscVector>::compute_abserr_reconstructed(GeneralVector<Pet
 
 	/* transfer data to GPU */
 	#ifdef USE_CUDA
-		TRYCXX( VecCUDACopyToGPU(data_Vec) );	
-		TRYCXX( VecCUDACopyToGPU(solution_Vec) );	
-		TRYCXX( VecCUDACopyToGPU(gammavector_Vec) );	
+		cuda_copytoGPU(data_Vec);
+		cuda_copytoGPU(solution_Vec);
+		cuda_copytoGPU(gammavector_Vec);
 	#endif
 
 	/* compute recovered signal */

@@ -83,7 +83,11 @@ void allbarrier<PetscVector>() {
 	#endif
 }
 
-
+#ifdef USE_GPU
+void cuda_copytoGPU(Vec &x) {
+	TRYCXX( VecCUDACopyToGPU(x) );
+}
+#endif
 
 }
 } /* end of namespace */
