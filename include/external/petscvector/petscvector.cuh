@@ -8,8 +8,8 @@
 #include <device_launch_parameters.h>
 #include <device_functions.h>
 
-#include "petsccuda.h"
-#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */
+#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
 
 /* cuda error check */ 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
