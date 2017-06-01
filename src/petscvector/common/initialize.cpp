@@ -74,7 +74,7 @@ void Finalize<PetscVector>(){
 
 template<>
 void allbarrier<PetscVector>() {
-	#ifdef USE_GPU
+	#ifdef USE_CUDA
 		cuda_barrier();
 	#endif
 
@@ -83,7 +83,7 @@ void allbarrier<PetscVector>() {
 	#endif
 }
 
-#ifdef USE_GPU
+#ifdef USE_CUDA
 void cuda_copytoGPU(Vec &x) {
 	TRYCXX( VecCUDACopyToGPU(x) );
 }
