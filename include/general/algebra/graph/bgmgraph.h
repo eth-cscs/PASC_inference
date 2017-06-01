@@ -134,7 +134,7 @@ class BGMGraph {
 
 		/** @brief decompose graph to given number of domains using METIS
 		*/
-		virtual void decompose(int nmb_domains);
+		void decompose(int nmb_domains);
 
 		/** @brief print basic informations of graph
 		*/

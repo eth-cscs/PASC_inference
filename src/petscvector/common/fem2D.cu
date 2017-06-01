@@ -26,15 +26,15 @@ void Fem2D<PetscVector>::ExternalContent::cuda_reduce_data(Vec &data1, Vec &data
 	double *data2_arr;
 
 	/* cuda version */
-	TRYCXX( VecCUDAGetArrayReadWrite(data1_Vec,&data1_arr) );
-	TRYCXX( VecCUDAGetArrayReadWrite(data2_Vec,&data2_arr) );
+	TRYCXX( VecCUDAGetArrayReadWrite(data1,&data1_arr) );
+	TRYCXX( VecCUDAGetArrayReadWrite(data2,&data2_arr) );
 
 	kernel_fem2D_reduce_data<<<gridSize_reduce, blockSize_reduce>>>(data1_arr, data2_arr, T1, T2, Tbegin1, Tbegin2, T1local, T2local, left_t1_idx, left_t2_idx, diff);
 	gpuErrchk( cudaDeviceSynchronize() );
 	MPI_Barrier( MPI_COMM_WORLD );	
 
-	TRYCXX( VecCUDARestoreArrayReadWrite(data1_Vec,&data1_arr) );
-	TRYCXX( VecCUDARestoreArrayReadWrite(data2_Vec,&data2_arr) );
+	TRYCXX( VecCUDARestoreArrayReadWrite(data1,&data1_arr) );
+	TRYCXX( VecCUDARestoreArrayReadWrite(data2,&data2_arr) );
 
 	LOG_FUNC_END
 }
@@ -46,15 +46,15 @@ void Fem2D<PetscVector>::ExternalContent::cuda_prolongate_data(Vec &data1, Vec &
 	double *data2_arr;
 
 	/* cuda version */
-	TRYCXX( VecCUDAGetArrayReadWrite(data1_Vec,&data1_arr) );
-	TRYCXX( VecCUDAGetArrayReadWrite(data2_Vec,&data2_arr) );
+	TRYCXX( VecCUDAGetArrayReadWrite(data1,&data1_arr) );
+	TRYCXX( VecCUDAGetArrayReadWrite(data2,&data2_arr) );
 
-	kernel_fem2D_prolongate_data(data1_arr, data2_arr, T1, T2, Tbegin1, Tbegin2, T1local, T2local, left_t1_idx, left_t2_idx, diff);
+	kernel_fem2D_prolongate_data<<<gridSize_prolongate, blockSize_prolongate>>>(data1_arr, data2_arr, T1, T2, Tbegin1, Tbegin2, T1local, T2local, left_t1_idx, left_t2_idx, diff);
 	gpuErrchk( cudaDeviceSynchronize() );
 	MPI_Barrier( MPI_COMM_WORLD );	
 
-	TRYCXX( VecCUDARestoreArrayReadWrite(data1_Vec,&data1_arr) );
-	TRYCXX( VecCUDARestoreArrayReadWrite(data2_Vec,&data2_arr) );
+	TRYCXX( VecCUDARestoreArrayReadWrite(data1,&data1_arr) );
+	TRYCXX( VecCUDARestoreArrayReadWrite(data2,&data2_arr) );
 
 	LOG_FUNC_END
 }
