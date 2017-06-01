@@ -8,6 +8,9 @@ if(${USE_PETSC})
 	set_source_files_properties(${SOURCES_PETSC} COMPILE_FLAGS "${FLAGS_DEF_D}")
 	add_library(pascinference_petsc SHARED ${SOURCES_PETSC})
 
+	# link external libraries	
+	target_link_libraries(pascinference_petsc ${LIBRARIES_DEF})
+
 	# compile cuda cu files
 	if(${USE_CUDA})
 		file(GLOB_RECURSE SOURCES_PETSC_CUDA "${PASCINFERENCE_SRC}/petscvector/*.cu") # locate all cu files in source directory
