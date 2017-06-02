@@ -31,6 +31,6 @@
 
 /* integration */
 //#include "external/petscvector/algebra/integration/entropyintegration.h"
-//#include "external/petscvector/algebra/integration/entropyintegrationdlib.h"
+#include "external/petscvector/algebra/integration/entropyintegrationdlib.h"
 
 #endif

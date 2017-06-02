@@ -30,22 +30,18 @@ namespace algebra {
 template<class VectorBase>
 class EntropyIntegration {
 	protected:
-		int m;		/**< length of lambda vector */
-		int Km;		/**< number of integrals (the largest power) */
-
+		double eps;
 	public:
-		EntropyIntegration(int m_new, int Km_new);
+		EntropyIntegration(double new_eps);
 		~EntropyIntegration();
 
-		void print(ConsoleOutput &output) const;
-		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		std::string get_name() const;
+		virtual void print(ConsoleOutput &output) const;
+		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
+		virtual std::string get_name() const;
 
-		int get_m() const;
-		void set_m(int m_new);
-		int get_Km() const;
-		void set_Km(int Km_new);
-
+		double get_eps() const;
+		
+		virtual void compute(double *integrals_out, int Km, double *lambda, int Km_max = -1);
 };
 
 }
@@ -58,12 +54,11 @@ namespace algebra {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegration<VectorBase>::EntropyIntegration(int m_new, int Km_new) {
+EntropyIntegration<VectorBase>::EntropyIntegration(double new_eps) {
 	LOG_FUNC_BEGIN
 
 	/* set given parameters */
-	set_m(m_new);
-	set_Km(Km_new);
+	this->eps = new_eps;
 
 	LOG_FUNC_END
 }
@@ -76,6 +71,16 @@ EntropyIntegration<VectorBase>::~EntropyIntegration(){
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+void EntropyIntegration<VectorBase>::compute(double *integrals_out, int Km, double *lambda, int Km_max){
+	LOG_FUNC_BEGIN
+	
+	//TODO
+	
+	LOG_FUNC_END
+}
+
+
 /* print info about integration */
 template<class VectorBase>
 void EntropyIntegration<VectorBase>::print(ConsoleOutput &output) const {
@@ -83,8 +88,7 @@ void EntropyIntegration<VectorBase>::print(ConsoleOutput &output) const {
 
 	output << this->get_name() << std::endl;
 	
-	output <<  " - m                 : " << this->m << std::endl;
-	output <<  " - Km                : " << this->Km << std::endl;
+	output <<  " - eps               : " << this->eps << std::endl;
 
 	output.synchronize();	
 
@@ -98,8 +102,7 @@ void EntropyIntegration<VectorBase>::print(ConsoleOutput &output_global, Console
 
 	output_global <<  this->get_name() << std::endl;
 	
-	output_global <<  " - m                 : " << this->m << std::endl;
-	output_global <<  " - Km                : " << this->Km << std::endl;
+	output_global <<  " - eps               : " << this->eps << std::endl;
 
 	output_global.synchronize();
 
@@ -113,23 +116,8 @@ std::string EntropyIntegration<VectorBase>::get_name() const {
 }
 
 template<class VectorBase>
-int EntropyIntegration<VectorBase>::get_Km() const {
-	return this->Km;
-}
-
-template<class VectorBase>
-void EntropyIntegration<VectorBase>::set_Km(int Km_new) {
-	this->Km = Km_new;
-}
-
-template<class VectorBase>
-int EntropyIntegration<VectorBase>::get_m() const {
-	return this->m;
-}
-
-template<class VectorBase>
-void EntropyIntegration<VectorBase>::set_m(int m_new) {
-	this->m = m_new;
+double EntropyIntegration<VectorBase>::get_eps() const {
+	return this->eps;
 }
 
 

@@ -117,7 +117,7 @@ void add_options(boost::program_options::options_description *description, int c
 		opt_entropysolverdlib.add_options()
 			("entropysolverdlib_maxit", boost::program_options::value<int>(), "maximum number of Theta iterations [int]")
 			("entropysolverdlib_eps", boost::program_options::value<double>(), "precision [double]")
-			("entropysolverdlib_integration_eps", boost::program_options::value<double>(), "precision of integration (adaptive simpson rule) [double]")
+			("entropysolverdlib_integration_eps", boost::program_options::value<double>(), "precision of integration [double]")
 			("entropysolverdlib_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("entropysolverdlib_debug_print_moments", boost::program_options::value<bool>(), "print computed moments [bool]")
 			("entropysolverdlib_debug_print_it", boost::program_options::value<bool>(), "print simple info about iterations [bool]");
@@ -131,6 +131,7 @@ void add_options(boost::program_options::options_description *description, int c
 			("entropysolvernewton_eps", boost::program_options::value<double>(), "precision [double]")
 			("entropysolvernewton_eps_Axb", boost::program_options::value<double>(), "precision of inner Ax=b solver [double]")
 			("entropysolvernewton_newton_coeff", boost::program_options::value<double>(), "step-size coefficient of Newton update [double]")
+			("entropysolvernewton_integration_eps", boost::program_options::value<double>(), "precision of integration [double]")
 			("entropysolvernewton_integrationtype", boost::program_options::value<int>(), "type of numerical integration [0=INTEGRATION_AUTO/1=INTEGRATION_DLIB/2=INTEGRATION_MC]")
 			("entropysolvernewton_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
 			("entropysolvernewton_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")

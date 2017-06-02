@@ -50,9 +50,6 @@ template<> EntropySolverNewton<PetscVector>::EntropySolverNewton(EntropyData<Pet
 
 	allocate_temp_vectors();
 
-	this->entropyintegration = NULL; /* not now, the integrator will be initialized with first integration call */
-
-	
 	LOG_FUNC_END	
 }
 
@@ -166,6 +163,9 @@ void EntropySolverNewton<PetscVector>::solve() {
 	Vec momentsk_Vec;
 	Vec integralsk_Vec;
 
+	double *xk_arr;
+	double *integralsk_arr;
+
 	double gnorm, fx; /* norm(g),f(x) */
 	double deltanorm = std::numeric_limits<double>::max(); /* norm(delta) - for debug */
 	double deltanorm_old;
@@ -197,7 +197,11 @@ void EntropySolverNewton<PetscVector>::solve() {
 		
 		/* compute integrals and gradient */
 		this->timer_integrate.start();
-		 externalcontent->compute_integrals(integralsk_Vec, xk_Vec, this->entropyintegration, true);
+		 TRYCXX( VecGetArray(xk_Vec,&xk_arr));
+		 TRYCXX( VecGetArray(integralsk_Vec,&integralsk_arr));
+ 		  entropyintegration->compute(integralsk_arr, Km, xk_arr, 2*Km+1);
+		 TRYCXX( VecRestoreArray(xk_Vec,&xk_arr));
+		 TRYCXX( VecRestoreArray(integralsk_Vec,&integralsk_arr));
 		this->timer_integrate.stop();
 		this->timer_g.start();
 		 externalcontent->compute_gradient(g_Vec, integralsk_Vec, momentsk_Vec);
@@ -276,8 +280,11 @@ void EntropySolverNewton<PetscVector>::solve() {
 			
 			/* recompute integrals, gradient, function value */
 			this->timer_integrate.start();
-			 externalcontent->compute_integrals(integralsk_Vec, xk_Vec, this->entropyintegration, true);
-			this->timer_integrate.stop();
+			 TRYCXX( VecGetArray(xk_Vec,&xk_arr));
+			 TRYCXX( VecGetArray(integralsk_Vec,&integralsk_arr));
+			  entropyintegration->compute(integralsk_arr, Km, xk_arr, 2*Km+1);
+			 TRYCXX( VecRestoreArray(xk_Vec,&xk_arr));
+			 TRYCXX( VecRestoreArray(integralsk_Vec,&integralsk_arr));			this->timer_integrate.stop();
 			this->timer_g.start();
 			 externalcontent->compute_gradient(g_Vec, integralsk_Vec, momentsk_Vec);
 			this->timer_g.stop();
@@ -416,15 +423,17 @@ void EntropySolverNewton<PetscVector>::compute_residuum(GeneralVector<PetscVecto
 	int K = entropydata->get_K();
 	int Km = entropydata->get_Km();
 
-	/* lambda vector for Dlib integration */
-	column_vector lambda(Km);
-    auto mom_function = [&](double x)->double { return externalcontent->gg(x, 0, lambda);};
-    double F_;
+	double F_;
 
-	/* update gamma_solver data - prepare new linear term */
-	/* theta includes all moments */
-	const double *lambda_arr;
-	TRYCXX( VecGetArrayRead(entropydata->get_lambda()->get_vector(), &lambda_arr) );
+	Vec lambda_Vec = entropydata->get_lambda()->get_vector();
+	IS lambdak_is;
+	Vec lambdak_Vec;
+	double *lambdak_arr;
+
+	Vec integrals_Vec = integrals->get_vector();
+	IS integralsk_is;
+	Vec integralsk_Vec;
+	double *integralsk_arr;
 	
 	const double *x_arr;
 	TRYCXX( VecGetArrayRead(entropydata->get_x()->get_vector(), &x_arr) );
@@ -434,33 +443,52 @@ void EntropySolverNewton<PetscVector>::compute_residuum(GeneralVector<PetscVecto
 
 	double mysum, x_power;
 	for(int k=0;k<K;k++){
-		/* compute int_X exp(-sum lambda_j x^j) dx for this cluster
-		/* from arr to Dlib-vec */
-		for(int km=0;km<Km;km++){
-			lambda(km) = lambda_arr[k*Km+km];
-		}
-		F_ = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
-		F_ = log(F_);
+
+		/* get lambdak */
+		TRYCXX( ISCreateStride(PETSC_COMM_SELF,Km, k*Km, 1, &lambdak_is) );
+		TRYCXX( VecGetSubVector(lambda_Vec, lambdak_is, &lambdak_Vec) );
+		TRYCXX( VecGetArray(lambdak_Vec, &lambdak_arr) );
+
+		/* get integrals */
+		TRYCXX( ISCreateStride(PETSC_COMM_SELF,2*Km+1, k*(2*Km+1), 1, &integralsk_is) );
+		TRYCXX( VecGetSubVector(integrals_Vec, integralsk_is, &integralsk_Vec) );
+		TRYCXX( VecGetArray(integralsk_Vec, &integralsk_arr) );
+
+		/* compute int_X exp(-sum lambda_j x^j) dx for this cluster */
+		/* = only integral with km=0 */
+		entropyintegration->compute(integralsk_arr, Km, lambdak_arr, 1);
+
+		F_ = log(integralsk_arr[0]);
 
 		for(int t=0;t<Tlocal;t++){
 			/* compute sum_{j=1}^{Km} lambda_j*x^j */
 			mysum = 0.0;
 			x_power = x_arr[t]; /* x^1 */
 			for(int km=0;km<Km;km++){
-				mysum += lambda_arr[k*Km+km]*x_power;
+				mysum += lambdak_arr[km]*x_power;
 				x_power *= x_arr[t]; /* x_power = x^(km+1) */
 			}
 
 			residuum_arr[t*K + k] = mysum + F_;
 		}
-	}
 
-	/* coeffs of A_shared are updated via computation of Theta :) */
+		/* restore arrays */
+		TRYCXX( VecRestoreArray(integralsk_Vec, &integralsk_arr) );
+		TRYCXX( VecRestoreArray(lambdak_Vec, &lambdak_arr) );
+
+		/* restore integralsk */
+		TRYCXX( VecRestoreSubVector(integrals_Vec, integralsk_is, &integralsk_Vec) );
+		TRYCXX( ISDestroy(&integralsk_is) );
+
+		/* restore lambdak */
+		TRYCXX( VecRestoreSubVector(lambda_Vec, lambdak_is, &lambdak_Vec) );
+		TRYCXX( ISDestroy(&lambdak_is) );
+	}
 
 	/* restore arrays */
 	TRYCXX( VecRestoreArray(residuum->get_vector(), &residuum_arr) );
 	TRYCXX( VecRestoreArrayRead(entropydata->get_x()->get_vector(), &x_arr) );
-	TRYCXX( VecRestoreArrayRead(entropydata->get_lambda()->get_vector(), &lambda_arr) );
+
 		
 	LOG_FUNC_END
 }
@@ -536,67 +564,9 @@ double EntropySolverNewton<PetscVector>::ExternalContent::compute_function_value
 	return f;
 }
 
-void EntropySolverNewton<PetscVector>::ExternalContent::compute_integrals(Vec &integrals_Vec, Vec &lambda_Vec, EntropyIntegration<PetscVector> *entropyintegration, bool compute_all) {
-	LOG_FUNC_BEGIN
-
-	int Km;
-	TRYCXX( VecGetSize(lambda_Vec, &Km) );
-	
-	int Km_int; /* number of computed integrals */
-	if(compute_all){
-		Km_int = 2*Km;
-	} else {
-		Km_int = 0;
-	}
-	
-	/* create instance of integration tool (if not been created before) */
-//	if(!entropyintegration){
-//		entropyintegration = new EntropyIntegration<PetscVector>(Km, Km_int);
-//	}
-
-	double *integrals_arr;
-	double *lambda_arr;
-	TRYCXX( VecGetArray(lambda_Vec, &lambda_arr) );
-	TRYCXX( VecGetArray(integrals_Vec, &integrals_arr) );
-
-	//// TODO: temp
-    column_vector lambda_Dlib(Km);
-    for(int km=0;km<Km;km++){
-		lambda_Dlib(km) = lambda_arr[km];
-	}
-
-    /* compute integrals */
-    for(int km = 0; km<=Km_int;km++){
-		auto mom_function = [&](double x)->double { return gg(x, km, lambda_Dlib);};
-		integrals_arr[km] = dlib::integrate_function_adapt_simp(mom_function, -1.0, 1.0, 1e-10);
-	}
-
-	TRYCXX( VecRestoreArray(lambda_Vec, &lambda_arr) );
-	TRYCXX( VecRestoreArray(integrals_Vec, &integrals_arr) );
-
-	LOG_FUNC_END
-}
-
 template<> EntropySolverNewton<PetscVector>::ExternalContent * EntropySolverNewton<PetscVector>::get_externalcontent() const {
 	return externalcontent;
 }
-
-
-#ifdef USE_DLIB
-double EntropySolverNewton<PetscVector>::ExternalContent::gg(double y, int order, column_vector& LM){
-    long  x_size = LM.size();
-    long  num_moments = x_size;
-    column_vector z(num_moments);
-    
-    z = 0;
-    for (int i = 0; i < num_moments; ++i)
-        z(i) = pow(y,i+1);
-    
-    
-    return pow(y,order)*(exp(-trans(LM)*z));
-}
-#endif
-
 
 
 

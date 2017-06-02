@@ -11,24 +11,13 @@
 #include "general/data/entropydata.h"
 
 /* include integration algorithms */
-#include "general/algebra/integration/entropyintegration.h"
-
-/* include Dlib stuff */
-#ifdef USE_DLIB
-	#include "dlib/matrix.h"
-	#include "dlib/numeric_constants.h"
-	#include "dlib/numerical_integration.h"
-	#include "dlib/optimization.h"
-
-	/* Dlib column vector */
-	typedef dlib::matrix<double,0,1> column_vector;
-#endif
-
+#include "general/algebra/integration/entropyintegrationdlib.h"
 
 #define ENTROPYSOLVERNEWTON_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_AXB 100
 #define ENTROPYSOLVERNEWTON_DEFAULT_EPS 1e-6
 #define ENTROPYSOLVERNEWTON_DEFAULT_EPS_AXB 1e-6
+#define ENTROPYSOLVERNEWTON_DEFAULT_INTEGRATION_EPS 1e-10
 #define ENTROPYSOLVERNEWTON_DEFAULT_NEWTON_COEFF 0.9
 #define ENTROPYSOLVERNEWTON_DEFAULT_DEBUGMODE 0
 
@@ -51,19 +40,6 @@ class EntropySolverNewton: public GeneralSolver {
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
-		/** @brief type of numerical integration
-		 * 
-		 */
-		typedef enum { 
-			INTEGRATION_AUTO=0,					/**< choose automatic solver */
-			INTEGRATION_DLIB=1,					/**< use Dlib library to compute integrals */
-			INTEGRATION_MC=2					/**< use Monte Carlo integration method */
-		} IntegrationType;
-
-		/** @brief return name of integration solver in string format
-		 */
-		std::string print_integrationtype(IntegrationType integrationtype_in) const;
-	
 		double *fxs;							/**< function values in clusters */
 		double *gnorms;							/**< norm of gradient in clusters (stopping criteria) */
 	
@@ -74,9 +50,9 @@ class EntropySolverNewton: public GeneralSolver {
 		int *itAxb_sums;						/**< sums of all cg iterations for each cluster */
 		int *itAxb_lasts;						/**< sums of all cg iterations in this outer iteration */
 		double newton_coeff;					/**< newton step-size coefficient x_{k+1} = x_k + coeff*delta */
-		IntegrationType integrationtype;	 	/**< the type of numerical integration */
+
 		EntropyIntegration<VectorBase> *entropyintegration;	/**< instance of integration tool */
-	
+		
 		Timer timer_compute_moments;			/**< time for computing moments from data */
 		Timer timer_solve; 						/**< total solution time of Newton algorithm */
 		Timer timer_Axb; 						/**< total solution time of KSP algorithm */
@@ -90,7 +66,7 @@ class EntropySolverNewton: public GeneralSolver {
 
 		/* aux vectors */
 		GeneralVector<VectorBase> *moments_data; /**< vector of computed moments from data, size K*Km */
-		GeneralVector<VectorBase> *integrals; /**< vector of computed integrals, size K*(Km+1) */
+		GeneralVector<VectorBase> *integrals; /**< vector of computed integrals, size K*(2*Km+1) */
 		GeneralVector<VectorBase> *x_power; /**< global temp vector for storing power of x */
 		GeneralVector<VectorBase> *x_power_gammak; /**< global temp vector for storing power of x * gamma_k */
 
@@ -98,7 +74,7 @@ class EntropySolverNewton: public GeneralSolver {
 		* 
 		*/
 		void set_settings_from_console();
-		
+
 		int debugmode;				/**< basic debug mode schema [0/1/2] */
 		bool debug_print_it;		/**< print simple info about outer iterations */
 		bool debug_print_vectors;	/**< print content of vectors during iterations */
@@ -111,6 +87,8 @@ class EntropySolverNewton: public GeneralSolver {
 		* 
 		*/
 		void allocate_temp_vectors();
+
+		void prepare_entropyintegration(int integration_type, double integration_eps);
 
 		/** @brief deallocate storage for auxiliary vectors used in computation
 		* 
@@ -157,28 +135,46 @@ namespace pascinference {
 namespace solver {
 
 template<class VectorBase>
-std::string EntropySolverNewton<VectorBase>::print_integrationtype(IntegrationType integrationtype_in) const{
-	std::string return_value = "?";
-	switch(integrationtype_in){
-		case(INTEGRATION_AUTO): return_value = "AUTO"; break;
-		case(INTEGRATION_DLIB): return_value = "DLIB"; break;
-		case(INTEGRATION_MC):   return_value = "Monte Carlo"; break;
+void EntropySolverNewton<VectorBase>::prepare_entropyintegration(int integration_type, double integration_eps) {
+	LOG_FUNC_BEGIN
+
+	/* auto */
+	if(integration_type == 0){
+		integration_type = 1;
 	}
-	return return_value;
+
+	/* dlib */
+	if(integration_type == 1){
+		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(integration_eps);
+	}
+
+	/* montecarlo */
+	if(integration_type == 2){
+		// TODO
+	}
+
+	LOG_FUNC_END
 }
+
 
 template<class VectorBase>
 void EntropySolverNewton<VectorBase>::set_settings_from_console() {
+	LOG_FUNC_BEGIN
+
 	consoleArg.set_option_value("entropysolvernewton_maxit", &this->maxit, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT);
 	consoleArg.set_option_value("entropysolvernewton_maxit_Axb", &this->maxit_Axb, ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_AXB);
 	consoleArg.set_option_value("entropysolvernewton_eps", &this->eps, ENTROPYSOLVERNEWTON_DEFAULT_EPS);
 	consoleArg.set_option_value("entropysolvernewton_eps_Axb", &this->eps_Axb, ENTROPYSOLVERNEWTON_DEFAULT_EPS_AXB);
 	consoleArg.set_option_value("entropysolvernewton_newton_coeff", &this->newton_coeff, ENTROPYSOLVERNEWTON_DEFAULT_NEWTON_COEFF);
 	
-	int integrationtype_int;
-	consoleArg.set_option_value("entropysolvernewton_integrationtype", &integrationtype_int, INTEGRATION_AUTO);
-	this->integrationtype = static_cast<IntegrationType>(integrationtype_int);
+	int integration_type;
+	double integration_eps;
+	consoleArg.set_option_value("entropysolvernewton_integration_eps", &integration_eps, ENTROPYSOLVERNEWTON_DEFAULT_INTEGRATION_EPS);
+	consoleArg.set_option_value("entropysolvernewton_integrationtype", &integration_type, 0);
+//	this->integrationtype = static_cast<IntegrationType>(integrationtype_int);
+	prepare_entropyintegration(integration_type, integration_eps);
 	
+	/* based on integration type allocate EntropyIntegration */
 	consoleArg.set_option_value("entropysolvernewton_monitor", &this->monitor, ENTROPYSOLVERNEWTON_MONITOR);	
 
 	/* set debug mode */
@@ -204,6 +200,7 @@ void EntropySolverNewton<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolvernewton_debug_print_scalars", 	&debug_print_scalars, 	debug_print_scalars);
 	consoleArg.set_option_value("entropysolvernewton_debug_print_Axb", 		&debug_print_Axb, 		debug_print_Axb);
 
+	LOG_FUNC_END
 }
 
 /* prepare temp_vectors */
@@ -266,8 +263,6 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(){
 	this->timer_fs.restart();
 	this->timer_integrate.restart();
 
-	this->entropyintegration = NULL;
-
 	LOG_FUNC_END
 }
 
@@ -312,8 +307,6 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(EntropyData<VectorBase> &ne
 	this->timer_integrate.restart();
 
 	allocate_temp_vectors();
-
-	this->entropyintegration = NULL; /* not now, the integrator will be initialized with first integration call */
 	
 	LOG_FUNC_END
 }
@@ -355,7 +348,7 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - eps              : " << this->eps << std::endl;
 	output <<  " - eps_Axb          : " << this->eps_Axb << std::endl;
 	output <<  " - newton_coeff     : " << this->newton_coeff << std::endl;
-	output <<  " - integrationtype  : " << print_integrationtype(this->integrationtype) << std::endl;
+	output <<  " - integrationtype  : " << this->entropyintegration->get_name() << std::endl;
 	
 	output <<  " - debugmode        : " << this->debugmode << std::endl;
 
@@ -382,7 +375,7 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output_global, Consol
 	output_global <<  " - eps              : " << this->eps << std::endl;
 	output_global <<  " - eps_Axb          : " << this->eps_Axb << std::endl;
 	output_global <<  " - newton_coeff     : " << this->newton_coeff << std::endl;
-	output_global <<  " - integrationtype  : " << print_integrationtype(this->integrationtype) << std::endl;
+	output_global <<  " - integrationtype  : " << this->entropyintegration->get_name() << std::endl;
 
 	output_global <<  " - debugmode    : " << this->debugmode << std::endl;
 

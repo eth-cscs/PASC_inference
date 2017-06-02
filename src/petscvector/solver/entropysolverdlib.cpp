@@ -41,7 +41,6 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 
-
 	/* prepare external content with PETSc-DLIB stuff */
 	externalcontent = new ExternalContent(this->integration_eps);
 
