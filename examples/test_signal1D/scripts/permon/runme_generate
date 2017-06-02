@@ -1,0 +1,3 @@
+#!/bin/bash   
+
+./test_signal1D_generate --test_Tperiod=1000 --test_repeat_nmb=1 --test_filename=data/mysample.bin --test_filename_solution=data/mysample_solution.bin --test_filename_gamma0=data/mysample_gamma0_K3.bin --test_K=3 --test_noise=0.1 --test_generate_data=true --test_generate_gamma0=true

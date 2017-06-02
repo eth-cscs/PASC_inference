@@ -1,0 +1,25 @@
+#!/bin/bash -l
+
+## sbatch settings
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-core=1
+#SBATCH --threads-per-core=1
+#SBATCH --time=00:01:00
+#SBATCH --partition=normal
+#SBATCH --output=batch_out/generate_permon.%j.o
+#SBATCH --error=batch_out/generate_permon.%j.e
+
+## load modules
+## source ~/soft/PASC_inference/util/module_load_daint
+source ~/playground/PASC_inference/util/module_load_daint
+
+## set number of threads
+export OMP_NUM_THREADS=1
+
+## other petsc parameters
+PARAMS="--test_Tperiod=1000 --test_repeat_nmb=1 --test_filename=data/mysample.bin --test_filename_solution=data/mysample_solution.bin --test_filename_gamma0=data/mysample_gamma0_K3.bin --test_K=3 --test_noise=0.1 --test_generate_data=true --test_generate_gamma0=true"
+
+## run the job
+srun -n 1 ./test_signal1D_generate $PARAMS > batch_out/generate_permon.log
+
