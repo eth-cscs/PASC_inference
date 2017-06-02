@@ -2,13 +2,13 @@
 
 ## sbatch settings
 #SBATCH --nodes=2
-#SBATCH --ntasks-per-node=12
+#SBATCH --ntasks-per-node=1
 #SBATCH --ntasks-per-core=1
 #SBATCH --threads-per-core=1
 #SBATCH --time=00:05:00
 #SBATCH --partition=normal
-#SBATCH --output=batch_out/mysample_permon_cpu2.%j.o
-#SBATCH --error=batch_out/mysample_permon_cpu2.%j.e
+#SBATCH --output=batch_out/solve_permon_cpu2.%j.o
+#SBATCH --error=batch_out/solve_permon_cpu2.%j.e
 
 ## load modules
 ## source ~/soft/PASC_inference/util/module_load_daint
@@ -37,6 +37,9 @@ PARAM_QPSOLVER="--permonsolver_maxit=10000 --permonsolver_eps=1e-5 --permonsolve
 ## other petsc parameters
 PARAM_PETSC="--petsc_options=\"\""
 
+## concrenate all parameters
+PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_USE_PERMON $PARAM_QPSOLVER $PARAM_PETSC"
+
 ## run the job (12 MPI per node = 24)
-srun -n 24 ./test_signal1D $PARAM_ALL > batch_out/mysample_permon_cpu2.log
+srun -n 2 ./test_signal1D $PARAM_ALL > batch_out/solve_permon_cpu2.log
 
