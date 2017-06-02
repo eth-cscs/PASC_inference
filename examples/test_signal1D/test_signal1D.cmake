@@ -17,6 +17,10 @@ if(${TEST_SIGNAL1D})
 	make_directory("scripts/test_signal1D/")
 	file(COPY "scripts/" DESTINATION "scripts/test_signal1D/"	FILES_MATCHING PATTERN "*")
 	file(COPY "test_signal1D/scripts/" DESTINATION "scripts/test_signal1D/" FILES_MATCHING PATTERN "*")
+
+	# copy batch scripts
+	make_directory("batch/test_signal1D/")
+	file(COPY "test_signal1D/batch/" DESTINATION "batch/test_signal1D/" FILES_MATCHING PATTERN "*")
 	
 	# copy data
 	file(COPY "test_signal1D/data/" DESTINATION "data" FILES_MATCHING PATTERN "*")
