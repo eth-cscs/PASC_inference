@@ -41,7 +41,7 @@ if(${USE_PERMON})
 				BUILD_COMMAND make PERMON_DIR=$ENV{PERMON_DIR} && make PERMON_DIR=$ENV{PERMON_DIR} permon_shared
 				UPDATE_COMMAND ""
 				BUILD_IN_SOURCE 1
-				INSTALL_COMMAND ${CMAKE_COMMAND} -E create_symlink ${PASCINFERENCE_ROOT}/util/permon/$ENV{PETSC_ARCH}/lib/libpermon.so ${CMAKE_BINARY_DIR}/lib/libpermon.so
+				INSTALL_COMMAND ${CMAKE_COMMAND} -E create_symlink ${PASCINFERENCE_ROOT}/util/permon/$ENV{PETSC_ARCH}/lib/libpermon.so ${CMAKE_BINARY_DIR}/lib/libpermon.so && ${CMAKE_COMMAND} -E create_symlink ${PASCINFERENCE_ROOT}/util/permon/$ENV{PETSC_ARCH}/lib/libpermon.a ${CMAKE_BINARY_DIR}/lib/libpermon.a
 			)
 		
 			add_library(permon SHARED IMPORTED)
