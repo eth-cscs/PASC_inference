@@ -300,6 +300,9 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 		}
 	}
 
+//	coutAll << "original: " << print_array(orig_local_arr,local_size) << std::endl;
+//	coutAll.synchronize();
+
 	/* I assume the new format as TRblock */
 	/* fill new_local_arr */
 	int *new_local_arr;
@@ -307,18 +310,21 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 	int m = 0;
 	for(int k=0;k<blocksize;k++){
 		for(int i=Rbegin;i<Rend;i++){
-			for(int t=Tbegin;t<Tend;t++){
+			for(int t=0;t<Tend-Tbegin;t++){
 				new_local_arr[m] = Tbegin*R*blocksize + Rbegin*blocksize + t*R*blocksize + i*blocksize + k;
 				m++;
 			}
 		}
 	}
 
+//	coutAll << "new: " << print_array(new_local_arr,local_size) << std::endl;
+//	coutAll.synchronize();
+
+
 //	for(int i=0; i<local_size;i++){
 //		coutMaster << i << ". = " << new_local_arr[i] << std::endl;
 //	}
 
-	
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
@@ -339,7 +345,7 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 	/* restore subvector with local values from original data */
 	TRYCXX( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
 	TRYCXX( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
-	
+
 	/* destroy used stuff */
 	TRYCXX( ISDestroy(&orig_local_is) );
 	TRYCXX( ISDestroy(&new_local_is) );

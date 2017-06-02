@@ -23,4 +23,7 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_USE_PERMON $PARAM_QPSOLVER $PARAM_PETSC"
 
 ## run the job
-./test_signal1D $PARAM_ALL
+#./test_signal1D $PARAM_ALL
+#mpiexec -n 2 ./test_signal1D $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n 2 ./test_signal1D $PARAM_ALL
+
