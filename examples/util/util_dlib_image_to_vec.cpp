@@ -158,12 +158,6 @@ int main( int argc, char *argv[] )
 	TRYCXX( PetscViewerDestroy(&mviewer) );
 	coutMaster << " - new solution vector saved" << std::endl;
 
-//	GeneralVector<PetscVector> in(in_Vec);
-
-//	in.load_local(in_filename);
-
-//	coutMaster << in << std::endl;
-
 	Finalize<PetscVector>();
 
 	return 0;

@@ -8,16 +8,26 @@
  #error 'this util is for DLIB'
 #endif
 
+#ifndef USE_BOOST
+ #error 'this util is for BOOST'
+#endif
+
 #define ENABLE_ASSERTS
+#define DLIB_JPEG_SUPPORT
 
 #include <dlib/gui_widgets.h>
 #include <sstream>
 #include <string>
+#include <dlib/image_io.h>
+//#include <dlib/image_transforms.h>
 
 #define NUMBER_OF_LABELS 9
 
 using namespace dlib;
 using namespace pascinference;
+
+std::string cut_filename(const std::string &input);
+std::string cut_extension(const std::string &input);
 
 class imageplotter : public drawable {
 	private:
@@ -38,6 +48,8 @@ class imageplotter : public drawable {
 		
 		void set_plotting_area(rectangle area);
 		void load_image( const std::string& file_name );
+		void save_image(const std::string& file_name);
+		
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
 		
@@ -67,9 +79,11 @@ private:
 	button button_apply_size;
 
     void load_image( const std::string& file_name );
-
+    void save_image( const std::string& file_name );
+    
 	/* menu events */
     void on_menu_file_open ();
+	void on_menu_file_save();
     void on_menu_file_quit ();
     void on_menu_help_about();
 	
@@ -78,7 +92,6 @@ private:
 	
 	template<class ValueType>
 	void set_label_myvector_properties(int label_idx, const std::string &text, ValueType value);
-	std::string cut_filename(const std::string &input);
 	void on_button_apply_size();
 
 	void fill_labels();
@@ -151,6 +164,7 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 
     /* add the entries to the File menu. */
     mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_image_window::on_menu_file_open,    'O'));
+    mbar.menu(0).add_menu_item(menu_item_text("Save",   *this, &show_image_window::on_menu_file_save,    'S'));
     mbar.menu(0).add_menu_item(menu_item_separator());
     mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_image_window::on_menu_file_quit,    'Q'));
 
@@ -210,6 +224,11 @@ void show_image_window::on_menu_file_open(){
     open_existing_file_box(*this, &show_image_window::load_image);
 }
 
+void show_image_window::on_menu_file_save(){
+    /* display a file chooser window and when the user choses a file */
+    save_file_box(*this, &show_image_window::save_image);
+}
+
 void show_image_window::on_menu_file_quit(){
 	close_window();
 }
@@ -242,6 +261,10 @@ void show_image_window::load_image( const std::string& file_name ) {
 	myimageplotter.recompute_scale();
 	select_scale.set_text(std::to_string(myimageplotter.get_scale()));
 
+}
+
+void show_image_window::save_image( const std::string& file_name ) {
+	myimageplotter.save_image(file_name);
 }
 
 void show_image_window::fill_labels() {
@@ -283,14 +306,6 @@ void show_image_window::set_label_myvector_properties(int label_idx, const std::
 	sout << std::setprecision(5);
     sout << text << std::setw(20) << value;
     labels_myvector_properties[label_idx]->set_text(sout.str());	
-}
-
-std::string show_image_window::cut_filename(const std::string &input){
-	std::ostringstream sout;
-	boost::filesystem::path p(input);
-	sout << p.filename();
-
-	return sout.str();
 }
 
 void show_image_window::on_button_apply_size(){
@@ -389,6 +404,36 @@ void imageplotter::load_image( const std::string& file_name ) {
 
 }
 
+void imageplotter::save_image( const std::string& file_name ) {
+	coutMaster << "saving image : " << file_name << std::endl;
+	
+	/* get filename extension */
+	std::string extension = cut_extension(file_name);
+	
+	array2d<rgb_pixel> image_dlib(image_height,image_width);
+
+	double *x_arr;
+	TRYCXX( VecGetArray(*myvector_Vec, &x_arr) );
+	for(int i=0;i<image_height;i++){
+		for(int j=0;j<image_width;j++){
+			image_dlib[i][j].red = x_arr[i*image_width + j]*255;
+			image_dlib[i][j].green = x_arr[i*image_width + j]*255;
+			image_dlib[i][j].blue = x_arr[i*image_width + j]*255;
+		}
+	}
+	TRYCXX( VecRestoreArray(*myvector_Vec, &x_arr) );
+
+	bool saved;
+	if(extension.compare(".jpg")){
+		save_jpeg(image_dlib , file_name, 75);
+		coutMaster << "jpeg saved: " << file_name << std::endl;
+		saved = true;
+	}
+
+	if(!saved){
+		coutMaster << "ERROR: extension of file '" << extension << "' was not recognized." << std::endl;
+	}
+}
 
 Vec * imageplotter::get_myvector_Vec(){
 	return myvector_Vec;
@@ -498,4 +543,20 @@ void imageplotter::recompute_scale() {
 		}
 		
 	}
+}
+
+std::string cut_filename(const std::string &input){
+	std::ostringstream sout;
+	boost::filesystem::path p(input);
+	sout << p.filename();
+
+	return sout.str();
+}
+
+std::string cut_extension(const std::string &input){
+	std::ostringstream sout;
+	boost::filesystem::path p(input);
+	sout << p.extension();
+
+	return sout.str();
 }
