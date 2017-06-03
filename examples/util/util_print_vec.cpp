@@ -33,13 +33,9 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	int K, annealing, width, height; 
-	double graph_coeff; 
-	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, graph_save;
-
-	coutMaster << "- UTIL INFO ----------------------------\n";
-	coutMaster << " in_filename            = " << std::setw(30) << in_filename << " (PETSc vector)\n";
-	coutMaster << "-------------------------------------------\n" << "\n";
+	coutMaster << "- UTIL INFO ----------------------------" << std::endl;;
+	coutMaster << " in_filename            = " << std::setw(30) << in_filename << " (PETSc vector)" << std::endl;
+	coutMaster << "-------------------------------------------" << std::endl;
 
 	/* prepare vector */
 	Vec in_Vec;

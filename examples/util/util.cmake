@@ -6,6 +6,7 @@ option(UTIL_DIFF_NORM_VEC "UTIL_DIFF_NORM_VEC" OFF)
 option(UTIL_STAT_VEC "UTIL_STAT_VEC" OFF)
 option(UTIL_PRINT_VEC "UTIL_PRINT_VEC" OFF)
 option(UTIL_PROCESS_LOG "UTIL_PROCESS_LOG" OFF)
+option(UTIL_DLIB_IMAGE_TO_VEC "UTIL_DLIB_IMAGE_TO_VEC" OFF)
 
 if(${UTIL})
 	# define shortcut to compile all utils
@@ -23,6 +24,8 @@ printinfo_onoff("   UTIL_DIFF_NORM_VEC                                    (Conso
 printinfo_onoff("   UTIL_STAT_VEC                                         (ConsoleArg)                 " "${UTIL_STAT_VEC}")
 printinfo_onoff("   UTIL_PRINT_VEC                                        (ConsoleArg)                 " "${UTIL_PRINT_VEC}")
 printinfo_onoff("   UTIL_PROCESS_LOG                                      (ConsoleArg)                 " "${UTIL_PROCESS_LOG}")
+printinfo_onoff("   UTIL_DLIB_IMAGE_TO_VEC                                (ConsoleArg)                 " "${UTIL_DLIB_IMAGE_TO_VEC}")
+
 
 if(${UTIL_DIFF_NORM_VEC})
 	testadd_executable("util/util_diff_norm_vec.cpp" "util_diff_norm_vec")
@@ -40,4 +43,6 @@ if(${UTIL_PROCESS_LOG})
 	testadd_executable("util/util_process_log.cpp" "util_process_log")
 endif()
 
-
+if(${UTIL_DLIB_IMAGE_TO_VEC})
+	testadd_executable("util/util_dlib_image_to_vec.cpp" "util_dlib_image_to_vec")
+endif()
