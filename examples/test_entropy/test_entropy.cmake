@@ -17,7 +17,8 @@ if(${TEST_ENTROPY})
 	file(COPY "test_entropy/scripts/" DESTINATION "scripts/test_entropy/" FILES_MATCHING PATTERN "*")
 	
 	# copy data
-	file(COPY "test_entropy/data/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+	make_directory("data/test_entropy/")
+	file(COPY "test_entropy/data/" DESTINATION "data/test_entropy/" FILES_MATCHING PATTERN "*")
 
 endif()
 

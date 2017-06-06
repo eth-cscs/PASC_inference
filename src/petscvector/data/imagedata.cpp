@@ -115,6 +115,66 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 	LOG_FUNC_END
 }
 
+template<>
+double ImageData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const {
+	LOG_FUNC_BEGIN	
+
+	double abserr;
+
+	Vec data_Vec = this->datavector->get_vector();
+	Vec solution_Vec = solution.get_vector();
+	Vec gammavector_Vec = this->gammavector->get_vector();
+
+	/* transfer data to GPU */
+	#ifdef USE_CUDA
+		cuda_copytoGPU(data_Vec);
+		cuda_copytoGPU(solution_Vec);
+		cuda_copytoGPU(gammavector_Vec);
+	#endif
+
+	/* compute recovered signal */
+	Vec gammak_Vec;
+	IS gammak_is;
+
+	Vec data_abserr_Vec;
+	TRYCXX( VecDuplicate(data_Vec, &data_abserr_Vec) );
+	
+	/* abserr = -solution */
+	TRYCXX( VecCopy(solution_Vec,data_abserr_Vec)); 
+	TRYCXX( VecScale(data_abserr_Vec,-1.0));
+
+	double *theta_arr;
+	TRYCXX( VecGetArray(this->thetavector->get_vector(),&theta_arr) );
+
+	int K = this->get_K();
+
+	for(int k=0;k<K;k++){ 
+		/* get gammak */
+		this->decomposition->createIS_gammaK(&gammak_is, k);
+		TRYCXX( VecGetSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
+
+		/* add to recovered image */
+		TRYCXX( VecAXPY(data_abserr_Vec, theta_arr[k], gammak_Vec) );
+
+		TRYCXX( VecRestoreSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
+	}	
+
+	TRYCXX( VecRestoreArray(this->thetavector->get_vector(),&theta_arr) );
+
+	/* compute mean(abs(solution - data_recovered) */
+//	TRYCXX( VecAbs(data_abserr_Vec) );
+//	TRYCXX( VecSum(data_abserr_Vec, &abserr) );
+//	int T = this->get_T();
+//	abserr = abserr/(double)T;
+
+	TRYCXX( VecNorm(data_abserr_Vec, NORM_2, &abserr) );
+
+	LOG_FUNC_END
+	
+	return abserr;
+}
+
 
 
 }

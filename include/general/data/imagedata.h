@@ -33,6 +33,7 @@ class ImageData: public TSData<VectorBase> {
 		virtual std::string get_name() const;
 
 		void saveImage(std::string filename, bool save_original=true) const;
+		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
 
 };
 
@@ -243,6 +244,17 @@ void ImageData<VectorBase>::saveImage(std::string filename, bool save_original) 
 	//TODO
 	
 	LOG_FUNC_END
+}
+
+template<class VectorBase>
+double ImageData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
+	LOG_FUNC_BEGIN	
+
+	//TODO
+	
+	LOG_FUNC_END
+	
+	return -1.0;
 }
 
 

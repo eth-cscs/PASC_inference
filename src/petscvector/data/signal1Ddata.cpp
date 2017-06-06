@@ -183,7 +183,7 @@ double Signal1DData<PetscVector>::compute_abserr_reconstructed(GeneralVector<Pet
 //	int T = this->get_T();
 //	abserr = abserr/(double)T;
 
-	TRYCXX( VecNorm(data_abserr_Vec, NORM_1, &abserr) );
+	TRYCXX( VecNorm(data_abserr_Vec, NORM_2, &abserr) );
 	
 	LOG_FUNC_END
 	

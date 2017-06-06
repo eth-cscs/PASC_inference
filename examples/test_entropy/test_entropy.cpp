@@ -1,4 +1,4 @@
-/** @file test_entropy.cu
+/** @file test_entropy.cpp
  *  @brief test the new entropy model
  *
  *  @author Lukas Pospisil, Anna Marchenko
@@ -12,9 +12,25 @@
 #endif
 
 #ifndef USE_DLIB
-// #error 'This example is for DLIB'
+ #error 'This example is for DLIB'
 #endif
- 
+
+#define DEFAULT_EPSSQR 1
+#define DEFAULT_K 1
+#define DEFAULT_KM 1
+#define DEFAULT_FILENAME_IN "data/entropy_small_data.bin"
+#define DEFAULT_FILENAME_OUT "entropy_small"
+#define DEFAULT_SAVEALL false
+#define DEFAULT_SAVERESULT true
+#define DEFAULT_ANNEALING 1
+#define DEFAULT_CUTGAMMA false
+#define DEFAULT_SCALEDATA false
+#define DEFAULT_CUTDATA false
+#define DEFAULT_PRINTSTATS false
+#define DEFAULT_PRINTINFO false
+#define DEFAULT_SHORTINFO true
+#define DEFAULT_SHORTINFO_FILENAME "shortinfo/entropy_small.txt"
+
 using namespace pascinference;
 
 int main( int argc, char *argv[] )
@@ -24,10 +40,11 @@ int main( int argc, char *argv[] )
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_Km", boost::program_options::value<int>(), "number of moments [int]")
-		("test_filename", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
+		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
 		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
-		("test_save_all", boost::program_options::value<bool>(), "save results for all epssqr, not only for the best one [bool]")
+		("test_saveall", boost::program_options::value<bool>(), "save results for all epssqr, not only for the best one [bool]")
+		("test_saveresult", boost::program_options::value<bool>(), "save the solution [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to set {0;1} [bool]")
@@ -57,35 +74,36 @@ int main( int argc, char *argv[] )
 		/* sort list */
 		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
 	} else {
-		std::cout << "test_epssqr has to be set! Call application with parameter -h to see all parameters" << std::endl;
-		return 0;
+		/* list is not given, add some value */
+		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
 	int K, Km, annealing; 
-	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, save_all;
+	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 
-	std::string filename;
+	std::string filename_in;
 	std::string filename_out;
 	std::string filename_gamma0;
 	std::string shortinfo_filename;
 	std::string shortinfo_header;
 	std::string shortinfo_values;
 
-	consoleArg.set_option_value("test_K", &K, 1);
-	consoleArg.set_option_value("test_Km", &Km, 1);
-	consoleArg.set_option_value("test_filename", &filename, "data/entropy_small_data.bin");
-	consoleArg.set_option_value("test_filename_out", &filename_out, "entropy_small");
-	consoleArg.set_option_value("test_save_all", &save_all, false);
-	consoleArg.set_option_value("test_annealing", &annealing, 1);
-	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
-	consoleArg.set_option_value("test_scaledata", &scaledata, false);
-	consoleArg.set_option_value("test_cutdata", &cutdata, false);
-	consoleArg.set_option_value("test_printstats", &printstats, false);
-	consoleArg.set_option_value("test_printinfo", &printinfo, false);
-	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
+	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_Km", &Km, DEFAULT_KM);
+	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_FILENAME_IN);
+	consoleArg.set_option_value("test_filename_out", &filename_out, DEFAULT_FILENAME_OUT);
+	consoleArg.set_option_value("test_saveall", &saveall, DEFAULT_SAVEALL);
+	consoleArg.set_option_value("test_saveresult", &saveresult, DEFAULT_SAVERESULT);
+	consoleArg.set_option_value("test_annealing", &annealing, DEFAULT_ANNEALING);
+	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
+	consoleArg.set_option_value("test_scaledata", &scaledata, DEFAULT_SCALEDATA);
+	consoleArg.set_option_value("test_cutdata", &cutdata, DEFAULT_CUTDATA);
+	consoleArg.set_option_value("test_printstats", &printstats, DEFAULT_PRINTSTATS);
+	consoleArg.set_option_value("test_printinfo", &printinfo, DEFAULT_PRINTINFO);
+	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, DEFAULT_SHORTINFO);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
-	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/entropy_small.txt");
+	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, DEFAULT_SHORTINFO_FILENAME);
 
 	/* maybe gamma0 is given in console parameters */
 	bool given_gamma0;
@@ -134,14 +152,14 @@ int main( int argc, char *argv[] )
 		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K,Km) << std::endl;
 	}
 
-	coutMaster << " test_filename               = " << std::setw(30) << filename << " (name of input file with signal data)" << std::endl;
+	coutMaster << " test_filename_in            = " << std::setw(30) << filename_in << " (name of input file with signal data)" << std::endl;
 	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)" << std::endl;
 	if(given_gamma0){
 		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
 	} else {
 		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
 	}
-	coutMaster << " test_save_all               = " << std::setw(30) << save_all << " (save results for all epssqr, not only for the best one)" << std::endl;
+	coutMaster << " test_saveall               = " << std::setw(30) << saveall << " (save results for all epssqr, not only for the best one)" << std::endl;
 	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
 	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
 	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
@@ -174,7 +192,7 @@ int main( int argc, char *argv[] )
 
 /* 1.) prepare preliminary time-series data (to get the size of the problem T) */
 	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
-	Signal1DData<PetscVector> mydata(filename);
+	Signal1DData<PetscVector> mydata(filename_in);
 
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
@@ -271,7 +289,7 @@ int main( int argc, char *argv[] )
 //		mysolver.printstatus(coutMaster);	
 
 		/* store obtained solution */
-		if(save_all){
+		if(saveall){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
 			mydata.saveSignal1D(oss.str(),false);

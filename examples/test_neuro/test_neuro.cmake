@@ -18,6 +18,7 @@ if(${TEST_NEURO})
 	file(COPY "test_neuro/scripts/" DESTINATION "scripts/test_neuro/"	FILES_MATCHING PATTERN "*")
 			
 	# copy data
-	file(COPY "test_neuro/data/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+	make_directory("data/test_neuro/")
+	file(COPY "test_neuro/data/" DESTINATION "data/test_neuro/" FILES_MATCHING PATTERN "*")
 endif()
 

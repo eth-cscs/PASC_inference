@@ -11,8 +11,7 @@ namespace data {
 
 template<> ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, std::string filename_data, int width, int height);
 template<> void ImageData<PetscVector>::saveImage(std::string filename, bool save_original) const;
-
-
+template<> double ImageData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const;
 
 }
 } /* end namespace */

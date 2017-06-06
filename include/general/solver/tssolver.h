@@ -505,7 +505,6 @@ void TSSolver<VectorBase>::solve() {
 	/* now the gammasolver and thetasolver should be specified and prepared */
 
 	/* variables */
-	double L; /* object function value */
 	double L_old;
 	double deltaL;
 	double aic;
@@ -666,7 +665,7 @@ void TSSolver<VectorBase>::solve() {
 		}
 
 		/* if there is no other annealing steps, we are not using temp storage and store results directly */
-		if((annealing <= 1) || (aic < tsdata->get_aic() && annealing > 1)){
+		if((it_annealing <= 1) || (aic < tsdata->get_aic() && annealing > 1)){
 			/* if this value is smaller then previous, then store it */
 			if(aic < tsdata->get_aic() && annealing > 1){
 				*gammavector_temp = *(tsdata->get_gammavector());
