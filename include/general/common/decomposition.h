@@ -234,6 +234,13 @@ class Decomposition {
 		 * @param k index of cluster
 		 */
 		void createIS_gammaK(IS *is, int k) const;
+
+		/** @brief create PETSC index set with indexes corresponding to one dimension of datavector
+		 * 
+		 * @param is pointer to new index set
+		 * @param n index of dimension
+		 */
+		void createIS_datan(IS *is, int n) const;
 #endif
 };
 

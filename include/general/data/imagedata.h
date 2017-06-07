@@ -19,8 +19,8 @@ namespace data {
 template<class VectorBase>
 class ImageData: public TSData<VectorBase> {
 	protected:
-		int width;
-		int height;
+		int width;		/**< width of image */
+		int height;		/**< height of image */
 	public:
 		ImageData(Decomposition<VectorBase> &decomposition, std::string filename_data, int width, int height);
 		~ImageData();
@@ -34,6 +34,10 @@ class ImageData: public TSData<VectorBase> {
 
 		void saveImage(std::string filename, bool save_original=true) const;
 		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
+
+		int get_width() const;
+		int get_height() const;
+		int get_nvalues() const;
 
 };
 
@@ -255,6 +259,21 @@ double ImageData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorB
 	LOG_FUNC_END
 	
 	return -1.0;
+}
+
+template<class VectorBase>
+int ImageData<VectorBase>::get_width() const {
+	return this->width;
+}
+
+template<class VectorBase>
+int ImageData<VectorBase>::get_height() const {
+	return this->height;
+}
+
+template<class VectorBase>
+int ImageData<VectorBase>::get_nvalues() const {
+	return this->get_xdim() * this->width * this->height;
 }
 
 

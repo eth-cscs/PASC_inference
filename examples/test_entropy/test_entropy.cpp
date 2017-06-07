@@ -17,6 +17,7 @@
 
 #define DEFAULT_EPSSQR 1
 #define DEFAULT_K 1
+#define DEFAULT_XDIM 1
 #define DEFAULT_KM 1
 #define DEFAULT_FILENAME_IN "data/entropy_small_data.bin"
 #define DEFAULT_FILENAME_OUT "entropy_small"
@@ -39,6 +40,7 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("ENTROPY EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
+		("test_xdim", boost::program_options::value<int>(), "dimension of data points [int]")
 		("test_Km", boost::program_options::value<int>(), "number of moments [int]")
 		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
@@ -78,7 +80,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, Km, annealing; 
+	int K, Km, annealing, xdim; 
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 
 	std::string filename_in;
@@ -89,6 +91,7 @@ int main( int argc, char *argv[] )
 	std::string shortinfo_values;
 
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_Km", &Km, DEFAULT_KM);
 	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_FILENAME_IN);
 	consoleArg.set_option_value("test_filename_out", &filename_out, DEFAULT_FILENAME_OUT);
@@ -147,6 +150,7 @@ int main( int argc, char *argv[] )
 #endif
 	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (dimension of data points)" << std::endl;
 	coutMaster << " test_Km                     = " << std::setw(30) << Km << " (number of moments)" << std::endl;
 	if(given_Theta){
 		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K,Km) << std::endl;
@@ -192,13 +196,13 @@ int main( int argc, char *argv[] )
 
 /* 1.) prepare preliminary time-series data (to get the size of the problem T) */
 	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
-	Signal1DData<PetscVector> mydata(filename_in);
+	SignalData<PetscVector> mydata(filename_in);
 
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on preloaded data */
-	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
+	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, xdim, DDT_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
@@ -292,7 +296,7 @@ int main( int argc, char *argv[] )
 		if(saveall){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveSignal1D(oss.str(),false);
+			mydata.saveSignal(oss.str(),false);
 			oss.str("");
 		}
 		
@@ -345,7 +349,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 	oss << filename_out;
-	mydata.saveSignal1D(oss.str(),false);
+	mydata.saveSignal(oss.str(),false);
 	oss.str("");
 
 	/* print solution */

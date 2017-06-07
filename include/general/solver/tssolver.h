@@ -634,7 +634,7 @@ void TSSolver<VectorBase>::solve() {
 
 			//TODO: temp, throw exception!
 			if(L - L_old > 0){
-				coutMaster << "ERROR: objective function increased" << std::endl;
+				coutMaster << "ERROR: objective function increased; L - L_old = " << L - L_old << std::endl;
 			}
 
 			/* global stopping criteria */

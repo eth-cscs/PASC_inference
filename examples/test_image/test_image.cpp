@@ -17,6 +17,7 @@
 #define DEFAULT_K 2
 #define DEFAULT_FEM_TYPE 2
 #define DEFAULT_FEM_REDUCE 1.0
+#define DEFAULT_XDIM 1
 #define DEFAULT_WIDTH 250
 #define DEFAULT_HEIGHT 150
 #define DEFAULT_GRAPH_SAVE false
@@ -49,6 +50,7 @@ int main( int argc, char *argv[] )
 		("test_image_solution", boost::program_options::value< std::string >(), "name of input file with original image data without noise (vector in PETSc format) [string]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
+		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
@@ -81,7 +83,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, width, height, fem_type; 
+	int K, annealing, width, height, xdim, fem_type; 
 	double fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, graph_save, saveall, saveresult;
 
@@ -97,6 +99,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, DEFAULT_FEM_REDUCE);
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
+	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
 	consoleArg.set_option_value("test_scaledata", &scaledata, DEFAULT_SCALEDATA);
@@ -130,18 +133,18 @@ int main( int argc, char *argv[] )
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
 	std::vector<double> Theta_list;
-	double Theta_solution[K];
+	double Theta_solution[K*xdim];
 	if(consoleArg.set_option_value("test_Theta", &Theta_list)){
 		given_Theta = true;
 		
 		/* control number of provided Theta */
-		if(Theta_list.size() != K){
-			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
+		if(Theta_list.size() != K*xdim){
+			coutMaster << "number of provided Theta solutions is different then number of clusters (times xdim)!" << std::endl;
 			return 0;
 		}
 
 		/* store solution in array */
-		for(int k=0;k < K;k++){
+		for(int k=0;k < K*xdim;k++){
 			Theta_solution[k] = Theta_list[k];
 		}
 	} else {
@@ -167,6 +170,7 @@ int main( int argc, char *argv[] )
 	}
 	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of image)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of image)" << std::endl;
+	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
 	if(given_Theta){
 		coutMaster << " test_Theta                  = " << std::setw(50) << print_array(Theta_solution,K) << " (given solution Theta)" << std::endl;
@@ -223,7 +227,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on graph, in this case T=1 and DDT_size=1 */
-	Decomposition<PetscVector> decomposition(1, *graph, K, 1, DDR_size);
+	Decomposition<PetscVector> decomposition(1, *graph, K, xdim, DDR_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
@@ -249,10 +253,16 @@ int main( int argc, char *argv[] )
 
 /* 4.) prepare and load solution */
 	Vec solution_Vec;
+	Vec solution_Vec_preload;
 	GeneralVector<PetscVector> solution(solution_Vec);
 	if(given_solution){
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
+		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
+
 		solution.load_global(image_solution);
+		decomposition.permute_TRxdim(solution.get_vector(), solution_Vec_preload,false);
+		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
+		TRYCXX( VecDestroy(&solution_Vec_preload) );
 	}
 
 	/* cut data */
@@ -384,7 +394,7 @@ int main( int argc, char *argv[] )
 		}
 	
 		/* if this solution is better then previous, then store it */
-		if(L < L_best){
+		if(abserr < abserr_best){
 			L_best = L;
 			abserr_best = abserr;
 			epssqr_best = epssqr;

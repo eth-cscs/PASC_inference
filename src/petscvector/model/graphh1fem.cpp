@@ -79,18 +79,16 @@ void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, C
 	double *theta;
 	TRYCXX( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
 	
-	int k,n;
-
 	output_local.push();
 	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
 	output_local.push();
-	for(k=0;k<tsdata->get_K();k++){
+	for(int k=0;k<tsdata->get_K();k++){
 		output_local <<  "- k = " << k << std::endl;
 
 		/* mu */
 		output_local.push();
 		output_local <<  "- theta = [";
-		for(n=0;n<tsdata->get_xdim();n++){
+		for(int n=0;n<tsdata->get_xdim();n++){
 			temp << theta[k*tsdata->get_xdim() + n];
 			output_local << temp.str();
 			if(n < tsdata->get_xdim()-1){
@@ -245,6 +243,9 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 
 	int K = this->tsdata->get_decomposition()->get_K();
 
+	int xdim = this->tsdata->get_decomposition()->get_xdim();
+
+
 	/* update gamma_solver data - prepare new linear term */
 	const double *theta_arr;
 	TRYCXX( VecGetArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
@@ -253,12 +254,16 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	TRYCXX( VecGetArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
 	
 	double *residuum_arr;
-	TRYCXX( VecGetArray(this->residuum->get_vector(), &residuum_arr) );
+	Vec residuum_Vec = this->residuum->get_vector();
+	TRYCXX( VecSet(residuum_Vec,0.0) );
+	TRYCXX( VecGetArray(residuum_Vec, &residuum_arr) );
 
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
 			for(int k=0;k<K;k++){
-				residuum_arr[t*K*Rlocal + r*K + k] = (data_arr[t*Rlocal+r] - theta_arr[k])*(data_arr[t*Rlocal+r] - theta_arr[k]);
+				for(int n=0;n<xdim;n++){
+					residuum_arr[t*K*Rlocal + r*K + k] += (data_arr[(t*Rlocal+r)*xdim + n] - theta_arr[k*xdim+n])*(data_arr[(t*Rlocal+r)*xdim + n] - theta_arr[k*xdim+n]);
+				}
 			}
 		}
 	}
@@ -266,7 +271,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	/* coeffs of A_shared are updated via computation of Theta :) */
 
 	/* restore arrays */
-	TRYCXX( VecRestoreArray(this->residuum->get_vector(), &residuum_arr) );
+	TRYCXX( VecRestoreArray(residuum_Vec, &residuum_arr) );
 	TRYCXX( VecRestoreArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
 	TRYCXX( VecRestoreArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 
@@ -306,8 +311,6 @@ template<>
 void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
-	// TODO: if Theta is not in penalty term, this computation is completely WRONG! However, it doesn't matter if Theta is given
-
 	Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
 	Vec theta_Vec = tsdata->get_thetavector()->get_vector();
 	Vec data_Vec = tsdata->get_datavector()->get_vector();
@@ -325,8 +328,11 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 		Agamma_Vec = Agamma->get_vector();
 	}
 
-	/* subvectors */
-	Vec gammak_Vec;
+	/* subvectors - data */
+	Vec datan_Vec; /* vector corresponding to one dimension of data */
+	IS datan_is;
+
+	Vec gammak_Vec; /* gamma_k as a subvector of gamma */
 	Vec Agammak_Vec;
 	IS gammak_is;
 	
@@ -339,6 +345,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 	TRYCXX( VecGetArray(theta_Vec,&theta_arr) );
 
 	int K = tsdata->get_K();
+	int xdim = tsdata->get_xdim();
 
 	double coeff = 1.0;
 //	double coeff = 1.0/((double)(tsdata->get_R()*tsdata->get_T()));
@@ -356,28 +363,40 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 			TRYCXX( VecGetSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 			TRYCXX( VecDot(gammak_Vec, Agammak_Vec, &gammakAgammak) );
 		}
-		
-		/* compute gammakx */
-		TRYCXX( VecDot(data_Vec, gammak_Vec, &gammakx) );
 
 		/* compute gammaksum */
 		TRYCXX( VecSum(gammak_Vec, &gammaksum) );
+		
+		for(int n=0;n<xdim;n++){
 
-		if(usethetainpenalty){
-			/* only if Theta is in penalty term */
-			if(coeff*gammaksum + 0.5*gammakAgammak != 0){
-				theta_arr[k] = (coeff*gammakx)/(coeff*gammaksum + 0.5*gammakAgammak);
+			/* get datan */
+			this->tsdata->get_decomposition()->createIS_datan(&datan_is, n);
+			TRYCXX( VecGetSubVector(data_Vec, datan_is, &datan_Vec) );
+		
+			/* compute gammakx */
+			TRYCXX( VecDot(datan_Vec, gammak_Vec, &gammakx) );
+
+			if(usethetainpenalty){
+				/* only if Theta is in penalty term */
+				if(coeff*gammaksum + 0.5*gammakAgammak != 0){
+					theta_arr[k*xdim + n] = (coeff*gammakx)/(coeff*gammaksum + 0.5*gammakAgammak);
+				} else {
+					theta_arr[k*xdim + n] = 0.0;
+				}
 			} else {
-				theta_arr[k] = 0.0;
+				/* if Theta is not in penalty term, then the computation is based on kmeans */
+				if(gammaksum != 0){
+					theta_arr[k*xdim + n] = gammakx/gammaksum;
+				} else {
+					theta_arr[k*xdim + n] = 0.0;
+				}
 			}
-		} else {
-			/* if Theta is not in penalty term, then the computation is based on kmeans */
-			if(gammaksum != 0){
-				theta_arr[k] = gammakx/gammaksum;
-			} else {
-				theta_arr[k] = 0.0;
-			}
-		}
+
+			/* restore datan */
+			TRYCXX( VecRestoreSubVector(data_Vec, datan_is, &datan_Vec) );
+			TRYCXX( ISDestroy(&datan_is) );
+	
+		} /* endfor: through data dimension */
 	
 		TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		if(usethetainpenalty){

@@ -1,5 +1,5 @@
-/** @file util_print_vec.cpp
- *  @brief print the content of given PETSc vector
+/** @file util_dlib_image_to_vec.cpp
+ *  @brief transform image to PETSc vector
  *
  *  @author Lukas Pospisil
  */
@@ -14,6 +14,12 @@
 #ifndef USE_DLIB
  #error 'This example is for DLIB'
 #endif
+
+#define DEFAULT_XDIM 1
+#define DEFAULT_TYPE 1
+#define DEFAULT_WIDTH -1
+#define DEFAULT_NOISE 0.0
+#define DEFAULT_OUT_FILENAME "results/image_output.bin"
 
 #define ENABLE_ASSERTS
 #define DLIB_JPEG_SUPPORT
@@ -34,6 +40,7 @@ int main( int argc, char *argv[] )
 		("out_filename", boost::program_options::value< std::string >(), "output vector in PETSc format [string]")
 		("xdim", boost::program_options::value< int >(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("new_width", boost::program_options::value< int >(), "width of new image [bool]")
+		("type", boost::program_options::value< int >(), "type of output vector [0=Rn, 1=nR]")
 		("noise", boost::program_options::value< double >(), "added noise [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
@@ -45,6 +52,7 @@ int main( int argc, char *argv[] )
 	std::string in_filename;
 	std::string out_filename;
 	int xdim;
+	int type;
 	int new_width;
 	double noise;
 
@@ -53,15 +61,17 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	consoleArg.set_option_value("out_filename", &out_filename, "results/image_output.bin");
-	consoleArg.set_option_value("xdim", &xdim, 1);
-	consoleArg.set_option_value("new_width", &new_width, -1);
-	consoleArg.set_option_value("noise", &noise, 0.0);
+	consoleArg.set_option_value("out_filename", &out_filename, DEFAULT_OUT_FILENAME);
+	consoleArg.set_option_value("xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("type", &type, DEFAULT_TYPE);
+	consoleArg.set_option_value("new_width", &new_width, DEFAULT_WIDTH);
+	consoleArg.set_option_value("noise", &noise, DEFAULT_NOISE);
 
 	coutMaster << "- UTIL INFO ----------------------------" << std::endl;
 	coutMaster << " in_filename            = " << std::setw(30) << in_filename << " (input image)" << std::endl;
 	coutMaster << " out_filename           = " << std::setw(30) << out_filename << " (output vector in PETSc format)" << std::endl;
 	coutMaster << " xdim                   = " << std::setw(30) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
+	coutMaster << " type                   = " << std::setw(30) << type << " (type of output vector [0=Rn, 1=nR])" << std::endl;
 	coutMaster << " new_width              = " << std::setw(30) << new_width << " (width of new image)" << std::endl;
 	coutMaster << " noise                  = " << std::setw(30) << noise << " (added noise)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
@@ -112,16 +122,35 @@ int main( int argc, char *argv[] )
 	TRYCXX( VecGetArray(x_Vec, &x_arr) );
 	for(int i=0;i<height;i++){
 		for(int j=0;j<width;j++){
-			/* greyscale */
-			if(xdim == 1){
-				x_arr[i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
+			
+			/* type Rn */
+			if(type==0){
+				/* greyscale */
+				if(xdim == 1){
+					x_arr[i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
+				}
+
+				/* rgb */
+				if(xdim == 3){
+					x_arr[i*width*xdim + j*xdim + 0] = ((int)(*image_dlib)[i][j].red)/255.0;
+					x_arr[i*width*xdim + j*xdim + 1] = ((int)(*image_dlib)[i][j].green)/255.0;
+					x_arr[i*width*xdim + j*xdim + 2] = ((int)(*image_dlib)[i][j].blue)/255.0;
+				}
 			}
 
-			/* rgb */
-			if(xdim == 3){
-				x_arr[i*width*xdim + j*xdim + 0] = ((int)(*image_dlib)[i][j].red)/255.0;
-				x_arr[i*width*xdim + j*xdim + 1] = ((int)(*image_dlib)[i][j].green)/255.0;
-				x_arr[i*width*xdim + j*xdim + 2] = ((int)(*image_dlib)[i][j].blue)/255.0;
+			/* type nR */
+			if(type==1){
+				/* greyscale */
+				if(xdim == 1){
+					x_arr[i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
+				}
+
+				/* rgb */
+				if(xdim == 3){
+					x_arr[0*width*height + i*width + j] = ((int)(*image_dlib)[i][j].red)/255.0;
+					x_arr[1*width*height + i*width + j] = ((int)(*image_dlib)[i][j].green)/255.0;
+					x_arr[2*width*height + i*width + j] = ((int)(*image_dlib)[i][j].blue)/255.0;
+				}
 			}
 
 		}

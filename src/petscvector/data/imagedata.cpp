@@ -23,7 +23,7 @@ ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition,
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 	
 	/* permute orig to new using parallel layout */
-	this->decomposition->permute_TRxdim(datapreload_Vec, data_Vec);
+	this->decomposition->permute_TRxdim(datapreload_Vec, data_Vec, false);
 	
 	/* destroy preloaded vector */
 //	TRYCXX( VecDestroy(&datapreload_Vec) );
@@ -72,6 +72,8 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 	/* compute recovered image */
 	Vec gammak_Vec;
 	IS gammak_is;
+	Vec datan_recovered_Vec;
+	IS datan_is;
 
 	Vec data_recovered_Vec;
 	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
@@ -82,6 +84,7 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
 	int K = this->get_K();
+	int xdim = this->get_xdim();
 
 	for(int k=0;k<K;k++){ 
 		/* get gammak */
@@ -89,7 +92,19 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 
 		/* add to recovered image */
-		TRYCXX( VecAXPY(data_recovered_Vec, theta_arr[k], gammak_Vec) );
+		for(int n=0;n<xdim;n++){
+			/* get datan */
+			this->decomposition->createIS_datan(&datan_is, n);
+			TRYCXX( VecGetSubVector(data_recovered_Vec, datan_is, &datan_recovered_Vec) );
+
+			/* add to recovered image */
+			TRYCXX( VecAXPY(datan_recovered_Vec, theta_arr[k*xdim + n], gammak_Vec) );
+
+			/* restore data */
+			TRYCXX( VecRestoreSubVector(data_recovered_Vec, datan_is, &datan_recovered_Vec) );
+			TRYCXX( ISDestroy(&datan_is) );
+			
+		}
 
 		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );
@@ -101,7 +116,10 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
 	
 	/* but at first, permute recovered data, datasave can be used */
+	
 	this->decomposition->permute_TRxdim(datasave_Vec, data_recovered_Vec, true);
+//	TRYCXX( VecCopy(data_recovered_Vec, datasave_Vec) );
+
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
@@ -132,12 +150,15 @@ double ImageData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscV
 		cuda_copytoGPU(gammavector_Vec);
 	#endif
 
-	/* compute recovered signal */
-	Vec gammak_Vec;
-	IS gammak_is;
-
+	/* vector of absolute error */
 	Vec data_abserr_Vec;
 	TRYCXX( VecDuplicate(data_Vec, &data_abserr_Vec) );
+	
+	/* compute recovered signal */
+	Vec datan_abserr_Vec;
+	IS datan_is;
+	Vec gammak_Vec;
+	IS gammak_is;
 	
 	/* abserr = -solution */
 	TRYCXX( VecCopy(solution_Vec,data_abserr_Vec)); 
@@ -147,14 +168,26 @@ double ImageData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscV
 	TRYCXX( VecGetArray(this->thetavector->get_vector(),&theta_arr) );
 
 	int K = this->get_K();
+	int xdim = this->get_xdim();
 
 	for(int k=0;k<K;k++){ 
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
 		TRYCXX( VecGetSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
 
-		/* add to recovered image */
-		TRYCXX( VecAXPY(data_abserr_Vec, theta_arr[k], gammak_Vec) );
+		for(int n=0;n<xdim;n++){
+			/* get datan */
+			this->decomposition->createIS_datan(&datan_is, n);
+			TRYCXX( VecGetSubVector(data_abserr_Vec, datan_is, &datan_abserr_Vec) );
+
+			/* add to recovered image */
+			TRYCXX( VecAXPY(datan_abserr_Vec, theta_arr[k*xdim + n], gammak_Vec) );
+
+			/* restore data */
+			TRYCXX( VecRestoreSubVector(data_abserr_Vec, datan_is, &datan_abserr_Vec) );
+			TRYCXX( ISDestroy(&datan_is) );
+			
+		}
 
 		TRYCXX( VecRestoreSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );

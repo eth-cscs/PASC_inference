@@ -7,6 +7,7 @@ option(GUI_SHOW_VEC "GUI_SHOW_VEC" OFF)
 option(GUI_SHOW_GAMMA "GUI_SHOW_GAMMA" OFF)
 option(GUI_SHOW_IMAGE "GUI_SHOW_IMAGE" OFF)
 option(GUI_SHOW_EEG "GUI_SHOW_EEG" OFF)
+option(GUI_SHOW_SHORTINFO "GUI_SHOW_SHORTINFO" OFF)
 
 if(${GUI})
 	# define shortcut to compile all utils
@@ -24,6 +25,7 @@ printinfo_onoff("   GUI_SHOW_VEC                                          (Conso
 printinfo_onoff("   GUI_SHOW_GAMMA                                        (ConsoleArg)                 " "${GUI_SHOW_GAMMA}")
 printinfo_onoff("   GUI_SHOW_IMAGE                                        (ConsoleArg)                 " "${GUI_SHOW_IMAGE}")
 printinfo_onoff("   GUI_SHOW_EEG                                          (ConsoleArg)                 " "${GUI_SHOW_EEG}")
+printinfo_onoff("   GUI_SHOW_SHORTINFO                                    (ConsoleArg)                 " "${GUI_SHOW_SHORTINFO}")
 
 if(${GUI_SHOW_VEC})
 	set(CMAKE_BUILD_TYPE Release)
@@ -43,4 +45,9 @@ endif()
 if(${GUI_SHOW_EEG})
 	set(CMAKE_BUILD_TYPE Release)
 	testadd_executable("gui/gui_show_eeg.cpp" "gui_show_eeg")
+endif()
+
+if(${GUI_SHOW_SHORTINFO})
+	set(CMAKE_BUILD_TYPE Release)
+	testadd_executable("gui/gui_show_shortinfo.cpp" "gui_show_shortinfo")
 endif()

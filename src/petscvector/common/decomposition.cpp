@@ -364,6 +364,15 @@ void Decomposition<PetscVector>::createIS_gammaK(IS *is, int k) const {
 	LOG_FUNC_END
 }
 
+template<>
+void Decomposition<PetscVector>::createIS_datan(IS *is, int n) const {
+	LOG_FUNC_BEGIN
+	
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_Tbegin()*get_R()*get_xdim() + get_Rbegin()*get_xdim() + n, get_xdim(), is) );
+
+	LOG_FUNC_END
+}
+
 
 }
 } /* end of namespace */

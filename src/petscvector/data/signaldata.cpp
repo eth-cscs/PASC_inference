@@ -1,11 +1,11 @@
-#include "external/petscvector/data/signal1Ddata.h"
+#include "external/petscvector/data/signaldata.h"
 
 namespace pascinference {
 namespace data {
 
 /* from filename */
 template<>
-Signal1DData<PetscVector>::Signal1DData(std::string filename_data){
+SignalData<PetscVector>::SignalData(std::string filename_data){
 	LOG_FUNC_BEGIN
 
 	/* prepare preliminary datavector and load data */
@@ -30,7 +30,7 @@ Signal1DData<PetscVector>::Signal1DData(std::string filename_data){
 }
 
 template<>
-void Signal1DData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_decomposition) {
+void SignalData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_decomposition) {
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;
@@ -52,12 +52,12 @@ void Signal1DData<PetscVector>::set_decomposition(Decomposition<PetscVector> &ne
 }
 
 template<>
-void Signal1DData<PetscVector>::saveSignal1D(std::string filename, bool save_original) const{
+void SignalData<PetscVector>::saveSignal(std::string filename, bool save_original) const{
 	LOG_FUNC_BEGIN
 
-	Timer timer_saveSignal1D; 
-	timer_saveSignal1D.restart();
-	timer_saveSignal1D.start();
+	Timer timer_saveSignal; 
+	timer_saveSignal.restart();
+	timer_saveSignal.start();
 
 	std::ostringstream oss_name_of_file;
 
@@ -123,15 +123,15 @@ void Signal1DData<PetscVector>::saveSignal1D(std::string filename, bool save_ori
 	/* destroy vectors with original layout */
 //	TRYCXX( VecDestroy(&datasave_Vec) );
 
-	timer_saveSignal1D.stop();
-	coutAll <<  " - problem saved in: " << timer_saveSignal1D.get_value_sum() << std::endl;
+	timer_saveSignal.stop();
+	coutAll <<  " - problem saved in: " << timer_saveSignal.get_value_sum() << std::endl;
 	coutAll.synchronize();
 
 	LOG_FUNC_END
 }
 
 template<>
-double Signal1DData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const {
+double SignalData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const {
 	LOG_FUNC_BEGIN	
 
 	double abserr;

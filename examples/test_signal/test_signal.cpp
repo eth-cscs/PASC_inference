@@ -1,5 +1,5 @@
-/** @file test_signal1D.cpp
- *  @brief test the kmeans problem solver on simple 1D signal problem
+/** @file test_signal.cpp
+ *  @brief test the kmeans problem solver on nD signal problem
  *
  *  @author Lukas Pospisil
  */
@@ -14,6 +14,7 @@
 
 #define DEFAULT_EPSSQR 1
 #define DEFAULT_K 2
+#define DEFAULT_XDIM 1
 #define DEFAULT_FEM_TYPE 1
 #define DEFAULT_FEM_REDUCE 1.0
 #define DEFAULT_SIGNAL_IN "data/test_signal/samplesignal.bin"
@@ -38,6 +39,7 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
+		("test_xdim", boost::program_options::value<int>(), "dimension of data points [int]")
 		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [0=FEM_SUM/1=FEM_HAT]")
 		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
 		("test_signal_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
@@ -83,7 +85,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, fem_type; 
+	int K, annealing, fem_type, xdim; 
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 	double fem_reduce;
 
@@ -96,6 +98,7 @@ int main( int argc, char *argv[] )
 	std::string shortinfo_values;
 
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_fem_type", &fem_type, DEFAULT_FEM_TYPE);
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, DEFAULT_FEM_REDUCE);
 	consoleArg.set_option_value("test_signal_in", &signal_in, DEFAULT_SIGNAL_IN);
@@ -168,6 +171,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " ranks_per_node              = " << std::setw(30) << ranks_per_node << " (number of MPI processes on one node)" << std::endl;
 	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (dimension of data points)" << std::endl;
 	if(given_Theta){
 		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K) << " (given solution Theta)" << std::endl;
 	} else {
@@ -222,13 +226,13 @@ int main( int argc, char *argv[] )
 
 /* 1.) prepare preliminary time-series data (to get the size of the problem T) */
 	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
-	Signal1DData<PetscVector> mydata(signal_in);
+	SignalData<PetscVector> mydata(signal_in);
 
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on preloaded data */
-	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, 1, DDT_size);
+	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, xdim, DDT_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);

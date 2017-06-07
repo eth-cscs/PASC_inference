@@ -13,7 +13,7 @@
 //#include "general/data/entropydata.h"
 #include "general/data/imagedata.h"
 #include "general/data/qpdata.h"
-#include "general/data/signal1Ddata.h"
+#include "general/data/signaldata.h"
 #include "general/data/simpledata.h"
 #include "general/data/tsdata.h"
 

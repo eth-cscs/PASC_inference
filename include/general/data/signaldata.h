@@ -1,11 +1,11 @@
-/** @file signal1Ddata.h
- *  @brief class for manipulation with one dimensional data
+/** @file signaldata.h
+ *  @brief class for manipulation with signal data
  * 
  *  @author Lukas Pospisil
  */
 
-#ifndef PASC_SIGNAL1DDATA_H
-#define	PASC_SIGNAL1DDATA_H
+#ifndef PASC_SIGNALDATA_H
+#define	PASC_SIGNALDATA_H
 
 #include <iostream>
 #include "general/common/common.h"
@@ -15,21 +15,21 @@
 namespace pascinference {
 namespace data {
 
-/** class Signal1DData
+/** class SignalData
  * @brief data of one-dimensional signal
  * 
  * Class for manipulation with data from simple one-dimensional signal.
  */ 
 template<class VectorBase>
-class Signal1DData: public TSData<VectorBase> {
+class SignalData: public TSData<VectorBase> {
 	protected:
 		/* preliminary data */
 		int Tpreliminary;
 		GeneralVector<VectorBase> *datavectorpreliminary;
 
 	public:
-		Signal1DData(std::string filename_data);
-		~Signal1DData();
+		SignalData(std::string filename_data);
+		~SignalData();
 
 		virtual void print(ConsoleOutput &output) const;
 		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
@@ -38,11 +38,12 @@ class Signal1DData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void saveSignal1D(std::string filename, bool save_original=true) const;
+		void saveSignal(std::string filename, bool save_original=true) const;
 
 		int get_Tpreliminary() const;
 		void set_decomposition(Decomposition<VectorBase> &decomposition);
 		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
+
 
 };
 
@@ -58,7 +59,7 @@ namespace data {
 
 /* from filename */
 template<class VectorBase>
-Signal1DData<VectorBase>::Signal1DData(std::string filename_data){
+SignalData<VectorBase>::SignalData(std::string filename_data){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -68,7 +69,7 @@ Signal1DData<VectorBase>::Signal1DData(std::string filename_data){
 
 /* destructor */
 template<class VectorBase>
-Signal1DData<VectorBase>::~Signal1DData(){
+SignalData<VectorBase>::~SignalData(){
 	LOG_FUNC_BEGIN
 	
 	LOG_FUNC_END
@@ -77,7 +78,7 @@ Signal1DData<VectorBase>::~Signal1DData(){
 
 /* set decomposition - from preliminary to real data */
 template<class VectorBase>
-void Signal1DData<VectorBase>::set_decomposition(Decomposition<VectorBase> &new_decomposition) {
+void SignalData<VectorBase>::set_decomposition(Decomposition<VectorBase> &new_decomposition) {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -87,7 +88,7 @@ void Signal1DData<VectorBase>::set_decomposition(Decomposition<VectorBase> &new_
 
 /* print info about data */
 template<class VectorBase>
-void Signal1DData<VectorBase>::print(ConsoleOutput &output) const {
+void SignalData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -129,7 +130,7 @@ void Signal1DData<VectorBase>::print(ConsoleOutput &output) const {
 
 /* print info about data */
 template<class VectorBase>
-void Signal1DData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void SignalData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -183,7 +184,7 @@ void Signal1DData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput
 
 /* print content of all data */
 template<class VectorBase>
-void Signal1DData<VectorBase>::printcontent(ConsoleOutput &output) const {
+void SignalData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
@@ -215,7 +216,7 @@ void Signal1DData<VectorBase>::printcontent(ConsoleOutput &output) const {
 
 /* print content of all data */
 template<class VectorBase>
-void Signal1DData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
+void SignalData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
@@ -251,12 +252,12 @@ void Signal1DData<VectorBase>::printcontent(ConsoleOutput &output_global,Console
 }
 
 template<class VectorBase>
-std::string Signal1DData<VectorBase>::get_name() const {
-	return "Signal1D Time-series Data";
+std::string SignalData<VectorBase>::get_name() const {
+	return "Signal Time-series Data";
 }
 
 template<class VectorBase>
-void Signal1DData<VectorBase>::saveSignal1D(std::string filename, bool save_original) const{
+void SignalData<VectorBase>::saveSignal(std::string filename, bool save_original) const{
 	LOG_FUNC_BEGIN
 	
 	//TODO
@@ -265,12 +266,12 @@ void Signal1DData<VectorBase>::saveSignal1D(std::string filename, bool save_orig
 }
 
 template<class VectorBase>
-int Signal1DData<VectorBase>::get_Tpreliminary() const{
+int SignalData<VectorBase>::get_Tpreliminary() const{
 	return this->Tpreliminary;
 }
 
 template<class VectorBase>
-double Signal1DData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
+double SignalData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
 	LOG_FUNC_BEGIN	
 
 	//TODO
