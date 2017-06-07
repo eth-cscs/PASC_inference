@@ -40,6 +40,7 @@ class imageplotter : public drawable {
 		int image_width;
 		int image_height;
 		double image_scale;
+		int image_xdim;
 		std::string filename;
 
 	public: 
@@ -47,17 +48,18 @@ class imageplotter : public drawable {
 		~imageplotter();	
 		
 		void set_plotting_area(rectangle area);
-		void load_image( const std::string& file_name );
+		void load_image( const std::string& file_name, int new_xdim );
 		void save_image(const std::string& file_name);
 		
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
 		
-		void set_size(int new_width);
+		void set_size(int new_width, int new_xdim);
 		
 		int get_width() const;
 		int get_height() const;
 		double get_scale() const;
+		int get_xdim() const;
 
 		std::string get_filename() const;
 		
@@ -76,6 +78,9 @@ private:
 	label label_height;
 	text_field select_scale;
 	label label_scale;
+	text_field select_xdim;
+	label label_xdim;
+
 	button button_apply_size;
 
     void load_image( const std::string& file_name );
@@ -135,6 +140,8 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 		label_height(*this),
         select_scale(*this),
 		label_scale(*this),
+        select_xdim(*this),
+		label_xdim(*this),
         button_apply_size(*this),
         myimageplotter(*this)
 {
@@ -149,7 +156,7 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 	}
 
     /* prepare position of labels of vector properties */
-    labels_myvector_properties[0]->set_pos(10,160);
+    labels_myvector_properties[0]->set_pos(10,190);
 	for(int i=1; i < 9; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
@@ -192,10 +199,16 @@ show_image_window::show_image_window() : /* All widgets take their parent window
 	label_scale.set_text("scale  :");
 	select_scale.disable();
 
+	select_xdim.set_pos(120,120);
+	select_xdim.set_width(70);
+	select_xdim.set_text("1");
+	label_xdim.set_pos(10,125);
+	label_xdim.set_text("xdim   :");
+
 	/* register button for changing the size */
 	button_apply_size.set_click_handler(*this, &show_image_window::on_button_apply_size);
 	button_apply_size.set_name("apply size");
-	button_apply_size.set_pos(120,120);
+	button_apply_size.set_pos(120,150);
 
 	/* arrange the window */
 	on_window_resized();
@@ -248,7 +261,7 @@ void show_image_window::on_window_resized() {
 }
 
 void show_image_window::load_image( const std::string& file_name ) {
-	myimageplotter.load_image(file_name);
+	myimageplotter.load_image(file_name, std::stoi(trim(select_xdim.text())) );
 
 	if(myimageplotter.get_myvector_loaded()){
 		/* get recomputed height and set value */
@@ -310,8 +323,9 @@ void show_image_window::set_label_myvector_properties(int label_idx, const std::
 
 void show_image_window::on_button_apply_size(){
 	int new_width = std::stoi(trim(select_width.text()));
+	int new_xdim = std::stoi(trim(select_xdim.text()));
 	
-	myimageplotter.set_size(new_width);
+	myimageplotter.set_size(new_width, new_xdim);
 	myimageplotter.recompute_scale();
 
 	/* get recomputed height and set value */
@@ -349,6 +363,7 @@ imageplotter::imageplotter(drawable_window& w):
 	image_width = 0;
 	image_height = 0;
 	image_scale = 1.0;
+	image_xdim = 1;
 	
 	enable_events();
 }
@@ -364,8 +379,9 @@ void imageplotter::set_plotting_area(rectangle area){
 	rect = area;
 }
 
-void imageplotter::load_image( const std::string& file_name ) {
+void imageplotter::load_image( const std::string& file_name, int new_xdim ) {
 	this->filename = file_name;
+	this->image_xdim = new_xdim;
 
 	if(myvector_loaded){
 		/* destroy existing vector */
@@ -416,9 +432,20 @@ void imageplotter::save_image( const std::string& file_name ) {
 	TRYCXX( VecGetArray(*myvector_Vec, &x_arr) );
 	for(int i=0;i<image_height;i++){
 		for(int j=0;j<image_width;j++){
-			image_dlib[i][j].red = x_arr[i*image_width + j]*255;
-			image_dlib[i][j].green = x_arr[i*image_width + j]*255;
-			image_dlib[i][j].blue = x_arr[i*image_width + j]*255;
+			/* greyscale */
+			if(image_xdim==1){
+				image_dlib[i][j].red = x_arr[i*image_width + j]*255;
+				image_dlib[i][j].green = x_arr[i*image_width + j]*255;
+				image_dlib[i][j].blue = x_arr[i*image_width + j]*255;
+			}
+			
+			/* rgb */
+			if(image_xdim==1){
+				image_dlib[i][j].red   = x_arr[i*image_width + j*image_xdim + 0]*255;
+				image_dlib[i][j].green = x_arr[i*image_width + j*image_xdim + 1]*255;
+				image_dlib[i][j].blue  = x_arr[i*image_width + j*image_xdim + 2]*255;
+			}
+			
 		}
 	}
 	TRYCXX( VecRestoreArray(*myvector_Vec, &x_arr) );
@@ -454,14 +481,6 @@ void imageplotter::plot_image(const canvas& c) const{
 	int myvector_size;
 	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
 
-	/* coefficients of mapping t to x */
-//	double ax = (px_max - px_min)/(double)(myvector_size - 1);
-//	double bx = px_max - ax*myvector_size;
-
-	/* coefficients of mapping value to y */
-//	double ay = (py_max - py_min)/(double)(myvector_max - myvector_min);
-//	double by = py_max - ay*myvector_max;
-
 	/* get some plotting variables */
 	rectangle rect_pixel;
 	int x_coor, y_coor;
@@ -477,30 +496,52 @@ void imageplotter::plot_image(const canvas& c) const{
 	
 	double *values;
 	TRYCXX( VecGetArray(*myvector_Vec,&values) );
-	for(int t=1;t<myvector_size;t++){
-		y_coor = t/(double)image_width;
-		x_coor = t - y_coor*image_width;
 
-		rect_pixel.set_left(x_begin + x_coor*pixel_size);
-		rect_pixel.set_top(y_begin + y_coor*pixel_size);
-		rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
-		rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
+	/* greyscale */
+	if(image_xdim==1){
+		for(int t=1;t<=myvector_size;t++){
+			y_coor = t/(double)image_width;
+			x_coor = t - y_coor*image_width;
 
-		fill_rect(c,rect_pixel,rgb_pixel(values[t-1]*255,values[t-1]*255,values[t-1]*255));		
+			rect_pixel.set_left(x_begin + x_coor*pixel_size);
+			rect_pixel.set_top(y_begin + y_coor*pixel_size);
+			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
+			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
+
+		
+			fill_rect(c,rect_pixel,rgb_pixel(values[t-1]*255,values[t-1]*255,values[t-1]*255));		
+		}
 	}
+
+	/* rgb */
+	if(image_xdim==3){
+		for(int t=1;t<=myvector_size/3;t++){
+			y_coor = t/(double)image_width;
+			x_coor = t - y_coor*image_width;
+
+			rect_pixel.set_left(x_begin + x_coor*pixel_size);
+			rect_pixel.set_top(y_begin + y_coor*pixel_size);
+			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
+			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
+		
+			fill_rect(c,rect_pixel,rgb_pixel(values[(t-1)*image_xdim+0]*255,values[(t-1)*image_xdim+1]*255,values[(t-1)*image_xdim+2]*255));		
+		}
+	}
+
 	TRYCXX( VecRestoreArray(*myvector_Vec,&values) );
 	
 }
 
-void imageplotter::set_size(int new_width){
+void imageplotter::set_size(int new_width, int new_xdim){
 	this->image_width = new_width;
+	this->image_xdim = new_xdim;
 
 	/* compute height */
 	if(new_width > 0 && myvector_loaded){
 		int    myvector_size;
 		TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
 		
-		this->image_height = (int)(myvector_size/(double)new_width);
+		this->image_height = (int)((myvector_size/(double)image_xdim)/(double)new_width);
 	
 	} else {
 		this->image_height = 0;
@@ -520,6 +561,10 @@ int imageplotter::get_height() const {
 
 double imageplotter::get_scale() const {
 	return image_scale;
+}
+
+int imageplotter::get_xdim() const {
+	return image_xdim;
 }
 
 std::string imageplotter::get_filename() const{
