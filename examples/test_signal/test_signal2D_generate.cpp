@@ -1,4 +1,4 @@
-/** @file test_signal1D_generate.cpp
+/** @file test_signal2D_generate.cpp
  *  @brief generate testing k-means sample
  *
  *  @author Lukas Pospisil
@@ -17,12 +17,12 @@
 #define DEFAULT_NOISE 0.1
 #define DEFAULT_K 3
 
-#define DEFAULT_FILENAME_DATA "data/test_signal/signal1D_data.bin"
-#define DEFAULT_FILENAME_SOLUTION "data/test_signal/signal1D_solution.bin"
-#define DEFAULT_FILENAME_GAMMA0 "data/test_signal/signal1D_gamma0.bin"
+#define DEFAULT_FILENAME_DATA "data/test_signal/signal2D_data.bin"
+#define DEFAULT_FILENAME_SOLUTION "data/test_signal/signal2D_solution.bin"
+#define DEFAULT_FILENAME_GAMMA0 "data/test_signal/signal2D_gamma0.bin"
 #define DEFAULT_GENERATE_DATA true
 #define DEFAULT_GENERATE_GAMMA0 true
- 
+
 using namespace pascinference;
 
 int myget_cluster_id_period(int tperiod, int Tperiod){
@@ -103,26 +103,26 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_generate_gamma0        = " << std::setw(30) << generate_gamma0 << " (generate gamma0)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
+
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
 	int T = Tperiod*repeat_nmb;
-	double mu[3] = {0.0,1.0,2.0};
+	int xdim = 2;
+	int K_true = 3;
+	double mu[xdim*K_true] = {1.0,1.0, 2.0,2.0, 3.0,1.5};
 	coutMaster << " T                           = " << std::setw(30) << T << " (length of time-series)" << std::endl;
-	coutMaster << " mu                          = " << std::setw(30) << print_array(mu,3) << " (mean values in clusters)" << std::endl;
+	coutMaster << " mu                          = " << std::setw(30) << print_array(mu,6) << " (mean values in cluster [mu1_x,mu1_y,mu2_x,mu2_y,mu3_x,mu3_y])" << std::endl;
 
 	/* allocate vector of data */
 	Vec x;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&x) );
-	TRYCXX( VecSetSizes(x,PETSC_DECIDE,T) );
-	TRYCXX( VecSetType(x, VECMPI) );
+	TRYCXX( VecSetSizes(x,xdim*T,xdim*T) );
+	TRYCXX( VecSetType(x, VECSEQ) );
 	TRYCXX( VecSetFromOptions(x) );
 
-	/* ownership range */
-	int low, high;
-	TRYCXX( VecGetOwnershipRange(x, &low, &high) );
-
 	/* vector for data with noise */
+	int cluster_id;
 	if(generate_data){
 		Vec x_data;
 		TRYCXX( VecDuplicate(x,&x_data) );
@@ -134,11 +134,14 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecSetRandom(x_data,rctx) );
 		TRYCXX( PetscRandomDestroy(&rctx) );
 
-		/* fill local array */
+		/* fill array */
 		double *x_arr;
 		TRYCXX( VecGetArray(x,&x_arr));
-		for(int t=low;t<high;t++){
-			x_arr[t-low] = mu[myget_cluster_id(t, Tperiod)];
+		for(int t=0;t<T;t++){
+			for(int n=0;n<xdim;n++){
+				cluster_id = myget_cluster_id(t, Tperiod);
+				x_arr[n*T + t] = mu[cluster_id*xdim + n];
+			}
 		}
 		TRYCXX( VecRestoreArray(x,&x_arr));
 
@@ -165,8 +168,8 @@ int main( int argc, char *argv[] )
 		/* vector for gamma0 */
 		Vec gamma0;
 		TRYCXX( VecCreate(PETSC_COMM_WORLD,&gamma0) );
-		TRYCXX( VecSetSizes(gamma0,(high-low)*K,T*K) );
-		TRYCXX( VecSetType(gamma0, VECMPI) );
+		TRYCXX( VecSetSizes(gamma0,T*K,T*K) );
+		TRYCXX( VecSetType(gamma0, VECSEQ) );
 		TRYCXX( VecSetFromOptions(gamma0) );
 	
 		/* generate random gamma0 */

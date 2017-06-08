@@ -11,7 +11,28 @@
 #ifndef USE_PETSC
  #error 'This example is for PETSC'
 #endif
- 
+
+#define DEFAULT_EPSSQR 1
+#define DEFAULT_DATA_FILENAME "data/test_neuro/S001R01.edf"
+#define DEFAULT_MAX_RECORD_NMB 3
+#define DEFAULT_GRAPH_FILENAME "data/test_neuro/Koordinaten_EEG_P.bin"
+#define DEFAULT_GRAPH_COEFF 2.5
+#define DEFAULT_GRAPH_SAVE false
+#define DEFAULT_DATA_OUT "test_edf"
+#define DEFAULT_K 2
+#define DEFAULT_ANNEALING 1
+#define DEFAULT_SAVEVTK false
+#define DEFAULT_PRINTSTATS false
+#define DEFAULT_CUTGAMMA false
+#define DEFAULT_CUTDATA true
+#define DEFAULT_CUTDATA_DOWN -200
+#define DEFAULT_CUTDATA_UP 200
+#define DEFAULT_SCALEDATA false
+#define DEFAULT_SHIFTDATA false
+#define DEFAULT_SHIFTDATA_COEFF 200
+#define DEFAULT_SHORTINFO true
+#define DEFAULT_SHORTINFO_FILENAME "shortinfo/neurosample.txt"
+
 using namespace pascinference;
 
 int main( int argc, char *argv[] )
@@ -23,7 +44,7 @@ int main( int argc, char *argv[] )
 		("test_DDR", boost::program_options::value<int>(), "decomposition in space [int]")
 		("test_data_filename", boost::program_options::value< std::string >(), "name of input file [string]")
 		("test_max_record_nmb", boost::program_options::value<int>(), "maximum nuber of loaded records")
-		("test_graph_coordinates", boost::program_options::value< std::string >(), "name of input file with coordinates [string]")
+		("test_graph_filename", boost::program_options::value< std::string >(), "name of input file with coordinates [string]")
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold coefficient of graph [double]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_data_out", boost::program_options::value< std::string >(), "part of output filename [string]")
@@ -57,8 +78,8 @@ int main( int argc, char *argv[] )
 		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
 		
 	} else {
-		std::cout << "test_epssqr has to be set! Call application with parameter --h to see all parameters" << std::endl;
-		return 0;
+		/* list is not given, add some value */
+		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
 	int K, max_record_nmb, annealing, DDT_size, DDR_size; 
@@ -66,7 +87,7 @@ int main( int argc, char *argv[] )
 	double cutdata_up, cutdata_down, shiftdata_coeff, graph_coeff;
 
 	std::string data_filename;
-	std::string graph_coordinates;
+	std::string graph_filename;
 	std::string data_out;
 
 	std::string shortinfo_filename;
@@ -76,31 +97,31 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_DDT", &DDT_size, GlobalManager.get_size());
 	consoleArg.set_option_value("test_DDR", &DDR_size, 1);
 
-	consoleArg.set_option_value("test_data_filename", &data_filename, "data/S001R01.edf");
-	consoleArg.set_option_value("test_max_record_nmb", &max_record_nmb, -1);
-	consoleArg.set_option_value("test_graph_coordinates", &graph_coordinates, "data/Koordinaten_EEG_P.bin");
-	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 2.5);
-	consoleArg.set_option_value("test_graph_save", &graph_save, false);
+	consoleArg.set_option_value("test_data_filename", &data_filename, DEFAULT_DATA_FILENAME);
+	consoleArg.set_option_value("test_max_record_nmb", &max_record_nmb, DEFAULT_MAX_RECORD_NMB);
+	consoleArg.set_option_value("test_graph_filename", &graph_filename, DEFAULT_GRAPH_FILENAME);
+	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, DEFAULT_GRAPH_COEFF);
+	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	
-	consoleArg.set_option_value("test_data_out", &data_out, "test_edf");
+	consoleArg.set_option_value("test_data_out", &data_out, DEFAULT_DATA_OUT);
 
-	consoleArg.set_option_value("test_K", &K, 2);
-	consoleArg.set_option_value("test_annealing", &annealing, 1);
-	consoleArg.set_option_value("test_savevtk", &savevtk, false);
-	consoleArg.set_option_value("test_printstats", &printstats, false);
+	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_annealing", &annealing, DEFAULT_ANNEALING);
+	consoleArg.set_option_value("test_savevtk", &savevtk, DEFAULT_SAVEVTK);
+	consoleArg.set_option_value("test_printstats", &printstats, DEFAULT_PRINTSTATS);
 
-	consoleArg.set_option_value("test_cutgamma", &cutgamma, false);
-	consoleArg.set_option_value("test_cutdata", &cutdata, true);
-	consoleArg.set_option_value("test_cutdata_down", &cutdata_down, -200);
-	consoleArg.set_option_value("test_cutdata_up", &cutdata_up, 200);
-	consoleArg.set_option_value("test_scaledata", &scaledata, false);
-	consoleArg.set_option_value("test_shiftdata", &shiftdata, false);
-	consoleArg.set_option_value("test_shiftdata_coeff", &shiftdata_coeff, 200);
+	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
+	consoleArg.set_option_value("test_cutdata", &cutdata, DEFAULT_CUTDATA);
+	consoleArg.set_option_value("test_cutdata_down", &cutdata_down, DEFAULT_CUTDATA_DOWN);
+	consoleArg.set_option_value("test_cutdata_up", &cutdata_up, DEFAULT_CUTDATA_UP);
+	consoleArg.set_option_value("test_scaledata", &scaledata, DEFAULT_SCALEDATA);
+	consoleArg.set_option_value("test_shiftdata", &shiftdata, DEFAULT_SHIFTDATA);
+	consoleArg.set_option_value("test_shiftdata_coeff", &shiftdata_coeff, DEFAULT_SHIFTDATA_COEFF);
 
-	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, true);
+	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, DEFAULT_SHORTINFO);
 	consoleArg.set_option_value("test_shortinfo_header", &shortinfo_header, "");
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
-	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, "shortinfo/myshortinfo.txt");
+	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, DEFAULT_SHORTINFO_FILENAME);
 
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
@@ -131,7 +152,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "" << std::endl;
 	coutMaster << " test_data_filename      = " << std::setw(30) << data_filename << " (name of input file)" << std::endl;
 	coutMaster << " test_max_record_nmb     = " << std::setw(30) << max_record_nmb << " (max number of loaded time-steps)" << std::endl;
-	coutMaster << " test_graph_coordinates  = " << std::setw(30) << graph_coordinates << " (name of input file with coordinates)" << std::endl;
+	coutMaster << " test_graph_filename     = " << std::setw(30) << graph_filename << " (name of input file with coordinates)" << std::endl;
 	coutMaster << " test_graph_coeff        = " << std::setw(30) << graph_coeff << " (threshold coefficient of graph)" << std::endl;
 	coutMaster << " test_graph_save         = " << std::setw(30) << graph_save << " (save VTK with graph or not)" << std::endl;
 	coutMaster << " test_data_out           = " << std::setw(30) << data_out << " (part of output filename)" << std::endl;
@@ -187,7 +208,7 @@ int main( int argc, char *argv[] )
 
 /* 2a.) prepare graph */
 	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
-	BGMGraph<PetscVector> graph(graph_coordinates);
+	BGMGraph<PetscVector> graph(graph_filename);
 	graph.process(graph_coeff);
 	graph.print(coutMaster);
 	if(graph_save){

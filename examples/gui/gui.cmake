@@ -6,8 +6,9 @@ option(GUI "GUI" OFF)
 option(GUI_SHOW_VEC "GUI_SHOW_VEC" OFF)
 option(GUI_SHOW_GAMMA "GUI_SHOW_GAMMA" OFF)
 option(GUI_SHOW_IMAGE "GUI_SHOW_IMAGE" OFF)
-option(GUI_SHOW_EEG "GUI_SHOW_NEURO" OFF)
+option(GUI_SHOW_NEURO "GUI_SHOW_NEURO" OFF)
 option(GUI_SHOW_SHORTINFO "GUI_SHOW_SHORTINFO" OFF)
+option(GUI_SHOW_SIGNAL2D "GUI_SHOW_SIGNAL2D" OFF)
 
 if(${GUI})
 	# define shortcut to compile all utils
@@ -26,6 +27,7 @@ printinfo_onoff("   GUI_SHOW_GAMMA                                        (Conso
 printinfo_onoff("   GUI_SHOW_IMAGE                                        (ConsoleArg)                 " "${GUI_SHOW_IMAGE}")
 printinfo_onoff("   GUI_SHOW_NEURO                                        (ConsoleArg)                 " "${GUI_SHOW_NEURO}")
 printinfo_onoff("   GUI_SHOW_SHORTINFO                                    (ConsoleArg)                 " "${GUI_SHOW_SHORTINFO}")
+printinfo_onoff("   GUI_SHOW_SIGNAL2D                                     (ConsoleArg)                 " "${GUI_SHOW_SIGNAL2D}")
 
 if(${GUI_SHOW_VEC})
 	set(CMAKE_BUILD_TYPE Release)
@@ -50,4 +52,9 @@ endif()
 if(${GUI_SHOW_SHORTINFO})
 	set(CMAKE_BUILD_TYPE Release)
 	testadd_executable("gui/gui_show_shortinfo.cpp" "gui_show_shortinfo")
+endif()
+
+if(${GUI_SHOW_SIGNAL2D})
+	set(CMAKE_BUILD_TYPE Release)
+	testadd_executable("gui/gui_show_signal2D.cpp" "gui_show_signal2D")
 endif()

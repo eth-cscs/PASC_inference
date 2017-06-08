@@ -249,10 +249,16 @@ int main( int argc, char *argv[] )
 
 /* 4.) prepare and load solution */
 	Vec solution_Vec;
+	Vec solution_Vec_preload;
 	GeneralVector<PetscVector> solution(solution_Vec);
 	if(given_solution){
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
-		solution.load_global(signal_solution);
+		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
+
+		solution.load_global(image_solution);
+		decomposition.permute_TRxdim(solution.get_vector(), solution_Vec_preload,false);
+		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
+		TRYCXX( VecDestroy(&solution_Vec_preload) );
 	}
 
 /* 5.) prepare model */

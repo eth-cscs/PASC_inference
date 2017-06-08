@@ -37,7 +37,7 @@ class graphplotter : public drawable {
 		Vec *get_myvector_Vec();
 };
 
-class show_vec_window : public drawable_window {
+class show_signal2D_window : public drawable_window {
 private:
     menu_bar mbar; /* gui: menubar */
 	graphplotter mygraphplotter; /* gui: canvas for drawing */
@@ -59,10 +59,10 @@ private:
 	std::string cut_filename(const std::string &input);
 
 public:
-    show_vec_window();
-    show_vec_window(std::string filename, std::string title);
+    show_signal2D_window();
+    show_signal2D_window(std::string filename, std::string title);
 
-    ~show_vec_window();
+    ~show_signal2D_window();
 
 };
 
@@ -70,7 +70,7 @@ public:
 
 int main( int argc, char *argv[] ) {
 	/* add local program options */
-	boost::program_options::options_description opt_problem("GUI_SHOW_VEC", consoleArg.get_console_nmb_cols());
+	boost::program_options::options_description opt_problem("GUI_SHOW_SIGNAL2D", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("filename", boost::program_options::value<std::string>(), "image to load [string]")
 		("title", boost::program_options::value<std::string>(), "title of window [string]")	;
@@ -88,7 +88,7 @@ int main( int argc, char *argv[] ) {
 	consoleArg.set_option_value("title", &title, "");
 
     // create our window
-    show_vec_window my_window(filename, title);
+    show_signal2D_window my_window(filename, title);
 
     // wait until the user closes this window before we let the program 
     // terminate.
@@ -103,7 +103,7 @@ int main( int argc, char *argv[] ) {
 
 /* ---------------- implementation -------------- */
 
-show_vec_window::show_vec_window() : /* All widgets take their parent window as an argument to their constructor. */
+show_signal2D_window::show_signal2D_window() : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
         mygraphplotter(*this)
 {
@@ -132,12 +132,12 @@ show_vec_window::show_vec_window() : /* All widgets take their parent window as 
     mbar.set_menu_name(1,"Help",'H');
 
     /* add the entries to the File menu. */
-    mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_vec_window::on_menu_file_open,    'O'));
+    mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_signal2D_window::on_menu_file_open,    'O'));
     mbar.menu(0).add_menu_item(menu_item_separator());
-    mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_vec_window::on_menu_file_quit,    'Q'));
+    mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_signal2D_window::on_menu_file_quit,    'Q'));
 
     /* Add the entries to the Help menu. */
-    mbar.menu(1).add_menu_item(menu_item_text("About",  *this, &show_vec_window::on_menu_help_about,   'A'));
+    mbar.menu(1).add_menu_item(menu_item_text("About",  *this, &show_signal2D_window::on_menu_help_about,   'A'));
 
 	/* arrange the window */
 	on_window_resized();
@@ -145,7 +145,7 @@ show_vec_window::show_vec_window() : /* All widgets take their parent window as 
 	show();
 } 
 
-show_vec_window::show_vec_window(std::string filename, std::string title) : show_vec_window() {
+show_signal2D_window::show_signal2D_window(std::string filename, std::string title) : show_signal2D_window() {
 	
 	if(title != ""){
 		set_title(title);		
@@ -158,7 +158,7 @@ show_vec_window::show_vec_window(std::string filename, std::string title) : show
 	
 }
 
-show_vec_window::~show_vec_window(){
+show_signal2D_window::~show_signal2D_window(){
 
 	/* destroy labels */
 	for(int i=0; i < NUMBER_OF_LABELS; i++){
@@ -170,20 +170,20 @@ show_vec_window::~show_vec_window(){
 	close_window();
 }
 
-void show_vec_window::on_menu_help_about(){
+void show_signal2D_window::on_menu_help_about(){
      message_box("About","This application is for PETSc vector visualisation\n");
 }
 
-void show_vec_window::on_menu_file_open(){
+void show_signal2D_window::on_menu_file_open(){
     /* display a file chooser window and when the user choses a file */
-    open_existing_file_box(*this, &show_vec_window::load_vector);
+    open_existing_file_box(*this, &show_signal2D_window::load_vector);
 }
 
-void show_vec_window::on_menu_file_quit(){
+void show_signal2D_window::on_menu_file_quit(){
 	close_window();
 }
 
-void show_vec_window::on_window_resized() {
+void show_signal2D_window::on_window_resized() {
 
 	/* set new plotting area */
 	unsigned long width,height;
@@ -194,7 +194,7 @@ void show_vec_window::on_window_resized() {
 
 }
 
-void show_vec_window::load_vector( const std::string& file_name ) {
+void show_signal2D_window::load_vector( const std::string& file_name ) {
 	mygraphplotter.load_vector(file_name);
 
 	Vec *myvector_Vec = mygraphplotter.get_myvector_Vec();
@@ -229,14 +229,14 @@ void show_vec_window::load_vector( const std::string& file_name ) {
 }
 
 template<class ValueType>
-void show_vec_window::set_label_myvector_properties(int label_idx, const std::string &text, ValueType value){
+void show_signal2D_window::set_label_myvector_properties(int label_idx, const std::string &text, ValueType value){
 	std::ostringstream sout;
 	sout << std::setprecision(5);
     sout << text << std::setw(20) << value;
     labels_myvector_properties[label_idx]->set_text(sout.str());	
 }
 
-std::string show_vec_window::cut_filename(const std::string &input){
+std::string show_signal2D_window::cut_filename(const std::string &input){
 	std::ostringstream sout;
 	boost::filesystem::path p(input);
 	sout << p.filename();

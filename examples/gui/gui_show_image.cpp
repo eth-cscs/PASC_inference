@@ -557,7 +557,6 @@ void imageplotter::plot_image(const canvas& c) const{
 			rect_pixel.set_top(y_begin + y_coor*pixel_size);
 			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
 			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
-
 		
 			fill_rect(c,rect_pixel,rgb_pixel(values[t]*255,values[t]*255,values[t]*255));		
 		}
