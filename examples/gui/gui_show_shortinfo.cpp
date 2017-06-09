@@ -22,37 +22,17 @@
 #include <sstream>
 #include <string>
 
+#include "graphplotter.h"
 #include "shortinfo_reader.h"
 
 using namespace dlib;
 using namespace pascinference;
 
-class graphplotter : public drawable {
-	private:
-		std::vector<double> x_values;
-		std::vector<double> y_values;
-
-		bool values_loaded;
-
-		void draw (const canvas& c) const;
-		void plot_graph(const canvas& c) const;
-
-	public: 
-		graphplotter(drawable_window& w);
-		~graphplotter();	
-		
-		void set_plotting_area(rectangle area);
-
-		void set_values(std::vector<double> x_values, std::vector<double> y_values);
-		bool get_values_loaded();
-		std::vector<double> get_x_values();
-		std::vector<double> get_y_values();
-};
-
 class show_shortinfo_window : public drawable_window {
 private:
     menu_bar mbar; /* gui: menubar */
-	popup_menu submenu_epssqr_vs; /* gui: submenu */
+	popup_menu submenu_xlabel; /* gui: submenu */
+	popup_menu submenu_ylabel; /* gui: submenu */
 
 	graphplotter mygraphplotter; /* gui: canvas for drawing */
 	std::string xlabel;
@@ -69,27 +49,39 @@ private:
 	/* general window events */
 	void on_window_resized();
 	
-	class menu_item_whattoplot : public menu_item_text	{
+	class menu_item_xlabel : public menu_item_text	{
 		private:
 			std::string xlabel;
+			show_shortinfo_window *mywindow;
+		public:
+			menu_item_xlabel(const std::string &name, const std::string &xlabel, show_shortinfo_window& mywindow, void (show_shortinfo_window::*on_click_handler)() ) : menu_item_text(name, mywindow, on_click_handler) {
+				this->xlabel = xlabel;
+				this->mywindow = &mywindow;
+			}
+
+			virtual void on_click () const {
+				mywindow->set_xlabel(this->xlabel);
+			}
+	};
+
+	class menu_item_ylabel : public menu_item_text	{
+		private:
 			std::string ylabel;
 			show_shortinfo_window *mywindow;
-			
 		public:
-//			template <typename T>
-//			menu_item_whattoplot(const std::string &name, const std::string &xlabel, const std::string &ylabel, T& object ) : menu_item_text(name, object ) {
-			menu_item_whattoplot(const std::string &name, const std::string &xlabel, const std::string &ylabel, show_shortinfo_window& mywindow, void (show_shortinfo_window::*on_click_handler)() ) : menu_item_text(name, mywindow, on_click_handler) {
-				this->xlabel = xlabel;
+			menu_item_ylabel(const std::string &name, const std::string &ylabel, show_shortinfo_window& mywindow, void (show_shortinfo_window::*on_click_handler)() ) : menu_item_text(name, mywindow, on_click_handler) {
 				this->ylabel = ylabel;
 				this->mywindow = &mywindow;
 			}
 
 			virtual void on_click () const {
-				mywindow->set_value_names(this->xlabel, this->ylabel);
+				mywindow->set_ylabel(this->ylabel);
 			}	
 	};
 
-	void set_value_names(std::string xlabel, std::string ylabel);
+
+	void set_xlabel(std::string xlabel);
+	void set_ylabel(std::string ylabel);
 	void empty_void(){}
 
 public:
@@ -164,7 +156,8 @@ show_shortinfo_window::show_shortinfo_window() : /* All widgets take their paren
     mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_shortinfo_window::on_menu_file_quit,    'Q'));
 
 	/* add plotting menus */
-	mbar.menu(1).add_submenu(menu_item_submenu("plot epssqr vs",'e'), submenu_epssqr_vs);
+	mbar.menu(1).add_submenu(menu_item_submenu("X axis",'x'), submenu_xlabel);
+	mbar.menu(1).add_submenu(menu_item_submenu("Y axis",'y'), submenu_ylabel);
 
     /* Add the entries to the Help menu. */
     mbar.menu(2).add_menu_item(menu_item_text("About",  *this, &show_shortinfo_window::on_menu_help_about,   'A'));
@@ -180,8 +173,12 @@ show_shortinfo_window::show_shortinfo_window(std::string filename, std::string t
 		set_title(title);		
 	}
 
-	if(xlabel != "" && ylabel != ""){
-		set_value_names(xlabel, ylabel);
+	if(xlabel != ""){
+		set_xlabel(xlabel);
+	}
+
+	if(ylabel != ""){
+		set_ylabel(ylabel);
 	}
 
 	if(filename != ""){
@@ -225,79 +222,37 @@ void show_shortinfo_window::load_shortinfo( const std::string& filename ) {
 	myreader = new Shortinfo_reader(filename);
 	myreader->process();
 
-	/* clear menu */
-	submenu_epssqr_vs.clear();
+	/* clear menus */
+	submenu_xlabel.clear();
+	submenu_ylabel.clear();
 
 	/* get headers */
 	std::vector<std::string> headers = myreader->get_headers();
 	for(int i=0; i < headers.size();i++){
-		submenu_epssqr_vs.add_menu_item(menu_item_whattoplot(headers[i], "epssqr", headers[i], *this, &show_shortinfo_window::empty_void) );
+		submenu_xlabel.add_menu_item(menu_item_xlabel(headers[i], headers[i], *this, &show_shortinfo_window::empty_void) );
+		submenu_ylabel.add_menu_item(menu_item_ylabel(headers[i], headers[i], *this, &show_shortinfo_window::empty_void) );
 	}
 
 }
 
 
-void show_shortinfo_window::set_value_names(std::string xlabel, std::string ylabel){
+void show_shortinfo_window::set_xlabel(std::string xlabel){
 	this->xlabel = xlabel;
+
+	//TODO: categorical (string) values? 
+	std::vector<double> xvalues = myreader->get_values_double(this->xlabel);
+
+	mygraphplotter.set_xlabel(xlabel);
+	mygraphplotter.set_xvalues(xvalues);
+}
+
+void show_shortinfo_window::set_ylabel(std::string ylabel){
 	this->ylabel = ylabel;
-	std::cout << "xvalue: " << xlabel << std::endl;
-	std::cout << "yvalue: " << ylabel << std::endl;
+
+	//TODO: categorical (string) values? 
+	std::vector<double> yvalues = myreader->get_values_double(this->ylabel);
 	
-//	std::vector<double> myvalues = myreader.get_values_double("epssqr");
+	mygraphplotter.set_ylabel(ylabel);
+	mygraphplotter.set_yvalues(yvalues);
 }
 
-
-/* ------------------------- graph plotter -------------- */
-
-void graphplotter::draw(const canvas& c) const {
-	/* draw background */
-	fill_rect(c,rect,rgb_pixel(255,255,255));
-	
-	/* plot vector */
-	if(values_loaded){
-		plot_graph(c);
-	}
-
-}
-
-graphplotter::graphplotter(drawable_window& w): 
-			drawable(w)
-{
-	values_loaded = false;
-	enable_events();
-}
-
-graphplotter::~graphplotter(){
-	disable_events();
-	parent.invalidate_rectangle(rect);
-}
-
-void graphplotter::set_plotting_area(rectangle area){
-	rect = area;
-}
-
-void graphplotter::set_values(std::vector<double> x_values, std::vector<double> y_values){
-	this->x_values = x_values;
-	this->y_values = y_values;
-	values_loaded = true;
-
-	/* the whole rectangle with plotted graph will be repainted */
-	parent.invalidate_rectangle(rect);
-}
-
-bool graphplotter::get_values_loaded(){
-	return values_loaded;
-}
-
-std::vector<double> graphplotter::get_x_values(){
-	return x_values;
-}
-
-std::vector<double> graphplotter::get_y_values(){
-	return y_values;
-}
-
-void graphplotter::plot_graph(const canvas& c) const{
-
-	
-}
