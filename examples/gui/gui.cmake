@@ -1,7 +1,7 @@
 include_directories("${CMAKE_SOURCE_DIR}/gui/")
+include_directories("${CMAKE_SOURCE_DIR}/gui/include")
 
 # decide which gui util to compile
-
 option(GUI "GUI" OFF)
 option(GUI_SHOW_VEC "GUI_SHOW_VEC" OFF)
 option(GUI_SHOW_GAMMA "GUI_SHOW_GAMMA" OFF)

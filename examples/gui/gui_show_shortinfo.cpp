@@ -18,44 +18,48 @@
 #include <fstream>
 #include <string>
 
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-
 #include <dlib/gui_widgets.h>
 #include <sstream>
 #include <string>
 
-#define NUMBER_OF_LABELS 9
+#include "shortinfo_reader.h"
 
 using namespace dlib;
 using namespace pascinference;
 
 class graphplotter : public drawable {
 	private:
-		Vec *myvector_Vec;
-		bool myvector_loaded;
+		std::vector<double> x_values;
+		std::vector<double> y_values;
+
+		bool values_loaded;
 
 		void draw (const canvas& c) const;
-		void plot_vector(const canvas& c) const;
+		void plot_graph(const canvas& c) const;
 
 	public: 
 		graphplotter(drawable_window& w);
 		~graphplotter();	
 		
 		void set_plotting_area(rectangle area);
-		void load_vector( const std::string& file_name );
-		bool get_myvector_loaded();
-		Vec *get_myvector_Vec();
+
+		void set_values(std::vector<double> x_values, std::vector<double> y_values);
+		bool get_values_loaded();
+		std::vector<double> get_x_values();
+		std::vector<double> get_y_values();
 };
 
-class show_vec_window : public drawable_window {
+class show_shortinfo_window : public drawable_window {
 private:
     menu_bar mbar; /* gui: menubar */
-	graphplotter mygraphplotter; /* gui: canvas for drawing */
- 
-    label **labels_myvector_properties;
+	popup_menu submenu_epssqr_vs; /* gui: submenu */
 
-    void load_vector( const std::string& file_name );
+	graphplotter mygraphplotter; /* gui: canvas for drawing */
+	std::string xlabel;
+	std::string ylabel;	
+ 
+	Shortinfo_reader *myreader;
+    void load_shortinfo( const std::string& filename );
 
 	/* menu events */
     void on_menu_file_open ();
@@ -65,94 +69,68 @@ private:
 	/* general window events */
 	void on_window_resized();
 	
-	template<class ValueType>
-	void set_label_myvector_properties(int label_idx, const std::string &text, ValueType value);
-	std::string cut_filename(const std::string &input);
+	class menu_item_whattoplot : public menu_item_text	{
+		private:
+			std::string xlabel;
+			std::string ylabel;
+			show_shortinfo_window *mywindow;
+			
+		public:
+//			template <typename T>
+//			menu_item_whattoplot(const std::string &name, const std::string &xlabel, const std::string &ylabel, T& object ) : menu_item_text(name, object ) {
+			menu_item_whattoplot(const std::string &name, const std::string &xlabel, const std::string &ylabel, show_shortinfo_window& mywindow, void (show_shortinfo_window::*on_click_handler)() ) : menu_item_text(name, mywindow, on_click_handler) {
+				this->xlabel = xlabel;
+				this->ylabel = ylabel;
+				this->mywindow = &mywindow;
+			}
+
+			virtual void on_click () const {
+				mywindow->set_value_names(this->xlabel, this->ylabel);
+			}	
+	};
+
+	void set_value_names(std::string xlabel, std::string ylabel);
+	void empty_void(){}
 
 public:
-    show_vec_window();
-    ~show_vec_window();
+    show_shortinfo_window();
+    show_shortinfo_window(std::string filename, std::string title, std::string xlabel, std::string ylabel);
+
+    ~show_shortinfo_window();
 
 };
 
 //  ----------------------------------------------------------------------------
 
 
-class Shortinfo_reader {
-	private:
-		class col_node {
-			private:
-				std::string name;
-				std::vector<double> values;
-			
-			public:
-				col_node(std::string new_name){
-					name = new_myname;
-				}
-				
-				void add_value(double new_value){
-					values.push_back(new_value);
-				}
-
-				void end_call(double new_timer_stamp){
-					timer += timer_stamp - new_timer_stamp;
-					timer_stamp = 0.0;
-				}
-				
-				int get_counter() const {
-					return counter;
-				}
-
-				double get_timer() const {
-					return timer;
-				}
-
-				std::string get_name() const {
-					return myname;
-				}
-				
-				bool is_me(std::string other_name){
-					bool return_value = false;
-					int aa = std::strcmp(myname.c_str(),other_name.c_str());
-					if(aa == 0){
-						return_value = true;
-					}
-					return return_value;
-				}
-		};	
-		bool is_opened;
-		std::ifstream *myfile;						/**< the file reader */
-		int line_counter; 							/**< number of lines in the file */
-		std::vector<col_node> cols;					/**< vector of founded columns with values */
-	
-	public:
-		Shortinfo_reader(std::string filename){
-			myfile = new std::ifstream(filename);
-			line_counter = 0;
-			
-			if (myfile->is_open()){ /* if the file can be opened */
-				is_opened = true;
-			} else {
-				is_opened = false;
-			}
-		}
-}
 
 int main( int argc, char *argv[] ) {
+	/* add local program options */
+	boost::program_options::options_description opt_problem("GUI_SHOW_SHORTINFO", consoleArg.get_console_nmb_cols());
+	opt_problem.add_options()
+		("filename", boost::program_options::value<std::string>(), "shortinfo to load [string]")
+		("title", boost::program_options::value<std::string>(), "title of window [string]")
+		("xlabel", boost::program_options::value<std::string>(), "label in shortinfo to use as x [string]")
+		("ylabel", boost::program_options::value<std::string>(), "label in shortinfo to use as y [string]");
+	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
 	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
 	} 
 
-    // create our window
-//    show_vec_window my_window;
+	/* get values provided as console parameters */
+	std::string filename, title, plot_epssqrvs, xlabel, ylabel;
 
-    // wait until the user closes this window before we let the program 
-    // terminate.
- //   my_window.wait_until_closed();
+	consoleArg.set_option_value("filename", &filename, "");
+	consoleArg.set_option_value("title", &title, "");
+	consoleArg.set_option_value("xlabel", &xlabel, "");
+	consoleArg.set_option_value("ylabel", &ylabel, "");
 
-	Shortinfo_reader myreader("shortinfo/usi_250_150_02.txt");
+	/* create our window */
+	show_shortinfo_window my_window(filename, title, xlabel, ylabel);
+
+	my_window.wait_until_closed();
 
 	/* finalize the library */
 	Finalize<PetscVector>();
@@ -163,7 +141,7 @@ int main( int argc, char *argv[] ) {
 
 /* ---------------- implementation -------------- */
 
-show_vec_window::show_vec_window() : /* All widgets take their parent window as an argument to their constructor. */
+show_shortinfo_window::show_shortinfo_window() : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
         mygraphplotter(*this)
 {
@@ -171,33 +149,25 @@ show_vec_window::show_vec_window() : /* All widgets take their parent window as 
 	/* set the size of window */
     set_size(600,350);
 		
-	/* allocate labels */
-	labels_myvector_properties = new label*[NUMBER_OF_LABELS];
-	for(int i=0; i < NUMBER_OF_LABELS; i++){
-		labels_myvector_properties[i] = new label(*this);
-	}
-
-    /* prepare position of labels of vector properties */
-    labels_myvector_properties[0]->set_pos(10,30);
-	for(int i=1; i < 9; i++){
-		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
-	}
-
 	/* window title */
-	set_title("Show PETSc Vector utility");
+	set_title("Show PETSc Shortinfo utility");
         
 	/* create menu bar */
-    mbar.set_number_of_menus(2);
+    mbar.set_number_of_menus(3);
     mbar.set_menu_name(0,"File",'F');
-    mbar.set_menu_name(1,"Help",'H');
+	mbar.set_menu_name(1,"Plot",'W');
+    mbar.set_menu_name(2,"Help",'H');
 
     /* add the entries to the File menu. */
-    mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_vec_window::on_menu_file_open,    'O'));
+    mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_shortinfo_window::on_menu_file_open,    'O'));
     mbar.menu(0).add_menu_item(menu_item_separator());
-    mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_vec_window::on_menu_file_quit,    'Q'));
+    mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_shortinfo_window::on_menu_file_quit,    'Q'));
+
+	/* add plotting menus */
+	mbar.menu(1).add_submenu(menu_item_submenu("plot epssqr vs",'e'), submenu_epssqr_vs);
 
     /* Add the entries to the Help menu. */
-    mbar.menu(1).add_menu_item(menu_item_text("About",  *this, &show_vec_window::on_menu_help_about,   'A'));
+    mbar.menu(2).add_menu_item(menu_item_text("About",  *this, &show_shortinfo_window::on_menu_help_about,   'A'));
 
 	/* arrange the window */
 	on_window_resized();
@@ -205,91 +175,77 @@ show_vec_window::show_vec_window() : /* All widgets take their parent window as 
 	show();
 } 
 
-show_vec_window::~show_vec_window(){
-
-	/* destroy labels */
-	for(int i=0; i < NUMBER_OF_LABELS; i++){
-		free(labels_myvector_properties[i]);
+show_shortinfo_window::show_shortinfo_window(std::string filename, std::string title, std::string xlabel, std::string ylabel) : show_shortinfo_window(){
+	if(title != ""){
+		set_title(title);		
 	}
-	free(labels_myvector_properties);
+
+	if(xlabel != "" && ylabel != ""){
+		set_value_names(xlabel, ylabel);
+	}
+
+	if(filename != ""){
+		load_shortinfo( filename );
+	}
+}
+
+show_shortinfo_window::~show_shortinfo_window(){
 
 	/* close window */
 	close_window();
 }
 
-void show_vec_window::on_menu_help_about(){
-     message_box("About","This application is for PETSc vector visualisation\n");
+void show_shortinfo_window::on_menu_help_about(){
+     message_box("About","This application is for PETSc shortinfo visualisation\n");
 }
 
-void show_vec_window::on_menu_file_open(){
+void show_shortinfo_window::on_menu_file_open(){
     /* display a file chooser window and when the user choses a file */
-    open_existing_file_box(*this, &show_vec_window::load_vector);
+    open_existing_file_box(*this, &show_shortinfo_window::load_shortinfo);
 }
 
-void show_vec_window::on_menu_file_quit(){
+void show_shortinfo_window::on_menu_file_quit(){
 	close_window();
 }
 
-void show_vec_window::on_window_resized() {
+void show_shortinfo_window::on_window_resized() {
 
 	/* set new plotting area */
 	unsigned long width,height;
     get_size(width,height);
-	mygraphplotter.set_plotting_area(rectangle(200,mbar.bottom(),width,height));
+	mygraphplotter.set_plotting_area(rectangle(0,mbar.bottom(),width,height));
 
 	drawable_window::on_window_resized();
 
 }
 
-void show_vec_window::load_vector( const std::string& file_name ) {
-	mygraphplotter.load_vector(file_name);
+void show_shortinfo_window::load_shortinfo( const std::string& filename ) {
 
-	Vec *myvector_Vec = mygraphplotter.get_myvector_Vec();
+	/* prepare shortinfo reader */
+	myreader = new Shortinfo_reader(filename);
+	myreader->process();
 
-	/* compute basic properties of loaded vector */
-	int myvector_size;
-	double myvector_norm2;
-	double myvector_norm1;
-	double myvector_normInf;
-	double myvector_sum;
-	double myvector_max;
-	double myvector_min;
-	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
-	TRYCXX( VecNorm(*myvector_Vec, NORM_2, &myvector_norm2) );
-	TRYCXX( VecNorm(*myvector_Vec, NORM_1, &myvector_norm1) );
-	TRYCXX( VecNorm(*myvector_Vec, NORM_INFINITY, &myvector_normInf) );
-	TRYCXX( VecSum(*myvector_Vec, &myvector_sum) );
-	TRYCXX( VecMax(*myvector_Vec, NULL, &myvector_max) );
-	TRYCXX( VecMin(*myvector_Vec, NULL, &myvector_min) );
+	/* clear menu */
+	submenu_epssqr_vs.clear();
 
-	/* print properties of vectors to labels */
-	set_label_myvector_properties(0, "name:    ", cut_filename(file_name));
-	set_label_myvector_properties(1, "size:    ", myvector_size);
-	set_label_myvector_properties(2, "norm2:   ", myvector_norm2);
-	set_label_myvector_properties(3, "norm1:   ", myvector_norm1);
-	set_label_myvector_properties(4, "normInf: ", myvector_normInf);
-	set_label_myvector_properties(5, "sum:     ", myvector_sum);
-	set_label_myvector_properties(6, "max:     ", myvector_max);
-	set_label_myvector_properties(7, "min:     ", myvector_min);
-	set_label_myvector_properties(8, "mean:    ", myvector_sum/(double)myvector_size);
+	/* get headers */
+	std::vector<std::string> headers = myreader->get_headers();
+	for(int i=0; i < headers.size();i++){
+		submenu_epssqr_vs.add_menu_item(menu_item_whattoplot(headers[i], "epssqr", headers[i], *this, &show_shortinfo_window::empty_void) );
+	}
 
 }
 
-template<class ValueType>
-void show_vec_window::set_label_myvector_properties(int label_idx, const std::string &text, ValueType value){
-	std::ostringstream sout;
-	sout << std::setprecision(5);
-    sout << text << std::setw(20) << value;
-    labels_myvector_properties[label_idx]->set_text(sout.str());	
+
+void show_shortinfo_window::set_value_names(std::string xlabel, std::string ylabel){
+	this->xlabel = xlabel;
+	this->ylabel = ylabel;
+	std::cout << "xvalue: " << xlabel << std::endl;
+	std::cout << "yvalue: " << ylabel << std::endl;
+	
+//	std::vector<double> myvalues = myreader.get_values_double("epssqr");
 }
 
-std::string show_vec_window::cut_filename(const std::string &input){
-	std::ostringstream sout;
-	boost::filesystem::path p(input);
-	sout << p.filename();
-
-	return sout.str();
-}
 
 /* ------------------------- graph plotter -------------- */
 
@@ -298,8 +254,8 @@ void graphplotter::draw(const canvas& c) const {
 	fill_rect(c,rect,rgb_pixel(255,255,255));
 	
 	/* plot vector */
-	if(myvector_loaded){
-		plot_vector(c);
+	if(values_loaded){
+		plot_graph(c);
 	}
 
 }
@@ -307,17 +263,11 @@ void graphplotter::draw(const canvas& c) const {
 graphplotter::graphplotter(drawable_window& w): 
 			drawable(w)
 {
-	/* create empty vector */
-	myvector_Vec = new Vec();
-	TRYCXX( VecCreate(PETSC_COMM_WORLD,myvector_Vec) );
-	myvector_loaded = false;
-	
+	values_loaded = false;
 	enable_events();
 }
 
 graphplotter::~graphplotter(){
-	free(myvector_Vec);
-
 	disable_events();
 	parent.invalidate_rectangle(rect);
 }
@@ -326,88 +276,28 @@ void graphplotter::set_plotting_area(rectangle area){
 	rect = area;
 }
 
-void graphplotter::load_vector( const std::string& file_name ) {
-	if(myvector_loaded){
-		/* destroy existing vector */
-		TRYCXX( VecDestroy(myvector_Vec) );
-		TRYCXX( VecCreate(PETSC_COMM_WORLD,myvector_Vec) );
-	}
-
-	/* load the data from file */
-	/* prepare viewer to load from file */
-	PetscViewer mviewer;
-	TRYCXX( PetscViewerCreate(PETSC_COMM_SELF, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_SELF ,file_name.c_str(), FILE_MODE_READ, &mviewer) );
-
-	/* load vector from viewer */
-	TRYCXX( VecLoad(*myvector_Vec, mviewer) );
-
-	/* destroy the viewer */
-	TRYCXX( PetscViewerDestroy(&mviewer) );
-
-	myvector_loaded = true;
+void graphplotter::set_values(std::vector<double> x_values, std::vector<double> y_values){
+	this->x_values = x_values;
+	this->y_values = y_values;
+	values_loaded = true;
 
 	/* the whole rectangle with plotted graph will be repainted */
 	parent.invalidate_rectangle(rect);
-
 }
 
-
-Vec * graphplotter::get_myvector_Vec(){
-	return myvector_Vec;
+bool graphplotter::get_values_loaded(){
+	return values_loaded;
 }
 
-bool graphplotter::get_myvector_loaded(){
-	return myvector_loaded;
+std::vector<double> graphplotter::get_x_values(){
+	return x_values;
 }
 
-void graphplotter::plot_vector(const canvas& c) const{
-	unsigned long x_begin = this->left();
-	unsigned long y_begin = this->top();
-	
-	unsigned long x_size = this->width();
-	unsigned long y_size = this->height();
+std::vector<double> graphplotter::get_y_values(){
+	return y_values;
+}
 
-	/* get the length of the signal */
-	int    myvector_size;
-	double myvector_max;
-	double myvector_min;
-	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
-	TRYCXX( VecMax(*myvector_Vec, NULL, &myvector_max) );
-	TRYCXX( VecMin(*myvector_Vec, NULL, &myvector_min) );
+void graphplotter::plot_graph(const canvas& c) const{
 
-	/* free space parameters */
-	double px_min = 0.01*x_size;
-	double px_max = 0.99*x_size;
-	double py_min = 0.1*y_size;
-	double py_max = 0.9*y_size;
-
-	/* coefficients of mapping t to x */
-	double ax = (px_max - px_min)/(double)(myvector_size - 1);
-	double bx = px_max - ax*myvector_size;
-
-	/* coefficients of mapping value to y */
-	double ay = (py_max - py_min)/(double)(myvector_max - myvector_min);
-	double by = py_max - ay*myvector_max;
-
-	/* I will use these points */
-	point mypoint1;
-	point mypoint2;
-
-	double *values;
-	TRYCXX( VecGetArray(*myvector_Vec,&values) );
-	for(int t=1;t<myvector_size;t++){
-		mypoint1(0) = x_begin + ax*(t-1) + bx;
-		mypoint1(1) = y_begin + (y_size - (ay*values[t-1] + by));
-
-		mypoint2(0) = x_begin + ax*t + bx;
-		mypoint2(1) = y_begin + (y_size - (ay*values[t] + by));
-		
-		draw_line(c,mypoint1,mypoint2, rgb_pixel(0,0,255));
-
-	}
-	TRYCXX( VecRestoreArray(*myvector_Vec,&values) );
-	
-	/* plot a line */
 	
 }
