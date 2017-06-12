@@ -34,9 +34,13 @@ class graphplotter : public drawable {
 		double ymax;
 		double ymin;
 
+		int debug;
+	
+		std::string print_vector(const std::vector<double> &values) const;
+
 	public: 
-		graphplotter(drawable_window& w);
-		~graphplotter();	
+		graphplotter(drawable_window& w, int debug = 0);
+		~graphplotter();
 		
 		void set_plotting_area(rectangle area);
 
@@ -70,25 +74,35 @@ void graphplotter::draw(const canvas& c) const {
 
 }
 
-graphplotter::graphplotter(drawable_window& w): 
+graphplotter::graphplotter(drawable_window& w, int debug): 
 			drawable(w)
 {
 	xvalues_loaded = false;
 	yvalues_loaded = false;
 
+	this->debug = debug;
+
+	if(this->debug > 0) std::cout << "graphplotter: initialized" << std::endl;
+	
 	enable_events();
 }
 
 graphplotter::~graphplotter(){
+	if(this->debug > 0) std::cout << "graphplotter: finalized" << std::endl;
+
 	disable_events();
 	parent.invalidate_rectangle(rect);
 }
 
 void graphplotter::set_plotting_area(rectangle area){
+	if(this->debug > 0) std::cout << "graphplotter: new plotting area" << std::endl;
+
 	rect = area;
 }
 
 void graphplotter::set_xvalues(std::vector<double> xvalues){
+	if(this->debug > 0) std::cout << "graphplotter: new xvalues" << std::endl;
+
 	this->xvalues = xvalues;
 	xvalues_loaded = true;
 
@@ -97,6 +111,11 @@ void graphplotter::set_xvalues(std::vector<double> xvalues){
 	xmax = *std::max_element(xvalues.begin(), xvalues.end());
 	xmin = *std::min_element(xvalues.begin(), xvalues.end());
 
+	if(xmax - xmin == 0){
+		xmax = xmax+1;
+		xmin = xmin-1;
+	}
+
 	if(xvalues_loaded && yvalues_loaded){
 		sort_values();	
 		parent.invalidate_rectangle(rect);
@@ -104,13 +123,20 @@ void graphplotter::set_xvalues(std::vector<double> xvalues){
 }
 
 void graphplotter::set_yvalues(std::vector<double> yvalues){
-	this->yvalues = xvalues;
+	if(this->debug > 0) std::cout << "graphplotter: new yvalues" << std::endl;
+
+	this->yvalues = yvalues;
 	yvalues_loaded = true;
 
 	/* get the properties of input values */
 	ysize = yvalues.size();
 	ymax = *std::max_element(yvalues.begin(), yvalues.end());
 	ymin = *std::min_element(yvalues.begin(), yvalues.end());
+
+	if(ymax - ymin == 0){
+		ymax = ymax+1;
+		ymin = ymin-1;
+	}
 
 	if(xvalues_loaded && yvalues_loaded){
 		sort_values();	
@@ -119,6 +145,8 @@ void graphplotter::set_yvalues(std::vector<double> yvalues){
 }
 
 void graphplotter::sort_values(){
+	if(this->debug > 0) std::cout << "graphplotter: sort values" << std::endl;
+
 	//TODO: sort vectors with respect to x!
 
 }
@@ -132,10 +160,14 @@ std::vector<double> graphplotter::get_yvalues() const {
 }
 
 void graphplotter::set_xlabel(std::string xlabel) {
+	if(this->debug > 0) std::cout << "graphplotter: new xlabel" << std::endl;
+
 	this->xlabel = xlabel;
 }
 
 void graphplotter::set_ylabel(std::string ylabel) {
+	if(this->debug > 0) std::cout << "graphplotter: new ylabel" << std::endl;
+
 	this->ylabel = ylabel;
 }
 
@@ -157,6 +189,14 @@ bool graphplotter::get_yvalues_loaded() const {
 
 
 void graphplotter::plot_graph(const canvas& c) const{
+	if(this->debug > 0) std::cout << "graphplotter: plot graph" << std::endl;
+	if(this->debug > 1){
+		std::cout << "x = " << print_vector(this->xvalues) << std::endl;
+		std::cout << "x_max = " << xmax << ", x_min = " << xmin << std::endl;
+		std::cout << "y = " << print_vector(this->yvalues) << std::endl;
+		std::cout << "y_max = " << ymax << ", y_min = " << ymin << std::endl;
+	}
+
 	unsigned long wx_begin = this->left();
 	unsigned long wy_begin = this->top();
 	
@@ -195,5 +235,19 @@ void graphplotter::plot_graph(const canvas& c) const{
 	
 }
 
+std::string graphplotter::print_vector(const std::vector<double> &values) const {
+	std::ostringstream sout;
+
+	sout << "[";
+	for(int i=0;i<values.size();i++){
+		sout << values[i];
+		if(i < values.size()-1){
+			sout << ",";
+		}
+	}
+	sout << "]";
+
+	return sout.str();
+}
 
 #endif

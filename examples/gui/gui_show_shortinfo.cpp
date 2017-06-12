@@ -38,6 +38,8 @@ private:
 	std::string xlabel;
 	std::string ylabel;	
  
+	int debug;
+ 
 	Shortinfo_reader *myreader;
     void load_shortinfo( const std::string& filename );
 
@@ -83,10 +85,11 @@ private:
 	void set_xlabel(std::string xlabel);
 	void set_ylabel(std::string ylabel);
 	void empty_void(){}
+	void set_title_labels();
 
 public:
-    show_shortinfo_window();
-    show_shortinfo_window(std::string filename, std::string title, std::string xlabel, std::string ylabel);
+    show_shortinfo_window(int debug = 0);
+    show_shortinfo_window(std::string filename, std::string title, std::string xlabel, std::string ylabel, int debug = 0);
 
     ~show_shortinfo_window();
 
@@ -103,7 +106,8 @@ int main( int argc, char *argv[] ) {
 		("filename", boost::program_options::value<std::string>(), "shortinfo to load [string]")
 		("title", boost::program_options::value<std::string>(), "title of window [string]")
 		("xlabel", boost::program_options::value<std::string>(), "label in shortinfo to use as x [string]")
-		("ylabel", boost::program_options::value<std::string>(), "label in shortinfo to use as y [string]");
+		("ylabel", boost::program_options::value<std::string>(), "label in shortinfo to use as y [string]")
+		("debug", boost::program_options::value<int>(), "debug mode [int]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -113,14 +117,16 @@ int main( int argc, char *argv[] ) {
 
 	/* get values provided as console parameters */
 	std::string filename, title, plot_epssqrvs, xlabel, ylabel;
+	int debug;
 
 	consoleArg.set_option_value("filename", &filename, "");
 	consoleArg.set_option_value("title", &title, "");
 	consoleArg.set_option_value("xlabel", &xlabel, "");
 	consoleArg.set_option_value("ylabel", &ylabel, "");
+	consoleArg.set_option_value("debug", &debug, 0);
 
 	/* create our window */
-	show_shortinfo_window my_window(filename, title, xlabel, ylabel);
+	show_shortinfo_window my_window(filename, title, xlabel, ylabel, debug);
 
 	my_window.wait_until_closed();
 
@@ -133,10 +139,11 @@ int main( int argc, char *argv[] ) {
 
 /* ---------------- implementation -------------- */
 
-show_shortinfo_window::show_shortinfo_window() : /* All widgets take their parent window as an argument to their constructor. */
+show_shortinfo_window::show_shortinfo_window(int debug) : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
-        mygraphplotter(*this)
+        mygraphplotter(*this, debug)
 {
+	this->debug = debug;
 
 	/* set the size of window */
     set_size(600,350);
@@ -168,7 +175,7 @@ show_shortinfo_window::show_shortinfo_window() : /* All widgets take their paren
 	show();
 } 
 
-show_shortinfo_window::show_shortinfo_window(std::string filename, std::string title, std::string xlabel, std::string ylabel) : show_shortinfo_window(){
+show_shortinfo_window::show_shortinfo_window(std::string filename, std::string title, std::string xlabel, std::string ylabel, int debug) : show_shortinfo_window(debug){
 	if(title != ""){
 		set_title(title);		
 	}
@@ -235,6 +242,16 @@ void show_shortinfo_window::load_shortinfo( const std::string& filename ) {
 
 }
 
+void show_shortinfo_window::set_title_labels() {
+
+	if(mygraphplotter.get_xvalues_loaded() && mygraphplotter.get_yvalues_loaded()){
+		std::ostringstream sout;
+		sout << mygraphplotter.get_xlabel() << " x " << mygraphplotter.get_ylabel();
+
+		set_title(sout.str());
+	}
+	
+}
 
 void show_shortinfo_window::set_xlabel(std::string xlabel){
 	this->xlabel = xlabel;
@@ -244,6 +261,8 @@ void show_shortinfo_window::set_xlabel(std::string xlabel){
 
 	mygraphplotter.set_xlabel(xlabel);
 	mygraphplotter.set_xvalues(xvalues);
+
+	set_title_labels();
 }
 
 void show_shortinfo_window::set_ylabel(std::string ylabel){
@@ -254,5 +273,7 @@ void show_shortinfo_window::set_ylabel(std::string ylabel){
 	
 	mygraphplotter.set_ylabel(ylabel);
 	mygraphplotter.set_yvalues(yvalues);
+
+	set_title_labels();
 }
 
