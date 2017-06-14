@@ -316,10 +316,11 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 	output <<  "STATS: " << this->get_name() << std::endl;
 	output.push();
 		int x_size = this->datavector->size();
-		int blocksize = get_R()*get_K();
 		output << " - total length:    " << std::setw(25) << x_size << std::endl;
-		output << " - nmb of blocks:   " << std::setw(25) << blocksize << std::endl;
-		output << " - length of block: " << std::setw(25) << get_T() << std::endl;
+		output << " - xdim:            " << std::setw(25) << get_xdim() << std::endl;
+		output << " - R:               " << std::setw(25) << get_R() << std::endl;
+		output << " - K:               " << std::setw(25) << get_K() << std::endl;
+		output << " - T:               " << std::setw(25) << get_T() << std::endl;
 		
 		/* compute basic statistics: */
 		Vec x_Vec = datavector->get_vector();
@@ -340,7 +341,7 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 		output <<  " - avg:             " << std::setw(25) << x_avg << std::endl;
 
 		/* for each dimension compute basic statistics: */
-		if(printdetails){
+/*		if(printdetails){
 			Vec xk_Vec;
 			IS xk_is;
 			int xk_size = get_T();
@@ -372,7 +373,7 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 				output.pop();
 			}
 		}
-		
+*/		
 	output.pop();
 	output << std::setprecision(ss);
 		

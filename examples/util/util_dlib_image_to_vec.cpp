@@ -36,8 +36,8 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("UTIL_DLIB_IMAGE_TO_VEC", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("in_filename", boost::program_options::value< std::string >(), "input image [string]")
-		("out_filename", boost::program_options::value< std::string >(), "output vector in PETSc format [string]")
+		("filename_in", boost::program_options::value< std::string >(), "input image [string]")
+		("filename_out", boost::program_options::value< std::string >(), "output vector in PETSc format [string]")
 		("xdim", boost::program_options::value< int >(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("new_width", boost::program_options::value< int >(), "width of new image [bool]")
 		("type", boost::program_options::value< int >(), "type of output vector [0=Rn, 1=nR]")
@@ -49,27 +49,27 @@ int main( int argc, char *argv[] )
 		return 0;
 	} 
 
-	std::string in_filename;
-	std::string out_filename;
+	std::string filename_in;
+	std::string filename_out;
 	int xdim;
 	int type;
 	int new_width;
 	double noise;
 
-	if(!consoleArg.set_option_value("in_filename", &in_filename)){
-		std::cout << "in_filename has to be set! Call application with parameter -h to see all parameters\n";
+	if(!consoleArg.set_option_value("filename_in", &filename_in)){
+		std::cout << "filename_in has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
-	consoleArg.set_option_value("out_filename", &out_filename, DEFAULT_OUT_FILENAME);
+	consoleArg.set_option_value("filename_out", &filename_out, DEFAULT_OUT_FILENAME);
 	consoleArg.set_option_value("xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("new_width", &new_width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("noise", &noise, DEFAULT_NOISE);
 
 	coutMaster << "- UTIL INFO ----------------------------" << std::endl;
-	coutMaster << " in_filename            = " << std::setw(30) << in_filename << " (input image)" << std::endl;
-	coutMaster << " out_filename           = " << std::setw(30) << out_filename << " (output vector in PETSc format)" << std::endl;
+	coutMaster << " filename_in            = " << std::setw(30) << filename_in << " (input image)" << std::endl;
+	coutMaster << " filename_out           = " << std::setw(30) << filename_out << " (output vector in PETSc format)" << std::endl;
 	coutMaster << " xdim                   = " << std::setw(30) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " type                   = " << std::setw(30) << type << " (type of output vector [0=Rn, 1=nR])" << std::endl;
 	coutMaster << " new_width              = " << std::setw(30) << new_width << " (width of new image)" << std::endl;
@@ -82,7 +82,7 @@ int main( int argc, char *argv[] )
 	if(new_width > 1){
 		/* open image */
 		array2d<rgb_pixel> image_orig;
-		load_image(image_orig, in_filename);
+		load_image(image_orig, filename_in);
 		
 		int width_orig = image_orig.nr();
 		int height_orig = image_orig.nc();
@@ -96,7 +96,7 @@ int main( int argc, char *argv[] )
 		image_dlib = new array2d<rgb_pixel>;
 		
 		/* open image */
-		load_image(*image_dlib, in_filename);
+		load_image(*image_dlib, filename_in);
 	}
 
 	/* print informations about image */
@@ -199,7 +199,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " - saving vector to file" << std::endl;
 	PetscViewer mviewer;
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD, out_filename.c_str(), FILE_MODE_WRITE, &mviewer) );
+	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD, filename_out.c_str(), FILE_MODE_WRITE, &mviewer) );
 	TRYCXX( VecView(x_Vec, mviewer) );
 	TRYCXX( PetscViewerDestroy(&mviewer) );
 	coutMaster << " - new solution vector saved" << std::endl;

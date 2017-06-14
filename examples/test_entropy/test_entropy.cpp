@@ -171,7 +171,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_scaledata              = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
 	coutMaster << " test_printstats             = " << std::setw(30) << printbool(printstats) << " (print basic statistics of data)" << std::endl;
 	coutMaster << " test_printinfo              = " << std::setw(30) << printbool(printinfo) << " (print informations about created objects)" << std::endl;
-	coutMaster << " test_shortinfo              = " << std::setw(30) << shortinfo_write_or_not << " (save shortinfo file after computation)" << std::endl;
+	coutMaster << " test_shortinfo              = " << std::setw(30) << printbool(shortinfo_write_or_not) << " (save shortinfo file after computation)" << std::endl;
 	coutMaster << " test_shortinfo_header       = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_values       = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
 	coutMaster << " test_shortinfo_filename     = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
@@ -202,7 +202,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on preloaded data */
-	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, xdim, DDT_size);
+	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary()/(double)xdim, 1, K, xdim, DDT_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);

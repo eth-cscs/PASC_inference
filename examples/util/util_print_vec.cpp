@@ -18,7 +18,7 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("UTIL_PRINT_VEC", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("in_filename", boost::program_options::value< std::string >(), "input vector [string]");
+		("filename_in", boost::program_options::value< std::string >(), "input vector [string]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -26,15 +26,15 @@ int main( int argc, char *argv[] )
 		return 0;
 	} 
 
-	std::string in_filename;
+	std::string filename_in;
 
-	if(!consoleArg.set_option_value("in_filename", &in_filename)){
-		std::cout << "in_filename has to be set! Call application with parameter -h to see all parameters\n";
+	if(!consoleArg.set_option_value("filename_in", &filename_in)){
+		std::cout << "filename_in has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
 	coutMaster << "- UTIL INFO ----------------------------" << std::endl;;
-	coutMaster << " in_filename            = " << std::setw(30) << in_filename << " (PETSc vector)" << std::endl;
+	coutMaster << " filename_in            = " << std::setw(30) << filename_in << " (PETSc vector)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 	/* prepare vector */
@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
 
 	GeneralVector<PetscVector> in(in_Vec);
 
-	in.load_local(in_filename);
+	in.load_local(filename_in);
 
 	coutMaster << in << std::endl;
 

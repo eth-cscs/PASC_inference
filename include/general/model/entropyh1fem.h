@@ -68,12 +68,12 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		 */
 		std::string print_thetasolvertype(ThetaSolverType thetasolvertype_in) const;
 
+		int Km;
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
 	 	EntropyData<VectorBase> *thetadata; /**< for computing lambda-problem with integrals (Anna knows...)  */
 
 		double epssqr; /**< penalty coeficient */
-		int Km;			/**< number of moments */
 		
 		/* for theta problem */
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
@@ -137,10 +137,11 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		BGMGraph<VectorBase> *get_graph() const;
 
 		double get_aic(double L) const;
-		int get_Km() const;
 		void set_epssqr(double epssqr);
-		int get_T() const;
 
+		int get_Km() const;
+
+		int compute_number_of_moments() const;
 };
 
 
@@ -205,11 +206,11 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output << this->get_name() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - T                 : " << this->tsdata->get_T() << std::endl;
-	output <<  " - xdim              : " << this->tsdata->get_xdim() << std::endl;
+	output <<  " - T                 : " << this->get_T() << std::endl;
+	output <<  " - xdim              : " << this->get_xdim() << std::endl;
 	output <<  " - scalef            : " << printbool(this->scalef) << std::endl;
 
-	output <<  " - K                 : " << this->tsdata->get_K() << std::endl;
+	output <<  " - K                 : " << this->get_K() << std::endl;
 	output <<  " - Km                : " << this->get_Km() << std::endl;
 	output <<  " - epssqr            : " << this->epssqr << std::endl;
 
@@ -236,10 +237,10 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	
 	/* give information about presence of the data */
 	output_global <<  " - global info" << std::endl;
-	output_global <<  "  - T                 : " << this->tsdata->get_T() << std::endl;
-	output_global <<  "  - xdim              : " << this->tsdata->get_xdim() << std::endl;
+	output_global <<  "  - T                 : " << this->get_T() << std::endl;
+	output_global <<  "  - xdim              : " << this->get_xdim() << std::endl;
 	output_global <<  "  - scalef            : " << printbool(this->scalef) << std::endl;
-	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
+	output_global <<  "  - K                 : " << this->get_K() << std::endl;
 	output_global <<  "  - Km                : " << this->get_Km() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
 	output_global <<  "  - thetasolvertype   : " << print_thetasolvertype(this->thetasolvertype) << std::endl;
@@ -429,12 +430,12 @@ double EntropyH1FEMModel<VectorBase>::get_aic(double L) const{
 
 template<class VectorBase>
 int EntropyH1FEMModel<VectorBase>::get_Km() const {
-	return this->Km;
+	return this->Km; /* do not use this->thetadata->get_Km(), it was not set yet! */
 }
 
 template<class VectorBase>
-int EntropyH1FEMModel<VectorBase>::get_T() const {
-	return this->tsdata->get_T();
+int EntropyH1FEMModel<VectorBase>::compute_number_of_moments() const {
+	return EntropyData<VectorBase>::compute_number_of_moments(this->get_xdim(), this->get_Km());
 }
 
 

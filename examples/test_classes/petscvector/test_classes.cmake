@@ -98,6 +98,19 @@ if(${TEST_PETSCVECTOR_DLIB})
 	endforeach()
 endif()
 
+# ----- CUBA -----
+option(TEST_PETSCVECTOR_CUBA						"TEST_PETSCVECTOR_CUBA" OFF)
+option(TEST_PETSCVECTOR_CUBA_DEMO					  "TEST_PETSCVECTOR_CUBA_DEMO" OFF)
+option(TEST_PETSCVECTOR_CUBA_ANNA					  "TEST_PETSCVECTOR_CUBA_ANNA" OFF)
+if(${TEST_PETSCVECTOR_CUBA})
+	# define shortcut to compile all tests of this group
+	getListOfVarsStartingWith("TEST_PETSCVECTOR_CUBA_" matchedVars)
+	foreach (_var IN LISTS matchedVars)
+		set(${_var} ON)
+	endforeach()
+endif()
+
+
 # ----- general switching option
 option(TEST_PETSCVECTOR "TEST_PETSCVECTOR" OFF)
 if(${TEST_PETSCVECTOR})
@@ -107,9 +120,6 @@ if(${TEST_PETSCVECTOR})
 		set(${_var} ON)
 	endforeach()
 endif()
-
-# ----- CUBA -----
-option(TEST_PETSCVECTOR_CUBA						"TEST_PETSCVECTOR_CUBA" OFF)
 
 # print info
 printinfo_onoff(" TEST_PETSCVECTOR                                      (...)                          " "${TEST_PETSCVECTOR}")
@@ -158,7 +168,9 @@ printinfo_onoff("   TEST_PETSCVECTOR_DLIB                                 (...) 
 #printinfo_onoff("     TEST_PETSCVECTOR_DLIB_ANNA                            (benchmark from Anna)      " "${TEST_PETSCVECTOR_DLIB_ANNA}")
 #printinfo_onoff("     TEST_PETSCVECTOR_DLIB_INTEGRAL                        (numerical integration)    " "${TEST_PETSCVECTOR_DLIB_INTEGRAL}")
 #printinfo_onoff("     TEST_PETSCVECTOR_DLIB_GUI                             (fun with X11)             " "${TEST_PETSCVECTOR_DLIB_GUI}")
-printinfo_onoff("   TEST_PETSCVECTOR_CUBA                                 (demo from cuba library)     " "${TEST_PETSCVECTOR_CUBA}")
+printinfo_onoff("   TEST_PETSCVECTOR_CUBA                                 (...)                        " "${TEST_PETSCVECTOR_CUBA}")
+printinfo_onoff("     TEST_PETSCVECTOR_CUBA_DEMO                            (demo from cuba library)    " "${TEST_PETSCVECTOR_CUBA_DEMO}")
+printinfo_onoff("     TEST_PETSCVECTOR_CUBA_ANNA                            (benchmark from Anna)       " "${TEST_PETSCVECTOR_CUBA_ANNA}")
  
 
 # ----- COMMON -----
@@ -297,6 +309,17 @@ if(${TEST_PETSCVECTOR_DLIB_GUI})
 endif()
 
 # ----- CUBA ------
-if(${TEST_PETSCVECTOR_CUBA})
-	testadd_executable("test_classes/petscvector/cuba/test_cuba.cpp" "test_petscvector_cuba")
+if(${TEST_PETSCVECTOR_CUBA_DEMO})
+	testadd_executable("test_classes/petscvector/cuba/test_cuba.cpp" "test_petscvector_cuba_demo")
 endif()
+
+if(${TEST_PETSCVECTOR_CUBA_ANNA})
+	include_directories("${CMAKE_SOURCE_DIR}/test_classes/petscvector/cuba/include")
+
+	add_executable(test_petscvector_cuba_anna test_classes/petscvector/cuba/test_anna.cpp test_classes/petscvector/cuba/ExtraParameters.cpp test_classes/petscvector/cuba/Integrator.cpp)
+	set_source_files_properties("test_classes/petscvector/cuba/test_anna.cpp" COMPILE_FLAGS "${FLAGS_DEF_D}")
+	set_target_properties(test_petscvector_cuba_anna PROPERTIES	OUTPUT_NAME "test_petscvector_cuba_anna")
+	target_link_libraries(test_petscvector_cuba_anna ${LIBRARIES_DEF})
+
+endif()
+

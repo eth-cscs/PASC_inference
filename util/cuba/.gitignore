@@ -1,0 +1,6 @@
+config.h
+config.log
+config.status
+demo-c
+demo-fortran
+makefile

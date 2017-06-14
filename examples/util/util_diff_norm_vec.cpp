@@ -18,8 +18,8 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("UTIL_DIFF_NORM_VEC", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("in1_filename", boost::program_options::value< std::string >(), "first input vector [string]")
-		("in2_filename", boost::program_options::value< std::string >(), "second input vector [string]");
+		("filename_in1", boost::program_options::value< std::string >(), "first input vector [string]")
+		("filename_in2", boost::program_options::value< std::string >(), "second input vector [string]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -27,11 +27,11 @@ int main( int argc, char *argv[] )
 		return 0;
 	} 
 
-	std::string in1_filename;
-	std::string in2_filename;
+	std::string filename_in1;
+	std::string filename_in2;
 
-	if(!consoleArg.set_option_value("in1_filename", &in1_filename) || !consoleArg.set_option_value("in2_filename", &in2_filename)){
-		std::cout << "in1_filename and in2_filename have to be set! Call application with parameter -h to see all parameters\n";
+	if(!consoleArg.set_option_value("filename_in1", &filename_in1) || !consoleArg.set_option_value("filename_in2", &filename_in2)){
+		std::cout << "filename_in1 and filename_in2 have to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -40,8 +40,8 @@ int main( int argc, char *argv[] )
 	bool cutgamma, scaledata, cutdata, printstats, shortinfo_write_or_not, graph_save;
 
 	coutMaster << "- UTIL INFO ----------------------------\n";
-	coutMaster << " in1_filename            = " << std::setw(30) << in1_filename << " (first vector)\n";
-	coutMaster << " in2_filename            = " << std::setw(30) << in2_filename << " (second vector)\n";
+	coutMaster << " filename_in1            = " << std::setw(30) << filename_in1 << " (first vector)\n";
+	coutMaster << " filename_in2            = " << std::setw(30) << filename_in2 << " (second vector)\n";
 	coutMaster << "-------------------------------------------\n" << "\n";
 
 	/* prepare vectors */
@@ -54,8 +54,8 @@ int main( int argc, char *argv[] )
 	GeneralVector<PetscVector> in1(in1_Vec);
 	GeneralVector<PetscVector> in2(in2_Vec);
 
-	in1.load_local(in1_filename);
-	in2.load_local(in2_filename);
+	in1.load_local(filename_in1);
+	in2.load_local(filename_in2);
 
 	/* print properties of vectors */
 	coutMaster << std::setprecision(17);	

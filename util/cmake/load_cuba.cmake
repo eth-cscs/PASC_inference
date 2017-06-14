@@ -36,7 +36,7 @@ if(${USE_CUBA})
 				CONFIGURE_COMMAND "./configure" 
 				BUILD_COMMAND "make"
 				UPDATE_COMMAND ""
-				BUILD_IN_SOURCE 0
+				BUILD_IN_SOURCE 1
 				INSTALL_COMMAND ${CMAKE_COMMAND} -E create_symlink ${PASCINFERENCE_ROOT}/util/cuba/libcuba.a ${CMAKE_BINARY_DIR}/lib/libcuba.a
 
 			)

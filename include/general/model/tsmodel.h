@@ -130,6 +130,10 @@ class TSModel: public GeneralModel {
 			return std::numeric_limits<double>::max();
 		};
 
+		int get_K() const;
+		int get_T() const;
+		int get_xdim() const;
+
 };
 
 
@@ -188,10 +192,10 @@ void TSModel<VectorBase>::print(ConsoleOutput &output) const {
 	/* give information about presence of the data */
 	output <<  " - nproc:  " << GlobalManager.get_size() << std::endl;
 	
-	output <<  " - T:      " << tsdata->get_T() << std::endl;
-	output <<  " - xdim:    " << tsdata->get_xdim() << std::endl;
+	output <<  " - T:      " << get_T() << std::endl;
+	output <<  " - xdim:    " << get_xdim() << std::endl;
 
-	output <<  " - K: " << tsdata->get_K() << std::endl;
+	output <<  " - K: " << get_K() << std::endl;
 		
 }
 
@@ -226,6 +230,20 @@ double TSModel<VectorBase>::get_aic(double L) const{
 	return std::numeric_limits<double>::max();
 }
 
+template<class VectorBase>
+int TSModel<VectorBase>::get_K() const {
+	return this->tsdata->get_K();
+}
+
+template<class VectorBase>
+int TSModel<VectorBase>::get_T() const {
+	return this->tsdata->get_T();
+}
+
+template<class VectorBase>
+int TSModel<VectorBase>::get_xdim() const {
+	return this->tsdata->get_xdim();
+}
 
 }
 } /* end namespace */

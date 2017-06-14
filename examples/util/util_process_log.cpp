@@ -203,7 +203,7 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("UTIL_PROCESS_LOG", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("in_filename", boost::program_options::value< std::string >(), "input log file [string]")
+		("filename_in", boost::program_options::value< std::string >(), "input log file [string]")
 		("delimiter", boost::program_options::value< std::string >(), "delimiter [string]");
 	consoleArg.get_description()->add(opt_problem);
 
@@ -213,9 +213,9 @@ int main( int argc, char *argv[] )
 	} 
 
 	/* read filename from console */
-	std::string in_filename;
-	if(!consoleArg.set_option_value("in_filename", &in_filename)){
-		std::cout << "ERROR: in_filename has to be set! Call application with parameter -h to see all parameters\n";
+	std::string filename_in;
+	if(!consoleArg.set_option_value("filename_in", &filename_in)){
+		std::cout << "ERROR: filename_in has to be set! Call application with parameter -h to see all parameters\n";
 		return 0;
 	}
 
@@ -225,7 +225,7 @@ int main( int argc, char *argv[] )
 
 	/* give some informations about the settings */
 	coutMaster << "- PROCESS LOG ----------------------------------------" << std::endl;
-	coutMaster << " in_filename            = " << std::setw(30) << in_filename << std::endl;
+	coutMaster << " filename_in            = " << std::setw(30) << filename_in << std::endl;
 	coutMaster << " delimiter              = " << std::setw(30) << delimiter << std::endl;
 	coutMaster << " log_or_not_file_line   = " << std::setw(30) << print_bool(logging.get_log_or_not_file_line()) << std::endl;
 	coutMaster << " log_or_not_func_call   = " << std::setw(30) << print_bool(logging.get_log_or_not_func_call()) << std::endl;
@@ -235,7 +235,7 @@ int main( int argc, char *argv[] )
 	coutMaster << std::endl;
 
 	/* create log processor */
-	log_processor mylog_processor(in_filename);
+	log_processor mylog_processor(filename_in);
 	
 	if(!mylog_processor.get_is_opened()){
 		std::cout << "ERROR: file cannot be opened\n";

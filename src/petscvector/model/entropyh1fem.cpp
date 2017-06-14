@@ -13,16 +13,22 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 	consoleArg.set_option_value("entropyh1femmodel_gammasolvertype", &gammasolvertype_int, GSOLVER_AUTO);
 	consoleArg.set_option_value("entropyh1femmodel_thetasolvertype", &thetasolvertype_int, TSOLVER_AUTO);
 	consoleArg.set_option_value("entropyh1femmodel_scalef", &scalef, GRAPHH1FEMMODEL_DEFAULT_SCALEF);
-	
+
 	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
 	this->thetasolvertype = static_cast<ThetaSolverType>(thetasolvertype_int);
 
 	/* set given parameters */
 	this->tsdata = &new_tsdata;
 	this->Km = Km;
-	
+
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
-	this->thetavectorlength_local = tsdata->get_K()*this->get_Km();
+
+	/* compute number of moments based on the xdim,Km, and K */
+
+	coutMaster << "TEEEEEST: " << this->compute_number_of_moments() << std::endl;
+
+	this->thetavectorlength_local = this->get_K()*this->compute_number_of_moments();
+
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
 
 	/* set this model to data - tsdata will prepare gamma vector and thetavector */
@@ -162,9 +168,10 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 template<>
 void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
-	
+
 	/* create data */
-	thetadata = new EntropyData<PetscVector>(this->tsdata->get_T(), this->tsdata->get_K(), this->get_Km());
+	thetadata = new EntropyData<PetscVector>(this->tsdata->get_T(), this->get_xdim(), this->tsdata->get_K(), this->get_Km());
+
 	thetadata->set_lambda(tsdata->get_thetavector());
 	thetadata->set_x(tsdata->get_datavector());
 	thetadata->set_gamma(tsdata->get_gammavector());

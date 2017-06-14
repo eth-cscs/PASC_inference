@@ -232,7 +232,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on preloaded data */
-	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary(), 1, K, xdim, DDT_size);
+	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary()/xdim, 1, K, xdim, DDT_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
