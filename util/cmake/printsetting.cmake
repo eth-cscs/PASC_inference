@@ -51,6 +51,9 @@ printsetting_craypower()
 # Dlib
 printsetting_dlib()
 
+# CUBA
+printsetting_cuba()
+
 # PASCInference
 printsetting_pascinference()
 

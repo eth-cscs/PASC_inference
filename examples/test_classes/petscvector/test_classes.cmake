@@ -108,6 +108,9 @@ if(${TEST_PETSCVECTOR})
 	endforeach()
 endif()
 
+# ----- CUBA -----
+option(TEST_PETSCVECTOR_CUBA						"TEST_PETSCVECTOR_CUBA" OFF)
+
 # print info
 printinfo_onoff(" TEST_PETSCVECTOR                                      (...)                          " "${TEST_PETSCVECTOR}")
 printinfo_onoff("   TEST_PETSCVECTOR_COMMON                               (...)                        " "${TEST_PETSCVECTOR_COMMON}")
@@ -155,6 +158,7 @@ printinfo_onoff("   TEST_PETSCVECTOR_DLIB                                 (...) 
 #printinfo_onoff("     TEST_PETSCVECTOR_DLIB_ANNA                            (benchmark from Anna)      " "${TEST_PETSCVECTOR_DLIB_ANNA}")
 #printinfo_onoff("     TEST_PETSCVECTOR_DLIB_INTEGRAL                        (numerical integration)    " "${TEST_PETSCVECTOR_DLIB_INTEGRAL}")
 #printinfo_onoff("     TEST_PETSCVECTOR_DLIB_GUI                             (fun with X11)             " "${TEST_PETSCVECTOR_DLIB_GUI}")
+printinfo_onoff("   TEST_PETSCVECTOR_CUBA                                 (demo from cuba library)     " "${TEST_PETSCVECTOR_CUBA}")
  
 
 # ----- COMMON -----
@@ -290,4 +294,9 @@ if(${TEST_PETSCVECTOR_DLIB_GUI})
 		testadd_executable("test_classes/petscvector/dlib/test_gui.cpp" "test_petscvector_gui")
 	endif()
 
+endif()
+
+# ----- CUBA ------
+if(${TEST_PETSCVECTOR_CUBA})
+	testadd_executable("test_classes/petscvector/cuba/test_cuba.cpp" "test_petscvector_cuba")
 endif()

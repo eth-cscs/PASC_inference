@@ -30,6 +30,11 @@ if(${USE_PETSC})
 #		target_link_libraries(pascinference_petsc_cuda ${LIBRARIES_DEF})
 	endif()
 
+	# if there is cuba, then add it as a dependency
+	if(${USE_CUBA} AND TARGET project_cuba)
+		add_dependencies(pascinference_petsc project_cuba)
+	endif()
+
 	# if there is dlib, then add it as a dependency
 	if(${USE_DLIB} AND TARGET project_dlib)
 		add_dependencies(pascinference_petsc project_dlib)
