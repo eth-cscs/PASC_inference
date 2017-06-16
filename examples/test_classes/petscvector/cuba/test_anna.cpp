@@ -269,7 +269,7 @@ int main(int argc, const char * argv[]) {
     //range of the moments p = [0,1,2,...k]
     matrix<long> p = range(0,k);
     
-    //numer of rows in the matrix of powers
+    //number of rows in the matrix of powers
     int mp_row = pow(k+1,d); /* upper bound on row number */
     
     //matrix of powers for calculations on joint moments

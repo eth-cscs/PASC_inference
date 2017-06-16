@@ -99,6 +99,8 @@ class EntropySolverNewton: public GeneralSolver {
 		GeneralVector<VectorBase> *g; 		/**< local gradient, size Km */
 		GeneralVector<VectorBase> *delta;	/**< vetor used in Newton method, size Km */
 
+		int number_of_moments;		/**< number of moments */
+
 	public:
 
 		EntropySolverNewton();
@@ -122,6 +124,11 @@ class EntropySolverNewton: public GeneralSolver {
 		void compute_residuum(GeneralVector<VectorBase> *residuum) const;
 		
 		ExternalContent *get_externalcontent() const;
+
+		int get_xdim() const;
+		int get_K() const;
+		int get_Km() const;
+		int get_number_of_moments() const;
 };
 
 
@@ -244,6 +251,8 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(){
 	set_value_array(1, this->itAxb_lasts, 0);
 	set_value_array(1, this->fxs, std::numeric_limits<double>::max());
 	set_value_array(1, this->gnorms, std::numeric_limits<double>::max());
+
+	this->number_of_moments = 0;
 	
 	/* settings */
 	this->maxit = 0;
@@ -287,6 +296,8 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(EntropyData<VectorBase> &ne
 	set_value_array(K, this->itAxb_lasts, 0);
 	set_value_array(K, this->fxs, std::numeric_limits<double>::max());
 	set_value_array(K, this->gnorms, std::numeric_limits<double>::max());
+
+	this->number_of_moments = EntropyData<VectorBase>::compute_number_of_moments(get_xdim(), get_Km());
 
 	/* settings */
 	this->maxit = 0;
@@ -343,14 +354,19 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit            : " << this->maxit << std::endl;
-	output <<  " - maxit_Axb        : " << this->maxit_Axb << std::endl;
-	output <<  " - eps              : " << this->eps << std::endl;
-	output <<  " - eps_Axb          : " << this->eps_Axb << std::endl;
-	output <<  " - newton_coeff     : " << this->newton_coeff << std::endl;
-	output <<  " - integrationtype  : " << this->entropyintegration->get_name() << std::endl;
+	output <<  " - maxit             : " << this->maxit << std::endl;
+	output <<  " - maxit_Axb         : " << this->maxit_Axb << std::endl;
+	output <<  " - eps               : " << this->eps << std::endl;
+	output <<  " - eps_Axb           : " << this->eps_Axb << std::endl;
+	output <<  " - newton_coeff      : " << this->newton_coeff << std::endl;
+	output <<  " - integrationtype   : " << this->entropyintegration->get_name() << std::endl;
+
+	output <<  " - xdim              : " << this->get_xdim() << std::endl;
+	output <<  " - K                 : " << this->get_K() << std::endl;
+	output <<  " - Km                : " << this->get_Km() << std::endl;
+	output <<  " - number_of_moments : " << this->get_number_of_moments() << std::endl;
 	
-	output <<  " - debugmode        : " << this->debugmode << std::endl;
+	output <<  " - debugmode         : " << this->debugmode << std::endl;
 
 	/* print data */
 	if(entropydata){
@@ -370,14 +386,19 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output_global, Consol
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit            : " << this->maxit << std::endl;
-	output_global <<  " - maxit_Axb        : " << this->maxit_Axb << std::endl;
-	output_global <<  " - eps              : " << this->eps << std::endl;
-	output_global <<  " - eps_Axb          : " << this->eps_Axb << std::endl;
-	output_global <<  " - newton_coeff     : " << this->newton_coeff << std::endl;
-	output_global <<  " - integrationtype  : " << this->entropyintegration->get_name() << std::endl;
+	output_global <<  " - maxit             : " << this->maxit << std::endl;
+	output_global <<  " - maxit_Axb         : " << this->maxit_Axb << std::endl;
+	output_global <<  " - eps               : " << this->eps << std::endl;
+	output_global <<  " - eps_Axb           : " << this->eps_Axb << std::endl;
+	output_global <<  " - newton_coeff      : " << this->newton_coeff << std::endl;
+	output_global <<  " - integrationtype   : " << this->entropyintegration->get_name() << std::endl;
 
-	output_global <<  " - debugmode    : " << this->debugmode << std::endl;
+	output_global <<  " - xdim              : " << this->get_xdim() << std::endl;
+	output_global <<  " - K                 : " << this->get_K() << std::endl;
+	output_global <<  " - Km                : " << this->get_Km() << std::endl;
+	output_global <<  " - number_of_moments : " << this->get_number_of_moments() << std::endl;
+
+	output_global <<  " - debugmode         : " << this->debugmode << std::endl;
 
 	/* print data */
 	if(entropydata){
@@ -497,6 +518,26 @@ void EntropySolverNewton<VectorBase>::compute_residuum(GeneralVector<VectorBase>
 	//TODO
 		
 	LOG_FUNC_END
+}
+
+template<class VectorBase>
+int EntropySolverNewton<VectorBase>::get_xdim() const {
+	return entropydata->get_xdim();
+}
+
+template<class VectorBase>
+int EntropySolverNewton<VectorBase>::get_K() const {
+	return entropydata->get_K();
+}
+
+template<class VectorBase>
+int EntropySolverNewton<VectorBase>::get_Km() const {
+	return entropydata->get_Km();
+}
+
+template<class VectorBase>
+int EntropySolverNewton<VectorBase>::get_number_of_moments() const {
+	return this->number_of_moments;
 }
 
 

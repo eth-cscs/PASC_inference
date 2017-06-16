@@ -37,7 +37,7 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	#else
 		TRYCXX(VecSetType(moments_Vec, VECSEQ));
 	#endif
-	TRYCXX( VecSetSizes(moments_Vec,entropydata->get_K()*entropydata->get_Km(),PETSC_DECIDE) );
+	TRYCXX( VecSetSizes(moments_Vec,get_K()*get_number_of_moments(),PETSC_DECIDE) );
 	TRYCXX( VecSetFromOptions(moments_Vec) );
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 
@@ -134,19 +134,42 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	this->timer_compute_moments.start(); 
 
 	Vec x_Vec = entropydata->get_x()->get_vector();
-	Vec x_power_Vec = x_power->get_vector();
-	Vec x_power_gammak_Vec = x_power_gammak->get_vector();
+
+	/* prepare and copute auxiliary array of powers */
+	// TODO: aaaah!
+	Vec *x_powers_Vecs = new Vec(get_Km()+1); /* 0 = x^0, 1 = x^1 ... Km = x^Km */
+	TRYCXX( VecDuplicate(x_Vec, &(x_powers_Vecs[0]));
+	TRYCXX( VecSet(x_powers_Vecs[0], 1.0);
+	for(km = 1; km <= get_Km();km++){
+		TRYCXX( VecPointwiseMult(x_powers_Vecs[km], x_powers_Vecs[km-1], x_Vec) );
+	}
+
 	Vec gamma_Vec = entropydata->get_gamma()->get_vector();
 	Vec moments_Vec = moments->get_vector();
-	
+
 	Vec gammak_Vec;
 	IS gammak_is;
-	
-	TRYCXX( VecCopy(x_Vec,x_power_Vec) ); /* x_power_Vec := x_Vec , i.e. x^1 */
+
+	/* temp = x_n^D */
+	/* temp2 = (temp*temp*...) */
+	/* temp = gamma_k*temp2 */
+	/* mom = sum(temp) */
+	Vec temp_Vec;
+	Vec temp2_Vec;
+	TRYCXX( VecCreate(PETSC_COMM_SELF,&temp_Vec) );
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(temp_Vec, VECMPICUDA));
+	#else
+		TRYCXX(VecSetType(temp_Vec, VECMPI));
+	#endif
+	TRYCXX( VecSetSizes(temp_Vec, this->entropydata->get_decomposition()->get_Tlocal(), this->entropydata->get_decomposition()->get_T()) );
+	TRYCXX( VecSetFromOptions(temp_Vec) );	
+	TRYCXX( VecDuplicate(temp_Vec, &temp2_Vec));
 	
 	double *moments_arr, mysum, gammaksum;
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
-	for(int km=0; km < entropydata->get_Km(); km++){
+
+	for(int idx=0; idx < entropydata->get_number_of_moments(); idx++){
 		
 		for(int k=0;k<entropydata->get_K();k++){
 			/* get gammak */

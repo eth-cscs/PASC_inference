@@ -27,6 +27,8 @@ template<> EntropySolverNewton<PetscVector>::EntropySolverNewton(EntropyData<Pet
 	set_value_array(K, this->fxs, std::numeric_limits<double>::max());
 	set_value_array(K, this->gnorms, std::numeric_limits<double>::max());
 
+	this->number_of_moments = EntropyData<PetscVector>::compute_number_of_moments(get_xdim(), get_Km());
+
 	/* settings */
 	this->maxit = 0;
 	this->eps = 0;

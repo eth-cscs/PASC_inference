@@ -10,7 +10,7 @@
 #include "general/data/generaldata.h"
 #include "general/data/diagdata.h"
 #include "general/data/edfdata.h"
-//#include "general/data/entropydata.h"
+#include "general/data/entropydata.h"
 #include "general/data/imagedata.h"
 #include "general/data/qpdata.h"
 #include "general/data/signaldata.h"

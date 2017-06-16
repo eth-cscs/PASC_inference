@@ -24,11 +24,7 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
 
 	/* compute number of moments based on the xdim,Km, and K */
-
-	coutMaster << "TEEEEEST: " << this->compute_number_of_moments() << std::endl;
-
 	this->thetavectorlength_local = this->get_K()*this->compute_number_of_moments();
-
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
 
 	/* set this model to data - tsdata will prepare gamma vector and thetavector */
