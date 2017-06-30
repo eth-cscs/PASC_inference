@@ -26,6 +26,7 @@
 
 #include <dlib/image_io.h>
 #include <dlib/image_transforms.h>
+#include <random>
 
 using namespace dlib;
 
@@ -84,8 +85,8 @@ int main( int argc, char *argv[] )
 		array2d<rgb_pixel> image_orig;
 		load_image(image_orig, filename_in);
 		
-		int width_orig = image_orig.nr();
-		int height_orig = image_orig.nc();
+		int width_orig = image_orig.nc();
+		int height_orig = image_orig.nr();
 		
 		image_dlib = new array2d<rgb_pixel>(new_width, height_orig*new_width/(double)width_orig);
 		resize_image(image_orig, *image_dlib);
@@ -100,8 +101,8 @@ int main( int argc, char *argv[] )
 	}
 
 	/* print informations about image */
-	int width = image_dlib->nr();
-	int height = image_dlib->nc();
+	int width = image_dlib->nc();
+	int height = image_dlib->nr();
 	int size =  width * height;
 	int nvalues = xdim * size;
 	coutMaster << " width                  = " << std::setw(30) << width << " px" << std::endl;
@@ -160,14 +161,9 @@ int main( int argc, char *argv[] )
 	/* add noise */
 	if(noise > 0){
 		coutMaster << " - adding noise" << std::endl;
-		Vec x_noise_Vec;
-		TRYCXX( VecDuplicate(x_Vec, &x_noise_Vec) );
 
-		PetscRandom rctx;
-		TRYCXX( PetscRandomCreate(PETSC_COMM_WORLD,&rctx) );
-		TRYCXX( PetscRandomSetFromOptions(rctx) );
-		TRYCXX( VecSetRandom(x_noise_Vec,rctx) );
-		TRYCXX( PetscRandomDestroy(&rctx) );
+		std::default_random_engine generator;
+		std::normal_distribution<double> distribution(0.0,noise);
 		
 		coutMaster << " - projection to [0,1]" << std::endl;
 
@@ -175,10 +171,12 @@ int main( int argc, char *argv[] )
 		double value;
 
 		TRYCXX( VecGetArray(x_Vec, &x_arr) );
-		TRYCXX( VecGetArray(x_noise_Vec, &x_noise_arr) );
 		for(int i=0;i<nvalues;i++){
+
+			double number = distribution(generator);
+
 			/* add noise */
-			x_arr[i] = x_arr[i] + 2*noise*(x_noise_arr[i] - 0.5);
+			x_arr[i] += number;
 			
 			/* projection */
 			if(x_arr[i] < 0.0){
@@ -188,10 +186,7 @@ int main( int argc, char *argv[] )
 				x_arr[i] = 1.0;
 			}
 		}
-		TRYCXX( VecRestoreArray(x_noise_Vec, &x_noise_arr) );
 		TRYCXX( VecRestoreArray(x_Vec, &x_arr) );
-
-		TRYCXX( VecDestroy(&x_noise_Vec) );
 
 	}
 

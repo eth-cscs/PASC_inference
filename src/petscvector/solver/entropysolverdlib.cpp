@@ -26,8 +26,8 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	this->timer_compute_moments.restart();
 
 	/* prepare auxiliary vectors */
-	x_power = new GeneralVector<PetscVector>(*entropydata->get_x());
-	x_power_gammak = new GeneralVector<PetscVector>(*entropydata->get_x());
+//	x_power = new GeneralVector<PetscVector>(*entropydata->get_x());
+//	x_power_gammak = new GeneralVector<PetscVector>(*entropydata->get_x());
 	
 	/* create aux vector for the computation of moments */
 	Vec moments_Vec;
@@ -137,12 +137,12 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 
 	/* prepare and copute auxiliary array of powers */
 	// TODO: aaaah!
-	Vec *x_powers_Vecs = new Vec(get_Km()+1); /* 0 = x^0, 1 = x^1 ... Km = x^Km */
-	TRYCXX( VecDuplicate(x_Vec, &(x_powers_Vecs[0]));
-	TRYCXX( VecSet(x_powers_Vecs[0], 1.0);
-	for(km = 1; km <= get_Km();km++){
-		TRYCXX( VecPointwiseMult(x_powers_Vecs[km], x_powers_Vecs[km-1], x_Vec) );
-	}
+//	Vec *x_powers_Vecs = new Vec(get_Km()+1); /* 0 = x^0, 1 = x^1 ... Km = x^Km */
+//	TRYCXX( VecDuplicate(x_Vec, &(x_powers_Vecs[0])) );
+//	TRYCXX( VecSet(x_powers_Vecs[0], 1.0) );
+//	for(km = 1; km <= get_Km();km++){
+//		TRYCXX( VecPointwiseMult(x_powers_Vecs[km], x_powers_Vecs[km-1], x_Vec) );
+//	}
 
 	Vec gamma_Vec = entropydata->get_gamma()->get_vector();
 	Vec moments_Vec = moments->get_vector();
@@ -169,33 +169,33 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	double *moments_arr, mysum, gammaksum;
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
 
-	for(int idx=0; idx < entropydata->get_number_of_moments(); idx++){
+//	for(int idx=0; idx < entropydata->get_number_of_moments(); idx++){
 		
-		for(int k=0;k<entropydata->get_K();k++){
+//		for(int k=0;k<entropydata->get_K();k++){
 			/* get gammak */
-			this->entropydata->get_decomposition()->createIS_gammaK(&gammak_is, k);
-			TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+//			this->entropydata->get_decomposition()->createIS_gammaK(&gammak_is, k);
+//			TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 
 			/* compute x_power_gammak */
-			TRYCXX( VecPointwiseMult(x_power_gammak_Vec, gammak_Vec, x_power_Vec) ); /* x_power_gammak = x_power.*gammak */
+//			TRYCXX( VecPointwiseMult(x_power_gammak_Vec, gammak_Vec, x_power_Vec) ); /* x_power_gammak = x_power.*gammak */
 
 			/* compute gammaksum */
-			TRYCXX( VecSum(gammak_Vec, &gammaksum) );
-			TRYCXX( VecSum(x_power_gammak_Vec, &mysum) );
+//			TRYCXX( VecSum(gammak_Vec, &gammaksum) );
+//			TRYCXX( VecSum(x_power_gammak_Vec, &mysum) );
 
 			/* store computed moment */
-			if(gammaksum != 0){
-				moments_arr[k*this->entropydata->get_Km() + km] = mysum/gammaksum;
-			} else {
-				moments_arr[k*this->entropydata->get_Km() + km] = 0.0;
-			}
+//			if(gammaksum != 0){
+//				moments_arr[k*this->entropydata->get_Km() + km] = mysum/gammaksum;
+//			} else {
+//				moments_arr[k*this->entropydata->get_Km() + km] = 0.0;
+//			}
 	
-			TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-			TRYCXX( ISDestroy(&gammak_is) );	
-		}
+//			TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+//			TRYCXX( ISDestroy(&gammak_is) );	
+//		}
 		
-		TRYCXX( VecPointwiseMult(x_power_Vec, x_Vec, x_power_Vec) ); /* x_power = x_power.*x */
-	}
+//		TRYCXX( VecPointwiseMult(x_power_Vec, x_Vec, x_power_Vec) ); /* x_power = x_power.*x */
+//	}
 	
 	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
 
