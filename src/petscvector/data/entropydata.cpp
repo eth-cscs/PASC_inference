@@ -39,8 +39,6 @@ void EntropyData<PetscVector>::prepare_matrix_D() {
 	TRYCXX( VecSetSizes(matrix_D_Vec, get_K()*get_xdim()*get_number_of_moments(), PETSC_DECIDE) );
 	TRYCXX( VecSetFromOptions(matrix_D_Vec) );
 		
-	TRYCXX( VecSet(matrix_D_Vec, -33.57) );
-
 	double *matrix_D_arr;
 	TRYCXX( VecGetArray(matrix_D_Vec, &matrix_D_arr) );
 

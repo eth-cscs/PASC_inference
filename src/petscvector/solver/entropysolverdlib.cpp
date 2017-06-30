@@ -1,7 +1,8 @@
 #include "external/petscvector/solver/entropysolverdlib.h"
 
 #ifdef USE_DLIB
-/* if DLib is not used, then this class is quite useless */
+#ifdef USE_CUBA
+/* if DLib and Cuba are not used, then this class is quite useless */
 
 namespace pascinference {
 namespace solver {
@@ -25,10 +26,6 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	this->timer_solve.restart();	
 	this->timer_compute_moments.restart();
 
-	/* prepare auxiliary vectors */
-//	x_power = new GeneralVector<PetscVector>(*entropydata->get_x());
-//	x_power_gammak = new GeneralVector<PetscVector>(*entropydata->get_x());
-	
 	/* create aux vector for the computation of moments */
 	Vec moments_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_SELF,&moments_Vec) );
@@ -44,8 +41,36 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	/* prepare external content with PETSc-DLIB stuff */
 	externalcontent = new ExternalContent(this->integration_eps);
 
+	/* prepare and compute auxiliary array of powers */
+	// TODO: aaaah! bottleneck, maybe can be performed in different way (I hope so)
+	int Km = entropydata->get_Km();
+	Vec x_Vec = entropydata->get_x()->get_vector();
+	externalcontent->x_powers_Vecs = new Vec[Km+1]; /* 0 = x^0, 1 = x^1 ... Km = x^Km */
+	TRYCXX( VecDuplicate(x_Vec, &(externalcontent->x_powers_Vecs[0])) );
+	TRYCXX( VecSet(externalcontent->x_powers_Vecs[0], 1.0) );
+	for(int km = 1; km <= Km;km++){
+		TRYCXX( VecDuplicate(x_Vec, &(externalcontent->x_powers_Vecs[km])) );
+		TRYCXX( VecPointwiseMult(externalcontent->x_powers_Vecs[km], externalcontent->x_powers_Vecs[km-1], x_Vec) );
+	}
+
 	LOG_FUNC_END
 }
+
+
+template<> 
+EntropySolverDlib<PetscVector>::~EntropySolverDlib(){
+	LOG_FUNC_BEGIN
+
+	/* destroy auxiliary vectors of powers */
+	free(externalcontent->x_powers_Vecs);
+	//TODO: VecDestroy to x_powers_Vecs?
+
+	/* destroy external content */
+	free(externalcontent);
+
+	LOG_FUNC_END
+}
+
 
 template<>
 void EntropySolverDlib<PetscVector>::solve() {
@@ -67,8 +92,9 @@ void EntropySolverDlib<PetscVector>::solve() {
 	double eps = 0.0;
 
 	/* prepare objects for Dlib */
-    column_vector Mom(Km);
-    column_vector starting_point(Km);
+	int nmb_of_moments = entropydata->get_number_of_moments();
+    column_vector Mom(nmb_of_moments);
+    column_vector starting_point(nmb_of_moments);
 
 	/* stuff for PETSc to Dlib */
 	Vec moments_Vec = moments->get_vector();
@@ -81,8 +107,8 @@ void EntropySolverDlib<PetscVector>::solve() {
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
 		/* Mom: from PETSc vector to Dlib column_vector */
-		for(int km=0;km<Km;km++){
-			Mom(km) = moments_arr[k*Km+km];
+		for(int idx=0;idx < nmb_of_moments;idx++){
+			Mom(idx) = moments_arr[k*nmb_of_moments + idx];
 		}
 
 		/* prepare lambda-functions for Dlib */
@@ -90,7 +116,7 @@ void EntropySolverDlib<PetscVector>::solve() {
 		auto get_functions_grad_lambda = [&](const column_vector& x)->column_vector { return externalcontent->get_functions_grad(x, Mom, Km);};
 		auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return externalcontent->get_functions_hess(x, Mom, Km);};
 
-		/* initial value form starting_point */
+		/* initial value forms starting_point */
 		starting_point = 0.0;
 
 		/* print cluster info */
@@ -100,7 +126,7 @@ void EntropySolverDlib<PetscVector>::solve() {
 		
 		/* solve using Dlib magic */
 		if(debug_print_it){
-			/* give it info */
+			/* give iteration info */
 			dlib::find_min_box_constrained(dlib::newton_search_strategy(get_functions_hess_lambda),
                              dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
                              get_functions_obj_lambda, get_functions_grad_lambda, starting_point, -1e12, 1e12 );
@@ -113,8 +139,8 @@ void EntropySolverDlib<PetscVector>::solve() {
 		}
 
 		/* store lambda (solution): from Dlib to Petsc */
-		for(int km=0;km<Km;km++){
-			lambda_arr[k*Km+km] = starting_point(km);
+		for(int idx=0;idx<nmb_of_moments;idx++){
+			lambda_arr[k*nmb_of_moments+idx] = starting_point(idx);
 		}
 		
 	} /* endfor through clusters */
@@ -133,29 +159,22 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 
 	this->timer_compute_moments.start(); 
 
+	/* I assume that externalcontent->x_powers_Vecs is computed and constant */
+	/* I assume that D_matrix is computed and prepared */
+
+	int xdim = entropydata->get_xdim();
+
 	Vec x_Vec = entropydata->get_x()->get_vector();
-
-	/* prepare and copute auxiliary array of powers */
-	// TODO: aaaah!
-//	Vec *x_powers_Vecs = new Vec(get_Km()+1); /* 0 = x^0, 1 = x^1 ... Km = x^Km */
-//	TRYCXX( VecDuplicate(x_Vec, &(x_powers_Vecs[0])) );
-//	TRYCXX( VecSet(x_powers_Vecs[0], 1.0) );
-//	for(km = 1; km <= get_Km();km++){
-//		TRYCXX( VecPointwiseMult(x_powers_Vecs[km], x_powers_Vecs[km-1], x_Vec) );
-//	}
-
 	Vec gamma_Vec = entropydata->get_gamma()->get_vector();
 	Vec moments_Vec = moments->get_vector();
 
 	Vec gammak_Vec;
 	IS gammak_is;
 
-	/* temp = x_n^D */
-	/* temp2 = (temp*temp*...) */
-	/* temp = gamma_k*temp2 */
-	/* mom = sum(temp) */
+	Vec matrix_D_Vec = entropydata->get_matrix_D()->get_vector();
+
+	/* temp = (x_1^D*x_2^D*...) */
 	Vec temp_Vec;
-	Vec temp2_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_SELF,&temp_Vec) );
 	#ifdef USE_CUDA
 		TRYCXX(VecSetType(temp_Vec, VECMPICUDA));
@@ -164,40 +183,76 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	#endif
 	TRYCXX( VecSetSizes(temp_Vec, this->entropydata->get_decomposition()->get_Tlocal(), this->entropydata->get_decomposition()->get_T()) );
 	TRYCXX( VecSetFromOptions(temp_Vec) );	
+
+	/* temp2 = x_n^D */
+	Vec temp2_Vec;
 	TRYCXX( VecDuplicate(temp_Vec, &temp2_Vec));
+
+	/* temp3 = gammak*temp; */
+	Vec temp3_Vec;
+	TRYCXX( VecDuplicate(temp_Vec, &temp3_Vec)); //TODO: I cannot reuse temp2 ?
+
+	/* mom = sum(temp3) */
+	IS xn_is;
 	
-	double *moments_arr, mysum, gammaksum;
+	double *moments_arr;
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
 
-//	for(int idx=0; idx < entropydata->get_number_of_moments(); idx++){
-		
-//		for(int k=0;k<entropydata->get_K();k++){
-			/* get gammak */
-//			this->entropydata->get_decomposition()->createIS_gammaK(&gammak_is, k);
-//			TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+	double *matrix_D_arr;
+	TRYCXX( VecGetArray(matrix_D_Vec, &matrix_D_arr) );
 
-			/* compute x_power_gammak */
-//			TRYCXX( VecPointwiseMult(x_power_gammak_Vec, gammak_Vec, x_power_Vec) ); /* x_power_gammak = x_power.*gammak */
+	double mysum, gammaksum;
+
+	int D_value;
+
+	for(int D_row_idx=0; D_row_idx < entropydata->get_number_of_moments(); D_row_idx++){ /* go through all rows of matrix D */
+
+		/* temp = 1 */
+		TRYCXX( VecSet(temp_Vec, 1.0) );
+
+		/* throught columns of D */
+		for(int D_col_idx=0; D_col_idx < xdim; D_col_idx++){
+			D_value = (int)matrix_D_arr[D_row_idx*xdim + D_col_idx];
+			
+			/* get x_n^D */
+			this->entropydata->get_decomposition()->createIS_datan(&xn_is, D_col_idx);
+			TRYCXX( VecGetSubVector(externalcontent->x_powers_Vecs[D_value], xn_is, &temp2_Vec) );
+
+			/* compute temp *= x_n^D */
+			TRYCXX( VecPointwiseMult(temp_Vec, temp_Vec, temp2_Vec) );
+
+			TRYCXX( VecRestoreSubVector(externalcontent->x_powers_Vecs[D_value], xn_is, &temp2_Vec) );
+			TRYCXX( ISDestroy(&xn_is) );
+		}
+		
+		/* go throught clusters and multiply with coefficients */		
+		for(int k=0;k<entropydata->get_K();k++){
+			/* get gammak */
+			this->entropydata->get_decomposition()->createIS_gammaK(&gammak_is, k);
+			TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+
+			/* compute temp_Vec*gammak_Vec */
+			TRYCXX( VecPointwiseMult(temp3_Vec, gammak_Vec, temp_Vec) ); /* x_power_gammak = x_power.*gammak */
 
 			/* compute gammaksum */
-//			TRYCXX( VecSum(gammak_Vec, &gammaksum) );
-//			TRYCXX( VecSum(x_power_gammak_Vec, &mysum) );
+			TRYCXX( VecSum(gammak_Vec, &gammaksum) );
+			TRYCXX( VecSum(temp3_Vec, &mysum) );
 
 			/* store computed moment */
-//			if(gammaksum != 0){
-//				moments_arr[k*this->entropydata->get_Km() + km] = mysum/gammaksum;
-//			} else {
-//				moments_arr[k*this->entropydata->get_Km() + km] = 0.0;
-//			}
+			if(gammaksum != 0){
+				moments_arr[k*entropydata->get_number_of_moments() + D_row_idx] = mysum/gammaksum;
+			} else {
+				moments_arr[k*entropydata->get_number_of_moments() + D_row_idx] = 0.0;
+			}
 	
-//			TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
-//			TRYCXX( ISDestroy(&gammak_is) );	
-//		}
+			TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
+			TRYCXX( ISDestroy(&gammak_is) );
+		}
 		
-//		TRYCXX( VecPointwiseMult(x_power_Vec, x_Vec, x_power_Vec) ); /* x_power = x_power.*x */
-//	}
+	}
 	
 	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
+	TRYCXX( VecRestoreArray(matrix_D_Vec, &matrix_D_arr) );
 
 	this->timer_compute_moments.stop(); 
 	
@@ -277,7 +332,6 @@ double EntropySolverDlib<PetscVector>::ExternalContent::gg(double y, int order, 
     for (int i = 0; i < num_moments; ++i)
         z(i) = pow(y,i+1);
     
-    
     return pow(y,order)*(exp(-trans(LM)*z));
 }
 
@@ -351,7 +405,52 @@ template<> EntropySolverDlib<PetscVector>::ExternalContent * EntropySolverDlib<P
 }
 
 
+/* ------------ ExtraParameters ----------------- */
+EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::ExtraParameters()
+{
+    k = 0;
+    D = 0.0;
+    eps= 0.0;
+    Mom = 0.0;
+    type = 0;
+    LM = 0.0;
+    L0 = 0.0;
+    order = 0;
+    order2 = 0;
+}
+
+EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::ExtraParameters(int _k, column_vector _Mom, column_vector _LM, double _L0, double _eps, dlib::matrix<double> _D, int _type, int _order)
+{
+    k = _k;
+    Mom = _Mom;
+    LM = _LM;
+    L0 = _L0;
+    eps = _eps;
+    D = _D;
+    type = _type;
+    order = _order;
+    order2 = _order;
+}
+
+void EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::Copy(ExtraParameters &_ExtraParameters)
+{
+    k = _ExtraParameters.k;
+    Mom = _ExtraParameters.Mom;
+    eps = _ExtraParameters.eps;
+    D = _ExtraParameters.D;
+    type = _ExtraParameters.type;
+    LM = _ExtraParameters.LM;
+    L0 = _ExtraParameters.L0;
+    order = _ExtraParameters.order;
+    order2 = _ExtraParameters.order2;
+}
+
+EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::~ExtraParameters()
+{
+}
+
 }
 } /* end namespace */
 
-#endif
+#endif /* Cuba */
+#endif /* Dlib */

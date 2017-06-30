@@ -264,7 +264,8 @@ int main(int argc, const char * argv[]) {
     matrix <double> xt;
     xt.set_size(T,d);
     xt = ReadFile("xt.txt", T, d);
-    cout << xt << endl;
+ 
+ //   cout << xt << endl;
     
     //range of the moments p = [0,1,2,...k]
     matrix<long> p = range(0,k);
@@ -333,7 +334,9 @@ int main(int argc, const char * argv[]) {
     }
     
 //    cout << data_powers << endl;
-   cout << Mom << endl;
+    cout << "Moments ---------------------------" << endl;
+    cout << Mom << endl;
+    cout << "-----------------------------------" << endl;
 
     
     column_vector starting_point(mp_row);

@@ -164,10 +164,6 @@ template<class VectorBase>
 EntropySolverDlib<VectorBase>::~EntropySolverDlib(){
 	LOG_FUNC_BEGIN
 
-//	free(x_power);
-//	free(x_power_gammak);
-//	free(moments);
-
 	LOG_FUNC_END
 }
 

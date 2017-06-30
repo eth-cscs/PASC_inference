@@ -76,7 +76,8 @@ int main( int argc, char *argv[] )
 		("filename_out", boost::program_options::value< std::string >(), "output vector in PETSc format [string]")
 		("T", boost::program_options::value< int >(), "length of time series [int]")
 		("xdim", boost::program_options::value< int >(), "dimension of data [int]")
-		("print", boost::program_options::value< bool >(), "print vector [bool]");
+		("print", boost::program_options::value< bool >(), "print vector [bool]")
+		("permute", boost::program_options::value< bool >(), "permute data from nT to Tn format [bool]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
@@ -88,7 +89,7 @@ int main( int argc, char *argv[] )
 	std::string filename_out;
 	int xdim;
 	int T;
-	bool print_or_not;
+	bool print_or_not, permute_or_not;
 
 	if(!consoleArg.set_option_value("filename_in", &filename_in)){
 		std::cout << "filename_in has to be set! Call application with parameter -h to see all parameters\n";
@@ -107,6 +108,7 @@ int main( int argc, char *argv[] )
 
 	consoleArg.set_option_value("filename_out", &filename_out, DEFAULT_OUT_FILENAME);
 	consoleArg.set_option_value("print", &print_or_not, false);
+	consoleArg.set_option_value("permute", &permute_or_not, false);
 
 
 	coutMaster << "- UTIL INFO ----------------------------" << std::endl;
@@ -115,6 +117,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " xdim                   = " << std::setw(30) << xdim << " (dimension of data)" << std::endl;
 	coutMaster << " T                      = " << std::setw(30) << T << " (length of time series)" << std::endl;
 	coutMaster << " print                  = " << std::setw(30) << print_bool(print_or_not) << " (print the content of vector or not)" << std::endl;
+	coutMaster << " permute                = " << std::setw(30) << print_bool(permute_or_not) << " (permute data from nT to Tn format)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 	/* prepare vector */
@@ -142,6 +145,27 @@ int main( int argc, char *argv[] )
 		}
 	}
 	TRYCXX( VecRestoreArray(x_Vec, &x_arr) );
+
+	if(permute_or_not){
+		Vec x_orig_Vec;
+		TRYCXX( VecDuplicate(x_Vec,&x_orig_Vec) );
+		TRYCXX( VecCopy(x_Vec,x_orig_Vec) );
+		
+		double *x_orig_arr;
+		TRYCXX( VecGetArray(x_Vec, &x_arr) );
+		TRYCXX( VecGetArray(x_orig_Vec, &x_orig_arr) );
+		
+		for(int n=0;n<xdim;n++){
+			for(int t=0;t<T;t++){
+				x_arr[t*xdim+n] = x_orig_arr[n*T+t];
+			}
+		}
+
+		TRYCXX( VecRestoreArray(x_Vec, &x_arr) );
+		TRYCXX( VecRestoreArray(x_orig_Vec, &x_orig_arr) );
+
+		TRYCXX( VecDestroy(&x_orig_Vec) );
+	}
 
 	/* save vector */
 	coutMaster << " - saving vector to file" << std::endl;
