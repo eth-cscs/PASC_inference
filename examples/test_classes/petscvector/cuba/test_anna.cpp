@@ -365,6 +365,13 @@ int main(int argc, const char * argv[]) {
     
     cout << starting_point << endl;
     
+    
+    matrix<double> residuum;
+    residuum.set_size(T, 1);
+    
+    residuum = data_powers*starting_point;
+    
+    cout << residuum << endl;
 //
 //   
 //

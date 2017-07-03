@@ -163,7 +163,7 @@ int main( int argc, char *argv[] )
 	} else {
 		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
 	}
-	coutMaster << " test_saveall               = " << std::setw(30) << saveall << " (save results for all epssqr, not only for the best one)" << std::endl;
+	coutMaster << " test_saveall                = " << std::setw(30) << printbool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
 	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
 	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
 	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;

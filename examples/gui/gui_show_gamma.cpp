@@ -31,6 +31,8 @@ class gammaplotter : public drawable {
 		void draw (const canvas& c) const;
 		void plot_vector(const canvas& c) const;
 
+		template <typename image_type, typename pixel_type>
+		void draw_dotted_line(image_type& c, const point& p1, const point& p2, const pixel_type& val, double size) const;
 	public: 
 		gammaplotter(drawable_window& w);
 		~gammaplotter();	
@@ -45,6 +47,7 @@ class gammaplotter : public drawable {
 		int get_T() const;
 		
 		std::string get_filename() const;
+
 };
 
 class show_gamma_window : public drawable_window {
@@ -382,6 +385,30 @@ void gammaplotter::plot_vector(const canvas& c) const{
 		point mypoint1;
 		point mypoint2;
 
+		/* plot x-axis */
+		mypoint1(0) = x_begin + ax*0 + bx - 5;
+		mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*0 + by));
+		mypoint2(0) = x_begin + ax*T + bx + 5;
+		mypoint2(1) = y_begin + py_min + k*py_step + (py_step - (ay*0 + by));
+		if(k>=1){
+			mypoint1(1) += k*py_space;
+			mypoint2(1) += k*py_space;
+		}
+		draw_dotted_line(c,mypoint1,mypoint2, rgb_pixel(0,0,0), 20);
+
+		/* plot y-axis */
+		mypoint1(0) = x_begin + ax*0 + bx;
+		mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*0 + by)) + 5;
+		mypoint2(0) = x_begin + ax*0 + bx;
+		mypoint2(1) = y_begin + py_min + k*py_step + (py_step - (ay*1 + by)) - 5;
+		if(k>=1){
+			mypoint1(1) += k*py_space;
+			mypoint2(1) += k*py_space;
+		}
+		draw_dotted_line(c,mypoint1,mypoint2, rgb_pixel(0,0,0), 20);
+
+
+		/* plot gamma */
 		for(int t=1;t<T;t++){
 			mypoint1(0) = x_begin + ax*(t-1) + bx;
 			mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*values[k*T+t-1] + by));
@@ -397,13 +424,22 @@ void gammaplotter::plot_vector(const canvas& c) const{
 			draw_line(c,mypoint1,mypoint2, rgb_pixel(255,0,0));
 
 		}
-		
+
 	}
 	TRYCXX( VecRestoreArray(*myvector_Vec,&values) );
 	
-	/* plot a line */
 	
 }
+
+template <typename image_type, typename pixel_type>
+void gammaplotter::draw_dotted_line(image_type& c, const point& p1, const point& p2, const pixel_type& val, double size) const{
+	point step_vector = p2 - p1;
+//	std::cout << step_vector.size() << std::endl;
+
+	draw_line(c,p1,p2, val);
+}
+
+
 
 void gammaplotter::set_K(int new_K){
 	this->K = new_K;

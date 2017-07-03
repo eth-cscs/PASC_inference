@@ -20,6 +20,7 @@
 
 /* Dlib column vector */
 typedef dlib::matrix<double,0,1> column_vector;
+typedef dlib::matrix<double,1,0> row_vector;
 
 namespace pascinference {
 namespace solver {
@@ -28,6 +29,12 @@ namespace solver {
 template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 	private:
 		double integration_eps;
+
+		column_vector cLM;
+		column_vector cgrad;
+		double cF;
+		
+		dlib::matrix<double> chess;
 	public:
 		class Integrator {
 			public:
@@ -82,29 +89,33 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 		};
 		
 		class ExtraParameters {
-			int k;
-			column_vector Mom;
-			column_vector LM;
-			double L0;
-			double eps;
-			dlib::matrix<double> D;
-			int type; /* type of integrant =0,1,2,3 */
-			int order; /* row of D matrix */
-			int order2;
+			public:
+				int k;
+				column_vector Mom;
+				column_vector LM;
+				double L0;
+				double eps;
+				dlib::matrix<double> D;
+				int type; /* type of integrant =0,1,2,3 */
+				int order; /* row of D matrix */
+				int order2;
     
-			ExtraParameters();
-			ExtraParameters(int _k, column_vector _Mom, column_vector _LM, double _L0, double _eps, dlib::matrix<double> _D, int _type, int _order);
-			~ExtraParameters();
-			void Copy(ExtraParameters& _ExtraParameters);			
+				ExtraParameters();
+				ExtraParameters(int _k, column_vector _Mom, column_vector _LM, double _L0, double _eps, dlib::matrix<double> _D, int _type, int _order);
+				~ExtraParameters();
+				void Copy(ExtraParameters& _ExtraParameters);			
 		};
 
 		ExternalContent(double new_integration_eps);
 		double gg(double y, int order, const column_vector& LM);
-		double get_functions_obj(const column_vector& LM, const column_vector& Mom, double eps);
-		column_vector get_functions_grad(const column_vector& LM, const column_vector& Mom, int k);
-		dlib::matrix<double> get_functions_hess(const column_vector& LM, const column_vector& Mom, int k);
+		double get_functions_obj(const column_vector& _LM, const column_vector& _Mom, double eps, int k, const dlib::matrix<double>& mom_powers);
+		column_vector get_functions_grad(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);
+		dlib::matrix<double> get_functions_hess(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);
+
+		double get_F() const;
 
 		Vec *x_powers_Vecs;
+		double *Fs; /* value of F for all clusters */
 		
 };
 
