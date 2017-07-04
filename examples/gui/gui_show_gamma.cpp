@@ -15,20 +15,64 @@
 #include <string>
 
 #define NUMBER_OF_LABELS 11
+#define MAX_K 20
 
 using namespace dlib;
 using namespace pascinference;
 
+class gammaplotter : public drawable {
+	private:
+		Vec *myvector_Vec;
+		bool myvector_loaded;
+		int K;
+		int T;
+		std::string filename;
+		int myvector_size;
+		long cut;
+
+		void draw (const canvas& c) const;
+		void plot_vector(const canvas& c) const;
+
+		template <typename image_type, typename pixel_type>
+		void draw_dotted_line(image_type& c, const point& p1, const point& p2, const pixel_type& val, double size) const;
+
+		template <typename image_type>
+		void draw_marker(image_type& c, long x, long y, double width) const;
+		
+		void fill_label_value(long x, long y, double value, int k) const;
+		void fill_label_t(long x, long y, double value) const;
+		
+		
+		label **value_labels;
+		label *t_label;
+		
+	public: 
+		gammaplotter(drawable_window& w);
+		~gammaplotter();	
+		
+		void set_plotting_area(rectangle area);
+		void load_vector( const std::string& file_name );
+		bool get_myvector_loaded();
+		Vec *get_myvector_Vec();
+		
+		void set_K(int new_K);
+		int get_K() const;
+		int get_T() const;
+		void set_newcut(long cut);
+		
+		std::string get_filename() const;
+
+};
+
 class mymouse_tracker : public draggable {
     private:
+		gammaplotter *mygammaplotter;
+    
 		const long offset;
-		named_rectangle nr;
-		label x_label;
-		label y_label; 
 		std::ostringstream sout;
 
 	public:
-		mymouse_tracker(drawable_window& w);
+		mymouse_tracker(drawable_window& w, gammaplotter& mygammaplotter);
 		~mymouse_tracker();
 
 		void show();
@@ -44,39 +88,6 @@ class mymouse_tracker : public draggable {
 		void on_mouse_move (unsigned long state, long x, long y);
 
 		void draw (const canvas& c) const;
-};
-
-
-class gammaplotter : public drawable {
-	private:
-		Vec *myvector_Vec;
-		bool myvector_loaded;
-		int K;
-		int T;
-		std::string filename;
-		int myvector_size;
-
-		void draw (const canvas& c) const;
-		void plot_vector(const canvas& c) const;
-
-		template <typename image_type, typename pixel_type>
-		void draw_dotted_line(image_type& c, const point& p1, const point& p2, const pixel_type& val, double size) const;
-
-	public: 
-		gammaplotter(drawable_window& w);
-		~gammaplotter();	
-		
-		void set_plotting_area(rectangle area);
-		void load_vector( const std::string& file_name );
-		bool get_myvector_loaded();
-		Vec *get_myvector_Vec();
-		
-		void set_K(int new_K);
-		int get_K() const;
-		int get_T() const;
-		
-		std::string get_filename() const;
-
 };
 
 class show_gamma_window : public drawable_window {
@@ -173,7 +184,7 @@ show_gamma_window::show_gamma_window(std::string filename, std::string title, in
 
 show_gamma_window::show_gamma_window() : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
-        mtracker(*this),
+        mtracker(*this, mygammaplotter),
         select_K(*this),
         button_K(*this),
         mygammaplotter(*this)
@@ -358,12 +369,34 @@ gammaplotter::gammaplotter(drawable_window& w): drawable(w) {
 	/* default number of clusters */
 	K = 1;
 	T = 0;
+	cut = -1;
+	
+	t_label = new label(w);
+	t_label->hide();
+	t_label->set_z_order(1000000);
+	t_label->set_text_color(rgb_pixel(100,100,255));
+	
+	value_labels = new label*[MAX_K];
+	for(int k=0; k < MAX_K; k++){
+		value_labels[k] = new label(w);
+		value_labels[k]->set_text("");
+		value_labels[k]->set_pos(10,50);
+		value_labels[k]->set_z_order(1000000);
+		value_labels[k]->set_text_color(rgb_pixel(255,0,255));
+
+		value_labels[k]->hide();
+	}
 	
 	enable_events();
 }
 
 gammaplotter::~gammaplotter(){
 	free(myvector_Vec);
+
+	for(int k=0; k < MAX_K; k++){
+		free(value_labels[k]);
+	}
+	free(value_labels);
 
 	disable_events();
 	parent.invalidate_rectangle(rect);
@@ -452,6 +485,48 @@ void gammaplotter::plot_vector(const canvas& c) const{
 		point mypoint1;
 		point mypoint2;
 
+		/* plot cut */
+		double cut_t = (cut-x_begin - bx)/ax;
+		if(cut_t >= 0 && cut_t < T){
+			mypoint1(0) = cut;
+			mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*1 + by)) - 5;
+
+			mypoint2(0) = cut;
+			mypoint2(1) = y_begin + py_min + k*py_step + (py_step - (ay*0 + by)) + 5;
+		
+			if(k>=1){
+				mypoint1(1) += k*py_space;
+				mypoint2(1) += k*py_space;
+			}
+
+			draw_line(c,mypoint1,mypoint2, rgb_pixel(100,100,255));
+			
+			/* interpolate values */
+			int left_t = (int)cut_t;
+			int right_t = left_t + 1;
+			double av = (values[k*T+right_t] - values[k*T+left_t])/(double)(right_t - left_t);
+			double bv = values[k*T+right_t] - av*right_t;
+			double v = av*cut_t + bv;
+
+			double yv = y_begin + py_min + k*py_step + (py_step -(ay*v + by));
+			if(k>=1){
+				yv += k*py_space;
+			}			
+			
+			this->draw_marker(c, cut, yv, 5);
+			
+			this->fill_label_value(cut, yv, v, k);
+			if(k == K-1){
+				this->fill_label_t(cut, y_begin + y_size - 20, cut_t);
+			}
+		} else {
+			/* hide values */
+			for(int k=0; k < MAX_K; k++){
+				value_labels[k]->hide();
+			}
+			t_label->hide();
+		}
+
 		/* plot x-axis */
 		mypoint1(0) = x_begin + ax*0 + bx - 5;
 		mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*0 + by));
@@ -523,7 +598,55 @@ void gammaplotter::draw_dotted_line(image_type& c, const point& p1, const point&
 	}
 }
 
+template <typename image_type>
+void gammaplotter::draw_marker(image_type& c, long x, long y, double width) const {
+	point mypoint1;
+	point mypoint2;	
+	
+	mypoint1(0) = x-width;
+	mypoint1(1) = y;
+	mypoint2(0) = x;
+	mypoint2(1) = y+width;
+	draw_line(c,mypoint1,mypoint2, rgb_pixel(255,0,255));
 
+	mypoint1(0) = x+width;
+	mypoint1(1) = y;
+	draw_line(c,mypoint1,mypoint2, rgb_pixel(255,0,255));
+
+	mypoint2(0) = x;
+	mypoint2(1) = y-width;
+	draw_line(c,mypoint1,mypoint2, rgb_pixel(255,0,255));
+
+	mypoint1(0) = x-width;
+	mypoint1(1) = y;
+	draw_line(c,mypoint1,mypoint2, rgb_pixel(255,0,255));
+
+}
+
+void gammaplotter::fill_label_value(long x, long y, double value, int k) const {
+	std::ostringstream sout;
+	sout << std::setprecision(5);
+    sout << value;
+	value_labels[k]->set_text(sout.str());
+	value_labels[k]->set_pos(x+8,y-16);
+	value_labels[k]->show();
+}
+
+void gammaplotter::fill_label_t(long x, long y, double value) const {
+	std::ostringstream sout;
+	sout << std::setprecision(5);
+    sout << value;
+	t_label->set_text(sout.str());
+	t_label->set_pos(x,y);
+	t_label->show();
+}
+
+void gammaplotter::set_newcut(long cut){
+	this->cut = cut;
+	
+	/* repaint ! */
+	parent.invalidate_rectangle(rect);
+}
 
 void gammaplotter::set_K(int new_K){
 	this->K = new_K;
@@ -547,31 +670,15 @@ int gammaplotter::get_T() const {
 
 /* ------------------------- mymouse_tracker -------------- */
 
-mymouse_tracker::mymouse_tracker(drawable_window& w) :
+mymouse_tracker::mymouse_tracker(drawable_window& w, gammaplotter& mygammaplotter) :
 	draggable(w),
-	offset(18),
-	nr(w),
-	x_label(w),
-	y_label(w)
+	offset(18)
 {
-	set_draggable_area(rectangle(0,0,500,500));
+	this->mygammaplotter = &mygammaplotter;
+	
+	set_draggable_area(rectangle(0,0,1,1));
 //	auto_mutex M(m); 
 //	area = rectangle(0,0,500,500);
-	
-	x_label.set_text("x: ");
-	y_label.set_text("y: ");
-	nr.set_name("mouse position");
-
-	x_label.set_pos(offset,offset);
-	y_label.set_pos(x_label.get_rect().left(), x_label.get_rect().bottom()+3);
-
-	nr.wrap_around(x_label.get_rect() + y_label.get_rect());
-	rect = nr.get_rect();
-
-	set_z_order(2000000000);
-	x_label.set_z_order(2000000001);
-	y_label.set_z_order(2000000001);
-	nr.set_z_order(2000000001);
 
 	enable_events();
 }
@@ -583,47 +690,27 @@ mymouse_tracker::~mymouse_tracker(){
 
 void mymouse_tracker::set_main_font (const std::shared_ptr<font>& f){
 	auto_mutex M(m);
-	nr.set_main_font(f);
-	x_label.set_main_font(f);
-	y_label.set_main_font(f);
 	mfont = f;
-	nr.wrap_around(x_label.get_rect() + y_label.get_rect());
-	rect = nr.get_rect();
 }
 
 void mymouse_tracker::set_pos(long x, long y){
 	draggable::set_pos(x,y);
-	nr.set_pos(x,y);
-	x_label.set_pos(rect.left()+offset,rect.top()+offset);
-	y_label.set_pos(x_label.get_rect().left(), x_label.get_rect().bottom()+3);
 }
 
 void mymouse_tracker::show(){
 	draggable::show();
-	nr.show();
-	x_label.show();
-	y_label.show();
 }
 
 void mymouse_tracker::hide(){
 	draggable::hide();
-	nr.hide();
-	x_label.hide();
-	y_label.hide();
 }
 
 void mymouse_tracker::enable(){
 	draggable::enable();
-	nr.enable();
-	x_label.enable();
-	y_label.enable();
 }
 
 void mymouse_tracker::disable(){
 	draggable::disable();
-	nr.disable();
-	x_label.disable();
-	y_label.disable();
 }
 
 void mymouse_tracker::on_mouse_move(unsigned long state, long x, long y){
@@ -631,16 +718,7 @@ void mymouse_tracker::on_mouse_move(unsigned long state, long x, long y){
 		parent.invalidate_rectangle(rect);
 		draggable::on_mouse_move(state,x,y);
 
-		long dx = 0;
-		long dy = 0;
-
-		sout.str("");
-		sout << "y: " << y - dy;
-		y_label.set_text(sout.str());
-
-		sout.str("");
-		sout << "x: " << x - dx;
-		x_label.set_text(sout.str());
+		mygammaplotter->set_newcut(x);
 	}
 }
 

@@ -35,7 +35,7 @@ PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entro
 
 PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT"
 
-/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n 1 ./test_entropy $PARAM_ALL
+./test_entropy $PARAM_ALL
 
 ./gui_show_gamma --filename=results/entropy_small_gamma.bin --K=$K --title="Gamma" &
 

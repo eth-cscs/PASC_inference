@@ -255,7 +255,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
-		solution.load_global(image_solution);
+		solution.load_global(signal_solution);
 		decomposition.permute_TRxdim(solution.get_vector(), solution_Vec_preload,false);
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
@@ -367,7 +367,7 @@ int main( int argc, char *argv[] )
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << signal_out << "_epssqr" << epssqr;
-			mydata.saveSignal1D(oss.str(),false);
+			mydata.saveSignal(oss.str(),false);
 			oss.str("");
 		}
 		
@@ -418,7 +418,7 @@ int main( int argc, char *argv[] )
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << signal_out;
-		mydata.saveSignal1D(oss.str(),false);
+		mydata.saveSignal(oss.str(),false);
 		oss.str("");
 	}
 
