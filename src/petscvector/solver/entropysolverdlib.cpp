@@ -39,7 +39,7 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 
 	/* prepare external content with PETSc-DLIB stuff */
-	externalcontent = new ExternalContent(this->integration_eps);
+	externalcontent = new ExternalContent(this->integration_eps, this->integration_type);
 
 	/* prepare and compute auxiliary array of powers */
 	// TODO: aaaah! bottleneck, maybe can be performed in different way (I hope so)
@@ -158,9 +158,22 @@ void EntropySolverDlib<PetscVector>::solve() {
 			if(debug_print_it){
 				coutMaster << "- start to solve the problem using Dlib solver" << std::endl;
 				/* give iteration info */
+/*
 				dlib::find_min_box_constrained(dlib::newton_search_strategy(get_functions_hess_lambda),
                              dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
                              get_functions_obj_lambda, get_functions_grad_lambda, starting_point, -1e12, 1e12 );
+*/
+
+/*
+				dlib::find_min(dlib::bfgs_search_strategy(),
+                             dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
+                             get_functions_obj_lambda, get_functions_grad_lambda, starting_point,-1e12);
+*/
+
+				dlib::find_min_using_approximate_derivatives(dlib::bfgs_search_strategy(),
+                             dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
+                             get_functions_obj_lambda, starting_point,-1e12);
+
 				coutMaster << "- solver finished" << std::endl;
 			} else {
 				/* be quite */
@@ -420,10 +433,18 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 	LOG_FUNC_END
 }
 
+template<>
+double EntropySolverDlib<PetscVector>::get_integration_time() const {
+	return externalcontent->integration_time;
+}
 
-/* External content */
-EntropySolverDlib<PetscVector>::ExternalContent::ExternalContent(double new_integration_eps) {
+
+/* -------------- External content -------------- */
+
+EntropySolverDlib<PetscVector>::ExternalContent::ExternalContent(double new_integration_eps, int integration_type) {
 	this->integration_eps = new_integration_eps;
+	this->integration_time = 0.0;
+	this->integration_type = integration_type;
 }
 
 double EntropySolverDlib<PetscVector>::ExternalContent::gg(double y, int order, const column_vector& LM){
@@ -452,40 +473,46 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 	dlib::matrix<double> hess; /* hessian */
 	hess.set_size(n,n);
     
-	Integrator integrator;
+	Integrator integrator(this->integration_type, D.nc());
 
 	/* setting to compute normalization constant */
 	ExtraParameters xp(k, Mom, LM, 0.0, 0.0, D, 0, 0);
 	integrator.USERDATA = &xp;
     
-	double F_ = integrator.computeVegas();
+	double F_ = integrator.compute();
+
+	if(isinf(F_)){
+		coutMaster << "ERROR: infinite objective function, F=" << F_ << std::endl;
+	}
     
 	/* modify settings to compute theoretical moments */
 	xp.type = 2;
+/*
 	for (int j = 0; j < n; j++){
 		xp.order = j;
-		I(j) = integrator.computeVegas();
+		I(j) = integrator.compute();
 		grad(j) = Mom(j) - I(j)/F_;
 	}
-
+*/
 	/* modify settings to compute extra theoretical moments for hess */
 	xp.type = 3;
 	double temp = 0.0;
-    
+/*    
 	for (int i = 0; i < n; i++){
 		for (int j = i; j < n; j++){
 			xp.order = i;
 			xp.order2 = j;
-			temp = integrator.computeVegas()/F_ - I(i)*I(j)/(F_*F_);
+			temp = integrator.compute()/F_ - I(i)*I(j)/(F_*F_);
 
 			hess(i,j) = temp;
 			hess(j,i) = temp;
 		}
 	}
-
-	cgrad = grad;
-	chess = hess;
+*/
+	this->cgrad = grad;
+	this->chess = hess;
 	this->cF = F_;
+	this->integration_time += integrator.get_time();
 /*	
 	std::cout << "_F:" << std::endl;
 	std::cout << F_ << std::endl; 
@@ -506,6 +533,9 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 	std::cout << "Hessian matrix" << std::endl;
 	std::cout << this->chess << std::endl;
 */
+
+	
+
 	return trans(Mom)*LM + log(F_);// + eps*sum(LM);
 }
 
@@ -528,7 +558,6 @@ dlib::matrix<double> EntropySolverDlib<PetscVector>::ExternalContent::get_functi
 double EntropySolverDlib<PetscVector>::ExternalContent::get_F() const{
 	return this->cF;
 }
-
 
 template<> EntropySolverDlib<PetscVector>::ExternalContent * EntropySolverDlib<PetscVector>::get_externalcontent() const {
 	return externalcontent;
@@ -624,11 +653,11 @@ int EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrand(const
     return 0;
 }
 
-EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator()
+EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator(int integration_type, int ndim)
 {
     //all this paramterers are from example file demo-c.c
-    NDIM = 2; //dimensions of integral
-    NCOMP = 1;
+    NDIM = ndim; 
+    NCOMP = 1; 
     NVEC = 1;
     EPSREL = 1e-12;//1e-3;
     EPSABS = 1e-12;
@@ -660,17 +689,40 @@ EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator()
     NEXTRA = 0;
     
     KEY = 0;
+    
+    this->integration_type = integration_type;
+    /* restart timer */
+    timer.restart();
+}
+
+double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::get_time() const {
+	return timer.get_value_sum();
+}
+
+double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::compute() {
+	double return_value = 0;
+	switch(this->integration_type){
+		case 0: return_value = this->computeVegas(); break;
+		case 1: return_value = this->computeSuave(); break;
+		case 2: return_value = this->computeDivonne(); break;
+		case 3: return_value = this->computeCuhre(); break;
+	}
+	return return_value;
 }
 
 double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeVegas()
 {
     //printf("-------------------- Vegas test --------------------\n");
+
+	timer.start();
     
     Vegas(NDIM, NCOMP, Integrand, USERDATA, NVEC,
           EPSREL, EPSABS, VERBOSE, SEED,
           MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
           GRIDNO, STATEFILE, SPIN,
           &neval, &fail, integral, error, prob);
+
+	timer.stop();
     
     //printf("VEGAS RESULT:\tneval %d\tfail %d\n",
     //       neval, fail);
@@ -682,25 +734,31 @@ double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeVegas
 
 double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeSuave()
 {
-    printf("\n-------------------- Suave test --------------------\n");
+//    printf("\n-------------------- Suave test --------------------\n");
+
+	timer.start();
     
     Suave(NDIM, NCOMP, Integrand, USERDATA, NVEC,
               EPSREL, EPSABS, VERBOSE | LAST, SEED,
               MINEVAL, MAXEVAL, NNEW, NMIN, FLATNESS,
               STATEFILE, SPIN,
               &nregions, &neval, &fail, integral, error, prob);
+
+	timer.stop();
     
-    printf("SUAVE RESULT:\tnregions %d\tneval %d\tfail %d\n",
-               nregions, neval, fail);
-    for( comp = 0; comp < NCOMP; ++comp )
-        printf("SUAVE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
-               (double)integral[comp], (double)error[comp], (double)prob[comp]);
+//    printf("SUAVE RESULT:\tnregions %d\tneval %d\tfail %d\n",
+//               nregions, neval, fail);
+//    for( comp = 0; comp < NCOMP; ++comp )
+//        printf("SUAVE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
+//               (double)integral[comp], (double)error[comp], (double)prob[comp]);
     return (double)integral[0];
 }
 
 double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeDivonne()
 {
-    printf("\n------------------- Divonne test -------------------\n");
+//    printf("\n------------------- Divonne test -------------------\n");
+
+	timer.start();
     
     Divonne(NDIM, NCOMP, Integrand, USERDATA, NVEC,
                 EPSREL, EPSABS, VERBOSE, SEED,
@@ -709,30 +767,36 @@ double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeDivon
                 NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
                 STATEFILE, SPIN,
                 &nregions, &neval, &fail, integral, error, prob);
+
+	timer.stop();
     
-    printf("DIVONNE RESULT:\tnregions %d\tneval %d\tfail %d\n",
-            nregions, neval, fail);
-    for( comp = 0; comp < NCOMP; ++comp )
-        printf("DIVONNE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
-              (double)integral[comp], (double)error[comp], (double)prob[comp]);
+//    printf("DIVONNE RESULT:\tnregions %d\tneval %d\tfail %d\n",
+//            nregions, neval, fail);
+//    for( comp = 0; comp < NCOMP; ++comp )
+//        printf("DIVONNE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
+//              (double)integral[comp], (double)error[comp], (double)prob[comp]);
     return (double)integral[0];
 }
 
 double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeCuhre()
 {
-    printf("\n-------------------- Cuhre test --------------------\n");
+//    printf("\n-------------------- Cuhre test --------------------\n");
+
+	timer.start();
     
     Cuhre(NDIM, NCOMP, Integrand, USERDATA, NVEC,
               EPSREL, EPSABS, VERBOSE | LAST,
               MINEVAL, MAXEVAL, KEY,
               STATEFILE, SPIN,
               &nregions, &neval, &fail, integral, error, prob);
+
+	timer.stop();
     
-    printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n",
-               nregions, neval, fail);
-    for( comp = 0; comp < NCOMP; ++comp )
-        printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
-               (double)integral[comp], (double)error[comp], (double)prob[comp]);
+//    printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n",
+//              nregions, neval, fail);
+//    for( comp = 0; comp < NCOMP; ++comp )
+//        printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
+//               (double)integral[comp], (double)error[comp], (double)prob[comp]);
     return (double)integral[0];
 }
 

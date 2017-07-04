@@ -215,8 +215,8 @@ int main( int argc, char *argv[] )
 /* 1.) prepare graph of image */
 	coutMaster << "--- PREPARING GRAPH ---" << std::endl;
 
-	BGMGraphGrid2D<PetscVector> *graph;
 	/* this is not general graph, it is "only" 2D grid */
+	BGMGraphGrid2D<PetscVector> *graph;
 	graph = new BGMGraphGrid2D<PetscVector>(width, height);
 	graph->process_grid();
 

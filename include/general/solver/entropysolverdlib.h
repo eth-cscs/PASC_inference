@@ -13,6 +13,7 @@
 #define ENTROPYSOLVERDLIB_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERDLIB_DEFAULT_EPS 1e-6
 #define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_EPS 1e-10
+#define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_TYPE 0
 #define ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE 0
 
 namespace pascinference {
@@ -45,13 +46,15 @@ class EntropySolverDlib: public GeneralSolver {
 		*/
 		void set_settings_from_console();
 
-		double integration_eps;		/**< precision of integration in Dlib adaptive simpson rule */
+		double integration_eps;		/**< precision of integration */
+		int integration_type;	/**< integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre] */
 
 		/* debug */
 		int debugmode;				/**< basic debug mode schema [0/1/2] */
 		bool debug_print_it;		/**< print simple info about outer iterations */
 		bool debug_print_moments;	/**< print moments during iterations */
 		
+		std::string get_integration_type_name(int integration_type) const;
 	public:
 
 		EntropySolverDlib();
@@ -81,6 +84,7 @@ class EntropySolverDlib: public GeneralSolver {
 		int get_Km() const;
 		int get_number_of_moments() const;
 
+		double get_integration_time() const;
 };
 
 
@@ -96,6 +100,7 @@ void EntropySolverDlib<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolverdlib_maxit", &this->maxit, ENTROPYSOLVERDLIB_DEFAULT_MAXIT);
 	consoleArg.set_option_value("entropysolverdlib_eps", &this->eps, ENTROPYSOLVERDLIB_DEFAULT_EPS);
 	consoleArg.set_option_value("entropysolverdlib_integration_eps", &this->integration_eps, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_EPS);
+	consoleArg.set_option_value("entropysolverdlib_integration_type", &this->integration_type, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_TYPE);
 
 	/* set debug mode */
 	consoleArg.set_option_value("entropysolverdlib_debugmode", &this->debugmode, ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE);
@@ -167,6 +172,18 @@ EntropySolverDlib<VectorBase>::~EntropySolverDlib(){
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+std::string EntropySolverDlib<VectorBase>::get_integration_type_name(int integration_type) const {
+	std::string return_string = "undefined";
+	switch(integration_type){
+		case 0: return_string = "Vegas"; break;
+		case 1: return_string = "Suave"; break;
+		case 2: return_string = "Divonne"; break;
+		case 3: return_string = "Cuhre"; break;
+	}
+	return return_string;
+}
+
 
 /* print info about problem */
 template<class VectorBase>
@@ -179,7 +196,8 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - maxit             : " << this->maxit << std::endl;
 	output <<  " - eps               : " << this->eps << std::endl;
 	output <<  " - integration_eps   : " << this->integration_eps << std::endl;
-
+	output <<  " - integration_type  : " << get_integration_type_name(this->integration_type) << std::endl;
+	
 	output <<  " - xdim              : " << this->get_xdim() << std::endl;
 	output <<  " - K                 : " << this->get_K() << std::endl;
 	output <<  " - Km                : " << this->get_Km() << std::endl;
@@ -208,6 +226,7 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	output_global <<  " - maxit             : " << this->maxit << std::endl;
 	output_global <<  " - eps               : " << this->eps << std::endl;
 	output_global <<  " - integration_eps   : " << this->integration_eps << std::endl;
+	output_global <<  " - integration_type  : " << get_integration_type_name(this->integration_type) << std::endl;
 
 	output_global <<  " - xdim              : " << this->get_xdim() << std::endl;
 	output_global <<  " - K                 : " << this->get_K() << std::endl;
@@ -276,8 +295,9 @@ void EntropySolverDlib<VectorBase>::printtimer(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 	output <<  " - timers" << std::endl;
-	output <<  "  - t_solve   = " << this->timer_solve.get_value_sum() << std::endl;
-	output <<  "  - t_moments = " << this->timer_compute_moments.get_value_sum() << std::endl;
+	output <<  "  - t_solve     = " << this->timer_solve.get_value_sum() << std::endl;
+	output <<  "  - t_moments   = " << this->timer_compute_moments.get_value_sum() << std::endl;
+	output <<  "  - t_integrate = " << this->get_integration_time() << std::endl;
 
 	LOG_FUNC_END
 }
@@ -338,6 +358,14 @@ int EntropySolverDlib<VectorBase>::get_Km() const {
 template<class VectorBase>
 int EntropySolverDlib<VectorBase>::get_number_of_moments() const {
 	return entropydata->get_number_of_moments();
+}
+
+template<class VectorBase>
+double EntropySolverDlib<VectorBase>::get_integration_time() const {
+
+	//TODO
+	
+	return 0.0;
 }
 
 /* define blank external content for general VectorBase */

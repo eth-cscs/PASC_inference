@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NAME="data/test_entropy/data2_y_0_1.csv"
+NAME="data/test_entropy/data3_y_0_1.csv"
 T=1000
-XDIM=2
+XDIM=3
 K=2
 KM=2
 
@@ -19,14 +19,14 @@ PARAM_THETA="" #--test_Theta
 PARAM_SHORTINFO="--test_shortinfo=true" # --test_shortinfo_header --test_shortinfo_values --test_shortinfo_filename
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_TSSOLVER="--tssolver_maxit=100 --tssolver_init_permute=true"
-PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=true --tssolver_debug_print_annealing=true --tssolver_eps=1e-5"
+PARAM_TSSOLVER="--tssolver_maxit=50 --tssolver_init_permute=true"
+PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=true --tssolver_debug_print_annealing=true --tssolver_eps=1e-4"
  
 PARAM_QPSOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
 PARAM_QPSOLVER_PRINT="--spgqpsolver_debug_print_it=false" 
 
 PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=1"
-PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=20  --entropysolverdlib_eps=1e-8 --entropysolverdlib_integration_eps=1e-8"
+PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=20  --entropysolverdlib_eps=1e-8 --entropysolverdlib_integration_eps=1e-8 --entropysolverdlib_integration_type=0"
 PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true"
 
 #PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=2"

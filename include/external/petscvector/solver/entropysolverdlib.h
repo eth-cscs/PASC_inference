@@ -29,6 +29,7 @@ namespace solver {
 template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 	private:
 		double integration_eps;
+		int integration_type;
 
 		column_vector cLM;
 		column_vector cgrad;
@@ -38,8 +39,8 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 	public:
 		class Integrator {
 			public:
-				int NDIM; //dimensions of integral
-				int NCOMP;
+				int NDIM; 		/**< number of dimensions of integral */
+				int NCOMP;		/**< number of components of the integrand */
 				int NVEC;
 				double EPSREL;
 				double EPSABS;
@@ -71,10 +72,12 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				int NEXTRA;
 				int KEY;
 
+				int integration_type;
+
 				int comp, nregions, neval, fail;
 				cubareal integral[1], error[1], prob[1];
 
-				Integrator();
+				Integrator(int integration_type, int ndim);
 				~Integrator();
 
 				//four methods of integration implemented in CUBA library,
@@ -83,9 +86,13 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				double computeSuave();
 				double computeDivonne();
 				double computeCuhre();
+				double compute();
 
 				static int Integrand(const int *ndim, const cubareal xx[],
 				const int *ncomp, cubareal ff2[], void *userdata);
+				
+				Timer timer; /**< total integration time */
+				double get_time() const;
 		};
 		
 		class ExtraParameters {
@@ -106,7 +113,7 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				void Copy(ExtraParameters& _ExtraParameters);			
 		};
 
-		ExternalContent(double new_integration_eps);
+		ExternalContent(double new_integration_eps, int integration_type=0);
 		double gg(double y, int order, const column_vector& LM);
 		double get_functions_obj(const column_vector& _LM, const column_vector& _Mom, double eps, int k, const dlib::matrix<double>& mom_powers);
 		column_vector get_functions_grad(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);
@@ -115,8 +122,8 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 		double get_F() const;
 
 		Vec *x_powers_Vecs;
-		double *Fs; /* value of F for all clusters */
-		
+		double *Fs; /**< value of F for all clusters */
+		double integration_time; /**< total integration time */
 };
 
 template<> EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_entropydata);
@@ -125,6 +132,8 @@ template<> EntropySolverDlib<PetscVector>::~EntropySolverDlib();
 template<> void EntropySolverDlib<PetscVector>::solve();
 template<> void EntropySolverDlib<PetscVector>::compute_moments();
 template<> void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const;
+
+template<> double EntropySolverDlib<PetscVector>::get_integration_time() const;
 
 template<> EntropySolverDlib<PetscVector>::ExternalContent * EntropySolverDlib<PetscVector>::get_externalcontent() const;
 
