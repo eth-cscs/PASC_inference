@@ -19,6 +19,34 @@
 using namespace dlib;
 using namespace pascinference;
 
+class mymouse_tracker : public draggable {
+    private:
+		const long offset;
+		named_rectangle nr;
+		label x_label;
+		label y_label; 
+		std::ostringstream sout;
+
+	public:
+		mymouse_tracker(drawable_window& w);
+		~mymouse_tracker();
+
+		void show();
+		void hide();
+
+		void enable();
+		void disable();
+
+		void set_pos(long x, long y);
+		void set_main_font(const std::shared_ptr<font>& f);
+
+    protected:
+		void on_mouse_move (unsigned long state, long x, long y);
+
+		void draw (const canvas& c) const;
+};
+
+
 class gammaplotter : public drawable {
 	private:
 		Vec *myvector_Vec;
@@ -33,6 +61,7 @@ class gammaplotter : public drawable {
 
 		template <typename image_type, typename pixel_type>
 		void draw_dotted_line(image_type& c, const point& p1, const point& p2, const pixel_type& val, double size) const;
+
 	public: 
 		gammaplotter(drawable_window& w);
 		~gammaplotter();	
@@ -52,6 +81,8 @@ class gammaplotter : public drawable {
 
 class show_gamma_window : public drawable_window {
 private:
+	mymouse_tracker mtracker; /* gui: for tracking mouse position */
+
     menu_bar mbar; /* gui: menubar */
 	gammaplotter mygammaplotter; /* gui: canvas for drawing */
  
@@ -78,6 +109,7 @@ private:
 
 public:
     show_gamma_window();
+    show_gamma_window(std::string filename, std::string title, int K = 1);
     ~show_gamma_window();
 
 };
@@ -86,13 +118,29 @@ public:
 
 int main( int argc, char *argv[] ) {
 
+	/* add local program options */
+	boost::program_options::options_description opt_problem("GUI_SHOW_GAMMA", consoleArg.get_console_nmb_cols());
+	opt_problem.add_options()
+		("filename", boost::program_options::value<std::string>(), "gamma file to load [string]")
+		("K", boost::program_options::value<int>(), "number of clusters [int]")
+		("title", boost::program_options::value<std::string>(), "title of window [string]")	;
+	consoleArg.get_description()->add(opt_problem);
+
 	/* call initialize */
 	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
 	} 
 
+	/* get values provided as console parameters */
+	std::string filename, title;
+	int K;
+
+	consoleArg.set_option_value("filename", &filename, "");
+	consoleArg.set_option_value("title", &title, "");
+	consoleArg.set_option_value("K", &K, 1);
+
     // create our window
-    show_gamma_window my_window;
+    show_gamma_window my_window(filename,title,K);
 
     // wait until the user closes this window before we let the program 
     // terminate.
@@ -107,8 +155,25 @@ int main( int argc, char *argv[] ) {
 
 /* ---------------- implementation -------------- */
 
+show_gamma_window::show_gamma_window(std::string filename, std::string title, int K) : show_gamma_window() {
+	if(title != ""){
+		set_title(title);		
+	}
+
+	if(filename != ""){
+		load_vector( filename );
+	}
+
+	select_K.set_text(std::to_string(K));
+	
+	on_button_K();
+
+	
+}
+
 show_gamma_window::show_gamma_window() : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
+        mtracker(*this),
         select_K(*this),
         button_K(*this),
         mygammaplotter(*this)
@@ -156,6 +221,7 @@ show_gamma_window::show_gamma_window() : /* All widgets take their parent window
 	button_K.set_name("apply K");
 	button_K.set_pos(10,60);
 
+	mtracker.set_pos(10,320);
 
 	/* arrange the window */
 	on_window_resized();
@@ -205,6 +271,9 @@ void show_gamma_window::load_vector( const std::string& file_name ) {
 	if(mygammaplotter.get_myvector_loaded()){
 		fill_labels();
 	}
+
+	mygammaplotter.enable();
+	mtracker.enable();
 }
 
 void show_gamma_window::fill_labels() {
@@ -280,9 +349,7 @@ void gammaplotter::draw(const canvas& c) const {
 
 }
 
-gammaplotter::gammaplotter(drawable_window& w): 
-			drawable(w)
-{
+gammaplotter::gammaplotter(drawable_window& w): drawable(w) {
 	/* create empty vector */
 	myvector_Vec = new Vec();
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,myvector_Vec) );
@@ -394,7 +461,7 @@ void gammaplotter::plot_vector(const canvas& c) const{
 			mypoint1(1) += k*py_space;
 			mypoint2(1) += k*py_space;
 		}
-		draw_dotted_line(c,mypoint1,mypoint2, rgb_pixel(0,0,0), 20);
+		draw_dotted_line(c,mypoint1,mypoint2, rgb_pixel(0,0,0), 10);
 
 		/* plot y-axis */
 		mypoint1(0) = x_begin + ax*0 + bx;
@@ -405,7 +472,7 @@ void gammaplotter::plot_vector(const canvas& c) const{
 			mypoint1(1) += k*py_space;
 			mypoint2(1) += k*py_space;
 		}
-		draw_dotted_line(c,mypoint1,mypoint2, rgb_pixel(0,0,0), 20);
+		draw_dotted_line(c,mypoint1,mypoint2, rgb_pixel(0,0,0), 10);
 
 
 		/* plot gamma */
@@ -433,10 +500,27 @@ void gammaplotter::plot_vector(const canvas& c) const{
 
 template <typename image_type, typename pixel_type>
 void gammaplotter::draw_dotted_line(image_type& c, const point& p1, const point& p2, const pixel_type& val, double size) const{
-	point step_vector = p2 - p1;
-//	std::cout << step_vector.size() << std::endl;
-
-	draw_line(c,p1,p2, val);
+	point diff_vector = p2 - p1;
+	double diff_size = sqrt( diff_vector(0)*diff_vector(0) + diff_vector(1)*diff_vector(1) );
+	point step_vector = size*(diff_vector/diff_size);
+	
+	double pass_size = 0;
+	point pass_point = p1;
+	int i = 0;
+	while(pass_size < diff_size){
+		if(i % 2 == 0){
+			if(pass_size + size > diff_size){
+				step_vector = p2 - pass_point;
+			}
+			draw_line(c,pass_point,pass_point+step_vector,val);
+			pass_point += step_vector;
+			pass_size += size;
+		} else {
+			pass_point += 0.5*step_vector;
+			pass_size += 0.5*size;
+		}
+		i++;
+	}
 }
 
 
@@ -460,3 +544,108 @@ int gammaplotter::get_K() const {
 int gammaplotter::get_T() const {
 	return T;
 }
+
+/* ------------------------- mymouse_tracker -------------- */
+
+mymouse_tracker::mymouse_tracker(drawable_window& w) :
+	draggable(w),
+	offset(18),
+	nr(w),
+	x_label(w),
+	y_label(w)
+{
+	set_draggable_area(rectangle(0,0,500,500));
+//	auto_mutex M(m); 
+//	area = rectangle(0,0,500,500);
+	
+	x_label.set_text("x: ");
+	y_label.set_text("y: ");
+	nr.set_name("mouse position");
+
+	x_label.set_pos(offset,offset);
+	y_label.set_pos(x_label.get_rect().left(), x_label.get_rect().bottom()+3);
+
+	nr.wrap_around(x_label.get_rect() + y_label.get_rect());
+	rect = nr.get_rect();
+
+	set_z_order(2000000000);
+	x_label.set_z_order(2000000001);
+	y_label.set_z_order(2000000001);
+	nr.set_z_order(2000000001);
+
+	enable_events();
+}
+
+mymouse_tracker::~mymouse_tracker(){ 
+	disable_events(); 
+	parent.invalidate_rectangle(rect); 
+}
+
+void mymouse_tracker::set_main_font (const std::shared_ptr<font>& f){
+	auto_mutex M(m);
+	nr.set_main_font(f);
+	x_label.set_main_font(f);
+	y_label.set_main_font(f);
+	mfont = f;
+	nr.wrap_around(x_label.get_rect() + y_label.get_rect());
+	rect = nr.get_rect();
+}
+
+void mymouse_tracker::set_pos(long x, long y){
+	draggable::set_pos(x,y);
+	nr.set_pos(x,y);
+	x_label.set_pos(rect.left()+offset,rect.top()+offset);
+	y_label.set_pos(x_label.get_rect().left(), x_label.get_rect().bottom()+3);
+}
+
+void mymouse_tracker::show(){
+	draggable::show();
+	nr.show();
+	x_label.show();
+	y_label.show();
+}
+
+void mymouse_tracker::hide(){
+	draggable::hide();
+	nr.hide();
+	x_label.hide();
+	y_label.hide();
+}
+
+void mymouse_tracker::enable(){
+	draggable::enable();
+	nr.enable();
+	x_label.enable();
+	y_label.enable();
+}
+
+void mymouse_tracker::disable(){
+	draggable::disable();
+	nr.disable();
+	x_label.disable();
+	y_label.disable();
+}
+
+void mymouse_tracker::on_mouse_move(unsigned long state, long x, long y){
+	if (!hidden && enabled){
+		parent.invalidate_rectangle(rect);
+		draggable::on_mouse_move(state,x,y);
+
+		long dx = 0;
+		long dy = 0;
+
+		sout.str("");
+		sout << "y: " << y - dy;
+		y_label.set_text(sout.str());
+
+		sout.str("");
+		sout << "x: " << x - dx;
+		x_label.set_text(sout.str());
+	}
+}
+
+void mymouse_tracker::draw(const canvas& c) const{ 
+//	fill_rect(c, rect,rgb_pixel(232,228,230));
+//	draw_pixel(c, point(click_x,click_y),rgb_pixel(255,0,0));
+}
+
