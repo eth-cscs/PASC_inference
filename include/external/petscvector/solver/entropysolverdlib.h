@@ -36,6 +36,8 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 		double cF;
 		
 		dlib::matrix<double> chess;
+
+		bool debug_print_content;
 	public:
 		class Integrator {
 			public:
@@ -75,18 +77,21 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				int integration_type;
 
 				int comp, nregions, neval, fail;
-				cubareal integral[1], error[1], prob[1];
 
-				Integrator(int integration_type, int ndim);
+				cubareal *integral;
+				cubareal *error;
+				cubareal *prob;
+				
+				Integrator(int integration_type, int ndim, int ncomp);
 				~Integrator();
 
 				//four methods of integration implemented in CUBA library,
 				//more info at http://www.feynarts.de/cuba/
-				double computeVegas();
-				double computeSuave();
-				double computeDivonne();
-				double computeCuhre();
-				double compute();
+				void computeVegas();
+				void computeSuave();
+				void computeDivonne();
+				void computeCuhre();
+				cubareal *compute();
 
 				static int Integrand(const int *ndim, const cubareal xx[],
 				const int *ncomp, cubareal ff2[], void *userdata);
@@ -113,7 +118,7 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				void Copy(ExtraParameters& _ExtraParameters);			
 		};
 
-		ExternalContent(double new_integration_eps, int integration_type=0);
+		ExternalContent(double new_integration_eps, int integration_type=0, bool debug_print_content = false);
 		double gg(double y, int order, const column_vector& LM);
 		double get_functions_obj(const column_vector& _LM, const column_vector& _Mom, double eps, int k, const dlib::matrix<double>& mom_powers);
 		column_vector get_functions_grad(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);

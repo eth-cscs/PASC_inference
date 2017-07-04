@@ -53,6 +53,7 @@ class EntropySolverDlib: public GeneralSolver {
 		int debugmode;				/**< basic debug mode schema [0/1/2] */
 		bool debug_print_it;		/**< print simple info about outer iterations */
 		bool debug_print_moments;	/**< print moments during iterations */
+		bool debug_print_content;	/**< print variables during optimization */
 		
 		std::string get_integration_type_name(int integration_type) const;
 	public:
@@ -113,8 +114,9 @@ void EntropySolverDlib<VectorBase>::set_settings_from_console() {
 		debug_print_moments = true;
 	}
 
-	consoleArg.set_option_value("entropysolverdlib_debug_print_it",		&debug_print_it, 		debug_print_it);
-	consoleArg.set_option_value("entropysolverdlib_debug_print_moments",&debug_print_moments, 		debug_print_moments);
+	consoleArg.set_option_value("entropysolverdlib_debug_print_it",		&debug_print_it, debug_print_it);
+	consoleArg.set_option_value("entropysolverdlib_debug_print_moments",&debug_print_moments, debug_print_moments);
+	consoleArg.set_option_value("entropysolverdlib_debug_print_content",&debug_print_content, debug_print_content);
 
 }
 

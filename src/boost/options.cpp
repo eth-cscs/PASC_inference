@@ -121,6 +121,7 @@ void add_options(boost::program_options::options_description *description, int c
 			("entropysolverdlib_integration_type", boost::program_options::value<int>(), "integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre]")
 			("entropysolverdlib_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("entropysolverdlib_debug_print_moments", boost::program_options::value<bool>(), "print computed moments [bool]")
+			("entropysolverdlib_debug_print_content", boost::program_options::value<bool>(), "print variables during optimization [bool]")
 			("entropysolverdlib_debug_print_it", boost::program_options::value<bool>(), "print simple info about iterations [bool]");
 		opt_solvers.add(opt_entropysolverdlib);
 

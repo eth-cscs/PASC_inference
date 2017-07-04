@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NAME="data/test_entropy/data3_y_0_1.csv"
-T=1000
-XDIM=3
+NAME="data/test_entropy/xt_2l.csv"
+T=2998
+XDIM=2
 K=2
 KM=2
 
@@ -12,7 +12,7 @@ KM=2
 PARAM_BASIC="--test_K=$K --test_Km=$KM --test_filename_in=data/test_entropy/sample_data.bin --test_annealing=1 --test_scaledata=true --test_xdim=$XDIM"
 #PARAM_GAMMA0="--test_filename_gamma0=data/test_entropy/data2_y_gamma0.bin"
 PARAM_GAMMA0=""
-PARAM_EPSSQR="--test_epssqr=1e1"
+PARAM_EPSSQR="--test_epssqr=2e1"
 #PARAM_EPSSQR="--test_epssqr=1e-1 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5"
 PARAM_PRINT="--test_printstats=true --test_printinfo=true"
 PARAM_THETA="" #--test_Theta
@@ -26,8 +26,8 @@ PARAM_QPSOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_eps=1e-6 --spgqpsolver_st
 PARAM_QPSOLVER_PRINT="--spgqpsolver_debug_print_it=false" 
 
 PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=1"
-PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=20  --entropysolverdlib_eps=1e-8 --entropysolverdlib_integration_eps=1e-8 --entropysolverdlib_integration_type=0"
-PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true"
+PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=100  --entropysolverdlib_eps=1e-8 --entropysolverdlib_integration_eps=1e-8 --entropysolverdlib_integration_type=0"
+PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true --entropysolverdlib_debug_print_content=false "
 
 #PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=2"
 #PARAM_ENTROPYSOLVER2="--entropysolvernewton_maxit=20 --entropysolvernewton_eps=1e-6 --entropysolvernewton_integration_eps=1e-8 --entropysolvernewton_newton_coeff=0.9 --entropysolvernewton_integrationtype=1"
@@ -36,3 +36,7 @@ PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entro
 PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT"
 
 /home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n 1 ./test_entropy $PARAM_ALL
+
+./gui_show_gamma --filename=results/entropy_small_gamma.bin --K=$K --title="Gamma" &
+
+

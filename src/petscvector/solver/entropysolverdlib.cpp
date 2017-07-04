@@ -39,7 +39,7 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 
 	/* prepare external content with PETSc-DLIB stuff */
-	externalcontent = new ExternalContent(this->integration_eps, this->integration_type);
+	externalcontent = new ExternalContent(this->integration_eps, this->integration_type, this->debug_print_content);
 
 	/* prepare and compute auxiliary array of powers */
 	// TODO: aaaah! bottleneck, maybe can be performed in different way (I hope so)
@@ -169,10 +169,21 @@ void EntropySolverDlib<PetscVector>::solve() {
                              dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
                              get_functions_obj_lambda, get_functions_grad_lambda, starting_point,-1e12);
 */
-
+/*
 				dlib::find_min_using_approximate_derivatives(dlib::bfgs_search_strategy(),
                              dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
                              get_functions_obj_lambda, starting_point,-1e12);
+*/
+
+/*
+				dlib::find_min(dlib::newton_search_strategy(get_functions_hess_lambda),
+                             dlib::objective_delta_stop_strategy(this->eps).be_verbose(),
+                             get_functions_obj_lambda, get_functions_grad_lambda, starting_point,-1e12);
+*/
+
+				dlib::find_min(dlib::newton_search_strategy(get_functions_hess_lambda),
+                             dlib::objective_delta_stop_strategy(this->eps,this->maxit).be_verbose(),
+                             get_functions_obj_lambda, get_functions_grad_lambda, starting_point,-1e12);
 
 				coutMaster << "- solver finished" << std::endl;
 			} else {
@@ -441,10 +452,11 @@ double EntropySolverDlib<PetscVector>::get_integration_time() const {
 
 /* -------------- External content -------------- */
 
-EntropySolverDlib<PetscVector>::ExternalContent::ExternalContent(double new_integration_eps, int integration_type) {
+EntropySolverDlib<PetscVector>::ExternalContent::ExternalContent(double new_integration_eps, int integration_type, bool debug_print_content) {
 	this->integration_eps = new_integration_eps;
 	this->integration_time = 0.0;
 	this->integration_type = integration_type;
+	this->debug_print_content = debug_print_content;
 }
 
 double EntropySolverDlib<PetscVector>::ExternalContent::gg(double y, int order, const column_vector& LM){
@@ -468,73 +480,71 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 	/* number of variables */
 	long n = D.nr();
     
-	column_vector I(n); /* theoretical moments */
+//	column_vector I(n); /* theoretical moments */
 	column_vector grad(n); /* gradient */
 	dlib::matrix<double> hess; /* hessian */
 	hess.set_size(n,n);
     
-	Integrator integrator(this->integration_type, D.nc());
+	int number_of_integrals = 1 + n + (int)(0.5*n*(n+1));
+
+	Integrator integrator(this->integration_type, D.nc(), number_of_integrals);
 
 	/* setting to compute normalization constant */
 	ExtraParameters xp(k, Mom, LM, 0.0, 0.0, D, 0, 0);
 	integrator.USERDATA = &xp;
+
+	cubareal *computed_integrals;
+	computed_integrals = integrator.compute();
     
-	double F_ = integrator.compute();
+	double F_ = computed_integrals[0];
 
 	if(isinf(F_)){
 		coutMaster << "ERROR: infinite objective function, F=" << F_ << std::endl;
 	}
     
 	/* modify settings to compute theoretical moments */
-	xp.type = 2;
-/*
 	for (int j = 0; j < n; j++){
-		xp.order = j;
-		I(j) = integrator.compute();
-		grad(j) = Mom(j) - I(j)/F_;
+		grad(j) = Mom(j) - computed_integrals[1+j]/F_;
 	}
-*/
+
 	/* modify settings to compute extra theoretical moments for hess */
-	xp.type = 3;
 	double temp = 0.0;
-/*    
+	int counter = 1+n;
 	for (int i = 0; i < n; i++){
 		for (int j = i; j < n; j++){
-			xp.order = i;
-			xp.order2 = j;
-			temp = integrator.compute()/F_ - I(i)*I(j)/(F_*F_);
+			temp = computed_integrals[counter]/F_ - computed_integrals[1+i]*computed_integrals[1+j]/(F_*F_);
+			counter++;
 
 			hess(i,j) = temp;
 			hess(j,i) = temp;
 		}
 	}
-*/
+
 	this->cgrad = grad;
 	this->chess = hess;
 	this->cF = F_;
 	this->integration_time += integrator.get_time();
-/*	
-	std::cout << "_F:" << std::endl;
-	std::cout << F_ << std::endl; 
-	std::cout << std::endl;
 
-	std::cout << "Mom" << std::endl;
-	std::cout << Mom << std::endl; 
+	if(debug_print_content){
+		std::cout << "_F:" << std::endl;
+		std::cout << F_ << std::endl; 
+		std::cout << std::endl;
 
-	std::cout << "objective" << std::endl;
-	std::cout << trans(Mom)*LM + log(F_) << std::endl; 
+		std::cout << "Mom" << std::endl;
+		std::cout << Mom << std::endl; 
 
-	std::cout << "LM" << std::endl;
-	std::cout << _LM << std::endl;
+		std::cout << "objective" << std::endl;
+		std::cout << trans(Mom)*LM + log(F_) << std::endl; 
 
-	std::cout << "gradient" << std::endl;
-	std::cout << this->cgrad << std::endl;
+		std::cout << "LM" << std::endl;
+		std::cout << _LM << std::endl;
 
-	std::cout << "Hessian matrix" << std::endl;
-	std::cout << this->chess << std::endl;
-*/
+		std::cout << "gradient" << std::endl;
+		std::cout << this->cgrad << std::endl;
 
-	
+		std::cout << "Hessian matrix" << std::endl;
+		std::cout << this->chess << std::endl;
+	}
 
 	return trans(Mom)*LM + log(F_);// + eps*sum(LM);
 }
@@ -613,51 +623,60 @@ int EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrand(const
     //double p1 = xx[0];
     //double p2 = xx[1];
     //double p3 = xx[2];
+
     ExtraParameters* xp = (ExtraParameters*)userdata;
     dlib::matrix<double> D = xp->D;
     long d = D.nc();
     long n = D.nr();
-    int type = xp->type;
+
+//    int type = xp->type;
     column_vector LM = xp->LM;
-    
+
     double V = 0.0;
     double p = 0.0;
     
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++){
         p = 1.0;
-        for (int j = 0; j < d; j++)
+        for (int j = 0; j < d; j++){
             p = p*pow(xx[j], D(i,j));
+		}
         V = V - p*LM(i);
     }
+
+	/* ff2[0] - type = 0 */
+    ff2[0] = exp(V);
     
-    if (type == 0) //just exp density
-        ff2[0] = exp(V);
-    else if (type == 1)
-        ff2[0] = exp(-xp->L0 + V);
-    else if (type == 2) /* for gradient */
-    {
-        p = 1.0;
-        for (int j = 0; j < d; j++)
-            p = p*pow(xx[j], D(xp->order,j));
-        ff2[0] = p*exp(V);
+    /* ff2[1-n] - for gradient, type =2 */
+	for(int order = 0; order < n; order++){
+		p = 1.0;
+		for (int j = 0; j < d; j++){
+			p = p*pow(xx[j], D(order,j));
+		}
+        ff2[1+order] = p*exp(V);
     }
-    else if (type == 3) /* for Hessian */
-    {
-        p = 1.0;
-        row_vector t = rowm(D,xp->order) + rowm(D,xp->order2);
-        for (int j = 0; j < d; j++)
-            p = p*pow(xx[j], t(j));
-        ff2[0] = p*exp(V);
-    }
+
+	/* ff2[n+1 - n+1+n*(n+1)/2] - for Hessian, type = 3 */
+	int counter = 1+n;
+	for(int order = 0; order < n; order++){
+		for(int order2 = order; order2 < n; order2++){
+			p = 1.0;
+			row_vector t = rowm(D,order) + rowm(D,order2);
+			for (int j = 0; j < d; j++){
+				p = p*pow(xx[j], t(j));
+			}
+			ff2[counter] = p*exp(V);
+			counter++;
+		}
+	}
+	
     return 0;
 }
 
-EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator(int integration_type, int ndim)
+EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator(int integration_type, int ndim, int ncomp)
 {
     //all this paramterers are from example file demo-c.c
     NDIM = ndim; 
-    NCOMP = 1; 
+    NCOMP = ncomp;
     NVEC = 1;
     EPSREL = 1e-12;//1e-3;
     EPSABS = 1e-12;
@@ -691,6 +710,10 @@ EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator(int inte
     KEY = 0;
     
     this->integration_type = integration_type;
+    this->integral = new cubareal[ncomp];
+    this->error = new cubareal[ncomp];
+    this->prob = new cubareal[ncomp];
+    
     /* restart timer */
     timer.restart();
 }
@@ -699,19 +722,17 @@ double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::get_time() c
 	return timer.get_value_sum();
 }
 
-double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::compute() {
-	double return_value = 0;
+cubareal* EntropySolverDlib<PetscVector>::ExternalContent::Integrator::compute() {
 	switch(this->integration_type){
-		case 0: return_value = this->computeVegas(); break;
-		case 1: return_value = this->computeSuave(); break;
-		case 2: return_value = this->computeDivonne(); break;
-		case 3: return_value = this->computeCuhre(); break;
+		case 0: this->computeVegas(); break;
+		case 1: this->computeSuave(); break;
+		case 2: this->computeDivonne(); break;
+		case 3: this->computeCuhre(); break;
 	}
-	return return_value;
+    return integral;
 }
 
-double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeVegas()
-{
+void EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeVegas(){
     //printf("-------------------- Vegas test --------------------\n");
 
 	timer.start();
@@ -729,11 +750,9 @@ double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeVegas
     //for( comp = 0; comp < NCOMP; ++comp )
     //    printf("VEGAS RESULT:\t%.8f +- %.8f\tp = %.3f\n",
     //           (double)integral[comp], (double)error[comp], (double)prob[comp]);
-    return (double)integral[0];
 }
 
-double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeSuave()
-{
+void EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeSuave(){
 //    printf("\n-------------------- Suave test --------------------\n");
 
 	timer.start();
@@ -751,11 +770,9 @@ double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeSuave
 //    for( comp = 0; comp < NCOMP; ++comp )
 //        printf("SUAVE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
 //               (double)integral[comp], (double)error[comp], (double)prob[comp]);
-    return (double)integral[0];
 }
 
-double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeDivonne()
-{
+void EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeDivonne(){
 //    printf("\n------------------- Divonne test -------------------\n");
 
 	timer.start();
@@ -775,11 +792,9 @@ double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeDivon
 //    for( comp = 0; comp < NCOMP; ++comp )
 //        printf("DIVONNE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
 //              (double)integral[comp], (double)error[comp], (double)prob[comp]);
-    return (double)integral[0];
 }
 
-double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeCuhre()
-{
+void EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeCuhre(){
 //    printf("\n-------------------- Cuhre test --------------------\n");
 
 	timer.start();
@@ -797,11 +812,12 @@ double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeCuhre
 //    for( comp = 0; comp < NCOMP; ++comp )
 //        printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
 //               (double)integral[comp], (double)error[comp], (double)prob[comp]);
-    return (double)integral[0];
 }
 
-EntropySolverDlib<PetscVector>::ExternalContent::Integrator::~Integrator()
-{
+EntropySolverDlib<PetscVector>::ExternalContent::Integrator::~Integrator(){
+	free(this->integral);
+	free(this->error);
+	free(this->prob);
 }
 
 
