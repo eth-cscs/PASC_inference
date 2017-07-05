@@ -184,7 +184,7 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 	}
 
     /* prepare position of labels of vector properties */
-    labels_myvector_properties[0]->set_pos(10,190);
+    labels_myvector_properties[0]->set_pos(10,220);
 	for(int i=1; i < 9; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
