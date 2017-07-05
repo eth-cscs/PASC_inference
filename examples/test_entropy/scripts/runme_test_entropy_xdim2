@@ -1,39 +1,46 @@
 #!/bin/bash
 
-NAME="data/test_entropy/xt_2l.csv"
-T=2998
+NAME="data/test_entropy/big_test.csv"
+T=1000
 XDIM=2
 K=2
-KM=2
+KM=4
 
 # generate example from txt
 ./util_csv_to_vec --filename_in=$NAME --filename_out "data/test_entropy/sample_data.bin" --T=$T --xdim=$XDIM --print=false --permute=false
 
 PARAM_BASIC="--test_K=$K --test_Km=$KM --test_filename_in=data/test_entropy/sample_data.bin --test_annealing=1 --test_scaledata=true --test_xdim=$XDIM"
-PARAM_GAMMA0="--test_filename_gamma0=data/test_entropy/test_gamma.bin"
-#PARAM_GAMMA0=""
-PARAM_EPSSQR="--test_epssqr=1e1"
-#PARAM_EPSSQR="--test_epssqr=1e-1 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5"
 PARAM_PRINT="--test_printstats=true --test_printinfo=true"
-PARAM_THETA="" #--test_Theta
+
+#PARAM_GAMMA0="--test_filename_gamma0=data/test_entropy/big_test_gamma0.bin"
+PARAM_GAMMA0=""
+
+PARAM_EPSSQR="--test_epssqr=1e0"
+#PARAM_EPSSQR="--test_epssqr=1e-1 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5"
+
+
+#PARAM_THETA=""
+PARAM_THETA="--test_Theta=1.0,-312.9891,404.0147,195.9204,-250.4201,30.0312,-163.8065,108.2930,-78.7589,50.8649,-126.4383,21.9580,26.8900,86.9595,-38.0103  --test_Theta=1.0,41.7453,78.0193,-24.4270,-5.9011,-238.8223,-132.4918,-61.8592,46.8851,274.5369,-87.3244,72.7943,157.7454,-99.8839,-37.8575"
+
 PARAM_SHORTINFO="--test_shortinfo=true" # --test_shortinfo_header --test_shortinfo_values --test_shortinfo_filename
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
 PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_init_permute=true"
 PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=true --tssolver_debug_print_annealing=true --tssolver_eps=1e-4"
  
-PARAM_QPSOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
+PARAM_QPSOLVER="--spgqpsolver_maxit=5000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
 PARAM_QPSOLVER_PRINT="--spgqpsolver_debug_print_it=false" 
 
 PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=1"
-PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=100  --entropysolverdlib_eps=1e-8 --entropysolverdlib_integration_eps=1e-8 --entropysolverdlib_integration_type=0"
-PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true --entropysolverdlib_debug_print_content=false --entropysolverdlib_debug_print_integration=false"
+PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=1  --entropysolverdlib_eps=1e-8 --entropysolverdlib_integration_eps=1e-8"
+PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=true --entropysolverdlib_debug_print_it=true --entropysolverdlib_debug_print_content=false --entropysolverdlib_debug_print_integration=true"
+PARAM_ENTROPYSOLVER_INTEGRATION="--entropysolverdlib_integration_type=3 --entropysolverdlib_integration_mineval=0 --entropysolverdlib_integration_maxeval=100000 --entropysolverdlib_integration_nstart=10000 --entropysolverdlib_integration_nincrease=10000"
 
 #PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=2"
 #PARAM_ENTROPYSOLVER2="--entropysolvernewton_maxit=20 --entropysolvernewton_eps=1e-6 --entropysolvernewton_integration_eps=1e-8 --entropysolvernewton_newton_coeff=0.9 --entropysolvernewton_integrationtype=1"
 #PARAM_ENTROPYSOLVER_PRINT="--entropysolvernewton_debug_print_it=true --entropysolvernewton_debug_print_Axb=false"
 
-PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT"
+PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT $PARAM_ENTROPYSOLVER_INTEGRATION"
 
 ./test_entropy $PARAM_ALL
 

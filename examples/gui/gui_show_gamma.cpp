@@ -642,10 +642,22 @@ void gammaplotter::fill_label_t(long x, long y, double value) const {
 }
 
 void gammaplotter::set_newcut(long cut){
+	unsigned long x_begin = this->left();
+	unsigned long y_begin = this->top();
+	unsigned long x_size = this->width();
+	unsigned long y_size = this->height();
+
+
+	/* repaint old cut */
+	rectangle cut_rect(this->cut-10,y_begin,this->cut+50, y_begin+y_size);
+	parent.invalidate_rectangle(cut_rect);
+
 	this->cut = cut;
 	
-	/* repaint ! */
-	parent.invalidate_rectangle(rect);
+	/* repaint new cut */
+	cut_rect.left() = cut-10;
+	cut_rect.right() = cut+50;
+	parent.invalidate_rectangle(cut_rect);
 }
 
 void gammaplotter::set_K(int new_K){

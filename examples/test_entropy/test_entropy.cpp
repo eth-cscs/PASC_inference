@@ -119,7 +119,6 @@ int main( int argc, char *argv[] )
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
 	std::vector<std::string> Theta_list;
-	double Theta_solution[K*Km];
 	if(consoleArg.set_option_value("test_Theta", &Theta_list)){
 		given_Theta = true;
 		
@@ -128,13 +127,6 @@ int main( int argc, char *argv[] )
 			coutMaster << "number of provided Theta solutions is different then number of clusters! (you provided " << Theta_list.size() << " parameters)" << std::endl;
 			return 0;
 		}
-
-		/* parse strings to doubles */
-		if(!parse_strings_to_doubles(K,Km, Theta_list, Theta_solution) ){
-			coutMaster << "unable to parse input Theta values!" << std::endl;
-			return 0;
-		}
-
 	} else {
 		given_Theta = false;
 	}	
@@ -153,7 +145,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (dimension of data points)" << std::endl;
 	coutMaster << " test_Km                     = " << std::setw(30) << Km << " (number of moments)" << std::endl;
 	if(given_Theta){
-		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K,Km) << std::endl;
+		coutMaster << " test_Theta                  = " << std::setw(30) << print_bool(true) << std::endl;
 	}
 
 	coutMaster << " test_filename_in            = " << std::setw(30) << filename_in << " (name of input file with signal data)" << std::endl;
@@ -242,7 +234,19 @@ int main( int argc, char *argv[] )
 	if(printinfo) mysolver.print(coutMaster,coutAll);
 
 	/* set solution if obtained from console */
-	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
+	double *Theta_solution;
+	if(given_Theta){
+		int number_of_moments = mydata.get_thetavector()->size()/(double)K; /* number of moments in one cluster */
+
+		/* parse strings to doubles */
+		Theta_solution = new double[K*number_of_moments];
+		if(!parse_strings_to_doubles(K,number_of_moments, Theta_list, Theta_solution) ){
+			coutMaster << "unable to parse input Theta values!" << std::endl;
+			return 0;
+		}
+		
+		mysolver.set_solution_theta(Theta_solution);
+	}
 	
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr;
@@ -296,7 +300,7 @@ int main( int argc, char *argv[] )
 		if(saveall){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveSignal(oss.str(),false);
+			mydata.saveGamma(oss.str());
 			oss.str("");
 		}
 		
@@ -349,7 +353,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 	oss << filename_out;
-	mydata.saveSignal(oss.str(),false);
+	mydata.saveGamma(oss.str());
 	oss.str("");
 
 	/* print solution */

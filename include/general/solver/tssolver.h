@@ -784,7 +784,7 @@ void TSSolver<VectorBase>::set_solution_theta(double *Theta) {
 	}
 	TRYCXX(VecRestoreArray(tsdata->get_thetavector()->get_vector(), &theta_arr) );
 
-	this->thetasolved = true;
+//	this->thetasolved = true; // if this is turned on, then the residuum in theta step for gamma is not computed!
 	LOG_FUNC_END
 }
 

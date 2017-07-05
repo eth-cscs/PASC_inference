@@ -52,6 +52,34 @@ void SignalData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_
 }
 
 template<>
+void SignalData<PetscVector>::saveGamma(std::string filename) const{
+	LOG_FUNC_BEGIN
+
+	Timer timer_saveGamma; 
+	timer_saveGamma.restart();
+	timer_saveGamma.start();
+
+	std::ostringstream oss_name_of_file;
+
+	Vec gammasave_Vec;
+	this->decomposition->createGlobalVec_gamma(&gammasave_Vec);
+	GeneralVector<PetscVector> gammasave(gammasave_Vec);
+
+	/* save gamma */
+	oss_name_of_file << "results/" << filename << "_gamma.bin";
+	this->decomposition->permute_TRK(gammasave_Vec, gammavector->get_vector(), true);
+	gammasave.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	timer_saveGamma.stop();
+	coutAll <<  " - gamma saved in: " << timer_saveGamma.get_value_sum() << std::endl;
+	coutAll.synchronize();
+
+	LOG_FUNC_END
+
+}
+
+template<>
 void SignalData<PetscVector>::saveSignal(std::string filename, bool save_original) const{
 	LOG_FUNC_BEGIN
 
@@ -77,12 +105,6 @@ void SignalData<PetscVector>::saveSignal(std::string filename, bool save_origina
 		datasave.save_binary(oss_name_of_file.str());
 		oss_name_of_file.str("");
 	}
-
-	/* save gamma */
-	oss_name_of_file << "results/" << filename << "_gamma.bin";
-	this->decomposition->permute_TRK(gammasave_Vec, gammavector->get_vector(), true);
-	gammasave.save_binary(oss_name_of_file.str());
-	oss_name_of_file.str("");
 
 	/* compute recovered signal */
 	Vec gammak_Vec;
@@ -124,7 +146,7 @@ void SignalData<PetscVector>::saveSignal(std::string filename, bool save_origina
 //	TRYCXX( VecDestroy(&datasave_Vec) );
 
 	timer_saveSignal.stop();
-	coutAll <<  " - problem saved in: " << timer_saveSignal.get_value_sum() << std::endl;
+	coutAll <<  " - signal saved in: " << timer_saveSignal.get_value_sum() << std::endl;
 	coutAll.synchronize();
 
 	LOG_FUNC_END

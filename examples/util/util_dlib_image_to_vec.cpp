@@ -18,6 +18,7 @@
 #define DEFAULT_XDIM 1
 #define DEFAULT_TYPE 1
 #define DEFAULT_WIDTH -1
+#define DEFAULT_HEIGHT -1
 #define DEFAULT_NOISE 0.0
 #define DEFAULT_OUT_FILENAME "results/image_output.bin"
 
@@ -40,7 +41,8 @@ int main( int argc, char *argv[] )
 		("filename_in", boost::program_options::value< std::string >(), "input image [string]")
 		("filename_out", boost::program_options::value< std::string >(), "output vector in PETSc format [string]")
 		("xdim", boost::program_options::value< int >(), "number of values in every pixel [1=greyscale, 3=rgb]")
-		("new_width", boost::program_options::value< int >(), "width of new image [bool]")
+		("new_width", boost::program_options::value< int >(), "width of new image [int]")
+		("new_height", boost::program_options::value< int >(), "height of new image [int]")
 		("type", boost::program_options::value< int >(), "type of output vector [0=Rn, 1=nR]")
 		("noise", boost::program_options::value< double >(), "added noise [bool]");
 	consoleArg.get_description()->add(opt_problem);
@@ -54,7 +56,7 @@ int main( int argc, char *argv[] )
 	std::string filename_out;
 	int xdim;
 	int type;
-	int new_width;
+	int new_width, new_height;
 	double noise;
 
 	if(!consoleArg.set_option_value("filename_in", &filename_in)){
@@ -66,6 +68,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("new_width", &new_width, DEFAULT_WIDTH);
+	consoleArg.set_option_value("new_height", &new_height, DEFAULT_HEIGHT);
 	consoleArg.set_option_value("noise", &noise, DEFAULT_NOISE);
 
 	coutMaster << "- UTIL INFO ----------------------------" << std::endl;
@@ -74,21 +77,34 @@ int main( int argc, char *argv[] )
 	coutMaster << " xdim                   = " << std::setw(30) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " type                   = " << std::setw(30) << type << " (type of output vector [0=Rn, 1=nR])" << std::endl;
 	coutMaster << " new_width              = " << std::setw(30) << new_width << " (width of new image)" << std::endl;
+	coutMaster << " new_height             = " << std::setw(30) << new_height << " (height of new image)" << std::endl;
 	coutMaster << " noise                  = " << std::setw(30) << noise << " (added noise)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 	array2d<rgb_pixel> *image_dlib;
 
 	/* rescale image */
-	if(new_width > 1){
+	if(new_width > 1 || new_height > 1){
 		/* open image */
 		array2d<rgb_pixel> image_orig;
 		load_image(image_orig, filename_in);
 		
 		int width_orig = image_orig.nc();
 		int height_orig = image_orig.nr();
+
+		int width_scaled = new_width;
+		int height_scaled = new_height;
 		
-		image_dlib = new array2d<rgb_pixel>(new_width, height_orig*new_width/(double)width_orig);
+		if(width_scaled <= 0){
+			width_scaled = width_orig*new_height/(double)height_orig;
+		}
+
+		if(height_scaled <= 0){
+			height_scaled = height_orig*new_width/(double)width_orig;
+		}
+		
+		/* scale image */
+		image_dlib = new array2d<rgb_pixel>(height_scaled, width_scaled);
 		resize_image(image_orig, *image_dlib);
 
 		coutMaster << " orig_width             = " << std::setw(30) << width_orig << " px" << std::endl;

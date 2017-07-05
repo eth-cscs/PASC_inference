@@ -38,6 +38,7 @@ class SignalData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
+		void saveGamma(std::string filename) const;
 		void saveSignal(std::string filename, bool save_original=true) const;
 
 		int get_Tpreliminary() const;
@@ -254,6 +255,15 @@ void SignalData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOu
 template<class VectorBase>
 std::string SignalData<VectorBase>::get_name() const {
 	return "Signal Time-series Data";
+}
+
+template<class VectorBase>
+void SignalData<VectorBase>::saveGamma(std::string filename) const{
+	LOG_FUNC_BEGIN
+	
+	//TODO
+	
+	LOG_FUNC_END
 }
 
 template<class VectorBase>

@@ -31,6 +31,11 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 		double integration_eps;
 		int integration_type;
 
+		int integration_mineval;
+		int integration_maxeval;
+		int integration_nstart;
+		int integration_nincrease;
+
 		column_vector cLM;
 		column_vector cgrad;
 		double cF;
@@ -86,7 +91,7 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				
 				bool debug_print_integration;
 				
-				Integrator(int integration_type, int ndim, int ncomp, bool debug_print_integration = false);
+				Integrator(int integration_type, int ndim, int ncomp, int integration_mineval, int integration_maxeval, int integration_nstart, int integration_nincrease, bool debug_print_integration = false);
 				~Integrator();
 
 				//four methods of integration implemented in CUBA library,
@@ -117,7 +122,7 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				void Copy(ExtraParameters& _ExtraParameters);			
 		};
 
-		ExternalContent(double new_integration_eps, int integration_type=0, bool debug_print_content = false, bool debug_print_integration = false);
+		ExternalContent(double new_integration_eps, int integration_type, int integration_mineval, int integration_maxeval, int integration_nstart, int integration_nincrease, bool debug_print_content = false, bool debug_print_integration = false);
 		double gg(double y, int order, const column_vector& LM);
 		double get_functions_obj(const column_vector& _LM, const column_vector& _Mom, double eps, int k, const dlib::matrix<double>& mom_powers);
 		column_vector get_functions_grad(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);
