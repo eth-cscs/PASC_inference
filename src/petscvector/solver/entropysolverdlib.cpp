@@ -39,7 +39,7 @@ EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_
 	this->moments = new GeneralVector<PetscVector>(moments_Vec);
 
 	/* prepare external content with PETSc-DLIB stuff */
-	externalcontent = new ExternalContent(this->integration_eps, this->integration_type, this->debug_print_content);
+	externalcontent = new ExternalContent(this->integration_eps, this->integration_type, this->debug_print_content, this->debug_print_integration);
 
 	/* prepare and compute auxiliary array of powers */
 	// TODO: aaaah! bottleneck, maybe can be performed in different way (I hope so)
@@ -452,11 +452,12 @@ double EntropySolverDlib<PetscVector>::get_integration_time() const {
 
 /* -------------- External content -------------- */
 
-EntropySolverDlib<PetscVector>::ExternalContent::ExternalContent(double new_integration_eps, int integration_type, bool debug_print_content) {
+EntropySolverDlib<PetscVector>::ExternalContent::ExternalContent(double new_integration_eps, int integration_type, bool debug_print_content, bool debug_print_integration) {
 	this->integration_eps = new_integration_eps;
 	this->integration_time = 0.0;
 	this->integration_type = integration_type;
 	this->debug_print_content = debug_print_content;
+	this->debug_print_integration = debug_print_integration;
 }
 
 double EntropySolverDlib<PetscVector>::ExternalContent::gg(double y, int order, const column_vector& LM){
@@ -487,10 +488,10 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
     
 	int number_of_integrals = 1 + n + (int)(0.5*n*(n+1));
 
-	Integrator integrator(this->integration_type, D.nc(), number_of_integrals);
+	Integrator integrator(this->integration_type, D.nc(), number_of_integrals, this->debug_print_integration);
 
 	/* setting to compute normalization constant */
-	ExtraParameters xp(k, Mom, LM, 0.0, 0.0, D, 0, 0);
+	ExtraParameters xp(Mom, LM, D, 0.0);
 	integrator.USERDATA = &xp;
 
 	cubareal *computed_integrals;
@@ -576,39 +577,24 @@ template<> EntropySolverDlib<PetscVector>::ExternalContent * EntropySolverDlib<P
 
 /* ------------ ExtraParameters ----------------- */
 EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::ExtraParameters(){
-    k = 0;
     D = 0.0;
     eps= 0.0;
     Mom = 0.0;
-    type = 0;
     LM = 0.0;
-    L0 = 0.0;
-    order = 0;
-    order2 = 0;
 }
 
-EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::ExtraParameters(int _k, column_vector _Mom, column_vector _LM, double _L0, double _eps, dlib::matrix<double> _D, int _type, int _order){
-    k = _k;
+EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::ExtraParameters(column_vector _Mom, column_vector _LM, dlib::matrix<double> _D, double _eps){
     Mom = _Mom;
     LM = _LM;
-    L0 = _L0;
     eps = _eps;
     D = _D;
-    type = _type;
-    order = _order;
-    order2 = _order;
 }
 
 void EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::Copy(ExtraParameters &_ExtraParameters){
-    k = _ExtraParameters.k;
     Mom = _ExtraParameters.Mom;
     eps = _ExtraParameters.eps;
     D = _ExtraParameters.D;
-    type = _ExtraParameters.type;
     LM = _ExtraParameters.LM;
-    L0 = _ExtraParameters.L0;
-    order = _ExtraParameters.order;
-    order2 = _ExtraParameters.order2;
 }
 
 EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::~ExtraParameters(){
@@ -618,18 +604,12 @@ EntropySolverDlib<PetscVector>::ExternalContent::ExtraParameters::~ExtraParamete
 /* ------------ Integrator ----------------- */
 int EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrand(const int *ndim, const cubareal xx[],
                      const int *ncomp, cubareal ff2[], void *userdata) {
-    
-
-    //double p1 = xx[0];
-    //double p2 = xx[1];
-    //double p3 = xx[2];
 
     ExtraParameters* xp = (ExtraParameters*)userdata;
     dlib::matrix<double> D = xp->D;
     long d = D.nc();
     long n = D.nr();
 
-//    int type = xp->type;
     column_vector LM = xp->LM;
 
     double V = 0.0;
@@ -672,50 +652,51 @@ int EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrand(const
     return 0;
 }
 
-EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator(int integration_type, int ndim, int ncomp)
-{
-    //all this paramterers are from example file demo-c.c
-    NDIM = ndim; 
-    NCOMP = ncomp;
-    NVEC = 1;
-    EPSREL = 1e-12;//1e-3;
-    EPSABS = 1e-12;
-    VERBOSE = 0; //log output
-    LAST = 4;
-    SEED = 0;
-    MINEVAL = 0;
-    MAXEVAL = 50000;
-    NSTART = 1000;
-    NINCREASE = 500;
-    NBATCH = 1000;
-    GRIDNO = 0;
-    STATEFILE = NULL;
-    SPIN = NULL;
-    NNEW = 1000;
-    NMIN = 2;
-    FLATNESS = 25.0;
-    USERDATA = NULL; //this is to pass extra parameters to integral
+EntropySolverDlib<PetscVector>::ExternalContent::Integrator::Integrator(int integration_type, int ndim, int ncomp, bool debug_print_integration){
+	//all this paramterers are from example file demo-c.c
+	NDIM = ndim; 
+	NCOMP = ncomp;
+	NVEC = 1;
+	EPSREL = 1e-12;//1e-3;
+	EPSABS = 1e-12;
+	VERBOSE = 0; //log output
+	LAST = 4;
+	SEED = 0;
+	MINEVAL = 0;
+	MAXEVAL = 5e4;//50000;
+	NSTART = 1e4;//1000;
+	NINCREASE = 1e4;//500;
+	NBATCH = 1000;
+	GRIDNO = 0;
+	STATEFILE = NULL;
+	SPIN = NULL;
+	NNEW = 1000;
+	NMIN = 2;
+	FLATNESS = 25.0;
+	USERDATA = NULL; //this is to pass extra parameters to integral
     
-    KEY1 = 47;
-    KEY2 = 1;
-    KEY3 = 1;
-    MAXPASS = 5;
-    BORDER = 0.0;
-    MAXCHISQ = 10.0;
-    MINDEVIATION = 0.25;
-    NGIVEN = 0;
-    LDXGIVEN = NDIM;
-    NEXTRA = 0;
+	KEY1 = 47;
+	KEY2 = 1;
+	KEY3 = 1;
+	MAXPASS = 5;
+	BORDER = 0.0;
+	MAXCHISQ = 10.0;
+	MINDEVIATION = 0.25;
+	NGIVEN = 0;
+	LDXGIVEN = NDIM;
+	NEXTRA = 0;
     
-    KEY = 0;
+	KEY = 0;
+
+	this->integration_type = integration_type;
+	this->integral = new cubareal[ncomp];
+	this->error = new cubareal[ncomp];
+	this->prob = new cubareal[ncomp];
     
-    this->integration_type = integration_type;
-    this->integral = new cubareal[ncomp];
-    this->error = new cubareal[ncomp];
-    this->prob = new cubareal[ncomp];
+	this->debug_print_integration = debug_print_integration;
     
-    /* restart timer */
-    timer.restart();
+	/* restart timer */
+	timer.restart();
 }
 
 double EntropySolverDlib<PetscVector>::ExternalContent::Integrator::get_time() const {
@@ -733,10 +714,9 @@ cubareal* EntropySolverDlib<PetscVector>::ExternalContent::Integrator::compute()
 }
 
 void EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeVegas(){
-    //printf("-------------------- Vegas test --------------------\n");
 
 	timer.start();
-    
+
     Vegas(NDIM, NCOMP, Integrand, USERDATA, NVEC,
           EPSREL, EPSABS, VERBOSE, SEED,
           MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
@@ -745,11 +725,14 @@ void EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeVegas()
 
 	timer.stop();
     
-    //printf("VEGAS RESULT:\tneval %d\tfail %d\n",
-    //       neval, fail);
-    //for( comp = 0; comp < NCOMP; ++comp )
-    //    printf("VEGAS RESULT:\t%.8f +- %.8f\tp = %.3f\n",
-    //           (double)integral[comp], (double)error[comp], (double)prob[comp]);
+    if(this->debug_print_integration){
+		coutMaster << "VEGAS RESULT: " << neval << " neval," << fail << " fail" << std::endl;
+		for(int comp = 0; comp < NCOMP; comp++ ){
+			coutMaster.push();
+            coutMaster << "value: " << (double)integral[comp] << ", error: " << (double)error[comp] << ", prob: " << (double)prob[comp] << std::endl;
+			coutMaster.pop();
+		}
+	}
 }
 
 void EntropySolverDlib<PetscVector>::ExternalContent::Integrator::computeSuave(){

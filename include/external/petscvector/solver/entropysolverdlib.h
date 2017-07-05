@@ -38,19 +38,21 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 		dlib::matrix<double> chess;
 
 		bool debug_print_content;
+		bool debug_print_integration;
+
 	public:
 		class Integrator {
 			public:
 				int NDIM; 		/**< number of dimensions of integral */
 				int NCOMP;		/**< number of components of the integrand */
-				int NVEC;
-				double EPSREL;
-				double EPSABS;
+				int NVEC;	
+				double EPSREL;	/**< requested relative accuracy */
+				double EPSABS;	/**< requested absolute accuracy */
 				int VERBOSE; //log output
 				int LAST;
 				int SEED;
-				int MINEVAL;
-				int MAXEVAL;
+				int MINEVAL;	/**< minimum number of integrand evaluations */
+				int MAXEVAL;	/**< maximum number of integrand evaluations allowed */
 				int NSTART;
 				int NINCREASE;
 				int NBATCH;
@@ -82,7 +84,9 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 				cubareal *error;
 				cubareal *prob;
 				
-				Integrator(int integration_type, int ndim, int ncomp);
+				bool debug_print_integration;
+				
+				Integrator(int integration_type, int ndim, int ncomp, bool debug_print_integration = false);
 				~Integrator();
 
 				//four methods of integration implemented in CUBA library,
@@ -102,23 +106,18 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 		
 		class ExtraParameters {
 			public:
-				int k;
 				column_vector Mom;
 				column_vector LM;
-				double L0;
 				double eps;
 				dlib::matrix<double> D;
-				int type; /* type of integrant =0,1,2,3 */
-				int order; /* row of D matrix */
-				int order2;
-    
+
 				ExtraParameters();
-				ExtraParameters(int _k, column_vector _Mom, column_vector _LM, double _L0, double _eps, dlib::matrix<double> _D, int _type, int _order);
+				ExtraParameters(column_vector _Mom, column_vector _LM, dlib::matrix<double> _D, double _eps);
 				~ExtraParameters();
 				void Copy(ExtraParameters& _ExtraParameters);			
 		};
 
-		ExternalContent(double new_integration_eps, int integration_type=0, bool debug_print_content = false);
+		ExternalContent(double new_integration_eps, int integration_type=0, bool debug_print_content = false, bool debug_print_integration = false);
 		double gg(double y, int order, const column_vector& LM);
 		double get_functions_obj(const column_vector& _LM, const column_vector& _Mom, double eps, int k, const dlib::matrix<double>& mom_powers);
 		column_vector get_functions_grad(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);

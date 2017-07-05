@@ -45,9 +45,9 @@ int main( int argc, char *argv[] )
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT]")
 		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
-		("test_image_in", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
-		("test_image_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
-		("test_image_solution", boost::program_options::value< std::string >(), "name of input file with original image data without noise (vector in PETSc format) [string]")
+		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
+		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
+		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original image data without noise (vector in PETSc format) [string]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
@@ -87,9 +87,9 @@ int main( int argc, char *argv[] )
 	double fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, graph_save, saveall, saveresult;
 
-	std::string image_in;
-	std::string image_out;
-	std::string image_solution;
+	std::string filename_in;
+	std::string filename_out;
+	std::string filename_solution;
 	std::string shortinfo_filename;
 	std::string shortinfo_header;
 	std::string shortinfo_values;
@@ -107,8 +107,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_printstats", &printstats, DEFAULT_PRINTSTATS);
 	consoleArg.set_option_value("test_printinfo", &printinfo, DEFAULT_PRINTINFO);
 	consoleArg.set_option_value("test_annealing", &annealing, DEFAULT_ANNEALING);
-	consoleArg.set_option_value("test_image_in", &image_in, DEFAULT_IMAGE_IN);
-	consoleArg.set_option_value("test_image_out", &image_out, DEFAULT_IMAGE_OUT);
+	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_IMAGE_IN);
+	consoleArg.set_option_value("test_filename_out", &filename_out, DEFAULT_IMAGE_OUT);
 	consoleArg.set_option_value("test_saveall", &saveall, DEFAULT_SAVEALL);
 	consoleArg.set_option_value("test_saveresult", &saveresult, DEFAULT_SAVERESULT);
 	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, DEFAULT_SHORTINFO);
@@ -118,12 +118,12 @@ int main( int argc, char *argv[] )
 
 	/* maybe solution is given */
 	bool given_solution;
-	if(!consoleArg.set_option_value("test_image_solution", &image_solution)){
+	if(!consoleArg.set_option_value("test_filename_solution", &filename_solution)){
 		given_solution=false;
 
 		/* maybe we run program with default values */
-		if(image_in == DEFAULT_IMAGE_IN){
-			image_solution = DEFAULT_IMAGE_SOLUTION;
+		if(filename_in == DEFAULT_IMAGE_IN){
+			filename_solution = DEFAULT_IMAGE_SOLUTION;
 			given_solution=true;
 		}
 	} else {
@@ -161,12 +161,12 @@ int main( int argc, char *argv[] )
 	coutMaster << " computing on CPU" << std::endl;
 #endif
 	coutMaster << " DDR_size                    = " << std::setw(50) << DDR_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_image_in               = " << std::setw(50) << image_in << " (name of input file with image data)" << std::endl;
-	coutMaster << " test_image_out              = " << std::setw(50) << image_out << " (part of name of output file)" << std::endl;
+	coutMaster << " test_filename_in            = " << std::setw(50) << filename_in << " (name of input file with image data)" << std::endl;
+	coutMaster << " test_filename_out           = " << std::setw(50) << filename_out << " (part of name of output file)" << std::endl;
 	if(given_solution){
-		coutMaster << " test_image_solution         = " << std::setw(50) << image_solution << " (name of input file with original image data without noise)" << std::endl;
+		coutMaster << " test_filename_solution      = " << std::setw(50) << filename_solution << " (name of input file with original image data without noise)" << std::endl;
 	} else {
-		coutMaster << " test_image_solution         = " << std::setw(50) << "NO" << " (name of input file with original image data without noise)" << std::endl;
+		coutMaster << " test_filename_solution      = " << std::setw(50) << "NO" << " (name of input file with original image data without noise)" << std::endl;
 	}
 	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of image)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of image)" << std::endl;
@@ -198,7 +198,7 @@ int main( int argc, char *argv[] )
 
 	/* start logging */
 	std::ostringstream oss;
-	oss << "log/" << image_out << ".txt";
+	oss << "log/" << filename_out << ".txt";
 	logging.begin(oss.str());
 	oss.str("");
 
@@ -234,7 +234,7 @@ int main( int argc, char *argv[] )
 
 	if(graph_save){
 		/* save decoposed graph to see if space (graph) decomposition is working */
-		oss << "results/" << image_out << "_graph.vtk";
+		oss << "results/" << filename_out << "_graph.vtk";
 		graph->saveVTK(oss.str());
 		oss.str("");
 	}
@@ -243,7 +243,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	
 	/* load data from file and store it subject to decomposition */
-	ImageData<PetscVector> mydata(decomposition, image_in, width, height);
+	ImageData<PetscVector> mydata(decomposition, filename_in, width, height);
 	
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
@@ -259,7 +259,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
-		solution.load_global(image_solution);
+		solution.load_global(filename_solution);
 		decomposition.permute_TRxdim(solution.get_vector(), solution_Vec_preload,false);
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
@@ -362,7 +362,7 @@ int main( int argc, char *argv[] )
 		/* store obtained solution */
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-			oss << image_out << "_epssqr" << epssqr;
+			oss << filename_out << "_epssqr" << epssqr;
 			mydata.saveImage(oss.str(),false);
 			oss.str("");
 		}
@@ -394,7 +394,7 @@ int main( int argc, char *argv[] )
 		}
 	
 		/* if this solution is better then previous, then store it */
-		if(abserr < abserr_best){
+		if(abserr < abserr_best || depth == 0){
 			L_best = L;
 			abserr_best = abserr;
 			epssqr_best = epssqr;
@@ -412,7 +412,7 @@ int main( int argc, char *argv[] )
 	if(saveresult && !saveall){
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
-		oss << image_out;
+		oss << filename_out;
 		mydata.saveImage(oss.str(),false);
 		oss.str("");
 	}

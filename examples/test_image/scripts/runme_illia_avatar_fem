@@ -12,7 +12,7 @@ FEM_REDUCE=1
 ./util_dlib_image_to_vec --in_filename=data/test_image/illia_avatar.jpg --out_filename=data/test_image/illia_avatar_color_data.bin --noise=$NOISE --new_width=$MYTESTSIZE --xdim=$XDIM
 
 # define parameters
-PARAM_FILENAME="--test_image_in=data/test_image/illia_avatar_color_data.bin --test_image_solution=data/test_image/illia_avatar_color_solution.bin --test_image_out=illia_avatar_color --test_width=$MYTESTSIZE --test_height=$MYTESTSIZE --test_xdim=$XDIM"
+PARAM_FILENAME="--test_filename_in=data/test_image/illia_avatar_color_data.bin --test_filename_solution=data/test_image/illia_avatar_color_solution.bin --test_filename_out=illia_avatar_color --test_width=$MYTESTSIZE --test_height=$MYTESTSIZE --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 #PARAM_THETA="--test_Theta=0.0 --test_Theta=0.25 --test_Theta=0.5 --test_Theta=0.75 --test_Theta=1.0"
 PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=3"

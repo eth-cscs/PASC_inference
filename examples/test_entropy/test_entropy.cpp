@@ -330,9 +330,9 @@ int main( int argc, char *argv[] )
 			oss_short_output_header.str("");
 			oss_short_output_values.str("");
 		}
-	
+
 		/* if this solution is better then previous, then store it */
-		if(L < L_best){
+		if(L < L_best || depth == 0){
 			L_best = L;
 			epssqr_best = epssqr;
 			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));

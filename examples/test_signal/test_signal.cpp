@@ -19,7 +19,7 @@
 #define DEFAULT_FEM_REDUCE 1.0
 #define DEFAULT_SIGNAL_IN "data/test_signal/samplesignal.bin"
 #define DEFAULT_SIGNAL_OUT "samplesignal"
-#define DEFAULT_SIGNAL_SOLUTION "data/test_signal/samplesignal_solution.bin"
+#define DEFAULT_SIGNAL_SOLUTION "data/test_signal/samplefilename_solution.bin"
 #define DEFAULT_ANNEALING 1
 #define DEFAULT_CUTGAMMA false 
 #define DEFAULT_SCALEDATA false 
@@ -42,10 +42,10 @@ int main( int argc, char *argv[] )
 		("test_xdim", boost::program_options::value<int>(), "dimension of data points [int]")
 		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [0=FEM_SUM/1=FEM_HAT]")
 		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
-		("test_signal_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
-		("test_signal_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
-		("test_signal_solution", boost::program_options::value< std::string >(), "name of input file with original signal data without noise (vector in PETSc format) [string]")
-		("test_signal_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
+		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
+		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
+		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original signal data without noise (vector in PETSc format) [string]")
+		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to set {0;1} [bool]")
@@ -89,10 +89,10 @@ int main( int argc, char *argv[] )
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 	double fem_reduce;
 
-	std::string signal_in;
-	std::string signal_out;
-	std::string signal_solution;
-	std::string signal_gamma0;
+	std::string filename_in;
+	std::string filename_out;
+	std::string filename_solution;
+	std::string filename_gamma0;
 	std::string shortinfo_filename;
 	std::string shortinfo_header;
 	std::string shortinfo_values;
@@ -101,8 +101,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_fem_type", &fem_type, DEFAULT_FEM_TYPE);
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, DEFAULT_FEM_REDUCE);
-	consoleArg.set_option_value("test_signal_in", &signal_in, DEFAULT_SIGNAL_IN);
-	consoleArg.set_option_value("test_signal_out", &signal_out,DEFAULT_SIGNAL_OUT);
+	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_SIGNAL_IN);
+	consoleArg.set_option_value("test_filename_out", &filename_out,DEFAULT_SIGNAL_OUT);
 	consoleArg.set_option_value("test_annealing", &annealing, DEFAULT_ANNEALING);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
 	consoleArg.set_option_value("test_scaledata", &scaledata, DEFAULT_SCALEDATA);
@@ -118,12 +118,12 @@ int main( int argc, char *argv[] )
 
 	/* maybe solution is given */
 	bool given_solution;
-	if(!consoleArg.set_option_value("test_signal_solution", &signal_solution)){
+	if(!consoleArg.set_option_value("test_filename_solution", &filename_solution)){
 		given_solution=false;
 
 		/* maybe we run program with default values */
-		if(signal_in == DEFAULT_SIGNAL_IN){
-			signal_solution = DEFAULT_SIGNAL_SOLUTION;
+		if(filename_in == DEFAULT_SIGNAL_IN){
+			filename_solution = DEFAULT_SIGNAL_SOLUTION;
 			given_solution=true;
 		}
 	} else {
@@ -132,7 +132,7 @@ int main( int argc, char *argv[] )
 
 	/* maybe gamma0 is given in console parameters */
 	bool given_gamma0;
-	if(consoleArg.set_option_value("test_signal_gamma0", &signal_gamma0)){
+	if(consoleArg.set_option_value("test_filename_gamma0", &filename_gamma0)){
 		given_gamma0 = true;
 	} else {
 		given_gamma0 = false;
@@ -179,17 +179,17 @@ int main( int argc, char *argv[] )
 	}
 	coutMaster << " test_fem_type               = " << std::setw(30) << fem_type << " (type of used FEM to reduce problem [0=FEM_SUM/1=FEM_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce             = " << std::setw(30) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
-	coutMaster << " test_signal_in              = " << std::setw(30) << signal_in << " (name of input file with signal data)" << std::endl;
-	coutMaster << " test_signal_out             = " << std::setw(30) << signal_out << " (name of output file with filtered signal data)" << std::endl;
+	coutMaster << " test_filename_in            = " << std::setw(30) << filename_in << " (name of input file with signal data)" << std::endl;
+	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)" << std::endl;
 	if(given_solution){
-		coutMaster << " test_signal_solution        = " << std::setw(30) << signal_solution << " (name of input file with original signal data without noise)" << std::endl;
+		coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)" << std::endl;
 	} else {
-		coutMaster << " test_signal_solution        = " << std::setw(30) << "NO" << " (name of input file with original signal data without noise)" << std::endl;
+		coutMaster << " test_filename_solution      = " << std::setw(30) << "NO" << " (name of input file with original signal data without noise)" << std::endl;
 	}
 	if(given_gamma0){
-		coutMaster << " test_signal_gamma0          = " << std::setw(30) << signal_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
 	} else {
-		coutMaster << " test_signal_gamma0          = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
 	}
 	coutMaster << " test_saveall                = " << std::setw(30) << print_bool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
 	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
@@ -210,7 +210,7 @@ int main( int argc, char *argv[] )
 
 	/* start logging */
 	std::ostringstream oss;
-	oss << "log/" << signal_out << ".txt";
+	oss << "log/" << filename_out << ".txt";
 	logging.begin(oss.str());
 	oss.str("");
 
@@ -226,7 +226,7 @@ int main( int argc, char *argv[] )
 
 /* 1.) prepare preliminary time-series data (to get the size of the problem T) */
 	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
-	SignalData<PetscVector> mydata(signal_in);
+	SignalData<PetscVector> mydata(filename_in);
 
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
@@ -255,7 +255,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
-		solution.load_global(signal_solution);
+		solution.load_global(filename_solution);
 		decomposition.permute_TRxdim(solution.get_vector(), solution_Vec_preload,false);
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
@@ -288,7 +288,7 @@ int main( int argc, char *argv[] )
 	/* if gamma0 is provided, then load it */
 	if(given_gamma0){
 		coutMaster << " - loading and setting gamma0" << std::endl;
-		mydata.load_gammavector(signal_gamma0);
+		mydata.load_gammavector(filename_gamma0);
 	}
 
 	/* print info about solver */
@@ -366,7 +366,7 @@ int main( int argc, char *argv[] )
 		/* store obtained solution */
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-			oss << signal_out << "_epssqr" << epssqr;
+			oss << filename_out << "_epssqr" << epssqr;
 			mydata.saveSignal(oss.str(),false);
 			oss.str("");
 		}
@@ -399,7 +399,7 @@ int main( int argc, char *argv[] )
 		}
 	
 		/* if L of this solution is better then previous, then store it */
-		if(L < L_best){
+		if(L < L_best || depth == 0){
 			L_best = L;
 			abserr_best = abserr;
 			epssqr_best = epssqr;
@@ -417,7 +417,7 @@ int main( int argc, char *argv[] )
 	if(saveresult && !saveall){
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
-		oss << signal_out;
+		oss << filename_out;
 		mydata.saveSignal(oss.str(),false);
 		oss.str("");
 	}

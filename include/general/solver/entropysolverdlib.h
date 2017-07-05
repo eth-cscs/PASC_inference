@@ -50,10 +50,11 @@ class EntropySolverDlib: public GeneralSolver {
 		int integration_type;	/**< integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre] */
 
 		/* debug */
-		int debugmode;				/**< basic debug mode schema [0/1/2] */
-		bool debug_print_it;		/**< print simple info about outer iterations */
-		bool debug_print_moments;	/**< print moments during iterations */
-		bool debug_print_content;	/**< print variables during optimization */
+		int debugmode;					/**< basic debug mode schema [0/1/2] */
+		bool debug_print_it;			/**< print simple info about outer iterations */
+		bool debug_print_moments;		/**< print moments during iterations */
+		bool debug_print_content;		/**< print variables during optimization */
+		bool debug_print_integration;	/**< print CUBA integration output */
 		
 		std::string get_integration_type_name(int integration_type) const;
 	public:
@@ -117,6 +118,7 @@ void EntropySolverDlib<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolverdlib_debug_print_it",		&debug_print_it, debug_print_it);
 	consoleArg.set_option_value("entropysolverdlib_debug_print_moments",&debug_print_moments, debug_print_moments);
 	consoleArg.set_option_value("entropysolverdlib_debug_print_content",&debug_print_content, debug_print_content);
+	consoleArg.set_option_value("entropysolverdlib_debug_print_integration",&debug_print_integration, debug_print_integration);
 
 }
 
@@ -195,17 +197,21 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output <<  " - maxit             : " << this->maxit << std::endl;
-	output <<  " - eps               : " << this->eps << std::endl;
-	output <<  " - integration_eps   : " << this->integration_eps << std::endl;
-	output <<  " - integration_type  : " << get_integration_type_name(this->integration_type) << std::endl;
+	output <<  " - maxit                   : " << this->maxit << std::endl;
+	output <<  " - eps                     : " << this->eps << std::endl;
+	output <<  " - integration_eps         : " << this->integration_eps << std::endl;
+	output <<  " - integration_type        : " << get_integration_type_name(this->integration_type) << std::endl;
 	
-	output <<  " - xdim              : " << this->get_xdim() << std::endl;
-	output <<  " - K                 : " << this->get_K() << std::endl;
-	output <<  " - Km                : " << this->get_Km() << std::endl;
-	output <<  " - number_of_moments : " << this->get_number_of_moments() << std::endl;
+	output <<  " - xdim                    : " << this->get_xdim() << std::endl;
+	output <<  " - K                       : " << this->get_K() << std::endl;
+	output <<  " - Km                      : " << this->get_Km() << std::endl;
+	output <<  " - number_of_moments       : " << this->get_number_of_moments() << std::endl;
 
-	output <<  " - debugmode         : " << this->debugmode << std::endl;
+	output <<  " - debugmode               : " << this->debugmode << std::endl;
+	output <<  " - debug_print_it          : " << print_bool(this->debug_print_it) << std::endl;
+	output <<  " - debug_print_moments     : " << print_bool(this->debug_print_moments) << std::endl;
+	output <<  " - debug_print_content     : " << print_bool(this->debug_print_content) << std::endl;
+	output <<  " - debug_print_integration : " << print_bool(this->debug_print_integration) << std::endl;
 
 	/* print data */
 	if(entropydata){
@@ -225,17 +231,21 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	output_global <<  this->get_name() << std::endl;
 	
 	/* print settings */
-	output_global <<  " - maxit             : " << this->maxit << std::endl;
-	output_global <<  " - eps               : " << this->eps << std::endl;
-	output_global <<  " - integration_eps   : " << this->integration_eps << std::endl;
-	output_global <<  " - integration_type  : " << get_integration_type_name(this->integration_type) << std::endl;
+	output_global <<  " - maxit                   : " << this->maxit << std::endl;
+	output_global <<  " - eps                     : " << this->eps << std::endl;
+	output_global <<  " - integration_eps         : " << this->integration_eps << std::endl;
+	output_global <<  " - integration_type        : " << get_integration_type_name(this->integration_type) << std::endl;
 
-	output_global <<  " - xdim              : " << this->get_xdim() << std::endl;
-	output_global <<  " - K                 : " << this->get_K() << std::endl;
-	output_global <<  " - Km                : " << this->get_Km() << std::endl;
-	output_global <<  " - number_of_moments : " << this->get_number_of_moments() << std::endl;
+	output_global <<  " - xdim                    : " << this->get_xdim() << std::endl;
+	output_global <<  " - K                       : " << this->get_K() << std::endl;
+	output_global <<  " - Km                      : " << this->get_Km() << std::endl;
+	output_global <<  " - number_of_moments       : " << this->get_number_of_moments() << std::endl;
 
-	output_global <<  " - debugmode         : " << this->debugmode << std::endl;
+	output_global <<  " - debugmode               : " << this->debugmode << std::endl;
+	output_global <<  " - debug_print_it          : " << print_bool(this->debug_print_it) << std::endl;
+	output_global <<  " - debug_print_moments     : " << print_bool(this->debug_print_moments) << std::endl;
+	output_global <<  " - debug_print_content     : " << print_bool(this->debug_print_content) << std::endl;
+	output_global <<  " - debug_print_integration : " << print_bool(this->debug_print_integration) << std::endl;
 
 	/* print data */
 	if(entropydata){

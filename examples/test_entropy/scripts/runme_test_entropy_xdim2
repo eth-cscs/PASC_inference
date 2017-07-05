@@ -10,16 +10,16 @@ KM=2
 ./util_csv_to_vec --filename_in=$NAME --filename_out "data/test_entropy/sample_data.bin" --T=$T --xdim=$XDIM --print=false --permute=false
 
 PARAM_BASIC="--test_K=$K --test_Km=$KM --test_filename_in=data/test_entropy/sample_data.bin --test_annealing=1 --test_scaledata=true --test_xdim=$XDIM"
-#PARAM_GAMMA0="--test_filename_gamma0=data/test_entropy/data2_y_gamma0.bin"
-PARAM_GAMMA0=""
-PARAM_EPSSQR="--test_epssqr=2e1"
+PARAM_GAMMA0="--test_filename_gamma0=data/test_entropy/test_gamma.bin"
+#PARAM_GAMMA0=""
+PARAM_EPSSQR="--test_epssqr=1e1"
 #PARAM_EPSSQR="--test_epssqr=1e-1 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5"
 PARAM_PRINT="--test_printstats=true --test_printinfo=true"
 PARAM_THETA="" #--test_Theta
 PARAM_SHORTINFO="--test_shortinfo=true" # --test_shortinfo_header --test_shortinfo_values --test_shortinfo_filename
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_TSSOLVER="--tssolver_maxit=50 --tssolver_init_permute=true"
+PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_init_permute=true"
 PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=true --tssolver_debug_print_annealing=true --tssolver_eps=1e-4"
  
 PARAM_QPSOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
@@ -27,7 +27,7 @@ PARAM_QPSOLVER_PRINT="--spgqpsolver_debug_print_it=false"
 
 PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=1"
 PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=100  --entropysolverdlib_eps=1e-8 --entropysolverdlib_integration_eps=1e-8 --entropysolverdlib_integration_type=0"
-PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true --entropysolverdlib_debug_print_content=false "
+PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true --entropysolverdlib_debug_print_content=false --entropysolverdlib_debug_print_integration=false"
 
 #PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=2"
 #PARAM_ENTROPYSOLVER2="--entropysolvernewton_maxit=20 --entropysolvernewton_eps=1e-6 --entropysolvernewton_integration_eps=1e-8 --entropysolvernewton_newton_coeff=0.9 --entropysolvernewton_integrationtype=1"

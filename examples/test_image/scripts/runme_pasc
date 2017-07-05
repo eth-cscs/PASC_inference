@@ -12,7 +12,7 @@ K=2
 ./util_dlib_image_to_vec --filename_in=data/test_image/pasc_300_120.jpg --filename_out=data/test_image/pasc_300_120_data.bin --noise=$NOISE --xdim=1 --new_width=-1
 
 # define parameters
-PARAM_FILENAME="--test_image_in=data/test_image/pasc_300_120_data.bin --test_image_solution=data/test_image/pasc_300_120_solution.bin --test_image_out=pasc_300_120 --test_width=$WIDTH --test_height=$HEIGHT --test_xdim=$XDIM"
+PARAM_FILENAME="--test_filename_in=data/test_image/pasc_300_120_data.bin --test_filename_solution=data/test_image/pasc_300_120_solution.bin --test_filename_out=pasc_300_120 --test_width=$WIDTH --test_height=$HEIGHT --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 #PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
 PARAM_THETA="--test_Theta=0.5 --test_Theta=0.45"

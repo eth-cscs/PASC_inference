@@ -696,7 +696,7 @@ void TSSolver<VectorBase>::solve() {
 		}
 	}
 	coutMaster.pop();
-		
+	
 	/* destroy temp vectors for gamma and theta if there is more annealing steps */
 	if(annealing > 1){
 		*(tsdata->get_gammavector()) = *gammavector_temp;

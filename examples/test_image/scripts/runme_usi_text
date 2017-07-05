@@ -1,6 +1,6 @@
 #!/bin/bash   
 
-PARAM_FILENAME="--test_image_in=data/test_image/usi_text/usi_250_150_04.bin --test_image_solution=data/test_image/usi_text/usi_250_150_solution.bin --test_image_out=usi_250_150 --test_width=250 --test_height=150"
+PARAM_FILENAME="--test_filename_in=data/test_image/usi_text/usi_250_150_04.bin --test_filename_solution=data/test_image/usi_text/usi_250_150_solution.bin --test_filename_out=usi_250_150 --test_width=250 --test_height=150"
 PARAM_BASIC="--test_K=2 --test_annealing=2 --test_printstats=false --test_printinfo=true --test_Theta=0.4 --test_Theta=0.5 --test_saveresult=true --test_saveall=true"
 PARAM_FEM="--test_fem_reduce=-1"
 PARAM_EPSSQR="--test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e-0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
