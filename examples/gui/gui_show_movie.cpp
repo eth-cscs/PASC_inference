@@ -41,6 +41,8 @@ class movieplotter : public drawable {
 		int movie_width;
 		int movie_height;
 		int movie_T;
+		int t;		
+		
 		double movie_scale;
 		int movie_xdim;
 		std::string filename;
@@ -67,9 +69,11 @@ class movieplotter : public drawable {
 		std::string get_filename() const;
 		
 		void recompute_scale();
+
+		int set_t(int new_t);
 };
 
-class show_image_window : public drawable_window {
+class show_movie_window : public drawable_window {
 private:
     menu_bar mbar; /* gui: menubar */
 	movieplotter mymovieplotter; /* gui: canvas for drawing */
@@ -86,6 +90,10 @@ private:
 	text_field select_xdim;
 	label label_xdim;
 
+	scroll_bar *timescroll;
+	label t_label;
+	int t;
+
 	button button_apply_size;
 
     void load_movie( const std::string& file_name );
@@ -96,10 +104,11 @@ private:
 	void on_menu_file_save();
     void on_menu_file_quit ();
     void on_menu_help_about();
-	
+
 	/* general window events */
 	void on_window_resized();
-	
+    void on_timescroll();
+    	
 	template<class ValueType>
 	void set_label_myvector_properties(int label_idx, const std::string &text, ValueType value);
 	void on_button_apply_size();
@@ -107,9 +116,9 @@ private:
 	void fill_labels();
 
 public:
-    show_image_window(int type);
-    show_image_window(std::string filename, int type, std::string title, int width = 0, int T = 1, int xdim = 0);
-    ~show_image_window();
+    show_movie_window(int type);
+    show_movie_window(std::string filename, int type, std::string title, int width = 0, int T = 1, int xdim = 0);
+    ~show_movie_window();
 
 };
 
@@ -144,7 +153,7 @@ int main( int argc, char *argv[] ) {
 	consoleArg.set_option_value("type", &type, 1);
 
     /* create our window */
-    show_image_window my_window(filename,type,title,width,T,xdim);
+    show_movie_window my_window(filename,type,title,width,T,xdim);
 
     /* wait until the user closes this window before we let the program terminate */
     my_window.wait_until_closed();
@@ -158,8 +167,9 @@ int main( int argc, char *argv[] ) {
 
 /* ---------------- implementation -------------- */
 
-show_image_window::show_image_window(int type) : /* All widgets take their parent window as an argument to their constructor. */
+show_movie_window::show_movie_window(int type) : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
+        t_label(*this),
         select_width(*this),
 		label_width(*this),
         select_height(*this),
@@ -176,6 +186,14 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 
 	/* set the size of window */
     set_size(600,350);
+
+	/* prepare time scroll_bar */
+	timescroll = new scroll_bar(*this, scroll_bar::HORIZONTAL);
+	timescroll->set_scroll_handler( *this, &show_movie_window::on_timescroll );
+	timescroll->set_length(180);
+	timescroll->set_pos(10,240);
+	timescroll->disable();
+	timescroll->hide();
 		
 	/* allocate labels */
 	labels_myvector_properties = new label*[NUMBER_OF_LABELS];
@@ -183,8 +201,13 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 		labels_myvector_properties[i] = new label(*this);
 	}
 
+	/* main timer */
+	t = 0;
+	mymovieplotter.set_t(t);
+    t_label.set_pos(10,210);
+
     /* prepare position of labels of vector properties */
-    labels_myvector_properties[0]->set_pos(10,220);
+    labels_myvector_properties[0]->set_pos(10,270);
 	for(int i=1; i < 9; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
@@ -198,13 +221,13 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
     mbar.set_menu_name(1,"Help",'H');
 
     /* add the entries to the File menu. */
-    mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_image_window::on_menu_file_open,    'O'));
-    mbar.menu(0).add_menu_item(menu_item_text("Save",   *this, &show_image_window::on_menu_file_save,    'S'));
+    mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_movie_window::on_menu_file_open,    'O'));
+    mbar.menu(0).add_menu_item(menu_item_text("Save",   *this, &show_movie_window::on_menu_file_save,    'S'));
     mbar.menu(0).add_menu_item(menu_item_separator());
-    mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_image_window::on_menu_file_quit,    'Q'));
+    mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_movie_window::on_menu_file_quit,    'Q'));
 
     /* Add the entries to the Help menu. */
-    mbar.menu(1).add_menu_item(menu_item_text("About",  *this, &show_image_window::on_menu_help_about,   'A'));
+    mbar.menu(1).add_menu_item(menu_item_text("About",  *this, &show_movie_window::on_menu_help_about,   'A'));
 
 	/* register input for size */
 	select_width.set_pos(120,30);
@@ -240,7 +263,7 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 	label_xdim.set_text("xdim   :");
 
 	/* register button for changing the size */
-	button_apply_size.set_click_handler(*this, &show_image_window::on_button_apply_size);
+	button_apply_size.set_click_handler(*this, &show_movie_window::on_button_apply_size);
 	button_apply_size.set_name("apply size");
 	button_apply_size.set_pos(120,180);
 
@@ -250,7 +273,7 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 	show();
 } 
 
-show_image_window::show_image_window(std::string filename, int type, std::string title, int width, int T, int xdim) : show_image_window(type) {
+show_movie_window::show_movie_window(std::string filename, int type, std::string title, int width, int T, int xdim) : show_movie_window(type) {
 
 	if(title != ""){
 		set_title(title);		
@@ -268,8 +291,10 @@ show_image_window::show_image_window(std::string filename, int type, std::string
 }
 
 
-show_image_window::~show_image_window(){
+show_movie_window::~show_movie_window(){
 
+	delete timescroll;
+	
 	/* destroy labels */
 	for(int i=0; i < NUMBER_OF_LABELS; i++){
 		free(labels_myvector_properties[i]);
@@ -280,25 +305,25 @@ show_image_window::~show_image_window(){
 	close_window();
 }
 
-void show_image_window::on_menu_help_about(){
+void show_movie_window::on_menu_help_about(){
      message_box("About","This application is for PETSc movie visualisation\n");
 }
 
-void show_image_window::on_menu_file_open(){
+void show_movie_window::on_menu_file_open(){
     /* display a file chooser window and when the user choses a file */
-    open_existing_file_box(*this, &show_image_window::load_movie);
+    open_existing_file_box(*this, &show_movie_window::load_movie);
 }
 
-void show_image_window::on_menu_file_save(){
+void show_movie_window::on_menu_file_save(){
     /* display a file chooser window and when the user choses a file */
-    save_file_box(*this, &show_image_window::save_image);
+    save_file_box(*this, &show_movie_window::save_image);
 }
 
-void show_image_window::on_menu_file_quit(){
+void show_movie_window::on_menu_file_quit(){
 	close_window();
 }
 
-void show_image_window::on_window_resized() {
+void show_movie_window::on_window_resized() {
 
 	/* set new plotting area */
 	unsigned long width,height;
@@ -308,11 +333,18 @@ void show_image_window::on_window_resized() {
 	select_scale.set_text(std::to_string(mymovieplotter.get_scale()));
 
 	drawable_window::on_window_resized();
-
-	
 }
 
-void show_image_window::load_movie( const std::string& file_name ) {
+void show_movie_window::on_timescroll() {
+	t = timescroll->slider_pos();
+	mymovieplotter.set_t(t);
+
+	std::ostringstream sout;
+	sout << "t = " << t << " (" << mymovieplotter.get_T() << ")";
+	t_label.set_text(sout.str());
+}
+
+void show_movie_window::load_movie( const std::string& file_name ) {
 	mymovieplotter.load_movie(file_name, std::stoi(trim(select_xdim.text())) );
 
 	if(mymovieplotter.get_myvector_loaded()){
@@ -328,11 +360,11 @@ void show_image_window::load_movie( const std::string& file_name ) {
 
 }
 
-void show_image_window::save_image( const std::string& file_name ) {
+void show_movie_window::save_image( const std::string& file_name ) {
 	mymovieplotter.save_image(file_name);
 }
 
-void show_image_window::fill_labels() {
+void show_movie_window::fill_labels() {
 
 	Vec *myvector_Vec = mymovieplotter.get_myvector_Vec();
 
@@ -363,17 +395,28 @@ void show_image_window::fill_labels() {
 	set_label_myvector_properties(7, "min:     ", myvector_min);
 	set_label_myvector_properties(8, "mean:    ", myvector_sum/(double)myvector_size);
 
+	/* prepare timescroll */
+	timescroll->set_max_slider_pos(mymovieplotter.get_T()-1);
+	timescroll->set_slider_pos(t);
+	timescroll->set_jump_size(timescroll->max_slider_pos()/10.0);
+	timescroll->enable();
+	timescroll->show();
+	
+	std::ostringstream sout;
+	sout << "t = " << t << " (" << mymovieplotter.get_T() << ")";
+	t_label.set_text(sout.str());
+
 }
 
 template<class ValueType>
-void show_image_window::set_label_myvector_properties(int label_idx, const std::string &text, ValueType value){
+void show_movie_window::set_label_myvector_properties(int label_idx, const std::string &text, ValueType value){
 	std::ostringstream sout;
 	sout << std::setprecision(5);
     sout << text << std::setw(20) << value;
     labels_myvector_properties[label_idx]->set_text(sout.str());	
 }
 
-void show_image_window::on_button_apply_size(){
+void show_movie_window::on_button_apply_size(){
 	int new_width = std::stoi(trim(select_width.text()));
 	int new_xdim = std::stoi(trim(select_xdim.text()));
 	int new_T = std::stoi(trim(select_T.text()));
@@ -566,16 +609,18 @@ void movieplotter::plot_image(const canvas& c) const{
 
 	/* greyscale */
 	if(movie_xdim==1){
-		for(int t=0;t<myvector_size;t++){
-			y_coor = t/(double)movie_width;
-			x_coor = t - y_coor*movie_width;
+		int R = movie_width*movie_height;
+
+		for(int r=0;r<R;r++){
+			y_coor = r/(double)movie_width;
+			x_coor = r - y_coor*movie_width;
 
 			rect_pixel.set_left(x_begin + x_coor*pixel_size);
 			rect_pixel.set_top(y_begin + y_coor*pixel_size);
 			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
 			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
 		
-			fill_rect(c,rect_pixel,rgb_pixel(values[t]*255,values[t]*255,values[t]*255));		
+			fill_rect(c,rect_pixel,rgb_pixel(values[t*R+r]*255,values[t*R+r]*255,values[t*R+r]*255));		
 		}
 	}
 
@@ -583,9 +628,9 @@ void movieplotter::plot_image(const canvas& c) const{
 	if(movie_xdim==3){
 		int R = movie_width*movie_height;
 
-		for(int t=0;t<R;t++){
-			y_coor = t/(double)movie_width;
-			x_coor = t - y_coor*movie_width;
+		for(int r=0;r<R;r++){
+			y_coor = r/(double)movie_width;
+			x_coor = r - y_coor*movie_width;
 
 			rect_pixel.set_left(x_begin + x_coor*pixel_size);
 			rect_pixel.set_top(y_begin + y_coor*pixel_size);
@@ -594,12 +639,12 @@ void movieplotter::plot_image(const canvas& c) const{
 
 			/* Rn */
 			if(type == 0){
-				fill_rect(c,rect_pixel,rgb_pixel(values[t*movie_xdim+0]*255,values[t*movie_xdim+1]*255,values[t*movie_xdim+2]*255));
+				fill_rect(c,rect_pixel,rgb_pixel(values[(t*R+r)*movie_xdim+0]*255,values[(t*R+r)*movie_xdim+1]*255,values[(t*R+r)*movie_xdim+2]*255));
 			}
 
 			/* nR */
 			if(type == 1){
-				fill_rect(c,rect_pixel,rgb_pixel(values[0*R + t]*255,values[1*R + t]*255,values[2*R + t]*255));
+				fill_rect(c,rect_pixel,rgb_pixel(values[(t*R + 0*R)*movie_xdim + r]*255,values[(t*R + 1*R)*movie_xdim + r]*255,values[(t*R + 2*R)*movie_xdim + r]*255));
 			}
 		}
 	}
@@ -659,6 +704,13 @@ int movieplotter::get_xdim() const {
 
 std::string movieplotter::get_filename() const{
 	return this->filename;
+}
+
+int movieplotter::set_t(int new_t){
+	this->t = new_t;
+
+	/* the whole rectangle with plotted graph will be repainted */
+	parent.invalidate_rectangle(rect);
 }
 
 void movieplotter::recompute_scale() {

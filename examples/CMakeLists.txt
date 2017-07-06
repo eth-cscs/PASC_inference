@@ -107,6 +107,7 @@ include("test_classes/test_classes.cmake")
 include("test_signal/test_signal.cmake")
 include("test_entropy/test_entropy.cmake")
 include("test_image/test_image.cmake")
+include("test_movie/test_movie.cmake")
 include("test_neuro/test_neuro.cmake")
 
 message("\n----------------------------------------------------------\n")
