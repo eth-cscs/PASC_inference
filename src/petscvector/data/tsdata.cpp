@@ -552,6 +552,14 @@ void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	
 	/* get petsc Vec from provided vector - this vector is stride */
 	Vec gamma0_Vec = gamma0.get_vector();
+
+	//TODO: temp
+	int test;
+	std::cout << "prdel" << std::endl;
+	TRYCXX( VecView(gamma0_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+
+	std::cin >> test;
+
 	
 	/* variables */
 	int K = this->get_K();
@@ -591,6 +599,9 @@ void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	/* destroy auxiliary index sets */
 	TRYCXX( ISDestroy(&gamma_sub_IS) );
 
+
+
+
 	LOG_FUNC_END
 }
 
@@ -599,30 +610,28 @@ void TSData<PetscVector>::load_gammavector(std::string filename) const {
 	LOG_FUNC_BEGIN
 	
 	//TODO: control existence of file
+	//TODO: control existence of gammavector
+	//TODO: test compatibility between vector in file and gamma vector
 
-	/* aux vector, we first oad data and then distribute values to procs */
-	Vec gamma_preload_Vec;
-	TRYCXX( VecCreate(PETSC_COMM_WORLD, &gamma_preload_Vec) );
+	gammavector->load_global(filename);
 
-	#ifdef USE_CUDA
-		TRYCXX(VecSetType(gamma_preload_Vec, VECMPICUDA));
-	#endif
+	//TODO: temp
+//	coutMaster << "original:" << std::endl;
+//	TRYCXX( VecView(gammavector->get_vector(), PETSC_VIEWER_STDOUT_WORLD) );
 
-	/* prepare viewer to load from file */
-	PetscViewer mviewer;
-	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
+	Vec gammavector_preload_Vec;
+	Vec gammavector_Vec = gammavector->get_vector();
+
+	TRYCXX( VecDuplicate(gammavector_Vec,&gammavector_preload_Vec) );
+
+	decomposition->permute_bTR_to_dTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
+
+	TRYCXX( VecCopy(gammavector_preload_Vec, gammavector->get_vector()));
+	TRYCXX( VecDestroy(&gammavector_preload_Vec) );
 	
-	/* load vector from viewer */
-	TRYCXX( VecLoad(gamma_preload_Vec, mviewer) );
-
-	/* destroy the viewer */
-	TRYCXX( PetscViewerDestroy(&mviewer) );	
-
-	PetscVector gamma_preload(gamma_preload_Vec);
-	this->load_gammavector(gamma_preload);
-
-//	TRYCXX( VecDestroy(&gamma_preload_Vec) );
+	//TODO: temp
+//	coutMaster << "permuted:" << std::endl;
+//	TRYCXX( VecView(gammavector->get_vector(), PETSC_VIEWER_STDOUT_WORLD) );
 	
 	LOG_FUNC_END
 }

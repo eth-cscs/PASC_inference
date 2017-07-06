@@ -762,7 +762,7 @@ void TSSolver<VectorBase>::gammavector_permute() const{
 	/* create new Vec and store into it permuted values */
 	Vec gammavector_new;
 	TRYCXX( VecDuplicate(tsdata->get_gammavector()->get_vector(), &gammavector_new) );
-	this->tsdata->get_decomposition()->permute_TRK(tsdata->get_gammavector()->get_vector(), gammavector_new, false);
+	this->tsdata->get_decomposition()->permute_bTR_to_dTRb(tsdata->get_gammavector()->get_vector(), gammavector_new, this->tsdata->get_decomposition()->get_K(), false);
 
 	/* copy values to original vector */
 	TRYCXX( VecCopy(gammavector_new, tsdata->get_gammavector()->get_vector()) );

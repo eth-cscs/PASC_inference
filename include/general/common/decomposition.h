@@ -224,9 +224,10 @@ class Decomposition {
 		int get_Pr(int r_global) const;
 
 #ifdef USE_PETSC
-		void permute_TRxdim(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
-		void permute_TRK(Vec orig_Vec, Vec new_Vec, bool invert=false) const;
-		void permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+		void permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+		void permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+
+		void createIS_dTRb(IS *is, int blocksize) const;
 		
 		/** @brief create PETSC index set with local gamma indexes which correspond to given cluster index
 		 * 

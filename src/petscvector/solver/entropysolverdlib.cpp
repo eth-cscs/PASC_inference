@@ -232,6 +232,12 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 
 	this->timer_compute_moments.start(); 
 
+	int Tlocal = this->entropydata->get_decomposition()->get_Tlocal();
+	int Rlocal = this->entropydata->get_decomposition()->get_Rlocal();
+
+	int T = this->entropydata->get_decomposition()->get_T();
+	int R = this->entropydata->get_decomposition()->get_R();
+
 	/* I assume that externalcontent->x_powers_Vecs is computed and constant */
 	/* I assume that D_matrix is computed and prepared */
 
@@ -249,13 +255,13 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 
 	/* temp = (x_1^D*x_2^D*...) */
 	Vec temp_Vec;
-	TRYCXX( VecCreate(PETSC_COMM_SELF,&temp_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&temp_Vec) );
 	#ifdef USE_CUDA
 		TRYCXX(VecSetType(temp_Vec, VECMPICUDA));
 	#else
 		TRYCXX(VecSetType(temp_Vec, VECMPI));
 	#endif
-	TRYCXX( VecSetSizes(temp_Vec, this->entropydata->get_decomposition()->get_Tlocal(), this->entropydata->get_decomposition()->get_T()) );
+	TRYCXX( VecSetSizes(temp_Vec, Tlocal*Rlocal, T*R) );
 	TRYCXX( VecSetFromOptions(temp_Vec) );	
 
 	/* temp2 = x_n^D */
@@ -370,7 +376,7 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 
 	/* temp = (x_1^D*x_2^D*...) */
 	Vec temp_Vec;
-	TRYCXX( VecCreate(PETSC_COMM_SELF,&temp_Vec) );
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&temp_Vec) );
 	#ifdef USE_CUDA
 		TRYCXX(VecSetType(temp_Vec, VECMPICUDA));
 	#else

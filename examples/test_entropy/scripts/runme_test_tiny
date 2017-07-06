@@ -1,11 +1,11 @@
 #!/bin/bash
 
-NAME="data/test_entropy/big_test.csv"
-T=1000
+NAME="data/test_entropy/tinydata.csv"
+T=5
 XDIM=2
 K=2
 KM=2
-NPROC=5
+NPROC=2
 
 # generate example from txt
 ./util_csv_to_vec --filename_in=$NAME --filename_out "data/test_entropy/sample_data.bin" --T=$T --xdim=$XDIM --print=false --permute=false
@@ -13,7 +13,7 @@ NPROC=5
 PARAM_BASIC="--test_K=$K --test_Km=$KM --test_filename_in=data/test_entropy/sample_data.bin --test_annealing=1 --test_scaledata=true --test_xdim=$XDIM"
 PARAM_PRINT="--test_printstats=true --test_printinfo=true"
 
-PARAM_GAMMA0="--test_filename_gamma0=data/test_entropy/big_test_gamma0.bin"
+PARAM_GAMMA0="--test_filename_gamma0=data/test_entropy/tinydata_gamma0.bin"
 #PARAM_GAMMA0=""
 
 PARAM_EPSSQR="--test_epssqr=1e0"
@@ -25,7 +25,7 @@ PARAM_THETA=""
 PARAM_SHORTINFO="--test_shortinfo=true" # --test_shortinfo_header --test_shortinfo_values --test_shortinfo_filename
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_init_permute=false"
+PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_init_permute=true"
 PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=true --tssolver_debug_print_annealing=true --tssolver_eps=1e-4"
  
 PARAM_QPSOLVER="--spgqpsolver_maxit=5000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"

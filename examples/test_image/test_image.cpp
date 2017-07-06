@@ -239,6 +239,10 @@ int main( int argc, char *argv[] )
 		oss.str("");
 	}
 
+	//TODO: temp
+	graph->print_content(coutMaster);
+
+
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 	
@@ -260,7 +264,8 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		decomposition.permute_TRxdim(solution.get_vector(), solution_Vec_preload,false);
+		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
 	}

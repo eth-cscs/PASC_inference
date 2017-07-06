@@ -243,7 +243,7 @@ void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const {
 
 	LOG_FUNC_END
 }
-
+/*
 template<>
 void Decomposition<PetscVector>::permute_TRxdim(Vec orig_Vec, Vec new_Vec, bool invert) const {
 	LOG_FUNC_BEGIN
@@ -261,9 +261,9 @@ void Decomposition<PetscVector>::permute_TRK(Vec orig_Vec, Vec new_Vec, bool inv
 
 	LOG_FUNC_END
 }
-
+*/
 template<>
-void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
+void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
 	int Tbegin = get_Tbegin();
@@ -272,7 +272,6 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 	int Rbegin = get_Rbegin();
 	int Rend = get_Rend();
 	int Rlocal = get_Rlocal();
-	
 	int local_size = Tlocal*Rlocal*blocksize;
 
 	IS orig_local_is;
@@ -282,54 +281,25 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 	Vec new_local_Vec;
 
 	/* prepare index set with local data */
-//	int orig_local_arr[local_size];
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
-	int j = 0;
 
-	/* I assume the format of original data as blockTR */
-	/* fill orig_local_arr */
-	for(int t=Tbegin;t<Tend;t++){
-		for(int i=0;i<R;i++){
-			if(DDR_affiliation[i] == DDR_rank){
-				for(int k=0;k<blocksize;k++){
-					orig_local_arr[j*blocksize+k] = t*R*blocksize + i*blocksize + k;
-				}
+	/* original data is bTR */
+	/* transfer it to TRb */
+	int j = 0;
+	for(int t=0;t<Tlocal;t++){
+		for(int k=0;k<blocksize;k++){
+			for(int i=0;i<Rlocal;i++){
+				orig_local_arr[j*blocksize+k] = Tbegin*Rbegin*blocksize + t*Rlocal*blocksize + i*blocksize + k;
 				j++;
 			}
 		}
 	}
 
-//	coutAll << "original: " << print_array(orig_local_arr,local_size) << std::endl;
-//	coutAll.synchronize();
-
-	/* I assume the new format as TRblock */
-	/* fill new_local_arr */
-	int *new_local_arr;
-	new_local_arr = new int [local_size];
-	int m = 0;
-	for(int k=0;k<blocksize;k++){
-		for(int i=Rbegin;i<Rend;i++){
-			for(int t=0;t<Tend-Tbegin;t++){
-				new_local_arr[m] = Tbegin*R*blocksize + Rbegin*blocksize + t*R*blocksize + i*blocksize + k;
-				m++;
-			}
-		}
-	}
-
-//	coutAll << "new: " << print_array(new_local_arr,local_size) << std::endl;
-//	coutAll.synchronize();
-
-
-//	for(int i=0; i<local_size;i++){
-//		coutMaster << i << ". = " << new_local_arr[i] << std::endl;
-//	}
-
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
-	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, new_local_arr, PETSC_COPY_VALUES,&new_local_is) );
-//	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, local_size, Tbegin*R*blocksize + Rbegin*blocksize, 1, &new_local_is) );
+	createIS_dTRb(&new_local_is, blocksize);
 
 	/* get subvector with local values from original data */
 	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
@@ -351,6 +321,108 @@ void Decomposition<PetscVector>::permute_TRblocksize(Vec orig_Vec, Vec new_Vec, 
 	TRYCXX( ISDestroy(&new_local_is) );
 
 	TRYCXX( PetscBarrier(NULL));
+
+	LOG_FUNC_END
+}
+
+
+template<>
+void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
+	LOG_FUNC_BEGIN
+
+	int Tbegin = get_Tbegin();
+	int Tend = get_Tend();
+	int Tlocal = get_Tlocal();
+	int Rbegin = get_Rbegin();
+	int Rend = get_Rend();
+	int Rlocal = get_Rlocal();
+	int local_size = Tlocal*Rlocal*blocksize;
+
+	IS orig_local_is;
+	IS new_local_is;
+
+	Vec orig_local_Vec;
+	Vec new_local_Vec;
+
+	/* prepare index set with local data */
+	int *orig_local_arr;
+	orig_local_arr = new int [local_size];
+
+	/* original data is bTR */
+	/* transfer it to TRb */
+	for(int t=0;t<Tlocal;t++){
+		for(int k=0;k<blocksize;k++){
+			for(int i=0;i<Rlocal;i++){
+//				orig_local_arr[t*blocksize*Rlocal + k*Rlocal + i] = Tbegin*R*blocksize + k*Tlocal*Rlocal + t*Rlocal + i;
+				orig_local_arr[t*blocksize*Rlocal + k*Rlocal + i] = (Tbegin+t + k*T)*Rlocal + i;
+			}
+		}
+	}
+
+	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
+//	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
+
+	createIS_dTRb(&new_local_is, blocksize);
+
+	//TODO: temp
+//	TRYCXX( ISView(orig_local_is, PETSC_VIEWER_STDOUT_WORLD) );
+//	TRYCXX( ISView(new_local_is, PETSC_VIEWER_STDOUT_WORLD) );
+
+	/* get subvector with local values from original data */
+	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRYCXX( VecGetSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+
+	/* copy values */
+	if(!invert){
+		TRYCXX( VecCopy(orig_local_Vec, new_local_Vec) );
+	} else {
+		TRYCXX( VecCopy(new_local_Vec, orig_local_Vec) );
+	}
+
+	/* restore subvector with local values from original data */
+	TRYCXX( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRYCXX( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+
+	/* destroy used stuff */
+	TRYCXX( ISDestroy(&orig_local_is) );
+	TRYCXX( ISDestroy(&new_local_is) );
+
+	TRYCXX( PetscBarrier(NULL));
+
+	LOG_FUNC_END
+}
+
+template<>
+void Decomposition<PetscVector>::createIS_dTRb(IS *is, int blocksize) const {
+	/* from dTRb to TRb */
+
+	LOG_FUNC_BEGIN
+
+	int Tbegin = get_Tbegin();
+	int Tend = get_Tend();
+	int Tlocal = get_Tlocal();
+	int Rbegin = get_Rbegin();
+	int Rend = get_Rend();
+	int Rlocal = get_Rlocal();
+	
+	int local_size = Tlocal*Rlocal*blocksize;
+	
+	/* fill orig_local_arr */
+	int *local_arr;
+	local_arr = new int[local_size];
+	int j = 0;
+	for(int t=Tbegin;t<Tend;t++){
+		for(int i=0;i<R;i++){
+			if(DDR_affiliation[i] == DDR_rank){
+				for(int k=0;k<blocksize;k++){
+					local_arr[j*blocksize+k] = t*R*blocksize + i*blocksize + k;
+				}
+				j++;
+			}
+		}
+	}
+
+	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, local_arr, PETSC_COPY_VALUES,is) );
 
 	LOG_FUNC_END
 }
