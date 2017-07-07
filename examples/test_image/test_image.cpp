@@ -48,6 +48,7 @@ int main( int argc, char *argv[] )
 		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
 		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original image data without noise (vector in PETSc format) [string]")
+		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
@@ -61,7 +62,7 @@ int main( int argc, char *argv[] )
 		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]")
 		("test_saveall", boost::program_options::value<bool>(), "save results for all epssqr, not only for the best one [bool]")
 		("test_saveresult", boost::program_options::value<bool>(), "save the solution [bool]")
-		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]")
+		("test_Theta", boost::program_options::value<std::vector<std::string> >()->multitoken(), "given solution Theta [K*int]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
 		("test_shortinfo_values", boost::program_options::value< std::string >(), "additional values in shortinfo [string]")
@@ -72,7 +73,7 @@ int main( int argc, char *argv[] )
 	/* call initialize */
 	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
-	} 
+	}
 
 	std::vector<double> epssqr_list;
 	if(consoleArg.set_option_value("test_epssqr", &epssqr_list)){
@@ -83,13 +84,14 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, width, height, xdim, fem_type; 
+	int K, annealing, width, height, xdim, fem_type;
 	double fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, graph_save, saveall, saveresult;
 
 	std::string filename_in;
 	std::string filename_out;
 	std::string filename_solution;
+	std::string filename_gamma0;
 	std::string shortinfo_filename;
 	std::string shortinfo_header;
 	std::string shortinfo_values;
@@ -116,6 +118,14 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_shortinfo_values", &shortinfo_values, "");
 	consoleArg.set_option_value("test_shortinfo_filename", &shortinfo_filename, DEFAULT_SHORTINFO_FILENAME);
 
+	/* maybe gamma0 is given in console parameters */
+	bool given_gamma0;
+	if(consoleArg.set_option_value("test_filename_gamma0", &filename_gamma0)){
+		given_gamma0 = true;
+	} else {
+		given_gamma0 = false;
+	}
+
 	/* maybe solution is given */
 	bool given_solution;
 	if(!consoleArg.set_option_value("test_filename_solution", &filename_solution)){
@@ -129,27 +139,21 @@ int main( int argc, char *argv[] )
 	} else {
 		given_solution=true;
 	}
-	
+
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
-	std::vector<double> Theta_list;
-	double Theta_solution[K*xdim];
+	std::vector<std::string> Theta_list;
 	if(consoleArg.set_option_value("test_Theta", &Theta_list)){
 		given_Theta = true;
-		
-		/* control number of provided Theta */
-		if(Theta_list.size() != K*xdim){
-			coutMaster << "number of provided Theta solutions is different then number of clusters (times xdim)!" << std::endl;
-			return 0;
-		}
 
-		/* store solution in array */
-		for(int k=0;k < K*xdim;k++){
-			Theta_solution[k] = Theta_list[k];
+		/* control number of provided Theta */
+		if(Theta_list.size() != K){
+			coutMaster << "number of provided Theta solutions is different then number of clusters! (you provided " << Theta_list.size() << " parameters)" << std::endl;
+			return 0;
 		}
 	} else {
 		given_Theta = false;
-	}	
+	}
 
 	/* set decomposition in space */
 	int DDR_size = GlobalManager.get_size();
@@ -168,15 +172,18 @@ int main( int argc, char *argv[] )
 	} else {
 		coutMaster << " test_filename_solution      = " << std::setw(50) << "NO" << " (name of input file with original image data without noise)" << std::endl;
 	}
+	if(given_gamma0){
+		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
+	} else {
+		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
+	}
+
 	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of image)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of image)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
-	if(given_Theta){
-		coutMaster << " test_Theta                  = " << std::setw(50) << print_array(Theta_solution,K) << " (given solution Theta)" << std::endl;
-	} else {
-		coutMaster << " test_Theta                  = " << std::setw(50) << "NO" << " (given solution Theta)" << std::endl;
-	}
+	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
+
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce             = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
 	coutMaster << " test_graph_save             = " << std::setw(50) << print_bool(graph_save) << " (save VTK with graph or not)" << std::endl;
@@ -208,7 +215,7 @@ int main( int argc, char *argv[] )
 	}
 	std::ostringstream oss_short_output_values;
 	std::ostringstream oss_short_output_header;
-		
+
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
@@ -222,7 +229,7 @@ int main( int argc, char *argv[] )
 
 	/* print basic info about graph */
 	if(printinfo) graph->print(coutMaster);
-	
+
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
@@ -239,16 +246,12 @@ int main( int argc, char *argv[] )
 		oss.str("");
 	}
 
-	//TODO: temp
-	graph->print_content(coutMaster);
-
-
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
-	
+
 	/* load data from file and store it subject to decomposition */
 	ImageData<PetscVector> mydata(decomposition, filename_in, width, height);
-	
+
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
 
@@ -264,7 +267,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+//		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
@@ -303,9 +306,24 @@ int main( int argc, char *argv[] )
 	/* print info about solver */
 	if(printinfo) mysolver.print(coutMaster,coutAll);
 
+	/* if gamma0 is provided, then load it */
+	if(given_gamma0){
+		mydata.load_gammavector(filename_gamma0);
+	}
+
 	/* set solution if obtained from console */
-	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
-	
+	double *Theta_solution;
+	if(given_Theta){
+		/* parse strings to doubles */
+		Theta_solution = new double[K*xdim];
+		if(!parse_strings_to_doubles(K,xdim, Theta_list, Theta_solution) ){
+			coutMaster << "unable to parse input Theta values!" << std::endl;
+			return 0;
+		}
+
+		mysolver.set_solution_theta(Theta_solution);
+	}
+
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr;
 	double epssqr_best = -1;
@@ -371,16 +389,16 @@ int main( int argc, char *argv[] )
 			mydata.saveImage(oss.str(),false);
 			oss.str("");
 		}
-	
+
 		/* store short info */
 		if(shortinfo_write_or_not){
 			/* add provided strings from console parameters and info about the problem */
 			if(depth==0) oss_short_output_header << shortinfo_header << "width,height,K,depth,epssqr,abserr,";
 			oss_short_output_values << shortinfo_values << width << "," << height << "," << K << "," << depth << "," << epssqr_list[depth] << "," << abserr << ",";
-			
+
 			/* append Theta solution */
 			if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
-			oss_short_output_values << mydata.print_thetavector(); 
+			oss_short_output_values << mydata.print_thetavector();
 
 			/* print info from solver */
 			mysolver.printshort(oss_short_output_header, oss_short_output_values);
@@ -392,12 +410,12 @@ int main( int argc, char *argv[] )
 			/* write to shortinfo file */
 			if(depth==0) shortinfo.write(oss_short_output_header.str());
 			shortinfo.write(oss_short_output_values.str());
-			
+
 			/* clear streams for next writing */
 			oss_short_output_header.str("");
 			oss_short_output_values.str("");
 		}
-	
+
 		/* if this solution is better then previous, then store it */
 		if(abserr < abserr_best || depth == 0){
 			L_best = L;
@@ -406,7 +424,7 @@ int main( int argc, char *argv[] )
 			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
 			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
 		}
-	
+
 	}
 
 	/* set best computed solution back to data */
@@ -434,7 +452,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- FINAL SOLVER INFO ---" << std::endl;
 	mysolver.printstatus(coutMaster);
 
-	/* say bye */	
+	/* say bye */
 	coutMaster << "- end program" << std::endl;
 
 	logging.end();

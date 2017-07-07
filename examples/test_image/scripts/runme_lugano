@@ -1,9 +1,9 @@
 #!/bin/bash   
 
-#MYTESTWIDTH=100
-#MYTESTHEIGHT=66
-MYTESTWIDTH=4
-MYTESTHEIGHT=3
+MYTESTWIDTH=100
+MYTESTHEIGHT=66
+#MYTESTWIDTH=4
+#MYTESTHEIGHT=3
 XDIM=1
 NOISE=0.0
 ANNEALING=1
@@ -11,21 +11,25 @@ K=2
 FEM_REDUCE=-1
 NPROC=2
 
+# remove old files
+rm data/test_image/lugano_solution.bin data/test_image/lugano_data.bin results/lugano_recovered.bin results/lugano_gamma.bin
+
 # generate example
 ./util_dlib_image_to_vec --filename_in=data/test_image/lugano.jpg --filename_out=data/test_image/lugano_solution.bin --noise=0.0 --new_width=$MYTESTWIDTH --new_height=$MYTESTHEIGHT --xdim=$XDIM
 ./util_dlib_image_to_vec --filename_in=data/test_image/lugano.jpg --filename_out=data/test_image/lugano_data.bin --noise=$NOISE --new_width=$MYTESTWIDTH --new_height=$MYTESTHEIGHT --xdim=$XDIM
 
 # define parameters
 PARAM_FILENAME="--test_filename_in=data/test_image/lugano_data.bin --test_filename_solution=data/test_image/lugano_solution.bin --test_filename_out=lugano --test_width=$MYTESTWIDTH --test_height=$MYTESTHEIGHT --test_xdim=$XDIM"
+#PARAM_FILENAME="--test_filename_in=data/test_image/lugano_data.bin --test_filename_out=lugano --test_width=$MYTESTWIDTH --test_height=$MYTESTHEIGHT --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
-#PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
+PARAM_THETA="--test_Theta=0.8 --test_Theta=0.2"
 #PARAM_THETA="--test_Theta=0.25 --test_Theta=0.5 --test_Theta=0.75"
 #PARAM_THETA="--test_Theta=0.0 --test_Theta=1.0"
 PARAM_EPSSQR="--test_epssqr=1e0"
 #PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
 #PARAM_EPSSQR="--test_epssqr=1e-4 --test_epssqr=1e-2 --test_epssqr=1e0 --test_epssqr=1e2"
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
-PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0"
+PARAM_TSSOLVER="--tssolver_maxit=100 --tssolver_eps=1e-5 --tssolver_debugmode=0"
 PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/lugano.txt --tssolver_debug_print_gamma_solution=false"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
@@ -47,6 +51,16 @@ PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $P
 #./test_image $PARAM_ALL
 
 # show results
-./gui_show_image --filename=data/test_image/lugano_data.bin --xdim=$XDIM --width=$MYTESTWIDTH --title="Data image" &
-./gui_show_image --filename=results/lugano_recovered.bin --xdim=$XDIM --width=$MYTESTWIDTH --title="Recovered image" &
-./gui_show_image --filename=results/lugano_gamma.bin --xdim=1 --width=$MYTESTWIDTH --title="Gamma" &
+if [ -f data/test_image/lugano_data.bin ]
+then
+    ./gui_show_image --filename=data/test_image/lugano_data.bin --xdim=$XDIM --width=$MYTESTWIDTH --title="Data image" &
+fi
+if [ -f results/lugano_recovered.bin ]
+then
+    ./gui_show_image --filename=results/lugano_recovered.bin --xdim=$XDIM --width=$MYTESTWIDTH --title="Recovered image" &
+fi
+if [ -f results/lugano_gamma.bin ]
+then
+    ./gui_show_image --filename=results/lugano_gamma.bin --xdim=1 --width=$MYTESTWIDTH --title="Gamma" &
+fi
+

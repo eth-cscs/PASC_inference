@@ -44,26 +44,26 @@ class imageplotter : public drawable {
 		int image_xdim;
 		std::string filename;
 
-	public: 
+	public:
 		imageplotter(drawable_window& w, int type);
-		~imageplotter();	
-		
+		~imageplotter();
+
 		void set_plotting_area(rectangle area);
 		void load_image( const std::string& file_name, int new_xdim );
 		void save_image(const std::string& file_name);
-		
+
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
-		
+
 		void set_size(int new_width, int new_xdim);
-		
+
 		int get_width() const;
 		int get_height() const;
 		double get_scale() const;
 		int get_xdim() const;
 
 		std::string get_filename() const;
-		
+
 		void recompute_scale();
 };
 
@@ -71,7 +71,7 @@ class show_image_window : public drawable_window {
 private:
     menu_bar mbar; /* gui: menubar */
 	imageplotter myimageplotter; /* gui: canvas for drawing */
- 
+
     label **labels_myvector_properties;
 	text_field select_width;
 	label label_width;
@@ -86,16 +86,16 @@ private:
 
     void load_image( const std::string& file_name );
     void save_image( const std::string& file_name );
-    
+
 	/* menu events */
     void on_menu_file_open ();
 	void on_menu_file_save();
     void on_menu_file_quit ();
     void on_menu_help_about();
-	
+
 	/* general window events */
 	void on_window_resized();
-	
+
 	template<class ValueType>
 	void set_label_myvector_properties(int label_idx, const std::string &text, ValueType value);
 	void on_button_apply_size();
@@ -125,7 +125,7 @@ int main( int argc, char *argv[] ) {
 	/* call initialize */
 	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
-	} 
+	}
 
 	/* get values provided as console parameters */
 	std::string filename, title;
@@ -145,7 +145,7 @@ int main( int argc, char *argv[] ) {
 
 	/* finalize the library */
 	Finalize<PetscVector>();
-	
+
     return 0;
 }
 
@@ -168,7 +168,7 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 
 	/* set the size of window */
     set_size(600,350);
-		
+
 	/* allocate labels */
 	labels_myvector_properties = new label*[NUMBER_OF_LABELS];
 	for(int i=0; i < NUMBER_OF_LABELS; i++){
@@ -183,7 +183,7 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 
 	/* window title */
 	set_title("Show PETSc image utility");
-        
+
 	/* create menu bar */
     mbar.set_number_of_menus(2);
     mbar.set_menu_name(0,"File",'F');
@@ -204,7 +204,7 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 	select_width.set_text("0");
 	label_width.set_pos(10,35);
 	label_width.set_text("width  :");
-	
+
 	select_height.set_pos(120,60);
 	select_height.set_width(70);
 	select_height.set_text("0");
@@ -234,12 +234,12 @@ show_image_window::show_image_window(int type) : /* All widgets take their paren
 	on_window_resized();
 
 	show();
-} 
+}
 
 show_image_window::show_image_window(std::string filename, int type, std::string title, int width, int xdim) : show_image_window(type) {
 
 	if(title != ""){
-		set_title(title);		
+		set_title(title);
 	}
 
 	if(filename != ""){
@@ -248,7 +248,7 @@ show_image_window::show_image_window(std::string filename, int type, std::string
 
 	select_xdim.set_text(std::to_string(xdim));
 	select_width.set_text(std::to_string(width));
-	
+
 	on_button_apply_size();
 }
 
@@ -294,7 +294,7 @@ void show_image_window::on_window_resized() {
 
 	drawable_window::on_window_resized();
 
-	
+
 }
 
 void show_image_window::load_image( const std::string& file_name ) {
@@ -355,13 +355,13 @@ void show_image_window::set_label_myvector_properties(int label_idx, const std::
 	std::ostringstream sout;
 	sout << std::setprecision(5);
     sout << text << std::setw(20) << value;
-    labels_myvector_properties[label_idx]->set_text(sout.str());	
+    labels_myvector_properties[label_idx]->set_text(sout.str());
 }
 
 void show_image_window::on_button_apply_size(){
 	int new_width = std::stoi(trim(select_width.text()));
 	int new_xdim = std::stoi(trim(select_xdim.text()));
-	
+
 	myimageplotter.set_size(new_width, new_xdim);
 	myimageplotter.recompute_scale();
 
@@ -381,7 +381,7 @@ void show_image_window::on_button_apply_size(){
 void imageplotter::draw(const canvas& c) const {
 	/* draw background */
 	fill_rect(c,rect,rgb_pixel(255,255,255));
-	
+
 	/* plot vector */
 	if(myvector_loaded){
 		plot_image(c);
@@ -389,20 +389,20 @@ void imageplotter::draw(const canvas& c) const {
 
 }
 
-imageplotter::imageplotter(drawable_window& w, int type): 
+imageplotter::imageplotter(drawable_window& w, int type):
 			drawable(w)
 {
 	/* create empty vector */
 	myvector_Vec = new Vec();
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,myvector_Vec) );
 	myvector_loaded = false;
-	
+
 	this->type = type;
 	image_width = 0;
 	image_height = 0;
 	image_scale = 1.0;
 	image_xdim = 1;
-	
+
 	enable_events();
 }
 
@@ -445,7 +445,7 @@ void imageplotter::load_image( const std::string& file_name, int new_xdim ) {
 	int myvector_size;
 	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
 	int x_size = rect.width();
-	if(myvector_size < x_size){ 
+	if(myvector_size < x_size){
 		image_width = myvector_size;
 	} else {
 		image_width = x_size;
@@ -460,24 +460,24 @@ void imageplotter::load_image( const std::string& file_name, int new_xdim ) {
 
 void imageplotter::save_image( const std::string& file_name ) {
 	coutMaster << "saving image : " << file_name << std::endl;
-	
+
 	/* get filename extension */
 	std::string extension = cut_extension(file_name);
-	
+
 	array2d<rgb_pixel> image_dlib(image_height,image_width);
 
 	double *x_arr;
 	TRYCXX( VecGetArray(*myvector_Vec, &x_arr) );
 	for(int i=0;i<image_height;i++){
 		for(int j=0;j<image_width;j++){
-			
+
 			/* greyscale */
 			if(image_xdim==1){
 				image_dlib[i][j].red = x_arr[i*image_width + j]*255;
 				image_dlib[i][j].green = x_arr[i*image_width + j]*255;
 				image_dlib[i][j].blue = x_arr[i*image_width + j]*255;
 			}
-			
+
 			/* rgb - Rn */
 			if(type==0){
 				if(image_xdim==3){
@@ -495,13 +495,13 @@ void imageplotter::save_image( const std::string& file_name ) {
 					image_dlib[i][j].blue  = x_arr[2*image_width*image_height + i*image_width + j]*255;
 				}
 			}
-			
+
 		}
 	}
 	TRYCXX( VecRestoreArray(*myvector_Vec, &x_arr) );
 
-	bool saved;
-	if(extension == ".jpg"){
+	bool saved = false;
+	if(extension.compare(".jpg")){
 		save_jpeg(image_dlib , file_name, 75);
 		coutMaster << "jpeg saved: " << file_name << std::endl;
 		saved = true;
@@ -523,7 +523,7 @@ bool imageplotter::get_myvector_loaded(){
 void imageplotter::plot_image(const canvas& c) const{
 	unsigned long x_begin = this->left();
 	unsigned long y_begin = this->top();
-	
+
 	unsigned long x_size = this->width();
 	unsigned long y_size = this->height();
 
@@ -543,7 +543,7 @@ void imageplotter::plot_image(const canvas& c) const{
 		pixel_size = pixel_size_y;
 	}
 
-	
+
 	double *values;
 	TRYCXX( VecGetArray(*myvector_Vec,&values) );
 
@@ -557,8 +557,8 @@ void imageplotter::plot_image(const canvas& c) const{
 			rect_pixel.set_top(y_begin + y_coor*pixel_size);
 			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
 			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
-		
-			fill_rect(c,rect_pixel,rgb_pixel(values[t]*255,values[t]*255,values[t]*255));		
+
+			fill_rect(c,rect_pixel,rgb_pixel(values[t]*255,values[t]*255,values[t]*255));
 		}
 	}
 
@@ -588,7 +588,7 @@ void imageplotter::plot_image(const canvas& c) const{
 	}
 
 	TRYCXX( VecRestoreArray(*myvector_Vec,&values) );
-	
+
 }
 
 void imageplotter::set_size(int new_width, int new_xdim){
@@ -605,9 +605,9 @@ void imageplotter::set_size(int new_width, int new_xdim){
 	if(myvector_loaded){
 		int    myvector_size;
 		TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
-		
+
 		this->image_height = (int)((myvector_size/(double)image_xdim)/(double)new_width);
-	
+
 	} else {
 		this->image_height = 0;
 	}
@@ -645,13 +645,13 @@ void imageplotter::recompute_scale() {
 
 		double pixel_size_x = x_size/(double)image_width;
 		double pixel_size_y = y_size/(double)image_height;
-		
+
 		if(pixel_size_x < pixel_size_y){
 			image_scale = pixel_size_x;
 		} else {
 			image_scale = pixel_size_y;
 		}
-		
+
 	}
 }
 

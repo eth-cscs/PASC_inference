@@ -41,25 +41,25 @@ class movieplotter : public drawable {
 		int movie_width;
 		int movie_height;
 		int movie_T;
-		int t;		
-		
+		int t;
+
 		double movie_scale;
 		int movie_xdim;
 		std::string filename;
 
-	public: 
+	public:
 		movieplotter(drawable_window& w, int type);
-		~movieplotter();	
-		
+		~movieplotter();
+
 		void set_plotting_area(rectangle area);
 		void load_movie( const std::string& file_name, int new_xdim );
 		void save_image(const std::string& file_name);
-		
+
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
-		
+
 		void set_size(int new_width, int new_xdim, int new_T);
-		
+
 		int get_width() const;
 		int get_height() const;
 		int get_T() const;
@@ -67,7 +67,7 @@ class movieplotter : public drawable {
 		int get_xdim() const;
 
 		std::string get_filename() const;
-		
+
 		void recompute_scale();
 
 		int set_t(int new_t);
@@ -77,7 +77,7 @@ class show_movie_window : public drawable_window {
 private:
     menu_bar mbar; /* gui: menubar */
 	movieplotter mymovieplotter; /* gui: canvas for drawing */
- 
+
     label **labels_myvector_properties;
 	text_field select_width;
 	label label_width;
@@ -98,7 +98,7 @@ private:
 
     void load_movie( const std::string& file_name );
     void save_image( const std::string& file_name );
-    
+
 	/* menu events */
     void on_menu_file_open ();
 	void on_menu_file_save();
@@ -108,7 +108,7 @@ private:
 	/* general window events */
 	void on_window_resized();
     void on_timescroll();
-    	
+
 	template<class ValueType>
 	void set_label_myvector_properties(int label_idx, const std::string &text, ValueType value);
 	void on_button_apply_size();
@@ -132,14 +132,14 @@ int main( int argc, char *argv[] ) {
 		("width", boost::program_options::value<int>(), "width of movie [int]")
 		("T", boost::program_options::value<int>(), "number of frames [int]")
 		("xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
-		("type", boost::program_options::value< int >(), "type of output vector [0=Rn, 1=nR]")
+		("type", boost::program_options::value< int >(), "type of input vector [0=TRn, 1=TnR, 2=nTR]")
 		("title", boost::program_options::value<std::string>(), "title of window [string]")	;
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
 	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
-	} 
+	}
 
 	/* get values provided as console parameters */
 	std::string filename, title;
@@ -150,7 +150,7 @@ int main( int argc, char *argv[] ) {
 	consoleArg.set_option_value("width", &width, 0);
 	consoleArg.set_option_value("T", &T, 1);
 	consoleArg.set_option_value("xdim", &xdim, 1);
-	consoleArg.set_option_value("type", &type, 1);
+	consoleArg.set_option_value("type", &type, 0);
 
     /* create our window */
     show_movie_window my_window(filename,type,title,width,T,xdim);
@@ -160,7 +160,7 @@ int main( int argc, char *argv[] ) {
 
 	/* finalize the library */
 	Finalize<PetscVector>();
-	
+
     return 0;
 }
 
@@ -194,7 +194,7 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 	timescroll->set_pos(10,240);
 	timescroll->disable();
 	timescroll->hide();
-		
+
 	/* allocate labels */
 	labels_myvector_properties = new label*[NUMBER_OF_LABELS];
 	for(int i=0; i < NUMBER_OF_LABELS; i++){
@@ -214,7 +214,7 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 
 	/* window title */
 	set_title("Show PETSc movie utility");
-      
+
 	/* create menu bar */
     mbar.set_number_of_menus(2);
     mbar.set_menu_name(0,"File",'F');
@@ -235,7 +235,7 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 	select_width.set_text("0");
 	label_width.set_pos(10,35);
 	label_width.set_text("width  :");
-	
+
 	select_height.set_pos(120,60);
 	select_height.set_width(70);
 	select_height.set_text("0");
@@ -271,12 +271,12 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 	on_window_resized();
 
 	show();
-} 
+}
 
 show_movie_window::show_movie_window(std::string filename, int type, std::string title, int width, int T, int xdim) : show_movie_window(type) {
 
 	if(title != ""){
-		set_title(title);		
+		set_title(title);
 	}
 
 	if(filename != ""){
@@ -286,7 +286,7 @@ show_movie_window::show_movie_window(std::string filename, int type, std::string
 	select_xdim.set_text(std::to_string(xdim));
 	select_width.set_text(std::to_string(width));
 	select_T.set_text(std::to_string(T));
-	
+
 	on_button_apply_size();
 }
 
@@ -294,7 +294,7 @@ show_movie_window::show_movie_window(std::string filename, int type, std::string
 show_movie_window::~show_movie_window(){
 
 	delete timescroll;
-	
+
 	/* destroy labels */
 	for(int i=0; i < NUMBER_OF_LABELS; i++){
 		free(labels_myvector_properties[i]);
@@ -401,7 +401,7 @@ void show_movie_window::fill_labels() {
 	timescroll->set_jump_size(timescroll->max_slider_pos()/10.0);
 	timescroll->enable();
 	timescroll->show();
-	
+
 	std::ostringstream sout;
 	sout << "t = " << t << " (" << mymovieplotter.get_T() << ")";
 	t_label.set_text(sout.str());
@@ -413,14 +413,14 @@ void show_movie_window::set_label_myvector_properties(int label_idx, const std::
 	std::ostringstream sout;
 	sout << std::setprecision(5);
     sout << text << std::setw(20) << value;
-    labels_myvector_properties[label_idx]->set_text(sout.str());	
+    labels_myvector_properties[label_idx]->set_text(sout.str());
 }
 
 void show_movie_window::on_button_apply_size(){
 	int new_width = std::stoi(trim(select_width.text()));
 	int new_xdim = std::stoi(trim(select_xdim.text()));
 	int new_T = std::stoi(trim(select_T.text()));
-	
+
 	mymovieplotter.set_size(new_width, new_xdim, new_T);
 	mymovieplotter.recompute_scale();
 
@@ -436,12 +436,12 @@ void show_movie_window::on_button_apply_size(){
 
 }
 
-/* ------------------------- graph plotter -------------- */
+/* ------------------------- movie plotter -------------- */
 
 void movieplotter::draw(const canvas& c) const {
 	/* draw background */
 	fill_rect(c,rect,rgb_pixel(255,255,255));
-	
+
 	/* plot vector */
 	if(myvector_loaded){
 		plot_image(c);
@@ -449,20 +449,20 @@ void movieplotter::draw(const canvas& c) const {
 
 }
 
-movieplotter::movieplotter(drawable_window& w, int type): 
+movieplotter::movieplotter(drawable_window& w, int type):
 			drawable(w)
 {
 	/* create empty vector */
 	myvector_Vec = new Vec();
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,myvector_Vec) );
 	myvector_loaded = false;
-	
+
 	this->type = type;
 	movie_width = 0;
 	movie_height = 0;
 	movie_scale = 1.0;
 	movie_xdim = 1;
-	
+
 	enable_events();
 }
 
@@ -505,7 +505,7 @@ void movieplotter::load_movie( const std::string& file_name, int new_xdim ) {
 	int myvector_size;
 	TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
 	int x_size = rect.width();
-	if(myvector_size < x_size){ 
+	if(myvector_size < x_size){
 		movie_width = myvector_size;
 	} else {
 		movie_width = x_size;
@@ -519,49 +519,52 @@ void movieplotter::load_movie( const std::string& file_name, int new_xdim ) {
 }
 
 void movieplotter::save_image( const std::string& file_name ) {
+	coutMaster << std::endl;
 	coutMaster << "saving image : " << file_name << std::endl;
-	
+
 	/* get filename extension */
 	std::string extension = cut_extension(file_name);
-	
+
 	array2d<rgb_pixel> image_dlib(movie_height,movie_width);
+
+	int R = movie_width*movie_height;
 
 	double *x_arr;
 	TRYCXX( VecGetArray(*myvector_Vec, &x_arr) );
 	for(int i=0;i<movie_height;i++){
 		for(int j=0;j<movie_width;j++){
-			
+
 			/* greyscale */
 			if(movie_xdim==1){
-				image_dlib[i][j].red = x_arr[i*movie_width + j]*255;
-				image_dlib[i][j].green = x_arr[i*movie_width + j]*255;
-				image_dlib[i][j].blue = x_arr[i*movie_width + j]*255;
+				image_dlib[i][j].red = x_arr[t*R + i*movie_width + j]*255;
+				image_dlib[i][j].green = x_arr[t*R + i*movie_width + j]*255;
+				image_dlib[i][j].blue = x_arr[t*R + i*movie_width + j]*255;
 			}
-			
+
 			/* rgb - Rn */
-			if(type==0){
+/*			if(type==0){
 				if(movie_xdim==3){
 					image_dlib[i][j].red   = x_arr[i*movie_width + j*movie_xdim + 0]*255;
 					image_dlib[i][j].green = x_arr[i*movie_width + j*movie_xdim + 1]*255;
 					image_dlib[i][j].blue  = x_arr[i*movie_width + j*movie_xdim + 2]*255;
 				}
 			}
-
+*/
 			/* rgb - nR */
-			if(type==1){
+/*			if(type==1){
 				if(movie_xdim==3){
 					image_dlib[i][j].red   = x_arr[0*movie_width*movie_height + i*movie_width + j]*255;
 					image_dlib[i][j].green = x_arr[1*movie_width*movie_height + i*movie_width + j]*255;
 					image_dlib[i][j].blue  = x_arr[2*movie_width*movie_height + i*movie_width + j]*255;
 				}
 			}
-			
+*/
 		}
 	}
 	TRYCXX( VecRestoreArray(*myvector_Vec, &x_arr) );
 
-	bool saved;
-	if(extension == ".jpg"){
+	bool saved = false;
+	if(extension.compare(".jpg")){
 		save_jpeg(image_dlib , file_name, 75);
 		coutMaster << "jpeg saved: " << file_name << std::endl;
 		saved = true;
@@ -583,7 +586,7 @@ bool movieplotter::get_myvector_loaded(){
 void movieplotter::plot_image(const canvas& c) const{
 	unsigned long x_begin = this->left();
 	unsigned long y_begin = this->top();
-	
+
 	unsigned long x_size = this->width();
 	unsigned long y_size = this->height();
 
@@ -603,7 +606,7 @@ void movieplotter::plot_image(const canvas& c) const{
 		pixel_size = pixel_size_y;
 	}
 
-	
+
 	double *values;
 	TRYCXX( VecGetArray(*myvector_Vec,&values) );
 
@@ -619,8 +622,8 @@ void movieplotter::plot_image(const canvas& c) const{
 			rect_pixel.set_top(y_begin + y_coor*pixel_size);
 			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
 			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
-		
-			fill_rect(c,rect_pixel,rgb_pixel(values[t*R+r]*255,values[t*R+r]*255,values[t*R+r]*255));		
+
+			fill_rect(c,rect_pixel,rgb_pixel(values[t*R+r]*255,values[t*R+r]*255,values[t*R+r]*255));
 		}
 	}
 
@@ -650,7 +653,7 @@ void movieplotter::plot_image(const canvas& c) const{
 	}
 
 	TRYCXX( VecRestoreArray(*myvector_Vec,&values) );
-	
+
 }
 
 void movieplotter::set_size(int new_width, int new_xdim, int new_T){
@@ -671,9 +674,9 @@ void movieplotter::set_size(int new_width, int new_xdim, int new_T){
 	if(myvector_loaded){
 		int    myvector_size;
 		TRYCXX( VecGetSize(*myvector_Vec, &myvector_size) );
-		
+
 		this->movie_height = (int)((myvector_size/(double)movie_xdim)/(double)(new_width*new_T));
-	
+
 	} else {
 		this->movie_height = 0;
 	}
@@ -722,13 +725,13 @@ void movieplotter::recompute_scale() {
 
 		double pixel_size_x = x_size/(double)movie_width;
 		double pixel_size_y = y_size/(double)movie_height;
-		
+
 		if(pixel_size_x < pixel_size_y){
 			movie_scale = pixel_size_x;
 		} else {
 			movie_scale = pixel_size_y;
 		}
-		
+
 	}
 }
 

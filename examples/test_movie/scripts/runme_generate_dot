@@ -1,0 +1,13 @@
+#!/bin/bash   
+
+WIDTH=60
+HEIGHT=40
+T=20
+K=2
+NOISE=0.01
+
+./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_filename_gamma0=data/moviedot_gamma0.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true
+
+./gui_show_movie --filename=data/moviedot_data.bin --width=$WIDTH --T=$T --xdim=1 --title="movie data" &
+./gui_show_movie --filename=data/moviedot_solution.bin --width=$WIDTH --T=$T --xdim=1 --title="movie solution" &
+./gui_show_movie --filename=data/moviedot_gamma0.bin --width=$WIDTH --T=$T --xdim=1 --title="movie gamma0"

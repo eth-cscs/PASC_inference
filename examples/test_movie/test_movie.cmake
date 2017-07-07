@@ -25,7 +25,7 @@ if(${TEST_MOVIE})
 
 endif()
 
-if(${TEST_MOVIE_GENERATE_MOVIE_DOT})
+if(${TEST_MOVIE_GENERATE_DOT})
 	# this is movie processing test
 	testadd_executable("test_movie/test_movie_generate_dot.cpp" "test_movie_generate_dot")
 

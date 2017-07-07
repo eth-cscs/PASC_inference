@@ -25,7 +25,7 @@ PARAM_THETA=""
 PARAM_SHORTINFO="--test_shortinfo=true" # --test_shortinfo_header --test_shortinfo_values --test_shortinfo_filename
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_init_permute=true"
+PARAM_TSSOLVER="--tssolver_maxit=1"
 PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=true --tssolver_debug_print_annealing=true --tssolver_eps=1e-4"
  
 PARAM_QPSOLVER="--spgqpsolver_maxit=5000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"

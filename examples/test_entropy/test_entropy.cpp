@@ -80,7 +80,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, Km, annealing, xdim; 
+	int K, Km, annealing, xdim;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 
 	std::string filename_in;
@@ -121,7 +121,7 @@ int main( int argc, char *argv[] )
 	std::vector<std::string> Theta_list;
 	if(consoleArg.set_option_value("test_Theta", &Theta_list)){
 		given_Theta = true;
-		
+
 		/* control number of provided Theta */
 		if(Theta_list.size() != K){
 			coutMaster << "number of provided Theta solutions is different then number of clusters! (you provided " << Theta_list.size() << " parameters)" << std::endl;
@@ -129,7 +129,7 @@ int main( int argc, char *argv[] )
 		}
 	} else {
 		given_Theta = false;
-	}	
+	}
 
 	/* set decomposition in space */
 	int DDT_size = GlobalManager.get_size();
@@ -144,9 +144,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (dimension of data points)" << std::endl;
 	coutMaster << " test_Km                     = " << std::setw(30) << Km << " (number of moments)" << std::endl;
-	if(given_Theta){
-		coutMaster << " test_Theta                  = " << std::setw(30) << print_bool(true) << std::endl;
-	}
+	coutMaster << " test_Theta                  = " << std::setw(30) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
 
 	coutMaster << " test_filename_in            = " << std::setw(30) << filename_in << " (name of input file with signal data)" << std::endl;
 	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)" << std::endl;
@@ -182,7 +180,7 @@ int main( int argc, char *argv[] )
 	}
 	std::ostringstream oss_short_output_values;
 	std::ostringstream oss_short_output_header;
-		
+
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
@@ -244,10 +242,10 @@ int main( int argc, char *argv[] )
 			coutMaster << "unable to parse input Theta values!" << std::endl;
 			return 0;
 		}
-		
+
 		mysolver.set_solution_theta(Theta_solution);
 	}
-	
+
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr;
 	double epssqr_best = -1;
@@ -276,7 +274,7 @@ int main( int argc, char *argv[] )
 		if(scaledata){
 			mydata.scaledata(-1,1);
 		}
-		
+
 		/* !!! solve the problem */
 		mysolver.solve();
 
@@ -294,7 +292,7 @@ int main( int argc, char *argv[] )
 
 		coutMaster << " - L = " << L << ", nbins = " << nbins << std::endl;
 //		mysolver.printtimer(coutMaster);
-//		mysolver.printstatus(coutMaster);	
+//		mysolver.printstatus(coutMaster);
 
 		/* store obtained solution */
 		if(saveall){
@@ -303,21 +301,21 @@ int main( int argc, char *argv[] )
 			mydata.saveGamma(oss.str());
 			oss.str("");
 		}
-		
+
 
 		/* store short info */
 		if(shortinfo_write_or_not){
 			/* add provided strings from console parameters and info about the problem */
 			if(depth==0) oss_short_output_header << shortinfo_header << "K,epssqr,L,";
 			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << L << ",";
-			
+
 			/* append Theta solution */
 			if(depth==0) for(int k=0; k < mymodel.get_thetavectorlength_local(); k++) oss_short_output_header << "Theta" << k << ",";
-			oss_short_output_values << mydata.print_thetavector(); 
+			oss_short_output_values << mydata.print_thetavector();
 
 			/* append nbins */
 			if(depth==0) oss_short_output_header << "Gamma nbins,";
-			oss_short_output_values << nbins << ","; 
+			oss_short_output_values << nbins << ",";
 
 			/* print info from solver */
 			mysolver.printshort(oss_short_output_header, oss_short_output_values);
@@ -329,7 +327,7 @@ int main( int argc, char *argv[] )
 			/* write to shortinfo file */
 			if(depth==0) shortinfo.write(oss_short_output_header.str());
 			shortinfo.write(oss_short_output_values.str());
-			
+
 			/* clear streams for next writing */
 			oss_short_output_header.str("");
 			oss_short_output_values.str("");
@@ -342,7 +340,7 @@ int main( int argc, char *argv[] )
 			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
 			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
 		}
-		
+
 	}
 
 	/* set best computed solution back to data */
@@ -375,7 +373,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "- total time: " << timer_all.get_value_last() << " s" << std::endl;
 	coutMaster << "------------------------------------------------" << std::endl;
 
-	/* say bye */	
+	/* say bye */
 	coutMaster << "- end program" << std::endl;
 
 	logging.end();
