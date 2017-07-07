@@ -9,7 +9,7 @@ FEM_REDUCE=-1
 NPROC=4
 
 # remove old files
-rm results/seq_image_recovered.bin results/seq_image_gamma.bin
+rm -f results/seq_image_recovered.bin results/seq_image_gamma.bin
 
 # define parameters
 PARAM_FILENAME="--test_filename_in=data/test_image/seq_image.bin --test_filename_solution=data/test_image/seq_image.bin --test_filename_out=seq_image --test_width=$MYTESTWIDTH --test_height=$MYTESTHEIGHT --test_xdim=$XDIM"
@@ -26,7 +26,7 @@ PARAM_TSSOLVER="--tssolver_maxit=0 --tssolver_eps=1e-5 --tssolver_debugmode=0"
 PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/seq.txt --tssolver_debug_print_gamma_solution=false"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
+PARAM_SOLVER="--spgqpsolver_maxit=1 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
 PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
 
 PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=4"
@@ -39,8 +39,8 @@ PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_GAMMA $PARAM_THETA $PARAM_FEM $PA
 
 ## run the job
 #./test_signal1D $PARAM_ALL
-/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
-#mpiexec -n $NPROC ./test_image $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
+mpiexec -n $NPROC ./test_image $PARAM_ALL
 #./test_image $PARAM_ALL
 
 # show results

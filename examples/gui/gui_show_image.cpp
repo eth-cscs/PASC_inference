@@ -562,6 +562,31 @@ void imageplotter::plot_image(const canvas& c) const{
 		}
 	}
 
+	/* ? */
+	if(image_xdim==2){
+		int R = image_width*image_height;
+
+		for(int t=0;t<R;t++){
+			y_coor = t/(double)image_width;
+			x_coor = t - y_coor*image_width;
+
+			rect_pixel.set_left(x_begin + x_coor*pixel_size);
+			rect_pixel.set_top(y_begin + y_coor*pixel_size);
+			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
+			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
+
+			/* Rn */
+			if(type == 0){
+				fill_rect(c,rect_pixel,rgb_pixel(values[t*image_xdim+0]*255,values[t*image_xdim+1]*255,255));
+			}
+
+			/* nR */
+			if(type == 1){
+				fill_rect(c,rect_pixel,rgb_pixel(values[0*R + t]*255,values[1*R + t]*255,255));
+			}
+		}
+	}
+
 	/* rgb */
 	if(image_xdim==3){
 		int R = image_width*image_height;
@@ -597,7 +622,7 @@ void imageplotter::set_size(int new_width, int new_xdim){
 		this->image_width = new_width;
 	}
 
-	if(new_xdim==1 | new_xdim == 3){
+	if(new_xdim>0 && new_xdim < 4){
 		this->image_xdim = new_xdim;
 	}
 

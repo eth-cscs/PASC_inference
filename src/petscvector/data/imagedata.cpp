@@ -51,10 +51,6 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 	this->decomposition->createGlobalVec_data(&datasave_Vec);
 	GeneralVector<PetscVector> datasave(datasave_Vec);
 
-	Vec gammasave_Vec;
-	this->decomposition->createGlobalVec_gamma(&gammasave_Vec);
-	GeneralVector<PetscVector> gammasave(gammasave_Vec);
-
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	if(save_original){
 		oss_name_of_file << "results/" << filename << "_original.bin";
@@ -66,9 +62,13 @@ void ImageData<PetscVector>::saveImage(std::string filename, bool save_original)
 
 	/* save gamma */
 	oss_name_of_file << "results/" << filename << "_gamma.bin";
-	this->decomposition->permute_bTR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
 
+	Vec gammasave_Vec;
+    TRYCXX( VecDuplicate(gammavector->get_vector(), &gammasave_Vec) );
+	this->decomposition->permute_bTR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
+	GeneralVector<PetscVector> gammasave(gammasave_Vec);
 	gammasave.save_binary(oss_name_of_file.str());
+
 	oss_name_of_file.str("");
 
 	/* compute recovered image */

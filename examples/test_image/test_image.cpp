@@ -246,6 +246,9 @@ int main( int argc, char *argv[] )
 		oss.str("");
 	}
 
+    //TODO: temp
+//    graph->print_content(coutMaster);
+
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 
@@ -259,15 +262,16 @@ int main( int argc, char *argv[] )
 	if(printstats) mydata.printstats(coutMaster);
 
 /* 4.) prepare and load solution */
-	Vec solution_Vec;
-	Vec solution_Vec_preload;
-	GeneralVector<PetscVector> solution(solution_Vec);
+    Vec solution_Vec;
+    TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
+    GeneralVector<PetscVector> solution(solution_Vec);
+
 	if(given_solution){
-		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
+        Vec solution_Vec_preload;
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-//		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );

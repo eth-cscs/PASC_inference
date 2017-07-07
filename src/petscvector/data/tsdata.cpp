@@ -44,7 +44,7 @@ TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition){
 	LOG_FUNC_BEGIN
 
 	this->decomposition = &new_decomposition;
-	
+
 	/* we are ready to prepare datavector */
 	Vec data_Vec;
 	this->decomposition->createGlobalVec_data(&data_Vec);
@@ -73,7 +73,7 @@ TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition, std::
 
 	//TODO: check if file exists
 	this->decomposition = &new_decomposition;
-	
+
 	//TODO: implement loader of vector into decomposition?
 	///* new data vector only for loading data */
 	//Vec dataPreLoad_Vec;
@@ -83,7 +83,7 @@ TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition, std::
 	//PetscViewer mviewer;
 	//TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
 	//TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
-	
+
 	///* load vector from viewer */
 	//TRYCXX( VecLoad(dataPreLoad_Vec, mviewer) );
 
@@ -106,26 +106,26 @@ TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition, std::
 
 	//int Tbegin, Tend;
 	//TRYCXX( VecGetOwnershipRange(layout,&Tbegin,&Tend) );
-	
+
 	///* get Tlocal */
 	//int Tlocal;
 	//TRYCXX( VecGetLocalSize(layout,&Tlocal) );
-	
+
 	///* destroy layout vector - now we know everything what is necessary */
 	//TRYCXX( VecDestroy(&layout) );
-	
+
 	///* we are ready to prepare real datavector */
 	//Vec data_Vec;
 	//TRYCXX( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
 	//TRYCXX( VecSetSizes(data_Vec, Tlocal*blocksize, T*blocksize ) );
-	//TRYCXX( VecSetFromOptions(data_Vec) );	
+	//TRYCXX( VecSetFromOptions(data_Vec) );
 
 	//TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
 	//TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
 
 	///* load data to vector with right layout */
 	//TRYCXX( VecLoad(data_Vec, mviewer) );
-	
+
 	//TRYCXX( VecAssemblyBegin(data_Vec) );
 	//TRYCXX( VecAssemblyEnd(data_Vec) );
 
@@ -144,7 +144,7 @@ TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition, std::
 	destroy_thetavector = false;
 
 	this->tsmodel = NULL;
-	
+
 	LOG_FUNC_END
 }
 
@@ -184,7 +184,7 @@ void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel){
 		#endif
 		TRYCXX( VecSetSizes(thetavector_Vec,this->tsmodel->get_thetavectorlength_local(),PETSC_DECIDE) );
 		TRYCXX( VecSetFromOptions(thetavector_Vec) );
-		
+
 		this->thetavector = new GeneralVector<PetscVector>(thetavector_Vec);
 		this->destroy_thetavector = true;
 	}
@@ -198,13 +198,13 @@ void TSData<PetscVector>::cutgamma() const {
 
 	int max_id;
 	double max_value;
-	
+
 	int K = get_K();
 	int gamma_t = decomposition->get_Tlocal()*decomposition->get_Rlocal();
-	
+
 	double *gamma_arr;
 	TRYCXX( VecGetArray(gammavector->get_vector(),&gamma_arr) );
-	
+
 	int t,k;
 	for(t = 0; t < gamma_t; t++){
 		/* find max value */
@@ -216,7 +216,7 @@ void TSData<PetscVector>::cutgamma() const {
 				max_value = gamma_arr[t*K + k];
 			}
 		}
-		
+
 		/* set new values */
 		for(k = 0; k < K; k++){
 			if(k == max_id){
@@ -230,7 +230,7 @@ void TSData<PetscVector>::cutgamma() const {
 	}
 
 	TRYCXX( VecRestoreArray(gammavector->get_vector(),&gamma_arr) );
-	
+
 	LOG_FUNC_END
 }
 
@@ -251,7 +251,7 @@ void TSData<PetscVector>::save_thetavector(std::string filename) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -264,7 +264,7 @@ void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
 	int theta_size = this->tsmodel->get_thetavectorlength_local();
 	double *theta_arr;
 	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
-		
+
 	for(int i=0;i<theta_size;i++){
 		output << theta_arr[i];
 		if(i < theta_size-1){
@@ -272,7 +272,7 @@ void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const {
 		}
 	}
 	output << std::endl;
-		
+
 	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
 
@@ -284,12 +284,12 @@ std::string TSData<PetscVector>::print_thetavector() const {
 	std::ostringstream out;
 
 	int theta_size = this->tsmodel->get_thetavectorlength_local();
-	
+
 	double *theta_arr;
 	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
 	for(int i=0;i<theta_size;i++){
 		out << theta_arr[i] << ",";
-	}	
+	}
 
 	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
@@ -321,7 +321,7 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 		output << " - R:               " << std::setw(25) << get_R() << std::endl;
 		output << " - K:               " << std::setw(25) << get_K() << std::endl;
 		output << " - T:               " << std::setw(25) << get_T() << std::endl;
-		
+
 		/* compute basic statistics: */
 		Vec x_Vec = datavector->get_vector();
 
@@ -345,12 +345,12 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 			Vec xk_Vec;
 			IS xk_is;
 			int xk_size = get_T();
-		
+
 			double xk_sum;
 			double xk_max;
 			double xk_min;
 			double xk_avg;
-		
+
 			for(int k=0;k<blocksize;k++){
 				output << "x_" << k << std::endl;
 				output.push();
@@ -373,10 +373,10 @@ void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) c
 				output.pop();
 			}
 		}
-*/		
+*/
 	output.pop();
 	output << std::setprecision(ss);
-		
+
 	LOG_FUNC_END
 }
 
@@ -398,7 +398,7 @@ void TSData<PetscVector>::scaledata(double a, double b){
 	/* compute x = (x-scale_min)/(scale_max-scale_min) */
 	TRYCXX( VecScale(x_Vec, k) );
 	TRYCXX( VecShift(x_Vec, q) );
-	
+
 	TRYCXX( VecAssemblyBegin(x_Vec) );
 	TRYCXX( VecAssemblyEnd(x_Vec) );
 
@@ -407,17 +407,17 @@ void TSData<PetscVector>::scaledata(double a, double b){
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
 		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
-		
+
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = k*theta_arr[i] + q;
 		}
-		
+
 		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
 		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
 		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
-	
+
 	LOG_FUNC_END
 }
 
@@ -444,17 +444,17 @@ void TSData<PetscVector>::unscaledata(double a, double b){
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
 		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
-		
+
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = (theta_arr[i] - q)/k;
 		}
-		
+
 		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
 		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
 		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
-	
+
 	LOG_FUNC_END
 }
 
@@ -468,13 +468,13 @@ void TSData<PetscVector>::cutdata(double a, double b){
 	for(int i=0;i<datavector->local_size();i++){
 		if(data_arr[i] > b){
 			data_arr[i] = b;
-		} 
+		}
 		if(data_arr[i] < a){
 			data_arr[i] = a;
-		} 
+		}
 	}
 	TRYCXX( VecRestoreArray(datavector->get_vector(),&data_arr));
-	
+
 	LOG_FUNC_END
 }
 
@@ -486,7 +486,7 @@ void TSData<PetscVector>::shiftdata(double a){
 	Vec x_Vec = datavector->get_vector();
 
 	TRYCXX( VecShift(x_Vec, a) );
-	
+
 	TRYCXX( VecAssemblyBegin(x_Vec) );
 	TRYCXX( VecAssemblyEnd(x_Vec) );
 
@@ -495,16 +495,16 @@ void TSData<PetscVector>::shiftdata(double a){
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
 		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
-		
+
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = theta_arr[i] + a;
 		}
-		
+
 		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
 		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
-	
+
 	LOG_FUNC_END
 }
 
@@ -523,7 +523,7 @@ void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double
 	/* compute x = (x-scale_min)/(scale_max-scale_min) */
 	TRYCXX( VecScale(x_Vec, k) );
 	TRYCXX( VecShift(x_Vec, q) );
-	
+
 	TRYCXX( VecAssemblyBegin(x_Vec) );
 	TRYCXX( VecAssemblyEnd(x_Vec) );
 
@@ -532,24 +532,24 @@ void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double
 		int theta_size = this->tsmodel->get_thetavectorlength_local();
 		double *theta_arr;
 		TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr));
-		
+
 		for(int i=0;i<theta_size;i++){
 			theta_arr[i] = k*theta_arr[i] + q;
 		}
-		
+
 		TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr));
 
 		TRYCXX( VecAssemblyBegin(thetavector->get_vector()) );
 		TRYCXX( VecAssemblyEnd(thetavector->get_vector()) );
 	}
-	
+
 	LOG_FUNC_END
 }
 
 template<>
 void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	LOG_FUNC_BEGIN
-	
+
 	/* get petsc Vec from provided vector - this vector is stride */
 	Vec gamma0_Vec = gamma0.get_vector();
 
@@ -560,7 +560,7 @@ void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 
 	std::cin >> test;
 
-	
+
 	/* variables */
 	int K = this->get_K();
 	int T = this->get_T();
@@ -570,7 +570,7 @@ void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 
 	/* prepare IS with my indexes in provided vector */
 	IS gamma_sub_IS;
-	
+
 	/* fill the index sets */
 	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, Tlocal*K, Tbegin*K, 1, &(gamma_sub_IS)) );
 
@@ -608,16 +608,8 @@ void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 template<>
 void TSData<PetscVector>::load_gammavector(std::string filename) const {
 	LOG_FUNC_BEGIN
-	
-	//TODO: control existence of file
-	//TODO: control existence of gammavector
-	//TODO: test compatibility between vector in file and gamma vector
 
 	gammavector->load_global(filename);
-
-	//TODO: temp
-//	coutMaster << "original:" << std::endl;
-//	TRYCXX( VecView(gammavector->get_vector(), PETSC_VIEWER_STDOUT_WORLD) );
 
 	Vec gammavector_preload_Vec;
 	Vec gammavector_Vec = gammavector->get_vector();
@@ -628,11 +620,7 @@ void TSData<PetscVector>::load_gammavector(std::string filename) const {
 
 	TRYCXX( VecCopy(gammavector_preload_Vec, gammavector->get_vector()));
 	TRYCXX( VecDestroy(&gammavector_preload_Vec) );
-	
-	//TODO: temp
-//	coutMaster << "permuted:" << std::endl;
-//	TRYCXX( VecView(gammavector->get_vector(), PETSC_VIEWER_STDOUT_WORLD) );
-	
+
 	LOG_FUNC_END
 }
 
@@ -645,10 +633,10 @@ double TSData<PetscVector>::compute_gammavector_nbins() {
 
 	int K = this->get_K();
 	int T = this->get_T();
-	
+
 	double *gamma_arr;
 	TRYCXX( VecGetArray(gammavector->get_vector(), &gamma_arr) );
-	
+
 	for(int t=0;t<T-1;t++){
 		is_changed = false;
 		for(int k=0;k<K;k++){
@@ -656,13 +644,13 @@ double TSData<PetscVector>::compute_gammavector_nbins() {
 				is_changed = true;
 			}
 		}
-		
+
 		if(is_changed) nbins++;
 	}
 	TRYCXX( VecRestoreArray(gammavector->get_vector(), &gamma_arr) );
 
 	LOG_FUNC_END
-	
+
 	return nbins;
 }
 

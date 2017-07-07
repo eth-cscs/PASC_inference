@@ -2,17 +2,17 @@
 
 MYTESTWIDTH=100
 MYTESTHEIGHT=66
-#MYTESTWIDTH=4
-#MYTESTHEIGHT=3
-XDIM=1
+#MYTESTWIDTH=50
+#MYTESTHEIGHT=33
+XDIM=3
 NOISE=0.0
 ANNEALING=1
-K=2
+K=4
 FEM_REDUCE=-1
-NPROC=2
+NPROC=3
 
 # remove old files
-rm data/test_image/lugano_solution.bin data/test_image/lugano_data.bin results/lugano_recovered.bin results/lugano_gamma.bin
+rm -f data/test_image/lugano_solution.bin data/test_image/lugano_data.bin results/lugano_recovered.bin results/lugano_gamma.bin
 
 # generate example
 ./util_dlib_image_to_vec --filename_in=data/test_image/lugano.jpg --filename_out=data/test_image/lugano_solution.bin --noise=0.0 --new_width=$MYTESTWIDTH --new_height=$MYTESTHEIGHT --xdim=$XDIM
@@ -21,8 +21,9 @@ rm data/test_image/lugano_solution.bin data/test_image/lugano_data.bin results/l
 # define parameters
 PARAM_FILENAME="--test_filename_in=data/test_image/lugano_data.bin --test_filename_solution=data/test_image/lugano_solution.bin --test_filename_out=lugano --test_width=$MYTESTWIDTH --test_height=$MYTESTHEIGHT --test_xdim=$XDIM"
 #PARAM_FILENAME="--test_filename_in=data/test_image/lugano_data.bin --test_filename_out=lugano --test_width=$MYTESTWIDTH --test_height=$MYTESTHEIGHT --test_xdim=$XDIM"
+#PARAM_GAMMA="--test_filename_gamma0=data/test_image/lugano_gamma.bin"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
-PARAM_THETA="--test_Theta=0.8 --test_Theta=0.2"
+#PARAM_THETA="--test_Theta=0.8 --test_Theta=0.2"
 #PARAM_THETA="--test_Theta=0.25 --test_Theta=0.5 --test_Theta=0.75"
 #PARAM_THETA="--test_Theta=0.0 --test_Theta=1.0"
 PARAM_EPSSQR="--test_epssqr=1e0"
@@ -42,12 +43,12 @@ PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=4"
 PARAM_PETSC="--petsc_options=\"\""
 
 ## concrenate all parameters
-PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
+PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_GAMMA $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
 
 ## run the job
 #./test_signal1D $PARAM_ALL
-/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
-#mpiexec -n $NPROC ./test_image $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
+mpiexec -n $NPROC ./test_image $PARAM_ALL
 #./test_image $PARAM_ALL
 
 # show results

@@ -5,7 +5,7 @@ T=1000
 XDIM=2
 K=2
 KM=2
-NPROC=5
+NPROC=1
 
 # generate example from txt
 ./util_csv_to_vec --filename_in=$NAME --filename_out "data/test_entropy/sample_data.bin" --T=$T --xdim=$XDIM --print=false --permute=false
@@ -42,7 +42,8 @@ PARAM_ENTROPYSOLVER_INTEGRATION="--entropysolverdlib_integration_type=3 --entrop
 
 PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT $PARAM_ENTROPYSOLVER_INTEGRATION"
 
-/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_entropy $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_entropy $PARAM_ALL
+mpiexec -n $NPROC ./test_entropy $PARAM_ALL
 
 ./gui_show_gamma --filename=results/entropy_small_gamma.bin --K=$K --title="Gamma" &
 
