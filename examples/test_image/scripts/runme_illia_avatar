@@ -1,8 +1,8 @@
 #!/bin/bash   
 
 MYTESTSIZE=50
-XDIM=1
-NOISE=1.0
+XDIM=3
+NOISE=0.2
 ANNEALING=1
 K=3
 FEM_REDUCE=-1
@@ -16,7 +16,7 @@ NPROC=2
 PARAM_FILENAME="--test_filename_in=data/test_image/illia_avatar_color_data.bin --test_filename_solution=data/test_image/illia_avatar_color_solution.bin --test_filename_out=illia_avatar_color --test_width=$MYTESTSIZE --test_height=$MYTESTSIZE --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 #PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
-PARAM_THETA="--test_Theta=0.25 --test_Theta=0.5 --test_Theta=0.75"
+#PARAM_THETA="--test_Theta=0.25 --test_Theta=0.5 --test_Theta=0.75"
 PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
 #PARAM_EPSSQR="--test_epssqr=1e-4 --test_epssqr=1e-2 --test_epssqr=1e0 --test_epssqr=1e2"
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
@@ -37,8 +37,8 @@ PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $P
 
 ## run the job
 #./test_signal1D $PARAM_ALL
-/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
-#mpiexec -n $NPROC ./test_image $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
+mpiexec -n $NPROC ./test_image $PARAM_ALL
 #./test_image $PARAM_ALL
 
 # show results

@@ -4,12 +4,12 @@ MYTESTWIDTH=100
 MYTESTHEIGHT=66
 #MYTESTWIDTH=50
 #MYTESTHEIGHT=33
-XDIM=3
-NOISE=0.0
+XDIM=1
+NOISE=0.3
 ANNEALING=1
-K=4
+K=3
 FEM_REDUCE=-1
-NPROC=3
+NPROC=2
 
 # remove old files
 rm -f data/test_image/lugano_solution.bin data/test_image/lugano_data.bin results/lugano_recovered.bin results/lugano_gamma.bin

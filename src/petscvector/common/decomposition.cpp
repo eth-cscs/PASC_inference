@@ -350,7 +350,7 @@ void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 		for(int r=0;r<Rlocal;r++){
             for(int k=0;k<blocksize;k++){
 				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = t*R*blocksize + (Rbegin+r) + k*R;
-//				orig_local_arr[t*blocksize*Rlocal + k*Rlocal + i] = (Tbegin+t + k*T)*R + i;
+//				orig_local_arr[t*blocksize*Rlocal + k*Rlocal + r] = (Tbegin+t + k*T)*R + r;
 
 			}
 		}
