@@ -17,7 +17,7 @@ Decomposition<PetscVector>::Decomposition(int T, int R, int K, int xdim, int DDT
 
 	/* prepare new layout for T */
 	destroy_DDT_arrays = true;
-	DDT_ranges = (int *)malloc((this->DDT_size+1)*sizeof(int));
+	DDT_ranges = new int[this->DDT_size+1];
 
 	Vec DDT_layout;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&DDT_layout) );
@@ -42,19 +42,19 @@ Decomposition<PetscVector>::Decomposition(int T, int R, int K, int xdim, int DDT
 	/* no graph provided - allocate arrays */
 	destroy_DDR_arrays = true;
 
-	DDR_affiliation = (int *)malloc(R*sizeof(int));
-	DDR_permutation = (int *)malloc(R*sizeof(int));
-	DDR_invpermutation = (int *)malloc(R*sizeof(int));
+	DDR_affiliation = new int[R];
+	DDR_permutation = new int[R];
+	DDR_invpermutation = new int[R];
 	for(int i=0;i<R;i++){
 		DDR_affiliation[i] = 0;
 		DDR_permutation[i] = i;
 		DDR_invpermutation[i] = i;
 	}
 
-	DDR_lengths = (int *)malloc((this->DDR_size)*sizeof(int));
+	DDR_lengths = new int[this->DDR_size];
 	DDR_lengths[0] = R;
 
-	DDR_ranges = (int *)malloc((this->DDR_size+1)*sizeof(int));
+	DDR_ranges = new int[this->DDR_size+1];
 	DDR_ranges[0] = 0;
 	DDR_ranges[1] = R;
 
@@ -84,7 +84,7 @@ Decomposition<PetscVector>::Decomposition(int T, BGMGraph<PetscVector> &new_grap
 
 	/* prepare new layout for T */
 	destroy_DDT_arrays = true;
-	DDT_ranges = (int *)malloc((this->DDT_size+1)*sizeof(int));
+	DDT_ranges = new int[this->DDT_size+1];
 	DDT_ranges[0] = 0;
 	DDT_ranges[1] = T;
 
@@ -114,7 +114,7 @@ Decomposition<PetscVector>::Decomposition(int T, BGMGraph<PetscVector> &new_grap
 	/* unfortunatelly, we have to compute distribution of T manually */
 	int DDT_optimal_local_size = T/(double)DDT_size;
 	int DDT_optimal_local_size_residue = T - DDT_optimal_local_size*DDT_size;
-	DDT_ranges = (int *)malloc((this->DDT_size+1)*sizeof(int));
+	DDT_ranges = new int[this->DDT_size+1];
 	DDT_ranges[0] = 0;
 	for(int i=0;i<DDT_size;i++){
 		DDT_ranges[i+1] = DDT_ranges[i] + DDT_optimal_local_size;
@@ -158,12 +158,23 @@ void Decomposition<PetscVector>::compute_rank(){
 	this->DDR_rank = rank - (this->DDT_rank)*(this->DDR_size);
 
 	/* compute TRbegin */
-    Vec layout;
-    TRYCXX( VecCreate(PETSC_COMM_WORLD, &layout) );
-    TRYCXX( VecSetSizes(layout,this->get_Tlocal()*this->get_Rlocal(),this->get_T()*this->get_R()) );
-    TRYCXX( VecSetFromOptions(layout) );
-    TRYCXX( VecGetOwnershipRange( layout, &TRbegin, NULL) );
-    TRYCXX( VecDestroy(&layout));
+	if(DDR_size > 1){
+        if(DDT_size > 1){
+            /* combination of time and space */
+            Vec layout;
+            TRYCXX( VecCreate(PETSC_COMM_WORLD, &layout) );
+            TRYCXX( VecSetSizes(layout,this->get_Tlocal()*this->get_Rlocal(),this->get_T()*this->get_R()) );
+            TRYCXX( VecSetFromOptions(layout) );
+            TRYCXX( VecGetOwnershipRange( layout, &TRbegin, NULL) );
+            TRYCXX( VecDestroy(&layout));
+        } else {
+            /* only in space */
+            TRbegin = get_Rbegin();
+        }
+	} else {
+        /* only in time */
+        TRbegin = get_Tbegin();
+    }
 
 	LOG_FUNC_END
 }
