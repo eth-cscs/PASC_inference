@@ -14,6 +14,7 @@ template<> Decomposition<PetscVector>::Decomposition(int T, BGMGraph<PetscVector
 template<> Decomposition<PetscVector>::~Decomposition();
 template<> void Decomposition<PetscVector>::compute_rank();
 template<> void Decomposition<PetscVector>::set_graph(BGMGraph<PetscVector> &new_graph, int DDR_size);
+template<> void Decomposition<PetscVector>::set_new_graph(BGMGraph<PetscVector> &new_graph, int DDR_size);
 
 template<> void Decomposition<PetscVector>::createGlobalVec_gamma(Vec *x_Vec) const;
 template<> void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const;

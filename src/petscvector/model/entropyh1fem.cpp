@@ -32,7 +32,7 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 
 	/* control the existence of graph */
 	/* in this model, I need to work with graph, but maybe there is no graph in decomposition
-	 * (for instance in the case without spatial decomposition), however it seems that user still wants to work 
+	 * (for instance in the case without spatial decomposition), however it seems that user still wants to work
 	 * with this model based on graph. Therefore we create graph of disjoint nodes without any edge. This graph
 	 * represents the situation and can be used for matrix-graph-based manipulation
 	*/
@@ -42,11 +42,11 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 
 		for(int r=0;r<this->tsdata->get_R();r++){
 			coordinates_array[r] = r;
-		} 
+		}
 		graph = new BGMGraph<PetscVector>(coordinates_array, this->tsdata->get_R(), 1);
 		graph->process(0.0);
-		
-		this->tsdata->get_decomposition()->set_graph(*graph);
+
+		this->tsdata->get_decomposition()->set_new_graph(*graph);
 	}
 
 	/* set regularization parameter */
@@ -60,15 +60,15 @@ void EntropyH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global,
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	output_global <<  "theta:" << std::endl;
 
 	std::ostringstream temp;
-	
+
 	double *theta;
 	TRYCXX( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
-	
+
 	output_local.push();
 	output_local << print_array(theta,tsdata->get_K(),get_Km()) << std::endl;
 	output_local.pop();
@@ -107,7 +107,7 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
 	A_shared = new BlockGraphSparseMatrix<PetscVector>(*(this->tsdata->get_decomposition()), coeff, NULL );
 
-	gammadata->set_A(A_shared); 
+	gammadata->set_A(A_shared);
 
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
@@ -116,11 +116,11 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	if(this->gammasolvertype == GSOLVER_AUTO){
 		this->gammasolvertype = GSOLVER_SPGQP;
 	}
-	
+
 	/* SPG-QP solver */
 	if(this->gammasolvertype == GSOLVER_SPGQP){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K()));
 
 		/* create solver */
 		*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
@@ -129,17 +129,17 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	/* SPG-QP solver with special coefficient treatment */
 	if(this->gammasolvertype == GSOLVER_SPGQP_COEFF){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K()));
 
 		/* create solver */
 		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
 	}
 
 	/* Permon solver */
-#ifdef USE_PERMON	
+#ifdef USE_PERMON
 	if(this->gammasolvertype == GSOLVER_PERMON){
 		/* the feasible set of QP is combination of linear equality constraints and bound inequality constraints */
-//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
+//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K()));
 
 		/* create solver */
 //		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
@@ -149,7 +149,7 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 	/* TAO QP solver */
 	if(this->gammasolvertype == GSOLVER_TAO){
 		/* the feasible set of QP is simplex */
-//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K())); 
+//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(this->tsdata->get_decomposition()->get_T(),this->tsdata->get_decomposition()->get_Tlocal(),this->tsdata->get_decomposition()->get_K()));
 
 		/* create solver */
 //		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
@@ -177,18 +177,18 @@ void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thet
 	if(this->thetasolvertype == TSOLVER_AUTO){
 		this->thetasolvertype = TSOLVER_ENTROPY_DLIB;
 	}
-	
+
 	/* ENTROPY_DLIB solver */
 	if(this->thetasolvertype == TSOLVER_ENTROPY_DLIB){
 		/* create solver */
 		*thetasolver = new EntropySolverDlib<PetscVector>(*thetadata);
 	}
-	
+
 	/* ENTROPY_NEWTON solver */
 	if(this->thetasolvertype == TSOLVER_ENTROPY_NEWTON){
 		/* create solver */
 		*thetasolver = new EntropySolverNewton<PetscVector>(*thetadata);
-	}	
+	}
 
 	LOG_FUNC_END
 }

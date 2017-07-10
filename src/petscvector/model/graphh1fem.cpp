@@ -12,13 +12,13 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	int gammasolvertype_int;
 	consoleArg.set_option_value("graphh1femmodel_gammasolvertype", &gammasolvertype_int, SOLVER_AUTO);
 	consoleArg.set_option_value("graphh1femmodel_scalef", &scalef, GRAPHH1FEMMODEL_DEFAULT_SCALEF);
-	
+
 	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
 
 	/* set given parameters */
 	this->usethetainpenalty = usethetainpenalty;
 	this->tsdata = &new_tsdata;
-	
+
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
 	this->thetavectorlength_local = tsdata->get_K()*tsdata->get_xdim();
 	this->thetavectorlength_global = GlobalManager.get_size()*(this->thetavectorlength_local);
@@ -28,7 +28,7 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 
 	/* control the existence of graph */
 	/* in this model, I need to work with graph, but maybe there is no graph in decomposition
-	 * (for instance in the case without spatial decomposition), however it seems that user still wants to work 
+	 * (for instance in the case without spatial decomposition), however it seems that user still wants to work
 	 * with this model based on graph. Therefore we create graph of disjoint nodes without any edge. This graph
 	 * represents the situation and can be used for matrix-graph-based manipulation
 	*/
@@ -38,11 +38,11 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 
 		for(int r=0;r<this->tsdata->get_R();r++){
 			coordinates_array[r] = r;
-		} 
+		}
 		graph = new BGMGraph<PetscVector>(coordinates_array, this->tsdata->get_R(), 1);
 		graph->process(0.0);
-		
-		this->tsdata->get_decomposition()->set_graph(*graph);
+
+		this->tsdata->get_decomposition()->set_new_graph(*graph);
 	}
 
 	/* prepare parameters and decomposition of reduced problem */
@@ -52,7 +52,7 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	} else {
 		this->fem = new_fem;
 	}
-	
+
 	double fem_reduce = this->fem->get_fem_reduce();
 
 	this->fem->set_decomposition_original(this->tsdata->get_decomposition());
@@ -70,15 +70,15 @@ void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, C
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	output_global <<  "theta:" << std::endl;
 
 	std::ostringstream temp;
-	
+
 	double *theta;
 	TRYCXX( VecGetArray(thetadata->get_x()->get_vector(),&theta) );
-	
+
 	output_local.push();
 	output_local << "- proc: " << GlobalManager.get_rank() << std::endl;
 	output_local.push();
@@ -125,10 +125,10 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 		gammadata->set_x(new GeneralVector<PetscVector>(x_reduced_Vec)); /* create new linear term of QP problem */
 		gammadata->set_x0(gammadata->get_x()); /* the initial approximation of QP problem is gammavector */
 		gammadata->set_b(new GeneralVector<PetscVector>(*gammadata->get_x0())); /* create new linear term of QP problem */
-		
+
 		/* create the residuum from original gamma vector */
 		residuum = new GeneralVector<PetscVector>(*tsdata->get_gammavector());
-	
+
 	} else {
 		/* there is not reduction at all, we can use vectors from original data */
 		gammadata->set_x(tsdata->get_gammavector()); /* the solution of QP problem is gamma */
@@ -157,7 +157,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(get_decomposition_reduced()), coeff, NULL );
 	}
 
-	gammadata->set_A(A_shared); 
+	gammadata->set_A(A_shared);
 
 	/* generate random data to gamma */
 	gammadata->get_x0()->set_random();
@@ -169,11 +169,11 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	if(this->gammasolvertype == SOLVER_AUTO){
 		this->gammasolvertype = SOLVER_SPGQP;
 	}
-	
+
 	/* SPG-QP solver */
 	if(this->gammasolvertype == SOLVER_SPGQP){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K()));
 
 		/* create solver */
 		*gammasolver = new SPGQPSolver<PetscVector>(*gammadata);
@@ -182,17 +182,17 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* SPG-QP solver with special coefficient treatment */
 	if(this->gammasolvertype == SOLVER_SPGQP_COEFF){
 		/* the feasible set of QP is simplex */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_Local<PetscVector>(get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K()));
 
 		/* create solver */
 		*gammasolver = new SPGQPSolverC<PetscVector>(*gammadata);
 	}
 
 	/* Permon solver */
-#ifdef USE_PERMON	
+#ifdef USE_PERMON
 	if(this->gammasolvertype == SOLVER_PERMON){
 		/* the feasible set of QP is combination of linear equality constraints and bound inequality constraints */
-		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(get_decomposition_reduced()->get_T()*get_decomposition_reduced()->get_R(),get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
+		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(get_decomposition_reduced()->get_T()*get_decomposition_reduced()->get_R(),get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K()));
 
 		/* create solver */
 		*gammasolver = new PermonSolver<PetscVector>(*gammadata);
@@ -202,7 +202,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 	/* TAO QP solver */
 	if(this->gammasolvertype == SOLVER_TAO){
 		/* the feasible set of QP is simplex */
-//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(get_decomposition_reduced()->get_T()*get_decomposition_reduced()->get_R(),get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K())); 
+//		gammadata->set_feasibleset(new SimplexFeasibleSet_LinEqBound<PetscVector>(get_decomposition_reduced()->get_T()*get_decomposition_reduced()->get_R(),get_decomposition_reduced()->get_Tlocal()*get_decomposition_reduced()->get_Rlocal(),get_decomposition_reduced()->get_K()));
 
 		/* create solver */
 //		*gammasolver = new TaoSolver<PetscVector>(*gammadata);
@@ -215,19 +215,19 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 template<>
 void GraphH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
-	
+
 	/* create data */
 	thetadata = new SimpleData<PetscVector>();
 	thetadata->set_x(tsdata->get_thetavector());
 
 	/* create solver */
 	*thetasolver = new SimpleSolver<PetscVector>(*thetadata);
-	
+
 	/* create aux vector for gamma^T A gamma */
 	Vec Agamma_Vec;
 	TRYCXX( VecDuplicate(tsdata->get_gammavector()->get_vector(),&Agamma_Vec) );
 	Agamma = new GeneralVector<PetscVector>(Agamma_Vec);
-	
+
 	LOG_FUNC_END
 }
 
@@ -249,10 +249,10 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	/* update gamma_solver data - prepare new linear term */
 	const double *theta_arr;
 	TRYCXX( VecGetArrayRead(tsdata->get_thetavector()->get_vector(), &theta_arr) );
-	
+
 	const double *data_arr;
 	TRYCXX( VecGetArrayRead(tsdata->get_datavector()->get_vector(), &data_arr) );
-	
+
 	double *residuum_arr;
 	Vec residuum_Vec = this->residuum->get_vector();
 	TRYCXX( VecSet(residuum_Vec,0.0) );
@@ -286,7 +286,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 	if(this->scalef){
 		coeff *= (1.0/((double)(this->get_T_reduced())));
 	}
-	
+
 //	double coeff = (-1.0/((double)(this->get_T())));
 	TRYCXX( VecScale(gammadata->get_b()->get_vector(), coeff) );
 
@@ -335,11 +335,11 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 	Vec gammak_Vec; /* gamma_k as a subvector of gamma */
 	Vec Agammak_Vec;
 	IS gammak_is;
-	
+
 	double gammakAgammak;
 	double gammakx;
 	double gammaksum;
-	
+
 	/* get arrays */
 	double *theta_arr;
 	TRYCXX( VecGetArray(theta_Vec,&theta_arr) );
@@ -352,7 +352,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 
 	/* through clusters */
 	for(int k=0;k<K;k++){
-		
+
 		/* get gammak */
 		this->tsdata->get_decomposition()->createIS_gammaK(&gammak_is, k);
 		TRYCXX( VecGetSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
@@ -366,13 +366,13 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 
 		/* compute gammaksum */
 		TRYCXX( VecSum(gammak_Vec, &gammaksum) );
-		
+
 		for(int n=0;n<xdim;n++){
 
 			/* get datan */
 			this->tsdata->get_decomposition()->createIS_datan(&datan_is, n);
 			TRYCXX( VecGetSubVector(data_Vec, datan_is, &datan_Vec) );
-		
+
 			/* compute gammakx */
 			TRYCXX( VecDot(datan_Vec, gammak_Vec, &gammakx) );
 
@@ -395,16 +395,16 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 			/* restore datan */
 			TRYCXX( VecRestoreSubVector(data_Vec, datan_is, &datan_Vec) );
 			TRYCXX( ISDestroy(&datan_is) );
-	
+
 		} /* endfor: through data dimension */
-	
+
 		TRYCXX( VecRestoreSubVector(gamma_Vec, gammak_is, &gammak_Vec) );
 		if(usethetainpenalty){
 			/* only if Theta is in penalty term */
 			TRYCXX( VecRestoreSubVector(Agamma_Vec, gammak_is, &Agammak_Vec) );
 		}
 		TRYCXX( ISDestroy(&gammak_is) );
-	}	
+	}
 
 	/* restore arrays */
 	TRYCXX( VecRestoreArray(theta_Vec,&theta_arr) );

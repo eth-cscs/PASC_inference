@@ -1,12 +1,14 @@
 #!/bin/bash   
 
-MYTESTSIZE=50
+MYTESTSIZE=100
 XDIM=3
-NOISE=0.2
+NOISE=0.0
 ANNEALING=1
 K=3
 FEM_REDUCE=-1
-NPROC=2
+NPROC=4
+
+rm -f data/test_image/illia_avatar_color_solution.bin data/test_image/illia_avatar_color_data.bin results/illia_avatar_color_recovered.bin results/illia_avatar_color_gamma.bin
 
 # generate example
 ./util_dlib_image_to_vec --filename_in=data/test_image/illia_avatar.jpg --filename_out=data/test_image/illia_avatar_color_solution.bin --noise=0.0 --new_width=$MYTESTSIZE --xdim=$XDIM
@@ -27,7 +29,7 @@ PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=
 PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
 PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
 
-PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=4"
+PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=2"
 
 ## additional PETSc parameters
 PARAM_PETSC="--petsc_options=\"\""
@@ -42,6 +44,18 @@ mpiexec -n $NPROC ./test_image $PARAM_ALL
 #./test_image $PARAM_ALL
 
 # show results
-./gui_show_image --filename=data/test_image/illia_avatar_color_data.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Data image" &
-./gui_show_image --filename=results/illia_avatar_color_recovered.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Recovered image" &
-./gui_show_image --filename=results/illia_avatar_color_gamma.bin --xdim=1 --width=$MYTESTSIZE --title="Gamma" &
+if [ -f data/test_image/illia_avatar_color_data.bin ]
+then
+	./gui_show_image --filename=data/test_image/illia_avatar_color_data.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Data image" &
+fi
+
+if [ -f results/illia_avatar_color_recovered.bin ]
+then
+	./gui_show_image --filename=results/illia_avatar_color_recovered.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Recovered image" &
+fi
+
+if [ -f results/illia_avatar_color_gamma.bin ]
+then
+	./gui_show_image --filename=results/illia_avatar_color_gamma.bin --xdim=1 --width=$MYTESTSIZE --title="Gamma" &
+fi
+

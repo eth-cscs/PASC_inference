@@ -3,7 +3,7 @@
  *
  *  @author Lukas Pospisil
  */
- 
+
 #ifndef PASC_COMMON_DECOMPOSITION_H
 #define	PASC_COMMON_DECOMPOSITION_H
 
@@ -36,19 +36,23 @@ class Decomposition {
 		int *DDR_lengths; /**< space - array of local lengths */
 		int *DDR_ranges; /**< space - local ownership */
 		bool destroy_DDR_arrays; /**< if graph was not provided, I have to create and destroy arrays here */
-	
+
 		/* other stuff */
 		int K; /**< number of clusters */
 		int xdim; /**< data dimension */
-	
+
 		/* my coordinates */
 		int DDT_rank; /**< my coordinate in time decomposition */
 		int DDR_rank; /**< my coordinate in space decomposition */
 
 		/** @brief compute coordinates in decomposition based on rank of the processor
-		*/		
+		*/
 		void compute_rank();
-		
+
+		int TRbegin;    /** begin index of local portion of global vector TR */
+
+		void set_graph(BGMGraph<VectorBase> &graph, int DDR_size=1);
+
 	public:
 		/** @brief decomposition only in time
 		*/
@@ -59,7 +63,7 @@ class Decomposition {
 		Decomposition(int T, BGMGraph<VectorBase> &new_graph, int K, int xdim, int DDR_size);
 
 		/** @brief decomposition in time and space
-		 * 
+		 *
 		 * @todo has to be tested, probably is not working
 		*/
 		Decomposition(int T, BGMGraph<VectorBase> &new_graph, int K, int xdim, int DDT_size, int DDR_size);
@@ -67,21 +71,21 @@ class Decomposition {
 		/** @brief destructor
 		*/
 		~Decomposition();
-		
+
 		/** @brief get global time length
-		 * 
+		 *
 		 * @return global length of time
 		 */
 		int get_T() const;
-		
+
 		/** @brief get local portion of time
-		 * 
+		 *
 		 * @return local number of time steps
 		 */
 		int get_Tlocal() const;
 
 		/** @brief get first local index of time in global scope
-		 * 
+		 *
 		 * @return starting index of local portion of time steps
 		 */
 		int get_Tbegin() const;
@@ -93,31 +97,31 @@ class Decomposition {
 		int get_Tend() const;
 
 		/** @brief get number of parts of time decomposition
-		 * 
+		 *
 		 * @return number of parts of time decomposition
 		 */
 		int get_DDT_size() const;
 
 		/** @brief get my coordinate in time decomposition
-		 * 
+		 *
 		 * @return the coortinate of this MPI process in time decomposition
 		 */
 		int get_DDT_rank() const;
-		
+
 		/** @brief get the array with first indexes of local portion of time
-		 * 
+		 *
 		 * @return the array (of size DDT_size+1) with global starting indexes
 		 */
 		const int *get_DDT_ranges() const;
 
 		/** @brief get global space length
-		 * 
+		 *
 		 * @return number of nodes in spatial graph
 		 */
 		int get_R() const;
 
 		/** @brief get first local index of space in global scope
-		 * 
+		 *
 		 * @return starting index of local portion of graph nodes
 		 */
 		int get_Rbegin() const;
@@ -129,51 +133,53 @@ class Decomposition {
 		int get_Rend() const;
 
 		/** @brief get local portion of decomposed spatial graph
-		 * 
+		 *
 		 * @return local number of graph nodes
 		 */
 		int get_Rlocal() const;
 
 		/** @brief get number of parts of space decomposition
-		 * 
+		 *
 		 * @return the number of parts of graph decomposition
 		 */
 		int get_DDR_size() const;
 
 		/** @brief get coordinate of this MPI process in space decomposition
-		 * 
+		 *
 		 * @return coordinate of local part in graph decomposition
 		 */
 		int get_DDR_rank() const;
 
+        int get_TRbegin() const;
 
 		int *get_DDR_affiliation() const;
 		int *get_DDR_permutation() const;
 		int *get_DDR_invpermutation() const;
 		int *get_DDR_lengths() const;
 		int *get_DDR_ranges() const;
-		
+
 		/** @brief get graph of space decomposition
-		 * 
+		 *
 		 * @return pointer to graph
 		 */
 		BGMGraph<VectorBase> *get_graph() const;
-		
+
+
 		/** @brief set graph of space decomposition
-		 * 
+		 *
 		 * @param graph the new graph of decomposition
 		 * @param DDR_size number of parts of graph decomposition
 		 */
-		void set_graph(BGMGraph<VectorBase> &graph, int DDR_size=1);
+		void set_new_graph(BGMGraph<VectorBase> &graph, int DDR_size=1);
 
 		/** @brief get number of clusters
-		 * 
+		 *
 		 * @return number of clusters
 		 */
 		int get_K() const;
 
 		/** @brief get data dimension (number of components)
-		 * 
+		 *
 		 * @return number of data components
 		 */
 		int get_xdim() const;
@@ -187,19 +193,19 @@ class Decomposition {
 		void print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details=true) const;
 
 		/** @brief create global PETSc gamma vector with respect to this decomposition
-		 * 
+		 *
 		 * @param x_Vec pointer to new gamma vector
 		*/
 		void createGlobalVec_gamma(Vec *x_Vec) const;
 
 		/** @brief create global PETSc data vector with respect to this decomposition
-		 * 
+		 *
 		 * @param x_Vec pointer to new vector
 		*/
 		void createGlobalVec_data(Vec *x_Vec) const;
 
 		/** @brief get local index in gamma vector from global indexes
-		 * 
+		 *
 		 * @param t_global global time index
 		 * @param r_global global space index
 		 * @param k index of cluster
@@ -208,7 +214,7 @@ class Decomposition {
 		int get_idxglobal(int t_global, int r_global, int k) const;
 
 		/** @brief get the index of node in original graph from index in permutated graph
-		 * 
+		 *
 		 * @param r_global global node index in permutated graph
 		 * @return node index in original graph
 		 * @todo has to be tested
@@ -216,7 +222,7 @@ class Decomposition {
 		int get_invPr(int r_global) const;
 
 		/** @brief get the index of node in permutated graph from index in original graph
-		 * 
+		 *
 		 * @param r_global global node index in original graph
 		 * @return node index in permutated graph
 		 * @todo has to be tested
@@ -228,16 +234,16 @@ class Decomposition {
 		void permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 
 		void createIS_dTRb(IS *is, int blocksize) const;
-		
+
 		/** @brief create PETSC index set with local gamma indexes which correspond to given cluster index
-		 * 
+		 *
 		 * @param is pointer to new index set
 		 * @param k index of cluster
 		 */
 		void createIS_gammaK(IS *is, int k) const;
 
 		/** @brief create PETSC index set with indexes corresponding to one dimension of datavector
-		 * 
+		 *
 		 * @param is pointer to new index set
 		 * @param n index of dimension
 		 */
@@ -278,7 +284,7 @@ void Decomposition<VectorBase>::compute_rank(){
 	LOG_FUNC_BEGIN
 
 	//TODO: write something for general case
-	
+
 	LOG_FUNC_END
 }
 
@@ -333,6 +339,11 @@ int Decomposition<VectorBase>::get_Rbegin() const{
 }
 
 template<class VectorBase>
+int Decomposition<VectorBase>::get_TRbegin() const{
+	return TRbegin; /* computed during compute_rank() */
+}
+
+template<class VectorBase>
 int Decomposition<VectorBase>::get_Rend() const{
 	int rank = GlobalManager.get_rank();
 	return DDR_ranges[DDR_rank+1];
@@ -384,6 +395,11 @@ void Decomposition<VectorBase>::set_graph(BGMGraph<VectorBase> &new_graph, int D
 }
 
 template<class VectorBase>
+void Decomposition<VectorBase>::set_new_graph(BGMGraph<VectorBase> &new_graph, int DDR_size) {
+
+}
+
+template<class VectorBase>
 int Decomposition<VectorBase>::get_K() const{
 	return K;
 }
@@ -396,7 +412,7 @@ int Decomposition<VectorBase>::get_xdim() const{
 template<class VectorBase>
 void Decomposition<VectorBase>::print_content(ConsoleOutput &output_master, ConsoleOutput &output_local, bool print_details) const {
 	output_master << "Decomposition" << std::endl;
-	
+
 	output_master.push();
 	output_master << " K                     : " << this->K << std::endl;
 	output_master << " Data dimension        : " << this->xdim << std::endl;
@@ -456,13 +472,13 @@ void Decomposition<VectorBase>::print_content(ConsoleOutput &output_master, Cons
 	output_local  << "   [ " << this->DDT_rank << ", " << this->DDR_rank << " ]" << std::endl;
 	output_local.synchronize();
 	output_master.pop();
-	
+
 }
 
 template<class VectorBase>
 void Decomposition<VectorBase>::print(ConsoleOutput &output) const {
 	output << "Decomposition" << std::endl;
-	
+
 	output.push();
 	output << " Clusters              : " << this->K << std::endl;
 	output << " Data dimension        : " << this->xdim << std::endl;
@@ -490,7 +506,7 @@ void Decomposition<VectorBase>::print(ConsoleOutput &output) const {
 	}
 	output << std::endl;
 	output.pop();
-	
+
 }
 
 template<class VectorBase>

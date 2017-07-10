@@ -157,15 +157,13 @@ void Decomposition<PetscVector>::compute_rank(){
 	this->DDT_rank = rank/(double)this->DDR_size;
 	this->DDR_rank = rank - (this->DDT_rank)*(this->DDR_size);
 
-	/* control the decomposition */
-//	if(this->DDT_size*this->DDR_size != GlobalManager.get_size()){
-//		coutMaster << "Sorry, DDT_size*DDR_size != nproc" << std::endl;
-//		coutMaster << " DDT_size = " << this->DDT_size << std::endl;
-//		coutMaster << " DDR_size = " << this->DDR_size << std::endl;
-//		coutMaster << " nproc    = " << GlobalManager.get_size() << std::endl;
-
-		// TODO: throw error
-//	}
+	/* compute TRbegin */
+    Vec layout;
+    TRYCXX( VecCreate(PETSC_COMM_WORLD, &layout) );
+    TRYCXX( VecSetSizes(layout,this->get_Tlocal()*this->get_Rlocal(),this->get_T()*this->get_R()) );
+    TRYCXX( VecSetFromOptions(layout) );
+    TRYCXX( VecGetOwnershipRange( layout, &TRbegin, NULL) );
+    TRYCXX( VecDestroy(&layout));
 
 	LOG_FUNC_END
 }
@@ -192,6 +190,21 @@ void Decomposition<PetscVector>::set_graph(BGMGraph<PetscVector> &new_graph, int
 	DDR_invpermutation = new_graph.get_DD_invpermutation();
 	DDR_lengths = new_graph.get_DD_lengths();
 	DDR_ranges = new_graph.get_DD_ranges();
+
+}
+
+template<>
+void Decomposition<PetscVector>::set_new_graph(BGMGraph<PetscVector> &new_graph, int DDR_size) {
+
+	if(destroy_DDR_arrays){
+		free(DDR_affiliation);
+		free(DDR_permutation);
+		free(DDR_invpermutation);
+		free(DDR_lengths);
+		free(DDR_ranges);
+	}
+
+    set_graph(new_graph,DDR_size);
 
 	compute_rank();
 }
@@ -266,15 +279,13 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
 
-    int low;
-    TRYCXX( VecGetOwnershipRange( orig_Vec, &low, NULL) );
 
 	/* original data is bTR */
 	/* transfer it to TRb */
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
             for(int k=0;k<blocksize;k++){
-				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = low + t*blocksize*Rlocal + k*Rlocal + r;
+				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = (Tbegin+t)*blocksize*R + k*R + (Rbegin+r);
 			}
 		}
 	}
@@ -331,16 +342,12 @@ void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
 
-    int low;
-    TRYCXX( VecGetOwnershipRange( orig_Vec, &low, NULL) );
-
 	/* original data is TbR */
 	/* transfer it to TRb */
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
             for(int k=0;k<blocksize;k++){
-				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = low + k*Rlocal*Tlocal + t*Rlocal + r;
-
+				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = k*R*T + (Tbegin+t)*R + (Rbegin+r);
 			}
 		}
 	}
@@ -410,7 +417,8 @@ template<>
 void Decomposition<PetscVector>::createIS_gammaK(IS *is, int k) const {
 	LOG_FUNC_BEGIN
 
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_Tbegin()*get_R()*get_K() + get_Rbegin()*get_K() + k, get_K(), is) );
+
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_TRbegin()*get_K() + k, get_K(), is) );
 
 	LOG_FUNC_END
 }
@@ -419,7 +427,7 @@ template<>
 void Decomposition<PetscVector>::createIS_datan(IS *is, int n) const {
 	LOG_FUNC_BEGIN
 
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_Tbegin()*get_R()*get_xdim() + get_Rbegin()*get_xdim() + n, get_xdim(), is) );
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_TRbegin()*get_xdim() + n, get_xdim(), is) );
 
 	LOG_FUNC_END
 }
