@@ -7,6 +7,7 @@
 #include "pascinference.h"
 
 #include <vector>
+#include <random>
 
 #ifndef USE_PETSC
  #error 'This example is for PETSC'
@@ -124,29 +125,28 @@ int main( int argc, char *argv[] )
 	/* vector for data with noise */
 	int cluster_id;
 	if(generate_data){
+		std::default_random_engine generator;
+		std::normal_distribution<double> distribution(0.0,noise);
+
 		Vec x_data;
 		TRYCXX( VecDuplicate(x,&x_data) );
 
-		/* add noise */
-		PetscRandom rctx;
-		TRYCXX( PetscRandomCreate(PETSC_COMM_WORLD,&rctx) );
-		TRYCXX( PetscRandomSetFromOptions(rctx) );
-		TRYCXX( VecSetRandom(x_data,rctx) );
-		TRYCXX( PetscRandomDestroy(&rctx) );
-
 		/* fill array */
 		double *x_arr;
+		double *x_data_arr;
 		TRYCXX( VecGetArray(x,&x_arr));
+		TRYCXX( VecGetArray(x_data,&x_data_arr));
 		for(int t=0;t<T;t++){
 			for(int n=0;n<xdim;n++){
+                double number = distribution(generator);
+
 				cluster_id = myget_cluster_id(t, Tperiod);
 				x_arr[n*T + t] = mu[cluster_id*xdim + n];
+				x_data_arr[n*T + t] = x_arr[n*T + t] + number;
 			}
 		}
 		TRYCXX( VecRestoreArray(x,&x_arr));
-
-		/* add solution data to noise to create x_data */
-		TRYCXX( VecAYPX(x_data, noise, x) );
+		TRYCXX( VecRestoreArray(x_data,&x_data_arr));
 
 		/* save generated vectors */
 		PetscViewer mviewer;
@@ -171,7 +171,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecSetSizes(gamma0,T*K,T*K) );
 		TRYCXX( VecSetType(gamma0, VECSEQ) );
 		TRYCXX( VecSetFromOptions(gamma0) );
-	
+
 		/* generate random gamma0 */
 		PetscRandom rctx2;
 		TRYCXX( PetscRandomCreate(PETSC_COMM_WORLD,&rctx2) );
@@ -189,7 +189,7 @@ int main( int argc, char *argv[] )
 
 	}
 
-	/* say bye */	
+	/* say bye */
 	coutMaster << "- end program" << std::endl;
 
 	Finalize<PetscVector>();

@@ -18,8 +18,9 @@
 #define DEFAULT_FEM_TYPE 2
 #define DEFAULT_FEM_REDUCE 1.0
 #define DEFAULT_XDIM 1
-#define DEFAULT_WIDTH 250
-#define DEFAULT_HEIGHT 150
+#define DEFAULT_WIDTH 30
+#define DEFAULT_HEIGHT 20
+#define DEFAULT_T 10
 #define DEFAULT_GRAPH_SAVE false
 #define DEFAULT_CUTGAMMA false
 #define DEFAULT_SCALEDATA false
@@ -49,8 +50,9 @@ int main( int argc, char *argv[] )
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
 		("test_filename_solution", boost::program_options::value< std::string >(), "name of input file with original image data without noise (vector in PETSc format) [string]")
 		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
-		("test_width", boost::program_options::value<int>(), "width of image [int]")
-		("test_height", boost::program_options::value<int>(), "height of image [int]")
+		("test_width", boost::program_options::value<int>(), "width of movie [int]")
+		("test_height", boost::program_options::value<int>(), "height of movie [int]")
+		("test_T", boost::program_options::value<int>(), "number of frames in movie [int]")
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
@@ -84,7 +86,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, width, height, xdim, fem_type;
+	int K, annealing, width, height, T, xdim, fem_type;
 	double fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, graph_save, saveall, saveresult;
 
@@ -101,6 +103,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, DEFAULT_FEM_REDUCE);
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
+	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
@@ -178,8 +181,9 @@ int main( int argc, char *argv[] )
 		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
 	}
 
-	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of image)" << std::endl;
-	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of image)" << std::endl;
+	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of movie)" << std::endl;
+	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of movie)" << std::endl;
+	coutMaster << " test_T                      = " << std::setw(50) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
@@ -233,8 +237,8 @@ int main( int argc, char *argv[] )
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
-	/* prepare decomposition based on graph, in this case T=1 and DDT_size=1 */
-	Decomposition<PetscVector> decomposition(1, *graph, K, xdim, DDR_size);
+	/* prepare decomposition based on graph */
+	Decomposition<PetscVector> decomposition(T, *graph, K, xdim, DDR_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
@@ -268,7 +272,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		decomposition.permute_TbR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );

@@ -21,9 +21,9 @@
 #define DEFAULT_SIGNAL_OUT "samplesignal"
 #define DEFAULT_SIGNAL_SOLUTION "data/test_signal/samplefilename_solution.bin"
 #define DEFAULT_ANNEALING 1
-#define DEFAULT_CUTGAMMA false 
-#define DEFAULT_SCALEDATA false 
-#define DEFAULT_CUTDATA false 
+#define DEFAULT_CUTGAMMA false
+#define DEFAULT_SCALEDATA false
+#define DEFAULT_CUTDATA false
 #define DEFAULT_PRINTSTATS false
 #define DEFAULT_PRINTINFO false
 #define DEFAULT_SAVEALL false
@@ -79,13 +79,13 @@ int main( int argc, char *argv[] )
 	if(consoleArg.set_option_value("test_epssqr", &epssqr_list)){
 		/* sort list */
 		std::sort(epssqr_list.begin(), epssqr_list.end(), std::less<double>());
-		
+
 	} else {
 		/* list is not given, add some value */
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, fem_type, xdim; 
+	int K, annealing, fem_type, xdim;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 	double fem_reduce;
 
@@ -144,7 +144,7 @@ int main( int argc, char *argv[] )
 	double Theta_solution[K];
 	if(consoleArg.set_option_value("test_Theta", &Theta_list)){
 		given_Theta = true;
-		
+
 		/* control number of provided Theta */
 		if(Theta_list.size() != K){
 			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
@@ -157,7 +157,7 @@ int main( int argc, char *argv[] )
 		}
 	} else {
 		given_Theta = false;
-	}	
+	}
 
 	/* set decomposition in space */
 	int DDT_size = GlobalManager.get_size();
@@ -220,7 +220,7 @@ int main( int argc, char *argv[] )
 	}
 	std::ostringstream oss_short_output_values;
 	std::ostringstream oss_short_output_header;
-		
+
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
@@ -256,7 +256,8 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		decomposition.permute_TRxdim(solution.get_vector(), solution_Vec_preload,false);
+		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
 	}
@@ -296,7 +297,7 @@ int main( int argc, char *argv[] )
 
 	/* set solution if obtained from console */
 	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
-	
+
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr;
 	double epssqr_best = -1;
@@ -314,7 +315,7 @@ int main( int argc, char *argv[] )
 	/* energy for one iteration */
 	double node_energy_it;
    	double node_energy_it_sum;
-	
+
 	/* go throught given list of epssqr */
 	for(int depth = 0; depth < epssqr_list.size();depth++){
 		epssqr = epssqr_list[depth];
@@ -330,7 +331,7 @@ int main( int argc, char *argv[] )
 		if(scaledata){
 			mydata.scaledata(-1,1,0,1);
 		}
-		
+
 		/* measure energy at begin */
 		MPI_Barrier(MPI_COMM_WORLD);
 		node_energy_it    = PowerCheck::get_node_energy()/(double)ranks_per_node;
@@ -342,7 +343,7 @@ int main( int argc, char *argv[] )
 		MPI_Barrier(MPI_COMM_WORLD);
 		node_energy_it     = PowerCheck::get_node_energy()/(double)ranks_per_node - node_energy_it;
 		node_energy_it_sum = PowerCheck::mpi_sum_reduce(node_energy_it);
-		
+
 		/* cut gamma */
 		if(cutgamma) mydata.cutgamma();
 
@@ -368,19 +369,20 @@ int main( int argc, char *argv[] )
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
 			mydata.saveSignal(oss.str(),false);
+			mydata.saveGamma(oss.str());
 			oss.str("");
 		}
-		
+
 
 		/* store short info */
 		if(shortinfo_write_or_not){
 			/* add provided strings from console parameters and info about the problem */
 			if(depth==0) oss_short_output_header << shortinfo_header << "K,epssqr,abserr,L,energy,";
 			oss_short_output_values << shortinfo_values << K << "," << epssqr << "," << abserr << "," << L << "," << node_energy_it_sum << ",";
-			
+
 			/* append Theta solution */
 			if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
-			oss_short_output_values << mydata.print_thetavector(); 
+			oss_short_output_values << mydata.print_thetavector();
 
 			/* print info from solver */
 			mysolver.printshort(oss_short_output_header, oss_short_output_values);
@@ -392,12 +394,12 @@ int main( int argc, char *argv[] )
 			/* write to shortinfo file */
 			if(depth==0) shortinfo.write(oss_short_output_header.str());
 			shortinfo.write(oss_short_output_values.str());
-			
+
 			/* clear streams for next writing */
 			oss_short_output_header.str("");
 			oss_short_output_values.str("");
 		}
-	
+
 		/* if L of this solution is better then previous, then store it */
 		if(L < L_best || depth == 0){
 			L_best = L;
@@ -406,7 +408,7 @@ int main( int argc, char *argv[] )
 			TRYCXX(VecCopy(mydata.get_gammavector()->get_vector(),gammavector_best_Vec));
 			TRYCXX(VecCopy(mydata.get_thetavector()->get_vector(),thetavector_best_Vec));
 		}
-		
+
 	}
 
 	/* set best computed solution back to data */
@@ -419,6 +421,7 @@ int main( int argc, char *argv[] )
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << filename_out;
 		mydata.saveSignal(oss.str(),false);
+		mydata.saveGamma(oss.str());
 		oss.str("");
 	}
 
@@ -471,7 +474,7 @@ int main( int argc, char *argv[] )
 
 
 
-	/* say bye */	
+	/* say bye */
 	coutMaster << "- end program" << std::endl;
 
 	logging.end();

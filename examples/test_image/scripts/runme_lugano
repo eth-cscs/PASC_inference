@@ -8,8 +8,8 @@ XDIM=1
 NOISE=0.3
 ANNEALING=1
 K=3
-FEM_REDUCE=-1
-NPROC=2
+FEM_REDUCE=0.9
+NPROC=1
 
 # remove old files
 rm -f data/test_image/lugano_solution.bin data/test_image/lugano_data.bin results/lugano_recovered.bin results/lugano_gamma.bin
@@ -37,7 +37,7 @@ PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=
 PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
 PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
 
-PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=4"
+PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=3"
 
 ## additional PETSc parameters
 PARAM_PETSC="--petsc_options=\"\""

@@ -266,14 +266,15 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
 
+    int low;
+    TRYCXX( VecGetOwnershipRange( orig_Vec, &low, NULL) );
+
 	/* original data is bTR */
 	/* transfer it to TRb */
-	int j = 0;
 	for(int t=0;t<Tlocal;t++){
-		for(int k=0;k<blocksize;k++){
-			for(int i=0;i<Rlocal;i++){
-				orig_local_arr[j*blocksize+k] = Tbegin*Rbegin*blocksize + t*Rlocal*blocksize + i*blocksize + k;
-				j++;
+		for(int r=0;r<Rlocal;r++){
+            for(int k=0;k<blocksize;k++){
+				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = low + t*blocksize*Rlocal + k*Rlocal + r;
 			}
 		}
 	}
@@ -298,17 +299,6 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	TRYCXX( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
 	TRYCXX( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
 
-    //TODO: temp
-/*    coutMaster << "--------------------------------" << std::endl;
-    coutMaster << "IS orig_local_is" << std::endl;
-    TRYCXX( ISView(orig_local_is, PETSC_VIEWER_STDOUT_WORLD));
-
-    coutMaster << "--------------------------------" << std::endl;
-    coutMaster << "IS new_local_is" << std::endl;
-    TRYCXX( ISView(new_local_is, PETSC_VIEWER_STDOUT_WORLD));
-
-    coutMaster << "--------------------------------" << std::endl;
-*/
 	/* destroy used stuff */
 	TRYCXX( ISDestroy(&orig_local_is) );
 	TRYCXX( ISDestroy(&new_local_is) );
@@ -344,13 +334,12 @@ void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
     int low;
     TRYCXX( VecGetOwnershipRange( orig_Vec, &low, NULL) );
 
-	/* original data is bTR */
+	/* original data is TbR */
 	/* transfer it to TRb */
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
             for(int k=0;k<blocksize;k++){
-				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = t*R*blocksize + (Rbegin+r) + k*R;
-//				orig_local_arr[t*blocksize*Rlocal + k*Rlocal + r] = (Tbegin+t + k*T)*R + r;
+				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = low + k*Rlocal*Tlocal + t*Rlocal + r;
 
 			}
 		}
@@ -360,29 +349,6 @@ void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
 	createIS_dTRb(&new_local_is, blocksize);
-
-    //TODO: temp
-/*    coutMaster << "--------------------------------" << std::endl;
-    coutMaster << "Vec orig_Vec" << std::endl;
-    TRYCXX( VecView(orig_Vec, PETSC_VIEWER_STDOUT_WORLD));
-
-    coutMaster << "--------------------------------" << std::endl;
-    coutMaster << "IS orig_local_is" << std::endl;
-    if(blocksize > 1){
-        TRYCXX( ISView(orig_local_is, PETSC_VIEWER_STDOUT_WORLD));
-    }
-
-    coutMaster << "--------------------------------" << std::endl;
-    coutMaster << "Vec new_Vec" << std::endl;
-    TRYCXX( VecView(new_Vec, PETSC_VIEWER_STDOUT_WORLD));
-
-
-    coutMaster << "--------------------------------" << std::endl;
-    coutMaster << "IS new_local_is" << std::endl;
-    TRYCXX( ISView(new_local_is, PETSC_VIEWER_STDOUT_WORLD));
-
-    coutMaster << "--------------------------------" << std::endl;
-*/
 
 	/* get subvector with local values from original data */
 	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
@@ -430,7 +396,7 @@ void Decomposition<PetscVector>::createIS_dTRb(IS *is, int blocksize) const {
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
 			for(int k=0;k<blocksize;k++){
-                local_arr[t*Rlocal*blocksize + r*blocksize + k] = DD_permutation[Rbegin+r]*blocksize + k;
+                local_arr[t*Rlocal*blocksize + r*blocksize + k] = t*Rlocal*blocksize + DD_permutation[Rbegin+r]*blocksize + k;
             }
 		}
 	}

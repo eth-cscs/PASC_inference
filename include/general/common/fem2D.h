@@ -1,9 +1,9 @@
-/** @file femhat.h
- *  @brief class for reduction and prolongation on fem meshes using hat functions
+/** @file fem2D.h
+ *  @brief class for reduction and prolongation on fem meshes using constant functions in 2D
  *
  *  @author Lukas Pospisil
  */
- 
+
 #ifndef PASC_FEM2D_H
 #define	PASC_FEM2D_H
 
@@ -30,7 +30,7 @@ class Fem2D : public Fem<VectorBase> {
 		bool right_overlap;			/**< is there overlap to the right side of space? */
 		bool top_overlap;			/**< is there overlap to the top side of space? */
 		bool bottom_overlap;		/**< is there overlap to the bottom side of space? */
-		
+
 		void compute_overlaps();
 		int overlap1_idx_size;		/**< number of elements in overlap1_idx */
 		int *overlap1_idx;			/**< permutated indexes of overlap part in grid1 */
@@ -52,9 +52,9 @@ class Fem2D : public Fem<VectorBase> {
 		Fem2D(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
-		 * 
+		 *
 		 * do not forget to call Fem::set_decomposition_original() and afterwards Fem::compute_decomposition_reduced() to compute decomposition2 internally
-		 * 
+		 *
 		 */
 		Fem2D(double fem_reduce = 1.0);
 
@@ -64,34 +64,34 @@ class Fem2D : public Fem<VectorBase> {
 
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
-		
+
 		void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
 		void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
 
 		void compute_decomposition_reduced();
 
-		ExternalContent *get_externalcontent() const;	
+		ExternalContent *get_externalcontent() const;
 };
 
 /* ----------------- Fem implementation ------------- */
 template<class VectorBase>
 Fem2D<VectorBase>::Fem2D(double fem_reduce) : Fem<VectorBase>(fem_reduce){
 	LOG_FUNC_BEGIN
-	
+
 	/* I don't have this information without decompositions */
 	this->diff_x = 0;
 	this->diff_y = 0;
-	
+
 	this->grid1 = NULL;
 	this->grid2 = NULL;
-	
+
 	this->bounding_box1 = new int[4];
 	set_value_array(4, this->bounding_box1, 0); /* initial values */
 
 	this->bounding_box2 = new int[4];
 	set_value_array(4, this->bounding_box2, 0); /* initial values */
 
-	
+
 	LOG_FUNC_END
 }
 
@@ -135,7 +135,7 @@ void Fem2D<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outpu
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
-	
+
 	/* information of reduced problem */
 	output_global <<  " - is reduced       : " << printbool(this->is_reduced()) << std::endl;
 	output_global <<  " - diff             : " << this->diff << std::endl;
@@ -149,7 +149,7 @@ void Fem2D<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outpu
 
 	output_global <<  " - fem_reduce       : " << this->fem_reduce << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
-	
+
 	if(this->decomposition1 == NULL){
 		output_global <<  " - decomposition1   : NO" << std::endl;
 	} else {
@@ -183,8 +183,8 @@ void Fem2D<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outpu
 		grid2->print(output_global);
 		output_global.pop();
 	}
-	
-	output_global.synchronize();	
+
+	output_global.synchronize();
 
 	LOG_FUNC_END
 }
@@ -192,28 +192,28 @@ void Fem2D<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outpu
 template<class VectorBase>
 void Fem2D<VectorBase>::compute_overlaps() {
 	LOG_FUNC_BEGIN
-	
+
 	if(this->is_reduced()){
 		int width1 = grid1->get_width();
 		int height1 = grid1->get_height();
 		int width2 = grid2->get_width();
 		int height2 = grid2->get_height();
-		
-		/* get arrays of grids */
-		int *DD_affiliation1 = grid1->get_DD_affiliation(); 
-		int *DD_permutation1 = grid1->get_DD_permutation(); 
-		int *DD_invpermutation1 = grid1->get_DD_invpermutation(); 
 
-		int *DD_affiliation2 = grid2->get_DD_affiliation(); 
-		int *DD_permutation2 = grid2->get_DD_permutation(); 
-		int *DD_invpermutation2 = grid2->get_DD_invpermutation(); 
+		/* get arrays of grids */
+		int *DD_affiliation1 = grid1->get_DD_affiliation();
+		int *DD_permutation1 = grid1->get_DD_permutation();
+		int *DD_invpermutation1 = grid1->get_DD_invpermutation();
+
+		int *DD_affiliation2 = grid2->get_DD_affiliation();
+		int *DD_permutation2 = grid2->get_DD_permutation();
+		int *DD_invpermutation2 = grid2->get_DD_invpermutation();
 
 		/* prepare overlap indexes */
 		overlap1_idx_size = (bounding_box1[1]-bounding_box1[0]+1)*(bounding_box1[3]-bounding_box1[2]+1);
 		overlap1_idx = new int[overlap1_idx_size];
 		overlap2_idx_size = (bounding_box2[1]-bounding_box2[0]+1)*(bounding_box2[3]-bounding_box2[2]+1);
 		overlap2_idx = new int[overlap2_idx_size];
-		
+
 		/* fill overlapping indexes with.. indexes */
 		for(int id_x1 = bounding_box1[0]; id_x1 <= bounding_box1[1]; id_x1++){
 			for(int id_y1 = bounding_box1[2]; id_y1 <= bounding_box1[3]; id_y1++){
@@ -225,9 +225,9 @@ void Fem2D<VectorBase>::compute_overlaps() {
 				overlap2_idx[(id_y2-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (id_x2-bounding_box2[0])] = DD_permutation2[id_y2*width2 + id_x2];
 			}
 		}
-		
+
 	}
-	
+
 	LOG_FUNC_END
 }
 
@@ -252,7 +252,7 @@ void Fem2D<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, Gene
 template<class VectorBase>
 void Fem2D<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
-	
+
 	/* decomposition1 has to be set */
 	this->grid1 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition1->get_graph());
 
@@ -260,20 +260,20 @@ void Fem2D<VectorBase>::compute_decomposition_reduced() {
 		int T_reduced = 1;
 		int width_reduced = ceil(grid1->get_width()*this->fem_reduce);
 		int height_reduced = ceil(grid1->get_height()*this->fem_reduce);
-		
+
 		this->grid2 = new BGMGraphGrid2D<VectorBase>(width_reduced, height_reduced);
 		this->grid2->process_grid();
-		
+
 		/* decompose second grid based on the decomposition of the first grid */
 		this->grid2->decompose(this->grid1, this->bounding_box1, this->bounding_box2);
 		this->grid2->print(coutMaster);
-		
+
 		/* compute new decomposition */
-		this->decomposition2 = new Decomposition<VectorBase>(T_reduced, 
-				*(this->grid2), 
-				this->decomposition1->get_K(), 
-				this->decomposition1->get_xdim(), 
-				this->decomposition1->get_DDT_size(), 
+		this->decomposition2 = new Decomposition<VectorBase>(T_reduced,
+				*(this->grid2),
+				this->decomposition1->get_K(),
+				this->decomposition1->get_xdim(),
+				this->decomposition1->get_DDT_size(),
 				this->decomposition1->get_DDR_size());
 
 		compute_overlaps();
@@ -286,7 +286,7 @@ void Fem2D<VectorBase>::compute_decomposition_reduced() {
 	this->diff = 1; /* time */
 	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
 	this->diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
-			
+
 	LOG_FUNC_END
 }
 
