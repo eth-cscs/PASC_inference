@@ -32,6 +32,8 @@ option(TEST_PETSCVECTOR_ALGEBRA_DECOMPOSITION		  "TEST_PETSCVECTOR_ALGEBRA_DECOM
 option(TEST_PETSCVECTOR_ALGEBRA_FILECRSMATRIX		  "TEST_PETSCVECTOR_ALGEBRA_FILECRSMATRIX" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_LOCALDENSEMATRIX	  "TEST_PETSCVECTOR_ALGEBRA_LOCALDENSEMATRIX" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_SIMPLEXFEASIBLESETLOCAL "TEST_PETSCVECTOR_ALGEBRA_SIMPLEXFEASIBLESETLOCAL" OFF)
+option(TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE             "TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE" OFF)
+
 if(${TEST_PETSCVECTOR_ALGEBRA})
 	# define shortcut to compile all tests of this group
 	getListOfVarsStartingWith("TEST_PETSCVECTOR_ALGEBRA_" matchedVars)
@@ -134,6 +136,7 @@ printinfo_onoff("   TEST_PETSCVECTOR_COMMON                               (...) 
 #printinfo_onoff("     TEST_PETSCVECTOR_COMMON_TIMER                         (Timer,StackTimer)         " "${TEST_PETSCVECTOR_COMMON_TIMER}")
 printinfo_onoff("   TEST_PETSCVECTOR_ALGEBRA                              (...)                        " "${TEST_PETSCVECTOR_ALGEBRA}")
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_DOT                          (dot product)              " "${TEST_PETSCVECTOR_ALGEBRA_DOT}")
+printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE                    (fem on images)            " "${TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH                     (BGMGraph)                 " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D               (BGMGraphGrid1D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D               (BGMGraphGrid2D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D}")
@@ -225,6 +228,20 @@ if(${TEST_PETSCVECTOR_ALGEBRA_DOT})
 		testadd_executable("test_classes/petscvector/algebra/test_dot.cpp" "test_petscvector_dot")
 	endif()
 	
+endif()
+
+if(${TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE})
+	# dot product
+	testadd_executable("test_classes/petscvector/algebra/test_fem_image.cpp" "test_petscvector_fem_image")
+
+	# copy scripts
+	make_directory("scripts/test_classes/")
+	file(COPY "scripts/" DESTINATION "scripts/test_classes/"	FILES_MATCHING PATTERN "*")
+	file(COPY "test_classes/petscvector/scripts/" DESTINATION "scripts/test_classes/" FILES_MATCHING PATTERN "*")
+	
+	# copy data from test_image
+	make_directory("data/test_image/")
+	file(COPY "test_image/data/" DESTINATION "data/test_image/" FILES_MATCHING PATTERN "*")
 endif()
 
 if(${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH})

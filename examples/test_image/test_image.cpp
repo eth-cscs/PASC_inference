@@ -27,8 +27,8 @@
 #define DEFAULT_PRINTSTATS false
 #define DEFAULT_PRINTINFO false
 #define DEFAULT_ANNEALING 1
-#define DEFAULT_IMAGE_IN "data/test_image/usi_text/usi_250_150_02.bin"
-#define DEFAULT_IMAGE_OUT "usi_test_250_150_02"
+#define DEFAULT_FILENAME_IN "data/test_image/usi_text/usi_250_150_02.bin"
+#define DEFAULT_FILENAME_OUT "usi_test_250_150_02"
 #define DEFAULT_IMAGE_SOLUTION "data/test_image/usi_text/usi_250_150_solution.bin"
 #define DEFAULT_SHORTINFO true
 #define DEFAULT_SHORTINFO_FILENAME "shortinfo/usi_250_150_02.txt"
@@ -109,8 +109,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_printstats", &printstats, DEFAULT_PRINTSTATS);
 	consoleArg.set_option_value("test_printinfo", &printinfo, DEFAULT_PRINTINFO);
 	consoleArg.set_option_value("test_annealing", &annealing, DEFAULT_ANNEALING);
-	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_IMAGE_IN);
-	consoleArg.set_option_value("test_filename_out", &filename_out, DEFAULT_IMAGE_OUT);
+	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_FILENAME_IN);
+	consoleArg.set_option_value("test_filename_out", &filename_out, DEFAULT_FILENAME_OUT);
 	consoleArg.set_option_value("test_saveall", &saveall, DEFAULT_SAVEALL);
 	consoleArg.set_option_value("test_saveresult", &saveresult, DEFAULT_SAVERESULT);
 	consoleArg.set_option_value("test_shortinfo", &shortinfo_write_or_not, DEFAULT_SHORTINFO);
@@ -132,7 +132,7 @@ int main( int argc, char *argv[] )
 		given_solution=false;
 
 		/* maybe we run program with default values */
-		if(filename_in == DEFAULT_IMAGE_IN){
+		if(filename_in == DEFAULT_FILENAME_IN){
 			filename_solution = DEFAULT_IMAGE_SOLUTION;
 			given_solution=true;
 		}

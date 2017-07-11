@@ -4,16 +4,6 @@ namespace pascinference {
 namespace algebra {
 
 template<>
-Fem1DSum<PetscVector>::Fem1DSum(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
-	LOG_FUNC_BEGIN
-
-	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
-	externalcontent = new ExternalContent();
-
-	LOG_FUNC_END
-}
-
-template<>
 void Fem1DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
@@ -89,7 +79,7 @@ void Fem1DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 
 	Vec gammak1_Vec;
 	Vec gammak2_Vec;
-	
+
 	IS gammak1_is;
 	IS gammak2_is;
 
@@ -135,35 +125,6 @@ void Fem1DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 	}
 
 	LOG_FUNC_END
-}
-
-template<>
-void Fem1DSum<PetscVector>::compute_decomposition_reduced() {
-	LOG_FUNC_BEGIN
-	
-	if(is_reduced()){
-		int T_reduced = ceil(decomposition1->get_T()*fem_reduce);
-		
-		/* compute new decomposition */
-		decomposition2 = new Decomposition<PetscVector>(T_reduced, 
-				*(decomposition1->get_graph()), 
-				decomposition1->get_K(), 
-				decomposition1->get_xdim(), 
-				decomposition1->get_DDT_size(), 
-				decomposition1->get_DDR_size());
-
-	} else {
-		/* there is not reduction of the data, we can reuse the decomposition */
-		this->set_decomposition_reduced(decomposition1);
-	}
-
-	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
-	
-	LOG_FUNC_END
-}
-
-template<> Fem1DSum<PetscVector>::ExternalContent * Fem1DSum<PetscVector>::get_externalcontent() const {
-	return externalcontent;
 }
 
 

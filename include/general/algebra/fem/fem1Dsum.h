@@ -3,15 +3,15 @@
  *
  *  @author Lukas Pospisil
  */
- 
+
 #ifndef PASC_FEM1DSUM_H
 #define	PASC_FEM1DSUM_H
 
 #include "general/algebra/fem/fem.h"
 
 namespace pascinference {
-using namespace common;	
-	
+using namespace common;
+
 namespace algebra {
 
 /** \class Fem1DSum
@@ -35,9 +35,9 @@ class Fem1DSum : public Fem<VectorBase> {
 		Fem1DSum(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
-		 * 
+		 *
 		 * do not forget to call Fem1DSum::set_decomposition_original() and afterwards Fem1DSum::compute_decomposition_reduced() to compute decomposition2 internally
-		 * 
+		 *
 		 */
 		Fem1DSum(double fem_reduce = 1.0);
 
@@ -46,11 +46,11 @@ class Fem1DSum : public Fem<VectorBase> {
 		~Fem1DSum();
 
 		/** @brief print info about fem
-		 * 
+		 *
 		 * @param output where to print
-		 */	
+		 */
 		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		
+
 		virtual void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
 		virtual void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
 
@@ -59,7 +59,7 @@ class Fem1DSum : public Fem<VectorBase> {
 
 		virtual void compute_decomposition_reduced();
 
-		ExternalContent *get_externalcontent() const;		
+		ExternalContent *get_externalcontent() const;
 
 };
 
@@ -71,7 +71,7 @@ Fem1DSum<VectorBase>::Fem1DSum(double fem_reduce) : Fem<VectorBase>(fem_reduce) 
 	LOG_FUNC_BEGIN
 
 	this->diff = 0; /* I dont have this information without decompositions */
-	
+
 	LOG_FUNC_END
 }
 
@@ -101,13 +101,13 @@ void Fem1DSum<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
-	
+
 	/* information of reduced problem */
 	output_global <<  " - is reduced       : " << printbool(this->is_reduced()) << std::endl;
 	output_global <<  " - diff             : " << diff << std::endl;
 	output_global <<  " - fem_reduce       : " << this->get_fem_reduce() << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
-	
+
 	if(this->get_decomposition_original() == NULL){
 		output_global <<  " - decomposition1   : NO" << std::endl;
 	} else {
@@ -125,8 +125,8 @@ void Fem1DSum<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 		this->get_decomposition_reduced()->print(output_global);
 		output_global.pop();
 	}
-	
-	output_global.synchronize();	
+
+	output_global.synchronize();
 
 	LOG_FUNC_END
 }
@@ -153,16 +153,16 @@ double Fem1DSum<VectorBase>::get_diff() const {
 template<class VectorBase>
 void Fem1DSum<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
-	
+
 	if(this->is_reduced()){
 		int T_reduced = ceil(this->decomposition1->get_T()*this->fem_reduce);
-		
+
 		/* compute new decomposition */
-		this->decomposition2 = new Decomposition<VectorBase>(T_reduced, 
-				*(this->decomposition1->get_graph()), 
-				this->decomposition1->get_K(), 
-				this->decomposition1->get_xdim(), 
-				this->decomposition1->get_DDT_size(), 
+		this->decomposition2 = new Decomposition<VectorBase>(T_reduced,
+				*(this->decomposition1->get_graph()),
+				this->decomposition1->get_K(),
+				this->decomposition1->get_xdim(),
+				this->decomposition1->get_DDT_size(),
 				this->decomposition1->get_DDR_size());
 
 	} else {
@@ -171,7 +171,7 @@ void Fem1DSum<VectorBase>::compute_decomposition_reduced() {
 	}
 
 	diff = (this->decomposition1->get_T())/(double)(this->decomposition2->get_T());
-	
+
 	LOG_FUNC_END
 }
 

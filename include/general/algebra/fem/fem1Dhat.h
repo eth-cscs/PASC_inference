@@ -3,7 +3,7 @@
  *
  *  @author Lukas Pospisil
  */
- 
+
 #ifndef PASC_FEM1DHAT_H
 #define	PASC_FEM1DHAT_H
 
@@ -29,7 +29,7 @@ class Fem1DHat : public Fem<VectorBase> {
 
 		bool left_overlap;		/**< is there overlap to the left side of time axis? */
 		bool right_overlap;		/**< is there overlap to the right side of time axis? */
-		
+
 		int left_t1_idx;			/**< appropriate left index in fine grid (with overlap) */
 		int right_t1_idx;			/**< appropriate right index in fine grid (with overlap) */
 
@@ -44,9 +44,9 @@ class Fem1DHat : public Fem<VectorBase> {
 		Fem1DHat(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
-		 * 
+		 *
 		 * do not forget to call Fem::set_decomposition_original() and afterwards Fem::compute_decomposition_reduced() to compute decomposition2 internally
-		 * 
+		 *
 		 */
 		Fem1DHat(double fem_reduce = 1.0);
 
@@ -56,14 +56,14 @@ class Fem1DHat : public Fem<VectorBase> {
 
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
-		
+
 		void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
 		void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
 
 		void compute_decomposition_reduced();
 
 		ExternalContent *get_externalcontent() const;
-		
+
 };
 
 
@@ -81,7 +81,7 @@ Fem1DHat<VectorBase>::Fem1DHat(double fem_reduce) : Fem<VectorBase>(fem_reduce){
 	this->left_t2_idx = -1;
 	this->right_t2_idx = -1;
 
-	
+
 	LOG_FUNC_END
 }
 
@@ -114,13 +114,13 @@ void Fem1DHat<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
-	
+
 	/* information of reduced problem */
 	output_global <<  " - is reduced       : " << printbool(this->is_reduced()) << std::endl;
 	output_global <<  " - diff             : " << this->diff << std::endl;
 	output_global <<  " - fem_reduce       : " << this->get_fem_reduce() << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
-	
+
 	output_global <<  " - overlap" << std::endl;
 	output_local <<   "   - left           : " << this->left_overlap << std::endl;
 	output_local <<   "     - left_t1_idx  : " << this->left_t1_idx << std::endl;
@@ -129,7 +129,7 @@ void Fem1DHat<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_local <<   "     - right_t1_idx : " << this->right_t1_idx << std::endl;
 	output_local <<   "     - right_t2_idx : " << this->right_t2_idx << std::endl;
 	output_local.synchronize();
- 	
+
 	if(this->decomposition1 == NULL){
 		output_global <<  " - decomposition1   : NO" << std::endl;
 	} else {
@@ -147,8 +147,8 @@ void Fem1DHat<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 		this->decomposition2->print(output_global);
 		output_global.pop();
 	}
-	
-	output_global.synchronize();	
+
+	output_global.synchronize();
 
 	LOG_FUNC_END
 }
@@ -156,7 +156,7 @@ void Fem1DHat<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 template <class VectorBase>
 void Fem1DHat<VectorBase>::compute_overlaps() {
 	LOG_FUNC_BEGIN
-	
+
 	/* indicator of begin and end overlap */
 	if(GlobalManager.get_rank() == 0){
 		this->left_overlap = false;
@@ -210,7 +210,7 @@ template<class VectorBase>
 void Fem1DHat<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const {
 	LOG_FUNC_BEGIN
 
-	//TODO	
+	//TODO
 
 	LOG_FUNC_END
 }
@@ -218,16 +218,16 @@ void Fem1DHat<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, G
 template<class VectorBase>
 void Fem1DHat<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
-	
+
 	if(this->is_reduced()){
 		int T_reduced = ceil(this->decomposition1->get_T()*this->fem_reduce);
-		
+
 		/* compute new decomposition */
-		this->decomposition2 = new Decomposition<VectorBase>(T_reduced, 
-				*(this->decomposition1->get_graph()), 
-				this->decomposition1->get_K(), 
-				this->decomposition1->get_xdim(), 
-				this->decomposition1->get_DDT_size(), 
+		this->decomposition2 = new Decomposition<VectorBase>(T_reduced,
+				*(this->decomposition1->get_graph()),
+				this->decomposition1->get_K(),
+				this->decomposition1->get_xdim(),
+				this->decomposition1->get_DDT_size(),
 				this->decomposition1->get_DDR_size());
 
 	} else {
@@ -238,7 +238,7 @@ void Fem1DHat<VectorBase>::compute_decomposition_reduced() {
 	this->diff = (this->decomposition1->get_T() - 1)/(double)(this->decomposition2->get_T() - 1);
 
 	compute_overlaps();
-	
+
 	LOG_FUNC_END
 }
 

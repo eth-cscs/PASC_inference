@@ -3,7 +3,7 @@
  *
  *  @author Lukas Pospisil
  */
- 
+
 #ifndef PASC_FEM_H
 #define	PASC_FEM_H
 
@@ -11,8 +11,8 @@
 #include "general/common/initialize.h"
 
 namespace pascinference {
-using namespace algebra;	
-	
+using namespace algebra;
+
 namespace algebra {
 
 /** \class Fem
@@ -27,10 +27,10 @@ class Fem {
 	protected:
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
-	
+
 		Decomposition<VectorBase> *decomposition1; /**< decomposition of the larger problem */
 		Decomposition<VectorBase> *decomposition2; /**< decomposition of smaller problem */
-		
+
 		double fem_reduce;
 	public:
 		/** @brief create FEM mapping between two decompositions
@@ -38,9 +38,9 @@ class Fem {
 		Fem(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
-		 * 
+		 *
 		 * do not forget to call Fem1DSum::set_decomposition_original() and afterwards Fem1DSum::compute_decomposition_reduced() to compute decomposition2 internally
-		 * 
+		 *
 		 */
 		Fem(double fem_reduce = 1.0);
 
@@ -49,19 +49,19 @@ class Fem {
 		~Fem();
 
 		/** @brief print info about fem
-		 * 
+		 *
 		 * @param output where to print
-		 */	
+		 */
 		virtual void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		
+
 		virtual void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
 		virtual void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
 
 		double get_fem_reduce() const;
 		virtual std::string get_name() const;
 
-		void set_decomposition_original(Decomposition<VectorBase> *decomposition1);
-		void set_decomposition_reduced(Decomposition<VectorBase> *decomposition2);
+		virtual void set_decomposition_original(Decomposition<VectorBase> *decomposition1);
+		virtual void set_decomposition_reduced(Decomposition<VectorBase> *decomposition2);
 
 		virtual void compute_decomposition_reduced();
 
@@ -69,8 +69,8 @@ class Fem {
 		Decomposition<VectorBase>* get_decomposition_reduced() const;
 
 		bool is_reduced() const;
-		
-		ExternalContent *get_externalcontent() const;		
+
+		ExternalContent *get_externalcontent() const;
 };
 
 
@@ -84,7 +84,7 @@ Fem<VectorBase>::Fem(double fem_reduce){
 	decomposition2 = NULL;
 
 	this->fem_reduce = fem_reduce;
-	
+
 	LOG_FUNC_END
 }
 
@@ -117,12 +117,12 @@ void Fem<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
-	
+
 	/* information of reduced problem */
 	output_global <<  " - is reduced       : " << printbool(is_reduced()) << std::endl;
 	output_global <<  " - fem_reduce       : " << fem_reduce << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
-	
+
 	if(decomposition1 == NULL){
 		output_global <<  " - decomposition1   : NO" << std::endl;
 	} else {
@@ -140,8 +140,8 @@ void Fem<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_
 		decomposition2->print(output_global);
 		output_global.pop();
 	}
-	
-	output_global.synchronize();	
+
+	output_global.synchronize();
 
 	LOG_FUNC_END
 }
@@ -196,9 +196,9 @@ Decomposition<VectorBase>* Fem<VectorBase>::get_decomposition_reduced() const {
 template<class VectorBase>
 void Fem<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
-	
+
 	//TODO: in general case give error
-	
+
 	LOG_FUNC_END
 }
 
@@ -211,7 +211,7 @@ bool Fem<VectorBase>::is_reduced() const {
 	} else {
 		return_value = false;
 	}
-	
+
 	return return_value;
 }
 

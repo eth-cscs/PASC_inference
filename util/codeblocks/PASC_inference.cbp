@@ -13,23 +13,8 @@
 				<Option compiler="null" />
 			</Target>
 		</Build>
-		<Unit filename="../../examples/build/CMakeFiles/3.0.2/CompilerIdC/CMakeCCompilerId.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../../examples/build/CMakeFiles/3.0.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" />
-		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/3.0.2/CompilerIdC/CMakeCCompilerId.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/3.0.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" />
-		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/CheckTypeSize/SIZE_OF_VOID_PTR.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/dlib/config.h" />
 		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/dlib/revision.h" />
-		<Unit filename="../../examples/build/metis_build/src/project_metis-build/CMakeFiles/3.0.2/CompilerIdC/CMakeCCompilerId.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../../examples/build/metis_build/src/project_metis-build/CMakeFiles/3.0.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" />
 		<Unit filename="../../examples/gui/gui_show_gamma.cpp" />
 		<Unit filename="../../examples/gui/gui_show_image.cpp" />
 		<Unit filename="../../examples/gui/gui_show_movie.cpp" />
@@ -49,6 +34,7 @@
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_blockgraphsparsematrix.cu" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_dot.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_dot.cu" />
+		<Unit filename="../../examples/test_classes/petscvector/algebra/test_fem_image.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_seqarrayvector_dot.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consolearg.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consoleoutput.cpp" />
@@ -94,6 +80,9 @@
 		<Unit filename="../../include/external/petscvector/algebra/algebra.h" />
 		<Unit filename="../../include/external/petscvector/algebra/feasibleset/simplex_lineqbound.h" />
 		<Unit filename="../../include/external/petscvector/algebra/feasibleset/simplex_local.h" />
+		<Unit filename="../../include/external/petscvector/algebra/fem/fem1Dhat.h" />
+		<Unit filename="../../include/external/petscvector/algebra/fem/fem1Dsum.h" />
+		<Unit filename="../../include/external/petscvector/algebra/fem/fem2Dsum.h" />
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraph.h" />
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraphgrid1D.h" />
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraphgrid2D.h" />
@@ -105,7 +94,6 @@
 		<Unit filename="../../include/external/petscvector/common/common.h" />
 		<Unit filename="../../include/external/petscvector/common/decomposition.h" />
 		<Unit filename="../../include/external/petscvector/common/fem.h" />
-		<Unit filename="../../include/external/petscvector/common/fem2D.h" />
 		<Unit filename="../../include/external/petscvector/common/femhat.h" />
 		<Unit filename="../../include/external/petscvector/common/initialize.h" />
 		<Unit filename="../../include/external/petscvector/data/data.h" />
@@ -138,6 +126,10 @@
 		<Unit filename="../../include/general/algebra/feasibleset/generalfeasibleset.h" />
 		<Unit filename="../../include/general/algebra/feasibleset/simplex_lineqbound.h" />
 		<Unit filename="../../include/general/algebra/feasibleset/simplex_local.h" />
+		<Unit filename="../../include/general/algebra/fem/fem.h" />
+		<Unit filename="../../include/general/algebra/fem/fem1Dhat.h" />
+		<Unit filename="../../include/general/algebra/fem/fem1Dsum.h" />
+		<Unit filename="../../include/general/algebra/fem/fem2Dsum.h" />
 		<Unit filename="../../include/general/algebra/graph/bgmgraph.h" />
 		<Unit filename="../../include/general/algebra/graph/bgmgraphgrid1D.h" />
 		<Unit filename="../../include/general/algebra/graph/bgmgraphgrid2D.h" />
@@ -151,7 +143,6 @@
 		<Unit filename="../../include/general/common/consoleinput.h" />
 		<Unit filename="../../include/general/common/consoleoutput.h" />
 		<Unit filename="../../include/general/common/decomposition.h" />
-		<Unit filename="../../include/general/common/fem.h" />
 		<Unit filename="../../include/general/common/fem2D.h" />
 		<Unit filename="../../include/general/common/femhat.h" />
 		<Unit filename="../../include/general/common/globalmanager.h" />
@@ -209,6 +200,9 @@
 		<Unit filename="../../src/petscvector/algebra/feasibleset/simplex_lineqbound.cpp" />
 		<Unit filename="../../src/petscvector/algebra/feasibleset/simplex_local.cpp" />
 		<Unit filename="../../src/petscvector/algebra/feasibleset/simplex_local.cu" />
+		<Unit filename="../../src/petscvector/algebra/fem/fem1Dhat.cpp" />
+		<Unit filename="../../src/petscvector/algebra/fem/fem1Dsum.cpp" />
+		<Unit filename="../../src/petscvector/algebra/fem/fem2Dsum.cpp" />
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraph.cpp" />
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraph.cu" />
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraphgrid1D.cpp" />
@@ -223,11 +217,8 @@
 		<Unit filename="../../src/petscvector/algebra/vector/wrappermul.cpp" />
 		<Unit filename="../../src/petscvector/algebra/vector/wrappersub.cpp" />
 		<Unit filename="../../src/petscvector/common/decomposition.cpp" />
-		<Unit filename="../../src/petscvector/common/fem.cpp" />
 		<Unit filename="../../src/petscvector/common/fem.cu" />
-		<Unit filename="../../src/petscvector/common/fem2D.cpp" />
 		<Unit filename="../../src/petscvector/common/fem2D.cu" />
-		<Unit filename="../../src/petscvector/common/femhat.cpp" />
 		<Unit filename="../../src/petscvector/common/femhat.cu" />
 		<Unit filename="../../src/petscvector/common/initialize.cpp" />
 		<Unit filename="../../src/petscvector/common/initialize.cu" />

@@ -70,6 +70,9 @@ class Fem2DSum : public Fem<VectorBase> {
 
 		void compute_decomposition_reduced();
 
+		void set_decomposition_original(Decomposition<VectorBase> *decomposition1);
+		void set_decomposition_reduced(Decomposition<VectorBase> *decomposition2);
+
 		ExternalContent *get_externalcontent() const;
 };
 
@@ -251,10 +254,8 @@ template<class VectorBase>
 void Fem2DSum<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 
-	/* decomposition1 has to be set */
-	this->grid1 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition1->get_graph());
-
 	if(this->is_reduced()){
+
 		int T_reduced = 1;
 		int width_reduced = ceil(grid1->get_width()*this->fem_reduce);
 		int height_reduced = ceil(grid1->get_height()*this->fem_reduce);
@@ -264,7 +265,6 @@ void Fem2DSum<VectorBase>::compute_decomposition_reduced() {
 
 		/* decompose second grid based on the decomposition of the first grid */
 		this->grid2->decompose(this->grid1, this->bounding_box1, this->bounding_box2);
-		this->grid2->print(coutMaster);
 
 		/* compute new decomposition */
 		this->decomposition2 = new Decomposition<VectorBase>(T_reduced,
@@ -281,13 +281,35 @@ void Fem2DSum<VectorBase>::compute_decomposition_reduced() {
 		this->grid2 = this->grid1;
 	}
 
-	this->diff = 1; /* time */
 	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
 	this->diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
 
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+void Fem2DSum<VectorBase>::set_decomposition_original(Decomposition<VectorBase> *decomposition1) {
+	LOG_FUNC_BEGIN
+
+	this->decomposition1 = decomposition1;
+
+    /* this works if and only if on regular 2D mesh (BGMGraphGrid2D) !! as whole FEM2D */
+	this->grid1 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition1->get_graph());
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void Fem2DSum<VectorBase>::set_decomposition_reduced(Decomposition<VectorBase> *decomposition2) {
+	LOG_FUNC_BEGIN
+
+	this->decomposition2 = decomposition2;
+
+    /* this works if and only if on regular 2D mesh (BGMGraphGrid2D) !! as whole FEM2D */
+	this->grid2 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition2->get_graph());
+
+	LOG_FUNC_END
+}
 
 
 }

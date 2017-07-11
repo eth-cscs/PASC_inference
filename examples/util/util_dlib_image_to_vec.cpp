@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
 		("new_width", boost::program_options::value< int >(), "width of new image [int]")
 		("new_height", boost::program_options::value< int >(), "height of new image [int]")
 		("type", boost::program_options::value< int >(), "type of output vector [0=Rn, 1=nR]")
-		("noise", boost::program_options::value< double >(), "added noise [bool]");
+		("noise", boost::program_options::value< double >(), "added noise [double]");
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */

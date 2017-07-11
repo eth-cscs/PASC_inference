@@ -4,68 +4,6 @@ namespace pascinference {
 namespace algebra {
 
 template<>
-Fem2DSum<PetscVector>::Fem2DSum(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
-	LOG_FUNC_BEGIN
-
-	this->grid1 = (BGMGraphGrid2D<PetscVector>*)(this->decomposition1->get_graph());
-	this->grid2 = (BGMGraphGrid2D<PetscVector>*)(this->decomposition2->get_graph());
-
-	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
-	this->diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
-
-	if(this->is_reduced()){
-		this->bounding_box1 = new int[4];
-		set_value_array(4, this->bounding_box1, 0); /* initial values */
-		this->bounding_box2 = new int[4];
-		set_value_array(4, this->bounding_box2, 0); /* initial values */
-
-		compute_overlaps();
-	}
-
-	LOG_FUNC_END
-}
-
-template<>
-void Fem2DSum<PetscVector>::compute_decomposition_reduced() {
-	LOG_FUNC_BEGIN
-
-	/* decomposition1 has to be set */
-	this->grid1 = (BGMGraphGrid2D<PetscVector>*)(this->decomposition1->get_graph());
-
-	if(this->is_reduced()){
-		int T_reduced = decomposition1->get_T(); /* there is not reduction in time */
-		int width_reduced = ceil(grid1->get_width()*this->fem_reduce);
-		int height_reduced = ceil(grid1->get_height()*this->fem_reduce);
-
-		this->grid2 = new BGMGraphGrid2D<PetscVector>(width_reduced, height_reduced);
-		this->grid2->process_grid();
-
-		/* decompose second grid based on the decomposition of the first grid */
-		this->grid2->decompose(this->grid1, this->bounding_box1, this->bounding_box2);
-		this->grid2->print(coutMaster); //TODO: temp
-
-		/* compute new decomposition */
-		this->decomposition2 = new Decomposition<PetscVector>(T_reduced,
-				*(this->grid2),
-				this->decomposition1->get_K(),
-				this->decomposition1->get_xdim(),
-				this->decomposition1->get_DDT_size(),
-				this->decomposition1->get_DDR_size());
-
-		compute_overlaps();
-	} else {
-		/* there is not reduction of the data, we can reuse the decomposition */
-		this->set_decomposition_reduced(this->decomposition1);
-		this->grid2 = this->grid1;
-	}
-
-	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
-	this->diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
-
-	LOG_FUNC_END
-}
-
-template<>
 void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 

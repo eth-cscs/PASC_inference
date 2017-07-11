@@ -4,17 +4,6 @@ namespace pascinference {
 namespace algebra {
 
 template<>
-Fem1DHat<PetscVector>::Fem1DHat(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
-	LOG_FUNC_BEGIN
-
-	this->diff = (decomposition1->get_T() - 1)/(double)(decomposition2->get_T() - 1);
-
-	compute_overlaps();
-
-	LOG_FUNC_END
-}
-
-template<>
 void Fem1DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
@@ -58,7 +47,7 @@ void Fem1DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 			double center_t1 = (Tbegin2+t2)*diff;
 			double left_t1 = (Tbegin2+t2-1)*diff;
 			double right_t1 = (Tbegin2+t2+1)*diff;
-				
+
 			int id_counter = floor(left_t1) - left_t1_idx; /* first index in provided local t1 array */
 
 			double phi_value; /* value of basis function */
@@ -89,7 +78,7 @@ void Fem1DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 
 			gammak2_arr[t2] = mysum;
 		}
-		
+
 		TRYCXX( VecRestoreArray(gammak1_sublocal_Vec,&gammak1_arr) );
 		TRYCXX( VecRestoreArray(gammak2_Vec,&gammak2_arr) );
 
@@ -120,7 +109,7 @@ void Fem1DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 
 	Vec gammak1_Vec;
 	Vec gammak2_Vec;
-	
+
 	IS gammak1_is;
 	IS gammak2_is;
 
@@ -158,10 +147,10 @@ void Fem1DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 
 			/* value of basis functions */
 			double t1_value = 0.0;
-			double phi_value_left = (t1 + Tbegin1 - t1_left)/(t1_right - t1_left); 
+			double phi_value_left = (t1 + Tbegin1 - t1_left)/(t1_right - t1_left);
 			t1_value += phi_value_left*gammak2_arr[t2_right_id];
-			
-			double phi_value_right = (t1 + Tbegin1 - t1_right)/(t1_left - t1_right); 
+
+			double phi_value_right = (t1 + Tbegin1 - t1_right)/(t1_left - t1_right);
 			t1_value += phi_value_right*gammak2_arr[t2_left_id];
 
 			gammak1_arr[t1] = t1_value;
@@ -184,32 +173,6 @@ void Fem1DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 	LOG_FUNC_END
 }
 
-template<>
-void Fem1DHat<PetscVector>::compute_decomposition_reduced() {
-	LOG_FUNC_BEGIN
-	
-	if(this->is_reduced()){
-		int T_reduced = ceil(this->decomposition1->get_T()*this->fem_reduce);
-		
-		/* compute new decomposition */
-		this->decomposition2 = new Decomposition<PetscVector>(T_reduced, 
-				*(this->decomposition1->get_graph()), 
-				this->decomposition1->get_K(), 
-				this->decomposition1->get_xdim(), 
-				this->decomposition1->get_DDT_size(), 
-				this->decomposition1->get_DDR_size());
-
-	} else {
-		/* there is not reduction of the data, we can reuse the decomposition */
-		this->decomposition2 = this->decomposition1;
-	}
-
-	this->diff = (this->decomposition1->get_T() - 1)/(double)(this->decomposition2->get_T() - 1);
-
-	compute_overlaps();
-	
-	LOG_FUNC_END
-}
 
 }
 } /* end of namespace */
