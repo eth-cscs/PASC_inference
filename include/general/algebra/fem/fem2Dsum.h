@@ -1,24 +1,24 @@
-/** @file fem2D.h
+/** @file fem2Dsum.h
  *  @brief class for reduction and prolongation on fem meshes using constant functions in 2D
  *
  *  @author Lukas Pospisil
  */
 
-#ifndef PASC_FEM2D_H
-#define	PASC_FEM2D_H
+#ifndef PASC_FEM2DSUM_H
+#define	PASC_FEM2DSUM_H
 
-#include "general/common/fem.h"
+#include "general/algebra/fem/fem.h"
 #include "general/algebra/graph/bgmgraphgrid2D.h"
 
 namespace pascinference {
-namespace common {
+namespace algebra {
 
-/** \class FEM 2D manipulation
- *  \brief Reduction/prolongation between FEM meshes.
+/** \class Fem2DSum
+ *  \brief Reduction/prolongation between FEM meshes using averaging.
  *
 */
 template<class VectorBase>
-class Fem2D : public Fem<VectorBase> {
+class Fem2DSum : public Fem<VectorBase> {
 	public:
 		class ExternalContent;
 
@@ -49,18 +49,18 @@ class Fem2D : public Fem<VectorBase> {
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
-		Fem2D(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
+		Fem2DSum(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce);
 
 		/** @brief create general FEM mapping
 		 *
 		 * do not forget to call Fem::set_decomposition_original() and afterwards Fem::compute_decomposition_reduced() to compute decomposition2 internally
 		 *
 		 */
-		Fem2D(double fem_reduce = 1.0);
+		Fem2DSum(double fem_reduce = 1.0);
 
 		/** @brief destructor
 		*/
-		~Fem2D();
+		~Fem2DSum();
 
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		std::string get_name() const;
@@ -75,7 +75,7 @@ class Fem2D : public Fem<VectorBase> {
 
 /* ----------------- Fem implementation ------------- */
 template<class VectorBase>
-Fem2D<VectorBase>::Fem2D(double fem_reduce) : Fem<VectorBase>(fem_reduce){
+Fem2DSum<VectorBase>::Fem2DSum(double fem_reduce) : Fem<VectorBase>(fem_reduce){
 	LOG_FUNC_BEGIN
 
 	/* I don't have this information without decompositions */
@@ -96,13 +96,12 @@ Fem2D<VectorBase>::Fem2D(double fem_reduce) : Fem<VectorBase>(fem_reduce){
 }
 
 template<class VectorBase>
-Fem2D<VectorBase>::Fem2D(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce) : Fem<VectorBase>(decomposition1, decomposition2, fem_reduce){
+Fem2DSum<VectorBase>::Fem2DSum(Decomposition<VectorBase> *decomposition1, Decomposition<VectorBase> *decomposition2, double fem_reduce) : Fem<VectorBase>(decomposition1, decomposition2, fem_reduce){
 	LOG_FUNC_BEGIN
 
 	this->grid1 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition1->get_graph());
 	this->grid2 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition2->get_graph());
 
-	this->diff = 1; /* time */
 	this->diff_x = (grid1->get_width()-1)/(double)(grid2->get_width()-1);
 	this->diff_y = (grid1->get_height()-1)/(double)(grid2->get_height()-1);
 
@@ -119,26 +118,25 @@ Fem2D<VectorBase>::Fem2D(Decomposition<VectorBase> *decomposition1, Decompositio
 }
 
 template<class VectorBase>
-Fem2D<VectorBase>::~Fem2D(){
+Fem2DSum<VectorBase>::~Fem2DSum(){
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
-std::string Fem2D<VectorBase>::get_name() const {
-	return "FEM2D";
+std::string Fem2DSum<VectorBase>::get_name() const {
+	return "FEM-2D-SUM";
 }
 
 template<class VectorBase>
-void Fem2D<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
+void Fem2DSum<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
 	output_global << this->get_name() << std::endl;
 
 	/* information of reduced problem */
 	output_global <<  " - is reduced       : " << printbool(this->is_reduced()) << std::endl;
-	output_global <<  " - diff             : " << this->diff << std::endl;
 	output_global <<  " - diff_x           : " << this->diff_x << std::endl;
 	output_global <<  " - diff_y           : " << this->diff_y << std::endl;
 
@@ -147,7 +145,7 @@ void Fem2D<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outpu
 	output_local <<   "   - bounding_box2    : " << print_array(this->bounding_box2, 4) << std::endl;
 	output_local.synchronize();
 
-	output_global <<  " - fem_reduce       : " << this->fem_reduce << std::endl;
+	output_global <<  " - fem_reduce       : " << this->get_fem_reduce() << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
 
 	if(this->decomposition1 == NULL){
@@ -190,7 +188,7 @@ void Fem2D<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outpu
 }
 
 template<class VectorBase>
-void Fem2D<VectorBase>::compute_overlaps() {
+void Fem2DSum<VectorBase>::compute_overlaps() {
 	LOG_FUNC_BEGIN
 
 	if(this->is_reduced()){
@@ -232,7 +230,7 @@ void Fem2D<VectorBase>::compute_overlaps() {
 }
 
 template<class VectorBase>
-void Fem2D<VectorBase>::reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const {
+void Fem2DSum<VectorBase>::reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -241,7 +239,7 @@ void Fem2D<VectorBase>::reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralV
 }
 
 template<class VectorBase>
-void Fem2D<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const {
+void Fem2DSum<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -250,7 +248,7 @@ void Fem2D<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, Gene
 }
 
 template<class VectorBase>
-void Fem2D<VectorBase>::compute_decomposition_reduced() {
+void Fem2DSum<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 
 	/* decomposition1 has to be set */

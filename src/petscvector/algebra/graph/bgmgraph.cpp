@@ -81,13 +81,13 @@ void BGMGraph<PetscVector>::process(double threshold) {
 	this->threshold = threshold;
 	
 	/* prepare array for number of neighbors */
-	neighbor_nmbs = (int*)malloc(this->n*sizeof(int));
+	neighbor_nmbs = new int[this->n];
 
 //	#pragma omp parallel for
 	for(int i=0;i<n;i++){
 		neighbor_nmbs[i] = 0;
 	}
-	
+
 	/* get local array and work with it */
 	const double *coordinates_arr;
 	TRYCXX( VecGetArrayRead(coordinates->get_vector(),&coordinates_arr) );
@@ -104,16 +104,16 @@ void BGMGraph<PetscVector>::process(double threshold) {
 	}
 
 	/* prepare storages for neightbors ids */
-	neighbor_ids = (int**)malloc(this->n*sizeof(int*));
+	neighbor_ids = new int*[this->n];
 
 //	#pragma omp parallel for
 	for(int i=0;i<this->n;i++){
-		neighbor_ids[i] = (int*)malloc(neighbor_nmbs[i]*sizeof(int));
+		neighbor_ids[i] = new int[neighbor_nmbs[i]];
 	}
 
 	/* go throught graph - fill indexes of neighbors */
 	int *counters;
-	counters = (int*)malloc(this->n*sizeof(int));
+	counters = new int[this->n];
 
 //	#pragma omp parallel for
 	for(int i=0;i<this->n;i++){

@@ -37,9 +37,5 @@
 #include "general/common/shortinfo.h"
 #include "general/common/decomposition.h"
 
-#include "general/common/fem.h"
-#include "general/common/fem2D.h"
-#include "general/common/femhat.h"
-
 
 #endif

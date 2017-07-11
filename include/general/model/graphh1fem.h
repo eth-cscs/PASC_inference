@@ -2,6 +2,7 @@
 #define PASC_GRAPHH1FEMMODEL_H
 
 #include "general/common/common.h"
+#include "general/algebra/fem/fem.h"
 
 /* gamma problem */
 //#include "algebra/matrix/blockgraphfree.h" // TODO: implement?

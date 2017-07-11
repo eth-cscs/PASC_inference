@@ -1,10 +1,10 @@
-#include "external/petscvector/common/fem2D.h"
+#include "external/petscvector/algebra/fem/fem2Dsum.h"
 
 namespace pascinference {
 namespace common {
 
 template<>
-Fem2D<PetscVector>::Fem2D(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
+Fem2DSum<PetscVector>::Fem2DSum(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
 	LOG_FUNC_BEGIN
 
 	this->grid1 = (BGMGraphGrid2D<PetscVector>*)(this->decomposition1->get_graph());
@@ -34,7 +34,7 @@ Fem2D<PetscVector>::Fem2D(Decomposition<PetscVector> *decomposition1, Decomposit
 }
 
 template<>
-void Fem2D<PetscVector>::compute_decomposition_reduced() {
+void Fem2DSum<PetscVector>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 
 	/* decomposition1 has to be set */
@@ -75,7 +75,7 @@ void Fem2D<PetscVector>::compute_decomposition_reduced() {
 }
 
 template<>
-void Fem2D<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
+void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -171,7 +171,7 @@ void Fem2D<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Genera
 }
 
 template<>
-void Fem2D<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
+void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;

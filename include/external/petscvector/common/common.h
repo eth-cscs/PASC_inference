@@ -22,9 +22,5 @@
 //#include "external/petscvector/common/shortinfo.h"
 #include "external/petscvector/common/decomposition.h"
 
-#include "external/petscvector/common/fem.h"
-#include "external/petscvector/common/fem2D.h"
-#include "external/petscvector/common/femhat.h"
-
 
 #endif

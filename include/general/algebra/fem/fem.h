@@ -1,5 +1,5 @@
 /** @file fem.h
- *  @brief class for reduction and prolongation on fem meshes
+ *  @brief class for general reduction and prolongation on fem meshes
  *
  *  @author Lukas Pospisil
  */
@@ -13,10 +13,10 @@
 namespace pascinference {
 using namespace algebra;	
 	
-namespace common {
+namespace algebra {
 
 /** \class Fem
- *  \brief Reduction/prolongation between FEM meshes using constant functions.
+ *  \brief Reduction/prolongation between FEM meshes.
  *
 */
 template<class VectorBase>
@@ -31,8 +31,6 @@ class Fem {
 		Decomposition<VectorBase> *decomposition1; /**< decomposition of the larger problem */
 		Decomposition<VectorBase> *decomposition2; /**< decomposition of smaller problem */
 		
-		double diff;
-		
 		double fem_reduce;
 	public:
 		/** @brief create FEM mapping between two decompositions
@@ -41,7 +39,7 @@ class Fem {
 
 		/** @brief create general FEM mapping
 		 * 
-		 * do not forget to call Fem::set_decomposition_original() and afterwards Fem::compute_decomposition_reduced() to compute decomposition2 internally
+		 * do not forget to call Fem1DSum::set_decomposition_original() and afterwards Fem1DSum::compute_decomposition_reduced() to compute decomposition2 internally
 		 * 
 		 */
 		Fem(double fem_reduce = 1.0);
@@ -59,8 +57,6 @@ class Fem {
 		virtual void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
 		virtual void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
 
-		//TODO: cannot me used in general FEM!
-		double get_diff() const;
 		double get_fem_reduce() const;
 		virtual std::string get_name() const;
 
@@ -88,7 +84,6 @@ Fem<VectorBase>::Fem(double fem_reduce){
 	decomposition2 = NULL;
 
 	this->fem_reduce = fem_reduce;
-	this->diff = 0; /* I dont have this information without decompositions */
 	
 	LOG_FUNC_END
 }
@@ -102,8 +97,6 @@ Fem<VectorBase>::Fem(Decomposition<VectorBase> *decomposition1, Decomposition<Ve
 	this->set_decomposition_original(decomposition1);
 	this->set_decomposition_reduced(decomposition2);
 
-	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
-
 	LOG_FUNC_END
 }
 
@@ -116,7 +109,7 @@ Fem<VectorBase>::~Fem(){
 
 template<class VectorBase>
 std::string Fem<VectorBase>::get_name() const {
-	return "FEM-SUM";
+	return "FEM-GENERAL";
 }
 
 template<class VectorBase>
@@ -127,7 +120,6 @@ void Fem<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_
 	
 	/* information of reduced problem */
 	output_global <<  " - is reduced       : " << printbool(is_reduced()) << std::endl;
-	output_global <<  " - diff             : " << diff << std::endl;
 	output_global <<  " - fem_reduce       : " << fem_reduce << std::endl;
 	output_global <<  " - fem_type         : " << get_name() << std::endl;
 	
@@ -169,11 +161,6 @@ void Fem<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, Genera
 }
 
 template<class VectorBase>
-double Fem<VectorBase>::get_diff() const {
-	return diff;
-}
-
-template<class VectorBase>
 double Fem<VectorBase>::get_fem_reduce() const {
 	return fem_reduce;
 }
@@ -210,23 +197,7 @@ template<class VectorBase>
 void Fem<VectorBase>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 	
-	if(is_reduced()){
-		int T_reduced = ceil(decomposition1->get_T()*fem_reduce);
-		
-		/* compute new decomposition */
-		decomposition2 = new Decomposition<VectorBase>(T_reduced, 
-				*(decomposition1->get_graph()), 
-				decomposition1->get_K(), 
-				decomposition1->get_xdim(), 
-				decomposition1->get_DDT_size(), 
-				decomposition1->get_DDR_size());
-
-	} else {
-		/* there is not reduction of the data, we can reuse the decomposition */
-		this->set_decomposition_reduced(decomposition1);
-	}
-
-	diff = (decomposition1->get_T())/(double)(decomposition2->get_T());
+	//TODO: in general case give error
 	
 	LOG_FUNC_END
 }

@@ -8,7 +8,7 @@ XDIM=1
 NOISE=0.3
 ANNEALING=1
 K=3
-FEM_REDUCE=0.1
+FEM_REDUCE=0.2
 NPROC=1
 
 # remove old files

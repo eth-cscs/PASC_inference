@@ -268,10 +268,10 @@ int main( int argc, char *argv[] )
 	/* prepare FEM reduction */
 	Fem<PetscVector> *fem;
 	if(fem_type == 0){
-		fem = new Fem<PetscVector>(fem_reduce);
+		fem = new Fem1DSum<PetscVector>(fem_reduce);
 	}
 	if(fem_type == 1){
-		fem = new FemHat<PetscVector>(fem_reduce);
+		fem = new Fem1DHat<PetscVector>(fem_reduce);
 	}
 
 	/* prepare model on the top of given data */

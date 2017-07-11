@@ -15,7 +15,7 @@ void LoggingClass::openfile(){
 	myfile.open(filename->c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 	myfile << std::setprecision(17);
 }
-		
+
 void LoggingClass::closefile(){
 	myfile.close();
 }
@@ -37,6 +37,11 @@ void LoggingClass::begin(std::string new_filename){
 	consoleArg.set_option_value("log_or_not_level", &log_or_not_level, DEFAULT_LOG_LEVEL);
 	consoleArg.set_option_value("log_or_not_memory", &log_or_not_memory, DEFAULT_LOG_MEMORY);
 
+	/* only master is logging */
+	if(GlobalManager.get_rank() != 0){
+        log_or_not = false;
+	}
+
 	level = -1;
 	reference_time = getUnixTime();
 
@@ -54,7 +59,7 @@ void LoggingClass::begin(std::string new_filename){
 	myfile << "LOG_OPEN" << LOG_SEPARATOR;
 	myfile << "filename=" << *filename << ",start time=" << reference_time;
 	myfile << std::endl;
-	myfile.close();			
+	myfile.close();
 }
 
 void LoggingClass::end(){
@@ -74,7 +79,7 @@ void LoggingClass::end(){
 		myfile << "LOG_CLOSE" << LOG_SEPARATOR;
 		myfile << "filename=" << *filename;
 		myfile << std::endl;
-		closefile();			
+		closefile();
 	}
 	log_or_not = false;
 }
@@ -100,10 +105,10 @@ void LoggingClass::begin_func(std::string name_class,std::string name_function, 
 		myfile << "FUNC_BEGIN" << LOG_SEPARATOR;
 		myfile << name_class << "::" << name_function;
 		myfile << std::endl;
-		closefile();			
+		closefile();
 	}
 }
-		
+
 void LoggingClass::end_func(std::string name_class,std::string name_function, std::string file, int line){
 	if(log_or_not && log_or_not_func_call){
 		openfile();
@@ -123,7 +128,7 @@ void LoggingClass::end_func(std::string name_class,std::string name_function, st
 		myfile << std::endl;
 		closefile();
 	}
-		
+
 	level--;
 
 }
@@ -164,11 +169,11 @@ void LoggingClass::fx(std::string name_algorithm, std::string file, int line, do
 			myfile << line << LOG_SEPARATOR;
 		}
 		myfile << "FX_" << name_algorithm << LOG_SEPARATOR;
-			
+
 		std::streamsize ss = std::cout.precision();
 		myfile << std::setprecision(17) << fx_value << std::setprecision(ss);
-				
-				
+
+
 		myfile << std::endl;
 		closefile();
 	}
@@ -192,7 +197,7 @@ void LoggingClass::fx(std::string name_algorithm, std::string file, int line, do
 
 		std::streamsize ss = std::cout.precision();
 		myfile << std::setprecision(17) << fx_value << std::setprecision(ss);
-				
+
 		myfile << std::endl;
 		closefile();
 	}
@@ -220,7 +225,7 @@ void LoggingClass::direct(AnyType my_string, std::string file, int line){
 
 void LoggingClass::set_log_or_not(bool new_value){
 	log_or_not = new_value;
-}				
+}
 
 bool LoggingClass::get_log_or_not() const {
 	return log_or_not;
@@ -228,7 +233,7 @@ bool LoggingClass::get_log_or_not() const {
 
 void LoggingClass::set_log_or_not_func_call(bool new_value){
 	log_or_not_func_call = new_value;
-}				
+}
 
 bool LoggingClass::get_log_or_not_func_call() const {
 	return log_or_not_func_call;
@@ -236,7 +241,7 @@ bool LoggingClass::get_log_or_not_func_call() const {
 
 void LoggingClass::set_log_or_not_file_line(bool new_value){
 	log_or_not_file_line = new_value;
-}				
+}
 
 bool LoggingClass::get_log_or_not_file_line() const {
 	return log_or_not_file_line;
@@ -244,7 +249,7 @@ bool LoggingClass::get_log_or_not_file_line() const {
 
 void LoggingClass::set_log_or_not_level(bool new_value){
 	log_or_not_level = new_value;
-}				
+}
 
 bool LoggingClass::get_log_or_not_level() const {
 	return log_or_not_level;
@@ -252,7 +257,7 @@ bool LoggingClass::get_log_or_not_level() const {
 
 void LoggingClass::set_log_or_not_memory(bool new_value){
 	log_or_not_memory = new_value;
-}				
+}
 
 bool LoggingClass::get_log_or_not_memory() const {
 	return log_or_not_memory;

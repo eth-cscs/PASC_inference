@@ -33,4 +33,10 @@
 //#include "external/petscvector/algebra/integration/entropyintegration.h"
 #include "external/petscvector/algebra/integration/entropyintegrationdlib.h"
 
+/* fem */
+#include "external/petscvector/algebra/fem/fem1Dsum.h"
+#include "external/petscvector/algebra/fem/fem1Dhat.h"
+#include "external/petscvector/algebra/fem/fem2Dsum.h"
+
+
 #endif

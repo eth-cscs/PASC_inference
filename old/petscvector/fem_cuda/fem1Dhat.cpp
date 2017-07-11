@@ -1,10 +1,10 @@
-#include "external/petscvector/common/femhat.h"
+#include "external/petscvector/algebra/fem/fem1Dhat.h"
 
 namespace pascinference {
 namespace common {
 
 template<>
-FemHat<PetscVector>::FemHat(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
+Fem1DHat<PetscVector>::Fem1DHat(Decomposition<PetscVector> *decomposition1, Decomposition<PetscVector> *decomposition2, double fem_reduce) : Fem<PetscVector>(decomposition1, decomposition2, fem_reduce){
 	LOG_FUNC_BEGIN
 
 	#ifdef USE_CUDA
@@ -24,7 +24,7 @@ FemHat<PetscVector>::FemHat(Decomposition<PetscVector> *decomposition1, Decompos
 
 
 template<>
-void FemHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
+void Fem1DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -130,7 +130,7 @@ void FemHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gener
 }
 
 template<>
-void FemHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
+void Fem1DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
 	LOG_FUNC_BEGIN
 
 	double *gammak1_arr;
@@ -217,7 +217,7 @@ void FemHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, G
 }
 
 template<>
-void FemHat<PetscVector>::compute_decomposition_reduced() {
+void Fem1DHat<PetscVector>::compute_decomposition_reduced() {
 	LOG_FUNC_BEGIN
 	
 	if(this->is_reduced()){

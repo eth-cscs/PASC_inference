@@ -1,12 +1,12 @@
 #!/bin/bash   
 
-MYTESTSIZE=80
-XDIM=3
+MYTESTSIZE=100
+XDIM=1
 NOISE=0.1
 ANNEALING=1
 K=3
-FEM_REDUCE=0.1
-NPROC=3
+FEM_REDUCE=0.2
+NPROC=1
 
 rm -f data/test_image/illia_avatar_color_solution.bin data/test_image/illia_avatar_color_data.bin results/illia_avatar_color_recovered.bin results/illia_avatar_color_gamma.bin
 
@@ -29,7 +29,7 @@ PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=
 PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
 PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
 
-PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=2"
+PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=0"
 
 ## additional PETSc parameters
 PARAM_PETSC="--petsc_options=\"\""

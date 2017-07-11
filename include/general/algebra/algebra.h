@@ -29,5 +29,12 @@
 /* vector */
 #include "general/algebra/vector/generalvector.h"
 
+/* fem */
+#include "general/algebra/fem/fem.h"
+#include "general/algebra/fem/fem1Dsum.h"
+#include "general/algebra/fem/fem1Dhat.h"
+#include "general/algebra/fem/fem2Dsum.h"
+//#include "general/algebra/fem/fem2Dhat.h"
+
 
 #endif

@@ -2,6 +2,7 @@
 #define	PASC_PETSCVECTOR_COMMON_DECOMPOSITION_H
 
 #include "external/petscvector/algebra/vector/generalvector.h"
+#include "external/petscvector/algebra/graph/bgmgraph.h"
 #include "general/common/decomposition.h"
 
 namespace pascinference {

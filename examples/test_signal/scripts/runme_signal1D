@@ -36,8 +36,8 @@ PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_T
 
 ## run the job
 #./test_signal1D $PARAM_ALL
-mpiexec -n $NPROC ./test_signal $PARAM_ALL
-#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n 2 ./test_signal1D $PARAM_ALL
+#mpiexec -n $NPROC ./test_signal $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_signal $PARAM_ALL
 
 # gui show vectors
 if [ -f data/signal1D_data.bin ]

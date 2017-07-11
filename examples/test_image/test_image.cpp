@@ -15,7 +15,7 @@
 
 #define DEFAULT_EPSSQR 1
 #define DEFAULT_K 2
-#define DEFAULT_FEM_TYPE 2
+#define DEFAULT_FEM_TYPE 0
 #define DEFAULT_FEM_REDUCE 1.0
 #define DEFAULT_XDIM 1
 #define DEFAULT_WIDTH 250
@@ -184,7 +184,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
 
-	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT])" << std::endl;
+	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [0=FEM2D_SUM/1=FEM2D_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce             = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
 	coutMaster << " test_graph_save             = " << std::setw(50) << print_bool(graph_save) << " (save VTK with graph or not)" << std::endl;
 	coutMaster << " test_saveresult             = " << std::setw(50) << print_bool(saveresult) << " (save reconstructed image)" << std::endl;
@@ -285,10 +285,10 @@ int main( int argc, char *argv[] )
 
 	/* prepare FEM reduction */
 	Fem<PetscVector> *fem;
-	if(fem_type == 3){
-		fem = new Fem2D<PetscVector>(fem_reduce);
+	if(fem_type == 0){
+		fem = new Fem2DSum<PetscVector>(fem_reduce);
 	}
-	if(fem_type == 4){
+	if(fem_type == 1){
 //		fem = new Fem2DHat<PetscVector>(fem_reduce);
 	}
 

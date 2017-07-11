@@ -1,15 +1,15 @@
-#ifndef PASC_PETSCVECTOR_FEM_H
-#define	PASC_PETSCVECTOR_FEM_H
+#ifndef PASC_PETSCVECTOR_FEM1DSUM_H
+#define	PASC_PETSCVECTOR_FEM1DSUM_H
 
 #include "external/petscvector/common/decomposition.h"
 #include "external/petscvector/algebra/vector/generalvector.h"
-#include "general/common/fem.h"
+#include "general/algebra/fem/fem1Dsum.h"
 
 namespace pascinference {
 namespace common {
 
 /* external-specific stuff */
-template<> class Fem<PetscVector>::ExternalContent {
+template<> class Fem1DSum<PetscVector>::ExternalContent {
 	public:
 	
 	#ifdef USE_CUDA
@@ -28,11 +28,11 @@ template<> class Fem<PetscVector>::ExternalContent {
 };
 
 
-template<> void Fem<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
-template<> void Fem<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const;
+template<> void Fem1DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const;
+template<> void Fem1DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const;
 
-template<> Fem<PetscVector>::ExternalContent * Fem<PetscVector>::get_externalcontent() const;
-template<> void Fem<PetscVector>::compute_decomposition_reduced();
+template<> Fem1DSum<PetscVector>::ExternalContent * Fem1DSum<PetscVector>::get_externalcontent() const;
+template<> void Fem1DSum<PetscVector>::compute_decomposition_reduced();
 
 }
 } /* end of namespace */

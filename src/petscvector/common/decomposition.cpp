@@ -40,7 +40,7 @@ Decomposition<PetscVector>::Decomposition(int T, int R, int K, int xdim, int DDT
 
 	/* prepare new layout for R */
 	/* no graph provided, create one */
-	double coordinates_array[R];
+	double *coordinates_array = new double[R];
 	for(int r=0;r<R;r++){
 		coordinates_array[r] = r;
 	}
