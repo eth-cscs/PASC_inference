@@ -5,7 +5,7 @@ XDIM=3
 NOISE=0.1
 ANNEALING=1
 K=3
-FEM_REDUCE=-1
+FEM_REDUCE=0.1
 NPROC=3
 
 rm -f data/test_image/illia_avatar_color_solution.bin data/test_image/illia_avatar_color_data.bin results/illia_avatar_color_recovered.bin results/illia_avatar_color_gamma.bin
