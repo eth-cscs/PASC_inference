@@ -35,7 +35,7 @@ class Decomposition {
 		int *DDR_invpermutation; /**< space - permutation of global indexes */
 		int *DDR_lengths; /**< space - array of local lengths */
 		int *DDR_ranges; /**< space - local ownership */
-		bool destroy_DDR_arrays; /**< if graph was not provided, I have to create and destroy arrays here */
+		bool destroy_DDR_graph; /**< if graph was not provided, I have to create and destroy graph here */
 
 		/* other stuff */
 		int K; /**< number of clusters */

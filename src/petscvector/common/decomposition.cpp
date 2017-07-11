@@ -39,27 +39,16 @@ Decomposition<PetscVector>::Decomposition(int T, int R, int K, int xdim, int DDT
 	TRYCXX( VecDestroy(&DDT_layout) );
 
 	/* prepare new layout for R */
-	/* no graph provided - allocate arrays */
-	destroy_DDR_arrays = true;
-
-	DDR_affiliation = new int[R];
-	DDR_permutation = new int[R];
-	DDR_invpermutation = new int[R];
-	for(int i=0;i<R;i++){
-		DDR_affiliation[i] = 0;
-		DDR_permutation[i] = i;
-		DDR_invpermutation[i] = i;
+	/* no graph provided, create one */
+	double coordinates_array[R];
+	for(int r=0;r<R;r++){
+		coordinates_array[r] = r;
 	}
+	graph = new BGMGraph<PetscVector>(coordinates_array, R, 1);
+	graph->process(0.0);
 
-	DDR_lengths = new int[this->DDR_size];
-	DDR_lengths[0] = R;
-
-	DDR_ranges = new int[this->DDR_size+1];
-	DDR_ranges[0] = 0;
-	DDR_ranges[1] = R;
-
-	/* no graph provided */
-	graph = NULL;
+	destroy_DDR_graph = true; /* I created graph, I should destroy it */
+	set_graph(*graph, DDR_size);
 
 	compute_rank();
 
@@ -76,7 +65,7 @@ Decomposition<PetscVector>::Decomposition(int T, BGMGraph<PetscVector> &new_grap
 	this->xdim = xdim;
 
 	/* prepare new layout for R */
-	destroy_DDR_arrays = false;
+	destroy_DDR_graph = false;
 	set_graph(new_graph, DDR_size);
 
 	this->DDT_size = 1;
@@ -103,7 +92,7 @@ Decomposition<PetscVector>::Decomposition(int T, BGMGraph<PetscVector> &new_grap
 	this->xdim = xdim;
 
 	/* prepare new layout for R */
-	destroy_DDR_arrays = false;
+	destroy_DDR_graph = false;
 	set_graph(new_graph, DDR_size);
 
 	this->DDT_size = DDT_size;
@@ -136,12 +125,8 @@ Decomposition<PetscVector>::~Decomposition(){
 		free(DDT_ranges);
 	}
 
-	if(destroy_DDR_arrays){
-		free(DDR_affiliation);
-		free(DDR_permutation);
-		free(DDR_invpermutation);
-		free(DDR_lengths);
-		free(DDR_ranges);
+	if(destroy_DDR_graph){
+		free(graph);
 	}
 
 	LOG_FUNC_END
@@ -181,21 +166,12 @@ void Decomposition<PetscVector>::compute_rank(){
 
 template<>
 void Decomposition<PetscVector>::set_graph(BGMGraph<PetscVector> &new_graph, int DDR_size) {
-
-	if(destroy_DDR_arrays){
-		free(DDR_affiliation);
-		free(DDR_permutation);
-		free(DDR_invpermutation);
-		free(DDR_lengths);
-		free(DDR_ranges);
-	}
-
 	/* decompose graph */
 	this->DDR_size = DDR_size;
 	new_graph.decompose(DDR_size);
 
 	this->graph = &new_graph;
-	destroy_DDR_arrays = false;
+	destroy_DDR_graph = false;
 	DDR_affiliation = new_graph.get_DD_affiliation();
 	DDR_permutation = new_graph.get_DD_permutation();
 	DDR_invpermutation = new_graph.get_DD_invpermutation();
@@ -207,15 +183,12 @@ void Decomposition<PetscVector>::set_graph(BGMGraph<PetscVector> &new_graph, int
 template<>
 void Decomposition<PetscVector>::set_new_graph(BGMGraph<PetscVector> &new_graph, int DDR_size) {
 
-	if(destroy_DDR_arrays){
-		free(DDR_affiliation);
-		free(DDR_permutation);
-		free(DDR_invpermutation);
-		free(DDR_lengths);
-		free(DDR_ranges);
+	if(destroy_DDR_graph){
+		free(graph);
 	}
 
     set_graph(new_graph,DDR_size);
+    destroy_DDR_graph = false;
 
 	compute_rank();
 }
@@ -414,7 +387,7 @@ void Decomposition<PetscVector>::createIS_dTRb(IS *is, int blocksize) const {
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
 			for(int k=0;k<blocksize;k++){
-                local_arr[t*Rlocal*blocksize + r*blocksize + k] = t*Rlocal*blocksize + DD_permutation[Rbegin+r]*blocksize + k;
+                local_arr[t*Rlocal*blocksize + r*blocksize + k] = (Tbegin+t)*R*blocksize + DD_permutation[Rbegin+r]*blocksize + k;
             }
 		}
 	}

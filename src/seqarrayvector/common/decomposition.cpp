@@ -54,7 +54,7 @@ Decomposition<SeqArrayVector>::Decomposition(int T, BGMGraph<SeqArrayVector> &ne
 	this->xdim = xdim;
 
 	/* prepare new layout for R */
-	destroy_DDR_arrays = false;
+	destroy_DDR_graph = false;
 	set_graph(new_graph, DDR_size);
 
 	this->DDT_size = DDT_size;
@@ -87,12 +87,8 @@ Decomposition<SeqArrayVector>::~Decomposition(){
 		free(DDT_ranges);
 	}
 
-	if(destroy_DDR_arrays){
-		free(DDR_affiliation);
-		free(DDR_permutation);
-		free(DDR_invpermutation);
-		free(DDR_lengths);
-		free(DDR_ranges);
+	if(destroy_DDR_graph){
+		free(graph);
 	}
 
 	LOG_FUNC_END
@@ -124,12 +120,8 @@ void Decomposition<SeqArrayVector>::compute_rank(){
 template<>
 void Decomposition<SeqArrayVector>::set_graph(BGMGraph<SeqArrayVector> &new_graph, int DDR_size) {
 
-	if(destroy_DDR_arrays){
-		free(DDR_affiliation);
-		free(DDR_permutation);
-		free(DDR_invpermutation);
-		free(DDR_lengths);
-		free(DDR_ranges);
+	if(destroy_DDR_graph){
+		free(graph);
 	}
 
 	/* decompose graph */
@@ -137,7 +129,7 @@ void Decomposition<SeqArrayVector>::set_graph(BGMGraph<SeqArrayVector> &new_grap
 	new_graph.decompose(DDR_size);
 
 	this->graph = &new_graph;
-	destroy_DDR_arrays = false;
+	destroy_DDR_graph = false;
 	DDR_affiliation = new_graph.get_DD_affiliation();
 	DDR_permutation = new_graph.get_DD_permutation();
 	DDR_invpermutation = new_graph.get_DD_invpermutation();

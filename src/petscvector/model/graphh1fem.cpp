@@ -26,25 +26,6 @@ GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, d
 	/* set this model to data - tsdata will prepare gamma vector and thetavector */
 	tsdata->set_model(*this);
 
-	/* control the existence of graph */
-	/* in this model, I need to work with graph, but maybe there is no graph in decomposition
-	 * (for instance in the case without spatial decomposition), however it seems that user still wants to work
-	 * with this model based on graph. Therefore we create graph of disjoint nodes without any edge. This graph
-	 * represents the situation and can be used for matrix-graph-based manipulation
-	*/
-	if(get_graph() == NULL){
-		BGMGraph<PetscVector> *graph = this->tsdata->get_decomposition()->get_graph();
-		double coordinates_array[this->tsdata->get_R()];
-
-		for(int r=0;r<this->tsdata->get_R();r++){
-			coordinates_array[r] = r;
-		}
-		graph = new BGMGraph<PetscVector>(coordinates_array, this->tsdata->get_R(), 1);
-		graph->process(0.0);
-
-		this->tsdata->get_decomposition()->set_new_graph(*graph);
-	}
-
 	/* prepare parameters and decomposition of reduced problem */
 	/* if FEM is not given, then prepare FEM without reduction */
 	if(new_fem == NULL){
