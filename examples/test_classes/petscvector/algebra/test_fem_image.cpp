@@ -112,7 +112,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
 	/* prepare decomposition based on graph, in this case T=1 and DDT_size=1 */
-	int K=1; /* I am not using Gamma in this test at all */
+	int K=xdim; /* I am not using Gamma in this test at all, here is a trick: use K instead of xdim */
 	Decomposition<PetscVector> decomposition_orig(1, *graph, K, xdim, DDR_size);
 
 	/* print info about decomposition */
@@ -149,6 +149,13 @@ int main( int argc, char *argv[] )
     /* compute reduced decomposition */
     fem->compute_decomposition_reduced();
 
+    /* get width and height of reduced grid */
+    int width_reduced, height_reduced;
+    if(fem_type == 0){
+        width_reduced = ((Fem2DSum<PetscVector>*)fem)->get_grid_reduced()->get_width();
+        height_reduced = ((Fem2DSum<PetscVector>*)fem)->get_grid_reduced()->get_height();
+    }
+
 	if(printinfo) fem->print(coutMaster, coutAll);
 
     /* save reduced graph */
@@ -157,12 +164,21 @@ int main( int argc, char *argv[] )
 		oss << "results/" << filename_out << "_graph_reduced.vtk";
 		fem->get_decomposition_reduced()->get_graph()->saveVTK(oss.str());
 		oss.str("");
+
+        /* save bounding boxes */
+        if(fem_type == 0){
+            ((Fem2DSum<PetscVector>*)fem)->saveVTK_bounding_box("results/bb1.vtk","results/bb2.vtk");
+        }
 	}
 
+    /* prepare stuff for reduced data */
+	ImageData<PetscVector> mydata_reduced(*(fem->get_decomposition_reduced()), width_reduced, height_reduced);
 
+    /* reduce gamma, however gamma is data now (that's the reason why K=xdim) */
+    fem->reduce_gamma(mydata.get_datavector(), mydata_reduced.get_datavector());
 
-
-
+    /* save reduced image */
+    mydata_reduced.saveImage_datavector(filename_out);
 
 	/* say bye */
 	coutMaster << "- end program" << std::endl;

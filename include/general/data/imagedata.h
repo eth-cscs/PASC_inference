@@ -1,6 +1,6 @@
 /** @file imagedata.h
  *  @brief class for manipulation with image data
- * 
+ *
  *  @author Lukas Pospisil
  */
 
@@ -23,6 +23,7 @@ class ImageData: public TSData<VectorBase> {
 		int height;		/**< height of image */
 	public:
 		ImageData(Decomposition<VectorBase> &decomposition, std::string filename_data, int width, int height);
+		ImageData(Decomposition<VectorBase> &decomposition, int width, int height);
 		~ImageData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -32,7 +33,10 @@ class ImageData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void saveImage(std::string filename, bool save_original=true) const;
+		void saveImage_datavector(std::string filename) const;
+		void saveImage_gammavector(std::string filename) const;
+		void saveImage_reconstructed(std::string filename) const;
+
 		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
 
 		int get_width() const;
@@ -61,12 +65,22 @@ ImageData<VectorBase>::ImageData(Decomposition<VectorBase> &new_decomposition, s
 	LOG_FUNC_END
 }
 
+/* with blank datavector */
+template<class VectorBase>
+ImageData<VectorBase>::ImageData(Decomposition<VectorBase> &new_decomposition, int width, int height){
+	LOG_FUNC_BEGIN
+
+    //TODO
+
+	LOG_FUNC_END
+}
+
 /* destructor */
 template<class VectorBase>
 ImageData<VectorBase>::~ImageData(){
 	LOG_FUNC_BEGIN
-	
-	
+
+
 	LOG_FUNC_END
 }
 
@@ -77,7 +91,7 @@ void ImageData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	if(this->tsmodel){
 		output <<  " - T:           " << this->get_T() << std::endl;
@@ -88,7 +102,7 @@ void ImageData<VectorBase>::print(ConsoleOutput &output) const {
 		output <<  " - model:       NO" << std::endl;
 	}
 	output <<  " - R:           " << this->get_R() << std::endl;
-	
+
 	output <<  " - datavector:  ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -119,7 +133,7 @@ void ImageData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &o
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	if(this->tsmodel){
 		output_global <<  " - T:           " << this->get_T() << std::endl;
@@ -134,7 +148,7 @@ void ImageData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &o
 		output_global <<  " - model:       NO" << std::endl;
 	}
 	output_global <<  " - R:           " << this->get_R() << std::endl;
-	
+
 	output_global <<  " - datavector:  ";
 	if(this->datavector){
 		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -143,7 +157,7 @@ void ImageData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &o
 	} else {
 		output_global << "NO" << std::endl;
 	}
-	
+
 	output_global <<   " - gammavector: ";
 	if(this->gammavector){
 		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
@@ -152,7 +166,7 @@ void ImageData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &o
 	} else {
 		output_global << "NO" << std::endl;
 	}
-	
+
 	output_global <<   " - thetavector: ";
 	if(this->thetavector){
 		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
@@ -173,7 +187,7 @@ void ImageData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
-	
+
 	/* print the content of the data */
 	output <<  " - datavector: ";
 	if(this->datavector){
@@ -205,7 +219,7 @@ void ImageData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOut
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* print the content of the data */
 	output_local <<  " - datavector: ";
 	if(this->datavector){
@@ -242,22 +256,40 @@ std::string ImageData<VectorBase>::get_name() const {
 }
 
 template<class VectorBase>
-void ImageData<VectorBase>::saveImage(std::string filename, bool save_original) const{
+void ImageData<VectorBase>::saveImage_datavector(std::string filename) const {
 	LOG_FUNC_BEGIN
-	
+
 	//TODO
-	
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void ImageData<VectorBase>::saveImage_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	//TODO
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void ImageData<VectorBase>::saveImage_reconstructed(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	//TODO
+
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
 double ImageData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
-	LOG_FUNC_BEGIN	
+	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
-	
+
 	return -1.0;
 }
 

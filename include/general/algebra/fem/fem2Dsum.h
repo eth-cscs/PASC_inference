@@ -26,12 +26,9 @@ class Fem2DSum : public Fem<VectorBase> {
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
-		bool left_overlap;			/**< is there overlap to the left side of space? */
-		bool right_overlap;			/**< is there overlap to the right side of space? */
-		bool top_overlap;			/**< is there overlap to the top side of space? */
-		bool bottom_overlap;		/**< is there overlap to the bottom side of space? */
-
 		void compute_overlaps();
+		void compute_bounding_box();
+
 		int overlap1_idx_size;		/**< number of elements in overlap1_idx */
 		int *overlap1_idx;			/**< permutated indexes of overlap part in grid1 */
 		int overlap2_idx_size;		/**< number of elements in overlap2_idx */
@@ -43,8 +40,8 @@ class Fem2DSum : public Fem<VectorBase> {
 		BGMGraphGrid2D<VectorBase> *grid1;
 		BGMGraphGrid2D<VectorBase> *grid2;
 
-		int *bounding_box1;		/**< bounds of local domain [x1_min,x1_max,y1_min,y1_max] of grid1 */
-		int *bounding_box2;		/**< bounds of local domain [x2_min,x2_max,y2_min,y2_max] of grid2 */
+		int *bounding_box1;		/**< bounds of local domain [x1_min,x1_max,y1_min,y1_max] of grid1 in R format */
+		int *bounding_box2;		/**< bounds of local domain [x2_min,x2_max,y2_min,y2_max] of grid2 in R format */
 
 	public:
 		/** @brief create FEM mapping between two decompositions
@@ -72,6 +69,11 @@ class Fem2DSum : public Fem<VectorBase> {
 
 		void set_decomposition_original(Decomposition<VectorBase> *decomposition1);
 		void set_decomposition_reduced(Decomposition<VectorBase> *decomposition2);
+
+		BGMGraphGrid2D<VectorBase>* get_grid_original() const;
+		BGMGraphGrid2D<VectorBase>* get_grid_reduced() const;
+
+        void saveVTK_bounding_box(std::string filename_bounding_box1, std::string filename_bounding_box2) const;
 
 		ExternalContent *get_externalcontent() const;
 };
@@ -195,6 +197,8 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
 	LOG_FUNC_BEGIN
 
 	if(this->is_reduced()){
+        compute_bounding_box();
+
 		int width1 = grid1->get_width();
 		int height1 = grid1->get_height();
 		int width2 = grid2->get_width();
@@ -215,15 +219,18 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
 		overlap2_idx_size = (bounding_box2[1]-bounding_box2[0]+1)*(bounding_box2[3]-bounding_box2[2]+1);
 		overlap2_idx = new int[overlap2_idx_size];
 
-		/* fill overlapping indexes with.. indexes */
-		for(int id_x1 = bounding_box1[0]; id_x1 <= bounding_box1[1]; id_x1++){
-			for(int id_y1 = bounding_box1[2]; id_y1 <= bounding_box1[3]; id_y1++){
-				overlap1_idx[(id_y1-bounding_box1[2])*(bounding_box1[1]-bounding_box1[0]+1) + (id_x1-bounding_box1[0])] = DD_permutation1[id_y1*width1 + id_x1];
+		/* fill overlapping indexes with.. indexes  */
+		for(int x = bounding_box1[0]; x <= bounding_box1[1]; x++){
+			for(int y = bounding_box1[2]; y <= bounding_box1[3]; y++){
+                int r = y*width1 + x; /* in original R format */
+				overlap1_idx[(y-bounding_box1[2])*(bounding_box1[1]-bounding_box1[0]+1) + (x-bounding_box1[0])] = DD_permutation1[r];
 			}
 		}
-		for(int id_x2 = bounding_box2[0]; id_x2 <= bounding_box2[1]; id_x2++){
-			for(int id_y2 = bounding_box2[2]; id_y2 <= bounding_box2[3]; id_y2++){
-				overlap2_idx[(id_y2-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (id_x2-bounding_box2[0])] = DD_permutation2[id_y2*width2 + id_x2];
+
+		for(int x = bounding_box2[0]; x <= bounding_box2[1]; x++){
+			for(int y = bounding_box2[2]; y <= bounding_box2[3]; y++){
+                int r = y*width2 + x; /* in original R format */
+				overlap2_idx[(y-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (x-bounding_box2[0])] = DD_permutation2[r];
 			}
 		}
 
@@ -231,6 +238,19 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
 
 	LOG_FUNC_END
 }
+
+template<class VectorBase>
+void Fem2DSum<VectorBase>::compute_bounding_box() {
+	LOG_FUNC_BEGIN
+
+	if(this->is_reduced()){
+        this->grid1->compute_local_bounding_box(bounding_box1, this->decomposition1->get_DDR_invpermutation(), this->decomposition1->get_Rbegin(), this->decomposition1->get_Rlocal());
+        this->grid2->compute_local_bounding_box(bounding_box2, this->decomposition2->get_DDR_invpermutation(), this->decomposition2->get_Rbegin(), this->decomposition2->get_Rlocal());
+	}
+
+	LOG_FUNC_END
+}
+
 
 template<class VectorBase>
 void Fem2DSum<VectorBase>::reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const {
@@ -263,10 +283,8 @@ void Fem2DSum<VectorBase>::compute_decomposition_reduced() {
 		this->grid2 = new BGMGraphGrid2D<VectorBase>(width_reduced, height_reduced);
 		this->grid2->process_grid();
 
-		/* decompose second grid based on the decomposition of the first grid */
-		this->grid2->decompose(this->grid1, this->bounding_box1, this->bounding_box2);
-
 		/* compute new decomposition */
+		/* this automatically decompose new given grid based on this new decomposition */
 		this->decomposition2 = new Decomposition<VectorBase>(T_reduced,
 				*(this->grid2),
 				this->decomposition1->get_K(),
@@ -309,6 +327,31 @@ void Fem2DSum<VectorBase>::set_decomposition_reduced(Decomposition<VectorBase> *
 	this->grid2 = (BGMGraphGrid2D<VectorBase>*)(this->decomposition2->get_graph());
 
 	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void Fem2DSum<VectorBase>::saveVTK_bounding_box(std::string filename_bounding_box1, std::string filename_bounding_box2) const{
+	LOG_FUNC_BEGIN
+
+    if(grid1 != NULL){
+        grid1->saveVTK_bounding_box(filename_bounding_box1, bounding_box1);
+    }
+
+    if(grid2 != NULL){
+        grid2->saveVTK_bounding_box(filename_bounding_box2, bounding_box2);
+    }
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+BGMGraphGrid2D<VectorBase>* Fem2DSum<VectorBase>::get_grid_original() const {
+    return this->grid1;
+}
+
+template<class VectorBase>
+BGMGraphGrid2D<VectorBase>* Fem2DSum<VectorBase>::get_grid_reduced() const {
+    return this->grid2;
 }
 
 

@@ -387,7 +387,7 @@ int main( int argc, char *argv[] )
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveImage(oss.str(),false);
+			mydata.saveImage_reconstructed(oss.str());
 			oss.str("");
 		}
 
@@ -437,7 +437,7 @@ int main( int argc, char *argv[] )
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << filename_out;
-		mydata.saveImage(oss.str(),false);
+		mydata.saveImage_reconstructed(oss.str());
 		oss.str("");
 	}
 

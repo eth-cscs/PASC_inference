@@ -4,10 +4,10 @@ MYTESTSIZE=100
 XDIM=1
 NOISE=0.1
 ANNEALING=1
-FEM_REDUCE=0.2
+FEM_REDUCE=0.5
 NPROC=3
 
-rm -f data/test_image/illia_avatar_color_solution.bin results/illia_avatar_color_recovered.bin
+rm -f data/test_image/illia_avatar_color_solution.bin results/illia_avatar_color_recovered.bin results/illia_avatar_color_datavector.bin
 
 # generate example
 ./util_dlib_image_to_vec --filename_in=data/test_image/illia_avatar.jpg --filename_out=data/test_image/illia_avatar_color_solution.bin --noise=0.0 --new_width=$MYTESTSIZE --xdim=$XDIM
@@ -26,17 +26,18 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_FEM $PARAM_LOG $PARAM_PETSC"
 
 ## run the job
-#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
-mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
+#mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
 #./test_petscvector_fem_image $PARAM_ALL
 
 # show results
-if [ -f data/test_image/illia_avatar_color_solution.bin ]
-then
-	./gui_show_image --filename=data/test_image/illia_avatar_color_solution.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Original image" &
-fi
+#if [ -f data/test_image/illia_avatar_color_solution.bin ]
+#then
+#	./gui_show_image --filename=data/test_image/illia_avatar_color_solution.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Original image" &
+#fi
 
-if [ -f results/illia_avatar_color_recovered.bin ]
+if [ -f results/illia_avatar_color_datavector.bin ]
 then
-	./gui_show_image --filename=results/illia_avatar_color_recovered.bin --xdim=$XDIM --width=$MYTESTSIZE --title="After FEM_REDUCE=$FEM_REDUCE" &
+#	./gui_show_image --filename=results/illia_avatar_color_datavector.bin --xdim=$XDIM --width=$MYTESTSIZE --title="After FEM_REDUCE=$FEM_REDUCE" &
+	./gui_show_image --filename=results/illia_avatar_color_datavector.bin --xdim=$XDIM --width=50 --title="After FEM_REDUCE=$FEM_REDUCE" &
 fi
