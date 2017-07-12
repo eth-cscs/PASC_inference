@@ -230,7 +230,7 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
 		for(int x = bounding_box2[0]; x <= bounding_box2[1]; x++){
 			for(int y = bounding_box2[2]; y <= bounding_box2[3]; y++){
                 int r = y*width2 + x; /* in original R format */
-				overlap2_idx[(y-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (x-bounding_box2[0])] = DD_permutation2[r];
+				overlap2_idx[(y-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (x-bounding_box2[0])] = DD_invpermutation2[r];
 			}
 		}
 
@@ -244,8 +244,55 @@ void Fem2DSum<VectorBase>::compute_bounding_box() {
 	LOG_FUNC_BEGIN
 
 	if(this->is_reduced()){
-        this->grid1->compute_local_bounding_box(bounding_box1, this->decomposition1->get_DDR_invpermutation(), this->decomposition1->get_Rbegin(), this->decomposition1->get_Rlocal());
-        this->grid2->compute_local_bounding_box(bounding_box2, this->decomposition2->get_DDR_invpermutation(), this->decomposition2->get_Rbegin(), this->decomposition2->get_Rlocal());
+		/* here is the trick: bounding boxes are swaped because of mapping !!! */
+        this->grid1->compute_local_bounding_box(bounding_box2, this->decomposition1->get_DDR_invpermutation(), this->decomposition1->get_Rbegin(), this->decomposition1->get_Rlocal());
+        this->grid2->compute_local_bounding_box(bounding_box1, this->decomposition2->get_DDR_invpermutation(), this->decomposition2->get_Rbegin(), this->decomposition2->get_Rlocal());
+
+		int width1 = grid1->get_width();
+		int height1 = grid1->get_height();
+		int width2 = grid2->get_width();
+		int height2 = grid2->get_height();
+
+		this->diff_x = (width1-1)/(double)(width2-1);
+		this->diff_y = (height1-1)/(double)(height2-1);
+        
+        /* scale bounding boxes */
+        bounding_box1[0] = floor((bounding_box1[0]-0.5)*this->diff_x);
+        bounding_box1[1] = ceil((bounding_box1[1]+0.5)*this->diff_x);
+        bounding_box1[2] = floor((bounding_box1[2]-0.5)*this->diff_y);
+        bounding_box1[3] = ceil((bounding_box1[3]+0.5)*this->diff_y);
+
+        bounding_box2[0] = floor((bounding_box2[0]-0.5)/this->diff_x);
+        bounding_box2[1] = ceil((bounding_box2[1]+0.5)/this->diff_x);
+        bounding_box2[2] = floor((bounding_box2[2]-0.5)/this->diff_y);
+        bounding_box2[3] = ceil((bounding_box2[3]+0.5)/this->diff_y);
+
+		if(bounding_box1[0] < 0) {
+			bounding_box1[0] = 0;
+		}
+		if(bounding_box1[1] >= width1) {
+			bounding_box1[1] = width1-1;
+		}
+		if(bounding_box1[2] < 0) {
+			bounding_box1[2] = 0;
+		}
+		if(bounding_box1[3] >= height1) {
+			bounding_box1[3] = height1-1;
+		}
+		
+		if(bounding_box2[0] < 0) {
+			bounding_box2[0] = 0;
+		}
+		if(bounding_box2[1] >= width2) {
+			bounding_box2[1] = width2-1;
+		}
+		if(bounding_box2[2] < 0) {
+			bounding_box2[2] = 0;
+		}
+		if(bounding_box2[3] >= height2) {
+			bounding_box2[3] = height2-1;
+		}
+
 	}
 
 	LOG_FUNC_END
