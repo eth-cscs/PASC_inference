@@ -82,6 +82,7 @@
 		<Unit filename="../../include/external/petscvector/algebra/feasibleset/simplex_local.h" />
 		<Unit filename="../../include/external/petscvector/algebra/fem/fem1Dhat.h" />
 		<Unit filename="../../include/external/petscvector/algebra/fem/fem1Dsum.h" />
+		<Unit filename="../../include/external/petscvector/algebra/fem/fem2Dhat.h" />
 		<Unit filename="../../include/external/petscvector/algebra/fem/fem2Dsum.h" />
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraph.h" />
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraphgrid1D.h" />
@@ -129,6 +130,7 @@
 		<Unit filename="../../include/general/algebra/fem/fem.h" />
 		<Unit filename="../../include/general/algebra/fem/fem1Dhat.h" />
 		<Unit filename="../../include/general/algebra/fem/fem1Dsum.h" />
+		<Unit filename="../../include/general/algebra/fem/fem2Dhat.h" />
 		<Unit filename="../../include/general/algebra/fem/fem2Dsum.h" />
 		<Unit filename="../../include/general/algebra/graph/bgmgraph.h" />
 		<Unit filename="../../include/general/algebra/graph/bgmgraphgrid1D.h" />
@@ -202,6 +204,7 @@
 		<Unit filename="../../src/petscvector/algebra/feasibleset/simplex_local.cu" />
 		<Unit filename="../../src/petscvector/algebra/fem/fem1Dhat.cpp" />
 		<Unit filename="../../src/petscvector/algebra/fem/fem1Dsum.cpp" />
+		<Unit filename="../../src/petscvector/algebra/fem/fem2Dhat.cpp" />
 		<Unit filename="../../src/petscvector/algebra/fem/fem2Dsum.cpp" />
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraph.cpp" />
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraph.cu" />
