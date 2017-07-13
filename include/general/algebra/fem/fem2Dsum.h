@@ -43,6 +43,7 @@ class Fem2DSum : public Fem<VectorBase> {
 		int *bounding_box1;		/**< bounds of local domain [x1_min,x1_max,y1_min,y1_max] of grid1 in R format */
 		int *bounding_box2;		/**< bounds of local domain [x2_min,x2_max,y2_min,y2_max] of grid2 in R format */
 
+		virtual double get_overlap_extension() const;
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
@@ -141,47 +142,48 @@ void Fem2DSum<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	output_global << this->get_name() << std::endl;
 
 	/* information of reduced problem */
-	output_global <<  " - is reduced       : " << printbool(this->is_reduced()) << std::endl;
-	output_global <<  " - diff_x           : " << this->diff_x << std::endl;
-	output_global <<  " - diff_y           : " << this->diff_y << std::endl;
+	output_global <<  " - is reduced        : " << printbool(this->is_reduced()) << std::endl;
+	output_global <<  " - diff_x            : " << this->diff_x << std::endl;
+	output_global <<  " - diff_y            : " << this->diff_y << std::endl;
+	output_global <<  " - overlap_extension : " << this->get_overlap_extension() << std::endl;
 
 	output_global <<  " - bounding_box" << std::endl;
-	output_local <<   "   - bounding_box1    : " << print_array(this->bounding_box1, 4) << std::endl;
-	output_local <<   "   - bounding_box2    : " << print_array(this->bounding_box2, 4) << std::endl;
+	output_local <<   "   - bounding_box1     : " << print_array(this->bounding_box1, 4) << std::endl;
+	output_local <<   "   - bounding_box2     : " << print_array(this->bounding_box2, 4) << std::endl;
 	output_local.synchronize();
 
-	output_global <<  " - fem_reduce       : " << this->get_fem_reduce() << std::endl;
-	output_global <<  " - fem_type         : " << get_name() << std::endl;
+	output_global <<  " - fem_reduce        : " << this->get_fem_reduce() << std::endl;
+	output_global <<  " - fem_type          : " << get_name() << std::endl;
 
 	if(this->decomposition1 == NULL){
-		output_global <<  " - decomposition1   : NO" << std::endl;
+		output_global <<  " - decomposition1    : NO" << std::endl;
 	} else {
-		output_global <<  " - decomposition1   : YES" << std::endl;
+		output_global <<  " - decomposition1    : YES" << std::endl;
 		output_global.push();
 		this->decomposition1->print(output_global);
 		output_global.pop();
 	}
 	if(grid1 == NULL){
-		output_global <<  " - grid1            : NO" << std::endl;
+		output_global <<  " - grid1             : NO" << std::endl;
 	} else {
-		output_global <<  " - grid1            : YES [" << grid1->get_width() << ", " << grid1->get_height() << "]" << std::endl;
+		output_global <<  " - grid1             : YES [" << grid1->get_width() << ", " << grid1->get_height() << "]" << std::endl;
 		output_global.push();
 		grid1->print(output_global);
 		output_global.pop();
 	}
 
 	if(this->decomposition2 == NULL){
-		output_global <<  " - decomposition2   : NO" << std::endl;
+		output_global <<  " - decomposition2    : NO" << std::endl;
 	} else {
-		output_global <<  " - decomposition2   : YES" << std::endl;
+		output_global <<  " - decomposition2    : YES" << std::endl;
 		output_global.push();
 		this->decomposition2->print(output_global);
 		output_global.pop();
 	}
 	if(grid2 == NULL){
-		output_global <<  " - grid2            : NO" << std::endl;
+		output_global <<  " - grid2             : NO" << std::endl;
 	} else {
-		output_global <<  " - grid2            : YES [" << grid2->get_width() << ", " << grid2->get_height() << "]" << std::endl;
+		output_global <<  " - grid2             : YES [" << grid2->get_width() << ", " << grid2->get_height() << "]" << std::endl;
 		output_global.push();
 		grid2->print(output_global);
 		output_global.pop();
@@ -257,17 +259,17 @@ void Fem2DSum<VectorBase>::compute_bounding_box() {
 		this->diff_y = (height1-1)/(double)(height2-1);
 
         /* scale bounding boxes */
-        double overlap_size = 1.0; /* extension of bounding box inside the neighbour */
+        double overlap_extension = this->get_overlap_extension(); /* extension of bounding box inside the neighbour */
 
-        bounding_box1[0] = floor((bounding_box1[0]-overlap_size)*this->diff_x);
-        bounding_box1[1] = ceil((bounding_box1[1]+overlap_size)*this->diff_x);
-        bounding_box1[2] = floor((bounding_box1[2]-overlap_size)*this->diff_y);
-        bounding_box1[3] = ceil((bounding_box1[3]+overlap_size)*this->diff_y);
+        bounding_box1[0] = floor((bounding_box1[0]-overlap_extension)*this->diff_x);
+        bounding_box1[1] = ceil((bounding_box1[1]+overlap_extension)*this->diff_x);
+        bounding_box1[2] = floor((bounding_box1[2]-overlap_extension)*this->diff_y);
+        bounding_box1[3] = ceil((bounding_box1[3]+overlap_extension)*this->diff_y);
 
-        bounding_box2[0] = floor((bounding_box2[0]-overlap_size)/this->diff_x);
-        bounding_box2[1] = ceil((bounding_box2[1]+overlap_size)/this->diff_x);
-        bounding_box2[2] = floor((bounding_box2[2]-overlap_size)/this->diff_y);
-        bounding_box2[3] = ceil((bounding_box2[3]+overlap_size)/this->diff_y);
+        bounding_box2[0] = floor((bounding_box2[0]-overlap_extension)/this->diff_x);
+        bounding_box2[1] = ceil((bounding_box2[1]+overlap_extension)/this->diff_x);
+        bounding_box2[2] = floor((bounding_box2[2]-overlap_extension)/this->diff_y);
+        bounding_box2[3] = ceil((bounding_box2[3]+overlap_extension)/this->diff_y);
 
 		if(bounding_box1[0] < 0) {
 			bounding_box1[0] = 0;
@@ -401,6 +403,11 @@ BGMGraphGrid2D<VectorBase>* Fem2DSum<VectorBase>::get_grid_original() const {
 template<class VectorBase>
 BGMGraphGrid2D<VectorBase>* Fem2DSum<VectorBase>::get_grid_reduced() const {
     return this->grid2;
+}
+
+template<class VectorBase>
+double Fem2DSum<VectorBase>::get_overlap_extension() const {
+    return 1.0;
 }
 
 

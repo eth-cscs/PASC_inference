@@ -94,8 +94,8 @@ void Fem2DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
                 double value = 0.0;
                 int nmb = 0;
 
-                for(int xx1 = ceil(P0[0]); xx1 <= floor(P1[0]); xx1++){
-                    for(int yy1 = ceil(P0[1]); yy1 <= floor(P3[1]); yy1++){
+                for(double xx1 = P0[0]; xx1 <= P1[0]; xx1++){
+                    for(double yy1 = P0[1]; yy1 <= P3[1]; yy1++){
 
                         double new_value;
                         double alpha, beta;
@@ -146,7 +146,7 @@ void Fem2DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 //				gammak2_arr[r2] = 0.2*(P0[2] + P1[2] + P2[2] + P3[2] + P4[2] );
 				gammak2_arr[r2] = value/(double)nmb; ////0.0001*r1_overlap;
 
-                coutMaster << gammak2_arr[r2] << "," << value << ", " << nmb << std::endl;
+//                coutMaster << gammak2_arr[r2] << "," << value << ", " << nmb << std::endl;
 
             }
 
@@ -236,24 +236,80 @@ void Fem2DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
                 int y1 = (int)(r1R/(double)width1);
                 int x1 = r1R - y1*width1;
 
-                /* coresponding point in original image */
-                double x2 = x1*(double)(grid2->get_width())/((double)grid1->get_width());//this->diff_x;
-                double y2 = y1*(double)(grid2->get_height())/((double)grid1->get_height());//this->diff_y;
+                /* coresponding point in reduced image */
+//                double x2 = x1*(double)(grid2->get_width())/((double)grid1->get_width());
+//                double y2 = y1*(double)(grid2->get_height())/((double)grid1->get_height());
+                double x2 = x1/this->diff_x;
+                double y2 = y1/this->diff_y;
 
-                /* in this case, the window is only one point */
+				/* there are 4 points which influencing the value in original image */
+                /*
+                 * P3 ------ P2
+                 *  |        |
+                 *  |        |
+                 *  |   P    |
+                 *  |        |
+                 *  |        |
+                 * P0 ------ P1
+                 */
+				double P0[3], P1[3], P2[3], P3[3]; /* x,y,f(x,y) */
+                compute_window_values2(gammak2_arr, x2, y2, P0, P1, P2, P3);
+                
+                double alpha, beta, new_value;
                 double value = 0.0;
-                int xx2 = floor(x2);
-                int yy2 = floor(y2);
+				int nmb = 0;
 
-                /* compute coordinate in overlap */
-                int r2_overlap = (yy2 - bounding_box2[2])*width_overlap2 + (xx2 - bounding_box2[0]);
+				/* P0 */
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P0, P1, P2);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P0, P2, P3);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
 
-				if(xx2 >= 0 & xx2 < width2 & yy2 >= 0 & yy2 <= height2 & r2_overlap >= 0 & r2_overlap < overlap2_idx_size){
-						value += gammak2_arr[r2_overlap];
-				}
+				/* P1 */
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P1, P0, P3);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P1, P2, P3);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
+
+				/* P2 */
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P2, P0, P1);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P2, P0, P3);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
+
+				/* P3 */
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P3, P0, P1);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P3, P1, P2);
+				if(alpha >= 0 & beta >= 0){
+					value += new_value;
+					nmb++;
+                }
 
                 /* write value */
-				gammak1_arr[r1] = value;
+				gammak1_arr[r1] = value/(double)nmb;
+//				gammak1_arr[r1] = (P0[2] + P1[2] + P2[2] + P3[2])/4.0;//value/(double)nmb;
 
             }
 

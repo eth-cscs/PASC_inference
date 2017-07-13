@@ -26,10 +26,15 @@ class Fem2DHat : public Fem2DSum<VectorBase> {
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
-        double get_imagevaluefromoverlap1(double* overlap_values, bool *is_inside, int xR, int yR) const;
+        double get_imagevaluefromoverlap1(double* overlap_values, bool *is_inside, double xR, double yR) const;
         void compute_window_values1(double* overlap_values, double x1, double y1, double *P0, double *P1, double *P2, double *P3, double *P4) const;
         void compute_plane_interpolation(double *alpha, double *beta, double* value, double x, double y, double *P4, double *P0, double *P1) const;
 
+		double get_imagevaluefromoverlap2(double* overlap_values, bool *is_inside, int xR, int yR) const;
+		void compute_window_values2(double* overlap_values, double x2, double y2, double *P0, double *P1, double *P2, double *P3) const;
+
+
+		virtual double get_overlap_extension() const;
 	public:
 		/** @brief create FEM mapping between two decompositions
 		*/
@@ -100,12 +105,34 @@ void Fem2DHat<VectorBase>::prolongate_gamma(GeneralVector<VectorBase> *gamma2, G
 }
 
 template<class VectorBase>
-double Fem2DHat<VectorBase>::get_imagevaluefromoverlap1(double* overlap_values, bool *is_inside, int xR, int yR) const {
+double Fem2DHat<VectorBase>::get_imagevaluefromoverlap1(double* overlap_values, bool *is_inside, double xR, double yR) const {
     double return_value = 0.0;
 
-    int r1_overlap = (yR - this->bounding_box1[2])*(this->bounding_box1[1] - this->bounding_box1[0] + 1) + (xR - this->bounding_box1[0]);
-    if(xR >= 0 & xR < this->grid1->get_width() & yR >= 0 & yR <= this->grid1->get_height() & r1_overlap >= 0 & r1_overlap < this->overlap1_idx_size){
-		return_value = overlap_values[r1_overlap];
+    if(floor(xR) >= 0 & ceil(xR) < this->grid1->get_width() & floor(yR) >= 0 & ceil(yR) < this->grid1->get_height() ){ // & r1_overlap >= 0 & r1_overlap < this->overlap1_idx_size
+		/* compute average value of neighbour integer values */
+		int r1_overlap1 = (floor(yR) - this->bounding_box1[2])*(this->bounding_box1[1] - this->bounding_box1[0] + 1) + (floor(xR) - this->bounding_box1[0]);
+		int r1_overlap2 = (floor(yR) - this->bounding_box1[2])*(this->bounding_box1[1] - this->bounding_box1[0] + 1) + (ceil(xR) - this->bounding_box1[0]);
+		int r1_overlap3 = (ceil(yR) - this->bounding_box1[2])*(this->bounding_box1[1] - this->bounding_box1[0] + 1) + (floor(xR) - this->bounding_box1[0]);
+		int r1_overlap4 = (ceil(yR) - this->bounding_box1[2])*(this->bounding_box1[1] - this->bounding_box1[0] + 1) + (ceil(xR) - this->bounding_box1[0]);
+
+		return_value = (overlap_values[r1_overlap1] + overlap_values[r1_overlap2] + overlap_values[r1_overlap3] + overlap_values[r1_overlap4])/4.0;
+
+        *is_inside = true;
+	} else {
+        *is_inside = false;
+	}
+
+    return return_value;
+}
+
+template<class VectorBase>
+double Fem2DHat<VectorBase>::get_imagevaluefromoverlap2(double* overlap_values, bool *is_inside, int xR, int yR) const {
+    double return_value = 0.0;
+
+    if(xR >= 0 & xR < this->grid2->get_width() & yR >= 0 & yR < this->grid2->get_height()){ 
+		int r2_overlap = (yR - this->bounding_box2[2])*(this->bounding_box2[1] - this->bounding_box2[0] + 1) + (xR - this->bounding_box2[0]);
+		return_value = overlap_values[r2_overlap];
+
         *is_inside = true;
 	} else {
         *is_inside = false;
@@ -151,14 +178,14 @@ void Fem2DHat<VectorBase>::compute_window_values1(double* overlap_values, double
     P4[0] = x1;
     P4[1] = y1;
 
-    P0[0] = P4[0] - this->diff_x;
-    P0[1] = P4[1] - this->diff_y;
+    P0[0] = x1 - this->diff_x;
+    P0[1] = y1 - this->diff_y;
 
-    P1[0] = P4[0] + this->diff_x;
+    P1[0] = x1 + this->diff_x;
     P1[1] = P0[1];
 
     P2[0] = P1[0];
-    P2[1] = P4[1] + this->diff_y;
+    P2[1] = y1 + this->diff_y;
 
     P3[0] = P0[0];
     P3[1] = P2[1];
@@ -179,11 +206,11 @@ void Fem2DHat<VectorBase>::compute_window_values1(double* overlap_values, double
     P3[0] = x1 - this->diff_x;
     P3[1] = P4[1];
 */
-    P0[2] = get_imagevaluefromoverlap1(overlap_values,&P0_inside,(int)P0[0],(int)P0[1]);
-    P1[2] = get_imagevaluefromoverlap1(overlap_values,&P1_inside,(int)P1[0],(int)P1[1]);
-    P2[2] = get_imagevaluefromoverlap1(overlap_values,&P2_inside,(int)P2[0],(int)P2[1]);
-    P3[2] = get_imagevaluefromoverlap1(overlap_values,&P3_inside,(int)P3[0],(int)P3[1]);
-    P4[2] = get_imagevaluefromoverlap1(overlap_values,&P4_inside,(int)P4[0],(int)P4[1]);
+    P0[2] = get_imagevaluefromoverlap1(overlap_values,&P0_inside,P0[0],P0[1]);
+    P1[2] = get_imagevaluefromoverlap1(overlap_values,&P1_inside,P1[0],P1[1]);
+    P2[2] = get_imagevaluefromoverlap1(overlap_values,&P2_inside,P2[0],P2[1]);
+    P3[2] = get_imagevaluefromoverlap1(overlap_values,&P3_inside,P3[0],P3[1]);
+    P4[2] = get_imagevaluefromoverlap1(overlap_values,&P4_inside,P4[0],P4[1]);
 
     if(!P4_inside){
         //TODO: throw error
@@ -196,6 +223,43 @@ void Fem2DHat<VectorBase>::compute_window_values1(double* overlap_values, double
     if(!P2_inside) P2[2] = P4[2];
     if(!P3_inside) P3[2] = P4[2];
 
+}
+
+template<class VectorBase>
+void Fem2DHat<VectorBase>::compute_window_values2(double* overlap_values, double x2, double y2, double *P0, double *P1, double *P2, double *P3) const {
+
+    bool P0_inside;
+    bool P1_inside;
+    bool P2_inside;
+    bool P3_inside;
+
+    P0[0] = floor(x2);
+    P0[1] = floor(y2);
+
+    P1[0] = P0[0]+1;//ceil(x2);
+    P1[1] = P0[1];
+
+    P2[0] = P1[0];
+    P2[1] = P0[1]+1;//ceil(y2);
+
+    P3[0] = P0[0];
+    P3[1] = P2[1];
+
+    P0[2] = get_imagevaluefromoverlap2(overlap_values,&P0_inside,P0[0],P0[1]);
+    P1[2] = get_imagevaluefromoverlap2(overlap_values,&P1_inside,P1[0],P1[1]);
+    P2[2] = get_imagevaluefromoverlap2(overlap_values,&P2_inside,P2[0],P2[1]);
+    P3[2] = get_imagevaluefromoverlap2(overlap_values,&P3_inside,P3[0],P3[1]);
+
+    if(!P1_inside) P1[2] = P0[2];
+    if(!P2_inside) P2[2] = P0[2];
+    if(!P3_inside) P3[2] = P0[2];
+
+}
+
+
+template<class VectorBase>
+double Fem2DHat<VectorBase>::get_overlap_extension() const {
+    return 1.0;
 }
 
 
