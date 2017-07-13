@@ -1,10 +1,10 @@
-#include "external/petscvector/algebra/fem/fem2Dsum.h"
+#include "external/petscvector/algebra/fem/fem2Dhat.h"
 
 namespace pascinference {
 namespace algebra {
 
 template<>
-void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
+void Fem2DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, GeneralVector<PetscVector> *gamma2) const {
 	LOG_FUNC_BEGIN
 
     if(!is_reduced()){
@@ -77,26 +77,76 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
                 double x1 = x2*this->diff_x;
                 double y1 = y2*this->diff_y;
 
+                /* prepare hat vectors */
+                /*
+                 * P3 ------ P2
+                 *  | \ p2 / |
+                 *  |  \  /  |
+                 *  |p3 P4 p1|
+                 *  |  /  \  |
+                 *  | / p0 \ |
+                 * P0 ------ P1
+                 */
+                double P0[3], P1[3], P2[3], P3[3], P4[3]; /* x,y,f(x,y) */
+                compute_window_values1(gammak1_arr, x1, y1, P0, P1, P2, P3, P4);
+
                 /* go through window and compute something */
                 double value = 0.0;
                 int nmb = 0;
 
-                for(int xx1 = floor(x1 - this->diff_x); xx1 <= ceil(x1 + this->diff_x); xx1++){
-                    for(int yy1 = floor(y1 - this->diff_y); yy1 <= ceil(y1 + this->diff_y); yy1++){
-                         /* compute coordinate in overlap */
-                        int r1_overlap = (yy1 - bounding_box1[2])*width_overlap1 + (xx1 - bounding_box1[0]);
-//                        int r1_overlap = ((int)y1 - bounding_box1[2])*width_overlap1 + ((int)x1 - bounding_box1[0]);
+                for(int xx1 = ceil(P0[0]); xx1 <= floor(P1[0]); xx1++){
+                    for(int yy1 = ceil(P0[1]); yy1 <= floor(P3[1]); yy1++){
 
-						if(xx1 >= 0 & xx1 < width1 & yy1 >= 0 & yy1 <= height1 & r1_overlap >= 0 & r1_overlap < overlap1_idx_size){
-							value += gammak1_arr[r1_overlap];
-							nmb++;
-						}
+                        double new_value;
+                        double alpha, beta;
+
+                        double counted = false;
+
+                        /* p0 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P0, P1);
+                        if(alpha >= 0 & beta >= 0 & !counted){
+                            value += new_value;
+                            nmb++;
+
+                            counted = true;
+                        }
+
+                        /* p1 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P1, P2);
+                        if(alpha >= 0 & beta >= 0 & !counted){
+                            value += new_value;
+                            nmb++;
+
+                            counted = true;
+                        }
+
+                        /* p2 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P2, P3);
+                        if(alpha >= 0 & beta >= 0 & !counted){
+                            value += new_value;
+                            nmb++;
+
+                            counted = true;
+                        }
+
+                        /* p3 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P3, P0);
+                        if(alpha >= 0 & beta >= 0 & !counted){
+                            value += new_value;
+                            nmb++;
+
+                            counted = true;
+                        }
 
                     }
                 }
+
                 /* write value */
+//				gammak2_arr[r2] = 0.25*(P0[2] + P1[2] + P2[2] + P3[2] ); //value/(double)nmb; ////0.0001*r1_overlap;
+//				gammak2_arr[r2] = 0.2*(P0[2] + P1[2] + P2[2] + P3[2] + P4[2] );
 				gammak2_arr[r2] = value/(double)nmb; ////0.0001*r1_overlap;
 
+                coutMaster << gammak2_arr[r2] << "," << value << ", " << nmb << std::endl;
 
             }
 
@@ -120,7 +170,7 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 }
 
 template<>
-void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
+void Fem2DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2, GeneralVector<PetscVector> *gamma1) const {
 	LOG_FUNC_BEGIN
 
     if(!is_reduced()){

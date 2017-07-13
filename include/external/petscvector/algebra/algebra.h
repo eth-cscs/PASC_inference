@@ -37,6 +37,7 @@
 #include "external/petscvector/algebra/fem/fem1Dsum.h"
 #include "external/petscvector/algebra/fem/fem1Dhat.h"
 #include "external/petscvector/algebra/fem/fem2Dsum.h"
+#include "external/petscvector/algebra/fem/fem2Dhat.h"
 
 
 #endif

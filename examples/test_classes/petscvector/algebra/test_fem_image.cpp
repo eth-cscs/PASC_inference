@@ -140,7 +140,7 @@ int main( int argc, char *argv[] )
 		fem = new Fem2DSum<PetscVector>(fem_reduce);
 	}
 	if(fem_type == 1){
-//		fem = new Fem2DHat<PetscVector>(fem_reduce);
+		fem = new Fem2DHat<PetscVector>(fem_reduce);
 	}
 
 	/* set original decomposition to fem */
@@ -154,6 +154,10 @@ int main( int argc, char *argv[] )
     if(fem_type == 0){
         width_reduced = ((Fem2DSum<PetscVector>*)fem)->get_grid_reduced()->get_width();
         height_reduced = ((Fem2DSum<PetscVector>*)fem)->get_grid_reduced()->get_height();
+    }
+    if(fem_type == 1){
+        width_reduced = ((Fem2DHat<PetscVector>*)fem)->get_grid_reduced()->get_width();
+        height_reduced = ((Fem2DHat<PetscVector>*)fem)->get_grid_reduced()->get_height();
     }
 
 	if(printinfo) fem->print(coutMaster, coutAll);
@@ -169,6 +173,9 @@ int main( int argc, char *argv[] )
         if(fem_type == 0){
             ((Fem2DSum<PetscVector>*)fem)->saveVTK_bounding_box("results/bb1.vtk","results/bb2.vtk");
         }
+        if(fem_type == 1){
+            ((Fem2DHat<PetscVector>*)fem)->saveVTK_bounding_box("results/bb1.vtk","results/bb2.vtk");
+        }
 	}
 
     /* prepare stuff for reduced data */
@@ -178,7 +185,17 @@ int main( int argc, char *argv[] )
     fem->reduce_gamma(mydata.get_datavector(), mydata_reduced.get_datavector());
 
     /* save reduced image */
-    mydata_reduced.saveImage_datavector(filename_out);
+    oss << filename_out << "_reduced";
+    mydata_reduced.saveImage_datavector(oss.str());
+    oss.str("");
+
+    /* prolongate gamma, however gamma is data now (that's the reason why K=xdim) */
+    fem->prolongate_gamma(mydata_reduced.get_datavector(), mydata.get_datavector());
+
+    /* save prolongated image */
+    oss << filename_out << "_prolongated";
+    mydata.saveImage_datavector(oss.str());
+    oss.str("");
 
 	/* say bye */
 	coutMaster << "- end program" << std::endl;

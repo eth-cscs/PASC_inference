@@ -34,7 +34,7 @@
 #include "general/algebra/fem/fem1Dsum.h"
 #include "general/algebra/fem/fem1Dhat.h"
 #include "general/algebra/fem/fem2Dsum.h"
-//#include "general/algebra/fem/fem2Dhat.h"
+#include "general/algebra/fem/fem2Dhat.h"
 
 
 #endif

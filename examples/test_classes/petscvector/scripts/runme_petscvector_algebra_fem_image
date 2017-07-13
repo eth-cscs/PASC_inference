@@ -1,23 +1,24 @@
 #!/bin/bash   
 
 MYTESTSIZE=100
-XDIM=3
+MYTESTSIZE_REDUCED=40
+XDIM=1
 NOISE=0.1
-ANNEALING=1
-FEM_REDUCE=0.1
-NPROC=5
+FEM_REDUCE=0.4
+NPROC=3
+FEM_TYPE=1
 
-rm -f data/test_image/illia_avatar_color_solution.bin results/illia_avatar_color_recovered.bin results/illia_avatar_color_datavector.bin
+rm -f data/test_image/illia_avatar_color_data.bin results/illia_avatar_color_recovered.bin results/illia_avatar_color_reduced_datavector.bin results/illia_avatar_color_prolongated_datavector.bin
 
 # generate example
-./util_dlib_image_to_vec --filename_in=data/test_image/illia_avatar.jpg --filename_out=data/test_image/illia_avatar_color_solution.bin --noise=0.0 --new_width=$MYTESTSIZE --xdim=$XDIM
+./util_dlib_image_to_vec --filename_in=data/test_image/illia_avatar.jpg --filename_out=data/test_image/illia_avatar_color_data.bin --noise=$NOISE --new_width=$MYTESTSIZE --xdim=$XDIM
 
 # define parameters
-PARAM_FILENAME="--test_filename_in=data/test_image/illia_avatar_color_solution.bin --test_filename_out=illia_avatar_color --test_width=$MYTESTSIZE --test_height=$MYTESTSIZE --test_xdim=$XDIM"
+PARAM_FILENAME="--test_filename_in=data/test_image/illia_avatar_color_data.bin --test_filename_out=illia_avatar_color --test_width=$MYTESTSIZE --test_height=$MYTESTSIZE --test_xdim=$XDIM"
 PARAM_BASIC="--test_printinfo=true --test_graph_save=true"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=0"
+PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
 
 ## additional PETSc parameters
 PARAM_PETSC="--petsc_options=\"\""
@@ -26,18 +27,24 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_FEM $PARAM_LOG $PARAM_PETSC"
 
 ## run the job
-#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
-mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
+#mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
 #./test_petscvector_fem_image $PARAM_ALL
 
 # show results
-#if [ -f data/test_image/illia_avatar_color_solution.bin ]
+#if [ -f data/test_image/illia_avatar_color_data.bin ]
 #then
-#	./gui_show_image --filename=data/test_image/illia_avatar_color_solution.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Original image" &
+#	./gui_show_image --filename=data/test_image/illia_avatar_color_data.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Original image" &
 #fi
 
-if [ -f results/illia_avatar_color_datavector.bin ]
+if [ -f results/illia_avatar_color_reduced_datavector.bin ]
 then
-#	./gui_show_image --filename=results/illia_avatar_color_datavector.bin --xdim=$XDIM --width=$MYTESTSIZE --title="After FEM_REDUCE=$FEM_REDUCE" &
-	./gui_show_image --filename=results/illia_avatar_color_datavector.bin --xdim=$XDIM --width=10 --title="After FEM_REDUCE=$FEM_REDUCE" &
+	./gui_show_image --filename=results/illia_avatar_color_reduced_datavector.bin --xdim=$XDIM --width=$MYTESTSIZE_REDUCED --title="Reduced FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" &
 fi
+
+#if [ -f results/illia_avatar_color_prolongated_datavector.bin ]
+#then
+#	./gui_show_image --filename=results/illia_avatar_color_prolongated_datavector.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Prolongated FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" &
+#fi
+
+

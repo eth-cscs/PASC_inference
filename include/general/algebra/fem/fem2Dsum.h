@@ -60,10 +60,10 @@ class Fem2DSum : public Fem<VectorBase> {
 		~Fem2DSum();
 
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		std::string get_name() const;
+		virtual std::string get_name() const;
 
-		void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
-		void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
+		virtual void reduce_gamma(GeneralVector<VectorBase> *gamma1, GeneralVector<VectorBase> *gamma2) const;
+		virtual void prolongate_gamma(GeneralVector<VectorBase> *gamma2, GeneralVector<VectorBase> *gamma1) const;
 
 		void compute_decomposition_reduced();
 
@@ -230,7 +230,7 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
 		for(int x = bounding_box2[0]; x <= bounding_box2[1]; x++){
 			for(int y = bounding_box2[2]; y <= bounding_box2[3]; y++){
                 int r = y*width2 + x; /* in original R format */
-				overlap2_idx[(y-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (x-bounding_box2[0])] = DD_invpermutation2[r];
+				overlap2_idx[(y-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (x-bounding_box2[0])] = DD_permutation2[r];
 			}
 		}
 
@@ -255,17 +255,19 @@ void Fem2DSum<VectorBase>::compute_bounding_box() {
 
 		this->diff_x = (width1-1)/(double)(width2-1);
 		this->diff_y = (height1-1)/(double)(height2-1);
-        
-        /* scale bounding boxes */
-        bounding_box1[0] = floor((bounding_box1[0]-0.5)*this->diff_x);
-        bounding_box1[1] = ceil((bounding_box1[1]+0.5)*this->diff_x);
-        bounding_box1[2] = floor((bounding_box1[2]-0.5)*this->diff_y);
-        bounding_box1[3] = ceil((bounding_box1[3]+0.5)*this->diff_y);
 
-        bounding_box2[0] = floor((bounding_box2[0]-0.5)/this->diff_x);
-        bounding_box2[1] = ceil((bounding_box2[1]+0.5)/this->diff_x);
-        bounding_box2[2] = floor((bounding_box2[2]-0.5)/this->diff_y);
-        bounding_box2[3] = ceil((bounding_box2[3]+0.5)/this->diff_y);
+        /* scale bounding boxes */
+        double overlap_size = 1.0; /* extension of bounding box inside the neighbour */
+
+        bounding_box1[0] = floor((bounding_box1[0]-overlap_size)*this->diff_x);
+        bounding_box1[1] = ceil((bounding_box1[1]+overlap_size)*this->diff_x);
+        bounding_box1[2] = floor((bounding_box1[2]-overlap_size)*this->diff_y);
+        bounding_box1[3] = ceil((bounding_box1[3]+overlap_size)*this->diff_y);
+
+        bounding_box2[0] = floor((bounding_box2[0]-overlap_size)/this->diff_x);
+        bounding_box2[1] = ceil((bounding_box2[1]+overlap_size)/this->diff_x);
+        bounding_box2[2] = floor((bounding_box2[2]-overlap_size)/this->diff_y);
+        bounding_box2[3] = ceil((bounding_box2[3]+overlap_size)/this->diff_y);
 
 		if(bounding_box1[0] < 0) {
 			bounding_box1[0] = 0;
@@ -279,7 +281,7 @@ void Fem2DSum<VectorBase>::compute_bounding_box() {
 		if(bounding_box1[3] >= height1) {
 			bounding_box1[3] = height1-1;
 		}
-		
+
 		if(bounding_box2[0] < 0) {
 			bounding_box2[0] = 0;
 		}
