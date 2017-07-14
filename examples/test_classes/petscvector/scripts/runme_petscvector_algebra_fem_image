@@ -1,10 +1,10 @@
 #!/bin/bash   
 
 MYTESTSIZE=100
-MYTESTSIZE_REDUCED=50
+MYTESTSIZE_REDUCED=20
 XDIM=1
 NOISE=0.0
-FEM_REDUCE=0.8
+FEM_REDUCE=0.2
 NPROC=3
 FEM_TYPE=0
 
@@ -28,8 +28,8 @@ PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_FEM $PARAM_LOG $PARAM_PETSC"
 
 ## run the job
 #/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
-mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
-#./test_petscvector_fem_image $PARAM_ALL
+#mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
+./test_petscvector_fem_image $PARAM_ALL
 
 # show results
 if [ -f data/test_image/illia_avatar_color_data.bin ]
@@ -37,10 +37,10 @@ then
 	./gui_show_image --filename=data/test_image/illia_avatar_color_data.bin --xdim=$XDIM --width=$MYTESTSIZE --title="Original image" &
 fi
 
-#if [ -f results/illia_avatar_color_reduced_datavector.bin ]
-#then
-#	./gui_show_image --filename=results/illia_avatar_color_reduced_datavector.bin --xdim=$XDIM --width=$MYTESTSIZE_REDUCED --title="Reduced FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" &
-#fi
+if [ -f results/illia_avatar_color_reduced_datavector.bin ]
+then
+	./gui_show_image --filename=results/illia_avatar_color_reduced_datavector.bin --xdim=$XDIM --width=$MYTESTSIZE_REDUCED --title="Reduced FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" &
+fi
 
 if [ -f results/illia_avatar_color_prolongated_datavector.bin ]
 then
