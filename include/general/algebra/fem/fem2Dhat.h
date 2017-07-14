@@ -295,11 +295,11 @@ void Fem2DHat<VectorBase>::compute_window_values2(double* overlap_values, double
     P2[2] = get_imagevaluefromoverlap2(overlap_values,&P2_inside,P2[0],P2[1]);
     P3[2] = get_imagevaluefromoverlap2(overlap_values,&P3_inside,P3[0],P3[1]);
 
-/*
+
     if(!P1_inside) P1[2] = P0[2];
     if(!P2_inside) P2[2] = P0[2];
     if(!P3_inside) P3[2] = P0[2];
-*/
+
 }
 
 

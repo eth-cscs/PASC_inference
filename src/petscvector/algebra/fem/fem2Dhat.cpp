@@ -100,54 +100,39 @@ void Fem2DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
                         double new_value;
                         double alpha, beta;
 
-                        double counted = false;
-
                         /* PV, P7, P0, P1 */
                         compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P7, P0, P1);
-                        if(alpha >= 0 & beta >= 0 & !counted){
+                        if(alpha >= 0 & beta >= 0){
                             value += new_value;
                             nmb++;
-
-//                            counted = true;
                         }
 
                         /* PV, P1, P2, P3 */
                         compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P1, P2, P3);
-                        if(alpha >= 0 & beta >= 0 & !counted){
+                        if(alpha >= 0 & beta >= 0){
                             value += new_value;
                             nmb++;
-
-//                            counted = true;
                         }
 
                         /* PV, P3, P4, P5 */
                         compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P3, P4, P5);
-                        if(alpha >= 0 & beta >= 0 & !counted){
+                        if(alpha >= 0 & beta >= 0){
                             value += new_value;
                             nmb++;
-
-//                            counted = true;
                         }
 
                         /* PV, P5, P6, P7 */
                         compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P5, P6, P7);
-                        if(alpha >= 0 & beta >= 0 & !counted){
+                        if(alpha >= 0 & beta >= 0){
                             value += new_value;
                             nmb++;
-
-//                            counted = true;
                         }
 
                     }
                 }
 
                 /* write value */
-//				gammak2_arr[r2] = 0.25*(P0[2] + P1[2] + P2[2] + P3[2] ); //value/(double)nmb; ////0.0001*r1_overlap;
-//				gammak2_arr[r2] = 0.2*(P0[2] + P1[2] + P2[2] + P3[2] + P4[2] );
-				gammak2_arr[r2] = value/(double)nmb; ////0.0001*r1_overlap;
-
-//                coutMaster << gammak2_arr[r2] << "," << value << ", " << nmb << std::endl;
-
+				gammak2_arr[r2] = value/(double)nmb;
             }
 
             TRYCXX( VecRestoreArray(gammak1_overlap_Vec,&gammak1_arr) );
@@ -237,10 +222,10 @@ void Fem2DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
                 int x1 = r1R - y1*width1;
 
                 /* coresponding point in reduced image */
-//                double x2 = x1*(double)(grid2->get_width())/((double)grid1->get_width());
-//                double y2 = y1*(double)(grid2->get_height())/((double)grid1->get_height());
-                double x2 = x1/this->diff_x;
-                double y2 = y1/this->diff_y;
+                double x2 = x1*(double)(grid2->get_width())/((double)grid1->get_width());
+                double y2 = y1*(double)(grid2->get_height())/((double)grid1->get_height());
+//                double x2 = x1/this->diff_x;
+//                double y2 = y1/this->diff_y;
 
 				/* there are 4 points which influencing the value in original image */
                 /*

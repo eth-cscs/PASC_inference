@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
-		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT]")
+		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [0=FEM2DSUM/1=FEM2DHAT]")
 		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
 		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
@@ -289,11 +289,11 @@ int main( int argc, char *argv[] )
 
 	/* prepare FEM reduction */
 	Fem<PetscVector> *fem;
-	if(fem_type == 3){
-		fem = new Fem2D<PetscVector>(fem_reduce);
+	if(fem_type == 0){
+		fem = new Fem2DSum<PetscVector>(fem_reduce);
 	}
-	if(fem_type == 4){
-//		fem = new Fem2DHat<PetscVector>(fem_reduce);
+	if(fem_type == 1){
+		fem = new Fem2DHat<PetscVector>(fem_reduce);
 	}
 
 	/* prepare model on the top of given data */
@@ -391,7 +391,8 @@ int main( int argc, char *argv[] )
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveImage(oss.str(),false);
+			mydata.saveImage_gammavector(oss.str());
+			mydata.saveImage_datavector(oss.str());
 			oss.str("");
 		}
 
@@ -441,7 +442,8 @@ int main( int argc, char *argv[] )
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << filename_out;
-		mydata.saveImage(oss.str(),false);
+		mydata.saveImage_gammavector(oss.str());
+		mydata.saveImage_datavector(oss.str());
 		oss.str("");
 	}
 
