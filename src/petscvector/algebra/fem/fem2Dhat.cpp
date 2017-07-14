@@ -78,17 +78,17 @@ void Fem2DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
                 double y1 = y2*this->diff_y;
 
                 /* prepare hat vectors */
-                /*
-                 * P3 ------ P2
-                 *  | \ p2 / |
-                 *  |  \  /  |
-                 *  |p3 P4 p1|
-                 *  |  /  \  |
-                 *  | / p0 \ |
-                 * P0 ------ P1
-                 */
-                double P0[3], P1[3], P2[3], P3[3], P4[3]; /* x,y,f(x,y) */
-                compute_window_values1(gammak1_arr, x1, y1, P0, P1, P2, P3, P4);
+				/*
+				* P6 -- P5 -- P4
+				*  | \   |  / |
+				*  |  \  | /  |
+				* P7 -  PV  - P3
+				*  |  /  | \  |
+				*  | /   |  \ |
+				* P0 -- P1 -- P2
+				*/
+                double PV[3], P0[3], P1[3], P2[3], P3[3], P4[3], P5[3], P6[3], P7[3]; /* x,y,f(x,y) */
+                compute_window_values1(gammak1_arr, x1, y1, PV, P0, P1, P2, P3, P4, P5, P6, P7);
 
                 /* go through window and compute something */
                 double value = 0.0;
@@ -102,40 +102,40 @@ void Fem2DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 
                         double counted = false;
 
-                        /* p0 */
-                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P0, P1);
+                        /* PV, P7, P0, P1 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P7, P0, P1);
                         if(alpha >= 0 & beta >= 0 & !counted){
                             value += new_value;
                             nmb++;
 
-                            counted = true;
+//                            counted = true;
                         }
 
-                        /* p1 */
-                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P1, P2);
+                        /* PV, P1, P2, P3 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P1, P2, P3);
                         if(alpha >= 0 & beta >= 0 & !counted){
                             value += new_value;
                             nmb++;
 
-                            counted = true;
+//                            counted = true;
                         }
 
-                        /* p2 */
-                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P2, P3);
+                        /* PV, P3, P4, P5 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P3, P4, P5);
                         if(alpha >= 0 & beta >= 0 & !counted){
                             value += new_value;
                             nmb++;
 
-                            counted = true;
+//                            counted = true;
                         }
 
-                        /* p3 */
-                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, P4, P3, P0);
+                        /* PV, P5, P6, P7 */
+                        compute_plane_interpolation(&alpha,&beta,&new_value, xx1, yy1, PV, P5, P6, P7);
                         if(alpha >= 0 & beta >= 0 & !counted){
                             value += new_value;
                             nmb++;
 
-                            counted = true;
+//                            counted = true;
                         }
 
                     }
@@ -260,52 +260,24 @@ void Fem2DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 				int nmb = 0;
 
 				/* P0 */
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P0, P1, P2);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P0, P2, P3);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P0, P1, P2,P3);
+				value += new_value;
+				nmb++;
 
 				/* P1 */
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P1, P0, P3);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P1, P2, P3);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P1, P2, P3, P0);
+				value += new_value;
+				nmb++;
 
 				/* P2 */
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P2, P0, P1);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P2, P0, P3);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P2, P3, P0, P1);
+				value += new_value;
+				nmb++;
 
 				/* P3 */
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P3, P0, P1);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
-				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P3, P1, P2);
-				if(alpha >= 0 & beta >= 0){
-					value += new_value;
-					nmb++;
-                }
+				compute_plane_interpolation(&alpha,&beta,&new_value, x2, y2, P3, P0, P1, P2);
+				value += new_value;
+				nmb++;
 
                 /* write value */
 				gammak1_arr[r1] = value/(double)nmb;
