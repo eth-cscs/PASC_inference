@@ -62,6 +62,7 @@
 		<Unit filename="../../examples/test_entropy/test_entropy.cpp" />
 		<Unit filename="../../examples/test_image/test_image.cpp" />
 		<Unit filename="../../examples/test_movie/test_movie.cpp" />
+		<Unit filename="../../examples/test_movie/test_movie_generate_3dot.cpp" />
 		<Unit filename="../../examples/test_movie/test_movie_generate_dot.cpp" />
 		<Unit filename="../../examples/test_neuro/test_neuro.cpp" />
 		<Unit filename="../../examples/test_signal/test_signal.cpp" />

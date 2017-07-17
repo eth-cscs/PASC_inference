@@ -1,34 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="../../src/petscvector/algebra/fem/fem2Dsum.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3132" topLine="62" />
-		</Cursor>
-	</File>
-	<File name="../../include/general/common/decomposition.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8156" topLine="270" />
-		</Cursor>
-	</File>
-	<File name="../../include/general/solver/tssolver.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="19236" topLine="631" />
-		</Cursor>
-	</File>
 	<File name="../../examples/gui/gui_show_image.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="3657" topLine="306" />
 		</Cursor>
 	</File>
-	<File name="../../src/petscvector/model/entropyh1fem.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../examples/test_entropy/test_entropy.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2136" topLine="36" />
-		</Cursor>
-	</File>
-	<File name="../../examples/test_image/test_image.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="19473" topLine="413" />
+			<Cursor1 position="0" topLine="147" />
 		</Cursor>
 	</File>
 	<File name="../../examples/gui/gui_show_movie.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -36,19 +16,84 @@
 			<Cursor1 position="1452" topLine="63" />
 		</Cursor>
 	</File>
+	<File name="../../examples/test_movie/test_movie_generate_dot.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6725" topLine="69" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/data/moviedata.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7189" topLine="248" />
+		</Cursor>
+	</File>
+	<File name="../../src/petscvector/data/tsdata.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="15641" topLine="608" />
+		</Cursor>
+	</File>
+	<File name="../../src/petscvector/common/decomposition.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9952" topLine="333" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/solver/simplesolver.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="183" />
+		</Cursor>
+	</File>
+	<File name="../../include/external/petscvector/algebra/fem/fem1Dhat.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="465" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/algebra/graph/bgmgraphgrid2D.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4209" topLine="143" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/algebra/fem/fem.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5342" topLine="159" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/model/tsmodel.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="900" topLine="212" />
+		</Cursor>
+	</File>
+	<File name="../../examples/util/util_dlib_image_to_vec.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6824" topLine="171" />
+		</Cursor>
+	</File>
+	<File name="../../include/external/petscvector/algebra/fem/fem2Dsum.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="465" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../include/external/petscvector/data/entropydata.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="423" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../include/external/petscvector/common/decomposition.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1007" topLine="0" />
+		</Cursor>
+	</File>
 	<File name="../../src/petscvector/algebra/graph/bgmgraphgrid2D.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="4640" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../include/external/petscvector/algebra/graph/bgmgraphgrid2D.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../src/petscvector/data/imagedata.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="509" topLine="0" />
+			<Cursor1 position="5796" topLine="184" />
 		</Cursor>
 	</File>
-	<File name="../../include/general/algebra/fem/fem.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../include/external/petscvector/data/moviedata.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4766" topLine="153" />
+			<Cursor1 position="803" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="../../include/external/petscvector/algebra/fem/fem1Dsum.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -61,29 +106,24 @@
 			<Cursor1 position="4769" topLine="147" />
 		</Cursor>
 	</File>
-	<File name="../../src/petscvector/algebra/fem/fem1Dhat.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../include/external/boost/options.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="45" />
+			<Cursor1 position="671" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../examples/test_signal/test_signal.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../include/general/algebra/fem/fem2Dsum.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="0" />
+			<Cursor1 position="11992" topLine="351" />
 		</Cursor>
 	</File>
-	<File name="../../src/petscvector/common/decomposition.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+	<File name="../../include/general/model/entropyh1fem.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7205" topLine="265" />
+			<Cursor1 position="12813" topLine="406" />
 		</Cursor>
 	</File>
-	<File name="../../src/petscvector/algebra/fem/fem2Dhat.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../examples/test_image/test_image.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3958" topLine="81" />
-		</Cursor>
-	</File>
-	<File name="../../include/general/algebra/fem/fem1Dhat.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6635" topLine="214" />
+			<Cursor1 position="17634" topLine="323" />
 		</Cursor>
 	</File>
 	<File name="../../src/petscvector/data/entropydata.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -91,44 +131,54 @@
 			<Cursor1 position="2817" topLine="76" />
 		</Cursor>
 	</File>
-	<File name="../../include/external/petscvector/data/imagedata.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="794" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../include/general/algebra/fem/fem2Dsum.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8906" topLine="249" />
-		</Cursor>
-	</File>
 	<File name="../../src/petscvector/model/graphh1fem.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1117" topLine="33" />
+			<Cursor1 position="6762" topLine="168" />
 		</Cursor>
 	</File>
-	<File name="../../examples/test_classes/petscvector/algebra/test_fem_image.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../examples/test_movie/test_movie.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="8513" topLine="155" />
+			<Cursor1 position="17858" topLine="297" />
 		</Cursor>
 	</File>
-	<File name="../../include/external/petscvector/common/decomposition.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../examples/test_signal/test_signal.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1007" topLine="0" />
+			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../include/external/petscvector/data/entropydata.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../include/general/common/decomposition.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="423" topLine="0" />
+			<Cursor1 position="8156" topLine="270" />
 		</Cursor>
 	</File>
-	<File name="../../src/petscvector/data/imagedata.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../include/general/model/model.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2931" topLine="48" />
+			<Cursor1 position="147" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../src/petscvector/data/tsdata.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../include/external/petscvector/model/graphh1fem.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="15641" topLine="608" />
+			<Cursor1 position="1487" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="../../src/petscvector/algebra/fem/fem2Dhat.cpp" open="1" top="1" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="10028" topLine="228" />
+		</Cursor>
+	</File>
+	<File name="../../include/external/petscvector/data/imagedata.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="572" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../include/external/petscvector/algebra/graph/bgmgraphgrid2D.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="509" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../src/petscvector/model/entropyh1fem.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7893" topLine="213" />
 		</Cursor>
 	</File>
 	<File name="../../src/petscvector/algebra/graph/bgmgraph.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -136,34 +186,64 @@
 			<Cursor1 position="5338" topLine="192" />
 		</Cursor>
 	</File>
+	<File name="../../include/general/solver/tssolver.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8017" topLine="104" />
+		</Cursor>
+	</File>
+	<File name="../../include/external/petscvector/model/entropyh1fem.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1668" topLine="5" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/algebra/fem/fem1Dhat.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6635" topLine="214" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/algebra/fem/fem2Dhat.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9984" topLine="216" />
+		</Cursor>
+	</File>
 	<File name="../../include/general/data/imagedata.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="6860" topLine="247" />
+			<Cursor1 position="1979" topLine="49" />
 		</Cursor>
 	</File>
-	<File name="../../examples/test_entropy/test_entropy.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../src/boost/options.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="147" />
+			<Cursor1 position="2157" topLine="14" />
 		</Cursor>
 	</File>
-	<File name="../../include/external/petscvector/algebra/fem/fem1Dhat.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../src/petscvector/data/moviedata.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="465" topLine="0" />
+			<Cursor1 position="5590" topLine="147" />
 		</Cursor>
 	</File>
-	<File name="../../include/general/algebra/fem/fem2Dhat.h" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../examples/test_classes/petscvector/algebra/test_fem_image.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5901" topLine="166" />
+			<Cursor1 position="8513" topLine="155" />
 		</Cursor>
 	</File>
-	<File name="../../include/external/petscvector/algebra/fem/fem2Dsum.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../src/petscvector/algebra/fem/fem2Dsum.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="465" topLine="0" />
+			<Cursor1 position="5992" topLine="156" />
 		</Cursor>
 	</File>
-	<File name="../../include/general/algebra/graph/bgmgraphgrid2D.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../src/petscvector/algebra/fem/fem1Dhat.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4209" topLine="143" />
+			<Cursor1 position="0" topLine="45" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/model/generalmodel.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="6" />
+		</Cursor>
+	</File>
+	<File name="../../include/general/model/graphh1fem.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13020" topLine="442" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
