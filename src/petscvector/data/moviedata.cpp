@@ -37,7 +37,28 @@ MovieData<PetscVector>::MovieData(Decomposition<PetscVector> &new_decomposition,
 }
 
 template<>
-void MovieData<PetscVector>::saveMovie(std::string filename, bool save_original) const{
+MovieData<PetscVector>::MovieData(Decomposition<PetscVector> &new_decomposition, int width, int height){
+	LOG_FUNC_BEGIN
+
+	this->width = width;
+	this->height = height;
+	this->decomposition = &new_decomposition;
+
+	/* prepare datavector */
+	Vec data_Vec;
+	this->decomposition->createGlobalVec_data(&data_Vec);
+	this->datavector = new GeneralVector<PetscVector>(data_Vec);
+
+	/* other vectors will be prepared after setting the model */
+	this->destroy_datavector = true;
+	this->destroy_gammavector = false;
+	this->destroy_thetavector = false;
+
+	LOG_FUNC_END
+}
+
+template<>
+void MovieData<PetscVector>::saveMovie_datavector(std::string filename) const {
 	LOG_FUNC_BEGIN
 
 	Timer timer_saveMovie;
@@ -52,24 +73,60 @@ void MovieData<PetscVector>::saveMovie(std::string filename, bool save_original)
 	GeneralVector<PetscVector> datasave(datasave_Vec);
 
 	/* save datavector - just for fun; to see if it was loaded in a right way */
-	if(save_original){
-		oss_name_of_file << "results/" << filename << "_original.bin";
-		this->decomposition->permute_bTR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+	oss_name_of_file << "results/" << filename << "_datavector.bin";
+	this->decomposition->permute_TbR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
 
-		datasave.save_binary(oss_name_of_file.str());
-		oss_name_of_file.str("");
-	}
+	datasave.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
 
-	/* save gamma */
+	timer_saveMovie.stop();
+	coutAll <<  " - Movie datavector saved in: " << timer_saveMovie.get_value_sum() << std::endl;
+	coutAll.synchronize();
+
+	LOG_FUNC_END
+}
+
+template<>
+void MovieData<PetscVector>::saveMovie_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	Timer timer_saveMovie;
+	timer_saveMovie.restart();
+	timer_saveMovie.start();
+
+	std::ostringstream oss_name_of_file;
+
 	oss_name_of_file << "results/" << filename << "_gamma.bin";
 
 	Vec gammasave_Vec;
     TRYCXX( VecDuplicate(gammavector->get_vector(), &gammasave_Vec) );
-	this->decomposition->permute_bTR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
+	this->decomposition->permute_TbR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
 	GeneralVector<PetscVector> gammasave(gammasave_Vec);
 	gammasave.save_binary(oss_name_of_file.str());
 
 	oss_name_of_file.str("");
+
+	timer_saveMovie.stop();
+	coutAll <<  " - Movie gammavector saved in: " << timer_saveMovie.get_value_sum() << std::endl;
+	coutAll.synchronize();
+
+	LOG_FUNC_END
+}
+
+template<>
+void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	Timer timer_saveMovie;
+	timer_saveMovie.restart();
+	timer_saveMovie.start();
+
+	std::ostringstream oss_name_of_file;
+
+	/* prepare vectors to save as a permutation to original layout */
+	Vec datasave_Vec;
+	this->decomposition->createGlobalVec_data(&datasave_Vec);
+	GeneralVector<PetscVector> datasave(datasave_Vec);
 
 	/* compute recovered image */
 	Vec gammak_Vec;
@@ -118,22 +175,18 @@ void MovieData<PetscVector>::saveMovie(std::string filename, bool save_original)
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
 
 	/* but at first, permute recovered data, datasave can be used */
-	this->decomposition->permute_bTR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
-
-//	TRYCXX( VecCopy(data_recovered_Vec, datasave_Vec) );
+	this->decomposition->permute_TbR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
 
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
-	/* destroy vectors with original layout */
-//	TRYCXX( VecDestroy(&datasave_Vec) );
-
 	timer_saveMovie.stop();
-	coutAll <<  " - problem saved in: " << timer_saveMovie.get_value_sum() << std::endl;
+	coutAll <<  " - Movie reconstructed saved in: " << timer_saveMovie.get_value_sum() << std::endl;
 	coutAll.synchronize();
 
 	LOG_FUNC_END
 }
+
 
 template<>
 double MovieData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const {

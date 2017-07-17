@@ -401,7 +401,6 @@ template<>
 void Decomposition<PetscVector>::createIS_gammaK(IS *is, int k) const {
 	LOG_FUNC_BEGIN
 
-
 	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, get_Tlocal()*get_Rlocal(), get_TRbegin()*get_K() + k, get_K(), is) );
 
 	LOG_FUNC_END

@@ -36,12 +36,12 @@ namespace model {
 template<class VectorBase>
 class EntropyH1FEMModel: public TSModel<VectorBase> {
 	public:
-		/** @brief type of solver used to solve inner gamma problem 
-		 * 
+		/** @brief type of solver used to solve inner gamma problem
+		 *
 		 * The inner problem leads to QP with equality constraints and bound constraints
-		 * 
+		 *
 		 */
-		typedef enum { 
+		typedef enum {
 			GSOLVER_AUTO=0,				/**< choose automatic solver */
 			GSOLVER_SPGQP=1,			/**< CPU/GPU implementation of Spectral Projected Gradient method */
 			GSOLVER_SPGQP_COEFF=2,		/**< CPU/GPU implementation of Spectral Projected Gradient method with special coefficient threatment */
@@ -53,12 +53,12 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 		 */
 		std::string print_gammasolvertype(GammaSolverType gammasolvertype_in) const;
 
-		/** @brief type of solver used to solve inner theta problem 
-		 * 
+		/** @brief type of solver used to solve inner theta problem
+		 *
 		 * Maximum entropy - nonlinear optimization problem / system of nonlinear equations with integrals
-		 * 
+		 *
 		 */
-		typedef enum { 
+		typedef enum {
 			TSOLVER_AUTO=0,				/**< choose automatic solver */
 			TSOLVER_ENTROPY_DLIB=1,		/**< use Dlib to solve integral problem */
 			TSOLVER_ENTROPY_NEWTON=2	/**< Newton method for solving integral entropy problem */
@@ -74,64 +74,64 @@ class EntropyH1FEMModel: public TSModel<VectorBase> {
 	 	EntropyData<VectorBase> *thetadata; /**< for computing lambda-problem with integrals (Anna knows...)  */
 
 		double epssqr; /**< penalty coeficient */
-		
+
 		/* for theta problem */
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *residuum; /**< temp vector for residuum computation */
-		
+
 		bool scalef;			/**< divide whole function by T */
-		
+
 		GammaSolverType gammasolvertype; /**< the type of used solver for gamma problem */
 		ThetaSolverType thetasolvertype; /**< the type of used solver for theta problem */
-		
+
 	public:
 
 		/** @brief constructor from data and regularisation constant
-		 * 
+		 *
 		 * @param tsdata time-series data on which model operates
 		 * @param epssqr regularisation constant
-		 */ 	
+		 */
 		EntropyH1FEMModel(TSData<VectorBase> &tsdata, int Km, double epssqr);
 
-		/** @brief destructor 
-		 */ 
+		/** @brief destructor
+		 */
 		~EntropyH1FEMModel();
 
 		/** @brief print info about model
-		 * 
+		 *
 		 * @param output where to print
-		 */	
+		 */
 		void print(ConsoleOutput &output) const;
 
 		/** @brief print info about model
-		 * 
+		 *
 		 * @param output_global where to print global info
 		 * @param output_local where to print local info
-		 */	
+		 */
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
 		/** @brief print solution of the model
-		 * 
+		 *
 		 * @param output_global where to print global part
 		 * @param output_local where to print local part
-		 */	
+		 */
 		void printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		
-		std::string get_name() const;
-		
-		void initialize_gammasolver(GeneralSolver **gamma_solver);
-		void updatebeforesolve_gammasolver(GeneralSolver *gamma_solver);
-		void updateaftersolve_gammasolver(GeneralSolver *gamma_solver);
-		void finalize_gammasolver(GeneralSolver **gamma_solver);
 
-		void initialize_thetasolver(GeneralSolver **theta_solver);
-		void updatebeforesolve_thetasolver(GeneralSolver *theta_solver);
-		void updateaftersolve_thetasolver(GeneralSolver *theta_solver);
-		void finalize_thetasolver(GeneralSolver **theta_solver);
-	
+		std::string get_name() const;
+
+		void gammasolver_initialize(GeneralSolver **gamma_solver);
+		void gammasolver_updatebeforesolve(GeneralSolver *gamma_solver);
+		void gammasolver_updateaftersolve(GeneralSolver *gamma_solver);
+		void gammasolver_finalize(GeneralSolver **gamma_solver);
+
+		void thetasolver_initialize(GeneralSolver **theta_solver);
+		void thetasolver_updatebeforesolve(GeneralSolver *theta_solver);
+		void thetasolver_updateaftersolve(GeneralSolver *theta_solver);
+		void thetasolver_finalize(GeneralSolver **theta_solver);
+
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver);
 		void get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver);
-		
+
 		QPData<VectorBase> *get_gammadata() const;
 		EntropyData<VectorBase> *get_thetadata() const;
 		BGMGraph<VectorBase> *get_graph() const;
@@ -193,7 +193,7 @@ EntropyH1FEMModel<VectorBase>::EntropyH1FEMModel(TSData<VectorBase> &new_tsdata,
 template<class VectorBase>
 EntropyH1FEMModel<VectorBase>::~EntropyH1FEMModel(){
 	LOG_FUNC_BEGIN
-	
+
 	LOG_FUNC_END
 }
 
@@ -204,7 +204,7 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	output <<  " - T                 : " << this->get_T() << std::endl;
 	output <<  " - xdim              : " << this->get_xdim() << std::endl;
@@ -223,7 +223,7 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - thetasolvertype   : " << print_thetasolvertype(this->thetasolvertype) << std::endl;
 	output <<  " - gammasolvertype   : " << print_gammasolvertype(this->gammasolvertype) << std::endl;
 
-	output.synchronize();	
+	output.synchronize();
 
 	LOG_FUNC_END
 }
@@ -234,7 +234,7 @@ void EntropyH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	output_global <<  " - global info" << std::endl;
 	output_global <<  "  - T                 : " << this->get_T() << std::endl;
@@ -307,7 +307,7 @@ void EntropyH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 
 /* prepare gamma solver */
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolver){
+void EntropyH1FEMModel<VectorBase>::gammasolver_initialize(GeneralSolver **gammasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -317,7 +317,7 @@ void EntropyH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gamma
 
 /* prepare theta solver */
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolver){
+void EntropyH1FEMModel<VectorBase>::thetasolver_initialize(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -327,7 +327,7 @@ void EntropyH1FEMModel<VectorBase>::initialize_thetasolver(GeneralSolver **theta
 
 /* destroy gamma solver */
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver){
+void EntropyH1FEMModel<VectorBase>::gammasolver_finalize(GeneralSolver **gammasolver){
 	LOG_FUNC_BEGIN
 
 	/* destroy data */
@@ -338,13 +338,13 @@ void EntropyH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammaso
 
 	/* destroy solver */
 	free(*gammasolver);
-	
+
 	LOG_FUNC_END
 }
 
 /* destroy theta solver */
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver){
+void EntropyH1FEMModel<VectorBase>::thetasolver_finalize(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
@@ -386,7 +386,7 @@ BGMGraph<VectorBase> *EntropyH1FEMModel<VectorBase>::get_graph() const {
 }
 
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
+void EntropyH1FEMModel<VectorBase>::gammasolver_updatebeforesolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -395,7 +395,7 @@ void EntropyH1FEMModel<VectorBase>::updatebeforesolve_gammasolver(GeneralSolver 
 }
 
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::updateaftersolve_gammasolver(GeneralSolver *gammasolver){
+void EntropyH1FEMModel<VectorBase>::gammasolver_updateaftersolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -406,7 +406,7 @@ void EntropyH1FEMModel<VectorBase>::updateaftersolve_gammasolver(GeneralSolver *
 
 /* update theta solver */
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
+void EntropyH1FEMModel<VectorBase>::thetasolver_updatebeforesolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -415,7 +415,7 @@ void EntropyH1FEMModel<VectorBase>::updatebeforesolve_thetasolver(GeneralSolver 
 }
 
 template<class VectorBase>
-void EntropyH1FEMModel<VectorBase>::updateaftersolve_thetasolver(GeneralSolver *thetasolver){
+void EntropyH1FEMModel<VectorBase>::thetasolver_updateaftersolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO

@@ -254,7 +254,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 
 	/* load data from file and store it subject to decomposition */
-	ImageData<PetscVector> mydata(decomposition, filename_in, width, height);
+	MovieData<PetscVector> mydata(decomposition, filename_in, width, height);
 
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
@@ -391,16 +391,16 @@ int main( int argc, char *argv[] )
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveImage_gammavector(oss.str());
-			mydata.saveImage_datavector(oss.str());
+			mydata.saveMovie_gammavector(oss.str());
+			mydata.saveMovie_reconstructed(oss.str());
 			oss.str("");
 		}
 
 		/* store short info */
 		if(shortinfo_write_or_not){
 			/* add provided strings from console parameters and info about the problem */
-			if(depth==0) oss_short_output_header << shortinfo_header << "width,height,K,depth,epssqr,abserr,";
-			oss_short_output_values << shortinfo_values << width << "," << height << "," << K << "," << depth << "," << epssqr_list[depth] << "," << abserr << ",";
+			if(depth==0) oss_short_output_header << shortinfo_header << "width,height,T,K,depth,epssqr,abserr,";
+			oss_short_output_values << shortinfo_values << width << "," << height << "," << T << "," << K << "," << depth << "," << epssqr_list[depth] << "," << abserr << ",";
 
 			/* append Theta solution */
 			if(depth==0) for(int k=0; k<K; k++) oss_short_output_header << "Theta" << k << ",";
@@ -442,8 +442,8 @@ int main( int argc, char *argv[] )
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << filename_out;
-		mydata.saveImage_gammavector(oss.str());
-		mydata.saveImage_datavector(oss.str());
+		mydata.saveMovie_gammavector(oss.str());
+		mydata.saveMovie_reconstructed(oss.str());
 		oss.str("");
 	}
 

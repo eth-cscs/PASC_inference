@@ -92,7 +92,7 @@ void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, C
 
 /* prepare gamma solver */
 template<>
-void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver){
+void GraphH1FEMModel<PetscVector>::gammasolver_initialize(GeneralSolver **gammasolver){
 	LOG_FUNC_BEGIN
 
 	/* create data */
@@ -194,7 +194,7 @@ void GraphH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammas
 
 /* prepare theta solver */
 template<>
-void GraphH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver){
+void GraphH1FEMModel<PetscVector>::thetasolver_initialize(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
 
 	/* create data */
@@ -213,7 +213,7 @@ void GraphH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetas
 }
 
 template<>
-void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
+void GraphH1FEMModel<PetscVector>::gammasolver_updatebeforesolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	int T = this->tsdata->get_decomposition()->get_T();
@@ -275,7 +275,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *
 }
 
 template<>
-void GraphH1FEMModel<PetscVector>::updateaftersolve_gammasolver(GeneralSolver *gammasolver){
+void GraphH1FEMModel<PetscVector>::gammasolver_updateaftersolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	/* if the problem is not reduced, then gammasolver->x = tsdata->gammavector, therefore it is not neccessary to perform prolongation */
@@ -289,7 +289,7 @@ void GraphH1FEMModel<PetscVector>::updateaftersolve_gammasolver(GeneralSolver *g
 
 /* update theta solver */
 template<>
-void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
+void GraphH1FEMModel<PetscVector>::thetasolver_updatebeforesolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	Vec gamma_Vec = tsdata->get_gammavector()->get_vector();
@@ -396,7 +396,7 @@ void GraphH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *
 }
 
 template<>
-void GraphH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver *thetasolver){
+void GraphH1FEMModel<PetscVector>::thetasolver_updateaftersolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END

@@ -206,7 +206,7 @@ template<class VectorBase>
 bool Fem<VectorBase>::is_reduced() const {
 	bool return_value;
 
-	if(fem_reduce < 1.0) {
+	if(fem_reduce < 1.0 && fem_reduce > 0.0) {
 		return_value = true;
 	} else {
 		return_value = false;

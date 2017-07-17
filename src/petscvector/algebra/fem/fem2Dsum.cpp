@@ -37,6 +37,9 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
         int Rlocal1 = this->decomposition1->get_Rlocal();
         int Rlocal2 = this->decomposition2->get_Rlocal();
 
+        int Tbegin = this->decomposition1->get_Tbegin();
+        int Tlocal = this->decomposition1->get_Tlocal();
+
         int width1 = grid1->get_width();
         int width2 = grid2->get_width();
         int height1 = grid1->get_height();
@@ -57,47 +60,45 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
             TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,overlap1_idx_size,overlap1_idx,PETSC_COPY_VALUES,&gammak1_overlap_is) );
             TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_overlap_is, &gammak1_overlap_Vec) );
 
-            //TODO:temp
-//            TRYCXX( ISView(gammak1_overlap_is, PETSC_VIEWER_STDOUT_WORLD));
-
             /* sequential version */
             TRYCXX( VecGetArray(gammak1_overlap_Vec,&gammak1_arr) );
             TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
             //TODO: OpenMP? GPU?
-            for(int r2=0; r2 < Rlocal2; r2++){
-                /* r2 is in dR format, transfer it to R format */
-                int r2R = DD_invpermutation2[Rbegin2+r2];
+            for(int t=0; t < Tlocal; t++){
+                for(int r2=0; r2 < Rlocal2; r2++){
+                    /* r2 is in dR format, transfer it to R format */
+                    int r2R = DD_invpermutation2[Rbegin2+r2];
 
-                /* coordinates in new image */
-                int y2 = (int)(r2R/(double)width2);
-                int x2 = r2R - y2*width2;
+                    /* coordinates in new image */
+                    int y2 = (int)(r2R/(double)width2);
+                    int x2 = r2R - y2*width2;
 
-                /* coresponding point in original image */
-                double x1 = x2*this->diff_x;
-                double y1 = y2*this->diff_y;
+                    /* coresponding point in original image */
+                    double x1 = x2*this->diff_x;
+                    double y1 = y2*this->diff_y;
 
-                /* go through window and compute something */
-                double value = 0.0;
-                int nmb = 0;
+                    /* go through window and compute something */
+                    double value = 0.0;
+                    int nmb = 0;
 
-                for(int xx1 = floor(x1 - this->diff_x); xx1 <= ceil(x1 + this->diff_x); xx1++){
-                    for(int yy1 = floor(y1 - this->diff_y); yy1 <= ceil(y1 + this->diff_y); yy1++){
-                         /* compute coordinate in overlap */
-                        int r1_overlap = (yy1 - bounding_box1[2])*width_overlap1 + (xx1 - bounding_box1[0]);
-//                        int r1_overlap = ((int)y1 - bounding_box1[2])*width_overlap1 + ((int)x1 - bounding_box1[0]);
+                    for(int xx1 = floor(x1 - this->diff_x); xx1 <= ceil(x1 + this->diff_x); xx1++){
+                        for(int yy1 = floor(y1 - this->diff_y); yy1 <= ceil(y1 + this->diff_y); yy1++){
+                            /* compute coordinate in overlap */
+                            int r1_overlap = (yy1 - bounding_box1[2])*width_overlap1 + (xx1 - bounding_box1[0]);
+//                          int r1_overlap = ((int)y1 - bounding_box1[2])*width_overlap1 + ((int)x1 - bounding_box1[0]);
 
-						if(xx1 >= 0 & xx1 < width1 & yy1 >= 0 & yy1 <= height1 & r1_overlap >= 0 & r1_overlap < overlap1_idx_size){
-							value += gammak1_arr[r1_overlap];
-							nmb++;
-						}
+                            if(xx1 >= 0 & xx1 < width1 & yy1 >= 0 & yy1 <= height1 & r1_overlap >= 0 & r1_overlap < overlap1_idx_size){
+                                value += gammak1_arr[t*this->overlap1_idx_size + r1_overlap];
+                                nmb++;
+                            }
 
+                        }
                     }
+
+                    /* write value */
+                    gammak2_arr[t*Rlocal2 + r2] = value/(double)nmb; ////0.0001*r1_overlap;
                 }
-                /* write value */
-				gammak2_arr[r2] = value/(double)nmb; ////0.0001*r1_overlap;
-
-
             }
 
             TRYCXX( VecRestoreArray(gammak1_overlap_Vec,&gammak1_arr) );
@@ -153,6 +154,8 @@ void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
         int Rlocal1 = this->decomposition1->get_Rlocal();
         int Rlocal2 = this->decomposition2->get_Rlocal();
 
+        int Tlocal1 = this->decomposition1->get_Tlocal();
+
         int width1 = grid1->get_width();
         int width2 = grid2->get_width();
         int height1 = grid1->get_height();
@@ -178,33 +181,34 @@ void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
             TRYCXX( VecGetArray(gammak2_overlap_Vec,&gammak2_arr) );
 
             //TODO: OpenMP? GPU?
-            for(int r1=0; r1 < Rlocal1; r1++){
-                /* r1 is in dR format, transfer it to R format */
-                int r1R = DD_invpermutation1[Rbegin1+r1];
+            for(int t=0; t < Tlocal1; t++){
+                for(int r1=0; r1 < Rlocal1; r1++){
+                    /* r1 is in dR format, transfer it to R format */
+                    int r1R = DD_invpermutation1[Rbegin1+r1];
 
-                /* coordinates in original image */
-                int y1 = (int)(r1R/(double)width1);
-                int x1 = r1R - y1*width1;
+                    /* coordinates in original image */
+                    int y1 = (int)(r1R/(double)width1);
+                    int x1 = r1R - y1*width1;
 
-                /* coresponding point in original image */
-                double x2 = x1*(double)(grid2->get_width())/((double)grid1->get_width());//this->diff_x;
-                double y2 = y1*(double)(grid2->get_height())/((double)grid1->get_height());//this->diff_y;
+                    /* coresponding point in original image */
+                    double x2 = x1*(double)(grid2->get_width())/((double)grid1->get_width());//this->diff_x;
+                    double y2 = y1*(double)(grid2->get_height())/((double)grid1->get_height());//this->diff_y;
 
-                /* in this case, the window is only one point */
-                double value = 0.0;
-                int xx2 = floor(x2);
-                int yy2 = floor(y2);
+                    /* in this case, the window is only one point */
+                    double value = 0.0;
+                    int xx2 = floor(x2);
+                    int yy2 = floor(y2);
 
-                /* compute coordinate in overlap */
-                int r2_overlap = (yy2 - bounding_box2[2])*width_overlap2 + (xx2 - bounding_box2[0]);
+                    /* compute coordinate in overlap */
+                    int r2_overlap = (yy2 - bounding_box2[2])*width_overlap2 + (xx2 - bounding_box2[0]);
 
-				if(xx2 >= 0 & xx2 < width2 & yy2 >= 0 & yy2 <= height2 & r2_overlap >= 0 & r2_overlap < overlap2_idx_size){
-						value += gammak2_arr[r2_overlap];
-				}
+                    if(xx2 >= 0 & xx2 < width2 & yy2 >= 0 & yy2 <= height2 & r2_overlap >= 0 & r2_overlap < overlap2_idx_size){
+						value += gammak2_arr[t*this->overlap2_idx_size + r2_overlap];
+                    }
 
-                /* write value */
-				gammak1_arr[r1] = value;
-
+                    /* write value */
+                    gammak1_arr[t*Rlocal1 + r1] = value;
+                }
             }
 
             TRYCXX( VecRestoreArray(gammak1_Vec,&gammak1_arr) );

@@ -82,7 +82,7 @@ void EntropyH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global,
 }
 
 template<>
-void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver){
+void EntropyH1FEMModel<PetscVector>::gammasolver_initialize(GeneralSolver **gammasolver){
 	LOG_FUNC_BEGIN
 
 	/* create data */
@@ -162,7 +162,7 @@ void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gamm
 }
 
 template<>
-void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver){
+void EntropyH1FEMModel<PetscVector>::thetasolver_initialize(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
 
 	/* create data */
@@ -194,7 +194,7 @@ void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thet
 }
 
 template<>
-void EntropyH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
+void EntropyH1FEMModel<PetscVector>::gammasolver_updatebeforesolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	/* multiplicate vector b by coefficient */
@@ -208,14 +208,14 @@ void EntropyH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver
 }
 
 template<>
-void EntropyH1FEMModel<PetscVector>::updateaftersolve_gammasolver(GeneralSolver *gammasolver){
+void EntropyH1FEMModel<PetscVector>::gammasolver_updateaftersolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END
 }
 
 template<>
-void EntropyH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
+void EntropyH1FEMModel<PetscVector>::thetasolver_updatebeforesolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	/* make sure that solved gamma is feasible */
@@ -225,7 +225,7 @@ void EntropyH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver
 }
 
 template<>
-void EntropyH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver *thetasolver){
+void EntropyH1FEMModel<PetscVector>::thetasolver_updateaftersolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	/* gammadata->get_b() = this->residuum */

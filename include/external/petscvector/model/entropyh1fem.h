@@ -31,15 +31,13 @@ namespace model {
 template<> EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdata, int Km, double epssqr);
 template<> void EntropyH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
-template<> void EntropyH1FEMModel<PetscVector>::initialize_gammasolver(GeneralSolver **gammasolver);
-template<> void EntropyH1FEMModel<PetscVector>::initialize_thetasolver(GeneralSolver **thetasolver);
+template<> void EntropyH1FEMModel<PetscVector>::gammasolver_initialize(GeneralSolver **gammasolver);
+template<> void EntropyH1FEMModel<PetscVector>::gammasolver_updatebeforesolve(GeneralSolver *gammasolver);
+template<> void EntropyH1FEMModel<PetscVector>::gammasolver_updateaftersolve(GeneralSolver *gammasolver);
 
-template<> void EntropyH1FEMModel<PetscVector>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver);
-template<> void EntropyH1FEMModel<PetscVector>::updateaftersolve_gammasolver(GeneralSolver *gammasolver);
-
-template<> void EntropyH1FEMModel<PetscVector>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver);
-template<> void EntropyH1FEMModel<PetscVector>::updateaftersolve_thetasolver(GeneralSolver *thetasolver);
-
+template<> void EntropyH1FEMModel<PetscVector>::thetasolver_initialize(GeneralSolver **thetasolver);
+template<> void EntropyH1FEMModel<PetscVector>::thetasolver_updatebeforesolve(GeneralSolver *thetasolver);
+template<> void EntropyH1FEMModel<PetscVector>::thetasolver_updateaftersolve(GeneralSolver *thetasolver);
 
 }
 } /* end namespace */

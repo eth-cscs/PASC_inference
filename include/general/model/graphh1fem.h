@@ -35,12 +35,12 @@ namespace model {
 template<class VectorBase>
 class GraphH1FEMModel: public TSModel<VectorBase> {
 	public:
-		/** @brief type of solver used to solve inner gamma problem 
-		 * 
+		/** @brief type of solver used to solve inner gamma problem
+		 *
 		 * The inner problem leads to QP with equality constraints and bound constraints
-		 * 
+		 *
 		 */
-		typedef enum { 
+		typedef enum {
 			SOLVER_AUTO=0, /**< choose automatic solver */
 			SOLVER_SPGQP=1, /**< CPU/GPU implementation of Spectral Projected Gradient method */
 			SOLVER_SPGQP_COEFF=2, /**< CPU/GPU implementation of Spectral Projected Gradient method with special coefficient threatment */
@@ -53,67 +53,67 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
 
 		double epssqr; /**< penalty coeficient */
-		
+
 		/* for theta problem */
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
 		GeneralVector<VectorBase> *Agamma; /**< temp vector for storing A_shared*gamma */
 		GeneralVector<VectorBase> *residuum; /**< temp vector for residuum computation */
-		
+
 		bool usethetainpenalty; /**< use the value of Theta in penalty parameter to scale blocks */
 		bool scalef;			/**< divide whole function by T */
-		
+
 		GammaSolverType gammasolvertype; /**< the type of used solver */
-		
+
 		Fem<VectorBase> *fem;
 
 	public:
 
 		/** @brief constructor from data and regularisation constant
-		 * 
+		 *
 		 * @param tsdata time-series data on which model operates
 		 * @param epssqr regularisation constant
-		 */ 	
+		 */
 		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, Fem<VectorBase> *new_fem = NULL, bool usethetainpenalty = false);
 
-		/** @brief destructor 
-		 */ 
+		/** @brief destructor
+		 */
 		~GraphH1FEMModel();
 
 		/** @brief print info about model
-		 * 
+		 *
 		 * @param output where to print
-		 */	
+		 */
 		void print(ConsoleOutput &output) const;
 
 		/** @brief print info about model
-		 * 
+		 *
 		 * @param output_global where to print global info
 		 * @param output_local where to print local info
-		 */	
+		 */
 		void print(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
 		/** @brief print solution of the model
-		 * 
+		 *
 		 * @param output_global where to print global part
 		 * @param output_local where to print local part
-		 */	
+		 */
 		void printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
-		
-		std::string get_name() const;
-		
-		void initialize_gammasolver(GeneralSolver **gamma_solver);
-		void updatebeforesolve_gammasolver(GeneralSolver *gamma_solver);
-		void updateaftersolve_gammasolver(GeneralSolver *gamma_solver);
-		void finalize_gammasolver(GeneralSolver **gamma_solver);
 
-		void initialize_thetasolver(GeneralSolver **theta_solver);
-		void updatebeforesolve_thetasolver(GeneralSolver *theta_solver);
-		void updateaftersolve_thetasolver(GeneralSolver *theta_solver);
-		void finalize_thetasolver(GeneralSolver **theta_solver);
-	
+		std::string get_name() const;
+
+		void gammasolver_initialize(GeneralSolver **gamma_solver);
+		void gammasolver_updatebeforesolve(GeneralSolver *gamma_solver);
+		void gammasolver_updateaftersolve(GeneralSolver *gamma_solver);
+		void gammasolver_finalize(GeneralSolver **gamma_solver);
+
+		void thetasolver_initialize(GeneralSolver **theta_solver);
+		void thetasolver_updatebeforesolve(GeneralSolver *theta_solver);
+		void thetasolver_updateaftersolve(GeneralSolver *theta_solver);
+		void thetasolver_finalize(GeneralSolver **theta_solver);
+
 		double get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver);
 		void get_linear_quadratic(double *linearL, double *quadraticL, GeneralSolver *gammasolver, GeneralSolver *thetasolver);
-		
+
 		QPData<VectorBase> *get_gammadata() const;
 		SimpleData<VectorBase> *get_thetadata() const;
 		BGMGraph<VectorBase> *get_graph() const;
@@ -122,10 +122,10 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		int get_coordinatesVTK_dim() const;
 
 		double get_aic(double L) const;
-		
+
 		void set_epssqr(double epssqr);
 		bool get_usethetainpenalty() const;
-		
+
 		int get_T_reduced() const;
 		int get_T() const;
 		Decomposition<VectorBase> *get_decomposition_reduced() const;
@@ -158,10 +158,10 @@ GraphH1FEMModel<VectorBase>::GraphH1FEMModel(TSData<VectorBase> &new_tsdata, dou
 template<class VectorBase>
 GraphH1FEMModel<VectorBase>::~GraphH1FEMModel(){
 	LOG_FUNC_BEGIN
-	
+
 	/* destroy auxiliary vectors */
 //	delete this->decomposition_reduced;
-	
+
 	LOG_FUNC_END
 }
 
@@ -172,7 +172,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	output <<  " - T                 : " << this->tsdata->get_T() << std::endl;
 	output <<  " - xdim              : " << this->tsdata->get_xdim() << std::endl;
@@ -183,11 +183,11 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output.push();
 	this->fem->print(output,output);
 	output.pop();
-	
+
 	output <<  " - K                 : " << this->tsdata->get_K() << std::endl;
 	output <<  " - R                 : " << this->tsdata->get_R() << std::endl;
 	output <<  " - epssqr            : " << this->epssqr << std::endl;
-	output <<  " - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
+	output <<  " - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl;
 
 	output <<  " - Graph             : " << std::endl;
 	output.push();
@@ -205,8 +205,8 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 		case(SOLVER_TAO): output << "TAO QP solver"; break;
 	}
 	output << std::endl;
-	
-	output.synchronize();	
+
+	output.synchronize();
 
 	LOG_FUNC_END
 }
@@ -217,7 +217,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	output_global <<  " - global info" << std::endl;
 	output_global <<  "  - T                 : " << this->tsdata->get_T() << std::endl;
@@ -233,7 +233,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
 	output_global <<  "  - R                 : " << this->tsdata->get_R() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
-	output_global <<  "  - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl; 
+	output_global <<  "  - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl;
 	output_global <<  "  - gammasolvertype   : ";
 	switch(this->gammasolvertype){
 		case(SOLVER_AUTO): output_global << "AUTO"; break;
@@ -308,7 +308,7 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 
 /* prepare gamma solver */
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammasolver){
+void GraphH1FEMModel<VectorBase>::gammasolver_initialize(GeneralSolver **gammasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -318,17 +318,17 @@ void GraphH1FEMModel<VectorBase>::initialize_gammasolver(GeneralSolver **gammaso
 
 /* prepare theta solver */
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::initialize_thetasolver(GeneralSolver **thetasolver){
+void GraphH1FEMModel<VectorBase>::thetasolver_initialize(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
 /* destroy gamma solver */
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolver){
+void GraphH1FEMModel<VectorBase>::gammasolver_finalize(GeneralSolver **gammasolver){
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
@@ -344,13 +344,13 @@ void GraphH1FEMModel<VectorBase>::finalize_gammasolver(GeneralSolver **gammasolv
 
 	/* destroy solver */
 	free(*gammasolver);
-	
+
 	LOG_FUNC_END
 }
 
 /* destroy theta solver */
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::finalize_thetasolver(GeneralSolver **thetasolver){
+void GraphH1FEMModel<VectorBase>::thetasolver_finalize(GeneralSolver **thetasolver){
 	LOG_FUNC_BEGIN
 
 	/* I created this objects, I should destroy them */
@@ -393,7 +393,7 @@ BGMGraph<VectorBase> *GraphH1FEMModel<VectorBase>::get_graph() const {
 }
 
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::updatebeforesolve_gammasolver(GeneralSolver *gammasolver){
+void GraphH1FEMModel<VectorBase>::gammasolver_updatebeforesolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -402,7 +402,7 @@ void GraphH1FEMModel<VectorBase>::updatebeforesolve_gammasolver(GeneralSolver *g
 }
 
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::updateaftersolve_gammasolver(GeneralSolver *gammasolver){
+void GraphH1FEMModel<VectorBase>::gammasolver_updateaftersolve(GeneralSolver *gammasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -413,7 +413,7 @@ void GraphH1FEMModel<VectorBase>::updateaftersolve_gammasolver(GeneralSolver *ga
 
 /* update theta solver */
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::updatebeforesolve_thetasolver(GeneralSolver *thetasolver){
+void GraphH1FEMModel<VectorBase>::thetasolver_updatebeforesolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -422,7 +422,7 @@ void GraphH1FEMModel<VectorBase>::updatebeforesolve_thetasolver(GeneralSolver *t
 }
 
 template<class VectorBase>
-void GraphH1FEMModel<VectorBase>::updateaftersolve_thetasolver(GeneralSolver *thetasolver){
+void GraphH1FEMModel<VectorBase>::thetasolver_updateaftersolve(GeneralSolver *thetasolver){
 	LOG_FUNC_BEGIN
 
 	//TODO

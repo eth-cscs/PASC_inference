@@ -23,6 +23,7 @@ class MovieData: public TSData<VectorBase> {
 		int height;		/**< height of image */
 	public:
 		MovieData(Decomposition<VectorBase> &decomposition, std::string filename_data, int width, int height);
+		MovieData(Decomposition<VectorBase> &decomposition, int width, int height);
 		~MovieData();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -32,7 +33,10 @@ class MovieData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void saveMovie(std::string filename, bool save_original=true) const;
+		void saveMovie_datavector(std::string filename) const;
+		void saveMovie_gammavector(std::string filename) const;
+		void saveMovie_reconstructed(std::string filename) const;
+
 		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
 
 		int get_width() const;
@@ -57,6 +61,16 @@ MovieData<VectorBase>::MovieData(Decomposition<VectorBase> &new_decomposition, s
 	LOG_FUNC_BEGIN
 
 	//TODO
+
+	LOG_FUNC_END
+}
+
+/* with blank datavector */
+template<class VectorBase>
+MovieData<VectorBase>::MovieData(Decomposition<VectorBase> &new_decomposition, int width, int height){
+	LOG_FUNC_BEGIN
+
+    //TODO
 
 	LOG_FUNC_END
 }
@@ -238,11 +252,29 @@ void MovieData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOut
 
 template<class VectorBase>
 std::string MovieData<VectorBase>::get_name() const {
-	return "Image Time-series Data";
+	return "Movie Time-series Data";
 }
 
 template<class VectorBase>
-void MovieData<VectorBase>::saveMovie(std::string filename, bool save_original) const{
+void MovieData<VectorBase>::saveMovie_datavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	//TODO
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void MovieData<VectorBase>::saveMovie_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	//TODO
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void MovieData<VectorBase>::saveMovie_reconstructed(std::string filename) const {
 	LOG_FUNC_BEGIN
 
 	//TODO

@@ -13,9 +13,17 @@
 #define TSSOLVER_DEFAULT_MAXIT 300
 #define TSSOLVER_DEFAULT_EPS 1e-6
 
+#define GAMMASOLVER_DEFAULT_UPDATEBEFORESOLVE true
+#define GAMMASOLVER_DEFAULT_SOLVE true
+#define GAMMASOLVER_DEFAULT_UPDATEAFTERSOLVE true
+
+#define THETASOLVER_DEFAULT_UPDATEBEFORESOLVE true
+#define THETASOLVER_DEFAULT_SOLVE true
+#define THETASOLVER_DEFAULT_UPDATEAFTERSOLVE true
+
 #define TSSOLVER_DEFAULT_DEBUGMODE 0
 
-#define TSSOLVER_DUMP false
+#define TSSOLVER_DEFAULT_DUMP false
 
 
 namespace pascinference {
@@ -31,10 +39,14 @@ class TSSolver: public GeneralSolver {
 		TSData<VectorBase> *tsdata; /**< tsdata on which the solver operates */
 
 		GeneralSolver *gammasolver; /**< to solve inner gamma problem */
-		bool gammasolved;			/**< when gamma is provided, this is true */
+		bool gammasolver_updatebeforesolve;			/**< call function from model or not */
+		bool gammasolver_solve;         			/**< call solve on appropriate solver */
+		bool gammasolver_updateaftersolve;			/**< call function from model or not */
 
 		GeneralSolver *thetasolver; /**< to solve inner theta problem */
-		bool thetasolved;			/**< when theta is provided, this is true */
+		bool thetasolver_updatebeforesolve;			/**< call function from model or not */
+		bool thetasolver_solve;         			/**< call solve on appropriate solver */
+		bool thetasolver_updateaftersolve;			/**< call function from model or not */
 
 		TSModel<VectorBase> *model; /**< pointer to used time-series model */
 
@@ -119,7 +131,15 @@ void TSSolver<VectorBase>::set_settings_from_console(){
 	consoleArg.set_option_value("tssolver_maxit", &this->maxit, TSSOLVER_DEFAULT_MAXIT);
 	consoleArg.set_option_value("tssolver_eps", &this->eps, TSSOLVER_DEFAULT_EPS);
 
-	consoleArg.set_option_value("tssolver_dump", &this->dump_or_not, TSSOLVER_DUMP);
+	consoleArg.set_option_value("tssolver_dump", &this->dump_or_not, TSSOLVER_DEFAULT_DUMP);
+
+	consoleArg.set_option_value("tssolver_gammasolver_updatebeforesolve", &this->gammasolver_updatebeforesolve, GAMMASOLVER_DEFAULT_UPDATEBEFORESOLVE);
+	consoleArg.set_option_value("tssolver_gammasolver_solve", &this->gammasolver_solve, GAMMASOLVER_DEFAULT_SOLVE);
+	consoleArg.set_option_value("tssolver_gammasolver_updateaftersolve", &this->gammasolver_updateaftersolve, GAMMASOLVER_DEFAULT_UPDATEAFTERSOLVE);
+
+	consoleArg.set_option_value("tssolver_thetasolver_updatebeforesolve", &this->thetasolver_updatebeforesolve, THETASOLVER_DEFAULT_UPDATEBEFORESOLVE);
+	consoleArg.set_option_value("tssolver_thetasolver_solve", &this->thetasolver_solve, THETASOLVER_DEFAULT_SOLVE);
+	consoleArg.set_option_value("tssolver_thetasolver_updateaftersolve", &this->thetasolver_updateaftersolve, THETASOLVER_DEFAULT_UPDATEAFTERSOLVE);
 
 	/* set debug mode */
 	consoleArg.set_option_value("tssolver_debugmode", &debugmode, TSSOLVER_DEFAULT_DEBUGMODE);
@@ -188,9 +208,6 @@ TSSolver<VectorBase>::TSSolver(){
 	this->timer_gamma_update.restart();
 	this->timer_theta_update.restart();
 
-	this->gammasolved = false;
-	this->thetasolved = false;
-
 	LOG_FUNC_END
 }
 
@@ -207,8 +224,8 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	thetasolver = NULL;
 
 	/* we can initialize solvers - based on model */
-	model->initialize_gammasolver(&gammasolver);
-	model->initialize_thetasolver(&thetasolver);
+	model->gammasolver_initialize(&gammasolver);
+	model->thetasolver_initialize(&thetasolver);
 
 	/* set settings */
 	set_settings_from_console();
@@ -235,9 +252,6 @@ TSSolver<VectorBase>::TSSolver(TSData<VectorBase> &new_tsdata, int annealing){
 	this->timer_gamma_update.restart();
 	this->timer_theta_update.restart();
 
-	this->gammasolved = false;
-	this->thetasolved = false;
-
 	LOG_FUNC_END
 }
 
@@ -248,10 +262,10 @@ TSSolver<VectorBase>::~TSSolver(){
 
 	/* destroy child solvers - based on model */
 	if(gammasolver){
-		model->finalize_gammasolver(&gammasolver);
+		model->gammasolver_finalize(&gammasolver);
 	}
 	if(thetasolver){
-		model->finalize_thetasolver(&thetasolver);
+		model->thetasolver_finalize(&thetasolver);
 	}
 
 	LOG_FUNC_END
@@ -532,17 +546,21 @@ void TSSolver<VectorBase>::solve() {
 			}
 
 			/* --- COMPUTE Theta --- */
-			if(!thetasolved){
+			if(thetasolver_updatebeforesolve){
 				this->timer_theta_update.start();
-				 model->updatebeforesolve_thetasolver(thetasolver);
+				 model->thetasolver_updatebeforesolve(thetasolver);
 				this->timer_theta_update.stop();
+            }
 
+			if(thetasolver_solve){
 				this->timer_theta_solve.start();
 				 thetasolver->solve();
 				this->timer_theta_solve.stop();
+            }
 
+			if(thetasolver_updateaftersolve){
 				this->timer_theta_update.start();
-				 model->updateaftersolve_thetasolver(thetasolver);
+				 model->thetasolver_updateaftersolve(thetasolver);
 				this->timer_theta_update.stop();
 			}
 
@@ -568,17 +586,21 @@ void TSSolver<VectorBase>::solve() {
 			}
 
 			/* --- COMPUTE gamma --- */
-			if(!gammasolved){
+			if(gammasolver_updatebeforesolve){
 				this->timer_gamma_update.start();
-				 model->updatebeforesolve_gammasolver(gammasolver);
+				 model->gammasolver_updatebeforesolve(gammasolver);
 				this->timer_gamma_update.stop();
+            }
 
+            if(gammasolver_solve){
 				this->timer_gamma_solve.start();
 				 gammasolver->solve();
 				this->timer_gamma_solve.stop();
+            }
 
+            if(gammasolver_updateaftersolve){
 				this->timer_gamma_update.start();
-				 model->updateaftersolve_gammasolver(gammasolver);
+				 model->gammasolver_updateaftersolve(gammasolver);
 				this->timer_gamma_update.stop();
 			}
 
