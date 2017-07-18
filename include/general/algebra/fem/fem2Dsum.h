@@ -201,8 +201,6 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
 	if(this->is_reduced()){
         compute_bounding_box();
 
-        int TRbegin1 = this->decomposition1->get_TRbegin();
-        int TRbegin2 = this->decomposition1->get_TRbegin();
         int Tlocal1 = this->decomposition1->get_Tlocal();
         int Tlocal2 = this->decomposition2->get_Tlocal(); /* = Tlocal1 */
 
@@ -231,7 +229,7 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
             for(int x = bounding_box1[0]; x <= bounding_box1[1]; x++){
                 for(int y = bounding_box1[2]; y <= bounding_box1[3]; y++){
                     int r = y*width1 + x; /* in original R format */
-                    overlap1_idx[t*overlap1_idx_size + (y-bounding_box1[2])*(bounding_box1[1]-bounding_box1[0]+1) + (x-bounding_box1[0])] = DD_permutation1[r];
+                    overlap1_idx[t*overlap1_idx_size + (y-bounding_box1[2])*(bounding_box1[1]-bounding_box1[0]+1) + (x-bounding_box1[0])] = t*width1*height1 + DD_permutation1[r];
                 }
             }
 		}
@@ -240,7 +238,7 @@ void Fem2DSum<VectorBase>::compute_overlaps() {
             for(int x = bounding_box2[0]; x <= bounding_box2[1]; x++){
                 for(int y = bounding_box2[2]; y <= bounding_box2[3]; y++){
                     int r = y*width2 + x; /* in original R format */
-                    overlap2_idx[t*overlap2_idx_size + (y-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (x-bounding_box2[0])] = DD_permutation2[r];
+                    overlap2_idx[t*overlap2_idx_size + (y-bounding_box2[2])*(bounding_box2[1]-bounding_box2[0]+1) + (x-bounding_box2[0])] = t*width1*height1 + DD_permutation2[r];
                 }
             }
         }

@@ -2,8 +2,8 @@
 
 WIDTH=60
 HEIGHT=40
-T=10
-K=3
+T=20
+K=4
 NOISE=0.0
 FEM_REDUCE=1.0
 FEM_TYPE=1
@@ -22,9 +22,9 @@ rm -f data/movie3dot_data.bin data/movie3dot_solution.bin data/movie3dot_gamma0.
 PARAM_FILENAME="--test_filename_in=data/movie3dot_data.bin --test_filename_solution=data/movie3dot_solution.bin --test_filename_out=movie3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM --test_type=$TYPE"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 #PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
-PARAM_THETA="--test_Theta=1.0,0.0,0.0 --test_Theta=0.0,1.0,0.0 --test_Theta=0.0,0.0,1.0 --tssolver_thetasolver_updatebeforesolve=false"
+PARAM_THETA="--test_Theta=1.0,1.0,1.0 --test_Theta=1.0,0.0,0.0 --test_Theta=0.0,1.0,0.0 --test_Theta=0.0,0.0,1.0 --tssolver_thetasolver_updatebeforesolve=false"
 #PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
-PARAM_EPSSQR="--test_epssqr=1e0"
+PARAM_EPSSQR="--test_epssqr=1e-1"
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
 PARAM_TSSOLVER="--tssolver_maxit=10 --tssolver_eps=1e-5 --tssolver_debugmode=0"
 PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/movie3dot.txt --tssolver_debug_print_gamma_solution=false"

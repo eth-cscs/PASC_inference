@@ -89,7 +89,9 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 //                          int r1_overlap = ((int)y1 - bounding_box1[2])*width_overlap1 + ((int)x1 - bounding_box1[0]);
 
                             if(xx1 >= 0 & xx1 < width1 & yy1 >= 0 & yy1 <= height1 & r1_overlap >= 0 & r1_overlap < overlap1_idx_size){
-                                value += gammak1_arr[t*this->overlap1_idx_size + r1_overlap];
+//                                value += gammak1_arr[t*this->overlap1_idx_size + r1_overlap];
+                                value += gammak1_arr[r1_overlap];
+
                                 nmb++;
                             }
 

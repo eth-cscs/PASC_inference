@@ -140,11 +140,6 @@ void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename, int t
 
 	std::ostringstream oss_name_of_file;
 
-	/* prepare vectors to save as a permutation to original layout */
-	Vec datasave_Vec;
-	this->decomposition->createGlobalVec_data(&datasave_Vec);
-	GeneralVector<PetscVector> datasave(datasave_Vec);
-
 	/* compute recovered image */
 	Vec gammak_Vec;
 	IS gammak_is;
@@ -154,7 +149,6 @@ void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename, int t
 	Vec data_recovered_Vec;
 	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
 	TRYCXX( VecSet(data_recovered_Vec,0.0));
-	GeneralVector<PetscVector> data_recovered(data_recovered_Vec);
 
 	double *theta_arr;
 	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
@@ -178,8 +172,8 @@ void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename, int t
 
 			/* restore data */
 			TRYCXX( VecRestoreSubVector(data_recovered_Vec, datan_is, &datan_recovered_Vec) );
-			TRYCXX( ISDestroy(&datan_is) );
 
+			TRYCXX( ISDestroy(&datan_is) );
 		}
 
 		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
@@ -188,10 +182,11 @@ void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename, int t
 
 	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
 
-	/* save recovered data */
-	oss_name_of_file << "results/" << filename << "_recovered.bin";
+	/* permute recovered data */
+	/* prepare vectors to save as a permutation to original layout */
+	Vec datasave_Vec;
+    TRYCXX( VecDuplicate(data_recovered_Vec, &datasave_Vec) );
 
-	/* but at first, permute recovered data, datasave can be used */
 	if(type == 0){
         this->decomposition->permute_TRb_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
     }
@@ -202,6 +197,9 @@ void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename, int t
         this->decomposition->permute_bTR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
     }
 
+	/* save recovered data */
+	oss_name_of_file << "results/" << filename << "_recovered.bin";
+	GeneralVector<PetscVector> datasave(datasave_Vec);
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 

@@ -154,11 +154,11 @@ void Decomposition<PetscVector>::compute_rank(){
             TRYCXX( VecDestroy(&layout));
         } else {
             /* only in space */
-            TRbegin = get_Rbegin();
+            TRbegin = get_Rbegin()*get_Tlocal();
         }
 	} else {
         /* only in time */
-        TRbegin = get_Tbegin();
+        TRbegin = get_Tbegin()*get_Rlocal();
     }
 
 	LOG_FUNC_END
@@ -246,7 +246,11 @@ void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	LOG_FUNC_BEGIN
 
 	int TRbegin = get_TRbegin();
+	int Tbegin = get_Tbegin();
+	int Tend = get_Tend();
 	int Tlocal = get_Tlocal();
+	int Rbegin = get_Rbegin();
+	int Rend = get_Rend();
 	int Rlocal = get_Rlocal();
 	int local_size = Tlocal*Rlocal*blocksize;
 
@@ -260,8 +264,18 @@ void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
 
-	/* original data is TRb, therefore there is not necessity to transfer it to TRb */
-	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, local_size, TRbegin, 1 , &orig_local_is) );
+ 	/* original data is TRb */
+	/* transfer it to TRb decomposed */
+	for(int t=0;t<Tlocal;t++){
+		for(int r=0;r<Rlocal;r++){
+            for(int k=0;k<blocksize;k++){
+				orig_local_arr[t*Rlocal*blocksize + r*blocksize + k] = (Tbegin+t)*blocksize*R + (Rbegin+r)*blocksize + k;
+			}
+		}
+	}
+
+	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
+//	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
 	createIS_dTRb(&new_local_is, blocksize);
 
@@ -293,6 +307,7 @@ template<>
 void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
+	int TRbegin = get_TRbegin();
 	int Tbegin = get_Tbegin();
 	int Tend = get_Tend();
 	int Tlocal = get_Tlocal();
@@ -311,8 +326,7 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
 
-
-	/* original data is bTR */
+ 	/* original data is bTR */
 	/* transfer it to TRb */
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
@@ -418,6 +432,7 @@ void Decomposition<PetscVector>::createIS_dTRb(IS *is, int blocksize) const {
 
 	LOG_FUNC_BEGIN
 
+	int TRbegin = get_TRbegin();
 	int Tbegin = get_Tbegin();
 	int Tend = get_Tend();
 	int Tlocal = get_Tlocal();

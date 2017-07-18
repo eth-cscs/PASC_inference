@@ -15,9 +15,9 @@
 #define DEFAULT_WIDTH 30
 #define DEFAULT_HEIGHT 20
 #define DEFAULT_T 10
-
+#define DEFAULT_TYPE 1
 #define DEFAULT_K 2
-
+#define DEFAULT_XDIM 1
 #define DEFAULT_NOISE 0.1
 
 #define DEFAULT_FILENAME_DATA "data/test_movie/dotmovie.bin"
@@ -40,6 +40,8 @@ int main( int argc, char *argv[] )
 		("test_height", boost::program_options::value< int >(), "height of movie [int]")
 		("test_T", boost::program_options::value< int >(), "number of frames in movie [int]")
 		("test_K", boost::program_options::value< int >(), "number of clusters for gamma0 [int]")
+		("test_xdim", boost::program_options::value< int >(), "number of pixel values [int]")
+		("test_type", boost::program_options::value< int >(), "type of output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_noise", boost::program_options::value< double >(), "parameter of noise [double]")
 		("test_generate_data", boost::program_options::value< bool >(), "generate solution and data with noise [bool]")
 		("test_generate_gamma0", boost::program_options::value< bool >(), "generate gamma0 [bool]");
@@ -55,8 +57,9 @@ int main( int argc, char *argv[] )
     timer_all.start();
 
 	int width, height, T;
-	int K;
+	int K, xdim;
 	double noise;
+	int type;
 	std::string filename_data;
 	std::string filename_solution;
 	std::string filename_gamma0;
@@ -69,6 +72,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
 	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("test_noise", &noise, DEFAULT_NOISE);
 	consoleArg.set_option_value("test_generate_data", &generate_data, DEFAULT_GENERATE_DATA);
 	consoleArg.set_option_value("test_generate_gamma0", &generate_gamma0, DEFAULT_GENERATE_GAMMA0);
@@ -77,7 +82,9 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_width                  = " << std::setw(30) << width << " (width of movie)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(30) << height << " (height of movie)" << std::endl;
 	coutMaster << " test_T                      = " << std::setw(30) << T << " (number of frames in movie)" << std::endl;
+	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (number of pixel values)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters for gamma0)" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(30) << type << " (type of output vector [0=TRn, 1=TnR, 2=nTR])" << std::endl;
 	coutMaster << " test_noise                  = " << std::setw(30) << noise << " (parameter of noise)" << std::endl;
 	coutMaster << " test_filename_data          = " << std::setw(30) << filename_data << " (name of output file with movie data)" << std::endl;
 	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of output file with original movie data without noise)" << std::endl;
@@ -89,13 +96,15 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
-    double mu1 = 1.0; /* color of background */
-    double mu2 = 0.0; /* color of dot */
+    double mu0 = 1.0; /* color of background */
+    double mu1 = 0.0; /* color of dot */
+
+    double r = width*0.2;   /* radius of sphere */
 
 	/* allocate vector of data */
 	Vec x_Vec; /* solution in TR format*/
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&x_Vec) );
-	TRYCXX( VecSetSizes(x_Vec,PETSC_DECIDE,T*width*height) );
+	TRYCXX( VecSetSizes(x_Vec,PETSC_DECIDE,T*width*height*xdim) );
 	TRYCXX( VecSetType(x_Vec, VECSEQ) ); //TODO: MPI generator?
 	TRYCXX( VecSetFromOptions(x_Vec) );
 
@@ -115,31 +124,52 @@ int main( int argc, char *argv[] )
 		std::normal_distribution<double> distribution(0.0,noise);
 
         double c[3];            /* center of sphere */
-        double r = width*0.3;   /* radius of sphere */
-        double value;
+        double value[xdim];
         for(int t=0; t < T; t++){
             /* compute new center of sphere */
-            c[0] = width*(0.3 + t*0.05);
-            c[1] = height*(0.5 + t*0.01);
+            c[0] = width*(0.3 + t*0.02);
+            c[1] = height*(0.5 + t*0.005);
 
             for(int i=0;i<width;i++){
                 for(int j=0;j<height;j++){
                     if( (i-c[0])*(i-c[0]) + (j-c[1])*(j-c[1]) <= r*r ){
                         /* this point is sphere */
-                        value = mu2;
+                        for(int n=0; n < xdim; n++){
+                            value[n] = mu1;
+                        }
                     } else {
                         /* this point is background */
-                        value = mu1;
+                        for(int n=0; n < xdim; n++){
+                            value[n] = mu0;
+                        }
                     }
 
-                    /* store computed value on right (!) position */
-                    x_arr[t*width*height + j*width + i] = value;
+					for(int n=0; n < xdim; n++){
+						int idx = 0;
 
-                    /* add noise */
-                    double noised_value = value + distribution(generator);
-                    if(noised_value < 0.0) noised_value = 0.0;
-                    if(noised_value > 1.0) noised_value = 1.0;
-                    xdata_arr[t*width*height + j*width + i] = noised_value;
+						/* 0=TRn */
+						if(type == 0){
+							idx = t*xdim*width*height + j*width*xdim + i*xdim + n;
+						}
+
+						/* 1=TnR */
+						if(type == 1){
+							idx = t*xdim*width*height + n*width*height + j*width + i;
+						}
+
+						/* 2=nTR] */
+						if(type == 2){
+							idx = n*T*width*height + t*width*height + j*width + i;
+						}
+
+						x_arr[idx] = value[n];
+
+						/* add noise */
+						double noised_value = value[n] + distribution(generator);
+						if(noised_value < 0.0) noised_value = 0.0;
+						if(noised_value > 1.0) noised_value = 1.0;
+						xdata_arr[idx] = noised_value;
+					}
                 }
             }
         }

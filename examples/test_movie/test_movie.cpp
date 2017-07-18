@@ -314,6 +314,9 @@ int main( int argc, char *argv[] )
 	/* print info about model */
 	if(printinfo) mymodel.print(coutMaster,coutAll);
 
+    //TODO:temp
+    ((Fem2DSum<PetscVector> *)fem)->saveVTK_bounding_box("results/test1.vtk", "results/test2.vtk");
+
 /* 5.) prepare time-series solver */
 	coutMaster << "--- PREPARING SOLVER ---" << std::endl;
 

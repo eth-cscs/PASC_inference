@@ -2,27 +2,32 @@
 
 WIDTH=60
 HEIGHT=40
-T=20
+T=10
 K=2
-NOISE=0.8
-FEM_REDUCE=0.5
+NOISE=0.0
+FEM_REDUCE=0.9
 FEM_TYPE=1
+TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
 XDIM=1
 ANNEALING=1
+NPROC=3
 
 # remove old data
 rm -f data/moviedot_data.bin data/moviedot_solution.bin data/moviedot_gamma0.bin results/moviedot_recovered.bin results/moviedot_gamma.bin
 
 # generate problem
-./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_filename_gamma0=data/moviedot_gamma0.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true
+./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_filename_gamma0=data/moviedot_gamma0.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_type=$TYPE --test_xdim=$XDIM
 
 # define parameters
-PARAM_FILENAME="--test_filename_in=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
+PARAM_FILENAME="--test_filename_in=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_type=$TYPE --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
-#PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
+
 PARAM_THETA="--test_Theta=0.1 --test_Theta=0.9 --tssolver_thetasolver_updatebeforesolve=false"
+#PARAM_THETA="--test_Theta=0.1,0.1,0.1 --test_Theta=0.9,0.9,0.9 --tssolver_thetasolver_updatebeforesolve=false"
+
 #PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
 PARAM_EPSSQR="--test_epssqr=1e0"
+
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
 PARAM_TSSOLVER="--tssolver_maxit=10 --tssolver_eps=1e-5 --tssolver_debugmode=0"
 PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/moviedot.txt --tssolver_debug_print_gamma_solution=false"
@@ -40,8 +45,8 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
 
 ## run the job
-./test_movie $PARAM_ALL
-#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
+#./test_movie $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
 #mpiexec -n $NPROC ./test_image $PARAM_ALL
 #./test_image $PARAM_ALL
 
@@ -49,17 +54,17 @@ PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $P
 # show results
 if [ -f data/moviedot_data.bin ]
 then
-	./gui_show_movie --filename=data/moviedot_data.bin --width=$WIDTH --T=$T --xdim=1 --title="movie data" &
+	./gui_show_movie --filename=data/moviedot_data.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$TYPE &
 fi
 
 if [ -f results/moviedot_recovered.bin ]
 then
-	./gui_show_movie --filename=results/moviedot_recovered.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" &
+	./gui_show_movie --filename=results/moviedot_recovered.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$TYPE &
 fi
 
 if [ -f results/moviedot_gamma.bin ]
 then
-	./gui_show_movie --filename=results/moviedot_gamma.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie gamma" &
+	./gui_show_movie --filename=results/moviedot_gamma.bin --width=$WIDTH --T=$T --xdim=1 --title="movie gamma" --type=1 &
 fi
 
 
