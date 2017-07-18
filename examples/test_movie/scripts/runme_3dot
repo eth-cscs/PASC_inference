@@ -1,0 +1,66 @@
+#!/bin/bash   
+
+WIDTH=60
+HEIGHT=40
+T=10
+K=3
+NOISE=0.0
+FEM_REDUCE=1.0
+FEM_TYPE=1
+TYPE=2
+XDIM=3
+ANNEALING=1
+NPROC=3
+
+# remove old data
+rm -f data/movie3dot_data.bin data/movie3dot_solution.bin data/movie3dot_gamma0.bin results/movie3dot_recovered.bin results/movie3dot_gamma.bin
+
+# generate problem
+./test_movie_generate_3dot --test_width=$WIDTH --test_height=$HEIGHT --test_type=$TYPE --test_T=$T --test_filename_data=data/movie3dot_data.bin --test_filename_solution=data/movie3dot_solution.bin --test_filename_gamma0=data/movie3dot_gamma0.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true
+
+# define parameters
+PARAM_FILENAME="--test_filename_in=data/movie3dot_data.bin --test_filename_solution=data/movie3dot_solution.bin --test_filename_out=movie3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM --test_type=$TYPE"
+PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
+#PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
+PARAM_THETA="--test_Theta=1.0,0.0,0.0 --test_Theta=0.0,1.0,0.0 --test_Theta=0.0,0.0,1.0 --tssolver_thetasolver_updatebeforesolve=false"
+#PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
+PARAM_EPSSQR="--test_epssqr=1e0"
+PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
+PARAM_TSSOLVER="--tssolver_maxit=10 --tssolver_eps=1e-5 --tssolver_debugmode=0"
+PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/movie3dot.txt --tssolver_debug_print_gamma_solution=false"
+PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
+
+PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
+PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
+
+PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
+
+## additional PETSc parameters
+PARAM_PETSC="--petsc_options=\"\""
+
+## concrenate all parameters
+PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
+
+## run the job
+#./test_movie $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
+#mpiexec -n $NPROC ./test_image $PARAM_ALL
+#./test_image $PARAM_ALL
+
+
+# show results
+if [ -f data/movie3dot_data.bin ]
+then
+	./gui_show_movie --filename=data/movie3dot_data.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$TYPE &
+fi
+
+if [ -f results/movie3dot_recovered.bin ]
+then
+	./gui_show_movie --filename=results/movie3dot_recovered.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$TYPE &
+fi
+
+if [ -f results/movie3dot_gamma.bin ]
+then
+	./gui_show_movie --filename=results/moviedot_gamma.bin --width=$WIDTH --T=$T --xdim=1 --title="movie gamma" --type=1 &
+fi
+

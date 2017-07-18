@@ -4,7 +4,7 @@ namespace pascinference {
 namespace data {
 
 template<>
-ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, std::string filename_data, int width, int height){
+ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, int width, int height, std::string filename_data){
 	LOG_FUNC_BEGIN
 
 	this->width = width;

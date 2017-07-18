@@ -25,7 +25,7 @@ PARAM_THETA="--test_Theta=0.1 --test_Theta=0.9 --tssolver_thetasolver_updatebefo
 PARAM_EPSSQR="--test_epssqr=1e0"
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
 PARAM_TSSOLVER="--tssolver_maxit=10 --tssolver_eps=1e-5 --tssolver_debugmode=0"
-PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/illia_avatar.txt --tssolver_debug_print_gamma_solution=false"
+PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/moviedot.txt --tssolver_debug_print_gamma_solution=false"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
 PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"

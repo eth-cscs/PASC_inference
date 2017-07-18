@@ -22,7 +22,7 @@ class MovieData: public TSData<VectorBase> {
 		int width;		/**< width of image */
 		int height;		/**< height of image */
 	public:
-		MovieData(Decomposition<VectorBase> &decomposition, std::string filename_data, int width, int height);
+		MovieData(Decomposition<VectorBase> &decomposition, int width, int height, std::string filename_data, int type = 1);
 		MovieData(Decomposition<VectorBase> &decomposition, int width, int height);
 		~MovieData();
 
@@ -33,15 +33,17 @@ class MovieData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void saveMovie_datavector(std::string filename) const;
+		void saveMovie_datavector(std::string filename, int type = 1) const;
 		void saveMovie_gammavector(std::string filename) const;
-		void saveMovie_reconstructed(std::string filename) const;
+		void saveMovie_reconstructed(std::string filename, int type = 1) const;
 
 		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
 
 		int get_width() const;
 		int get_height() const;
 		int get_nvalues() const;
+
+		static std::string get_type_name(int type);
 
 };
 
@@ -57,7 +59,7 @@ namespace data {
 
 /* from filename */
 template<class VectorBase>
-MovieData<VectorBase>::MovieData(Decomposition<VectorBase> &new_decomposition, std::string filename_data, int width, int height){
+MovieData<VectorBase>::MovieData(Decomposition<VectorBase> &new_decomposition, int width, int height, std::string filename_data, int type){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -256,7 +258,7 @@ std::string MovieData<VectorBase>::get_name() const {
 }
 
 template<class VectorBase>
-void MovieData<VectorBase>::saveMovie_datavector(std::string filename) const {
+void MovieData<VectorBase>::saveMovie_datavector(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -274,7 +276,7 @@ void MovieData<VectorBase>::saveMovie_gammavector(std::string filename) const {
 }
 
 template<class VectorBase>
-void MovieData<VectorBase>::saveMovie_reconstructed(std::string filename) const {
+void MovieData<VectorBase>::saveMovie_reconstructed(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -306,6 +308,18 @@ int MovieData<VectorBase>::get_height() const {
 template<class VectorBase>
 int MovieData<VectorBase>::get_nvalues() const {
 	return this->get_xdim() * this->width * this->height;
+}
+
+template<class VectorBase>
+std::string MovieData<VectorBase>::get_type_name(int type){
+	std::ostringstream sout;
+
+	if(type == 0) sout << "TRn";
+	if(type == 1) sout << "TnR";
+	if(type == 2) sout << "nTR";
+	if(type < 0 | type > 2) sout << "error";
+
+	return sout.str();
 }
 
 

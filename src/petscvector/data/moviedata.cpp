@@ -4,7 +4,7 @@ namespace pascinference {
 namespace data {
 
 template<>
-MovieData<PetscVector>::MovieData(Decomposition<PetscVector> &new_decomposition, std::string filename_data, int width, int height){
+MovieData<PetscVector>::MovieData(Decomposition<PetscVector> &new_decomposition, int width, int height, std::string filename_data, int type){
 	LOG_FUNC_BEGIN
 
 	this->width = width;
@@ -23,7 +23,16 @@ MovieData<PetscVector>::MovieData(Decomposition<PetscVector> &new_decomposition,
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 
 	/* permute orig to new using parallel layout */
-	this->decomposition->permute_bTR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+	/* type=0 -> TRn; type=1 -> TnR; type=2 -> nTR; */
+	if(type == 0){
+        this->decomposition->permute_TRb_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+    }
+	if(type == 1){
+        this->decomposition->permute_TbR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+    }
+	if(type == 2){
+        this->decomposition->permute_bTR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+    }
 
 	/* destroy preloaded vector */
 //	TRYCXX( VecDestroy(&datapreload_Vec) );
@@ -58,7 +67,7 @@ MovieData<PetscVector>::MovieData(Decomposition<PetscVector> &new_decomposition,
 }
 
 template<>
-void MovieData<PetscVector>::saveMovie_datavector(std::string filename) const {
+void MovieData<PetscVector>::saveMovie_datavector(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
 
 	Timer timer_saveMovie;
@@ -74,7 +83,15 @@ void MovieData<PetscVector>::saveMovie_datavector(std::string filename) const {
 
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	oss_name_of_file << "results/" << filename << "_datavector.bin";
-	this->decomposition->permute_TbR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+	if(type == 0){
+        this->decomposition->permute_TRb_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+    }
+	if(type == 1){
+        this->decomposition->permute_TbR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+    }
+	if(type == 2){
+        this->decomposition->permute_bTR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+    }
 
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
@@ -114,7 +131,7 @@ void MovieData<PetscVector>::saveMovie_gammavector(std::string filename) const {
 }
 
 template<>
-void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename) const {
+void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
 
 	Timer timer_saveMovie;
@@ -175,7 +192,15 @@ void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename) const
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
 
 	/* but at first, permute recovered data, datasave can be used */
-	this->decomposition->permute_TbR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+	if(type == 0){
+        this->decomposition->permute_TRb_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+    }
+	if(type == 1){
+        this->decomposition->permute_TbR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+    }
+	if(type == 2){
+        this->decomposition->permute_bTR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+    }
 
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");

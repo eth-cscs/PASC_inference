@@ -242,6 +242,54 @@ void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const {
 }
 
 template<>
+void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
+	LOG_FUNC_BEGIN
+
+	int TRbegin = get_TRbegin();
+	int Tlocal = get_Tlocal();
+	int Rlocal = get_Rlocal();
+	int local_size = Tlocal*Rlocal*blocksize;
+
+	IS orig_local_is;
+	IS new_local_is;
+
+	Vec orig_local_Vec;
+	Vec new_local_Vec;
+
+	/* prepare index set with local data */
+	int *orig_local_arr;
+	orig_local_arr = new int [local_size];
+
+	/* original data is TRb, therefore there is not necessity to transfer it to TRb */
+	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, local_size, TRbegin, 1 , &orig_local_is) );
+
+	createIS_dTRb(&new_local_is, blocksize);
+
+	/* get subvector with local values from original data */
+	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRYCXX( VecGetSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+
+	/* copy values */
+	if(!invert){
+		TRYCXX( VecCopy(orig_local_Vec, new_local_Vec) );
+	} else {
+		TRYCXX( VecCopy(new_local_Vec, orig_local_Vec) );
+	}
+
+	/* restore subvector with local values from original data */
+	TRYCXX( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
+	TRYCXX( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+
+	/* destroy used stuff */
+	TRYCXX( ISDestroy(&orig_local_is) );
+	TRYCXX( ISDestroy(&new_local_is) );
+
+	TRYCXX( PetscBarrier(NULL));
+
+	LOG_FUNC_END
+}
+
+template<>
 void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
@@ -302,7 +350,6 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 
 	LOG_FUNC_END
 }
-
 
 template<>
 void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {

@@ -20,6 +20,7 @@ template<> void Decomposition<PetscVector>::set_new_graph(BGMGraph<PetscVector> 
 template<> void Decomposition<PetscVector>::createGlobalVec_gamma(Vec *x_Vec) const;
 template<> void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const;
 
+template<> void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 template<> void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 template<> void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 

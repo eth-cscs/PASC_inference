@@ -22,7 +22,7 @@ class ImageData: public TSData<VectorBase> {
 		int width;		/**< width of image */
 		int height;		/**< height of image */
 	public:
-		ImageData(Decomposition<VectorBase> &decomposition, std::string filename_data, int width, int height);
+		ImageData(Decomposition<VectorBase> &decomposition, int width, int height, std::string filename_data);
 		ImageData(Decomposition<VectorBase> &decomposition, int width, int height);
 		~ImageData();
 
@@ -57,7 +57,7 @@ namespace data {
 
 /* from filename */
 template<class VectorBase>
-ImageData<VectorBase>::ImageData(Decomposition<VectorBase> &new_decomposition, std::string filename_data, int width, int height){
+ImageData<VectorBase>::ImageData(Decomposition<VectorBase> &new_decomposition, int width, int height, std::string filename_data){
 	LOG_FUNC_BEGIN
 
 	//TODO

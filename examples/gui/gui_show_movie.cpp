@@ -14,6 +14,7 @@
 
 #define ENABLE_ASSERTS
 #define DLIB_JPEG_SUPPORT
+//#define DLIB_PNG_SUPPORT
 
 #include <dlib/gui_widgets.h>
 #include <sstream>
@@ -54,6 +55,7 @@ class movieplotter : public drawable {
 		void set_plotting_area(rectangle area);
 		void load_movie( const std::string& file_name, int new_xdim );
 		void save_image(const std::string& file_name);
+		void save_movie(const std::string& file_name);
 
 		bool get_myvector_loaded();
 		Vec *get_myvector_Vec();
@@ -65,6 +67,7 @@ class movieplotter : public drawable {
 		int get_T() const;
 		double get_scale() const;
 		int get_xdim() const;
+		int get_type() const;
 
 		std::string get_filename() const;
 
@@ -89,6 +92,8 @@ private:
 	label label_scale;
 	text_field select_xdim;
 	label label_xdim;
+	text_field select_type;
+	label label_type;
 
 	scroll_bar *timescroll;
 	label t_label;
@@ -98,10 +103,12 @@ private:
 
     void load_movie( const std::string& file_name );
     void save_image( const std::string& file_name );
+    void save_movie( const std::string& file_name );
 
 	/* menu events */
     void on_menu_file_open ();
-	void on_menu_file_save();
+	void on_menu_file_save_image();
+	void on_menu_file_save_movie();
     void on_menu_file_quit ();
     void on_menu_help_about();
 
@@ -119,6 +126,8 @@ public:
     show_movie_window(int type);
     show_movie_window(std::string filename, int type, std::string title, int width = 0, int T = 1, int xdim = 0);
     ~show_movie_window();
+
+    std::string get_type_name(int type) const;
 
 };
 
@@ -180,6 +189,8 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 		label_scale(*this),
         select_xdim(*this),
 		label_xdim(*this),
+        select_type(*this),
+		label_type(*this),
         button_apply_size(*this),
         mymovieplotter(*this, type)
 {
@@ -191,7 +202,7 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 	timescroll = new scroll_bar(*this, scroll_bar::HORIZONTAL);
 	timescroll->set_scroll_handler( *this, &show_movie_window::on_timescroll );
 	timescroll->set_length(180);
-	timescroll->set_pos(10,240);
+	timescroll->set_pos(10,250);
 	timescroll->disable();
 	timescroll->hide();
 
@@ -204,10 +215,10 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 	/* main timer */
 	t = 0;
 	mymovieplotter.set_t(t);
-    t_label.set_pos(10,210);
+    t_label.set_pos(10,270);
 
     /* prepare position of labels of vector properties */
-    labels_myvector_properties[0]->set_pos(10,270);
+    labels_myvector_properties[0]->set_pos(10,300);
 	for(int i=1; i < 9; i++){
 		labels_myvector_properties[i]->set_pos(labels_myvector_properties[i-1]->left(),labels_myvector_properties[i-1]->bottom()+20);
 	}
@@ -221,8 +232,9 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
     mbar.set_menu_name(1,"Help",'H');
 
     /* add the entries to the File menu. */
-    mbar.menu(0).add_menu_item(menu_item_text("Open",   *this, &show_movie_window::on_menu_file_open,    'O'));
-    mbar.menu(0).add_menu_item(menu_item_text("Save",   *this, &show_movie_window::on_menu_file_save,    'S'));
+    mbar.menu(0).add_menu_item(menu_item_text("Open movie",   *this, &show_movie_window::on_menu_file_open,    'O'));
+    mbar.menu(0).add_menu_item(menu_item_text("Save image",   *this, &show_movie_window::on_menu_file_save_image,    'A'));
+    mbar.menu(0).add_menu_item(menu_item_text("Save movie",   *this, &show_movie_window::on_menu_file_save_movie,    'S'));
     mbar.menu(0).add_menu_item(menu_item_separator());
     mbar.menu(0).add_menu_item(menu_item_text("Quit",   *this, &show_movie_window::on_menu_file_quit,    'Q'));
 
@@ -262,10 +274,17 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 	label_xdim.set_pos(10,155);
 	label_xdim.set_text("xdim   :");
 
+	select_type.set_pos(120,180);
+	select_type.set_width(70);
+	select_type.set_text(get_type_name(mymovieplotter.get_type()));
+	label_type.set_pos(10,185);
+	label_type.set_text("type   :");
+	select_type.disable();
+
 	/* register button for changing the size */
 	button_apply_size.set_click_handler(*this, &show_movie_window::on_button_apply_size);
 	button_apply_size.set_name("apply size");
-	button_apply_size.set_pos(120,180);
+	button_apply_size.set_pos(120,210);
 
 	/* arrange the window */
 	on_window_resized();
@@ -314,9 +333,14 @@ void show_movie_window::on_menu_file_open(){
     open_existing_file_box(*this, &show_movie_window::load_movie);
 }
 
-void show_movie_window::on_menu_file_save(){
+void show_movie_window::on_menu_file_save_image(){
     /* display a file chooser window and when the user choses a file */
     save_file_box(*this, &show_movie_window::save_image);
+}
+
+void show_movie_window::on_menu_file_save_movie(){
+    /* display a file chooser window and when the user choses a file */
+    save_file_box(*this, &show_movie_window::save_movie);
 }
 
 void show_movie_window::on_menu_file_quit(){
@@ -362,6 +386,10 @@ void show_movie_window::load_movie( const std::string& file_name ) {
 
 void show_movie_window::save_image( const std::string& file_name ) {
 	mymovieplotter.save_image(file_name);
+}
+
+void show_movie_window::save_movie( const std::string& file_name ) {
+	mymovieplotter.save_movie(file_name);
 }
 
 void show_movie_window::fill_labels() {
@@ -434,6 +462,17 @@ void show_movie_window::on_button_apply_size(){
 		fill_labels();
 	}
 
+}
+
+std::string show_movie_window::get_type_name(int type) const{
+	std::ostringstream sout;
+
+	if(type == 0) sout << "TRn";
+	if(type == 1) sout << "TnR";
+	if(type == 2) sout << "nTR";
+	if(type < 0 | type > 2) sout << "error";
+
+	return sout.str();
 }
 
 /* ------------------------- movie plotter -------------- */
@@ -541,24 +580,30 @@ void movieplotter::save_image( const std::string& file_name ) {
 				image_dlib[i][j].blue = x_arr[t*R + i*movie_width + j]*255;
 			}
 
-			/* rgb - Rn */
-/*			if(type==0){
-				if(movie_xdim==3){
-					image_dlib[i][j].red   = x_arr[i*movie_width + j*movie_xdim + 0]*255;
-					image_dlib[i][j].green = x_arr[i*movie_width + j*movie_xdim + 1]*255;
-					image_dlib[i][j].blue  = x_arr[i*movie_width + j*movie_xdim + 2]*255;
-				}
-			}
-*/
-			/* rgb - nR */
-/*			if(type==1){
-				if(movie_xdim==3){
-					image_dlib[i][j].red   = x_arr[0*movie_width*movie_height + i*movie_width + j]*255;
-					image_dlib[i][j].green = x_arr[1*movie_width*movie_height + i*movie_width + j]*255;
-					image_dlib[i][j].blue  = x_arr[2*movie_width*movie_height + i*movie_width + j]*255;
-				}
-			}
-*/
+            if(movie_xdim==3){
+
+                /* TRn */
+                if(type == 0){
+                    image_dlib[i][j].red   = x_arr[t*movie_xdim*movie_width*movie_height + i*movie_width*movie_xdim + j*movie_xdim + 0]*255;
+                    image_dlib[i][j].green = x_arr[t*movie_xdim*movie_width*movie_height + i*movie_width*movie_xdim + j*movie_xdim + 1]*255;
+                    image_dlib[i][j].blue  = x_arr[t*movie_xdim*movie_width*movie_height + i*movie_width*movie_xdim + j*movie_xdim + 2]*255;
+                }
+
+                /* TnR */
+                if(type == 1){
+                    image_dlib[i][j].red   = x_arr[t*movie_xdim*movie_width*movie_height + 0*movie_width*movie_height + i*movie_width + j]*255;
+                    image_dlib[i][j].green = x_arr[t*movie_xdim*movie_width*movie_height + 1*movie_width*movie_height + i*movie_width + j]*255;
+                    image_dlib[i][j].blue  = x_arr[t*movie_xdim*movie_width*movie_height + 2*movie_width*movie_height + i*movie_width + j]*255;
+                }
+
+                /* nTR */
+                if(type == 2){
+                    image_dlib[i][j].red   = x_arr[0*movie_T*movie_width*movie_height + t*movie_width*movie_height + i*movie_width + j]*255;
+                    image_dlib[i][j].green = x_arr[1*movie_T*movie_width*movie_height + t*movie_width*movie_height + i*movie_width + j]*255;
+                    image_dlib[i][j].blue  = x_arr[2*movie_T*movie_width*movie_height + t*movie_width*movie_height + i*movie_width + j]*255;
+                }
+
+            }
 		}
 	}
 	TRYCXX( VecRestoreArray(*myvector_Vec, &x_arr) );
@@ -569,10 +614,22 @@ void movieplotter::save_image( const std::string& file_name ) {
 		coutMaster << "jpeg saved: " << file_name << std::endl;
 		saved = true;
 	}
+	if(extension.compare(".png")){
+//		save_png(image_dlib , file_name, 75);
+//		coutMaster << "png saved: " << file_name << std::endl;
+//		saved = true;
+	}
 
 	if(!saved){
 		coutMaster << "ERROR: extension of file '" << extension << "' was not recognized." << std::endl;
 	}
+}
+
+void movieplotter::save_movie( const std::string& file_name ) {
+	coutMaster << std::endl;
+	coutMaster << "saving movie : " << file_name << std::endl;
+
+    coutMaster << "not implemented yet." << std::endl;
 }
 
 Vec * movieplotter::get_myvector_Vec(){
@@ -640,15 +697,21 @@ void movieplotter::plot_image(const canvas& c) const{
 			rect_pixel.set_right(x_begin + (x_coor+1)*pixel_size);
 			rect_pixel.set_bottom(y_begin + (y_coor+1)*pixel_size);
 
-			/* Rn */
+			/* TRn */
 			if(type == 0){
 				fill_rect(c,rect_pixel,rgb_pixel(values[(t*R+r)*movie_xdim+0]*255,values[(t*R+r)*movie_xdim+1]*255,values[(t*R+r)*movie_xdim+2]*255));
 			}
 
-			/* nR */
+			/* TnR */
 			if(type == 1){
-				fill_rect(c,rect_pixel,rgb_pixel(values[(t*R + 0*R)*movie_xdim + r]*255,values[(t*R + 1*R)*movie_xdim + r]*255,values[(t*R + 2*R)*movie_xdim + r]*255));
+				fill_rect(c,rect_pixel,rgb_pixel(values[t*movie_xdim*R + 0*R + r]*255,values[t*movie_xdim*R + 1*R + r]*255,values[t*movie_xdim*R + 2*R + r]*255));
 			}
+
+			/* nTR */
+			if(type == 2){
+				fill_rect(c,rect_pixel,rgb_pixel(values[0*movie_T*movie_width*movie_height + t*R + r]*255,values[1*movie_T*movie_width*movie_height + t*R + r]*255,values[2*movie_T*movie_width*movie_height + t*R + r]*255));
+			}
+
 		}
 	}
 
@@ -735,6 +798,10 @@ void movieplotter::recompute_scale() {
 	}
 }
 
+int movieplotter::get_type() const{
+	return this->type;
+}
+
 std::string cut_filename(const std::string &input){
 	std::ostringstream sout;
 	boost::filesystem::path p(input);
@@ -750,3 +817,4 @@ std::string cut_extension(const std::string &input){
 
 	return sout.str();
 }
+

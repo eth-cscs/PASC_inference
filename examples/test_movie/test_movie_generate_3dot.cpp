@@ -18,6 +18,7 @@
 #define DEFAULT_WIDTH 30
 #define DEFAULT_HEIGHT 20
 #define DEFAULT_T 10
+#define DEFAULT_TYPE 1
 
 #define DEFAULT_K 2
 
@@ -43,6 +44,7 @@ int main( int argc, char *argv[] )
 		("test_height", boost::program_options::value< int >(), "height of movie [int]")
 		("test_T", boost::program_options::value< int >(), "number of frames in movie [int]")
 		("test_K", boost::program_options::value< int >(), "number of clusters for gamma0 [int]")
+		("test_type", boost::program_options::value< int >(), "type of output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_noise", boost::program_options::value< double >(), "parameter of noise [double]")
 		("test_generate_data", boost::program_options::value< bool >(), "generate solution and data with noise [bool]")
 		("test_generate_gamma0", boost::program_options::value< bool >(), "generate gamma0 [bool]");
@@ -59,6 +61,7 @@ int main( int argc, char *argv[] )
 
 	int width, height, T;
 	int K;
+	int type;
 	double noise;
 	std::string filename_data;
 	std::string filename_solution;
@@ -72,6 +75,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
 	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("test_noise", &noise, DEFAULT_NOISE);
 	consoleArg.set_option_value("test_generate_data", &generate_data, DEFAULT_GENERATE_DATA);
 	consoleArg.set_option_value("test_generate_gamma0", &generate_gamma0, DEFAULT_GENERATE_GAMMA0);
@@ -84,6 +88,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_T                      = " << std::setw(30) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (number of pixel values)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters for gamma0)" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(30) << type << " (type of output vector [0=TRn, 1=TnR, 2=nTR])" << std::endl;
 	coutMaster << " test_noise                  = " << std::setw(30) << noise << " (parameter of noise)" << std::endl;
 	coutMaster << " test_filename_data          = " << std::setw(30) << filename_data << " (name of output file with movie data)" << std::endl;
 	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of output file with original movie data without noise)" << std::endl;
@@ -100,8 +105,8 @@ int main( int argc, char *argv[] )
     double mu2[3] = {0.0,1.0,0.0};
     double mu3[3] = {0.0,0.0,1.0};
 
-    double r = width*0.05;   			   /* radius of spheres */
-    double r_path = width*0.3;   		   /* radius of path */
+    double r = width*0.1;   			   /* radius of spheres */
+    double r_path = width*0.2;   		   /* radius of path */
     double t_step = M_PI/20.0;
 	
 	/* allocate vector of data */
@@ -169,13 +174,30 @@ int main( int argc, char *argv[] )
 
                     /* store computed value on right (!) position */
 					for(int n=0; n < xdim; n++){
-						x_arr[t*xdim*width*height + n*width*height + j*width + i] = value[n];
+						int idx = 0;
+						
+						/* 0=TRn */
+						if(type == 0){
+							idx = t*xdim*width*height + j*width*xdim + i*xdim + n;
+						} 
+
+						/* 1=TnR */
+						if(type == 1){
+							idx = t*xdim*width*height + n*width*height + j*width + i;
+						} 
+
+						/* 2=nTR] */
+						if(type == 2){
+							idx = n*T*width*height + t*width*height + j*width + i;
+						} 
+						
+						x_arr[idx] = value[n];
 
 						/* add noise */
 						double noised_value = value[n] + distribution(generator);
 						if(noised_value < 0.0) noised_value = 0.0;
 						if(noised_value > 1.0) noised_value = 1.0;
-						xdata_arr[t*xdim*width*height + n*width*height + j*width + i] = noised_value;
+						xdata_arr[idx] = noised_value;
 
 					}
                 }

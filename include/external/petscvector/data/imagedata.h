@@ -9,7 +9,7 @@
 namespace pascinference {
 namespace data {
 
-template<> ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, std::string filename_data, int width, int height);
+template<> ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, int width, int height, std::string filename_data);
 template<> ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, int width, int height);
 
 template<> void ImageData<PetscVector>::saveImage_datavector(std::string filename) const;
