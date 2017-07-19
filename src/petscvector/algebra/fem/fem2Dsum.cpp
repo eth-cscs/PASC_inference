@@ -37,8 +37,8 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
         int Rlocal1 = this->decomposition1->get_Rlocal();
         int Rlocal2 = this->decomposition2->get_Rlocal();
 
-        int Tbegin = this->decomposition1->get_Tbegin();
-        int Tlocal = this->decomposition1->get_Tlocal();
+        int Tbegin1 = this->decomposition1->get_Tbegin();
+        int Tlocal1 = this->decomposition1->get_Tlocal();
 
         int width1 = grid1->get_width();
         int width2 = grid2->get_width();
@@ -65,7 +65,7 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
             TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
             //TODO: OpenMP? GPU?
-            for(int t=0; t < Tlocal; t++){
+            for(int t=0; t < Tlocal1; t++){
                 for(int r2=0; r2 < Rlocal2; r2++){
                     /* r2 is in dR format, transfer it to R format */
                     int r2R = DD_invpermutation2[Rbegin2+r2];
@@ -90,7 +90,7 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 
                             if(xx1 >= 0 & xx1 < width1 & yy1 >= 0 & yy1 <= height1 & r1_overlap >= 0 & r1_overlap < overlap1_idx_size){
 //                                value += gammak1_arr[t*this->overlap1_idx_size + r1_overlap];
-                                value += gammak1_arr[r1_overlap];
+                                value += gammak1_arr[t*this->overlap1_idx_size + r1_overlap];
 
                                 nmb++;
                             }
@@ -171,6 +171,9 @@ void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
             this->decomposition1->createIS_gammaK(&gammak1_is, k);
             this->decomposition2->createIS_gammaK(&gammak2_is, k);
 
+            //TODO: temp
+//            TRYCXX( ISView(gammak1_is, PETSC_VIEWER_STDOUT_WORLD) );
+
             TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
             TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
@@ -208,8 +211,13 @@ void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 						value += gammak2_arr[t*this->overlap2_idx_size + r2_overlap];
                     }
 
-                    /* write value */
-                    gammak1_arr[t*Rlocal1 + r1] = value;
+                    if(t==0){
+                        gammak1_arr[t*Rlocal1 + r1] = 0.2;
+                    }
+                    if(t==1){
+                        gammak1_arr[t*Rlocal1 + r1] = 0.4;
+                    }
+
                 }
             }
 

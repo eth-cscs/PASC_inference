@@ -23,7 +23,7 @@ ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition,
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 
 	/* permute orig to new using parallel layout */
-	this->decomposition->permute_TbR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+	this->decomposition->permute_gTbR_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
 
 	/* destroy preloaded vector */
 //	TRYCXX( VecDestroy(&datapreload_Vec) );
@@ -75,7 +75,7 @@ void ImageData<PetscVector>::saveImage_datavector(std::string filename) const {
 
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	oss_name_of_file << "results/" << filename << "_datavector.bin";
-	this->decomposition->permute_TbR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+	this->decomposition->permute_gTbR_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
 
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
@@ -101,7 +101,7 @@ void ImageData<PetscVector>::saveImage_gammavector(std::string filename) const {
 
 	Vec gammasave_Vec;
     TRYCXX( VecDuplicate(gammavector->get_vector(), &gammasave_Vec) );
-	this->decomposition->permute_TbR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
+	this->decomposition->permute_gTbR_to_pdTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
 	GeneralVector<PetscVector> gammasave(gammasave_Vec);
 	gammasave.save_binary(oss_name_of_file.str());
 
@@ -176,7 +176,7 @@ void ImageData<PetscVector>::saveImage_reconstructed(std::string filename) const
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
 
 	/* but at first, permute recovered data, datasave can be used */
-	this->decomposition->permute_TbR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+	this->decomposition->permute_gTbR_to_pdTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
 
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");

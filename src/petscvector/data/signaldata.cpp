@@ -20,7 +20,7 @@ SignalData<PetscVector>::SignalData(std::string filename_data){
 
 	/* get the size of the loaded vector */
 	TRYCXX( VecGetSize(datapreload_Vec, &Tpreliminary) );
-	
+
 	/* other vectors will be prepared after setting the model */
 	this->destroy_datavector = true;
 	this->destroy_gammavector = false;
@@ -40,14 +40,14 @@ void SignalData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_
 	this->decomposition->createGlobalVec_data(&data_Vec);
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 	this->destroy_datavector = true;
-	
+
 	/* permute orig to new using parallel layout */
 	Vec datapreload_Vec = datavectorpreliminary->get_vector();
-	this->decomposition->permute_bTR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(), false);
-	
+	this->decomposition->permute_gbTR_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(), false);
+
 	/* destroy preliminary data */
 	TRYCXX(VecDestroy(&datapreload_Vec));
-	
+
 	LOG_FUNC_END
 }
 
@@ -55,7 +55,7 @@ template<>
 void SignalData<PetscVector>::saveGamma(std::string filename) const{
 	LOG_FUNC_BEGIN
 
-	Timer timer_saveGamma; 
+	Timer timer_saveGamma;
 	timer_saveGamma.restart();
 	timer_saveGamma.start();
 
@@ -67,7 +67,7 @@ void SignalData<PetscVector>::saveGamma(std::string filename) const{
 
 	/* save gamma */
 	oss_name_of_file << "results/" << filename << "_gamma.bin";
-	this->decomposition->permute_bTR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
+	this->decomposition->permute_gbTR_to_pdTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
 
 	gammasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
@@ -84,7 +84,7 @@ template<>
 void SignalData<PetscVector>::saveSignal(std::string filename, bool save_original) const{
 	LOG_FUNC_BEGIN
 
-	Timer timer_saveSignal; 
+	Timer timer_saveSignal;
 	timer_saveSignal.restart();
 	timer_saveSignal.start();
 
@@ -102,7 +102,7 @@ void SignalData<PetscVector>::saveSignal(std::string filename, bool save_origina
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	if(save_original){
 		oss_name_of_file << "results/" << filename << "_original.bin";
-		this->decomposition->permute_bTR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+		this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
 		datasave.save_binary(oss_name_of_file.str());
 		oss_name_of_file.str("");
 	}
@@ -121,7 +121,7 @@ void SignalData<PetscVector>::saveSignal(std::string filename, bool save_origina
 
 	int K = this->get_K();
 
-	for(int k=0;k<K;k++){ 
+	for(int k=0;k<K;k++){
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
 		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
@@ -131,15 +131,15 @@ void SignalData<PetscVector>::saveSignal(std::string filename, bool save_origina
 
 		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );
-	}	
+	}
 
 	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
 
 	/* save recovered data */
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
-	
+
 	/* but at first, permute recovered data, datasave can be used */
-	this->decomposition->permute_bTR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+	this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
@@ -155,7 +155,7 @@ void SignalData<PetscVector>::saveSignal(std::string filename, bool save_origina
 
 template<>
 double SignalData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const {
-	LOG_FUNC_BEGIN	
+	LOG_FUNC_BEGIN
 
 	double abserr;
 
@@ -176,9 +176,9 @@ double SignalData<PetscVector>::compute_abserr_reconstructed(GeneralVector<Petsc
 
 	Vec data_abserr_Vec;
 	TRYCXX( VecDuplicate(data_Vec, &data_abserr_Vec) );
-	
+
 	/* abserr = -solution */
-	TRYCXX( VecCopy(solution_Vec,data_abserr_Vec)); 
+	TRYCXX( VecCopy(solution_Vec,data_abserr_Vec));
 	TRYCXX( VecScale(data_abserr_Vec,-1.0));
 
 	double *theta_arr;
@@ -186,7 +186,7 @@ double SignalData<PetscVector>::compute_abserr_reconstructed(GeneralVector<Petsc
 
 	int K = this->get_K();
 
-	for(int k=0;k<K;k++){ 
+	for(int k=0;k<K;k++){
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
 		TRYCXX( VecGetSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
@@ -196,7 +196,7 @@ double SignalData<PetscVector>::compute_abserr_reconstructed(GeneralVector<Petsc
 
 		TRYCXX( VecRestoreSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );
-	}	
+	}
 
 	TRYCXX( VecRestoreArray(this->thetavector->get_vector(),&theta_arr) );
 
@@ -207,9 +207,9 @@ double SignalData<PetscVector>::compute_abserr_reconstructed(GeneralVector<Petsc
 //	abserr = abserr/(double)T;
 
 	TRYCXX( VecNorm(data_abserr_Vec, NORM_2, &abserr) );
-	
+
 	LOG_FUNC_END
-	
+
 	return abserr;
 }
 

@@ -36,7 +36,7 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 
 	myfile.read(buffer, 44);
 	/* reserved */
-	
+
 	myfile.read(buffer, 8);
 	hdr_records = atoi(buffer);
 
@@ -54,12 +54,12 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	/* arrays */
 	hdr_records_detail = (Record*)malloc(sizeof(Record)*hdr_ns);
 	free_hdr_records_detail = true;
-	
+
 	for(i=0;i<hdr_ns;i++){
 		myfile.read(buffer, 16);
 		hdr_records_detail[i].hdr_label = new std::string(buffer);
 	}
-			
+
 	for(i=0;i<hdr_ns;i++){
 		myfile.read(buffer, 80);
 		hdr_records_detail[i].hdr_transducer = new std::string(buffer);
@@ -69,12 +69,12 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_units = new std::string(buffer);
 	}
-	
+
 	for(i=0;i<hdr_ns;i++){
 		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_physicalMin = atof(buffer);
 	}
-	
+
 	for(i=0;i<hdr_ns;i++){
 		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_physicalMax = atof(buffer);
@@ -98,12 +98,12 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	for(i=0;i<hdr_ns;i++){
 		myfile.read(buffer, 8);
 		hdr_records_detail[i].hdr_samples = atoi(buffer);
-	}	
+	}
 
 	for(i=0;i<hdr_ns;i++){
 		myfile.read(buffer, 32);
 		/* reserved */
-	}	
+	}
 
 	/* ------ PREPARE DATAVECTOR ------ */
 	/* compute vector lengths */
@@ -124,7 +124,7 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	/* ------ RECORDS ------ */
 	int recnum, ii, samplei, index;
 	double scalefac, dc;
-    
+
 	int16_t value;
 
     for(recnum = 0; recnum < hdr_records; recnum++){
@@ -146,7 +146,7 @@ void EdfData<PetscVector>::edfRead(std::string filename, int max_record_nmb){
 	TRYCXX( VecAssemblyEnd(datapreload_Vec) );
 
 	/* close file */
-    myfile.close();		
+    myfile.close();
 
 	TRYCXX( PetscBarrier(NULL) );
 
@@ -165,14 +165,14 @@ void EdfData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_dec
 	this->decomposition->createGlobalVec_data(&data_Vec);
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 	this->destroy_datavector = true;
-	
+
 	/* permute orig to new using parallel layout */
 	Vec datapreload_Vec = datavectorpreliminary->get_vector();
-	this->decomposition->permute_bTR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
-	
+	this->decomposition->permute_gbTR_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+
 	/* destroy preliminary data */
 	TRYCXX(VecDestroy(&datapreload_Vec));
-	
+
 	LOG_FUNC_END
 }
 
@@ -195,7 +195,7 @@ EdfData<PetscVector>::EdfData(std::string filename_data, int max_record_nmb){
 template<>
 EdfData<PetscVector>::~EdfData(){
 	LOG_FUNC_BEGIN
-	
+
 	/* if I created a datavector, then I should also be able to destroy it */
 	if(this->free_hdr_records_detail){
 		free(this->hdr_records_detail);
@@ -206,7 +206,7 @@ EdfData<PetscVector>::~EdfData(){
 
 template<>
 void EdfData<PetscVector>::saveVTK(std::string filename) const{
-	Timer timer_saveVTK; 
+	Timer timer_saveVTK;
 	timer_saveVTK.restart();
 	timer_saveVTK.start();
 
@@ -241,7 +241,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 		boost::filesystem::path dir(oss_filename.str().c_str());
 		boost::filesystem::create_directory(dir);
 		oss_filename.str("");
-		
+
 		/* write to the name of file */
 		oss_filename << "results/" << filename << "_vtk/" << filename << ".pvd";
 		myfile.open(oss_filename.str().c_str());
@@ -259,7 +259,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 
 		myfile << "</Collection>" << std::endl;
 		myfile << "</VTKFile>";
-		
+
 		myfile.close();
 	}
 
@@ -268,7 +268,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	/* compute recovered vector */
 	Vec gammak_Vec;
 	IS gammak_is;
-	
+
 	Vec data_recovered_Vec;
 	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
 	TRYCXX( VecSet(data_recovered_Vec,0.0));
@@ -277,7 +277,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 	double *theta_arr;
 	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
 
-	for(int k=0;k<K;k++){ 
+	for(int k=0;k<K;k++){
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
 		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
@@ -287,7 +287,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 
 		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );
-	}	
+	}
 
 	double *data_arr;
 	TRYCXX( VecGetArray(datavector->get_vector(), &data_arr) );
@@ -380,7 +380,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 				}
 			}
 		}
-		
+
 		myfile << "        </DataArray>" << std::endl;
 		myfile << "      </Points>" << std::endl;
 		myfile << "      <Cells>" << std::endl;
@@ -411,7 +411,7 @@ void EdfData<PetscVector>::saveVTK(std::string filename) const{
 
 template<>
 void EdfData<PetscVector>::saveVector(std::string filename, bool save_original) const{
-	Timer timer_saveVector; 
+	Timer timer_saveVector;
 	timer_saveVector.restart();
 	timer_saveVector.start();
 
@@ -429,14 +429,14 @@ void EdfData<PetscVector>::saveVector(std::string filename, bool save_original) 
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	if(save_original){
 		oss_name_of_file << "results/" << filename << "_original.bin";
-		this->decomposition->permute_bTR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+		this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
 		datasave.save_binary(oss_name_of_file.str());
 		oss_name_of_file.str("");
 	}
 
 	/* save gamma */
 	oss_name_of_file << "results/" << filename << "_gamma.bin";
-	this->decomposition->permute_bTR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
+	this->decomposition->permute_gbTR_to_pdTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
 	gammasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");
 
@@ -454,7 +454,7 @@ void EdfData<PetscVector>::saveVector(std::string filename, bool save_original) 
 
 	int K = this->get_K();
 
-	for(int k=0;k<K;k++){ 
+	for(int k=0;k<K;k++){
 		/* get gammak */
 		this->decomposition->createIS_gammaK(&gammak_is, k);
 		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
@@ -464,15 +464,15 @@ void EdfData<PetscVector>::saveVector(std::string filename, bool save_original) 
 
 		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
 		TRYCXX( ISDestroy(&gammak_is) );
-	}	
+	}
 
 	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
 
 	/* save recovered data */
 	oss_name_of_file << "results/" << filename << "_recovered.bin";
-	
+
 	/* but at first, permute recovered data, datasave can be used */
-	this->decomposition->permute_bTR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+	this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
 
 	datasave.save_binary(oss_name_of_file.str());
 	oss_name_of_file.str("");

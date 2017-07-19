@@ -121,6 +121,8 @@ template<>
 Decomposition<PetscVector>::~Decomposition(){
 	LOG_FUNC_BEGIN
 
+    free(DDTR_ranges);
+
 	if(destroy_DDT_arrays){
 		free(DDT_ranges);
 	}
@@ -142,23 +144,12 @@ void Decomposition<PetscVector>::compute_rank(){
 	this->DDT_rank = rank/(double)this->DDR_size;
 	this->DDR_rank = rank - (this->DDT_rank)*(this->DDR_size);
 
-	/* compute TRbegin */
-	if(DDR_size > 1){
-        if(DDT_size > 1){
-            /* combination of time and space */
-            Vec layout;
-            TRYCXX( VecCreate(PETSC_COMM_WORLD, &layout) );
-            TRYCXX( VecSetSizes(layout,this->get_Tlocal()*this->get_Rlocal(),this->get_T()*this->get_R()) );
-            TRYCXX( VecSetFromOptions(layout) );
-            TRYCXX( VecGetOwnershipRange( layout, &TRbegin, NULL) );
-            TRYCXX( VecDestroy(&layout));
-        } else {
-            /* only in space */
-            TRbegin = get_Rbegin()*get_Tlocal();
+    this->DDTR_ranges = new int[get_DDTR_size()+1];
+	DDTR_ranges[0] = 0;
+    for(int ddt_rank=0; ddt_rank < DDT_size; ddt_rank++){
+        for(int ddr_rank=0; ddr_rank < DDR_size; ddr_rank++){
+            DDTR_ranges[ddt_rank*DDR_size + ddr_rank + 1] = DDTR_ranges[ddt_rank*DDR_size + ddr_rank] + (DDT_ranges[ddt_rank+1]-DDT_ranges[ddt_rank])*(DDR_ranges[ddr_rank+1]-DDR_ranges[ddr_rank]);
         }
-	} else {
-        /* only in time */
-        TRbegin = get_Tbegin()*get_Rlocal();
     }
 
 	LOG_FUNC_END
@@ -242,7 +233,7 @@ void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const {
 }
 
 template<>
-void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
+void Decomposition<PetscVector>::permute_gTRb_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
 	int TRbegin = get_TRbegin();
@@ -277,7 +268,7 @@ void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
-	createIS_dTRb(&new_local_is, blocksize);
+	createIS_dTR_to_pdTRb(&new_local_is, blocksize);
 
 	/* get subvector with local values from original data */
 	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
@@ -304,7 +295,7 @@ void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 }
 
 template<>
-void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
+void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
 	int TRbegin = get_TRbegin();
@@ -326,7 +317,7 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	int *orig_local_arr;
 	orig_local_arr = new int [local_size];
 
- 	/* original data is bTR */
+ 	/* original data is TbR */
 	/* transfer it to TRb */
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
@@ -339,7 +330,7 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
-	createIS_dTRb(&new_local_is, blocksize);
+	createIS_dTR_to_pdTRb(&new_local_is, blocksize);
 
 	/* get subvector with local values from original data */
 	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
@@ -348,8 +339,10 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	/* copy values */
 	if(!invert){
 		TRYCXX( VecCopy(orig_local_Vec, new_local_Vec) );
+//		TRYCXX( VecCopy(orig_local_Vec, new_Vec) );
 	} else {
 		TRYCXX( VecCopy(new_local_Vec, orig_local_Vec) );
+//		TRYCXX( VecCopy(new_Vec, orig_local_Vec) );
 	}
 
 	/* restore subvector with local values from original data */
@@ -366,7 +359,7 @@ void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 }
 
 template<>
-void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
+void Decomposition<PetscVector>::permute_gbTR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
 	int Tbegin = get_Tbegin();
@@ -400,7 +393,7 @@ void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES,&orig_local_is) );
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
-	createIS_dTRb(&new_local_is, blocksize);
+	createIS_dTR_to_pdTRb(&new_local_is, blocksize);
 
 	/* get subvector with local values from original data */
 	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
@@ -427,7 +420,7 @@ void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, 
 }
 
 template<>
-void Decomposition<PetscVector>::createIS_dTRb(IS *is, int blocksize) const {
+void Decomposition<PetscVector>::createIS_dTR_to_pdTRb(IS *is, int blocksize) const {
 	/* from dTRb to TRb */
 
 	LOG_FUNC_BEGIN
@@ -446,13 +439,31 @@ void Decomposition<PetscVector>::createIS_dTRb(IS *is, int blocksize) const {
 	int *local_arr;
 	local_arr = new int[local_size];
 	int *DD_permutation = get_DDR_permutation();
+	int *DD_invpermutation = get_DDR_invpermutation();
+
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
-			for(int k=0;k<blocksize;k++){
+            int r_g = DD_permutation[Rbegin+r]; /* space in global range */
+            int t_g = Tbegin + t;                  /* time in global range */
+
+            /* find ranks of given t and r_g */
+            int ddt_rank = get_DDT_rank(t_g);
+            int ddr_rank = get_DDR_rank(r_g);
+            int ddtr_rank = get_DDTR_rank(ddt_rank, ddr_rank);
+
+            /* compute index in original decomposed array */
+            int r_d = this->DDTR_ranges[ddtr_rank] + (t_g - this->DDT_ranges[ddt_rank])*(this->DDR_ranges[ddr_rank+1] - this->DDR_ranges[ddr_rank]) + (r_g - this->DDR_ranges[ddr_rank]);
+
+            for(int k=0;k<blocksize;k++){
                 local_arr[t*Rlocal*blocksize + r*blocksize + k] = (Tbegin+t)*R*blocksize + DD_permutation[Rbegin+r]*blocksize + k;
+                //local_arr[t*Rlocal*blocksize + r*blocksize + k] = r_d*blocksize + k;
             }
 		}
 	}
+
+    coutMaster << "permutation miracle:" << std::endl;
+    coutAll << print_array(local_arr, local_size) << std::endl;
+    coutAll.synchronize();
 
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, local_arr, PETSC_COPY_VALUES,is) );
 

@@ -20,13 +20,13 @@ template<> void Decomposition<PetscVector>::set_new_graph(BGMGraph<PetscVector> 
 template<> void Decomposition<PetscVector>::createGlobalVec_gamma(Vec *x_Vec) const;
 template<> void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const;
 
-template<> void Decomposition<PetscVector>::permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
-template<> void Decomposition<PetscVector>::permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
-template<> void Decomposition<PetscVector>::permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+template<> void Decomposition<PetscVector>::permute_gTRb_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+template<> void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+template<> void Decomposition<PetscVector>::permute_gbTR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 
 /* PETSc specific stuff */
 
-template<> void Decomposition<PetscVector>::createIS_dTRb(IS *is, int blocksize) const;
+template<> void Decomposition<PetscVector>::createIS_dTR_to_pdTRb(IS *is, int blocksize) const;
 template<> void Decomposition<PetscVector>::createIS_gammaK(IS *is, int k) const;
 template<> void Decomposition<PetscVector>::createIS_datan(IS *is, int n) const;
 

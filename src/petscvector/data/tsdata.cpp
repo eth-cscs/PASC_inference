@@ -298,7 +298,7 @@ std::string TSData<PetscVector>::print_thetavector() const {
 
 
 template<>
-void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize) const {
+void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize, int type) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -599,14 +599,11 @@ void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const {
 	/* destroy auxiliary index sets */
 	TRYCXX( ISDestroy(&gamma_sub_IS) );
 
-
-
-
 	LOG_FUNC_END
 }
 
 template<>
-void TSData<PetscVector>::load_gammavector(std::string filename) const {
+void TSData<PetscVector>::load_gammavector(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
 
 	gammavector->load_global(filename);
@@ -616,7 +613,16 @@ void TSData<PetscVector>::load_gammavector(std::string filename) const {
 
 	TRYCXX( VecDuplicate(gammavector_Vec,&gammavector_preload_Vec) );
 
-	decomposition->permute_bTR_to_dTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
+	/* type=0 -> TRn; type=1 -> TnR; type=2 -> nTR; */
+	if(type == 0){
+        this->decomposition->permute_gTRb_to_pdTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
+    }
+	if(type == 1){
+        this->decomposition->permute_gTbR_to_pdTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
+    }
+	if(type == 2){
+        this->decomposition->permute_gbTR_to_pdTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
+    }
 
 	TRYCXX( VecCopy(gammavector_preload_Vec, gammavector->get_vector()));
 	TRYCXX( VecDestroy(&gammavector_preload_Vec) );

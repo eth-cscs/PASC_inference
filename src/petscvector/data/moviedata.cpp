@@ -25,13 +25,13 @@ MovieData<PetscVector>::MovieData(Decomposition<PetscVector> &new_decomposition,
 	/* permute orig to new using parallel layout */
 	/* type=0 -> TRn; type=1 -> TnR; type=2 -> nTR; */
 	if(type == 0){
-        this->decomposition->permute_TRb_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+        this->decomposition->permute_gTRb_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
     }
 	if(type == 1){
-        this->decomposition->permute_TbR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+        this->decomposition->permute_gTbR_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
     }
 	if(type == 2){
-        this->decomposition->permute_bTR_to_dTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+        this->decomposition->permute_gbTR_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
     }
 
 	/* destroy preloaded vector */
@@ -84,13 +84,13 @@ void MovieData<PetscVector>::saveMovie_datavector(std::string filename, int type
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	oss_name_of_file << "results/" << filename << "_datavector.bin";
 	if(type == 0){
-        this->decomposition->permute_TRb_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+        this->decomposition->permute_gTRb_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
     }
 	if(type == 1){
-        this->decomposition->permute_TbR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+        this->decomposition->permute_gTbR_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
     }
 	if(type == 2){
-        this->decomposition->permute_bTR_to_dTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
+        this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
     }
 
 	datasave.save_binary(oss_name_of_file.str());
@@ -117,7 +117,7 @@ void MovieData<PetscVector>::saveMovie_gammavector(std::string filename) const {
 
 	Vec gammasave_Vec;
     TRYCXX( VecDuplicate(gammavector->get_vector(), &gammasave_Vec) );
-	this->decomposition->permute_TbR_to_dTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
+	this->decomposition->permute_gTbR_to_pdTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
 	GeneralVector<PetscVector> gammasave(gammasave_Vec);
 	gammasave.save_binary(oss_name_of_file.str());
 
@@ -188,13 +188,13 @@ void MovieData<PetscVector>::saveMovie_reconstructed(std::string filename, int t
     TRYCXX( VecDuplicate(data_recovered_Vec, &datasave_Vec) );
 
 	if(type == 0){
-        this->decomposition->permute_TRb_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+        this->decomposition->permute_gTRb_to_pdTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
     }
 	if(type == 1){
-        this->decomposition->permute_TbR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+        this->decomposition->permute_gTbR_to_pdTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
     }
 	if(type == 2){
-        this->decomposition->permute_bTR_to_dTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
+        this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), true);
     }
 
 	/* save recovered data */

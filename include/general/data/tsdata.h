@@ -1,6 +1,6 @@
 /** @file tsdata_global.cu
  *  @brief this is only for PETSC!
- * 
+ *
  *  @author Lukas Pospisil
  */
 
@@ -13,7 +13,7 @@
 
 namespace pascinference {
 
-/* Maybe these classes are not defined yet */ 
+/* Maybe these classes are not defined yet */
 namespace model {
 	template<class VectorBase>
 	class TSModel;
@@ -33,7 +33,7 @@ class TSData: public GeneralData {
 		TSModel<VectorBase> *tsmodel; /**< pointer to used time-series model on the data */
 
 		GeneralVector<VectorBase> *datavector; /**< global vector with data of dimension based on model */
-		bool destroy_datavector; /**< destroy datavector in destructor? if I am an owner, then TRUE */ 
+		bool destroy_datavector; /**< destroy datavector in destructor? if I am an owner, then TRUE */
 
 		GeneralVector<VectorBase> *gammavector; /**< the characteristic functions of clustered models */
 		bool destroy_gammavector;
@@ -48,7 +48,7 @@ class TSData: public GeneralData {
 		/* scaling variables */
 		double scale_max;
 		double scale_min;
-		
+
 	public:
 		TSData(Decomposition<VectorBase> &decomposition, GeneralVector<VectorBase> *datavector_new, GeneralVector<VectorBase> *gammavector_new, GeneralVector<VectorBase> *thetavector_new);
 		TSData(Decomposition<VectorBase> &decomposition);
@@ -85,7 +85,7 @@ class TSData: public GeneralData {
 		int get_K() const;
 
 		double get_aic() const;
-		
+
 		TSModel<VectorBase> *get_model() const;
 		Decomposition<VectorBase> *get_decomposition() const;
 
@@ -99,45 +99,45 @@ class TSData: public GeneralData {
 		void print_thetavector(ConsoleOutput &output) const;
 		std::string print_thetavector() const;
 
-		void save_gammavector(std::string filename, int blocksize) const;
+		void save_gammavector(std::string filename, int blocksize, int type = 2) const; // impicit type gbTR
 
 		/** @brief print basic statistics about data
-		* 
+		*
 		* @param output where to print
 		* @param printdetails print details of the data or not
 		*/
 		void printstats(ConsoleOutput &output, bool printdetails=false) const;
 
 		/** @brief scale data to a,b
-		* 
+		*
 		*/
 		void scaledata(double a, double b);
 
 		void scaledata(double a, double b, double scale_min, double scale_max);
-		
+
 		/** @brief scale data back to original interval
-		* 
+		*
 		*/
 		void unscaledata(double a, double b);
 
 		/** @brief cut data to a,b
-		* 
+		*
 		* @param a lower threshold
-		* @param b upper threshold 
+		* @param b upper threshold
 		*/
 		void cutdata(double a, double b);
 
 		/** @brief shift data by given coeficient
-		* 
+		*
 		* @param a shifting value
 		*/
 		void shiftdata(double a);
 
-		virtual void load_gammavector(std::string filename) const;
+		virtual void load_gammavector(std::string filename, int type = 2) const; // impicit type gbTR
 		virtual void load_gammavector(VectorBase &gamma0) const;
 
-		/** @brief compute nbins of actual gammavector 
-		 */ 
+		/** @brief compute nbins of actual gammavector
+		 */
 		double compute_gammavector_nbins();
 
 };
@@ -234,7 +234,7 @@ TSData<VectorBase>::TSData(Decomposition<VectorBase> &new_decomposition, std::st
 	destroy_thetavector = false;
 
 	this->tsmodel = NULL;
-	
+
 	LOG_FUNC_END
 }
 
@@ -255,12 +255,12 @@ void TSData<VectorBase>::set_model(TSModel<VectorBase> &tsmodel){
 template<class VectorBase>
 TSData<VectorBase>::~TSData(){
 	LOG_FUNC_BEGIN
-	
+
 	/* if I created a datavector, then I should also be able to destroy it */
 	if(this->destroy_datavector){
 		free(this->datavector);
 	}
-	
+
 	if(this->destroy_gammavector){
 		free(this->gammavector);
 	}
@@ -279,7 +279,7 @@ void TSData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	if(this->tsmodel){
 		output <<  " - T:           " << get_T() << std::endl;
@@ -289,7 +289,7 @@ void TSData<VectorBase>::print(ConsoleOutput &output) const {
 	} else {
 		output <<  " - model:       NO" << std::endl;
 	}
-	
+
 	output <<  " - datavector:  ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -319,7 +319,7 @@ template<class VectorBase>
 void TSData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &output_local) const {
 	LOG_FUNC_BEGIN
 
-	output_global <<  this->get_name() << std::endl;	
+	output_global <<  this->get_name() << std::endl;
 
 	/* give information about presence of the data */
 	if(this->tsmodel){
@@ -334,7 +334,7 @@ void TSData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outp
 	} else {
 		output_global <<  " - model:       NO" << std::endl;
 	}
-	
+
 	output_global <<  " - datavector:  ";
 	if(this->datavector){
 		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -343,7 +343,7 @@ void TSData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outp
 	} else {
 		output_global << "NO" << std::endl;
 	}
-	
+
 	output_global <<   " - gammavector: ";
 	if(this->gammavector){
 		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
@@ -352,7 +352,7 @@ void TSData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &outp
 	} else {
 		output_global << "NO" << std::endl;
 	}
-	
+
 	output_global <<   " - thetavector: ";
 	if(this->thetavector){
 		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
@@ -373,7 +373,7 @@ void TSData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
-	
+
 	/* print the content of the data */
 	output <<  " - datavector: ";
 	if(this->datavector){
@@ -405,7 +405,7 @@ void TSData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOutput
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* print the content of the data */
 	output_local <<  " - datavector: ";
 	if(this->datavector){
@@ -532,7 +532,7 @@ void TSData<VectorBase>::cutgamma() const{
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -574,7 +574,7 @@ std::string TSData<VectorBase>::print_thetavector() const {
 
 
 template<class VectorBase>
-void TSData<VectorBase>::save_gammavector(std::string filename, int blocksize) const {
+void TSData<VectorBase>::save_gammavector(std::string filename, int blocksize, int type) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -587,7 +587,7 @@ void TSData<VectorBase>::printstats(ConsoleOutput &output, bool printdetails) co
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -596,7 +596,7 @@ void TSData<VectorBase>::scaledata(double a, double b){
 	LOG_FUNC_BEGIN
 
 	//TODO
-		
+
 	LOG_FUNC_END
 }
 
@@ -605,7 +605,7 @@ void TSData<VectorBase>::unscaledata(double a, double b){
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -614,7 +614,7 @@ void TSData<VectorBase>::cutdata(double a, double b){
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -623,7 +623,7 @@ void TSData<VectorBase>::shiftdata(double a){
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -632,36 +632,36 @@ void TSData<VectorBase>::scaledata(double a, double b, double scale_min, double 
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
 void TSData<VectorBase>::load_gammavector(VectorBase &gamma0) const {
 	LOG_FUNC_BEGIN
-	
+
 	//TODO
 
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
-void TSData<VectorBase>::load_gammavector(std::string filename) const {
+void TSData<VectorBase>::load_gammavector(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
-	
+
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
 template<class VectorBase>
 double TSData<VectorBase>::compute_gammavector_nbins() {
 	LOG_FUNC_BEGIN
-	
+
 	//TODO
-	
+
 	LOG_FUNC_END
-	
+
 	return 0.0;
 }
 

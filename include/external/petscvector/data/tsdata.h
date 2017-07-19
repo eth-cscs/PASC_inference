@@ -7,7 +7,7 @@
 
 namespace pascinference {
 
-/* Maybe these classes are not defined yet */ 
+/* Maybe these classes are not defined yet */
 /*namespace model {
 	template<class VectorBase>
 	class TSModel;
@@ -26,7 +26,7 @@ template<> void TSData<PetscVector>::save_datavector(std::string filename) const
 template<> void TSData<PetscVector>::save_thetavector(std::string filename) const;
 template<> void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const;
 template<> std::string TSData<PetscVector>::print_thetavector() const;
-template<> void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize) const;
+template<> void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize, int type) const;
 template<> void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) const;
 template<> void TSData<PetscVector>::scaledata(double a, double b);
 template<> void TSData<PetscVector>::unscaledata(double a, double b);
@@ -34,7 +34,7 @@ template<> void TSData<PetscVector>::cutdata(double a, double b);
 template<> void TSData<PetscVector>::shiftdata(double a);
 template<> void TSData<PetscVector>::scaledata(double a, double b, double scale_min, double scale_max);
 template<> void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const;
-template<> void TSData<PetscVector>::load_gammavector(std::string filename) const;
+template<> void TSData<PetscVector>::load_gammavector(std::string filename, int type) const;
 template<> double TSData<PetscVector>::compute_gammavector_nbins();
 
 

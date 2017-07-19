@@ -49,7 +49,7 @@ class Decomposition {
 		*/
 		void compute_rank();
 
-		int TRbegin;    /** begin index of local portion of global vector TR */
+		int *DDTR_ranges;    /** time-space local ownership */
 
 		void set_graph(BGMGraph<VectorBase> &graph, int DDR_size=1);
 
@@ -108,6 +108,8 @@ class Decomposition {
 		 */
 		int get_DDT_rank() const;
 
+		int get_DDT_rank(int t) const;
+
 		/** @brief get the array with first indexes of local portion of time
 		 *
 		 * @return the array (of size DDT_size+1) with global starting indexes
@@ -150,7 +152,7 @@ class Decomposition {
 		 */
 		int get_DDR_rank() const;
 
-        int get_TRbegin() const;
+		int get_DDR_rank(int r) const;
 
 		int *get_DDR_affiliation() const;
 		int *get_DDR_permutation() const;
@@ -171,6 +173,20 @@ class Decomposition {
 		 * @param DDR_size number of parts of graph decomposition
 		 */
 		void set_new_graph(BGMGraph<VectorBase> &graph, int DDR_size=1);
+
+        int get_TR() const;
+        int get_TRlocal() const;
+        int get_TRbegin() const;
+        int get_TRend() const;
+		int get_DDTR_size() const;
+		int get_DDTR_rank() const;
+		int get_DDTR_rank(int ddt_rank, int ddr_rank) const;
+
+		/** @brief get the array with first indexes of local portion of time-space
+		 *
+		 * @return the array (of size (DDT_size*DDR_size+1) with global starting indexes
+		 */
+        int *get_DDTR_ranges() const;
 
 		/** @brief get number of clusters
 		 *
@@ -230,11 +246,11 @@ class Decomposition {
 		int get_Pr(int r_global) const;
 
 #ifdef USE_PETSC
-		void permute_TRb_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
-		void permute_TbR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
-		void permute_bTR_to_dTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+		void permute_gTRb_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+		void permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+		void permute_gbTR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 
-		void createIS_dTRb(IS *is, int blocksize) const;
+		void createIS_dTR_to_pdTRb(IS *is, int blocksize) const; //TODO: private?
 
 		/** @brief create PETSC index set with local gamma indexes which correspond to given cluster index
 		 *
@@ -320,6 +336,17 @@ int Decomposition<VectorBase>::get_DDT_rank() const{
 }
 
 template<class VectorBase>
+int Decomposition<VectorBase>::get_DDT_rank(int t) const{
+    int ddt_rank = -1;
+    for(int i=0; i< DDT_size; i++){
+        if(t >= DDT_ranges[i] & t < DDT_ranges[i+1] ){
+            ddt_rank = i;
+        }
+    }
+	return ddt_rank;
+}
+
+template<class VectorBase>
 const int *Decomposition<VectorBase>::get_DDT_ranges() const{
 	return DDT_ranges;
 }
@@ -331,17 +358,12 @@ int Decomposition<VectorBase>::get_R() const{
 
 template<class VectorBase>
 int Decomposition<VectorBase>::get_Rlocal() const{
-	return DDR_ranges[DDR_rank+1] - DDR_ranges[DDR_rank];
+	return get_Rend() - get_Rbegin();
 }
 
 template<class VectorBase>
 int Decomposition<VectorBase>::get_Rbegin() const{
 	return DDR_ranges[DDR_rank];
-}
-
-template<class VectorBase>
-int Decomposition<VectorBase>::get_TRbegin() const{
-	return TRbegin; /* computed during compute_rank() */
 }
 
 template<class VectorBase>
@@ -358,6 +380,17 @@ int Decomposition<VectorBase>::get_DDR_size() const{
 template<class VectorBase>
 int Decomposition<VectorBase>::get_DDR_rank() const{
 	return DDR_rank;
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_DDR_rank(int r) const{
+    int ddr_rank = -1;
+    for(int i=0; i< DDR_size; i++){
+        if(r >= DDR_ranges[i] & r < DDR_ranges[i+1] ){
+            ddr_rank = i;
+        }
+    }
+	return ddr_rank;
 }
 
 template<class VectorBase>
@@ -398,6 +431,47 @@ void Decomposition<VectorBase>::set_graph(BGMGraph<VectorBase> &new_graph, int D
 template<class VectorBase>
 void Decomposition<VectorBase>::set_new_graph(BGMGraph<VectorBase> &new_graph, int DDR_size) {
 
+}
+
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_TR() const{
+	return T*R;
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_TRlocal() const{
+	return get_TRend() - get_TRbegin();
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_TRbegin() const{
+	return DDTR_ranges[DDT_rank*DDT_size + DDR_rank];
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_TRend() const{
+	return DDTR_ranges[DDT_rank*DDT_size + DDR_rank + 1];
+}
+
+template<class VectorBase>
+int *Decomposition<VectorBase>::get_DDTR_ranges() const{
+	return DDTR_ranges;
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_DDTR_size() const{
+    return DDT_size*DDR_size;
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_DDTR_rank() const{
+    return get_DDTR_rank(DDT_rank, DDR_rank);
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_DDTR_rank(int ddt_rank, int ddr_rank) const{
+    return ddt_rank*DDR_size + ddr_rank;
 }
 
 template<class VectorBase>
@@ -449,6 +523,14 @@ void Decomposition<VectorBase>::print_content(ConsoleOutput &output_master, Cons
 			}
 		}
 		output_master << std::endl;
+		output_master << " - DDR_invpermutation  : ";
+		for(int i=0;i< this->R;i++){
+			output_master << this->DDR_invpermutation[i];
+			if(i< this->R-1){
+				output_master << ", ";
+			}
+		}
+		output_master << std::endl;
 	}
 	output_master << " - DDR_ranges          : ";
 	for(int i=0;i< this->DDR_size+1;i++){
@@ -461,7 +543,7 @@ void Decomposition<VectorBase>::print_content(ConsoleOutput &output_master, Cons
 	output_master << " - DDR_lengths         : ";
 	for(int i=0;i< this->DDR_size;i++){
 		output_master << this->DDR_lengths[i];
-		if(i< this->DDR_size-1){
+		if(i< this->get_DDR_size()-1){
 			output_master << ", ";
 		}
 	}
@@ -469,8 +551,17 @@ void Decomposition<VectorBase>::print_content(ConsoleOutput &output_master, Cons
 	output_master.pop();
 
 	output_master.push();
-	output_master << " - coordinates [T,R]: " << std::endl;
-	output_local  << "   [ " << this->DDT_rank << ", " << this->DDR_rank << " ]" << std::endl;
+	output_master << " Time-Space            : " << this->get_TR() << std::endl;
+	output_master << " - DDTR_ranges         : ";
+	for(int i=0;i < this->get_DDTR_size()+1;i++){
+		output_master << this->DDTR_ranges[i];
+		if(i< this->get_DDTR_size()){
+			output_master << ", ";
+		}
+	}
+	output_master << std::endl;
+	output_master << " - coordinates [T,R], DDTR_rank: " << std::endl;
+	output_local  << "   [ " << this->DDT_rank << ", " << this->DDR_rank << " ], " << this->get_DDTR_rank() << std::endl;
 	output_local.synchronize();
 	output_master.pop();
 
@@ -501,7 +592,19 @@ void Decomposition<VectorBase>::print(ConsoleOutput &output) const {
 	output << " - DDR_ranges          : ";
 	for(int i=0;i< this->DDR_size+1;i++){
 		output << this->DDR_ranges[i];
-		if(i< this->DDR_size){
+		if(i< this->get_DDR_size()){
+			output << ", ";
+		}
+	}
+	output << std::endl;
+	output.pop();
+
+	output.push();
+	output << " Time-Space            : " << this->get_TR() << std::endl;
+	output << " - DDTR_ranges         : ";
+	for(int i=0;i < this->get_DDTR_size()+1;i++){
+		output << this->DDTR_ranges[i];
+		if(i< this->get_DDTR_size()){
 			output << ", ";
 		}
 	}

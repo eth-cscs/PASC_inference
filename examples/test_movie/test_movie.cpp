@@ -246,6 +246,8 @@ int main( int argc, char *argv[] )
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
+//    decomposition.print_content(coutMaster, coutAll, true);
+
 
 	if(graph_save){
 		/* save decoposed graph to see if space (graph) decomposition is working */
@@ -277,13 +279,13 @@ int main( int argc, char *argv[] )
 
 		solution.load_global(filename_solution);
 		if(type == 0){
-            decomposition.permute_TRb_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+            decomposition.permute_gTRb_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
         }
         if(type == 1){
-            decomposition.permute_TbR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+            decomposition.permute_gTbR_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
         }
         if(type == 2){
-            decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+            decomposition.permute_gbTR_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
         }
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
