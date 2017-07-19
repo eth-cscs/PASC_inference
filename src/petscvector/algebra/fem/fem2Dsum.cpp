@@ -211,13 +211,7 @@ void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
 						value += gammak2_arr[t*this->overlap2_idx_size + r2_overlap];
                     }
 
-                    if(t==0){
-                        gammak1_arr[t*Rlocal1 + r1] = 0.2;
-                    }
-                    if(t==1){
-                        gammak1_arr[t*Rlocal1 + r1] = 0.4;
-                    }
-
+                    gammak1_arr[t*Rlocal1 + r1] = value;
                 }
             }
 

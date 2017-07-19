@@ -1,5 +1,5 @@
-/** @file test_fem_image.cpp
- *  @brief test the fem reduction/prolongation on image problems
+/** @file test_fem_movie.cpp
+ *  @brief test the fem reduction/prolongation on movie problems
  *
  *
  *  @author Lukas Pospisil
@@ -17,6 +17,8 @@
 #define DEFAULT_XDIM 1
 #define DEFAULT_WIDTH 250
 #define DEFAULT_HEIGHT 150
+#define DEFAULT_T 10
+#define DEFAULT_TYPE 1
 #define DEFAULT_GRAPH_SAVE false
 #define DEFAULT_PRINTINFO false
 #define DEFAULT_FILENAME_IN "data/test_image/usi_text/usi_250_150_02.bin"
@@ -36,6 +38,8 @@ int main( int argc, char *argv[] )
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
+		("test_T", boost::program_options::value<int>(), "number of frames in movie [int]")
+		("test_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]");
@@ -47,7 +51,7 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	int width, height, xdim, fem_type;
+	int width, height, xdim, fem_type, T, type;
 	double fem_reduce;
 	bool printinfo, graph_save;
 
@@ -58,6 +62,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, DEFAULT_FEM_REDUCE);
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
+	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
+	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_printinfo", &printinfo, DEFAULT_PRINTINFO);
@@ -80,6 +86,9 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of image)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of image)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
+
+	coutMaster << " test_T                      = " << std::setw(50) << T << " (number of frames in movie)" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(50) << MovieData<PetscVector>::get_type_name(type) << " (type of output vector [0=TRn, 1=TnR, 2=nTR])" << std::endl;
 
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [0=FEM2D_SUM/1=FEM2D_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce             = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
@@ -111,9 +120,8 @@ int main( int argc, char *argv[] )
 /* 2.) prepare decomposition */
 	coutMaster << "--- COMPUTING DECOMPOSITION ---" << std::endl;
 
-	/* prepare decomposition based on graph, in this case T=1 and DDT_size=1 */
 	int K=xdim; /* I am not using Gamma in this test at all, here is a trick: use K instead of xdim */
-	Decomposition<PetscVector> decomposition_orig(1, *graph, K, xdim, DDR_size);
+	Decomposition<PetscVector> decomposition_orig(T, *graph, K, xdim, DDR_size);
 
 	/* print info about decomposition */
 	if(printinfo) decomposition_orig.print(coutMaster);
@@ -129,7 +137,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 
 	/* load data from file and store it subject to decomposition */
-	ImageData<PetscVector> mydata(decomposition_orig, width, height, filename_in);
+	MovieData<PetscVector> mydata(decomposition_orig, width, height, filename_in, type);
 
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
@@ -179,14 +187,14 @@ int main( int argc, char *argv[] )
 	}
 
     /* prepare stuff for reduced data */
-	ImageData<PetscVector> mydata_reduced(*(fem->get_decomposition_reduced()), width_reduced, height_reduced);
+	MovieData<PetscVector> mydata_reduced(*(fem->get_decomposition_reduced()), width_reduced, height_reduced);
 
     /* reduce gamma, however gamma is data now (that's the reason why K=xdim) */
     fem->reduce_gamma(mydata.get_datavector(), mydata_reduced.get_datavector());
 
     /* save reduced image */
     oss << filename_out << "_reduced";
-    mydata_reduced.saveImage_datavector(oss.str());
+    mydata_reduced.saveMovie_datavector(oss.str(), type);
     oss.str("");
 
     /* prolongate gamma, however gamma is data now (that's the reason why K=xdim) */
@@ -194,7 +202,7 @@ int main( int argc, char *argv[] )
 
     /* save prolongated image */
     oss << filename_out << "_prolongated";
-    mydata.saveImage_datavector(oss.str());
+    mydata.saveMovie_datavector(oss.str(), type);
     oss.str("");
 
 	/* say bye */

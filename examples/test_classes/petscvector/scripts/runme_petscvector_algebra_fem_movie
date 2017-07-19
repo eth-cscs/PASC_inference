@@ -1,0 +1,54 @@
+#!/bin/bash
+
+WIDTH=40
+HEIGHT=30
+T=20
+XDIM=1
+NOISE=0.5
+FEM_REDUCE=0.5
+REDUCED_WIDTH=20
+NPROC=3
+FEM_TYPE=0
+TYPE=2
+
+# remove old data
+rm -f data/moviedot_data.bin results/moviedot_reduced_datavector.bin results/moviedot_prolongated_datavector.bin
+
+# generate problem
+./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_filename_gamma0=data/moviedot_gamma0.bin --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
+
+# define parameters
+PARAM_FILENAME="--test_filename_in=data/moviedot_data.bin --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_xdim=$XDIM --test_T=$T"
+PARAM_BASIC="--test_printinfo=true --test_graph_save=true"
+PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
+
+PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
+
+## additional PETSc parameters
+PARAM_PETSC="--petsc_options=\"\""
+
+## concrenate all parameters
+PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_FEM $PARAM_LOG $PARAM_PETSC"
+
+## run the job
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
+#mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
+./test_petscvector_fem_movie $PARAM_ALL
+
+# show results
+if [ -f data/moviedot_data.bin ]
+then
+	./gui_show_movie --filename=data/moviedot_data.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="Original movie" --type=$TYPE &
+fi
+
+if [ -f results/moviedot_reduced_datavector.bin ]
+then
+	./gui_show_movie --filename=results/moviedot_reduced_datavector.bin --width=$REDUCED_WIDTH --T=$T --xdim=$XDIM --title="Reduced FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" --type=$TYPE &
+fi
+
+if [ -f results/moviedot_prolongated_datavector.bin ]
+then
+	./gui_show_movie --filename=results/moviedot_prolongated_datavector.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="Prolongated FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" --type=1 &
+fi
+
+

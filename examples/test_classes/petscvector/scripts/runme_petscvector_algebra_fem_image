@@ -6,7 +6,7 @@ XDIM=3
 NOISE=0.5
 FEM_REDUCE=0.5
 NPROC=3
-FEM_TYPE=0
+FEM_TYPE=1
 
 rm -f data/test_image/illia_avatar_color_data.bin results/illia_avatar_color_recovered.bin results/illia_avatar_color_reduced_datavector.bin results/illia_avatar_color_prolongated_datavector.bin
 
