@@ -96,8 +96,8 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
-    double mu0 = 1.0; /* color of background */
-    double mu1 = 0.0; /* color of dot */
+    double mu0 = 0.6; /* color of background */
+    double mu1 = 0.5; /* color of dot */
 
     double r = width*0.2;   /* radius of sphere */
 
@@ -127,8 +127,10 @@ int main( int argc, char *argv[] )
         double value[xdim];
         for(int t=0; t < T; t++){
             /* compute new center of sphere */
-            c[0] = width*(0.3 + t*0.02);
-            c[1] = height*(0.5 + t*0.005);
+//            c[0] = width*(0.3 + t*0.02);
+//            c[1] = height*(0.5 + t*0.005);
+            c[0] = width*0.5;
+            c[1] = height*0.5;
 
             for(int i=0;i<width;i++){
                 for(int j=0;j<height;j++){

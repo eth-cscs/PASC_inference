@@ -1,39 +1,52 @@
 #!/bin/bash   
 
-WIDTH=4
-HEIGHT=3
-T=2
+WIDTH=100
+HEIGHT=150
+T=50
 K=2
-NOISE=0.0
-FEM_REDUCE=1.8
+NOISE=0.5
+FEM_REDUCE=0.4
 FEM_TYPE=0
 TYPE=0 # type of input data [0=TRn, 1=TnR, 2=nTR]
 XDIM=1
 ANNEALING=1
-NPROC=4
+NPROC=1
+
+FILENAME_DATA="data/moviedot_data.bin"
+FILENAME_SOLUTION="data/moviedot_solution.bin"
+FILENAME_GAMMA0="data/moviedot_gamma0.bin"
+FILENAME_GAMMA="results/moviedot_gamma.bin"
+FILENAME_SHORTINFO="shortinfo/moviedot.txt"
+FILENAME_RECOVERED="results/moviedot_recovered.bin"
+FILENAME_OUT="results/moviedot.jpg"
+FILENAME_OUT_MOVIE="results/moviedot.mp4"
+DIRNAME_OUT="results/moviedot/"
+
 
 # remove old data
-rm -f data/moviedot_data.bin data/moviedot_solution.bin data/moviedot_gamma0.bin results/moviedot_recovered.bin results/moviedot_gamma.bin
+rm -f $FILENAME_DATA $FILENAME_RECOVERED $FILENAME_SOLUTION $FILENAME_GAMMA0 $FILENAME_OUT $DIRNAME_OUT/* $FILENAME_OUT_MOVIE
 
 # generate problem
-./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_filename_gamma0=data/moviedot_gamma0.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_type=$TYPE --test_xdim=$XDIM
+./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_type=$TYPE --test_xdim=$XDIM
 
 # define parameters
-PARAM_FILENAME="--test_filename_in=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_type=$TYPE --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
+PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_type=$TYPE --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 
-PARAM_THETA="--test_Theta=0.1 --test_Theta=0.9 --tssolver_thetasolver_updatebeforesolve=false"
+PARAM_THETA="--test_Theta=0.5 --test_Theta=0.6 --tssolver_thetasolver_updatebeforesolve=false"
 #PARAM_THETA="--test_Theta=0.1,0.1,0.1 --test_Theta=0.9,0.9,0.9 --tssolver_thetasolver_updatebeforesolve=false"
 
+#PARAM_TEST="--tssolver_gammasolver_updatebeforesolve=false --tssolver_gammasolver_solve=false  --tssolver_gammasolver_updateaftersolve=true"
+
 #PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
-PARAM_EPSSQR="--test_epssqr=1e0"
+PARAM_EPSSQR="--test_epssqr=2e-2"
 
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
-PARAM_TSSOLVER="--tssolver_maxit=10 --tssolver_eps=1e-5 --tssolver_debugmode=0"
-PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/moviedot.txt --tssolver_debug_print_gamma_solution=false"
+PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0"
+PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=$FILENAME_SHORTINFO --tssolver_debug_print_gamma_solution=false"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
+PARAM_SOLVER="--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
 PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
 
 PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
@@ -42,31 +55,33 @@ PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
 PARAM_PETSC="--petsc_options=\"\""
 
 ## concrenate all parameters
-PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
+PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
 
 ## run the job
 #./test_movie $PARAM_ALL
-/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
-#mpiexec -n $NPROC ./test_image $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
+mpiexec -n $NPROC ./test_movie $PARAM_ALL
 #./test_image $PARAM_ALL
 
 
 # show results
-if [ -f data/moviedot_data.bin ]
+if [ -f $FILENAME_DATA ]
 then
-	./gui_show_movie --filename=data/moviedot_data.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$TYPE &
+	./gui_show_movie --filename=$FILENAME_DATA --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$TYPE &
 fi
 
-if [ -f results/moviedot_recovered.bin ]
+if [ -f $FILENAME_RECOVERED ]
 then
-	./gui_show_movie --filename=results/moviedot_recovered.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$TYPE &
+	./gui_show_movie --filename=$FILENAME_RECOVERED --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$TYPE &
 fi
 
-if [ -f results/moviedot_gamma.bin ]
+if [ -f $FILENAME_GAMMA ]
 then
-	./gui_show_movie --filename=results/moviedot_gamma.bin --width=$WIDTH --T=$T --xdim=1 --title="movie gamma" --type=1 &
+	./gui_show_movie --filename=$FILENAME_GAMMA --width=$WIDTH --T=$T --xdim=1 --title="movie gamma" --type=1 &
 fi
 
+# create movie
+./util_dlib_vec_to_image --filename_in=$FILENAME_DATA --filename_in2=$FILENAME_RECOVERED --filename_in3=$FILENAME_GAMMA --K3=$K --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
 
-#./gui_show_movie --filename=data/moviedot_solution.bin --width=$WIDTH --T=$T --xdim=1 --title="movie solution" &
-#./gui_show_movie --filename=data/moviedot_gamma0.bin --width=$WIDTH --T=$T --xdim=1 --title="movie gamma0"
+#mencoder mf://./results/movie_dot/*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o results/output.avi
+ffmpeg -framerate 2 -i $DIRNAME_OUT%02d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE

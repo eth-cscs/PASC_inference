@@ -99,7 +99,7 @@ class TSData: public GeneralData {
 		void print_thetavector(ConsoleOutput &output) const;
 		std::string print_thetavector() const;
 
-		void save_gammavector(std::string filename, int blocksize, int type = 2) const; // impicit type gbTR
+		void save_gammavector(std::string filename, int blocksize, int type = 1) const; // impicit type gTbR
 
 		/** @brief print basic statistics about data
 		*
@@ -133,7 +133,7 @@ class TSData: public GeneralData {
 		*/
 		void shiftdata(double a);
 
-		virtual void load_gammavector(std::string filename, int type = 2) const; // impicit type gbTR
+		virtual void load_gammavector(std::string filename, int type = 1) const; // impicit type gTbR
 		virtual void load_gammavector(VectorBase &gamma0) const;
 
 		/** @brief compute nbins of actual gammavector

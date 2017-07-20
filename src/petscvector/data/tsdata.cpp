@@ -613,16 +613,7 @@ void TSData<PetscVector>::load_gammavector(std::string filename, int type) const
 
 	TRYCXX( VecDuplicate(gammavector_Vec,&gammavector_preload_Vec) );
 
-	/* type=0 -> TRn; type=1 -> TnR; type=2 -> nTR; */
-	if(type == 0){
-        this->decomposition->permute_gTRb_to_pdTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
-    }
-	if(type == 1){
-        this->decomposition->permute_gTbR_to_pdTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
-    }
-	if(type == 2){
-        this->decomposition->permute_gbTR_to_pdTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), false);
-    }
+    this->decomposition->permute_to_pdTRb(gammavector->get_vector(), gammavector_preload_Vec, decomposition->get_K(), type, false);
 
 	TRYCXX( VecCopy(gammavector_preload_Vec, gammavector->get_vector()));
 	TRYCXX( VecDestroy(&gammavector_preload_Vec) );
