@@ -35,6 +35,7 @@
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_dot.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_dot.cu" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_fem_image.cpp" />
+		<Unit filename="../../examples/test_classes/petscvector/algebra/test_fem_movie.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_seqarrayvector_dot.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consolearg.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consoleoutput.cpp" />
@@ -71,6 +72,7 @@
 		<Unit filename="../../examples/util/util_csv_to_vec.cpp" />
 		<Unit filename="../../examples/util/util_diff_norm_vec.cpp" />
 		<Unit filename="../../examples/util/util_dlib_image_to_vec.cpp" />
+		<Unit filename="../../examples/util/util_dlib_vec_to_image.cpp" />
 		<Unit filename="../../examples/util/util_print_vec.cpp" />
 		<Unit filename="../../examples/util/util_process_log.cpp" />
 		<Unit filename="../../examples/util/util_stat_vec.cpp" />
@@ -95,8 +97,6 @@
 		<Unit filename="../../include/external/petscvector/algebra/vector/petscvector.h" />
 		<Unit filename="../../include/external/petscvector/common/common.h" />
 		<Unit filename="../../include/external/petscvector/common/decomposition.h" />
-		<Unit filename="../../include/external/petscvector/common/fem.h" />
-		<Unit filename="../../include/external/petscvector/common/femhat.h" />
 		<Unit filename="../../include/external/petscvector/common/initialize.h" />
 		<Unit filename="../../include/external/petscvector/data/data.h" />
 		<Unit filename="../../include/external/petscvector/data/edfdata.h" />
@@ -146,8 +146,6 @@
 		<Unit filename="../../include/general/common/consoleinput.h" />
 		<Unit filename="../../include/general/common/consoleoutput.h" />
 		<Unit filename="../../include/general/common/decomposition.h" />
-		<Unit filename="../../include/general/common/fem2D.h" />
-		<Unit filename="../../include/general/common/femhat.h" />
 		<Unit filename="../../include/general/common/globalmanager.h" />
 		<Unit filename="../../include/general/common/initialize.h" />
 		<Unit filename="../../include/general/common/logging.h" />
