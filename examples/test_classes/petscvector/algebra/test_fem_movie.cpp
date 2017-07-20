@@ -88,7 +88,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 
 	coutMaster << " test_T                      = " << std::setw(50) << T << " (number of frames in movie)" << std::endl;
-	coutMaster << " test_type                   = " << std::setw(50) << MovieData<PetscVector>::get_type_name(type) << " (type of output vector [0=TRn, 1=TnR, 2=nTR])" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [0=FEM2D_SUM/1=FEM2D_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce             = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
@@ -136,7 +136,7 @@ int main( int argc, char *argv[] )
 /* 3.) prepare time-series data */
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 
-	/* load data from file and store it subject to decomposition */
+	/* load data from file and permute it subject to decomposition */
 	MovieData<PetscVector> mydata(decomposition_orig, width, height, filename_in, type);
 
 	/* print information about loaded data */

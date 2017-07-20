@@ -1,0 +1,28 @@
+#!/bin/bash   
+
+WIDTH=400
+HEIGHT=300
+T=100
+TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
+XDIM=3
+
+FILENAME_DATA="data/moviedot_data.bin"
+FILENAME_SOLUTION="data/moviedot_solution.bin"
+FILENAME_OUT="results/movie_dot.jpg"
+FILENAME_OUT_MOVIE="results/movie_dot.mp4"
+DIRNAME_OUT="results/movie_dot/"
+
+rm -f $DIRNAME_OUT/* $FILENAME_OUT_MOVIE
+
+# generate problem
+#./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_noise=0.2 --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
+./test_movie_generate_3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_noise=0.2 --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
+
+# from PETSc Vec to images
+./util_dlib_vec_to_image --filename_in=$FILENAME_SOLUTION --filename_in2=$FILENAME_DATA --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
+
+# create movie
+#mencoder mf://./results/movie_dot/*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o results/output.avi
+ffmpeg -framerate 2 -i $DIRNAME_OUT%03d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE
+
+

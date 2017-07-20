@@ -1,24 +1,30 @@
 #!/bin/bash
 
-WIDTH=40
-HEIGHT=30
+WIDTH=160
+HEIGHT=120
 T=20
-XDIM=1
-NOISE=0.5
-FEM_REDUCE=0.5
-REDUCED_WIDTH=20
+XDIM=3
+NOISE=0.2
+FEM_REDUCE=0.8
 NPROC=3
 FEM_TYPE=0
-TYPE=2
+TYPE=0
+
+FILENAME_DATA=data/moviedot_data.bin
+FILENAME_SOLUTION=results/moviedot_prolongated_datavector.bin
+FILENAME_OUT=results/movie_dot.jpg
+FILENAME_OUT_MOVIE=results/movie_dot.mp4
+DIRNAME_OUT="results/movie_dot/"
 
 # remove old data
-rm -f data/moviedot_data.bin results/moviedot_reduced_datavector.bin results/moviedot_prolongated_datavector.bin
+rm -f $FILENAME_DATA $FILENAME_SOLUTION $FILENAME_OUT_MOVIE results/moviedot_reduced_datavector.bin
 
 # generate problem
-./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=data/moviedot_data.bin --test_filename_solution=data/moviedot_solution.bin --test_filename_gamma0=data/moviedot_gamma0.bin --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
+#./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=data/moviedot_gamma0.bin --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
+./test_movie_generate_3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=data/moviedot_gamma0.bin --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
 
 # define parameters
-PARAM_FILENAME="--test_filename_in=data/moviedot_data.bin --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_xdim=$XDIM --test_T=$T"
+PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_xdim=$XDIM --test_T=$T --test_type=$TYPE"
 PARAM_BASIC="--test_printinfo=true --test_graph_save=true"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
@@ -31,16 +37,16 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_FEM $PARAM_LOG $PARAM_PETSC"
 
 ## run the job
-#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
-#mpiexec -n $NPROC ./test_petscvector_fem_image $PARAM_ALL
-./test_petscvector_fem_movie $PARAM_ALL
+mpiexec -n $NPROC ./test_petscvector_fem_movie $PARAM_ALL
+#./test_petscvector_fem_movie $PARAM_ALL
 
 # show results
 if [ -f data/moviedot_data.bin ]
 then
-	./gui_show_movie --filename=data/moviedot_data.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="Original movie" --type=$TYPE &
+	./gui_show_movie --filename=$FILENAME_DATA --width=$WIDTH --T=$T --xdim=$XDIM --title="Original movie" --type=$TYPE &
 fi
 
+REDUCED_WIDTH=80
 if [ -f results/moviedot_reduced_datavector.bin ]
 then
 	./gui_show_movie --filename=results/moviedot_reduced_datavector.bin --width=$REDUCED_WIDTH --T=$T --xdim=$XDIM --title="Reduced FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" --type=$TYPE &
@@ -48,7 +54,14 @@ fi
 
 if [ -f results/moviedot_prolongated_datavector.bin ]
 then
-	./gui_show_movie --filename=results/moviedot_prolongated_datavector.bin --width=$WIDTH --T=$T --xdim=$XDIM --title="Prolongated FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" --type=1 &
+	./gui_show_movie --filename=$FILENAME_SOLUTION --width=$WIDTH --T=$T --xdim=$XDIM --title="Prolongated FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" --type=$TYPE &
 fi
+
+
+# create movie
+./util_dlib_vec_to_image --filename_in=$FILENAME_DATA --filename_in2=$FILENAME_SOLUTION --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
+
+#mencoder mf://./results/movie_dot/*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o results/output.avi
+ffmpeg -framerate 2 -i $DIRNAME_OUT%02d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE
 
 

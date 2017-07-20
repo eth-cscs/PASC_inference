@@ -189,7 +189,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_T                      = " << std::setw(50) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_type                   = " << std::setw(50) << MovieData<PetscVector>::get_type_name(type) << " (type of output vector [0=TRn, 1=TnR, 2=nTR])" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
 
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT])" << std::endl;
@@ -278,15 +278,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		if(type == 0){
-            decomposition.permute_gTRb_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
-        }
-        if(type == 1){
-            decomposition.permute_gTbR_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
-        }
-        if(type == 2){
-            decomposition.permute_gbTR_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
-        }
+        decomposition.permute_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), type, false);
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );

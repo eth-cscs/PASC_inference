@@ -42,9 +42,6 @@ class MovieData: public TSData<VectorBase> {
 		int get_width() const;
 		int get_height() const;
 		int get_nvalues() const;
-
-		static std::string get_type_name(int type);
-
 };
 
 
@@ -308,18 +305,6 @@ int MovieData<VectorBase>::get_height() const {
 template<class VectorBase>
 int MovieData<VectorBase>::get_nvalues() const {
 	return this->get_xdim() * this->width * this->height;
-}
-
-template<class VectorBase>
-std::string MovieData<VectorBase>::get_type_name(int type){
-	std::ostringstream sout;
-
-	if(type == 0) sout << "TRn";
-	if(type == 1) sout << "TnR";
-	if(type == 2) sout << "nTR";
-	if(type < 0 | type > 2) sout << "error";
-
-	return sout.str();
 }
 
 

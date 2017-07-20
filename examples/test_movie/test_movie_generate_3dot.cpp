@@ -19,6 +19,7 @@
 #define DEFAULT_HEIGHT 20
 #define DEFAULT_T 10
 #define DEFAULT_TYPE 1
+#define DEFAULT_XDIM 3
 
 #define DEFAULT_K 2
 
@@ -44,6 +45,7 @@ int main( int argc, char *argv[] )
 		("test_height", boost::program_options::value< int >(), "height of movie [int]")
 		("test_T", boost::program_options::value< int >(), "number of frames in movie [int]")
 		("test_K", boost::program_options::value< int >(), "number of clusters for gamma0 [int]")
+		("test_xdim", boost::program_options::value< int >(), "number of pixel values [int]")
 		("test_type", boost::program_options::value< int >(), "type of output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_noise", boost::program_options::value< double >(), "parameter of noise [double]")
 		("test_generate_data", boost::program_options::value< bool >(), "generate solution and data with noise [bool]")
@@ -60,7 +62,7 @@ int main( int argc, char *argv[] )
     timer_all.start();
 
 	int width, height, T;
-	int K;
+	int K, xdim;
 	int type;
 	double noise;
 	std::string filename_data;
@@ -73,14 +75,14 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_filename_gamma0", &filename_gamma0, DEFAULT_FILENAME_GAMMA0);
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
+	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("test_noise", &noise, DEFAULT_NOISE);
 	consoleArg.set_option_value("test_generate_data", &generate_data, DEFAULT_GENERATE_DATA);
 	consoleArg.set_option_value("test_generate_gamma0", &generate_gamma0, DEFAULT_GENERATE_GAMMA0);
-
-	int xdim = 3;
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
 	coutMaster << " test_width                  = " << std::setw(30) << width << " (width of movie)" << std::endl;
@@ -88,27 +90,52 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_T                      = " << std::setw(30) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (number of pixel values)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters for gamma0)" << std::endl;
-	coutMaster << " test_type                   = " << std::setw(30) << type << " (type of output vector [0=TRn, 1=TnR, 2=nTR])" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(30) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " test_noise                  = " << std::setw(30) << noise << " (parameter of noise)" << std::endl;
 	coutMaster << " test_filename_data          = " << std::setw(30) << filename_data << " (name of output file with movie data)" << std::endl;
 	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of output file with original movie data without noise)" << std::endl;
 	coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of output file with initial gamma approximation)" << std::endl;
-	coutMaster << " test_generate_data          = " << std::setw(30) << generate_data << " (generate solution and data with noise)" << std::endl;
-	coutMaster << " test_generate_gamma0        = " << std::setw(30) << generate_gamma0 << " (generate gamma0)" << std::endl;
+	coutMaster << " test_generate_data          = " << std::setw(30) << print_bool(generate_data) << " (generate solution and data with noise)" << std::endl;
+	coutMaster << " test_generate_gamma0        = " << std::setw(30) << print_bool(generate_gamma0) << " (generate gamma0)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
-    double mu0[3] = {1.0,1.0,1.0}; /* color of background */
-    double mu1[3] = {1.0,0.0,0.0}; /* color of dots */
-    double mu2[3] = {0.0,1.0,0.0};
-    double mu3[3] = {0.0,0.0,1.0};
+    double mu0[xdim]; /* color of background */
+    double mu1[xdim],mu2[xdim],mu3[xdim]; /* color of dots */
+
+    if(xdim == 1){
+        /* greyscale image */
+        mu0[0] = 1.0;
+        mu1[0] = 0.0;
+        mu2[0] = 0.3;
+        mu3[0] = 0.6;
+    }
+
+    if(xdim == 3){
+        /* color image */
+        mu0[0] = 1.0;
+        mu0[1] = 1.0;
+        mu0[2] = 1.0;
+
+        mu1[0] = 1.0;
+        mu1[1] = 0.0;
+        mu1[2] = 0.0;
+
+        mu2[0] = 0.0;
+        mu2[1] = 1.0;
+        mu2[2] = 0.0;
+
+        mu3[0] = 0.0;
+        mu3[1] = 0.0;
+        mu3[2] = 1.0;
+    }
 
     double r = width*0.1;   			   /* radius of spheres */
     double r_path = width*0.2;   		   /* radius of path */
     double t_step = M_PI/20.0;
-	
+
 	/* allocate vector of data */
 	Vec x_Vec; /* solution in TR format*/
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&x_Vec) );
@@ -132,7 +159,7 @@ int main( int argc, char *argv[] )
 		std::normal_distribution<double> distribution(0.0,noise);
 
         double c1[2], c2[2], c3[2];            /* centers of spheres */
-        double value[3];
+        double value[xdim];
         for(int t=0; t < T; t++){
             /* compute new center of sphere */
             c1[0] = width*0.5 + r_path*cos(t_step*t);
@@ -147,50 +174,42 @@ int main( int argc, char *argv[] )
             for(int i=0;i<width;i++){
                 for(int j=0;j<height;j++){
 					/* value is background */
-					value[0] = mu0[0];
-					value[1] = mu0[1];
-					value[2] = mu0[2];
+					for(int n=0;n<xdim;n++) value[n] = mu0[n];
 
 					/* sphere1 */
                     if( (i-c1[0])*(i-c1[0]) + (j-c1[1])*(j-c1[1]) <= r*r ){
-                        value[0] = mu1[0];
-                        value[1] = mu1[1];
-                        value[2] = mu1[2];
+                        for(int n=0;n<xdim;n++) value[n] = mu1[n];
                     }
 
 					/* sphere2 */
                     if( (i-c2[0])*(i-c2[0]) + (j-c2[1])*(j-c2[1]) <= r*r ){
-                        value[0] = mu2[0];
-                        value[1] = mu2[1];
-                        value[2] = mu2[2];
+                        for(int n=0;n<xdim;n++) value[n] = mu2[n];
                     }
 
 					/* sphere3 */
                     if( (i-c3[0])*(i-c3[0]) + (j-c3[1])*(j-c3[1]) <= r*r ){
-                        value[0] = mu3[0];
-                        value[1] = mu3[1];
-                        value[2] = mu3[2];
+                        for(int n=0;n<xdim;n++) value[n] = mu3[n];
                     }
 
                     /* store computed value on right (!) position */
 					for(int n=0; n < xdim; n++){
 						int idx = 0;
-						
+
 						/* 0=TRn */
 						if(type == 0){
 							idx = t*xdim*width*height + j*width*xdim + i*xdim + n;
-						} 
+						}
 
 						/* 1=TnR */
 						if(type == 1){
 							idx = t*xdim*width*height + n*width*height + j*width + i;
-						} 
+						}
 
 						/* 2=nTR] */
 						if(type == 2){
 							idx = n*T*width*height + t*width*height + j*width + i;
-						} 
-						
+						}
+
 						x_arr[idx] = value[n];
 
 						/* add noise */

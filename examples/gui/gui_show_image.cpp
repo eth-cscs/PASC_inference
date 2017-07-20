@@ -22,6 +22,7 @@
 //#include <dlib/image_transforms.h>
 
 #define NUMBER_OF_LABELS 9
+#define JPEG_QUALITY 95
 
 using namespace dlib;
 using namespace pascinference;
@@ -502,7 +503,7 @@ void imageplotter::save_image( const std::string& file_name ) {
 
 	bool saved = false;
 	if(extension.compare(".jpg")){
-		save_jpeg(image_dlib , file_name, 75);
+		save_jpeg(image_dlib , file_name, JPEG_QUALITY);
 		coutMaster << "jpeg saved: " << file_name << std::endl;
 		saved = true;
 	}

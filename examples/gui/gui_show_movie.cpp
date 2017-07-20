@@ -23,6 +23,7 @@
 //#include <dlib/image_transforms.h>
 
 #define NUMBER_OF_LABELS 9
+#define JPEG_QUALITY 95
 
 using namespace dlib;
 using namespace pascinference;
@@ -126,8 +127,6 @@ public:
     show_movie_window(int type);
     show_movie_window(std::string filename, int type, std::string title, int width = 0, int T = 1, int xdim = 0);
     ~show_movie_window();
-
-    std::string get_type_name(int type) const;
 
 };
 
@@ -276,7 +275,8 @@ show_movie_window::show_movie_window(int type) : /* All widgets take their paren
 
 	select_type.set_pos(120,180);
 	select_type.set_width(70);
-	select_type.set_text(get_type_name(mymovieplotter.get_type()));
+	select_type.set_text(Decomposition<PetscVector>::get_type_name(type));
+
 	label_type.set_pos(10,185);
 	label_type.set_text("type   :");
 	select_type.disable();
@@ -464,16 +464,6 @@ void show_movie_window::on_button_apply_size(){
 
 }
 
-std::string show_movie_window::get_type_name(int type) const{
-	std::ostringstream sout;
-
-	if(type == 0) sout << "TRn";
-	if(type == 1) sout << "TnR";
-	if(type == 2) sout << "nTR";
-	if(type < 0 | type > 2) sout << "error";
-
-	return sout.str();
-}
 
 /* ------------------------- movie plotter -------------- */
 
@@ -610,7 +600,7 @@ void movieplotter::save_image( const std::string& file_name ) {
 
 	bool saved = false;
 	if(extension.compare(".jpg")){
-		save_jpeg(image_dlib , file_name, 75);
+		save_jpeg(image_dlib , file_name, JPEG_QUALITY);
 		coutMaster << "jpeg saved: " << file_name << std::endl;
 		saved = true;
 	}

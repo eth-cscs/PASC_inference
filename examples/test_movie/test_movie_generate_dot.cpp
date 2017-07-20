@@ -84,13 +84,13 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_T                      = " << std::setw(30) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (number of pixel values)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters for gamma0)" << std::endl;
-	coutMaster << " test_type                   = " << std::setw(30) << type << " (type of output vector [0=TRn, 1=TnR, 2=nTR])" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(30) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " test_noise                  = " << std::setw(30) << noise << " (parameter of noise)" << std::endl;
 	coutMaster << " test_filename_data          = " << std::setw(30) << filename_data << " (name of output file with movie data)" << std::endl;
 	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of output file with original movie data without noise)" << std::endl;
 	coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of output file with initial gamma approximation)" << std::endl;
-	coutMaster << " test_generate_data          = " << std::setw(30) << generate_data << " (generate solution and data with noise)" << std::endl;
-	coutMaster << " test_generate_gamma0        = " << std::setw(30) << generate_gamma0 << " (generate gamma0)" << std::endl;
+	coutMaster << " test_generate_data          = " << std::setw(30) << print_bool(generate_data) << " (generate solution and data with noise)" << std::endl;
+	coutMaster << " test_generate_gamma0        = " << std::setw(30) << print_bool(generate_gamma0) << " (generate gamma0)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 	/* say hello */

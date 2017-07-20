@@ -233,6 +233,23 @@ void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const {
 }
 
 template<>
+void Decomposition<PetscVector>::permute_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, int type, bool invert) const {
+	LOG_FUNC_BEGIN
+
+    /*	TRn */
+    if(type==0) permute_gTRb_to_pdTRb(orig_Vec, new_Vec, blocksize, invert);
+
+	/*  TnR */
+    if(type==1) permute_gTbR_to_pdTRb(orig_Vec, new_Vec, blocksize, invert);
+
+	/*  nTR */
+    if(type==2) permute_gbTR_to_pdTRb(orig_Vec, new_Vec, blocksize, invert);
+
+	LOG_FUNC_END
+}
+
+
+template<>
 void Decomposition<PetscVector>::permute_gTRb_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
@@ -460,10 +477,6 @@ void Decomposition<PetscVector>::createIS_dTR_to_pdTRb(IS *is, int blocksize) co
             }
 		}
 	}
-
-    coutMaster << "permutation miracle:" << std::endl;
-    coutAll << print_array(local_arr, local_size) << std::endl;
-    coutAll.synchronize();
 
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, local_arr, PETSC_COPY_VALUES,is) );
 

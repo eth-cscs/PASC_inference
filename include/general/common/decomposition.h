@@ -246,6 +246,8 @@ class Decomposition {
 		int get_Pr(int r_global) const;
 
 #ifdef USE_PETSC
+		void permute_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, int type, bool invert) const;
+
 		void permute_gTRb_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 		void permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 		void permute_gbTR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
@@ -266,6 +268,11 @@ class Decomposition {
 		 */
 		void createIS_datan(IS *is, int n) const;
 #endif
+
+
+		static std::string get_type_name(int type);
+		static std::string get_type_list();
+
 };
 
 /* ----------------- Decomposition implementation ------------- */
@@ -627,6 +634,32 @@ int Decomposition<VectorBase>::get_invPr(int r_global) const {
 template<class VectorBase>
 int Decomposition<VectorBase>::get_Pr(int r_global) const {
 	return DDR_permutation[r_global];
+}
+
+template<class VectorBase>
+std::string Decomposition<VectorBase>::get_type_name(int type){
+	std::ostringstream sout;
+
+	if(type == 0) sout << "TRn";
+	if(type == 1) sout << "TnR";
+	if(type == 2) sout << "nTR";
+	if(type < 0 | type > 2) sout << "error";
+
+	return sout.str();
+}
+
+template<class VectorBase>
+std::string Decomposition<VectorBase>::get_type_list(){
+	std::ostringstream sout;
+
+    int max_type_id = 3;
+
+    for(int i=0;i<max_type_id;i++){
+       sout << i << "=" << get_type_name(i);
+       if(i<max_type_id-1) sout << ", ";
+    }
+
+	return sout.str();
 }
 
 
