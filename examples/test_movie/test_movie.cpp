@@ -246,8 +246,6 @@ int main( int argc, char *argv[] )
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
-//    decomposition.print_content(coutMaster, coutAll, true);
-
 
 	if(graph_save){
 		/* save decoposed graph to see if space (graph) decomposition is working */

@@ -460,20 +460,14 @@ void Decomposition<PetscVector>::createIS_dTR_to_pdTRb(IS *is, int blocksize) co
 
 	for(int t=0;t<Tlocal;t++){
 		for(int r=0;r<Rlocal;r++){
-            int r_g = DD_permutation[Rbegin+r]; /* space in global range */
-            int t_g = Tbegin + t;                  /* time in global range */
-
-            /* find ranks of given t and r_g */
-            int ddt_rank = get_DDT_rank(t_g);
-            int ddr_rank = get_DDR_rank(r_g);
-            int ddtr_rank = get_DDTR_rank(ddt_rank, ddr_rank);
+            int r_global = DD_permutation[Rbegin+r]; /* space in global range */
+            int t_global = Tbegin + t;                  /* time in global range */
 
             /* compute index in original decomposed array */
-            int r_d = this->DDTR_ranges[ddtr_rank] + (t_g - this->DDT_ranges[ddt_rank])*(this->DDR_ranges[ddr_rank+1] - this->DDR_ranges[ddr_rank]) + (r_g - this->DDR_ranges[ddr_rank]);
+            int idx_pdTR = this->get_pdTR_idx(t_global, r_global);
 
             for(int k=0;k<blocksize;k++){
-                local_arr[t*Rlocal*blocksize + r*blocksize + k] = (Tbegin+t)*R*blocksize + DD_permutation[Rbegin+r]*blocksize + k;
-                //local_arr[t*Rlocal*blocksize + r*blocksize + k] = r_d*blocksize + k;
+                local_arr[t*Rlocal*blocksize + r*blocksize + k] = idx_pdTR*blocksize + k;
             }
 		}
 	}
@@ -500,6 +494,26 @@ void Decomposition<PetscVector>::createIS_datan(IS *is, int n) const {
 
 	LOG_FUNC_END
 }
+
+template<>
+int Decomposition<PetscVector>::get_pdTRb_idx(int t_global, int r_global, int blocksize, int k) const {
+    int idx_pdTR = get_pdTR_idx(t_global, r_global);
+
+    return idx_pdTR*blocksize + k;
+}
+
+template<> int Decomposition<PetscVector>::get_pdTR_idx(int t_global, int r_global) const {
+    /* find ranks of given t and r_g */
+    int ddt_rank = get_DDT_rank(t_global);
+    int ddr_rank = get_DDR_rank(r_global);
+    int ddtr_rank = get_DDTR_rank(ddt_rank, ddr_rank);
+
+    /* compute index in original decomposed array */
+    int idx_TR = this->DDTR_ranges[ddtr_rank] + (t_global - this->DDT_ranges[ddt_rank])*(this->DDR_ranges[ddr_rank+1] - this->DDR_ranges[ddr_rank]) + (r_global - this->DDR_ranges[ddr_rank]);
+
+    return idx_TR;
+}
+
 
 
 }

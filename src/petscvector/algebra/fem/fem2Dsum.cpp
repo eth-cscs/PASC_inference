@@ -40,6 +40,9 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
         int Tbegin1 = this->decomposition1->get_Tbegin();
         int Tlocal1 = this->decomposition1->get_Tlocal();
 
+        int Tbegin2 = this->decomposition2->get_Tbegin();
+        int Tlocal2 = this->decomposition2->get_Tlocal();
+
         int width1 = grid1->get_width();
         int width2 = grid2->get_width();
         int height1 = grid1->get_height();
@@ -57,7 +60,7 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
             TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
             /* get local necessary part for local computation */
-            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,overlap1_idx_size,overlap1_idx,PETSC_COPY_VALUES,&gammak1_overlap_is) );
+            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,Tlocal1*overlap1_idx_size,overlap1_idx,PETSC_COPY_VALUES,&gammak1_overlap_is) );
             TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_overlap_is, &gammak1_overlap_Vec) );
 
             /* sequential version */
@@ -65,7 +68,7 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
             TRYCXX( VecGetArray(gammak2_Vec,&gammak2_arr) );
 
             //TODO: OpenMP? GPU?
-            for(int t=0; t < Tlocal1; t++){
+            for(int t=0; t < Tlocal2; t++){
                 for(int r2=0; r2 < Rlocal2; r2++){
                     /* r2 is in dR format, transfer it to R format */
                     int r2R = DD_invpermutation2[Rbegin2+r2];
@@ -89,7 +92,6 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
 //                          int r1_overlap = ((int)y1 - bounding_box1[2])*width_overlap1 + ((int)x1 - bounding_box1[0]);
 
                             if(xx1 >= 0 & xx1 < width1 & yy1 >= 0 & yy1 <= height1 & r1_overlap >= 0 & r1_overlap < overlap1_idx_size){
-//                                value += gammak1_arr[t*this->overlap1_idx_size + r1_overlap];
                                 value += gammak1_arr[t*this->overlap1_idx_size + r1_overlap];
 
                                 nmb++;
@@ -99,7 +101,8 @@ void Fem2DSum<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
                     }
 
                     /* write value */
-                    gammak2_arr[t*Rlocal2 + r2] = value/(double)nmb; ////0.0001*r1_overlap;
+                    gammak2_arr[t*Rlocal2 + r2] = value/(double)nmb;
+
                 }
             }
 
@@ -157,6 +160,7 @@ void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
         int Rlocal2 = this->decomposition2->get_Rlocal();
 
         int Tlocal1 = this->decomposition1->get_Tlocal();
+        int Tlocal2 = this->decomposition2->get_Tlocal();
 
         int width1 = grid1->get_width();
         int width2 = grid2->get_width();
@@ -171,14 +175,11 @@ void Fem2DSum<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
             this->decomposition1->createIS_gammaK(&gammak1_is, k);
             this->decomposition2->createIS_gammaK(&gammak2_is, k);
 
-            //TODO: temp
-//            TRYCXX( ISView(gammak1_is, PETSC_VIEWER_STDOUT_WORLD) );
-
             TRYCXX( VecGetSubVector(gamma1_Vec, gammak1_is, &gammak1_Vec) );
             TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
             /* get local necessary part for local computation */
-            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,overlap2_idx_size,overlap2_idx,PETSC_COPY_VALUES,&gammak2_overlap_is) ); //TODO:: PETSC_USE_POINTER ?
+            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,Tlocal2*overlap2_idx_size,overlap2_idx,PETSC_COPY_VALUES,&gammak2_overlap_is) ); //TODO:: PETSC_USE_POINTER ?
             TRYCXX( VecGetSubVector(gammak2_Vec, gammak2_overlap_is, &gammak2_overlap_Vec) );
 
             /* sequential version */

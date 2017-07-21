@@ -1,14 +1,14 @@
 #!/bin/bash
 
-WIDTH=160
+WIDTH=150
 HEIGHT=120
 T=20
 XDIM=3
 NOISE=0.2
-FEM_REDUCE=0.8
+FEM_REDUCE=0.5
 NPROC=3
-FEM_TYPE=0
-TYPE=0
+FEM_TYPE=1
+TYPE=2
 
 FILENAME_DATA=data/moviedot_data.bin
 FILENAME_SOLUTION=results/moviedot_prolongated_datavector.bin
@@ -37,7 +37,8 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_FEM $PARAM_LOG $PARAM_PETSC"
 
 ## run the job
-mpiexec -n $NPROC ./test_petscvector_fem_movie $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_fem_movie $PARAM_ALL
+#mpiexec -n $NPROC ./test_petscvector_fem_movie $PARAM_ALL
 #./test_petscvector_fem_movie $PARAM_ALL
 
 # show results
@@ -46,7 +47,7 @@ then
 	./gui_show_movie --filename=$FILENAME_DATA --width=$WIDTH --T=$T --xdim=$XDIM --title="Original movie" --type=$TYPE &
 fi
 
-REDUCED_WIDTH=80
+REDUCED_WIDTH=75
 if [ -f results/moviedot_reduced_datavector.bin ]
 then
 	./gui_show_movie --filename=results/moviedot_reduced_datavector.bin --width=$REDUCED_WIDTH --T=$T --xdim=$XDIM --title="Reduced FEM_REDUCE=$FEM_REDUCE FEM_TYPE=$FEM_TYPE" --type=$TYPE &
@@ -59,9 +60,9 @@ fi
 
 
 # create movie
-./util_dlib_vec_to_image --filename_in=$FILENAME_DATA --filename_in2=$FILENAME_SOLUTION --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
+#./util_dlib_vec_to_image --filename_in=$FILENAME_DATA --filename_in2=$FILENAME_SOLUTION --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
 
 #mencoder mf://./results/movie_dot/*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o results/output.avi
-ffmpeg -framerate 2 -i $DIRNAME_OUT%02d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE
+#ffmpeg -framerate 2 -i $DIRNAME_OUT%02d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE
 
 

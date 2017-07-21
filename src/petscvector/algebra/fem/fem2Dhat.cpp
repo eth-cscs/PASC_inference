@@ -56,7 +56,7 @@ void Fem2DHat<PetscVector>::reduce_gamma(GeneralVector<PetscVector> *gamma1, Gen
             TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
             /* get local necessary part for local computation */
-            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,overlap1_idx_size,overlap1_idx,PETSC_COPY_VALUES,&gammak1_overlap_is) );
+            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,Tlocal1*overlap1_idx_size,overlap1_idx,PETSC_COPY_VALUES,&gammak1_overlap_is) );
             TRYCXX( VecGetSubVector(gammak1_Vec, gammak1_overlap_is, &gammak1_overlap_Vec) );
 
             //TODO:temp
@@ -193,6 +193,7 @@ void Fem2DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
         int Rlocal2 = this->decomposition2->get_Rlocal();
 
         int Tlocal1 = this->decomposition1->get_Tlocal();
+        int Tlocal2 = this->decomposition1->get_Tlocal();
 
         int width1 = grid1->get_width();
         int width2 = grid2->get_width();
@@ -211,7 +212,7 @@ void Fem2DHat<PetscVector>::prolongate_gamma(GeneralVector<PetscVector> *gamma2,
             TRYCXX( VecGetSubVector(gamma2_Vec, gammak2_is, &gammak2_Vec) );
 
             /* get local necessary part for local computation */
-            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,overlap2_idx_size,overlap2_idx,PETSC_COPY_VALUES,&gammak2_overlap_is) ); //TODO:: PETSC_USE_POINTER ?
+            TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD,Tlocal2*overlap2_idx_size,overlap2_idx,PETSC_COPY_VALUES,&gammak2_overlap_is) ); //TODO:: PETSC_USE_POINTER ?
             TRYCXX( VecGetSubVector(gammak2_Vec, gammak2_overlap_is, &gammak2_overlap_Vec) );
 
             /* sequential version */

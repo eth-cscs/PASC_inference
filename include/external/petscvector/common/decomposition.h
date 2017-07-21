@@ -25,6 +25,9 @@ template<> void Decomposition<PetscVector>::permute_gTRb_to_pdTRb(Vec orig_Vec, 
 template<> void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 template<> void Decomposition<PetscVector>::permute_gbTR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
 
+template<> int Decomposition<PetscVector>::get_pdTRb_idx(int t_global, int r_global, int blocksize, int k) const;
+template<> int Decomposition<PetscVector>::get_pdTR_idx(int t_global, int r_global) const;
+
 /* PETSc specific stuff */
 
 template<> void Decomposition<PetscVector>::createIS_dTR_to_pdTRb(IS *is, int blocksize) const;

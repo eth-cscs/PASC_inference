@@ -224,10 +224,18 @@ class Decomposition {
 		 *
 		 * @param t_global global time index
 		 * @param r_global global space index
-		 * @param k index of cluster
-		 * @return local index in gamma vector
+		 * @return global index in gamma vector
 		 */
-		int get_idxglobal(int t_global, int r_global, int k) const;
+		int get_pdTR_idx(int t_global, int r_global) const;
+
+		/** @brief get local index in gamma vector from global indexes
+		 *
+		 * @param t_global global time index
+		 * @param r_global global space index
+		 * @param k index of cluster
+		 * @return global index in gamma vector
+		 */
+		int get_pdTRb_idx(int t_global, int r_global, int blocksize, int k) const;
 
 		/** @brief get the index of node in original graph from index in permutated graph
 		 *
@@ -621,9 +629,20 @@ void Decomposition<VectorBase>::print(ConsoleOutput &output) const {
 }
 
 template<class VectorBase>
-int Decomposition<VectorBase>::get_idxglobal(int t_global, int r_global, int k) const {
+int Decomposition<VectorBase>::get_pdTRb_idx(int t_global, int r_global, int blocksize, int k) const {
+
+    //TODO
+
+	int idx_global = get_pdTR_idx(t_global, r_global);
+	return idx_global*blocksize + k;
+}
+
+template<class VectorBase>
+int Decomposition<VectorBase>::get_pdTR_idx(int t_global, int r_global) const {
+
+    //TODO
 	int Pr = DDR_permutation[r_global];
-	return t_global*R*K + Pr*K + k;
+	return t_global*R + Pr;
 }
 
 template<class VectorBase>
