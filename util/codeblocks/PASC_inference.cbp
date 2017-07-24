@@ -69,6 +69,7 @@
 		<Unit filename="../../examples/test_signal/test_signal.cpp" />
 		<Unit filename="../../examples/test_signal/test_signal1D_generate.cpp" />
 		<Unit filename="../../examples/test_signal/test_signal2D_generate.cpp" />
+		<Unit filename="../../examples/test_signal/test_signal_fuzzykmeans.cpp" />
 		<Unit filename="../../examples/util/util_csv_to_vec.cpp" />
 		<Unit filename="../../examples/util/util_diff_norm_vec.cpp" />
 		<Unit filename="../../examples/util/util_dlib_image_to_vec.cpp" />
