@@ -21,7 +21,7 @@
 #define DEFAULT_WIDTH 30
 #define DEFAULT_HEIGHT 20
 #define DEFAULT_T 10
-#define DEFAULT_TYPE 1
+#define DEFAULT_DATA_TYPE 1
 #define DEFAULT_GRAPH_SAVE false
 #define DEFAULT_CUTGAMMA false
 #define DEFAULT_SCALEDATA false
@@ -54,7 +54,7 @@ int main( int argc, char *argv[] )
 		("test_width", boost::program_options::value<int>(), "width of movie [int]")
 		("test_height", boost::program_options::value<int>(), "height of movie [int]")
 		("test_T", boost::program_options::value<int>(), "number of frames in movie [int]")
-		("test_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
+		("test_data_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
@@ -66,7 +66,7 @@ int main( int argc, char *argv[] )
 		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]")
 		("test_saveall", boost::program_options::value<bool>(), "save results for all epssqr, not only for the best one [bool]")
 		("test_saveresult", boost::program_options::value<bool>(), "save the solution [bool]")
-		("test_Theta", boost::program_options::value<std::vector<std::string> >()->multitoken(), "given solution Theta [K*int]")
+		("test_Theta", boost::program_options::value<std::vector<std::string> >()->multitoken(), "given solution Theta [K*\"xdim*double\"]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
 		("test_shortinfo_values", boost::program_options::value< std::string >(), "additional values in shortinfo [string]")
@@ -88,7 +88,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, width, height, T, xdim, fem_type, type;
+	int K, annealing, width, height, T, xdim, fem_type, data_type;
 	double fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, graph_save, saveall, saveresult;
 
@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
 	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
-	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
+	consoleArg.set_option_value("test_data_type", &type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
@@ -189,7 +189,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_T                      = " << std::setw(50) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_type                   = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
+	coutMaster << " test_data_type              = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(data_type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
 
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT])" << std::endl;
@@ -258,7 +258,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 
 	/* load data from file and store it subject to decomposition */
-	MovieData<PetscVector> mydata(decomposition, width, height, filename_in, type);
+	MovieData<PetscVector> mydata(decomposition, width, height, filename_in, data_type);
 
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
@@ -276,7 +276,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-        decomposition.permute_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), type, false);
+        decomposition.permute_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), data_type, false);
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
@@ -398,8 +398,8 @@ int main( int argc, char *argv[] )
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveMovie_gammavector(oss.str());
-			mydata.saveMovie_reconstructed(oss.str(),type);
+			mydata.save_gammavector(oss.str());
+			mydata.save_reconstructed(oss.str(),data_type);
 			oss.str("");
 		}
 
@@ -449,8 +449,8 @@ int main( int argc, char *argv[] )
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << filename_out;
-		mydata.saveMovie_gammavector(oss.str());
-		mydata.saveMovie_reconstructed(oss.str(),type);
+		mydata.save_gammavector(oss.str());
+		mydata.save_reconstructed(oss.str(),data_type);
 		oss.str("");
 	}
 

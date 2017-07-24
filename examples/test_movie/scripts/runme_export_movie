@@ -3,7 +3,7 @@
 WIDTH=400
 HEIGHT=300
 T=100
-TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
+DATA_TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
 XDIM=3
 
 FILENAME_DATA="data/moviedot_data.bin"
@@ -15,8 +15,8 @@ DIRNAME_OUT="results/movie_dot/"
 rm -f $DIRNAME_OUT/* $FILENAME_OUT_MOVIE
 
 # generate problem
-#./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_noise=0.2 --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
-./test_movie_generate_3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_noise=0.2 --test_generate_data=true --test_generate_gamma0=false --test_type=$TYPE --test_xdim=$XDIM
+#./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_noise=0.2 --test_generate_data=true --test_generate_gamma0=false --test_data_type=$DATA_TYPE --test_xdim=$XDIM
+./test_movie_generate_3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_noise=0.2 --test_generate_data=true --test_generate_gamma0=false --test_data_type=$DATA_TYPE --test_xdim=$XDIM
 
 # from PETSc Vec to images
 ./util_dlib_vec_to_image --filename_in=$FILENAME_SOLUTION --filename_in2=$FILENAME_DATA --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE

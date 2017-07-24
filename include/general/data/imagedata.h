@@ -33,12 +33,6 @@ class ImageData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void saveImage_datavector(std::string filename) const;
-		void saveImage_gammavector(std::string filename) const;
-		void saveImage_reconstructed(std::string filename) const;
-
-		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
-
 		int get_width() const;
 		int get_height() const;
 		int get_nvalues() const;
@@ -253,44 +247,6 @@ void ImageData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOut
 template<class VectorBase>
 std::string ImageData<VectorBase>::get_name() const {
 	return "Image Time-series Data";
-}
-
-template<class VectorBase>
-void ImageData<VectorBase>::saveImage_datavector(std::string filename) const {
-	LOG_FUNC_BEGIN
-
-	//TODO
-
-	LOG_FUNC_END
-}
-
-template<class VectorBase>
-void ImageData<VectorBase>::saveImage_gammavector(std::string filename) const {
-	LOG_FUNC_BEGIN
-
-	//TODO
-
-	LOG_FUNC_END
-}
-
-template<class VectorBase>
-void ImageData<VectorBase>::saveImage_reconstructed(std::string filename) const {
-	LOG_FUNC_BEGIN
-
-	//TODO
-
-	LOG_FUNC_END
-}
-
-template<class VectorBase>
-double ImageData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
-	LOG_FUNC_BEGIN
-
-	//TODO
-
-	LOG_FUNC_END
-
-	return -1.0;
 }
 
 template<class VectorBase>

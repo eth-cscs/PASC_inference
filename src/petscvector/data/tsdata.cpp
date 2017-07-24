@@ -235,18 +235,6 @@ void TSData<PetscVector>::cutgamma() const {
 }
 
 template<>
-void TSData<PetscVector>::save_datavector(std::string filename) const {
-	LOG_FUNC_BEGIN
-
-	PetscViewer viewer_out;
-	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD,filename.c_str(),FILE_MODE_WRITE,&viewer_out) );
-	TRYCXX( VecView( datavector->get_vector(), viewer_out) );
-	TRYCXX( PetscViewerDestroy(&viewer_out) );
-
-	LOG_FUNC_END
-}
-
-template<>
 void TSData<PetscVector>::save_thetavector(std::string filename) const {
 	LOG_FUNC_BEGIN
 
@@ -296,12 +284,130 @@ std::string TSData<PetscVector>::print_thetavector() const {
 	return out.str();
 }
 
-
 template<>
-void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize, int type) const {
+void TSData<PetscVector>::save_datavector(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
 
-	//TODO
+	Timer timer_save;
+	timer_save.restart();
+	timer_save.start();
+
+	std::ostringstream oss_name_of_file;
+
+	/* prepare vectors to save as a permutation to original layout */
+	Vec datasave_Vec;
+	this->decomposition->createGlobalVec_data(&datasave_Vec);
+	GeneralVector<PetscVector> datasave(datasave_Vec);
+
+	/* save datavector - just for fun; to see if it was loaded in a right way */
+	oss_name_of_file << "results/" << filename << "_datavector.bin";
+    this->decomposition->permute_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), type, true);
+
+	datasave.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	timer_save.stop();
+	coutAll <<  " - datavector saved in: " << timer_save.get_value_sum() << std::endl;
+	coutAll.synchronize();
+
+	LOG_FUNC_END
+}
+
+template<>
+void TSData<PetscVector>::save_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	Timer timer_save;
+	timer_save.restart();
+	timer_save.start();
+
+	std::ostringstream oss_name_of_file;
+
+	oss_name_of_file << "results/" << filename << "_gamma.bin";
+
+	Vec gammasave_Vec;
+    TRYCXX( VecDuplicate(gammavector->get_vector(), &gammasave_Vec) );
+	this->decomposition->permute_gTbR_to_pdTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
+	GeneralVector<PetscVector> gammasave(gammasave_Vec);
+	gammasave.save_binary(oss_name_of_file.str());
+
+	oss_name_of_file.str("");
+
+	timer_save.stop();
+	coutAll <<  " - gammavector saved in: " << timer_save.get_value_sum() << std::endl;
+	coutAll.synchronize();
+
+	LOG_FUNC_END
+}
+
+template<>
+void TSData<PetscVector>::save_reconstructed(std::string filename, int type) const {
+	LOG_FUNC_BEGIN
+
+	Timer timer_save;
+	timer_save.restart();
+	timer_save.start();
+
+	std::ostringstream oss_name_of_file;
+
+	/* compute recovered image */
+	Vec gammak_Vec;
+	IS gammak_is;
+	Vec datan_recovered_Vec;
+	IS datan_is;
+
+	Vec data_recovered_Vec;
+	TRYCXX( VecDuplicate(datavector->get_vector(), &data_recovered_Vec) );
+	TRYCXX( VecSet(data_recovered_Vec,0.0));
+
+	double *theta_arr;
+	TRYCXX( VecGetArray(thetavector->get_vector(),&theta_arr) );
+
+	int K = this->get_K();
+	int xdim = this->get_xdim();
+
+	for(int k=0;k<K;k++){
+		/* get gammak */
+		this->decomposition->createIS_gammaK(&gammak_is, k);
+		TRYCXX( VecGetSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+
+		/* add to recovered image */
+		for(int n=0;n<xdim;n++){
+			/* get datan */
+			this->decomposition->createIS_datan(&datan_is, n);
+			TRYCXX( VecGetSubVector(data_recovered_Vec, datan_is, &datan_recovered_Vec) );
+
+			/* add to recovered image */
+			TRYCXX( VecAXPY(datan_recovered_Vec, theta_arr[k*xdim + n], gammak_Vec) );
+
+			/* restore data */
+			TRYCXX( VecRestoreSubVector(data_recovered_Vec, datan_is, &datan_recovered_Vec) );
+
+			TRYCXX( ISDestroy(&datan_is) );
+		}
+
+		TRYCXX( VecRestoreSubVector(gammavector->get_vector(), gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
+	}
+
+	TRYCXX( VecRestoreArray(thetavector->get_vector(),&theta_arr) );
+
+	/* permute recovered data */
+	/* prepare vectors to save as a permutation to original layout */
+	Vec datasave_Vec;
+    TRYCXX( VecDuplicate(data_recovered_Vec, &datasave_Vec) );
+
+    this->decomposition->permute_to_pdTRb(datasave_Vec, data_recovered_Vec, decomposition->get_xdim(), type, true);
+
+	/* save recovered data */
+	oss_name_of_file << "results/" << filename << "_recovered.bin";
+	GeneralVector<PetscVector> datasave(datasave_Vec);
+	datasave.save_binary(oss_name_of_file.str());
+	oss_name_of_file.str("");
+
+	timer_save.stop();
+	coutAll <<  " - reconstructed signal saved in: " << timer_save.get_value_sum() << std::endl;
+	coutAll.synchronize();
 
 	LOG_FUNC_END
 }
@@ -651,6 +757,73 @@ double TSData<PetscVector>::compute_gammavector_nbins() {
 	return nbins;
 }
 
+template<>
+double TSData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const {
+	LOG_FUNC_BEGIN
+
+	double abserr;
+
+	Vec data_Vec = this->datavector->get_vector();
+	Vec solution_Vec = solution.get_vector();
+	Vec gammavector_Vec = this->gammavector->get_vector();
+
+	/* vector of absolute error */
+	Vec data_abserr_Vec;
+	TRYCXX( VecDuplicate(data_Vec, &data_abserr_Vec) );
+
+	/* compute recovered signal */
+	Vec datan_abserr_Vec;
+	IS datan_is;
+	Vec gammak_Vec;
+	IS gammak_is;
+
+	/* abserr = -solution */
+	TRYCXX( VecCopy(solution_Vec,data_abserr_Vec));
+	TRYCXX( VecScale(data_abserr_Vec,-1.0));
+
+	double *theta_arr;
+	TRYCXX( VecGetArray(this->thetavector->get_vector(),&theta_arr) );
+
+	int K = this->get_K();
+	int xdim = this->get_xdim();
+
+	for(int k=0;k<K;k++){
+		/* get gammak */
+		this->decomposition->createIS_gammaK(&gammak_is, k);
+		TRYCXX( VecGetSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
+
+		for(int n=0;n<xdim;n++){
+			/* get datan */
+			this->decomposition->createIS_datan(&datan_is, n);
+			TRYCXX( VecGetSubVector(data_abserr_Vec, datan_is, &datan_abserr_Vec) );
+
+			/* add to recovered image */
+			TRYCXX( VecAXPY(datan_abserr_Vec, theta_arr[k*xdim + n], gammak_Vec) );
+
+			/* restore data */
+			TRYCXX( VecRestoreSubVector(data_abserr_Vec, datan_is, &datan_abserr_Vec) );
+			TRYCXX( ISDestroy(&datan_is) );
+
+		}
+
+		TRYCXX( VecRestoreSubVector(gammavector_Vec, gammak_is, &gammak_Vec) );
+		TRYCXX( ISDestroy(&gammak_is) );
+	}
+
+	TRYCXX( VecRestoreArray(this->thetavector->get_vector(),&theta_arr) );
+
+	/* compute mean(abs(solution - data_recovered) */
+//	TRYCXX( VecAbs(data_abserr_Vec) );
+//	TRYCXX( VecSum(data_abserr_Vec, &abserr) );
+//	int T = this->get_T();
+//	abserr = abserr/(double)T;
+
+	TRYCXX( VecNorm(data_abserr_Vec, NORM_1, &abserr) );
+
+	LOG_FUNC_END
+
+	return abserr;
+}
 
 }
 } /* end namespace */

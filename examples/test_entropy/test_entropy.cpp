@@ -298,7 +298,7 @@ int main( int argc, char *argv[] )
 		if(saveall){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveGamma(oss.str());
+			mydata.save_gammavector(oss.str());
 			oss.str("");
 		}
 
@@ -351,7 +351,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 	coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 	oss << filename_out;
-	mydata.saveGamma(oss.str());
+	mydata.save_gammavector(oss.str());
 	oss.str("");
 
 	/* print solution */

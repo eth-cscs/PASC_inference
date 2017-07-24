@@ -7,7 +7,7 @@ K=4
 NOISE=0.0
 FEM_REDUCE=1.0
 FEM_TYPE=1
-TYPE=2
+DATA_TYPE=2
 XDIM=3
 ANNEALING=1
 NPROC=3
@@ -16,10 +16,10 @@ NPROC=3
 rm -f data/movie3dot_data.bin data/movie3dot_solution.bin data/movie3dot_gamma0.bin results/movie3dot_recovered.bin results/movie3dot_gamma.bin
 
 # generate problem
-./test_movie_generate_3dot --test_width=$WIDTH --test_height=$HEIGHT --test_type=$TYPE --test_T=$T --test_filename_data=data/movie3dot_data.bin --test_filename_solution=data/movie3dot_solution.bin --test_filename_gamma0=data/movie3dot_gamma0.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true
+./test_movie_generate_3dot --test_width=$WIDTH --test_height=$HEIGHT --test_data_type=$DATA_TYPE --test_T=$T --test_filename_data=data/movie3dot_data.bin --test_filename_solution=data/movie3dot_solution.bin --test_filename_gamma0=data/movie3dot_gamma0.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true
 
 # define parameters
-PARAM_FILENAME="--test_filename_in=data/movie3dot_data.bin --test_filename_solution=data/movie3dot_solution.bin --test_filename_out=movie3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM --test_type=$TYPE"
+PARAM_FILENAME="--test_filename_in=data/movie3dot_data.bin --test_filename_solution=data/movie3dot_solution.bin --test_filename_out=movie3dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM --test_data_type=$DATA_TYPE"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 #PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
 PARAM_THETA="--test_Theta=1.0,1.0,1.0 --test_Theta=1.0,0.0,0.0 --test_Theta=0.0,1.0,0.0 --test_Theta=0.0,0.0,1.0 --tssolver_thetasolver_updatebeforesolve=false"

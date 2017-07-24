@@ -14,6 +14,7 @@
 
 #define DEFAULT_EPSSQR 1
 #define DEFAULT_K 2
+#define DEFAULT_DATA_TYPE 1
 #define DEFAULT_XDIM 1
 #define DEFAULT_FEM_TYPE 1
 #define DEFAULT_FEM_REDUCE 1.0
@@ -40,6 +41,7 @@ int main( int argc, char *argv[] )
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_xdim", boost::program_options::value<int>(), "dimension of data points [int]")
+		("test_data_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [0=FEM_SUM/1=FEM_HAT]")
 		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
 		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
@@ -55,7 +57,7 @@ int main( int argc, char *argv[] )
 		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]")
 		("test_saveall", boost::program_options::value<bool>(), "save results for all epssqr, not only for the best one [bool]")
 		("test_saveresult", boost::program_options::value<bool>(), "save the solution [bool]")
-		("test_Theta", boost::program_options::value<std::vector<double> >()->multitoken(), "given solution Theta [K*int]")
+		("test_Theta", boost::program_options::value<std::vector<std::string> >()->multitoken(), "given solution Theta [K*\"xdim*double\"]")
 		("test_shortinfo", boost::program_options::value<bool>(), "save shortinfo file after computation [bool]")
 		("test_shortinfo_header", boost::program_options::value< std::string >(), "additional header in shortinfo [string]")
 		("test_shortinfo_values", boost::program_options::value< std::string >(), "additional values in shortinfo [string]")
@@ -85,7 +87,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, fem_type, xdim;
+	int K, annealing, fem_type, xdim, data_type;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 	double fem_reduce;
 
@@ -99,6 +101,7 @@ int main( int argc, char *argv[] )
 
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("test_data_type", &data_type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_fem_type", &fem_type, DEFAULT_FEM_TYPE);
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, DEFAULT_FEM_REDUCE);
 	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_SIGNAL_IN);
@@ -140,20 +143,14 @@ int main( int argc, char *argv[] )
 
 	/* maybe theta is given in console parameters */
 	bool given_Theta;
-	std::vector<double> Theta_list;
-	double Theta_solution[K];
+	std::vector<std::string> Theta_list;
 	if(consoleArg.set_option_value("test_Theta", &Theta_list)){
 		given_Theta = true;
 
 		/* control number of provided Theta */
 		if(Theta_list.size() != K){
-			coutMaster << "number of provided Theta solutions is different then number of clusters!" << std::endl;
+			coutMaster << "number of provided Theta solutions is different then number of clusters! (you provided " << Theta_list.size() << " parameters)" << std::endl;
 			return 0;
-		}
-
-		/* store solution in array */
-		for(int k=0;k < K;k++){
-			Theta_solution[k] = Theta_list[k];
 		}
 	} else {
 		given_Theta = false;
@@ -168,43 +165,40 @@ int main( int argc, char *argv[] )
 #else
 	coutMaster << " computing on CPU" << std::endl;
 #endif
-	coutMaster << " ranks_per_node              = " << std::setw(30) << ranks_per_node << " (number of MPI processes on one node)" << std::endl;
-	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (dimension of data points)" << std::endl;
-	if(given_Theta){
-		coutMaster << " test_Theta                  = " << std::setw(30) << print_array(Theta_solution,K) << " (given solution Theta)" << std::endl;
-	} else {
-		coutMaster << " test_Theta                  = " << std::setw(30) << "NO" << " (given solution Theta)" << std::endl;
-	}
-	coutMaster << " test_fem_type               = " << std::setw(30) << fem_type << " (type of used FEM to reduce problem [0=FEM_SUM/1=FEM_HAT])" << std::endl;
-	coutMaster << " test_fem_reduce             = " << std::setw(30) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
-	coutMaster << " test_filename_in            = " << std::setw(30) << filename_in << " (name of input file with signal data)" << std::endl;
-	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)" << std::endl;
+	coutMaster << " ranks_per_node              = " << std::setw(50) << ranks_per_node << " (number of MPI processes on one node)" << std::endl;
+	coutMaster << " DDT_size                    = " << std::setw(50) << DDT_size << " (decomposition in space)" << std::endl;
+	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (dimension of data points)" << std::endl;
+	coutMaster << " test_data_type              = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(data_type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
+	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
+	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [0=FEM_SUM/1=FEM_HAT])" << std::endl;
+	coutMaster << " test_fem_reduce             = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
+	coutMaster << " test_filename_in            = " << std::setw(50) << filename_in << " (name of input file with signal data)" << std::endl;
+	coutMaster << " test_filename_out           = " << std::setw(50) << filename_out << " (name of output file with filtered signal data)" << std::endl;
 	if(given_solution){
-		coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)" << std::endl;
+		coutMaster << " test_filename_solution      = " << std::setw(50) << filename_solution << " (name of input file with original signal data without noise)" << std::endl;
 	} else {
-		coutMaster << " test_filename_solution      = " << std::setw(30) << "NO" << " (name of input file with original signal data without noise)" << std::endl;
+		coutMaster << " test_filename_solution      = " << std::setw(50) << "NO" << " (name of input file with original signal data without noise)" << std::endl;
 	}
 	if(given_gamma0){
-		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(50) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
 	} else {
-		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(50) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
 	}
-	coutMaster << " test_saveall                = " << std::setw(30) << print_bool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
-	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
-	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma               = " << std::setw(30) << print_bool(cutgamma) << " (cut gamma to {0;1})" << std::endl;
-	coutMaster << " test_cutdata                = " << std::setw(30) << print_bool(cutdata) << " (cut data to {0,1})" << std::endl;
-	coutMaster << " test_scaledata              = " << std::setw(30) << print_bool(scaledata) << " (scale data to {-1,1})" << std::endl;
-	coutMaster << " test_saveresult             = " << std::setw(30) << print_bool(saveresult) << " (save reconstructed signal)" << std::endl;
-	coutMaster << " test_saveall                = " << std::setw(30) << print_bool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
-	coutMaster << " test_printstats             = " << std::setw(30) << print_bool(printstats) << " (print basic statistics of data)" << std::endl;
-	coutMaster << " test_printinfo              = " << std::setw(30) << print_bool(printinfo) << " (print informations about created objects)" << std::endl;
-	coutMaster << " test_shortinfo              = " << std::setw(30) << print_bool(shortinfo_write_or_not) << " (save shortinfo file after computation)" << std::endl;
-	coutMaster << " test_shortinfo_header       = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_values       = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_filename     = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
+	coutMaster << " test_saveall                = " << std::setw(50) << print_bool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
+	coutMaster << " test_epssqr                 = " << std::setw(50) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
+	coutMaster << " test_annealing              = " << std::setw(50) << annealing << " (number of annealing steps)" << std::endl;
+	coutMaster << " test_cutgamma               = " << std::setw(50) << print_bool(cutgamma) << " (cut gamma to {0;1})" << std::endl;
+	coutMaster << " test_cutdata                = " << std::setw(50) << print_bool(cutdata) << " (cut data to {0,1})" << std::endl;
+	coutMaster << " test_scaledata              = " << std::setw(50) << print_bool(scaledata) << " (scale data to {-1,1})" << std::endl;
+	coutMaster << " test_saveresult             = " << std::setw(50) << print_bool(saveresult) << " (save reconstructed signal)" << std::endl;
+	coutMaster << " test_saveall                = " << std::setw(50) << print_bool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
+	coutMaster << " test_printstats             = " << std::setw(50) << print_bool(printstats) << " (print basic statistics of data)" << std::endl;
+	coutMaster << " test_printinfo              = " << std::setw(50) << print_bool(printinfo) << " (print informations about created objects)" << std::endl;
+	coutMaster << " test_shortinfo              = " << std::setw(50) << print_bool(shortinfo_write_or_not) << " (save shortinfo file after computation)" << std::endl;
+	coutMaster << " test_shortinfo_header       = " << std::setw(50) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_values       = " << std::setw(50) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_filename     = " << std::setw(50) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 
@@ -239,7 +233,7 @@ int main( int argc, char *argv[] )
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
-	mydata.set_decomposition(decomposition);
+	mydata.set_decomposition(decomposition, data_type);
 
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
@@ -256,7 +250,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		decomposition.permute_bTR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+		decomposition.permute_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), data_type, false);
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
@@ -296,7 +290,16 @@ int main( int argc, char *argv[] )
 	if(printinfo) mysolver.print(coutMaster,coutAll);
 
 	/* set solution if obtained from console */
-	if(given_Theta)	mysolver.set_solution_theta(Theta_solution);
+	double *Theta_solution;
+	if(given_Theta){
+		/* parse strings to doubles */
+		Theta_solution = new double[K*xdim];
+		if(!parse_strings_to_doubles(K,xdim, Theta_list, Theta_solution) ){
+			coutMaster << "unable to parse input Theta values!" << std::endl;
+			return 0;
+		}
+		mysolver.set_solution_theta(Theta_solution);
+	}
 
 /* 6.) solve the problem with epssqrs and remember best solution */
 	double epssqr;
@@ -368,8 +371,8 @@ int main( int argc, char *argv[] )
 		if(saveall && saveresult){
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
-			mydata.saveSignal(oss.str(),false);
-			mydata.saveGamma(oss.str());
+			mydata.save_reconstructed(oss.str(),data_type);
+			mydata.save_gammavector(oss.str());
 			oss.str("");
 		}
 
@@ -420,8 +423,8 @@ int main( int argc, char *argv[] )
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << filename_out;
-		mydata.saveSignal(oss.str(),false);
-		mydata.saveGamma(oss.str());
+		mydata.save_reconstructed(oss.str(),data_type);
+		mydata.save_gammavector(oss.str());
 		oss.str("");
 	}
 

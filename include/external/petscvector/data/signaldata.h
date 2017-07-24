@@ -10,10 +10,7 @@ namespace pascinference {
 namespace data {
 
 template<> SignalData<PetscVector>::SignalData(std::string filename_data);
-template<> void SignalData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_decomposition);
-template<> void SignalData<PetscVector>::saveGamma(std::string filename) const;
-template<> void SignalData<PetscVector>::saveSignal(std::string filename, bool save_original) const;
-template<> double SignalData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const;
+template<> void SignalData<PetscVector>::set_decomposition(Decomposition<PetscVector> &new_decomposition, int type);
 
 }
 } /* end namespace */

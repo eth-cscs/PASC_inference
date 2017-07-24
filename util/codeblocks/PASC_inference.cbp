@@ -106,6 +106,7 @@
 		<Unit filename="../../include/external/petscvector/data/signaldata.h" />
 		<Unit filename="../../include/external/petscvector/data/tsdata.h" />
 		<Unit filename="../../include/external/petscvector/model/entropyh1fem.h" />
+		<Unit filename="../../include/external/petscvector/model/fuzzykmeans.h" />
 		<Unit filename="../../include/external/petscvector/model/graphh1fem.h" />
 		<Unit filename="../../include/external/petscvector/model/model.h" />
 		<Unit filename="../../include/external/petscvector/petscvector.h" />
@@ -167,6 +168,7 @@
 		<Unit filename="../../include/general/data/tsdata.h" />
 		<Unit filename="../../include/general/general.h" />
 		<Unit filename="../../include/general/model/entropyh1fem.h" />
+		<Unit filename="../../include/general/model/fuzzykmeans.h" />
 		<Unit filename="../../include/general/model/generalmodel.h" />
 		<Unit filename="../../include/general/model/graphh1fem.h" />
 		<Unit filename="../../include/general/model/model.h" />
@@ -186,7 +188,7 @@
 		<Unit filename="../../include/options.h" />
 		<Unit filename="../../include/pascinference.h" />
 		<Unit filename="../../src/boost/options.cpp" />
-		<Unit filename="../../src/general/common/arrayoperation.cpp" />
+		<Unit filename="../../src/general/algebra/arrayoperation.cpp" />
 		<Unit filename="../../src/general/common/consoleinput.cpp" />
 		<Unit filename="../../src/general/common/consoleoutput.cpp" />
 		<Unit filename="../../src/general/common/logging.cpp" />
@@ -231,6 +233,7 @@
 		<Unit filename="../../src/petscvector/data/signaldata.cpp" />
 		<Unit filename="../../src/petscvector/data/tsdata.cpp" />
 		<Unit filename="../../src/petscvector/model/entropyh1fem.cpp" />
+		<Unit filename="../../src/petscvector/model/fuzzykmeansfem.cpp" />
 		<Unit filename="../../src/petscvector/model/graphh1fem.cpp" />
 		<Unit filename="../../src/petscvector/solver/cgqpsolver.cpp" />
 		<Unit filename="../../src/petscvector/solver/entropysolverdlib.cpp" />

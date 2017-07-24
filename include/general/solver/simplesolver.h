@@ -7,6 +7,7 @@
 #ifndef PASC_SIMPLESOLVER_H
 #define	PASC_SIMPLESOLVER_H
 
+#include "general/solver/generalsolver.h"
 #include "general/data/simpledata.h"
 
 namespace pascinference {

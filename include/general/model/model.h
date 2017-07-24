@@ -11,6 +11,7 @@
 #include "general/model/tsmodel.h"
 #include "general/model/entropyh1fem.h"
 #include "general/model/graphh1fem.h"
+#include "general/model/fuzzykmeans.h"
 
 
 #endif

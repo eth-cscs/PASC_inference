@@ -7,7 +7,7 @@ K=2
 NOISE=0.0
 FEM_REDUCE=1.0
 FEM_TYPE=1
-TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
+DATA_TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
 ANNEALING=1
 NPROC=3
 
@@ -34,10 +34,10 @@ DIRNAME_OUT="results/moviedot/"
 rm -f $FILENAME_DATA $FILENAME_RECOVERED $FILENAME_SOLUTION $FILENAME_GAMMA0 $FILENAME_GAMMA $FILENAME_OUT $DIRNAME_OUT/* $FILENAME_OUT_MOVIE
 
 # generate problem
-./test_movie_generate_dot --test_mu0=$MU0 --test_mu1=$MU1 --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_type=$TYPE --test_xdim=$XDIM
+./test_movie_generate_dot --test_mu0=$MU0 --test_mu1=$MU1 --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_data_type=$DATA_TYPE --test_xdim=$XDIM
 
 # define parameters
-PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_type=$TYPE --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
+PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_data_type=$DATA_TYPE --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 
 PARAM_THETA="--test_Theta=$MU0 --test_Theta=$MU1 --tssolver_thetasolver_updatebeforesolve=false"

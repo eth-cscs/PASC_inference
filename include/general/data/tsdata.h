@@ -93,7 +93,9 @@ class TSData: public GeneralData {
 		GeneralVector<VectorBase> *get_gammavector() const;
 		GeneralVector<VectorBase> *get_thetavector() const;
 
-		void save_datavector(std::string filename) const;
+		virtual void save_datavector(std::string filename, int type = 1) const;
+		virtual void save_gammavector(std::string filename) const;
+		virtual void save_reconstructed(std::string filename, int type = 1) const;
 
 		void save_thetavector(std::string filename) const;
 		void print_thetavector(ConsoleOutput &output) const;
@@ -135,6 +137,7 @@ class TSData: public GeneralData {
 
 		virtual void load_gammavector(std::string filename, int type = 1) const; // impicit type gTbR
 		virtual void load_gammavector(VectorBase &gamma0) const;
+        virtual double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
 
 		/** @brief compute nbins of actual gammavector
 		 */
@@ -537,15 +540,6 @@ void TSData<VectorBase>::cutgamma() const{
 }
 
 template<class VectorBase>
-void TSData<VectorBase>::save_datavector(std::string filename) const {
-	LOG_FUNC_BEGIN
-
-	//TODO
-
-	LOG_FUNC_END
-}
-
-template<class VectorBase>
 void TSData<VectorBase>::save_thetavector(std::string filename) const {
 	LOG_FUNC_BEGIN
 
@@ -572,9 +566,26 @@ std::string TSData<VectorBase>::print_thetavector() const {
 	return out.str();
 }
 
+template<class VectorBase>
+void TSData<VectorBase>::save_datavector(std::string filename, int type) const {
+	LOG_FUNC_BEGIN
+
+	//TODO
+
+	LOG_FUNC_END
+}
 
 template<class VectorBase>
-void TSData<VectorBase>::save_gammavector(std::string filename, int blocksize, int type) const {
+void TSData<VectorBase>::save_gammavector(std::string filename) const {
+	LOG_FUNC_BEGIN
+
+	//TODO
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void TSData<VectorBase>::save_reconstructed(std::string filename, int type) const {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -665,7 +676,16 @@ double TSData<VectorBase>::compute_gammavector_nbins() {
 	return 0.0;
 }
 
+template<class VectorBase>
+double TSData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
+	LOG_FUNC_BEGIN
 
+	//TODO
+
+	LOG_FUNC_END
+
+	return -1.0;
+}
 
 }
 } /* end namespace */

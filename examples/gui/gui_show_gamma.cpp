@@ -16,12 +16,15 @@
 
 #define NUMBER_OF_LABELS 11
 #define MAX_K 20
+#define DEFAULT_TYPE 1
+#define DEFAULT_K 1
 
 using namespace dlib;
 using namespace pascinference;
 
 class gammaplotter : public drawable {
 	private:
+		int type;
 		Vec *myvector_Vec;
 		bool myvector_loaded;
 		int K;
@@ -47,7 +50,7 @@ class gammaplotter : public drawable {
 		label *t_label;
 		
 	public: 
-		gammaplotter(drawable_window& w);
+		gammaplotter(drawable_window& w, int type);
 		~gammaplotter();	
 		
 		void set_plotting_area(rectangle area);
@@ -119,8 +122,8 @@ private:
 	void fill_labels();
 
 public:
-    show_gamma_window();
-    show_gamma_window(std::string filename, std::string title, int K = 1);
+    show_gamma_window(int type);
+    show_gamma_window(std::string filename, int type, std::string title, int K = 1);
     ~show_gamma_window();
 
 };
@@ -134,6 +137,7 @@ int main( int argc, char *argv[] ) {
 	opt_problem.add_options()
 		("filename", boost::program_options::value<std::string>(), "gamma file to load [string]")
 		("K", boost::program_options::value<int>(), "number of clusters [int]")
+		("type", boost::program_options::value< int >(), "type of input vector [0=TRn, 1=TnR, 2=nTR]")
 		("title", boost::program_options::value<std::string>(), "title of window [string]")	;
 	consoleArg.get_description()->add(opt_problem);
 
@@ -144,14 +148,15 @@ int main( int argc, char *argv[] ) {
 
 	/* get values provided as console parameters */
 	std::string filename, title;
-	int K;
+	int K, type;
 
 	consoleArg.set_option_value("filename", &filename, "");
 	consoleArg.set_option_value("title", &title, "");
-	consoleArg.set_option_value("K", &K, 1);
+	consoleArg.set_option_value("type", &type, DEFAULT_TYPE);
+	consoleArg.set_option_value("K", &K, DEFAULT_K);
 
     // create our window
-    show_gamma_window my_window(filename,title,K);
+    show_gamma_window my_window(filename,type,title,K);
 
     // wait until the user closes this window before we let the program 
     // terminate.
@@ -166,7 +171,7 @@ int main( int argc, char *argv[] ) {
 
 /* ---------------- implementation -------------- */
 
-show_gamma_window::show_gamma_window(std::string filename, std::string title, int K) : show_gamma_window() {
+show_gamma_window::show_gamma_window(std::string filename, int type, std::string title, int K) : show_gamma_window(type) {
 	if(title != ""){
 		set_title(title);		
 	}
@@ -182,12 +187,12 @@ show_gamma_window::show_gamma_window(std::string filename, std::string title, in
 	
 }
 
-show_gamma_window::show_gamma_window() : /* All widgets take their parent window as an argument to their constructor. */
+show_gamma_window::show_gamma_window(int type) : /* All widgets take their parent window as an argument to their constructor. */
         mbar(*this),
         mtracker(*this, mygammaplotter),
         select_K(*this),
         button_K(*this),
-        mygammaplotter(*this)
+        mygammaplotter(*this,type)
 {
 
 	/* set the size of window */
@@ -360,7 +365,7 @@ void gammaplotter::draw(const canvas& c) const {
 
 }
 
-gammaplotter::gammaplotter(drawable_window& w): drawable(w) {
+gammaplotter::gammaplotter(drawable_window& w, int type): drawable(w) {
 	/* create empty vector */
 	myvector_Vec = new Vec();
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,myvector_Vec) );
@@ -370,6 +375,7 @@ gammaplotter::gammaplotter(drawable_window& w): drawable(w) {
 	K = 1;
 	T = 0;
 	cut = -1;
+	this->type = type;
 	
 	t_label = new label(w);
 	t_label->hide();
@@ -504,8 +510,15 @@ void gammaplotter::plot_vector(const canvas& c) const{
 			/* interpolate values */
 			int left_t = (int)cut_t;
 			int right_t = left_t + 1;
-			double av = (values[k*T+right_t] - values[k*T+left_t])/(double)(right_t - left_t);
-			double bv = values[k*T+right_t] - av*right_t;
+			double av, bv;
+			if(type == 0 | type == 1){
+				av = (values[right_t*K + k] - values[left_t*K + k])/(double)(right_t - left_t);
+				bv = values[right_t*K + k] - av*right_t;
+			}
+			if(type == 2){
+				av = (values[k*T+right_t] - values[k*T+left_t])/(double)(right_t - left_t);
+				bv = values[k*T+right_t] - av*right_t;
+			}
 			double v = av*cut_t + bv;
 
 			double yv = y_begin + py_min + k*py_step + (py_step -(ay*v + by));
@@ -553,10 +566,15 @@ void gammaplotter::plot_vector(const canvas& c) const{
 		/* plot gamma */
 		for(int t=1;t<T;t++){
 			mypoint1(0) = x_begin + ax*(t-1) + bx;
-			mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*values[k*T+t-1] + by));
-
 			mypoint2(0) = x_begin + ax*t + bx;
-			mypoint2(1) = y_begin + py_min + k*py_step + (py_step - (ay*values[k*T+t] + by));
+			if(type == 0 | type == 1){
+				mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*values[(t-1)*K + k] + by));
+				mypoint2(1) = y_begin + py_min + k*py_step + (py_step - (ay*values[t*K + k] + by));
+			}
+			if(type == 2){
+				mypoint1(1) = y_begin + py_min + k*py_step + (py_step -(ay*values[k*T+t-1] + by));
+				mypoint2(1) = y_begin + py_min + k*py_step + (py_step - (ay*values[k*T+t] + by));
+			}
 		
 			if(k>=1){
 				mypoint1(1) += k*py_space;

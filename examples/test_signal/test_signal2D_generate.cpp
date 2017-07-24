@@ -17,6 +17,7 @@
 #define DEFAULT_REPEAT_NMB 5
 #define DEFAULT_NOISE 0.1
 #define DEFAULT_K 3
+#define DEFAULT_DATA_TYPE 0
 
 #define DEFAULT_FILENAME_DATA "data/test_signal/signal2D_data.bin"
 #define DEFAULT_FILENAME_SOLUTION "data/test_signal/signal2D_solution.bin"
@@ -56,6 +57,7 @@ int main( int argc, char *argv[] )
 		("test_Tperiod", boost::program_options::value< int >(), "length of one period of time-series [int]")
 		("test_repeat_nmb", boost::program_options::value< int >(), "number of periods in time-series [int]")
 		("test_K", boost::program_options::value< int >(), "number of clusters for gamma0 [int]")
+		("test_data_type", boost::program_options::value< int >(), "type of output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_noise", boost::program_options::value< double >(), "parameter of noise [double]")
 		("test_generate_data", boost::program_options::value< bool >(), "generate solution and data with noise [bool]")
 		("test_generate_gamma0", boost::program_options::value< bool >(), "generate gamma0 [bool]");
@@ -74,6 +76,7 @@ int main( int argc, char *argv[] )
 	int Tperiod;
 	int repeat_nmb;
 	double noise;
+    int data_type;
 	std::string filename_data;
 	std::string filename_solution;
 	std::string filename_gamma0;
@@ -84,6 +87,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_filename_gamma0", &filename_gamma0, DEFAULT_FILENAME_GAMMA0);
 	consoleArg.set_option_value("test_Tperiod", &Tperiod, DEFAULT_TPERIOD);
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
+	consoleArg.set_option_value("test_data_type", &data_type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_repeat_nmb", &repeat_nmb, DEFAULT_REPEAT_NMB);
 	consoleArg.set_option_value("test_noise", &noise, DEFAULT_NOISE);
 	consoleArg.set_option_value("test_generate_data", &generate_data, DEFAULT_GENERATE_DATA);
@@ -93,17 +97,17 @@ int main( int argc, char *argv[] )
 	int DDT_size = GlobalManager.get_size();
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
-	coutMaster << " test_Tperiod                = " << std::setw(30) << Tperiod << " (length of one period of time-series)" << std::endl;
-	coutMaster << " test_repeat_nmb             = " << std::setw(30) << repeat_nmb << " (number of periods in time-series)" << std::endl;
-	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters for gamma0)" << std::endl;
-	coutMaster << " test_noise                  = " << std::setw(30) << noise << " (parameter of noise)" << std::endl;
-	coutMaster << " test_filename_data          = " << std::setw(30) << filename_data << " (name of input file with signal data)" << std::endl;
-	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of input file with original signal data without noise)" << std::endl;
-	coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
-	coutMaster << " test_generate_data          = " << std::setw(30) << generate_data << " (generate solution and data with noise)" << std::endl;
-	coutMaster << " test_generate_gamma0        = " << std::setw(30) << generate_gamma0 << " (generate gamma0)" << std::endl;
+	coutMaster << " test_Tperiod                = " << std::setw(50) << Tperiod << " (length of one period of time-series)" << std::endl;
+	coutMaster << " test_repeat_nmb             = " << std::setw(50) << repeat_nmb << " (number of periods in time-series)" << std::endl;
+	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters for gamma0)" << std::endl;
+	coutMaster << " test_data_type              = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(data_type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
+	coutMaster << " test_noise                  = " << std::setw(50) << noise << " (parameter of noise)" << std::endl;
+	coutMaster << " test_filename_data          = " << std::setw(50) << filename_data << " (name of input file with signal data)" << std::endl;
+	coutMaster << " test_filename_solution      = " << std::setw(50) << filename_solution << " (name of input file with original signal data without noise)" << std::endl;
+	coutMaster << " test_filename_gamma0        = " << std::setw(50) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
+	coutMaster << " test_generate_data          = " << std::setw(50) << generate_data << " (generate solution and data with noise)" << std::endl;
+	coutMaster << " test_generate_gamma0        = " << std::setw(50) << generate_gamma0 << " (generate gamma0)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
-
 
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
@@ -112,8 +116,8 @@ int main( int argc, char *argv[] )
 	int xdim = 2;
 	int K_true = 3;
 	double mu[xdim*K_true] = {1.0,1.0, 2.0,2.0, 3.0,1.5};
-	coutMaster << " T                           = " << std::setw(30) << T << " (length of time-series)" << std::endl;
-	coutMaster << " mu                          = " << std::setw(30) << print_array(mu,6) << " (mean values in cluster [mu1_x,mu1_y,mu2_x,mu2_y,mu3_x,mu3_y])" << std::endl;
+	coutMaster << " T                           = " << std::setw(50) << T << " (length of time-series)" << std::endl;
+	coutMaster << " mu                          = " << std::setw(50) << print_array(mu,6) << " (mean values in cluster [mu1_x,mu1_y,mu2_x,mu2_y,mu3_x,mu3_y])" << std::endl;
 
 	/* allocate vector of data */
 	Vec x;
@@ -138,11 +142,21 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecGetArray(x_data,&x_data_arr));
 		for(int t=0;t<T;t++){
 			for(int n=0;n<xdim;n++){
-                double number = distribution(generator);
+                double noise_value = distribution(generator);
+
+                int idx;
+                if(data_type == 0 | data_type==1){
+                    /* type TRn,TnR with R=1 -> Tn */
+                    idx = t*xdim + n;
+                }
+                if(data_type==2){
+                    /* type TRn,TnR with R=1 -> nT */
+                    idx = n*T + t;
+                }
 
 				cluster_id = myget_cluster_id(t, Tperiod);
-				x_arr[n*T + t] = mu[cluster_id*xdim + n];
-				x_data_arr[n*T + t] = x_arr[n*T + t] + number;
+				x_arr[idx] = mu[cluster_id*xdim + n];
+				x_data_arr[idx] = x_arr[idx] + noise_value;
 			}
 		}
 		TRYCXX( VecRestoreArray(x,&x_arr));

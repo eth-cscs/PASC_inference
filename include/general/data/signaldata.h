@@ -1,6 +1,6 @@
 /** @file signaldata.h
  *  @brief class for manipulation with signal data
- * 
+ *
  *  @author Lukas Pospisil
  */
 
@@ -17,9 +17,9 @@ namespace data {
 
 /** class SignalData
  * @brief data of one-dimensional signal
- * 
+ *
  * Class for manipulation with data from simple one-dimensional signal.
- */ 
+ */
 template<class VectorBase>
 class SignalData: public TSData<VectorBase> {
 	protected:
@@ -38,14 +38,8 @@ class SignalData: public TSData<VectorBase> {
 		virtual void printcontent(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 		virtual std::string get_name() const;
 
-		void saveGamma(std::string filename) const;
-		void saveSignal(std::string filename, bool save_original=true) const;
-
 		int get_Tpreliminary() const;
-		void set_decomposition(Decomposition<VectorBase> &decomposition);
-		double compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const;
-
-
+		void set_decomposition(Decomposition<VectorBase> &decomposition, int type=0);
 };
 
 
@@ -64,7 +58,7 @@ SignalData<VectorBase>::SignalData(std::string filename_data){
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -72,18 +66,18 @@ SignalData<VectorBase>::SignalData(std::string filename_data){
 template<class VectorBase>
 SignalData<VectorBase>::~SignalData(){
 	LOG_FUNC_BEGIN
-	
+
 	LOG_FUNC_END
 }
 
 
 /* set decomposition - from preliminary to real data */
 template<class VectorBase>
-void SignalData<VectorBase>::set_decomposition(Decomposition<VectorBase> &new_decomposition) {
+void SignalData<VectorBase>::set_decomposition(Decomposition<VectorBase> &new_decomposition, int type) {
 	LOG_FUNC_BEGIN
 
 	//TODO
-	
+
 	LOG_FUNC_END
 }
 
@@ -93,7 +87,7 @@ void SignalData<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	if(this->tsmodel){
 		output <<  " - T:           " << this->get_T() << std::endl;
@@ -104,7 +98,7 @@ void SignalData<VectorBase>::print(ConsoleOutput &output) const {
 		output <<  " - model:       NO" << std::endl;
 	}
 	output <<  " - R:           " << this->get_R() << std::endl;
-	
+
 	output <<  " - datavector:  ";
 	if(this->datavector){
 		output << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -135,7 +129,7 @@ void SignalData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* give information about presence of the data */
 	if(this->tsmodel){
 		output_global <<  " - T:           " << this->get_T() << std::endl;
@@ -150,7 +144,7 @@ void SignalData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &
 		output_global <<  " - model:       NO" << std::endl;
 	}
 	output_global <<  " - R:           " << this->get_R() << std::endl;
-	
+
 	output_global <<  " - datavector:  ";
 	if(this->datavector){
 		output_global << "YES (size: " << this->datavector->size() << ")" << std::endl;
@@ -159,7 +153,7 @@ void SignalData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &
 	} else {
 		output_global << "NO" << std::endl;
 	}
-	
+
 	output_global <<   " - gammavector: ";
 	if(this->gammavector){
 		output_global << "YES (size: " << this->gammavector->size() << ")" << std::endl;
@@ -168,7 +162,7 @@ void SignalData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &
 	} else {
 		output_global << "NO" << std::endl;
 	}
-	
+
 	output_global <<   " - thetavector: ";
 	if(this->thetavector){
 		output_global << "YES (size: " << this->thetavector->size() << ")" << std::endl;
@@ -189,7 +183,7 @@ void SignalData<VectorBase>::printcontent(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output <<  this->get_name() << std::endl;
-	
+
 	/* print the content of the data */
 	output <<  " - datavector: ";
 	if(this->datavector){
@@ -221,7 +215,7 @@ void SignalData<VectorBase>::printcontent(ConsoleOutput &output_global,ConsoleOu
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	/* print the content of the data */
 	output_local <<  " - datavector: ";
 	if(this->datavector){
@@ -258,40 +252,9 @@ std::string SignalData<VectorBase>::get_name() const {
 }
 
 template<class VectorBase>
-void SignalData<VectorBase>::saveGamma(std::string filename) const{
-	LOG_FUNC_BEGIN
-	
-	//TODO
-	
-	LOG_FUNC_END
-}
-
-template<class VectorBase>
-void SignalData<VectorBase>::saveSignal(std::string filename, bool save_original) const{
-	LOG_FUNC_BEGIN
-	
-	//TODO
-	
-	LOG_FUNC_END
-}
-
-template<class VectorBase>
 int SignalData<VectorBase>::get_Tpreliminary() const{
 	return this->Tpreliminary;
 }
-
-template<class VectorBase>
-double SignalData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase> &solution) const {
-	LOG_FUNC_BEGIN	
-
-	//TODO
-	
-	LOG_FUNC_END
-	
-	return -1.0;
-}
-
-
 
 }
 } /* end namespace */

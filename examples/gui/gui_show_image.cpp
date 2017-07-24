@@ -23,6 +23,7 @@
 
 #define NUMBER_OF_LABELS 9
 #define JPEG_QUALITY 95
+#define DEFAULT_TYPE 1
 
 using namespace dlib;
 using namespace pascinference;
@@ -119,7 +120,7 @@ int main( int argc, char *argv[] ) {
 		("filename", boost::program_options::value<std::string>(), "image to load [string]")
 		("width", boost::program_options::value<int>(), "width of image [int]")
 		("xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
-		("type", boost::program_options::value< int >(), "type of output vector [0=Rn, 1=nR]")
+		("type", boost::program_options::value< int >(), "type of input vector [0=TRn, 1=TnR, 2=nTR]")
 		("title", boost::program_options::value<std::string>(), "title of window [string]")	;
 	consoleArg.get_description()->add(opt_problem);
 
@@ -136,7 +137,7 @@ int main( int argc, char *argv[] ) {
 	consoleArg.set_option_value("title", &title, "");
 	consoleArg.set_option_value("width", &width, 0);
 	consoleArg.set_option_value("xdim", &xdim, 1);
-	consoleArg.set_option_value("type", &type, 1);
+	consoleArg.set_option_value("type", &type, DEFAULT_TYPE);
 
     /* create our window */
     show_image_window my_window(filename,type,title,width,xdim);
@@ -489,7 +490,7 @@ void imageplotter::save_image( const std::string& file_name ) {
 			}
 
 			/* rgb - nR */
-			if(type==1){
+			if(type==1 | type==2){
 				if(image_xdim==3){
 					image_dlib[i][j].red   = x_arr[0*image_width*image_height + i*image_width + j]*255;
 					image_dlib[i][j].green = x_arr[1*image_width*image_height + i*image_width + j]*255;
@@ -582,7 +583,7 @@ void imageplotter::plot_image(const canvas& c) const{
 			}
 
 			/* nR */
-			if(type == 1){
+			if(type == 1 | type == 2){
 				fill_rect(c,rect_pixel,rgb_pixel(values[0*R + t]*255,values[1*R + t]*255,255));
 			}
 		}
@@ -607,7 +608,7 @@ void imageplotter::plot_image(const canvas& c) const{
 			}
 
 			/* nR */
-			if(type == 1){
+			if(type == 1 | type == 2){
 				fill_rect(c,rect_pixel,rgb_pixel(values[0*R + t]*255,values[1*R + t]*255,values[2*R + t]*255));
 			}
 		}

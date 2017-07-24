@@ -1,6 +1,9 @@
 #!/bin/bash
 
-PARAM_BASIC="--test_K=3 --test_Km=2 --test_filename_in=data/test_entropy/y_data.bin --test_annealing=1 --test_scaledata=true"
+KM=2
+K=3
+
+PARAM_BASIC="--test_K=$K --test_Km=$KM --test_filename_in=data/test_entropy/y_data.bin --test_annealing=1 --test_scaledata=true"
 PARAM_GAMMA0="--test_filename_gamma0=data/y_K3_gamma0.bin"
 PARAM_EPSSQR="--test_epssqr=1e2"
 #PARAM_EPSSQR="--test_epssqr=1e-1 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5"
@@ -26,3 +29,8 @@ PARAM_ENTROPYSOLVER_PRINT="--entropysolvernewton_debug_print_it=true --entropyso
 PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT"
 
 ./test_entropy $PARAM_ALL
+
+if [ -f results/entropy_small_gamma.bin ]
+then
+	./gui_show_gamma --filename=results/entropy_small_gamma.bin --K=$K --title="Gamma" &
+fi

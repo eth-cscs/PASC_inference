@@ -4,7 +4,7 @@ T=1000
 REPEAT=1
 K=3
 NOISE=0.1
-NPROC=4
+NPROC=1
 FEM_REDUCE=0.2
 FEM_TYPE=1
 
@@ -16,8 +16,8 @@ rm -f data/test_image/signal1D_solution.bin data/test_image/signal1D_data.bin re
 
 # solve problem
 PARAM_FILENAME="--test_filename_in=data/signal1D_data.bin --test_filename_solution=data/signal1D_solution.bin --test_filename_gamma0=data/signal1D_gamma.bin --test_filename_out=signal1D"
-PARAM_BASIC="--test_K=$K --test_annealing=1 --test_printstats=false --test_printinfo=true"
-PARAM_THETA="--test_Theta=1.0 --test_Theta=2.0 --test_Theta=3.0"
+PARAM_BASIC="--test_xdim=1 --test_K=$K --test_annealing=1 --test_printstats=false --test_printinfo=true"
+PARAM_THETA="--test_Theta=1.0 --test_Theta=2.0 --test_Theta=3.0 --tssolver_thetasolver_updatebeforesolve=false"
 PARAM_EPSSQR="--test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
 PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_debugmode=0"

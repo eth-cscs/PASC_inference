@@ -22,11 +22,12 @@ template<> TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposi
 template<> TSData<PetscVector>::TSData(Decomposition<PetscVector> &new_decomposition, std::string filename);
 template<> void TSData<PetscVector>::set_model(TSModel<PetscVector> &tsmodel);
 template<> void TSData<PetscVector>::cutgamma() const;
-template<> void TSData<PetscVector>::save_datavector(std::string filename) const;
 template<> void TSData<PetscVector>::save_thetavector(std::string filename) const;
 template<> void TSData<PetscVector>::print_thetavector(ConsoleOutput &output) const;
 template<> std::string TSData<PetscVector>::print_thetavector() const;
-template<> void TSData<PetscVector>::save_gammavector(std::string filename, int blocksize, int type) const;
+template<> void TSData<PetscVector>::save_datavector(std::string filename, int type) const;
+template<> void TSData<PetscVector>::save_gammavector(std::string filename) const;
+template<> void TSData<PetscVector>::save_reconstructed(std::string filename, int type) const;
 template<> void TSData<PetscVector>::printstats(ConsoleOutput &output, bool printdetails) const;
 template<> void TSData<PetscVector>::scaledata(double a, double b);
 template<> void TSData<PetscVector>::unscaledata(double a, double b);
@@ -36,7 +37,7 @@ template<> void TSData<PetscVector>::scaledata(double a, double b, double scale_
 template<> void TSData<PetscVector>::load_gammavector(PetscVector &gamma0) const;
 template<> void TSData<PetscVector>::load_gammavector(std::string filename, int type) const;
 template<> double TSData<PetscVector>::compute_gammavector_nbins();
-
+template<> double TSData<PetscVector>::compute_abserr_reconstructed(GeneralVector<PetscVector> &solution) const;
 
 }
 } /* end namespace */
