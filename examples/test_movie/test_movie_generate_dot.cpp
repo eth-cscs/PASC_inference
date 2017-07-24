@@ -26,6 +26,13 @@
 #define DEFAULT_GENERATE_DATA true
 #define DEFAULT_GENERATE_GAMMA0 true
 
+#define DEFAULT_GENERATE_MU0_XDIM1 "0.6"
+#define DEFAULT_GENERATE_MU1_XDIM1 "0.5"
+
+#define DEFAULT_GENERATE_MU0_XDIM3 "1.0,1.0,1.0"
+#define DEFAULT_GENERATE_MU1_XDIM3 "1.0.0.0,0.0"
+
+
 using namespace pascinference;
 
 int main( int argc, char *argv[] )
@@ -43,6 +50,8 @@ int main( int argc, char *argv[] )
 		("test_xdim", boost::program_options::value< int >(), "number of pixel values [int]")
 		("test_type", boost::program_options::value< int >(), "type of output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_noise", boost::program_options::value< double >(), "parameter of noise [double]")
+		("test_mu0", boost::program_options::value< std::string >(), "color of background [string]")
+		("test_mu1", boost::program_options::value< std::string >(), "color of dot [string]")
 		("test_generate_data", boost::program_options::value< bool >(), "generate solution and data with noise [bool]")
 		("test_generate_gamma0", boost::program_options::value< bool >(), "generate gamma0 [bool]");
 	consoleArg.get_description()->add(opt_problem);
@@ -78,6 +87,35 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_generate_data", &generate_data, DEFAULT_GENERATE_DATA);
 	consoleArg.set_option_value("test_generate_gamma0", &generate_gamma0, DEFAULT_GENERATE_GAMMA0);
 
+    /* read problem parameters - the color of dot and background */
+	std::string mu0_string;
+	std::string mu1_string;
+	if(!consoleArg.set_option_value("test_mu0", &mu0_string)){
+        if(xdim==1) mu0_string = DEFAULT_GENERATE_MU0_XDIM1;
+        if(xdim==3) mu0_string = DEFAULT_GENERATE_MU0_XDIM3;
+	}
+	if(!consoleArg.set_option_value("test_mu1", &mu1_string)){
+        if(xdim==1) mu1_string = DEFAULT_GENERATE_MU1_XDIM1;
+        if(xdim==3) mu1_string = DEFAULT_GENERATE_MU1_XDIM3;
+	}
+
+	coutMaster << "mu0_string=" << mu0_string << std::endl;
+	coutMaster << "mu1_string=" << mu1_string << std::endl;
+	coutMaster << "xdim=" << xdim << std::endl;
+
+    /* parse input strings to arrays */
+	double mu0[xdim];
+	double mu1[xdim];
+    if(!parse_strings_to_doubles(xdim, mu0_string, mu0) ){
+        coutMaster << "unable to parse input mu0 values!" << std::endl;
+		return 0;
+	}
+    if(!parse_strings_to_doubles(xdim, mu1_string, mu1) ){
+		coutMaster << "unable to parse input mu1 values!" << std::endl;
+		return 0;
+	}
+
+
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
 	coutMaster << " test_width                  = " << std::setw(30) << width << " (width of movie)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(30) << height << " (height of movie)" << std::endl;
@@ -86,6 +124,8 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters for gamma0)" << std::endl;
 	coutMaster << " test_type                   = " << std::setw(30) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " test_noise                  = " << std::setw(30) << noise << " (parameter of noise)" << std::endl;
+	coutMaster << " test_mu0                    = " << std::setw(30) << print_array(mu0,xdim) << " (color of background)" << std::endl;
+	coutMaster << " test_mu1                    = " << std::setw(30) << print_array(mu1,xdim) << " (color of dot)" << std::endl;
 	coutMaster << " test_filename_data          = " << std::setw(30) << filename_data << " (name of output file with movie data)" << std::endl;
 	coutMaster << " test_filename_solution      = " << std::setw(30) << filename_solution << " (name of output file with original movie data without noise)" << std::endl;
 	coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of output file with initial gamma approximation)" << std::endl;
@@ -95,9 +135,6 @@ int main( int argc, char *argv[] )
 
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
-
-    double mu0 = 0.6; /* color of background */
-    double mu1 = 0.5; /* color of dot */
 
     double r = width*0.2;   /* radius of sphere */
 
@@ -137,12 +174,12 @@ int main( int argc, char *argv[] )
                     if( (i-c[0])*(i-c[0]) + (j-c[1])*(j-c[1]) <= r*r ){
                         /* this point is sphere */
                         for(int n=0; n < xdim; n++){
-                            value[n] = mu1;
+                            value[n] = mu1[n];
                         }
                     } else {
                         /* this point is background */
                         for(int n=0; n < xdim; n++){
-                            value[n] = mu0;
+                            value[n] = mu0[n];
                         }
                     }
 

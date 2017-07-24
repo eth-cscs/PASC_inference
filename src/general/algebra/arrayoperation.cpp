@@ -4,13 +4,13 @@ namespace pascinference {
 namespace algebra {
 
 bool parse_strings_to_doubles(int K, int Km, std::vector<std::string> Theta_list, double *Theta_solution){
-	std::string token; 
+	std::string token;
 	size_t pos;
 	int counter=0;
-	
+
 	for(int k=0;k < K;k++){
 		pos = 0;
-		
+
 		while ((pos = Theta_list[k].find(",")) != std::string::npos) {
 			token = Theta_list[k].substr(0, pos);
 
@@ -27,6 +27,35 @@ bool parse_strings_to_doubles(int K, int Km, std::vector<std::string> Theta_list
 	}
 
 	if(counter != K*Km){
+		return false;
+	} else {
+		return true;
+	}
+}
+
+bool parse_strings_to_doubles(int xdim, std::string mu_string, double *mu){
+	std::string token;
+	size_t pos=0;
+	int counter=0;
+
+    while ((pos = mu_string.find(",")) != std::string::npos) {
+        token = mu_string.substr(0, pos);
+
+        if(counter >= xdim) return false;
+
+        mu[counter] = atof(token.c_str());
+        counter++;
+
+        mu_string.erase(0, pos + 1);
+    }
+
+    /* the last one */
+    if(counter >= xdim) return false;
+    mu[counter] = atof(mu_string.c_str());
+    counter++;
+
+    /* final check of the size */
+	if(counter != xdim){
 		return false;
 	} else {
 		return true;

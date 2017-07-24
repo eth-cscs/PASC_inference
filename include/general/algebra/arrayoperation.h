@@ -29,7 +29,7 @@ std::string print_array(MyType *my_array, int my_size){
 	for(int i=0;i<my_size;i++){
 		out << my_array[i];
 		if(i<my_size-1) out << ",";
-	}	
+	}
 	out << "]";
 	return out.str();
 }
@@ -52,14 +52,14 @@ std::string print_array(MyType *my_array, int my_size1, int my_size2){
 		}
 		out << "]";
 		if(i<my_size1-1) out << ",";
-	}	
+	}
 	out << "}";
 	return out.str();
 }
 
 
 extern bool parse_strings_to_doubles(int K, int Km, std::vector<std::string> Theta_list, double *Theta_solution);
-
+extern bool parse_strings_to_doubles(int xdim, std::string mu_string, double *mu);
 
 /** @brief print content of vector to string
 *
@@ -72,7 +72,7 @@ std::string print_vector(std::vector<MyType> &my_vector){
 	for(int i=0;i<my_vector.size();i++){
 		out << my_vector[i];
 		if(i<my_vector.size()-1) out << ",";
-	}	
+	}
 	out << "]";
 	return out.str();
 }
@@ -90,7 +90,7 @@ void print_array(std::ostream &output, int my_size, MyType *my_array){
 	for(int i=0;i<my_size;i++){
 		output << my_array[i];
 		if(i<my_size-1) output << ",";
-	}	
+	}
 	output << "]";
 }
 
@@ -105,7 +105,7 @@ MyType sum_array(int my_size, const MyType *my_array){
 	MyType sum = 0;
 	for(int i=0;i<my_size;i++){
 		sum += my_array[i];
-	}	
+	}
 	return sum;
 }
 
@@ -122,7 +122,7 @@ MyType max_array(int my_size, const MyType *my_array){
 		if(my_array[i] > return_value){
 			return_value = my_array[i];
 		}
-	}	
+	}
 	return return_value;
 }
 
@@ -141,7 +141,7 @@ int max_arg_array(int my_size, const MyType *my_array){
 			max_value = my_array[i];
 			return_value = i;
 		}
-	}	
+	}
 	return return_value;
 }
 
@@ -156,7 +156,7 @@ template<class MyType>
 void set_value_array(int my_size, MyType *my_array, MyType my_value){
 	for(int i=0;i<my_size;i++){
 		my_array[i] = my_value;
-	}	
+	}
 }
 
 
@@ -172,7 +172,7 @@ MyType max_diff_array(int my_size, const MyType *my_array){
 		if((my_array[i]-my_array[i-1]) > return_value){
 			return_value = my_array[i]-my_array[i-1];
 		}
-	}	
+	}
 	return return_value;
 }
 
@@ -188,7 +188,7 @@ MyType sum_subarray(int start, int end, const MyType *my_array){
 	MyType sum = 0;
 	for(int i=start;i<=end;i++){
 		sum += my_array[i];
-	}	
+	}
 	return sum;
 }
 
@@ -204,7 +204,7 @@ MyType dot_arrays(int size, const MyType *my_array1, const MyType *my_array2){
 	MyType sum = 0;
 	for(int i=0;i<=size;i++){
 		sum += my_array1[i]*my_array2[i];
-	}	
+	}
 	return sum;
 }
 
@@ -242,7 +242,7 @@ MyType min(const MyType a1, const MyType a2){
 /** @brief compute point-wise multiplication of two arrays
 *
 *  my_array[i] = my_array1[i]*my_array2[i]
-* 
+*
 *  @param my_size the size of arrays (number of elements)
 *  @param my_array pointer to output array
 *  @param my_array1 pointer to input array
@@ -252,7 +252,7 @@ template<class MyType>
 void mult_pw_array(int my_size, MyType *my_array, const MyType *my_array1, const MyType *my_array2){
 	for(int i=0;i<my_size;i++){
 		my_array[i] = my_array1[i]*my_array2[i];
-	}	
+	}
 }
 
 void myround(double in, double *out);

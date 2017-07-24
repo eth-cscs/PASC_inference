@@ -4,13 +4,20 @@ WIDTH=100
 HEIGHT=150 
 T=50
 K=2
-NOISE=0.5
-FEM_REDUCE=0.3
-FEM_TYPE=0
-TYPE=1 # type of input data [0=TRn, 1=TnR, 2=nTR]
-XDIM=1
+NOISE=0.0
+FEM_REDUCE=1.0
+FEM_TYPE=1
+TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
 ANNEALING=1
 NPROC=3
+
+XDIM=1
+MU0="1.0"
+MU1="0.0"
+
+#XDIM=3
+#MU0="0.51,1.0,1.0"
+#MU1="0.5,0.2,0.3"
 
 FILENAME_DATA="data/moviedot_data.bin"
 FILENAME_SOLUTION="data/moviedot_solution.bin"
@@ -27,19 +34,18 @@ DIRNAME_OUT="results/moviedot/"
 rm -f $FILENAME_DATA $FILENAME_RECOVERED $FILENAME_SOLUTION $FILENAME_GAMMA0 $FILENAME_GAMMA $FILENAME_OUT $DIRNAME_OUT/* $FILENAME_OUT_MOVIE
 
 # generate problem
-./test_movie_generate_dot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_type=$TYPE --test_xdim=$XDIM
+./test_movie_generate_dot --test_mu0=$MU0 --test_mu1=$MU1 --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_type=$TYPE --test_xdim=$XDIM
 
 # define parameters
 PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_type=$TYPE --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
 PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
 
-PARAM_THETA="--test_Theta=0.5 --test_Theta=0.6 --tssolver_thetasolver_updatebeforesolve=false"
-#PARAM_THETA="--test_Theta=0.5,0.5,0.5 --test_Theta=0.6,0.6,0.6 --tssolver_thetasolver_updatebeforesolve=false"
+PARAM_THETA="--test_Theta=$MU0 --test_Theta=$MU1 --tssolver_thetasolver_updatebeforesolve=false"
 
 #PARAM_TEST="--tssolver_gammasolver_updatebeforesolve=false --tssolver_gammasolver_solve=false  --tssolver_gammasolver_updateaftersolve=true"
 
 #PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
-PARAM_EPSSQR="--test_epssqr=2e-2"
+PARAM_EPSSQR="--test_epssqr=0.0001"
 
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
 PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0"

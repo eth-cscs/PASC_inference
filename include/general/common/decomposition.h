@@ -243,7 +243,7 @@ class Decomposition {
 		 * @return node index in original graph
 		 * @todo has to be tested
 		 */
-		int get_invPr(int r_global) const;
+		int get_DDR_invpermutation(int r_global) const;
 
 		/** @brief get the index of node in permutated graph from index in original graph
 		 *
@@ -251,7 +251,7 @@ class Decomposition {
 		 * @return node index in permutated graph
 		 * @todo has to be tested
 		 */
-		int get_Pr(int r_global) const;
+		int get_DDR_permutation(int r_global) const;
 
 #ifdef USE_PETSC
 		void permute_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, int type, bool invert) const;
@@ -646,12 +646,12 @@ int Decomposition<VectorBase>::get_pdTR_idx(int t_global, int r_global) const {
 }
 
 template<class VectorBase>
-int Decomposition<VectorBase>::get_invPr(int r_global) const {
+int Decomposition<VectorBase>::get_DDR_invpermutation(int r_global) const {
 	return DDR_invpermutation[r_global];
 }
 
 template<class VectorBase>
-int Decomposition<VectorBase>::get_Pr(int r_global) const {
+int Decomposition<VectorBase>::get_DDR_permutation(int r_global) const {
 	return DDR_permutation[r_global];
 }
 
