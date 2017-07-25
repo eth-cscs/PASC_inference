@@ -25,6 +25,7 @@
 #include "general/algebra/matrix/generalmatrixrhs.h"
 #include "general/algebra/matrix/generalmatrix.h"
 #include "general/algebra/matrix/blockgraphsparse.h"
+#include "general/algebra/matrix/blockgraphsparseTR.h"
 
 /* vector */
 #include "general/algebra/vector/generalvector.h"

@@ -18,6 +18,7 @@
 //#include "external/petscvector/algebra/matrix/generalmatrixrhs.h"
 #include "external/petscvector/algebra/matrix/generalmatrix.h"
 #include "external/petscvector/algebra/matrix/blockgraphsparse.h"
+#include "external/petscvector/algebra/matrix/blockgraphsparseTR.h"
 
 /* feasibleset */
 //#include "external/petscvector/algebra/feasibleset/generalfeasibleset.h"
