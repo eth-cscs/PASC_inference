@@ -281,7 +281,6 @@ void FuzzyKmeansModel<PetscVector>::thetasolver_updateaftersolve(GeneralSolver *
     /* compute new residuum for gamma problem */
     compute_residuum();
 
-
 	LOG_FUNC_END
 }
 
