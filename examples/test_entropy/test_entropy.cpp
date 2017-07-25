@@ -17,6 +17,7 @@
 
 #define DEFAULT_EPSSQR 1
 #define DEFAULT_K 1
+#define DEFAULT_DATA_TYPE 2
 #define DEFAULT_XDIM 1
 #define DEFAULT_KM 1
 #define DEFAULT_FILENAME_IN "data/entropy_small_data.bin"
@@ -41,6 +42,7 @@ int main( int argc, char *argv[] )
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_xdim", boost::program_options::value<int>(), "dimension of data points [int]")
+		("test_data_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_Km", boost::program_options::value<int>(), "number of moments [int]")
 		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with filtered signal data (vector in PETSc format) [string]")
@@ -80,7 +82,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, Km, annealing, xdim;
+	int K, Km, annealing, xdim, data_type;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, saveall, saveresult;
 
 	std::string filename_in;
@@ -92,6 +94,7 @@ int main( int argc, char *argv[] )
 
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("test_data_type", &data_type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_Km", &Km, DEFAULT_KM);
 	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_FILENAME_IN);
 	consoleArg.set_option_value("test_filename_out", &filename_out, DEFAULT_FILENAME_OUT);
@@ -140,31 +143,32 @@ int main( int argc, char *argv[] )
 #else
 	coutMaster << " computing on CPU" << std::endl;
 #endif
-	coutMaster << " DDT_size                    = " << std::setw(30) << DDT_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_K                      = " << std::setw(30) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_xdim                   = " << std::setw(30) << xdim << " (dimension of data points)" << std::endl;
-	coutMaster << " test_Km                     = " << std::setw(30) << Km << " (number of moments)" << std::endl;
-	coutMaster << " test_Theta                  = " << std::setw(30) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
+	coutMaster << " DDT_size                    = " << std::setw(50) << DDT_size << " (decomposition in space)" << std::endl;
+	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (dimension of data points)" << std::endl;
+	coutMaster << " test_data_type              = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(data_type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
+	coutMaster << " test_Km                     = " << std::setw(50) << Km << " (number of moments)" << std::endl;
+	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
 
-	coutMaster << " test_filename_in            = " << std::setw(30) << filename_in << " (name of input file with signal data)" << std::endl;
-	coutMaster << " test_filename_out           = " << std::setw(30) << filename_out << " (name of output file with filtered signal data)" << std::endl;
+	coutMaster << " test_filename_in            = " << std::setw(50) << filename_in << " (name of input file with signal data)" << std::endl;
+	coutMaster << " test_filename_out           = " << std::setw(50) << filename_out << " (name of output file with filtered signal data)" << std::endl;
 	if(given_gamma0){
-		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(50) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
 	} else {
-		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(50) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
 	}
-	coutMaster << " test_saveall                = " << std::setw(30) << printbool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
-	coutMaster << " test_epssqr                 = " << std::setw(30) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
-	coutMaster << " test_annealing              = " << std::setw(30) << annealing << " (number of annealing steps)" << std::endl;
-	coutMaster << " test_cutgamma               = " << std::setw(30) << cutgamma << " (cut gamma to {0;1})" << std::endl;
-	coutMaster << " test_cutdata                = " << std::setw(30) << cutdata << " (cut data to {0,1})" << std::endl;
-	coutMaster << " test_scaledata              = " << std::setw(30) << scaledata << " (scale data to {-1,1})" << std::endl;
-	coutMaster << " test_printstats             = " << std::setw(30) << printbool(printstats) << " (print basic statistics of data)" << std::endl;
-	coutMaster << " test_printinfo              = " << std::setw(30) << printbool(printinfo) << " (print informations about created objects)" << std::endl;
-	coutMaster << " test_shortinfo              = " << std::setw(30) << printbool(shortinfo_write_or_not) << " (save shortinfo file after computation)" << std::endl;
-	coutMaster << " test_shortinfo_header       = " << std::setw(30) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_values       = " << std::setw(30) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
-	coutMaster << " test_shortinfo_filename     = " << std::setw(30) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
+	coutMaster << " test_saveall                = " << std::setw(50) << printbool(saveall) << " (save results for all epssqr, not only for the best one)" << std::endl;
+	coutMaster << " test_epssqr                 = " << std::setw(50) << print_vector(epssqr_list) << " (penalty parameters)" << std::endl;
+	coutMaster << " test_annealing              = " << std::setw(50) << annealing << " (number of annealing steps)" << std::endl;
+	coutMaster << " test_cutgamma               = " << std::setw(50) << cutgamma << " (cut gamma to {0;1})" << std::endl;
+	coutMaster << " test_cutdata                = " << std::setw(50) << cutdata << " (cut data to {0,1})" << std::endl;
+	coutMaster << " test_scaledata              = " << std::setw(50) << scaledata << " (scale data to {-1,1})" << std::endl;
+	coutMaster << " test_printstats             = " << std::setw(50) << printbool(printstats) << " (print basic statistics of data)" << std::endl;
+	coutMaster << " test_printinfo              = " << std::setw(50) << printbool(printinfo) << " (print informations about created objects)" << std::endl;
+	coutMaster << " test_shortinfo              = " << std::setw(50) << printbool(shortinfo_write_or_not) << " (save shortinfo file after computation)" << std::endl;
+	coutMaster << " test_shortinfo_header       = " << std::setw(50) << shortinfo_header << " (additional header in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_values       = " << std::setw(50) << shortinfo_values << " (additional values in shortinfo)" << std::endl;
+	coutMaster << " test_shortinfo_filename     = " << std::setw(50) << shortinfo_filename << " (name of shortinfo file)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 
@@ -199,7 +203,7 @@ int main( int argc, char *argv[] )
 
 /* 3.) prepare time-series data */
 	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
-	mydata.set_decomposition(decomposition);
+	mydata.set_decomposition(decomposition, data_type);
 
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);

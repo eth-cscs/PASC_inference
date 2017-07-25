@@ -53,5 +53,3 @@ if [ -f results/entropy_small_gamma.bin ]
 then
 	./gui_show_gamma --filename=results/entropy_small_gamma.bin --K=$K --title="Gamma" &
 fi
-
-

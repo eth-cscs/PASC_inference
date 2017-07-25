@@ -4,7 +4,7 @@
 #include "general/solver/entropysolverdlib.h"
 
 //#include "external/petscvector/solver/generalsolver.h"
-//#include "external/petscvector/data/entropydata.h"
+#include "external/petscvector/data/entropydata.h"
 
 #ifdef USE_DLIB
 #ifdef USE_CUBA

@@ -106,12 +106,6 @@ void EntropyData<PetscVector>::ExternalContent::prepare_matrix_D_recursion(doubl
 }
 
 void EntropyData<PetscVector>::ExternalContent::set_D_value(double *values, double value, int row, int col, int ncols){
-	coutMaster << "value: " << value << std::endl;
-	coutMaster << "row:   " << row << std::endl;
-	coutMaster << "col:   " << col << std::endl;
-	coutMaster << "ncols: " << ncols << std::endl;
-	coutMaster << "index: " << row*ncols + col << std::endl;
-
 	values[row*ncols + col] = value;
 }
 

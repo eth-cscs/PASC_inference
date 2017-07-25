@@ -24,9 +24,14 @@ class FuzzyKmeansModel: public TSModel<VectorBase> {
 
 		Fem<VectorBase> *fem;	/** instance of FEM used for reduction/prolongation */
 
+		/* for theta problem */
+		GeneralVector<VectorBase> *gamma_pow; /**< gamma power to fuzzifier */
 		GeneralVector<VectorBase> *residuum; /**< temp vector for residuum computation */
+		GeneralVector<VectorBase> *residuum_reduced; /**< temp vector for residuum computation on reduced FEM mesh */
 
 		double fuzzifier; /**< fuzzy coeficient */
+
+		void compute_residuum();
 	public:
 
 		/** @brief constructor from data
@@ -265,6 +270,15 @@ void FuzzyKmeansModel<VectorBase>::thetasolver_finalize(GeneralSolver **thetasol
 
 	/* destroy solver */
 	free(*thetasolver);
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void FuzzyKmeansModel<VectorBase>::compute_residuum(){
+	LOG_FUNC_BEGIN
+
+    //TODO
 
 	LOG_FUNC_END
 }

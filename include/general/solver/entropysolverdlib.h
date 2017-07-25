@@ -354,7 +354,7 @@ template<class VectorBase>
 void EntropySolverDlib<VectorBase>::solve() {
 	LOG_FUNC_BEGIN
 
-	//TODO
+	//TODO: give error if CUBA is not defined
 	
 	LOG_FUNC_END
 }

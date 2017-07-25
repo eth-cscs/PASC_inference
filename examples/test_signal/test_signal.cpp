@@ -246,13 +246,14 @@ int main( int argc, char *argv[] )
 	Vec solution_Vec_preload;
 	GeneralVector<PetscVector> solution(solution_Vec);
 	if(given_solution){
-		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
+        Vec solution_Vec2 = solution.get_vector();
+		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec2) );
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		decomposition.permute_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), data_type, false);
+		decomposition.permute_to_pdTRb(solution_Vec2, solution_Vec_preload, decomposition.get_xdim(), data_type, false);
 
-		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
+		TRYCXX( VecCopy(solution_Vec_preload, solution_Vec2));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
 	}
 

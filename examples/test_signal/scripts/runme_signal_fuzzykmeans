@@ -3,23 +3,33 @@
 T=1000
 REPEAT=1
 K=3
-NOISE=0.1
+NOISE=0.0
 NPROC=1
-FEM_REDUCE=0.2
-FEM_TYPE=1
+FEM_REDUCE=0.5
+FEM_TYPE=0
+FUZZIFIER=2.0
+XDIM=1
+ANNEALING=10
+
+NAME=signal1D
+FILENAME_DATA=data/signal1D_data.bin
+FILENAME_DATA_SOLUTION=data/signal1D_solution.bin
+FILENAME_GAMMA0=data/signal1D_gamma0.bin
+FILENAME_GAMMA=results/signal1D_gamma.bin
+FILENAME_SOLUTION=results/signal1D_recovered.bin
 
 # remove old files
-rm -f data/test_image/signal1D_solution.bin data/test_image/signal1D_data.bin results/signal1D_recovered.bin results/signal1D_gamma.bin
+rm -f $FILENAME_SOLUTION $FILENAME_DATA $FILENAME_DATA_SOLUTION $FILENAME_GAMMA $FILENAME_GAMMA0
 
 # generate signal
-./test_signal1D_generate --test_Tperiod=$T --test_repeat_nmb=$REPEAT --test_filename_data=data/signal1D_data.bin --test_filename_solution=data/signal1D_solution.bin --test_filename_gamma0=data/signal1D_gamma.bin --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true
+./test_signal1D_generate --test_Tperiod=$T --test_repeat_nmb=$REPEAT --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_DATA_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true
 
 # solve problem
-PARAM_FILENAME="--test_fuzzifier=2.0 --test_filename_in=data/signal1D_data.bin --test_filename_solution=data/signal1D_solution.bin --test_filename_gamma0=data/signal1D_gamma.bin --test_filename_out=signal1D"
-PARAM_BASIC="--test_xdim=1 --test_K=$K --test_annealing=1 --test_printstats=false --test_printinfo=true"
-PARAM_THETA="--test_Theta=1.0 --test_Theta=2.0 --test_Theta=3.0 --tssolver_thetasolver_updatebeforesolve=false"
+PARAM_FILENAME="--test_fuzzifier=$FUZZIFIER --test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_DATA_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_filename_out=$NAME"
+PARAM_BASIC="--test_xdim=$XDIM --test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
+#PARAM_THETA="--test_Theta=1.0 --test_Theta=2.0 --test_Theta=3.0 --tssolver_thetasolver_updatebeforesolve=false"
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
-PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_debugmode=0"
+PARAM_TSSOLVER="--tssolver_maxit=100 --tssolver_debugmode=0 --tssolver_debug_print_annealing=true"
 PARAM_SHORTINFO="--test_shortinfo=false"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
@@ -34,23 +44,23 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG PARAM_KMEANSFUZZYSOLVER $PARAM_PETSC $PARAM_THETA $PARAM_FEM" 
 
 ## run the job
-#./test_signal_fuzzykmeans $PARAM_ALL
-mpiexec -n $NPROC ./test_signal_fuzzykmeans $PARAM_ALL
+./test_signal_fuzzykmeans $PARAM_ALL
+#mpiexec -n $NPROC ./test_signal_fuzzykmeans $PARAM_ALL
 #/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_signal_fuzzykmeans $PARAM_ALL
 
 # gui show vectors
-if [ -f data/signal1D_data.bin ]
+if [ -f $FILENAME_DATA ]
 then
-    ./gui_show_vec --filename=data/signal1D_data.bin --title="signal data" & 
+    ./gui_show_vec --filename=$FILENAME_DATA --title="signal data" & 
 fi
 
-if [ -f results/signal1D_gamma.bin ]
+if [ -f $FILENAME_GAMMA ]
 then
-	./gui_show_gamma --filename=results/signal1D_gamma.bin --K=$K  --title="gamma solution" &
+	./gui_show_gamma --filename=$FILENAME_GAMMA --K=$K  --title="gamma solution" --type=1 &
 fi
 
-if [ -f results/signal1D_recovered.bin ]
+if [ -f $FILENAME_SOLUTION ]
 then
-	./gui_show_vec --filename=results/signal1D_recovered.bin --title="recovered signal" &
+	./gui_show_vec --filename=$FILENAME_SOLUTION --title="recovered signal" &
 fi
 

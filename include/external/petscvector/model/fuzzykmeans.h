@@ -24,6 +24,9 @@ template<> void FuzzyKmeansModel<PetscVector>::thetasolver_initialize(GeneralSol
 template<> void FuzzyKmeansModel<PetscVector>::thetasolver_updatebeforesolve(GeneralSolver *thetasolver);
 template<> void FuzzyKmeansModel<PetscVector>::thetasolver_updateaftersolve(GeneralSolver *thetasolver);
 
+template<> double FuzzyKmeansModel<PetscVector>::get_L(GeneralSolver *gammasolver, GeneralSolver *thetasolver);
+template<> void FuzzyKmeansModel<PetscVector>::compute_residuum();
+
 }
 } /* end namespace */
 

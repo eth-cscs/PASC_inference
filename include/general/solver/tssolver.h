@@ -285,6 +285,7 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - eps:          " << this->eps << std::endl;
 	output <<  " - debugmode:   " << this->debugmode << std::endl;
 
+
 	/* print data */
 	if(tsdata){
 		output.push();
@@ -294,6 +295,11 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 
 	/* if child solvers are specified, then print also info about it */
 	output <<  " Gamma Solver" << std::endl;
+	output <<  "  - update before solve   : " << print_bool(this->gammasolver_updatebeforesolve) << std::endl;
+	output <<  "  - solve                 : " << print_bool(this->gammasolver_solve) << std::endl;
+	output <<  "  - update after solve    : " << print_bool(this->gammasolver_updateaftersolve) << std::endl;
+
+
 	if(gammasolver){
 		output.push();
 		gammasolver->print(output);
@@ -303,6 +309,10 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output) const {
 	}
 
 	output <<  " Theta Solver" << std::endl;
+	output <<  "  - update before solve   : " << print_bool(this->thetasolver_updatebeforesolve) << std::endl;
+	output <<  "  - solve                 : " << print_bool(this->thetasolver_solve) << std::endl;
+	output <<  "  - update after solve    : " << print_bool(this->thetasolver_updateaftersolve) << std::endl;
+
 	if(thetasolver){
 		output.push();
 		thetasolver->print(output);
@@ -336,6 +346,10 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 
 	/* if child solvers are specified, then print also info about it */
 	output_global <<  " Gamma Solver" << std::endl;
+	output_global <<  "  - update before solve   : " << print_bool(this->gammasolver_updatebeforesolve) << std::endl;
+	output_global <<  "  - solve                 : " << print_bool(this->gammasolver_solve) << std::endl;
+	output_global <<  "  - update after solve    : " << print_bool(this->gammasolver_updateaftersolve) << std::endl;
+
 	if(gammasolver){
 		output_global.push();
 		gammasolver->print(output_global, output_local);
@@ -345,6 +359,10 @@ void TSSolver<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput &ou
 	}
 
 	output_global <<  " Theta Solver" << std::endl;
+	output_global <<  "  - update before solve   : " << print_bool(this->thetasolver_updatebeforesolve) << std::endl;
+	output_global <<  "  - solve                 : " << print_bool(this->thetasolver_solve) << std::endl;
+	output_global <<  "  - update after solve    : " << print_bool(this->thetasolver_updateaftersolve) << std::endl;
+
 	if(thetasolver){
 		output_global.push();
 		thetasolver->print(output_global, output_local);

@@ -20,6 +20,8 @@
 #define DEFAULT_XDIM 1
 #define DEFAULT_NOISE 0.1
 
+#define DEFAULT_SAMPLE_TYPE 0
+
 #define DEFAULT_FILENAME_DATA "data/test_movie/dotmovie.bin"
 #define DEFAULT_FILENAME_SOLUTION "data/test_movie/dotmovie_solution.bin"
 #define DEFAULT_FILENAME_GAMMA0 "data/test_movie/dotmovie_gamma0.bin"
@@ -40,6 +42,7 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
+		("test_sample_type", boost::program_options::value< int >(), "type of generated sample [0=stationary, 1=moving, 2=bouncing]")
 		("test_filename_data", boost::program_options::value< std::string >(), "name of output file with movie data (vector in PETSc format) [string]")
 		("test_filename_solution", boost::program_options::value< std::string >(), "name of output file with original movie data without noise (vector in PETSc format) [string]")
 		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of output file with initial gamma approximation (vector in PETSc format) [string]")
@@ -65,7 +68,7 @@ int main( int argc, char *argv[] )
     Timer timer_all;
     timer_all.start();
 
-	int width, height, T;
+	int width, height, T, sample_type;
 	int K, xdim;
 	double noise;
 	int data_type;
@@ -74,6 +77,7 @@ int main( int argc, char *argv[] )
 	std::string filename_gamma0;
 	bool generate_data, generate_gamma0;
 
+	consoleArg.set_option_value("test_sample_type", &sample_type, DEFAULT_SAMPLE_TYPE);
 	consoleArg.set_option_value("test_filename_data", &filename_data, DEFAULT_FILENAME_DATA);
 	consoleArg.set_option_value("test_filename_solution", &filename_solution, DEFAULT_FILENAME_SOLUTION);
 	consoleArg.set_option_value("test_filename_gamma0", &filename_gamma0, DEFAULT_FILENAME_GAMMA0);
@@ -117,6 +121,7 @@ int main( int argc, char *argv[] )
 
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
+	coutMaster << " test_sample_type            = " << std::setw(50) << sample_type << " type of generated sample [0=stationary, 1=moving, 2=bouncing]" << std::endl;
 	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of movie)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of movie)" << std::endl;
 	coutMaster << " test_T                      = " << std::setw(50) << T << " (number of frames in movie)" << std::endl;
@@ -164,10 +169,16 @@ int main( int argc, char *argv[] )
         double value[xdim];
         for(int t=0; t < T; t++){
             /* compute new center of sphere */
-//            c[0] = width*(0.3 + t*0.02);
-//            c[1] = height*(0.5 + t*0.005);
-            c[0] = width*0.5;
-            c[1] = height*0.5;
+			if(sample_type == 0){
+				/* stationary */
+				c[0] = width*0.5;
+				c[1] = height*0.5;
+			}
+			if(sample_type == 1){
+				/* moving */
+				c[0] = width*(0.3 + t*0.02);
+				c[1] = height*(0.5 + t*0.005);
+			}
 
             for(int i=0;i<width;i++){
                 for(int j=0;j<height;j++){
