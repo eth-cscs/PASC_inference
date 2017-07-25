@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
 	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
-	consoleArg.set_option_value("test_data_type", &type, DEFAULT_DATA_TYPE);
+	consoleArg.set_option_value("test_data_type", &data_type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);

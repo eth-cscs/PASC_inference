@@ -20,6 +20,9 @@
 #define DEFAULT_XDIM 1
 #define DEFAULT_NOISE 0.1
 
+#define DEFAULT_SPEED_X 2.0
+#define DEFAULT_SPEED_Y 1.5
+
 #define DEFAULT_SAMPLE_TYPE 0
 
 #define DEFAULT_FILENAME_DATA "data/test_movie/dotmovie.bin"
@@ -55,6 +58,8 @@ int main( int argc, char *argv[] )
 		("test_noise", boost::program_options::value< double >(), "parameter of noise [double]")
 		("test_mu0", boost::program_options::value< std::string >(), "color of background [string]")
 		("test_mu1", boost::program_options::value< std::string >(), "color of dot [string]")
+		("test_speed_x", boost::program_options::value< double >(), "speed of the dot in x axis [double]")
+		("test_speed_y", boost::program_options::value< double >(), "speed of the dot in y axis [double]")
 		("test_generate_data", boost::program_options::value< bool >(), "generate solution and data with noise [bool]")
 		("test_generate_gamma0", boost::program_options::value< bool >(), "generate gamma0 [bool]");
 	consoleArg.get_description()->add(opt_problem);
@@ -70,7 +75,7 @@ int main( int argc, char *argv[] )
 
 	int width, height, T, sample_type;
 	int K, xdim;
-	double noise;
+	double noise, init_speed_x, init_speed_y;
 	int data_type;
 	std::string filename_data;
 	std::string filename_solution;
@@ -90,6 +95,8 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_noise", &noise, DEFAULT_NOISE);
 	consoleArg.set_option_value("test_generate_data", &generate_data, DEFAULT_GENERATE_DATA);
 	consoleArg.set_option_value("test_generate_gamma0", &generate_gamma0, DEFAULT_GENERATE_GAMMA0);
+	consoleArg.set_option_value("test_speed_x", &init_speed_x, DEFAULT_SPEED_X);
+	consoleArg.set_option_value("test_speed_y", &init_speed_y, DEFAULT_SPEED_Y);
 
     /* read problem parameters - the color of dot and background */
 	std::string mu0_string;
@@ -136,6 +143,10 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_filename_gamma0        = " << std::setw(50) << filename_gamma0 << " (name of output file with initial gamma approximation)" << std::endl;
 	coutMaster << " test_generate_data          = " << std::setw(50) << print_bool(generate_data) << " (generate solution and data with noise)" << std::endl;
 	coutMaster << " test_generate_gamma0        = " << std::setw(50) << print_bool(generate_gamma0) << " (generate gamma0)" << std::endl;
+    if(sample_type == 1 | sample_type == 2){
+        coutMaster << " test_speed_x                = " << std::setw(50) << init_speed_x << " (speed of the dot in x axis)" << std::endl;
+        coutMaster << " test_speed_y                = " << std::setw(50) << init_speed_y << " (speed of the dot in y axis)" << std::endl;
+    }
 	coutMaster << "-------------------------------------------" << std::endl;
 
 	/* say hello */
@@ -153,6 +164,9 @@ int main( int argc, char *argv[] )
     Vec xdata_Vec; /* data with noise in TR format */
     TRYCXX( VecDuplicate(x_Vec, &xdata_Vec) );
 
+    double speed_x = init_speed_x;
+    double speed_y = init_speed_y;
+
     /* generate data */
     if(generate_data){
         double *x_arr;
@@ -165,19 +179,49 @@ int main( int argc, char *argv[] )
 		std::default_random_engine generator;
 		std::normal_distribution<double> distribution(0.0,noise);
 
-        double c[3];            /* center of sphere */
+        double c[2];            /* center of sphere */
+		c[0] = width*0.5;
+		c[1] = height*0.5;
+
         double value[xdim];
+
         for(int t=0; t < T; t++){
             /* compute new center of sphere */
 			if(sample_type == 0){
 				/* stationary */
-				c[0] = width*0.5;
-				c[1] = height*0.5;
 			}
 			if(sample_type == 1){
 				/* moving */
-				c[0] = width*(0.3 + t*0.02);
-				c[1] = height*(0.5 + t*0.005);
+				c[0] = width*0.1 + t*speed_x;
+				c[1] = height*0.1 + t*speed_y;
+			}
+			if(sample_type == 2){
+                double x_step = 1*speed_x; /* s=t*v (time step is one) */
+                double y_step = 1*speed_y;
+
+                c[0] += x_step;
+                c[1] += y_step;
+
+                if(c[0] >= width-r){
+                    x_step = c[0] - (width - 1 - r);
+                    c[0] = (width - 1 - r) - x_step;
+                    speed_x = -speed_x;
+                }
+                if(c[1] >= height-r){
+                    y_step = c[1] - (height - 1 - r);
+                    c[1] = (height - 1 - r) - y_step;
+                    speed_y = -speed_y;
+                }
+                if(c[0] < r){
+                    x_step = r-c[0];
+                    c[0] = x_step + r;
+                    speed_x = -speed_x;
+                }
+                if(c[1] < r){
+                    x_step = r-c[1];
+                    c[1] = y_step + r;
+                    speed_y = -speed_y;
+                }
 			}
 
             for(int i=0;i<width;i++){

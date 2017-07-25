@@ -2,14 +2,18 @@
 
 WIDTH=100
 HEIGHT=150 
-T=50
+T=100
 K=2
-NOISE=0.0
+NOISE=0.2
 FEM_REDUCE=1.0
 FEM_TYPE=1
 DATA_TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
 ANNEALING=1
 NPROC=3
+SAMPLE_TYPE=2 # type of sample [0=stationary, 1=moving, 2=bouncing]
+
+SPEED_X=3.3
+SPEED_Y=1.5
 
 XDIM=1
 MU0="1.0"
@@ -34,7 +38,7 @@ DIRNAME_OUT="results/moviedot/"
 rm -f $FILENAME_DATA $FILENAME_RECOVERED $FILENAME_SOLUTION $FILENAME_GAMMA0 $FILENAME_GAMMA $FILENAME_OUT $DIRNAME_OUT/* $FILENAME_OUT_MOVIE
 
 # generate problem
-./test_movie_generate_dot --test_mu0=$MU0 --test_mu1=$MU1 --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_data_type=$DATA_TYPE --test_xdim=$XDIM
+./test_movie_generate_dot --test_speed_x=$SPEED_X --test_speed_y=$SPEED_Y --test_sample_type=$SAMPLE_TYPE --test_mu0=$MU0 --test_mu1=$MU1 --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_filename_data=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_K=$K --test_noise=$NOISE --test_generate_data=true --test_generate_gamma0=true --test_data_type=$DATA_TYPE --test_xdim=$XDIM
 
 # define parameters
 PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_filename_gamma0=$FILENAME_GAMMA0 --test_data_type=$DATA_TYPE --test_filename_out=moviedot --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
@@ -65,7 +69,7 @@ PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PAR
 
 ## run the job
 #./test_movie $PARAM_ALL
-/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
 #mpiexec -n $NPROC ./test_movie $PARAM_ALL
 #./test_image $PARAM_ALL
 
@@ -73,12 +77,12 @@ PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PAR
 # show results
 if [ -f $FILENAME_DATA ]
 then
-	./gui_show_movie --filename=$FILENAME_DATA --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$TYPE &
+	./gui_show_movie --filename=$FILENAME_DATA --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$DATA_TYPE &
 fi
 
 if [ -f $FILENAME_RECOVERED ]
 then
-	./gui_show_movie --filename=$FILENAME_RECOVERED --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$TYPE &
+	./gui_show_movie --filename=$FILENAME_RECOVERED --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$DATA_TYPE &
 fi
 
 if [ -f $FILENAME_GAMMA ]
