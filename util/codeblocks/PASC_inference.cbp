@@ -93,6 +93,7 @@
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraphgrid2D.h" />
 		<Unit filename="../../include/external/petscvector/algebra/integration/entropyintegrationdlib.h" />
 		<Unit filename="../../include/external/petscvector/algebra/matrix/blockgraphsparse.h" />
+		<Unit filename="../../include/external/petscvector/algebra/matrix/blockgraphsparseTR.h" />
 		<Unit filename="../../include/external/petscvector/algebra/matrix/generalmatrix.h" />
 		<Unit filename="../../include/external/petscvector/algebra/vector/generalvector.h" />
 		<Unit filename="../../include/external/petscvector/algebra/vector/petscvector.h" />
@@ -141,6 +142,7 @@
 		<Unit filename="../../include/general/algebra/integration/entropyintegration.h" />
 		<Unit filename="../../include/general/algebra/integration/entropyintegrationdlib.h" />
 		<Unit filename="../../include/general/algebra/matrix/blockgraphsparse.h" />
+		<Unit filename="../../include/general/algebra/matrix/blockgraphsparseTR.h" />
 		<Unit filename="../../include/general/algebra/matrix/generalmatrix.h" />
 		<Unit filename="../../include/general/algebra/matrix/generalmatrixrhs.h" />
 		<Unit filename="../../include/general/algebra/vector/generalvector.h" />
@@ -216,6 +218,7 @@
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraphgrid2D.cu" />
 		<Unit filename="../../src/petscvector/algebra/integration/entropyintegrationdlib.cpp" />
 		<Unit filename="../../src/petscvector/algebra/matrix/blockgraphsparse.cpp" />
+		<Unit filename="../../src/petscvector/algebra/matrix/blockgraphsparseTR.cpp" />
 		<Unit filename="../../src/petscvector/algebra/vector/generalvector.cpp" />
 		<Unit filename="../../src/petscvector/algebra/vector/petscvector.cpp" />
 		<Unit filename="../../src/petscvector/algebra/vector/wrappercomb.cpp" />
