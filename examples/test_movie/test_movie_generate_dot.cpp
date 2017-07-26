@@ -178,6 +178,7 @@ int main( int argc, char *argv[] )
         /* Gaussian random number generator */
 		std::default_random_engine generator;
 		std::normal_distribution<double> distribution(0.0,noise);
+//		std::uniform_real_distribution<double> distribution(0.0,noise);
 
         double c[2];            /* center of sphere */
 		c[0] = width*0.5;

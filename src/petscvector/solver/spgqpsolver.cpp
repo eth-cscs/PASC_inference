@@ -63,16 +63,8 @@ void SPGQPSolver<PetscVector>::solve() {
 	GeneralVector<PetscVector> *d_p = dynamic_cast<GeneralVector<PetscVector> *>(this->d);
 	GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
 
-    coutMaster << "------------------ prdel ------------------" << std::endl;
-    coutMaster << "test1: " << qpdata->get_A()->get_name() << std::endl;
-    coutMaster << "test2: " << qpdata->get_A()->get_externalcontent()->get_name() << std::endl;
 	Mat A_Mat = qpdata->get_A()->get_externalcontent()->A_petsc;
-
-    coutMaster << "------------------ prdel2 ------------------" << std::endl;
     double A_coeff = qpdata->get_A()->get_coeff();
-
-    coutMaster << "------------------ prdel3 ------------------" << std::endl;
-
 
 	Vec b_Vec = b_p->get_vector();
 	Vec x_Vec = x_p->get_vector();

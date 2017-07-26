@@ -41,10 +41,8 @@ class GeneralMatrix {
 	protected:
 		// TODO: timers & other general funny stuff
 		double alpha; /**< general matrix multiplicator */
-
-    private:
-        friend class ExternalContent;
 		ExternalContent *externalcontent;
+        friend class ExternalContent;
 
 	public:
 

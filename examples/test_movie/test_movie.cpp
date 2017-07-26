@@ -305,7 +305,7 @@ int main( int argc, char *argv[] )
 	}
 
 	/* prepare model on the top of given data */
-	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem, false, sigma);
+	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem, sigma);
 
 	/* print info about model */
 	if(printinfo) mymodel.print(coutMaster,coutAll);

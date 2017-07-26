@@ -4,25 +4,30 @@ WIDTH=80
 HEIGHT=50 
 T=50
 K=2
-NOISE=1.8
-FEM_REDUCE=1.0
-FEM_TYPE=1
-DATA_TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
+NOISE=0.5
 ANNEALING=1
 NPROC=3
 SAMPLE_TYPE=2 # type of sample [0=stationary, 1=moving, 2=bouncing]
+
+FEM_REDUCE=1.0
+FEM_TYPE=1
+
 
 SPEED_X=3.3
 SPEED_Y=1.5
 
 XDIM=1
-MU0="1.0"
-MU1="0.0"
+MU0="0.4"
+MU1="0.6"
 
 #XDIM=3
 #MU0="0.51,1.0,1.0"
 #MU1="0.5,0.2,0.3"
 
+MATRIX_TYPE=1
+MATRIX_SIGMA=0.5
+
+DATA_TYPE=2 # type of input data [0=TRn, 1=TnR, 2=nTR]
 FILENAME_DATA="data/moviedot_data.bin"
 FILENAME_SOLUTION="data/moviedot_solution.bin"
 FILENAME_GAMMA0="data/moviedot_gamma0.bin"
@@ -56,11 +61,13 @@ PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0"
 PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=$FILENAME_SHORTINFO --tssolver_debug_print_gamma_solution=false"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_SOLVER="--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6"
+PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-4"
 PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
 
 PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
-PARAM_MATRIX="--graphh1femmodel_matrixtype=0 --test_sigma=0.5"
+
+#sigma=1 - space, sigma=0 - time
+PARAM_MATRIX="--graphh1femmodel_matrixtype=$MATRIX_TYPE --test_sigma=$MATRIX_SIGMA"
 
 ## additional PETSc parameters
 PARAM_PETSC="--petsc_options=\"\""

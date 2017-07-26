@@ -10,20 +10,10 @@
 namespace pascinference {
 namespace algebra {
 
-/* external-specific stuff */
-template<> class BlockGraphSparseTRMatrix<PetscVector>::ExternalContent : public GeneralMatrix<PetscVector>::ExternalContent {
-    public:
-		virtual std::string get_name() const {
-            return "BlockGraphSparseTRMatrix PETSc content";
-		}
-};
-
 template<> BlockGraphSparseTRMatrix<PetscVector>::BlockGraphSparseTRMatrix(Decomposition<PetscVector> &new_decomposition, double sigma, double alpha);
 template<> BlockGraphSparseTRMatrix<PetscVector>::~BlockGraphSparseTRMatrix();
 template<> void BlockGraphSparseTRMatrix<PetscVector>::printcontent(ConsoleOutput &output) const;
 template<> void BlockGraphSparseTRMatrix<PetscVector>::matmult(PetscVector &y, const PetscVector &x) const;
-
-template<> BlockGraphSparseTRMatrix<PetscVector>::ExternalContent * BlockGraphSparseTRMatrix<PetscVector>::get_externalcontent() const;
 
 }
 } /* end of namespace */

@@ -189,11 +189,6 @@ void BlockGraphSparseMatrix<PetscVector>::matmult(PetscVector &y, const PetscVec
 	LOG_FUNC_END
 }
 
-template<>
-BlockGraphSparseMatrix<PetscVector>::ExternalContent * BlockGraphSparseMatrix<PetscVector>::get_externalcontent() const {
-	return this->externalcontent;
-}
-
 }
 } /* end of namespace */
 

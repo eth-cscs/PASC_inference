@@ -21,16 +21,10 @@ namespace algebra {
 */
 template<class VectorBase>
 class BlockGraphSparseTRMatrix: public GeneralMatrix<VectorBase> {
-	public:
-		class ExternalContent;	/**< class which includes external content, has to be public because of get_externalcontent() return type */
-
 	private:
 		Decomposition<VectorBase> *decomposition;
 
 		double sigma; /**< time-space coefficient */
-
-		friend class ExternalContent;
-		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
 	public:
 		BlockGraphSparseTRMatrix(Decomposition<VectorBase> &decomposition, double sigma=0.5, double alpha=1.0);
@@ -51,8 +45,6 @@ class BlockGraphSparseTRMatrix: public GeneralMatrix<VectorBase> {
 		int get_Tlocal() const;
 
 		double get_sigma() const;
-
-		ExternalContent *get_externalcontent() const;
 
 };
 

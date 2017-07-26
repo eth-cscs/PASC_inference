@@ -21,15 +21,8 @@ namespace algebra {
 */
 template<class VectorBase>
 class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
-	public:
-		class ExternalContent;	/**< class which includes external content, has to be public because of get_externalcontent() return type */
-
 	private:
 		Decomposition<VectorBase> *decomposition;
-
-		friend class ExternalContent;
-		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
-
 		GeneralVector<VectorBase> *coeffs; /**< vector of coefficient for each block */
 
 	public:
@@ -49,8 +42,6 @@ class BlockGraphSparseMatrix: public GeneralMatrix<VectorBase> {
 		int get_K() const;
 		int get_T() const;
 		int get_Tlocal() const;
-
-		ExternalContent *get_externalcontent() const;
 
 };
 

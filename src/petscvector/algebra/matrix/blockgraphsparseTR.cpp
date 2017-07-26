@@ -27,7 +27,7 @@ BlockGraphSparseTRMatrix<PetscVector>::BlockGraphSparseTRMatrix(Decomposition<Pe
 	int **neightbor_ids = decomposition->get_graph()->get_neighbor_ids();
 
 	/* prepare external content with PETSc stuff */
-	externalcontent = new ExternalContent();
+	this->externalcontent = new ExternalContent();
 
 	/* create matrix */
 	TRYCXX( MatCreate(PETSC_COMM_WORLD,&(externalcontent->A_petsc)) );
@@ -139,11 +139,6 @@ void BlockGraphSparseTRMatrix<PetscVector>::matmult(PetscVector &y, const PetscV
 	TRYCXX( VecAssemblyEnd(y.get_vector()) );
 
 	LOG_FUNC_END
-}
-
-template<>
-BlockGraphSparseTRMatrix<PetscVector>::ExternalContent * BlockGraphSparseTRMatrix<PetscVector>::get_externalcontent() const {
-	return this->externalcontent;
 }
 
 }
