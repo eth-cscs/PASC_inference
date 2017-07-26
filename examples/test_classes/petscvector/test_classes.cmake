@@ -26,8 +26,6 @@ option(TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D		  "TEST_PETSCVECTOR_ALGEBRA_BGMG
 option(TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D		  "TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_BLOCKDIAGMATRIX		  "TEST_PETSCVECTOR_ALGEBRA_BLOCKDIAGMATRIX" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX "TEST_PETSCVECTOR_ALGEBRA_BLOCKSPARSEMATRIX" OFF)
-option(TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACEFREEMATRIX "TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACEFREEMATRIX" OFF)
-option(TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACESPARSEMATRIX "TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACESPARSEMATRIX" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_DECOMPOSITION		  "TEST_PETSCVECTOR_ALGEBRA_DECOMPOSITION" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_FILECRSMATRIX		  "TEST_PETSCVECTOR_ALGEBRA_FILECRSMATRIX" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_LOCALDENSEMATRIX	  "TEST_PETSCVECTOR_ALGEBRA_LOCALDENSEMATRIX" OFF)
@@ -139,13 +137,11 @@ printinfo_onoff("   TEST_PETSCVECTOR_ALGEBRA                              (...) 
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_DOT                          (dot product)              " "${TEST_PETSCVECTOR_ALGEBRA_DOT}")
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE                    (fem on images)            " "${TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE}")
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_FEM_MOVIE                    (fem on movies)            " "${TEST_PETSCVECTOR_ALGEBRA_FEM_MOVIE}")
-#printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH                     (BGMGraph)                 " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH}")
+printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH                     (BGMGraph)                 " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D               (BGMGraphGrid1D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D               (BGMGraphGrid2D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKDIAGMATRIX              (BlockDiagMatrix)          " "${TEST_PETSCVECTOR_ALGEBRA_BLOCKDIAGMATRIX}")
-#printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX       (BlockGraphSparseMatrix)   " "${TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX}")
-#printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACEFREEMATRIX       (BlockLaplaceFreeMatrix)   " "${TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACEFREEMATRIX}")
-#printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACESPARSEMATRIX     (BlockLaplaceSparseMatrix) " "${TEST_PETSCVECTOR_ALGEBRA_BLOCKLAPLACESPARSEMATRIX}")
+printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX       (BlockGraphSparseMatrix)   " "${TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_DECOMPOSITION                (Decomposition)            " "${TEST_PETSCVECTOR_ALGEBRA_DECOMPOSITION}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_FILECRSMATRIX                (FileCRSMatrix)            " "${TEST_PETSCVECTOR_ALGEBRA_FILECRSMATRIX}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_PETSCVECTOR                  (PetscVector)              " "${TEST_PETSCVECTOR_ALGEBRA_PETSCVECTOR}")
@@ -262,11 +258,12 @@ endif()
 
 if(${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH})
 	# BGMGraph
-	if(${USE_CUDA})
-		testadd_executable("test_classes/petscvector/algebra/test_bgmgraph.cu" "test_petscvector_bgmgraph")
-	else()
-		testadd_executable("test_classes/petscvector/algebra/test_bgmgraph.cpp" "test_petscvector_bgmgraph")
-	endif()
+	testadd_executable("test_classes/petscvector/algebra/test_bgmgraph.cpp" "test_petscvector_bgmgraph")
+
+	# copy scripts
+	make_directory("scripts/test_classes/")
+	file(COPY "scripts/" DESTINATION "scripts/test_classes/"	FILES_MATCHING PATTERN "*")
+	file(COPY "test_classes/petscvector/scripts/" DESTINATION "scripts/test_classes/" FILES_MATCHING PATTERN "*")
 	
 	# copy data with sample graphs
 	file(COPY "test_classes/petscvector/data/test_algebra_bgmgraph/" DESTINATION "data" FILES_MATCHING PATTERN "*")
@@ -293,11 +290,7 @@ endif()
 
 if(${TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX})
 	# BlockGraphSparseMatrix
-	if(${USE_CUDA})
-		testadd_executable("test_classes/petscvector/algebra/test_blockgraphsparsematrix.cu" "test_petscvector_blockgraphsparsematrix")
-	else()
-		testadd_executable("test_classes/petscvector/algebra/test_blockgraphsparsematrix.cpp" "test_petscvector_blockgraphsparsematrix")
-	endif()
+	testadd_executable("test_classes/petscvector/algebra/test_blockgraphsparsematrix.cpp" "test_petscvector_blockgraphsparsematrix")
 
 	# copy data with sample graphs
 	file(COPY "test_classes/petscvector/data/test_algebra_blockgraphsparse/" DESTINATION "data" FILES_MATCHING PATTERN "*")
