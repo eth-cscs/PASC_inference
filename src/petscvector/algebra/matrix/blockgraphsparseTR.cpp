@@ -53,51 +53,33 @@ BlockGraphSparseTRMatrix<PetscVector>::BlockGraphSparseTRMatrix(Decomposition<Pe
 			for(int t=Tbegin;t < Tend;t++){
 				int diag_idx = this->decomposition->get_pdTRb_idx(t,this->decomposition->get_DDR_permutation(r),K,k);
 
-				int Wsum;
+				double Wsum = 0.0;
 
-				/* compute sum of W entries in row */
-				if(t == 0 || t == T-1){
-					if(T > 1){
-						Wsum = 2*neighbor_nmbs[r]+2; /* +1 for diagonal block */
-//						Wsum = 2*neighbor_nmbs[r_orig]; /* +1 for diagonal block */
-					} else {
-						Wsum = neighbor_nmbs[r];
-					}
-				} else {
-					if(T > 1){
-						Wsum = 3*neighbor_nmbs[r]+4; /* +2 for diagonal block */
-//						Wsum = 3*neighbor_nmbs[r_orig]; /* +2 for diagonal block */
-					} else {
-						Wsum = (neighbor_nmbs[r])+1; /* +1 for diagonal block */
-					}
-				}
-
-				/* diagonal entry */
-				TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, diag_idx, coeff*Wsum, INSERT_VALUES) );
-
-				/* my nondiagonal entries */
+				/* kron(A_T,I_R) */
+				double value_T = -(1.0-sigma)*coeff;
 				if(T>1){
 					if(t > 0) {
-						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, this->decomposition->get_pdTRb_idx(t-1,this->decomposition->get_DDR_permutation(r),K,k), -2*coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, this->decomposition->get_pdTRb_idx(t-1,this->decomposition->get_DDR_permutation(r),K,k), value_T, INSERT_VALUES) );
+                        Wsum += value_T;
 					}
 					if(t < T-1) {
-						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, this->decomposition->get_pdTRb_idx(t+1,this->decomposition->get_DDR_permutation(r),K,k), -2*coeff, INSERT_VALUES) );
+						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, this->decomposition->get_pdTRb_idx(t+1,this->decomposition->get_DDR_permutation(r),K,k), value_T, INSERT_VALUES) );
+                        Wsum += value_T;
 					}
 				}
 
-				/* non-diagonal neighbor entries */
+				/* kron(I_T,A_R) */
+				double value_R = -sigma*coeff;
 				for(int neighbor=0;neighbor<neighbor_nmbs[r];neighbor++){
 					int r_neighbor = this->decomposition->get_DDR_permutation(neightbor_ids[r][neighbor]);
 					int idx2 = this->decomposition->get_pdTRb_idx(t,r_neighbor,K,k);
-					TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, idx2, -coeff, INSERT_VALUES) );
-
-					if(t > 0) {
-						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, this->decomposition->get_pdTRb_idx(t-1,r_neighbor,K,k), -coeff, INSERT_VALUES) );
-					}
-					if(t < T-1) {
-						TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, this->decomposition->get_pdTRb_idx(t+1,r_neighbor,K,k), -coeff, INSERT_VALUES) );
-					}
+					TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, idx2, value_R, INSERT_VALUES) );
+                    Wsum += value_R;
 				}
+
+				/* diagonal entry */
+				TRYCXX( MatSetValue(externalcontent->A_petsc, diag_idx, diag_idx, -Wsum, INSERT_VALUES) );
+
 			} /* end T */
 
 		} /* end R */

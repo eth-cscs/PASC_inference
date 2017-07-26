@@ -1,0 +1,33 @@
+#!/bin/bash
+
+NPROC=6
+DDR_size=3
+DDT_size=2
+
+TYPE=1 # [0=blockgraphsparsematrix,1=blockgraphsparseTRmatrix]
+
+T=4
+K=2
+
+ALPHA=1.0
+SIGMA=0.2
+UNSORTED=false
+
+#GRAPH_FILENAME=data/test_classes/graph_twonodes.bin
+#GRAPH_DIM=2
+#GRAPH_COEFF=1.1
+
+GRAPH_FILENAME=data/test_classes/graph_fournodes.bin
+GRAPH_DIM=2
+GRAPH_COEFF=1.1
+
+PARAM_PRINT="--test_print_graph=true --test_print_decomposition=true --test_print_matrix=true -- test_print_matrix_unsorted=$UNSORTED"
+
+PARAM_ALL="--test_type=$TYPE --test_T=$T --test_K=$K --test_DDT=$DDT_size --test_DDR=$DDR_size --test_alpha=$ALPHA --test_sigma=$SIGMA --test_graph_filename=$GRAPH_FILENAME --test_graph_dim=$GRAPH_DIM --test_graph_coeff=$GRAPH_COEFF $PARAM_PRINT"
+
+## run the job
+#./test_petscvector_blockgraphsparsematrix $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_petscvector_blockgraphsparsematrix $PARAM_ALL
+#mpiexec -n $NPROC ./test_petscvector_blockgraphsparsematrix $PARAM_ALL
+
+

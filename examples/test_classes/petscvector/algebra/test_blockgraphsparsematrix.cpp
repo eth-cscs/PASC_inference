@@ -2,7 +2,7 @@
  *  @brief test class and methods: BlockGraphSparseMatrix
  *
  *  This file tests the class for manipulation with block diagonal matrix.
- * 
+ *
  *  @author Lukas Pospisil
  */
 
@@ -11,24 +11,23 @@
 #include <algorithm>
 
 #include "pascinference.h"
-#include "algebra/matrix/blockgraphsparse.h"
 
 typedef petscvector::PetscVector PetscVector;
 
 using namespace pascinference;
-
-extern int pascinference::DEBUG_MODE;
 
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
+		("test_type", boost::program_options::value<int>(), "type of matrix to test [0=blockgraphsparsematrix,1=blockgraphsparseTRmatrix]")
 		("test_T", boost::program_options::value<int>(), "length of time-series [int]")
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_DDT", boost::program_options::value<int>(), "decomposition in time [int]")
 		("test_DDR", boost::program_options::value<int>(), "decomposition in space [int]")
 		("test_alpha", boost::program_options::value<double>(), "coefficient of the matrix [double]")
+		("test_sigma", boost::program_options::value<double>(), "coefficient of the TR matrix [double]")
 		("test_graph_filename", boost::program_options::value< std::string >(), "name of file with coordinates [string]")
 		("test_graph_dim", boost::program_options::value<int>(), "dimension of graph 1/2/3 [int]")
 		("test_graph_coeff", boost::program_options::value<double>(), "threshold of the graph [double]")
@@ -39,22 +38,24 @@ int main( int argc, char *argv[] )
 	consoleArg.get_description()->add(opt_problem);
 
 	/* call initialize */
-	if(!Initialize(argc, argv)){
+	if(!Initialize<PetscVector>(argc, argv)){
 		return 0;
-	} 
+	}
 
 	/* load console arguments */
-	int T, K, DDT_size, DDR_size, graph_dim;
+	int T, K, DDT_size, DDR_size, graph_dim, type;
 	std::string graph_filename;
 	bool print_matrix, print_graph, print_matrix_unsorted, print_decomposition;
-	double alpha, graph_coeff;
+	double alpha, graph_coeff, sigma;
 	int nproc = GlobalManager.get_size();
-	
+
+	consoleArg.set_option_value("test_type", &type, 0);
 	consoleArg.set_option_value("test_T", &T, 3);
 	consoleArg.set_option_value("test_K", &K, 1);
 	consoleArg.set_option_value("test_DDT", &DDT_size, nproc);
 	consoleArg.set_option_value("test_DDR", &DDR_size, 1);
 	consoleArg.set_option_value("test_alpha", &alpha, 1.0);
+	consoleArg.set_option_value("test_sigma", &sigma, 0.5);
 	consoleArg.set_option_value("test_graph_filename", &graph_filename, "data/graph_twonodes.bin");
 	consoleArg.set_option_value("test_graph_dim", &graph_dim, 2);
 	consoleArg.set_option_value("test_graph_coeff", &graph_coeff, 1.1);
@@ -64,18 +65,20 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_print_decomposition", &print_decomposition, false);
 
 	/* print settings */
-	coutMaster << " test_T                     = " << std::setw(30) << T << " (length of time-series)" << std::endl;
-	coutMaster << " test_K                     = " << std::setw(30) << K << " (number of clusters)" << std::endl;
-	coutMaster << " test_DDT                   = " << std::setw(30) << DDT_size << " (decomposition in time)" << std::endl;
-	coutMaster << " test_DDR                   = " << std::setw(30) << DDR_size << " (decomposition in space)" << std::endl;
-	coutMaster << " test_alpha                 = " << std::setw(30) << alpha << " (coeficient of the matrix)" << std::endl;
-	coutMaster << " test_graph_filename        = " << std::setw(30) << graph_filename << " (name of file with coordinates)" << std::endl;
-	coutMaster << " test_graph_dim             = " << std::setw(30) << graph_dim << " (dimension of the graph 1/2/3)" << std::endl;
-	coutMaster << " test_graph_coeff           = " << std::setw(30) << graph_coeff << " (threshold of the graph)" << std::endl;
-	coutMaster << " test_print_graph           = " << std::setw(30) << print_graph << " (print content of graph or not)" << std::endl;
-	coutMaster << " test_print_decomposition   = " << std::setw(30) << print_decomposition << " (print content of decomposition or not)" << std::endl;
-	coutMaster << " test_print_matrix          = " << std::setw(30) << print_matrix << " (print matrix or not)" << std::endl;
-	coutMaster << " test_print_matrix_unsorted = " << std::setw(30) << print_matrix_unsorted << " (print matrix in unsorted form or not)" << std::endl;
+	coutMaster << " test_type                  = " << std::setw(50) << type << " (type of matrix to test [0=blockgraphsparsematrix,1=blockgraphsparseTRmatrix])" << std::endl;
+	coutMaster << " test_T                     = " << std::setw(50) << T << " (length of time-series)" << std::endl;
+	coutMaster << " test_K                     = " << std::setw(50) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_DDT                   = " << std::setw(50) << DDT_size << " (decomposition in time)" << std::endl;
+	coutMaster << " test_DDR                   = " << std::setw(50) << DDR_size << " (decomposition in space)" << std::endl;
+	coutMaster << " test_alpha                 = " << std::setw(50) << alpha << " (coeficient of the matrix)" << std::endl;
+	coutMaster << " test_sigma                 = " << std::setw(50) << sigma << " (coeficient of the TR matrix)" << std::endl;
+	coutMaster << " test_graph_filename        = " << std::setw(50) << graph_filename << " (name of file with coordinates)" << std::endl;
+	coutMaster << " test_graph_dim             = " << std::setw(50) << graph_dim << " (dimension of the graph 1/2/3)" << std::endl;
+	coutMaster << " test_graph_coeff           = " << std::setw(50) << graph_coeff << " (threshold of the graph)" << std::endl;
+	coutMaster << " test_print_graph           = " << std::setw(50) << print_bool(print_graph) << " (print content of graph or not)" << std::endl;
+	coutMaster << " test_print_decomposition   = " << std::setw(50) << print_bool(print_decomposition) << " (print content of decomposition or not)" << std::endl;
+	coutMaster << " test_print_matrix          = " << std::setw(50) << print_bool(print_matrix) << " (print matrix or not)" << std::endl;
+	coutMaster << " test_print_matrix_unsorted = " << std::setw(50) << print_bool(print_matrix_unsorted) << " (print matrix in unsorted form or not)" << std::endl;
 	coutMaster << std::endl;
 
 	if(DDT_size*DDR_size != nproc){
@@ -83,20 +86,20 @@ int main( int argc, char *argv[] )
 		coutMaster << " DDT   = " << std::setw(15) << DDT_size << std::endl;
 		coutMaster << " DDR   = " << std::setw(15) << DDR_size << std::endl;
 		coutMaster << " nproc = " << std::setw(15) << nproc << std::endl;
-		
+
 		return 0;
 	}
 
 	/* we will measure the time of operations */
 	Timer mytimer;
 	mytimer.restart();
-	
+
 	/* create graph (i.e. load from filename) */
 	mytimer.start();
-	 BGMGraph graph(graph_filename,graph_dim);
+	 BGMGraph<PetscVector> graph(graph_filename,graph_dim);
 	mytimer.stop();
 	coutMaster << "- time load graph           : " << std::setw(15) << mytimer.get_value_last() << " s" << std::endl;
-	
+
 	/* process graph with given coefficient */
 	mytimer.start();
 	 graph.process(graph_coeff);
@@ -115,9 +118,9 @@ int main( int argc, char *argv[] )
 	}
 
 	/* create decomposition */
-	Decomposition *decomposition;
+	Decomposition<PetscVector> *decomposition;
 	mytimer.start();
-	 decomposition = new Decomposition(T, graph, K, 1, DDT_size, DDR_size);
+	 decomposition = new Decomposition<PetscVector>(T, graph, K, 1, DDT_size, DDR_size);
 	mytimer.stop();
 	coutMaster << "- time create decomposition : " << std::setw(15) << mytimer.get_value_last() << " s" << std::endl;
 	if(!print_decomposition){
@@ -144,7 +147,8 @@ int main( int argc, char *argv[] )
 	/* create matrix A */
 	GeneralMatrix<PetscVector> *A;
 	mytimer.start();
-	 A = new BlockGraphSparseMatrix<PetscVector>(*decomposition, alpha);
+     if(type==0) A = new BlockGraphSparseMatrix<PetscVector>(*decomposition, alpha);
+     if(type==1) A = new BlockGraphSparseTRMatrix<PetscVector>(*decomposition, sigma, alpha);
 	mytimer.stop();
 	coutMaster << "- time create matrix        : " << std::setw(15) << mytimer.get_value_last() << " s" << std::endl;
 	/* print informations about matrix */
@@ -171,7 +175,7 @@ int main( int argc, char *argv[] )
 				for(int t=0;t < T; t++){ /* through time steps */
 					/* prepare e_k in layout */
 					TRYCXX( VecSet(x_Vec,0) );
-					TRYCXX( VecSetValue(x_Vec, decomposition->get_idxglobal(t,r,k), 1.0, INSERT_VALUES) );
+					TRYCXX( VecSetValue(x_Vec, decomposition->get_pdTRb_idx(t,r,K,k), 1.0, INSERT_VALUES) );
 					TRYCXX( VecAssemblyBegin(x_Vec) );
 					TRYCXX( VecAssemblyEnd(x_Vec) );
 
@@ -184,7 +188,7 @@ int main( int argc, char *argv[] )
 					if(print_matrix){
 						/* get array of values */
 						TRYCXX( VecGetArray(y.get_vector(), &values_arr) );
-		
+
 						/* print row */
 						TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, k*R*T + r*T + t) );
 
@@ -193,14 +197,14 @@ int main( int argc, char *argv[] )
 							for(int r_col = 0; r_col < R; r_col++){
 								for(int t_col = 0; t_col < T; t_col++){
 									/* it is my element? */
-									int Pr_col = decomposition->get_Pr(r_col);
+									int Pr_col = decomposition->get_DDR_permutation(r_col);
 									if( t_col >= decomposition->get_Tbegin() && t_col < decomposition->get_Tend()
 										&& Pr_col >= decomposition->get_Rbegin() && Pr_col < decomposition->get_Rend()){
 										int t_local = t_col - decomposition->get_Tbegin();
 										int r_local = Pr_col - decomposition->get_Rbegin();
 										double value = values_arr[t_local*decomposition->get_Rlocal()*K + r_local*K + k_col];
 
-										if(abs(value) > 0.000001){
+										if(std::abs(value) > 0.000001){
 											TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%*.*f,",6, 2, value) );
 										} else {
 											TRYCXX( PetscSynchronizedPrintf(PETSC_COMM_WORLD, "      ,") );
@@ -211,7 +215,7 @@ int main( int argc, char *argv[] )
 							}
 						}
 						TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "\n") );
-					
+
 						/* restore array with values */
 						TRYCXX( VecRestoreArray(y.get_vector(), &values_arr) );
 					}
@@ -236,7 +240,7 @@ int main( int argc, char *argv[] )
 			if(print_matrix){
 				/* get array of values */
 				TRYCXX( VecGetArray(y.get_vector(), &values_arr) );
-		
+
 				/* print row */
 				TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "%*d: ", 3, col) );
 
@@ -249,7 +253,7 @@ int main( int argc, char *argv[] )
 				}
 				TRYCXX( PetscSynchronizedFlush(PETSC_COMM_WORLD, NULL) );
 				TRYCXX( PetscPrintf(PETSC_COMM_WORLD, "\n") );
-					
+
 				/* restore array with values */
 				TRYCXX( VecRestoreArray(y.get_vector(), &values_arr) );
 			}
@@ -265,12 +269,12 @@ int main( int argc, char *argv[] )
 	coutMaster << "- time multiplication all   : " << std::setw(15) << mytimer.get_value_sum() << " s" << std::endl;
 	coutMaster << "- time multiplication avg   : " << std::setw(15) << mytimer.get_value_sum()/(double)(decomposition->get_T()*decomposition->get_R()*K) << " s" << std::endl;
 
-	
-	/* say bye */	
+
+	/* say bye */
 	coutMaster << "- end of program" << std::endl;
 	coutMaster << std::endl;
 
-	Finalize();
+	Finalize<PetscVector>();
 
 	return 0;
 }

@@ -71,7 +71,6 @@ PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PAR
 #./test_movie $PARAM_ALL
 #/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
 #mpiexec -n $NPROC ./test_movie $PARAM_ALL
-#./test_image $PARAM_ALL
 
 
 # show results

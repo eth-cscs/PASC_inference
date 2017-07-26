@@ -1,5 +1,13 @@
 include_directories("${CMAKE_SOURCE_DIR}/test_classes/petscvector/")
 
+# function to copy scripts
+macro(TEST_CLASSES_PETSCVECTOR_COPY_SCRIPTS)
+	make_directory("scripts/test_classes/")
+	file(COPY "scripts/" DESTINATION "scripts/test_classes/"	FILES_MATCHING PATTERN "*")
+	file(COPY "test_classes/petscvector/scripts/" DESTINATION "scripts/test_classes/" FILES_MATCHING PATTERN "*")
+endmacro()
+
+
 # ----- COMMON -----
 option(TEST_PETSCVECTOR_COMMON 						"TEST_PETSCVECTOR_COMMON" OFF)
 option(TEST_PETSCVECTOR_COMMON_CONSOLEARG 			  "TEST_PETSCVECTOR_COMMON_CONSOLEARG" OFF)
@@ -233,9 +241,7 @@ if(${TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE})
 	testadd_executable("test_classes/petscvector/algebra/test_fem_image.cpp" "test_petscvector_fem_image")
 
 	# copy scripts
-	make_directory("scripts/test_classes/")
-	file(COPY "scripts/" DESTINATION "scripts/test_classes/"	FILES_MATCHING PATTERN "*")
-	file(COPY "test_classes/petscvector/scripts/" DESTINATION "scripts/test_classes/" FILES_MATCHING PATTERN "*")
+	test_classes_petscvector_copy_scripts()
 	
 	# copy data from test_image
 	make_directory("data/test_image/")
@@ -247,9 +253,7 @@ if(${TEST_PETSCVECTOR_ALGEBRA_FEM_MOVIE})
 	testadd_executable("test_classes/petscvector/algebra/test_fem_movie.cpp" "test_petscvector_fem_movie")
 
 	# copy scripts
-	make_directory("scripts/test_classes/")
-	file(COPY "scripts/" DESTINATION "scripts/test_classes/"	FILES_MATCHING PATTERN "*")
-	file(COPY "test_classes/petscvector/scripts/" DESTINATION "scripts/test_classes/" FILES_MATCHING PATTERN "*")
+	test_classes_petscvector_copy_scripts()
 	
 	# copy data from test_image
 	make_directory("data/test_movie/")
@@ -261,12 +265,11 @@ if(${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH})
 	testadd_executable("test_classes/petscvector/algebra/test_bgmgraph.cpp" "test_petscvector_bgmgraph")
 
 	# copy scripts
-	make_directory("scripts/test_classes/")
-	file(COPY "scripts/" DESTINATION "scripts/test_classes/"	FILES_MATCHING PATTERN "*")
-	file(COPY "test_classes/petscvector/scripts/" DESTINATION "scripts/test_classes/" FILES_MATCHING PATTERN "*")
+	test_classes_petscvector_copy_scripts()
 	
 	# copy data with sample graphs
-	file(COPY "test_classes/petscvector/data/test_algebra_bgmgraph/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+	make_directory("data/test_classes/")
+	file(COPY "test_classes/petscvector/data/test_algebra_bgmgraph/" DESTINATION "data/test_classes/" FILES_MATCHING PATTERN "*")
 	
 endif()
 
@@ -292,8 +295,12 @@ if(${TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX})
 	# BlockGraphSparseMatrix
 	testadd_executable("test_classes/petscvector/algebra/test_blockgraphsparsematrix.cpp" "test_petscvector_blockgraphsparsematrix")
 
+	# copy scripts
+	test_classes_petscvector_copy_scripts()
+
 	# copy data with sample graphs
-	file(COPY "test_classes/petscvector/data/test_algebra_blockgraphsparse/" DESTINATION "data" FILES_MATCHING PATTERN "*")
+	make_directory("data/test_classes/")
+	file(COPY "test_classes/petscvector/data/test_algebra_blockgraphsparse/" DESTINATION "data/test_classes/" FILES_MATCHING PATTERN "*")
 	
 endif()
 

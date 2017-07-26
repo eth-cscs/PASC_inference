@@ -2,16 +2,16 @@
 
 NMBDOMAINS=7
 
-#TEST_FILENAME=data/test_graph1D.bin
+#TEST_FILENAME=data/test_classes/test_graph1D.bin
 #DIM=1
 
-#TEST_FILENAME=data/test_graph2D.bin
+#TEST_FILENAME=data/test_classes/test_graph2D.bin
 #DIM=2
 
-#TEST_FILENAME=data/test_graph3D_sphere.bin
+#TEST_FILENAME=data/test_classes/test_graph3D_sphere.bin
 #DIM=3
 
-TEST_FILENAME=data/test_graph3D_torus.bin
+TEST_FILENAME=data/test_classes/test_graph3D_torus.bin
 DIM=3
 
 ./test_petscvector_bgmgraph --test_filename=$TEST_FILENAME --test_dim=$DIM --test_nmbdomains=$NMBDOMAINS

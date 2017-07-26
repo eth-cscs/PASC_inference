@@ -43,7 +43,7 @@ int main( int argc, char *argv[] )
 	double coeff;
 	bool print;
 	int nmbdomains, dim;
-	consoleArg.set_option_value("test_filename", &filename, "data/test_graph2D.bin");
+	consoleArg.set_option_value("test_filename", &filename, "data/test_classes/test_graph2D.bin");
 	consoleArg.set_option_value("test_dim", &dim, 2);
 	consoleArg.set_option_value("test_out", &out, "test_graph_out");
 	consoleArg.set_option_value("test_coeff", &coeff, 1.1);
