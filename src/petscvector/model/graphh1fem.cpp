@@ -5,18 +5,22 @@ namespace model {
 
 /* constructor */
 template<>
-GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, Fem<PetscVector> *new_fem, bool usethetainpenalty) {
+GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, Fem<PetscVector> *new_fem, double sigma, bool usethetainpenalty) {
 	LOG_FUNC_BEGIN
 
 	// TODO: enum in boost::program_options, not only int
 	int gammasolvertype_int;
+	int matrixtype_int;
 	consoleArg.set_option_value("graphh1femmodel_gammasolvertype", &gammasolvertype_int, SOLVER_AUTO);
 	consoleArg.set_option_value("graphh1femmodel_scalef", &scalef, GRAPHH1FEMMODEL_DEFAULT_SCALEF);
+	consoleArg.set_option_value("graphh1femmodel_matrixtype", &matrixtype_int, GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE);
 
 	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
+	this->matrixtype = static_cast<MatrixType>(matrixtype_int);
 
 	/* set given parameters */
 	this->usethetainpenalty = usethetainpenalty;
+	this->sigma = sigma;
 	this->tsdata = &new_tsdata;
 
 	/* prepare sequential vector with Theta - yes, all procesors will have the same information */
@@ -129,14 +133,19 @@ void GraphH1FEMModel<PetscVector>::gammasolver_initialize(GeneralSolver **gammas
 		coeff *= ((double)(this->get_T_reduced())/((double)(this->get_T())));
 	}
 
-	/* SPARSE */
-	if(usethetainpenalty){
-		/* use thetavector as a vector of coefficient for scaling blocks */
-		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(get_decomposition_reduced()), coeff, tsdata->get_thetavector() );
-	} else {
-		/* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
-		A_shared = new BlockGraphSparseMatrix<PetscVector>(*(get_decomposition_reduced()), coeff, NULL );
-	}
+    /* based on given matrix type choose appropriate... matrix type */
+    if(this->matrixtype == MATRIX_BGS){
+        if(usethetainpenalty){
+            /* use thetavector as a vector of coefficient for scaling blocks */
+            A_shared = new BlockGraphSparseMatrix<PetscVector>(*(get_decomposition_reduced()), coeff, tsdata->get_thetavector() );
+        } else {
+            /* the vector of coefficient of blocks is set to NULL, therefore Theta will be not used to scale in penalisation */
+            A_shared = new BlockGraphSparseMatrix<PetscVector>(*(get_decomposition_reduced()), coeff, NULL );
+        }
+    }
+    if(this->matrixtype == MATRIX_BGSTR){
+        A_shared = new BlockGraphSparseTRMatrix<PetscVector>(*(get_decomposition_reduced()), this->sigma, coeff );
+    }
 
 	gammadata->set_A(A_shared);
 
@@ -148,7 +157,7 @@ void GraphH1FEMModel<PetscVector>::gammasolver_initialize(GeneralSolver **gammas
 
 	/* automatic choice of solver */
 	if(this->gammasolvertype == SOLVER_AUTO){
-		this->gammasolvertype = SOLVER_SPGQP;
+		this->gammasolvertype = GRAPHH1FEMMODEL_DEFAULT_SOLVER_TYPE;
 	}
 
 	/* SPG-QP solver */

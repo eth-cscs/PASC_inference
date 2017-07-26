@@ -8,6 +8,7 @@
 /* gamma problem */
 //#include "external/petscvector/algebra/matrix/blockgraphfree.h" // TODO: implement?
 #include "external/petscvector/algebra/matrix/blockgraphsparse.h"
+#include "external/petscvector/algebra/matrix/blockgraphsparseTR.h"
 
 #include "external/petscvector/algebra/feasibleset/simplex_local.h"
 #include "external/petscvector/algebra/feasibleset/simplex_lineqbound.h"
@@ -34,7 +35,7 @@
 namespace pascinference {
 namespace model {
 
-template<> GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, Fem<PetscVector> *new_fem, bool usethetainpenalty);
+template<> GraphH1FEMModel<PetscVector>::GraphH1FEMModel(TSData<PetscVector> &new_tsdata, double epssqr, Fem<PetscVector> *new_fem, double sigma, bool usethetainpenalty);
 template<> void GraphH1FEMModel<PetscVector>::printsolution(ConsoleOutput &output_global, ConsoleOutput &output_local) const;
 
 template<> void GraphH1FEMModel<PetscVector>::gammasolver_initialize(GeneralSolver **gammasolver);

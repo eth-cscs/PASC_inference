@@ -7,8 +7,19 @@
 namespace pascinference {
 namespace algebra {
 
+/* external-specific stuff */
+template<> class GeneralMatrix<PetscVector>::ExternalContent {
+	public:
+		Mat A_petsc; /**< internal PETSc matrix */
+
+		virtual std::string get_name() const {
+            return "GeneralMatrix PETSc content";
+		}
+
+};
 
 }
 } /* end of namespace */
+
 
 #endif

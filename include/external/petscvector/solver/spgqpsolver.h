@@ -7,7 +7,9 @@
 //#include "external/petscvector/solver/qpsolver.h"
 //#include "external/petscvector/data/qpdata.h"
 //#include "external/petscvector/solver/spg_fs.h"
+#include "external/petscvector/algebra/matrix/generalmatrix.h"
 #include "external/petscvector/algebra/matrix/blockgraphsparse.h"
+#include "external/petscvector/algebra/matrix/blockgraphsparseTR.h"
 
 #ifdef USE_CUDA
  #include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */

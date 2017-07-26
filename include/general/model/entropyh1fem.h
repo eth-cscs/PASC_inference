@@ -22,9 +22,9 @@
 #include "general/solver/entropysolvernewton.h"
 #include "general/data/tsdata.h"
 
-/* default type of matrix: 0=FREE, 1=SPARSE */
-#define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 1
-#define GRAPHH1FEMMODEL_DEFAULT_SCALEF 1
+/* default type of matrix */
+#define ENTROPYH1FEMMODEL_DEFAULT_MATRIX_TYPE 1
+#define ENTROPYH1FEMMODEL_DEFAULT_SCALEF 1
 
 namespace pascinference {
 namespace model {

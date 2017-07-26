@@ -7,6 +7,7 @@
 /* gamma problem */
 //#include "algebra/matrix/blockgraphfree.h" // TODO: implement?
 #include "general/algebra/matrix/blockgraphsparse.h"
+#include "general/algebra/matrix/blockgraphsparseTR.h"
 #include "general/algebra/feasibleset/simplex_local.h"
 #include "general/algebra/feasibleset/simplex_lineqbound.h"
 #include "general/solver/spgqpsolver.h"
@@ -21,8 +22,9 @@
 #include "general/data/tsdata.h"
 
 
-/* default type of matrix: 0=FREE, 1=SPARSE */
-#define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 1
+/* default type of matrix: 0=BlockGraphSparseMatrix, 1=BlockGraphSparseTRMatrix */
+#define GRAPHH1FEMMODEL_DEFAULT_SOLVER_TYPE SOLVER_SPGQP
+#define GRAPHH1FEMMODEL_DEFAULT_MATRIX_TYPE 0
 #define GRAPHH1FEMMODEL_DEFAULT_SCALEF 1
 
 namespace pascinference {
@@ -48,11 +50,19 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 			SOLVER_TAO=4 /**< TAO solver */
 		} GammaSolverType;
 
+		/** @brief type of matrix used for regularization
+		 */
+		typedef enum {
+            MATRIX_BGS=0, /**< BlockGraphSparseMatrix */
+            MATRIX_BGSTR=1 /**< BlockGraphSparseTRMatrix */
+		} MatrixType;
+
 	protected:
 		QPData<VectorBase> *gammadata; /**< QP with simplex, will be solved by SPG-QP */
 	 	SimpleData<VectorBase> *thetadata; /**< this problem is solved during assembly  */
 
 		double epssqr; /**< penalty coeficient */
+		double sigma; /**< TR coefficient of BlockGraphSparseTRMatrix */
 
 		/* for theta problem */
 		GeneralMatrix<VectorBase> *A_shared; /**< matrix shared by gamma and theta solver */
@@ -63,6 +73,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		bool scalef;			/**< divide whole function by T */
 
 		GammaSolverType gammasolvertype; /**< the type of used solver */
+		MatrixType matrixtype; /**< the type of regularization matrix */
 
 		Fem<VectorBase> *fem;
 
@@ -73,7 +84,7 @@ class GraphH1FEMModel: public TSModel<VectorBase> {
 		 * @param tsdata time-series data on which model operates
 		 * @param epssqr regularisation constant
 		 */
-		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, Fem<VectorBase> *new_fem = NULL, bool usethetainpenalty = false);
+		GraphH1FEMModel(TSData<VectorBase> &tsdata, double epssqr, Fem<VectorBase> *new_fem = NULL, double sigma=0.5, bool usethetainpenalty = false);
 
 		/** @brief destructor
 		 */
@@ -146,7 +157,7 @@ namespace model {
 
 /* constructor */
 template<class VectorBase>
-GraphH1FEMModel<VectorBase>::GraphH1FEMModel(TSData<VectorBase> &new_tsdata, double epssqr, Fem<VectorBase> *new_fem, bool usethetainpenalty) {
+GraphH1FEMModel<VectorBase>::GraphH1FEMModel(TSData<VectorBase> &new_tsdata, double epssqr, Fem<VectorBase> *new_fem, double sigma, bool usethetainpenalty) {
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -187,6 +198,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - K                 : " << this->tsdata->get_K() << std::endl;
 	output <<  " - R                 : " << this->tsdata->get_R() << std::endl;
 	output <<  " - epssqr            : " << this->epssqr << std::endl;
+	output <<  " - sigma             : " << this->sigma << std::endl;
 	output <<  " - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl;
 
 	output <<  " - Graph             : " << std::endl;
@@ -203,6 +215,12 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output) const {
 		case(SOLVER_SPGQP_COEFF): output << "SPG-QP-COEFF solver"; break;
 		case(SOLVER_PERMON): output << "PERMON QP solver"; break;
 		case(SOLVER_TAO): output << "TAO QP solver"; break;
+	}
+	output << std::endl;
+	output <<  " - matrixtype        : ";
+	switch(this->matrixtype){
+		case(MATRIX_BGS): output << "BlockGraphSparseMatrix"; break;
+		case(MATRIX_BGSTR): output << "BlockGraphSparseTRMatrix"; break;
 	}
 	output << std::endl;
 
@@ -233,6 +251,7 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 	output_global <<  "  - K                 : " << this->tsdata->get_K() << std::endl;
 	output_global <<  "  - R                 : " << this->tsdata->get_R() << std::endl;
 	output_global <<  "  - epssqr            : " << this->epssqr << std::endl;
+	output_global <<  "  - sigma             : " << this->sigma << std::endl;
 	output_global <<  "  - usethetainpenalty : " << printbool(this->usethetainpenalty) << std::endl;
 	output_global <<  "  - gammasolvertype   : ";
 	switch(this->gammasolvertype){
@@ -241,6 +260,12 @@ void GraphH1FEMModel<VectorBase>::print(ConsoleOutput &output_global, ConsoleOut
 		case(SOLVER_SPGQP_COEFF): output_global << "SPG-QP-COEFF solver"; break;
 		case(SOLVER_PERMON): output_global << "PERMON QP solver"; break;
 		case(SOLVER_TAO): output_global << "TAO QP solver"; break;
+	}
+	output_global << std::endl;
+	output_global <<  " - matrixtype        : ";
+	switch(this->matrixtype){
+		case(MATRIX_BGS): output_global << "BlockGraphSparseMatrix"; break;
+		case(MATRIX_BGSTR): output_global << "BlockGraphSparseTRMatrix"; break;
 	}
 	output_global << std::endl;
 
@@ -299,8 +324,8 @@ void GraphH1FEMModel<VectorBase>::set_epssqr(double epssqr) {
 	}
 
 	if(this->A_shared != NULL){
-		/* SPARSE */
-		((BlockGraphSparseMatrix<VectorBase>*)A_shared)->set_coeff(coeff);
+		if(this->matrixtype == MATRIX_BGS) ((BlockGraphSparseMatrix<VectorBase>*)A_shared)->set_coeff(coeff);
+		if(this->matrixtype == MATRIX_BGSTR) ((BlockGraphSparseTRMatrix<VectorBase>*)A_shared)->set_coeff(coeff);
 	}
 
 	LOG_FUNC_END

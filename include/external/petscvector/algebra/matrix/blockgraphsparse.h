@@ -7,14 +7,15 @@
 #include "external/petscvector/common/decomposition.h"
 #include "external/petscvector/algebra/graph/bgmgraph.h"
 
-
 namespace pascinference {
 namespace algebra {
 
 /* external-specific stuff */
-template<> class BlockGraphSparseMatrix<PetscVector>::ExternalContent {
-	public:
-		Mat A_petsc; /**< internal PETSc matrix */
+template<> class BlockGraphSparseMatrix<PetscVector>::ExternalContent : public GeneralMatrix<PetscVector>::ExternalContent {
+    public:
+		virtual std::string get_name() const {
+            return "BlockGraphSparseMatrix PETSc content";
+		}
 };
 
 template<> BlockGraphSparseMatrix<PetscVector>::BlockGraphSparseMatrix(Decomposition<PetscVector> &new_decomposition, double alpha, GeneralVector<PetscVector> *new_coeffs);

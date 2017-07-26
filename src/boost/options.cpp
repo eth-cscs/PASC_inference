@@ -163,21 +163,17 @@ void add_options(boost::program_options::options_description *description, int c
 		boost::program_options::options_description opt_graphh1femmodel("GRAPHH1FEMMODEL", console_nmb_cols);
 		opt_graphh1femmodel.add_options()
 			("graphh1femmodel_scalef", boost::program_options::value<bool>(), "scale function by 1/T [bool]")
-			("graphh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]");
+			("graphh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]")
+			("graphh1femmodel_matrixtype", boost::program_options::value<int>(), "type of used regularization matrix [0=BlockGraphSparseMatrix/1=BlockGraphSparseTRMatrix]");
 		opt_models.add(opt_graphh1femmodel);
-
-		/* KMEANSH1FEMMODEL */
-		boost::program_options::options_description opt_kmeansh1femmodel("KMEANSH1FEMMODEL", console_nmb_cols);
-		opt_kmeansh1femmodel.add_options()
-			("kmeansh1femmodel_matrix_type", boost::program_options::value<int>(), "type of used matrix [0=FREE/1=SPARSE]"); //TODO: enum?
-		opt_models.add(opt_kmeansh1femmodel);
 
 		/* ENTROPYH1FEMMODEL */
 		boost::program_options::options_description opt_entropyh1femmodel("ENTROPYH1FEMMODEL", console_nmb_cols);
 		opt_entropyh1femmodel.add_options()
 			("entropyh1femmodel_scalef", boost::program_options::value<bool>(), "scale function by 1/T [bool]")
 			("entropyh1femmodel_thetasolvertype", boost::program_options::value<int>(), "type of used inner Entropy solver [0=SOLVER_AUTO/1=SOLVER_ENTROPY_DLIB/2=SOLVER_ENTROPY_NEWTON]")
-			("entropyh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]");
+			("entropyh1femmodel_gammasolvertype", boost::program_options::value<int>(), "type of used inner QP solver [0=SOLVER_AUTO/1=SOLVER_SPGQP/2=SOLVER_SPGQPCOEFF/3=SOLVER_PERMON/4=SOLVER_TAO]")
+			("entropyh1femmodel_matrixtype", boost::program_options::value<int>(), "type of used regularization matrix [0=BlockGraphSparseMatrix/1=BlockGraphSparseTRMatrix]");
 		opt_models.add(opt_entropyh1femmodel);
 
 

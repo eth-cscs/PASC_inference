@@ -12,7 +12,7 @@ EntropyH1FEMModel<PetscVector>::EntropyH1FEMModel(TSData<PetscVector> &new_tsdat
 	int thetasolvertype_int;
 	consoleArg.set_option_value("entropyh1femmodel_gammasolvertype", &gammasolvertype_int, GSOLVER_AUTO);
 	consoleArg.set_option_value("entropyh1femmodel_thetasolvertype", &thetasolvertype_int, TSOLVER_AUTO);
-	consoleArg.set_option_value("entropyh1femmodel_scalef", &scalef, GRAPHH1FEMMODEL_DEFAULT_SCALEF);
+	consoleArg.set_option_value("entropyh1femmodel_scalef", &scalef, ENTROPYH1FEMMODEL_DEFAULT_SCALEF);
 
 	this->gammasolvertype = static_cast<GammaSolverType>(gammasolvertype_int);
 	this->thetasolvertype = static_cast<ThetaSolverType>(thetasolvertype_int);

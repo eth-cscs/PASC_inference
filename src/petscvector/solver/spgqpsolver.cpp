@@ -17,8 +17,8 @@ void SPGQPSolver<PetscVector>::allocate_temp_vectors(){
 
 	g = new GeneralVector<PetscVector>(*pattern);
 	d = new GeneralVector<PetscVector>(*pattern);
-	Ad = new GeneralVector<PetscVector>(*pattern);	
-	temp = new GeneralVector<PetscVector>(*pattern);	
+	Ad = new GeneralVector<PetscVector>(*pattern);
+	temp = new GeneralVector<PetscVector>(*pattern);
 
 	/* prepare external content with PETSc stuff */
 	externalcontent = new ExternalContent();
@@ -43,10 +43,10 @@ void SPGQPSolver<PetscVector>::free_temp_vectors(){
 	free(d);
 	free(Ad);
 	free(temp);
-	
+
 	TRYCXX( PetscFree(Mdots_val) );
 	TRYCXX( PetscFree(externalcontent->Mdots_vec) );
-	
+
 	LOG_FUNC_END
 }
 
@@ -56,7 +56,6 @@ void SPGQPSolver<PetscVector>::solve() {
 	LOG_FUNC_BEGIN
 
 	/* get Petsc objects from general */
-	BlockGraphSparseMatrix<PetscVector> *Abgs = dynamic_cast<BlockGraphSparseMatrix<PetscVector> *>(qpdata->get_A());
 	GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
 	GeneralVector<PetscVector> *x_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x());
 	GeneralVector<PetscVector> *x0_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_x0());
@@ -64,7 +63,17 @@ void SPGQPSolver<PetscVector>::solve() {
 	GeneralVector<PetscVector> *d_p = dynamic_cast<GeneralVector<PetscVector> *>(this->d);
 	GeneralVector<PetscVector> *Ad_p = dynamic_cast<GeneralVector<PetscVector> *>(this->Ad);
 
-	Mat A_Mat = Abgs->get_externalcontent()->A_petsc; 
+    coutMaster << "------------------ prdel ------------------" << std::endl;
+    coutMaster << "test1: " << qpdata->get_A()->get_name() << std::endl;
+    coutMaster << "test2: " << qpdata->get_A()->get_externalcontent()->get_name() << std::endl;
+	Mat A_Mat = qpdata->get_A()->get_externalcontent()->A_petsc;
+
+    coutMaster << "------------------ prdel2 ------------------" << std::endl;
+    double A_coeff = qpdata->get_A()->get_coeff();
+
+    coutMaster << "------------------ prdel3 ------------------" << std::endl;
+
+
 	Vec b_Vec = b_p->get_vector();
 	Vec x_Vec = x_p->get_vector();
 	Vec x0_Vec = x0_p->get_vector();
@@ -81,7 +90,7 @@ void SPGQPSolver<PetscVector>::solve() {
 		cuda_copytoGPU(d_Vec);
 		cuda_copytoGPU(Ad_Vec);
 	#endif
-	
+
 	allbarrier<PetscVector>();
 
 	this->timer_solve.start(); /* stop this timer in the end of solution */
@@ -120,7 +129,7 @@ void SPGQPSolver<PetscVector>::solve() {
 	/* compute gradient, g = A*x-b */
 	this->timer_matmult.start();
 	 TRYCXX( MatMult(A_Mat, x_Vec, g_Vec) );
-	 TRYCXX( VecScale(g_Vec, Abgs->get_coeff()) );
+	 TRYCXX( VecScale(g_Vec, A_coeff) );
 	 allbarrier<PetscVector>();
 	 hessmult += 1; /* there was muliplication by A */
 	this->timer_matmult.stop();
@@ -162,7 +171,7 @@ void SPGQPSolver<PetscVector>::solve() {
 		/* Ad = A*d */
 		this->timer_matmult.start();
 		 TRYCXX( MatMult(A_Mat, d_Vec, Ad_Vec) );
-		 TRYCXX( VecScale(Ad_Vec, Abgs->get_coeff()) );
+		 TRYCXX( VecScale(Ad_Vec, A_coeff) );
 		 allbarrier<PetscVector>();
 		 hessmult += 1;
 		this->timer_matmult.stop();
@@ -176,7 +185,7 @@ void SPGQPSolver<PetscVector>::solve() {
 		 fx_max = fs.get_max();
 		 allbarrier<PetscVector>();
 		this->timer_fs.stop();
-		
+
 		/* compute step-size from A-condition */
 		this->timer_stepsize.start();
 		 xi = (fx_max - fx)/dAd;
@@ -187,7 +196,7 @@ void SPGQPSolver<PetscVector>::solve() {
 		 if(beta_hat < this->sigma1){
 			 beta_hat = this->sigma1;
 		 }
-		 
+
 		 if(beta_hat < this->sigma2){
 			beta = beta_hat;
 		 } else {
@@ -221,7 +230,7 @@ void SPGQPSolver<PetscVector>::solve() {
 		/* print progress of algorithm */
 		if(debug_print_it){
 			coutMaster << "\033[33m   it = \033[0m" << it;
-			
+
 			std::streamsize ss = std::cout.precision();
 			coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
 
@@ -232,7 +241,7 @@ void SPGQPSolver<PetscVector>::solve() {
 			LOG_FX(fx)
 
 		}
-		
+
 		/* print qpdata */
 		if(debug_print_vectors){
 //			coutMaster << "x: " << x << std::endl;
@@ -245,15 +254,15 @@ void SPGQPSolver<PetscVector>::solve() {
 			coutMaster << "\033[36m    alpha_bb = \033[0m" << alpha_bb << ",";
 			coutMaster << "\033[36m dAd = \033[0m" << dAd << ",";
 			coutMaster << "\033[36m gd = \033[0m" << gd << std::endl;
-			
+
 			coutMaster << "\033[36m    fx = \033[0m" << fx << ",";
 			coutMaster << "\033[36m fx_max = \033[0m" << fx_max << ",";
 			coutMaster << "\033[36m xi = \033[0m" << xi << std::endl;
-			
+
 			coutMaster << "\033[36m    beta_bar = \033[0m" << beta_bar << ",";
 			coutMaster << "\033[36m beta_hat = \033[0m" << beta_hat << ",";
 			coutMaster << "\033[36m beta = \033[0m" << beta << std::endl;
-			
+
 		}
 
 		/* stopping criteria */
@@ -272,7 +281,7 @@ void SPGQPSolver<PetscVector>::solve() {
 		if(this->stop_Anormgp_normb && dAd < this->eps*normb){
 			break;
 		}
-		
+
 		/* monitor - export values of stopping criteria */
 		if(this->monitor && GlobalManager.get_rank() == 0){
 			//TODO: this could be done in a different way
@@ -281,19 +290,19 @@ void SPGQPSolver<PetscVector>::solve() {
 
 			std::streamsize ss = myfile.precision();
 			myfile << std::setprecision(17);
-			
-			myfile << "fx(" << it << ") = " << fx << "; "; 
+
+			myfile << "fx(" << it << ") = " << fx << "; ";
 			myfile << "alpha_bb(" << it << ") = " << alpha_bb << "; ";
 			myfile << "beta(" << it << ") = " << beta << "; ";
 			myfile << "norm_difff(" << it << ") = " << abs(fx - fx_old) << "; ";
 			myfile << "norm_gp(" << it << ") = " << dd << "; ";
 			myfile << "norm_Agp(" << it << ") = " << dAd << "; ";
 			myfile << std::endl;
-			
+
 			myfile << std::setprecision(ss);
-			myfile.close();			
+			myfile.close();
 		}
-		
+
 	} /* main cycle end */
 
 	this->it_sum += it;
@@ -315,11 +324,11 @@ void SPGQPSolver<PetscVector>::solve() {
 template<>
 double SPGQPSolver<PetscVector>::get_fx() const {
 	LOG_FUNC_BEGIN
-	
+
 	double fx = std::numeric_limits<double>::max();
 
 	/* use computed gradient in this->g to compute function value */
-	double tempt; 
+	double tempt;
 
 	/* get PETSc specific stuff from general */
 	GeneralVector<PetscVector> *b_p = dynamic_cast<GeneralVector<PetscVector> *>(qpdata->get_b());
@@ -341,7 +350,7 @@ double SPGQPSolver<PetscVector>::get_fx() const {
 	fx = 0.5*tempt;
 
 	LOG_FUNC_END
-	return fx;	
+	return fx;
 }
 
 template<>
@@ -366,9 +375,9 @@ void SPGQPSolver<PetscVector>::compute_dots(double *dd, double *dAd, double *gd)
 	LOG_FUNC_END
 }
 
-template<> 
+template<>
 SPGQPSolver<PetscVector>::ExternalContent * SPGQPSolver<PetscVector>::get_externalcontent() const {
-	return this->externalcontent;	
+	return this->externalcontent;
 }
 
 

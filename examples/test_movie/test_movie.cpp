@@ -36,6 +36,7 @@
 #define DEFAULT_SHORTINFO_FILENAME "shortinfo/usi_250_150_02.txt"
 #define DEFAULT_SAVEALL false
 #define DEFAULT_SAVERESULT true
+#define DEFAULT_SIGMA 0.5
 
 using namespace pascinference;
 
@@ -58,6 +59,7 @@ int main( int argc, char *argv[] )
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
+		("test_sigma", boost::program_options::value<double>(), "parameter of BlocksGraphSparseTRMatrix [double]")
 		("test_annealing", boost::program_options::value<int>(), "number of annealing steps [int]")
 		("test_cutgamma", boost::program_options::value<bool>(), "cut gamma to set {0;1} [bool]")
 		("test_scaledata", boost::program_options::value<bool>(), "scale to interval {-1,1} [bool]")
@@ -89,7 +91,7 @@ int main( int argc, char *argv[] )
 	}
 
 	int K, annealing, width, height, T, xdim, fem_type, data_type;
-	double fem_reduce;
+	double fem_reduce, sigma;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, graph_save, saveall, saveresult;
 
 	std::string filename_in;
@@ -108,6 +110,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
 	consoleArg.set_option_value("test_data_type", &data_type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("test_sigma", &sigma, DEFAULT_SIGMA);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
 	consoleArg.set_option_value("test_scaledata", &scaledata, DEFAULT_SCALEDATA);
@@ -192,6 +195,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_data_type              = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(data_type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
 
+	coutMaster << " test_sigma                  = " << std::setw(50) << sigma << " (parameter of BlocksGraphSparseTRMatrix)" << std::endl;
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce             = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
 	coutMaster << " test_graph_save             = " << std::setw(50) << print_bool(graph_save) << " (save VTK with graph or not)" << std::endl;
@@ -301,7 +305,7 @@ int main( int argc, char *argv[] )
 	}
 
 	/* prepare model on the top of given data */
-	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem);
+	GraphH1FEMModel<PetscVector> mymodel(mydata, epssqr_list[0], fem, false, sigma);
 
 	/* print info about model */
 	if(printinfo) mymodel.print(coutMaster,coutAll);
