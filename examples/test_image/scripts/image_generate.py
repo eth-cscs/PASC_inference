@@ -17,7 +17,7 @@ xdim = sys.argv[3];
 outputname = sys.argv[4];
 n_mc = sys.argv[5];
 
-Sigma = [0.01, 0.02, 0.03, 0.04, 0.05]
+Sigma = [0.002, 0.004, 0.008, 0.016, 0.032, 0.064, 0.128, 0.256]
 
 print "------------------------------------------" 
 print " name of file  : %s" % (inputimage)
