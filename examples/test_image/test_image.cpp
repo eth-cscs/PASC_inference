@@ -20,6 +20,7 @@
 #define DEFAULT_XDIM 1
 #define DEFAULT_WIDTH 250
 #define DEFAULT_HEIGHT 150
+#define DEFAULT_DATA_TYPE 1
 #define DEFAULT_GRAPH_SAVE false
 #define DEFAULT_CUTGAMMA false
 #define DEFAULT_SCALEDATA false
@@ -51,6 +52,7 @@ int main( int argc, char *argv[] )
 		("test_filename_gamma0", boost::program_options::value< std::string >(), "name of input file with initial gamma approximation (vector in PETSc format) [string]")
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
+		("test_data_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_epssqr", boost::program_options::value<std::vector<double> >()->multitoken(), "penalty parameters [double]")
@@ -84,7 +86,7 @@ int main( int argc, char *argv[] )
 		epssqr_list.push_back(DEFAULT_EPSSQR);
 	}
 
-	int K, annealing, width, height, xdim, fem_type;
+	int K, annealing, width, height, xdim, fem_type, data_type;
 	double fem_reduce;
 	bool cutgamma, scaledata, cutdata, printstats, printinfo, shortinfo_write_or_not, graph_save, saveall, saveresult;
 
@@ -101,6 +103,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_fem_reduce", &fem_reduce, DEFAULT_FEM_REDUCE);
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
+	consoleArg.set_option_value("test_data_type", &data_type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_cutgamma", &cutgamma, DEFAULT_CUTGAMMA);
@@ -182,6 +185,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of image)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
+	coutMaster << " test_data_type              = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(data_type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " test_Theta                  = " << std::setw(50) << print_bool(given_Theta) << " (given solution Theta)" << std::endl;
 
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [0=FEM2D_SUM/1=FEM2D_HAT])" << std::endl;
@@ -250,7 +254,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 
 	/* load data from file and store it subject to decomposition */
-	ImageData<PetscVector> mydata(decomposition, filename_in, width, height);
+	ImageData<PetscVector> mydata(decomposition, width, height, filename_in, data_type);
 
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
@@ -268,7 +272,7 @@ int main( int argc, char *argv[] )
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
 
 		solution.load_global(filename_solution);
-		decomposition.permute_TbR_to_dTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), false);
+        decomposition.permute_to_pdTRb(solution.get_vector(), solution_Vec_preload, decomposition.get_xdim(), data_type, false);
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
@@ -289,7 +293,7 @@ int main( int argc, char *argv[] )
 		fem = new Fem2DSum<PetscVector>(fem_reduce);
 	}
 	if(fem_type == 1){
-//		fem = new Fem2DHat<PetscVector>(fem_reduce);
+		fem = new Fem2DHat<PetscVector>(fem_reduce);
 	}
 
 	/* prepare model on the top of given data */
@@ -388,7 +392,7 @@ int main( int argc, char *argv[] )
 			coutMaster << "--- SAVING OUTPUT ---" << std::endl;
 			oss << filename_out << "_epssqr" << epssqr;
 			mydata.save_gammavector(oss.str());
-			mydata.save_reconstructed(oss.str());
+			mydata.save_reconstructed(oss.str(),data_type);
 			oss.str("");
 		}
 
@@ -439,7 +443,7 @@ int main( int argc, char *argv[] )
 		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
 		oss << filename_out;
 		mydata.save_gammavector(oss.str());
-		mydata.save_reconstructed(oss.str());
+		mydata.save_reconstructed(oss.str(),data_type);
 		oss.str("");
 	}
 

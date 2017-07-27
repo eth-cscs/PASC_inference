@@ -1,0 +1,50 @@
+#!/bin/bash   
+
+WIDTH=300
+HEIGHT=120
+XDIM=1
+NOISE=0.6
+ANNEALING=1
+K=2
+
+# generate example
+./util_dlib_image_to_vec --filename_in=data/test_image/pasc_300_120.jpg --filename_out=data/test_image/pasc_300_120_solution.bin --noise=0.0 --xdim=1 --new_width=-1
+./util_dlib_image_to_vec --filename_in=data/test_image/pasc_300_120.jpg --filename_out=data/test_image/pasc_300_120_data.bin --noise=$NOISE --xdim=1 --new_width=-1
+
+# define parameters
+PARAM_FILENAME="--test_filename_in=data/test_image/pasc_300_120_data.bin --test_filename_solution=data/test_image/pasc_300_120_solution.bin --test_filename_out=pasc_300_120 --test_width=$WIDTH --test_height=$HEIGHT --test_xdim=$XDIM"
+PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
+#PARAM_THETA="--test_Theta=0.0 --test_Theta=0.2 --test_Theta=0.4 --test_Theta=0.6 --test_Theta=0.8 --test_Theta=1.0"
+PARAM_THETA="--test_Theta=0.5 --test_Theta=0.45"
+PARAM_FEM="--test_fem_reduce=-1"
+PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2"
+PARAM_EPSSQR2="--test_epssqr=2e-2 --test_epssqr=3e-2 --test_epssqr=4e-2 --test_epssqr=5e-2 --test_epssqr=6e-2 --test_epssqr=7e-2 --test_epssqr=8e-2 --test_epssqr=9e-2"
+PARAM_EPSSQR3="--test_epssqr=2e-1 --test_epssqr=3e-1 --test_epssqr=4e-1 --test_epssqr=5e-1 --test_epssqr=6e-1 --test_epssqr=7e-1 --test_epssqr=8e-1 --test_epssqr=9e-1"
+PARAM_EPSSQR4="--test_epssqr=2e0 --test_epssqr=3e0 --test_epssqr=4e0 --test_epssqr=5e0 --test_epssqr=6e0 --test_epssqr=7e0 --test_epssqr=8e0 --test_epssqr=9e0"
+PARAM_EPSSQR="$PARAM_EPSSQR $PARAM_EPSSQR2 $PARAM_EPSSQR3 $PARAM_EPSSQR4"
+
+#PARAM_EPSSQR="--test_epssqr=1e-4 --test_epssqr=1e-2 --test_epssqr=1e0 --test_epssqr=1e2"
+PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
+PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0"
+PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/illia_avatar.txt --tssolver_debug_print_gamma_solution=false"
+PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
+
+PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-8"
+PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
+
+## additional PETSc parameters
+PARAM_PETSC="--petsc_options=\"\""
+
+## concrenate all parameters
+PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
+
+## run the job
+#./test_signal1D $PARAM_ALL
+#mpiexec -n 2 ./test_signal1D $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n 1 ./test_image $PARAM_ALL
+mpiexec -n 1 ./test_image $PARAM_ALL
+
+# show results
+./gui_show_image --filename=data/test_image/pasc_300_120_data.bin --xdim=$XDIM --width=$WIDTH --title="Data image" &
+./gui_show_image --filename=results/pasc_300_120_recovered.bin --xdim=$XDIM --width=$WIDTH --title="Recovered image" &
+./gui_show_image --filename=results/pasc_300_120_gamma.bin --xdim=1 --width=$WIDTH --title="Gamma" &

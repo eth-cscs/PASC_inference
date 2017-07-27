@@ -4,21 +4,20 @@ WIDTH=80
 HEIGHT=50 
 T=50
 K=2
-NOISE=0.5
+NOISE=0.3
 ANNEALING=1
-NPROC=3
-SAMPLE_TYPE=2 # type of sample [0=stationary, 1=moving, 2=bouncing]
+NPROC=1
+SAMPLE_TYPE=0 # type of sample [0=stationary, 1=moving, 2=bouncing]
 
 FEM_REDUCE=1.0
-FEM_TYPE=1
-
+FEM_TYPE=0
 
 SPEED_X=3.3
 SPEED_Y=1.5
 
 XDIM=1
-MU0="0.4"
-MU1="0.6"
+MU0="0.5"
+MU1="0.51"
 
 #XDIM=3
 #MU0="0.51,1.0,1.0"
@@ -54,6 +53,9 @@ PARAM_THETA="--test_Theta=$MU0 --test_Theta=$MU1 --tssolver_thetasolver_updatebe
 #PARAM_TEST="--tssolver_gammasolver_updatebeforesolve=false --tssolver_gammasolver_solve=false  --tssolver_gammasolver_updateaftersolve=true"
 
 PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
+PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-2 --test_epssqr=3e-2 --test_epssqr=4e-2 --test_epssqr=5e-2 --test_epssqr=6e-2 --test_epssqr=7e-2 --test_epssqr=8e-2 --test_epssqr=9e-2"
+PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-1 --test_epssqr=3e-1 --test_epssqr=4e-1 --test_epssqr=5e-1 --test_epssqr=6e-1 --test_epssqr=7e-1 --test_epssqr=8e-1 --test_epssqr=9e-1"
+
 #PARAM_EPSSQR="--test_epssqr=1e-1"
 
 PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
@@ -76,8 +78,8 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC $PARAM_MATRIX"
 
 ## run the job
-./test_movie $PARAM_ALL
-#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
+#./test_movie $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_movie $PARAM_ALL
 #mpiexec -n $NPROC ./test_movie $PARAM_ALL
 
 

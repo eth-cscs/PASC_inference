@@ -1,0 +1,24 @@
+#!/bin/bash   
+
+PARAM_FILENAME="--test_filename_in=data/test_image/usi_text/usi_250_150_04.bin --test_filename_solution=data/test_image/usi_text/usi_250_150_solution.bin --test_filename_out=usi_250_150 --test_width=250 --test_height=150"
+PARAM_BASIC="--test_K=2 --test_annealing=2 --test_printstats=false --test_printinfo=true --test_Theta=0.4 --test_Theta=0.5 --test_saveresult=true --test_saveall=true"
+PARAM_FEM="--test_fem_reduce=-1"
+PARAM_EPSSQR="--test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e-0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
+PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
+PARAM_TSSOLVER="--tssolver_maxit=100 --tssolver_debugmode=0"
+PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=shortinfo/usi_250_150_02.txt"
+PARAM_LOG="--log_or_not=false"
+
+PARAM_SOLVER="--spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-8"
+PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
+
+## additional PETSc parameters
+PARAM_PETSC="--petsc_options=\"\""
+
+## concrenate all parameters
+PARAM_ALL="$PARAM_FILENAME $PARAM_BASIC $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC"
+
+## run the job
+#./test_signal1D $PARAM_ALL
+#mpiexec -n 2 ./test_signal1D $PARAM_ALL
+/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n 1 ./test_image $PARAM_ALL

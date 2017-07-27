@@ -244,8 +244,11 @@ void Fem2DHat<VectorBase>::compute_window_values1(double* overlap_values, double
     P7[2] = get_imagevaluefromoverlap1(overlap_values,&P7_inside,P4[0],P4[1], idxstart);
 
     if(!PV_inside){
-        //TODO: throw error
-        coutMaster << "ERROR in FEM2DHAT - center point is not inside the domain" << std::endl;
+        /* find the point which is inside the domain instead of PV */
+        if(P0_inside) PV[2] = P0[2];
+        if(P2_inside) PV[2] = P2[2];
+        if(P4_inside) PV[2] = P4[2];
+        if(P6_inside) PV[2] = P6[2];
     }
 
     /* deal with corners */

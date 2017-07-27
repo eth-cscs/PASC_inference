@@ -4,7 +4,7 @@ namespace pascinference {
 namespace data {
 
 template<>
-ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, int width, int height, std::string filename_data){
+ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition, int width, int height, std::string filename_data, int type){
 	LOG_FUNC_BEGIN
 
 	this->width = width;
@@ -23,7 +23,7 @@ ImageData<PetscVector>::ImageData(Decomposition<PetscVector> &new_decomposition,
 	this->datavector = new GeneralVector<PetscVector>(data_Vec);
 
 	/* permute orig to new using parallel layout */
-	this->decomposition->permute_gTbR_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(),false);
+    this->decomposition->permute_to_pdTRb(datapreload_Vec, data_Vec, decomposition->get_xdim(), type, false);
 
 	/* destroy preloaded vector */
 //	TRYCXX( VecDestroy(&datapreload_Vec) );

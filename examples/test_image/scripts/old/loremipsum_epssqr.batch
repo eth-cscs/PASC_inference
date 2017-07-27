@@ -1,0 +1,25 @@
+#!/bin/bash -l
+
+## sbatch settings
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=00:30:00
+#SBATCH --partition=normal
+#SBATCH --output=batch_out/epssqr_G4.%j.o
+#SBATCH --error=batch_out/epssqr_G4.%j.e
+
+## load modules
+source ~/soft/PASC_inference//util/module_load_daint_sandbox
+
+## set number of threads
+export OMP_NUM_THREADS=1
+
+export PARAMETERS_IMAGE="--test_image_filename=data/loremipsum.bin --test_image_out=loremipsum --test_width=1000 --test_height=1000"
+export PARAMETERS_THETA="--test_K=2 --test_Theta=0.5 --test_Theta=0.6"
+export PARAMETERS_PREPROC="--test_cutdata=true --test_scaledata=false"
+export PARAMETERS_EPSSQR="--test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=5e-2 --test_epssqr=1e-1 --test_epssqr=5e-1 --test_epssqr=1e0 --test_epssqr=5e0 --test_epssqr=1e1 --test_epssqr=5e1 --test_epssqr=1e2 --test_epssqr=1e3 --test_epssqr=1e4 --test_epssqr=1e5 --test_epssqr=1e6"
+export PARAMETERS_SOLVER="--spgqpsolver_eps=1e-6 --spgqpsolver_monitor=true --test_annealing=1 --tssolver_maxit=1 --tssolver_debugmode=0 --spgqpsolver_maxit=10000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
+export PARAMETERS_SHORTINFO="--test_shortinfo=true --test_shortinfo_header=imagename, --test_shortinfo_values=loremipsum, --test_shortinfo_filename=shortinfo/epssqr_G4.txt"
+
+## run the job
+srun -n 4 ./test_image $PARAMETERS_IMAGE $PARAMETERS_THETA $PARAMETERS_PREPROC $PARAMETERS_EPSSQR $PARAMETERS_SOLVER $PARAMETERS_SHORTINFO > batch_out/epssqr_G4.log

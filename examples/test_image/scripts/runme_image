@@ -1,0 +1,94 @@
+#!/bin/bash   
+
+WIDTH=1000
+HEIGHT=600 
+XDIM=1
+
+MU0="0.5"
+MU1="0.51"
+
+#XDIM=3
+#MU0="0.51,1.0,1.0"
+#MU1="0.5,0.2,0.3"
+
+K=2
+ANNEALING=1
+NPROC=3
+
+FEM_REDUCE=0.2
+FEM_TYPE=1
+
+MATRIX_TYPE=0
+MATRIX_SIGMA=0.5
+
+DATA_TYPE=0 # type of input data [0=TRn, 1=TnR, 2=nTR]
+NAME="usi"
+FILENAME_DATA="data/usi/usi_id0_idSigma2.bin"
+FILENAME_SOLUTION="data/usi/solution.bin"
+#FILENAME_GAMMA0="data/moviedot_gamma0.bin"
+FILENAME_GAMMA="results/usi_gamma.bin"
+FILENAME_SHORTINFO="shortinfo/usi.txt"
+FILENAME_RECOVERED="results/usi_recovered.bin"
+FILENAME_OUT="results/usi/usi.jpg"
+DIRNAME_OUT="results/usi/"
+
+# remove old data
+rm -f $FILENAME_RECOVERED $FILENAME_GAMMA $FILENAME_OUT
+
+# define parameters
+PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_data_type=$DATA_TYPE --test_filename_out=$NAME --test_width=$WIDTH --test_height=$HEIGHT --test_xdim=$XDIM"
+PARAM_BASIC="--test_K=$K --test_annealing=$ANNEALING --test_printstats=false --test_printinfo=true"
+
+PARAM_THETA="--test_Theta=$MU0 --test_Theta=$MU1 --tssolver_thetasolver_updatebeforesolve=false"
+
+#PARAM_TEST="--tssolver_gammasolver_updatebeforesolve=false --tssolver_gammasolver_solve=false  --tssolver_gammasolver_updateaftersolve=true"
+
+PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
+#PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-2 --test_epssqr=3e-2 --test_epssqr=4e-2 --test_epssqr=5e-2 --test_epssqr=6e-2 --test_epssqr=7e-2 --test_epssqr=8e-2 --test_epssqr=9e-2"
+#PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-1 --test_epssqr=3e-1 --test_epssqr=4e-1 --test_epssqr=5e-1 --test_epssqr=6e-1 --test_epssqr=7e-1 --test_epssqr=8e-1 --test_epssqr=9e-1"
+
+#PARAM_EPSSQR="--test_epssqr=1e-1"
+
+PARAM_PREPROCESS="--test_cutdata=false --test_scaledata=false"
+PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0"
+PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=$FILENAME_SHORTINFO --tssolver_debug_print_gamma_solution=false"
+PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
+
+PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-4"
+PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
+
+PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
+
+#sigma=1 - space, sigma=0 - time
+PARAM_MATRIX="--graphh1femmodel_matrixtype=$MATRIX_TYPE" # --test_sigma=$MATRIX_SIGMA"
+
+## additional PETSc parameters
+PARAM_PETSC="--petsc_options=\"\""
+
+## concrenate all parameters
+PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC $PARAM_MATRIX"
+
+## run the job
+./test_image $PARAM_ALL
+#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
+#mpiexec -n $NPROC ./test_image $PARAM_ALL
+
+# show results
+if [ -f $FILENAME_DATA ]
+then
+	./gui_show_image --filename=$FILENAME_DATA --width=$WIDTH --xdim=$XDIM --title="image data" --type=$DATA_TYPE &
+fi
+
+if [ -f $FILENAME_RECOVERED ]
+then
+	./gui_show_image --filename=$FILENAME_RECOVERED --width=$WIDTH --xdim=$XDIM --title="image solution" --type=$DATA_TYPE &
+fi
+
+if [ -f $FILENAME_GAMMA ]
+then
+	./gui_show_image --filename=$FILENAME_GAMMA --width=$WIDTH --xdim=1 --title="image gamma" --type=1 &
+fi
+
+# create image from data
+#./util_dlib_vec_to_image --filename_in=$FILENAME_DATA --filename_in2=$FILENAME_RECOVERED --filename_in3=$FILENAME_GAMMA --K3=$K --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
+
