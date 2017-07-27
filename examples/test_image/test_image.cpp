@@ -176,9 +176,9 @@ int main( int argc, char *argv[] )
 		coutMaster << " test_filename_solution      = " << std::setw(50) << "NO" << " (name of input file with original image data without noise)" << std::endl;
 	}
 	if(given_gamma0){
-		coutMaster << " test_filename_gamma0        = " << std::setw(30) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(50) << filename_gamma0 << " (name of input file with initial gamma approximation)" << std::endl;
 	} else {
-		coutMaster << " test_filename_gamma0        = " << std::setw(30) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
+		coutMaster << " test_filename_gamma0        = " << std::setw(50) << "NO" << " (name of input file with initial gamma approximation)" << std::endl;
 	}
 
 	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of image)" << std::endl;
@@ -443,7 +443,7 @@ int main( int argc, char *argv[] )
 /* 8.) store best solution */
 	if(saveresult && !saveall){
 		coutMaster << "--- SAVING OUTPUT ---" << std::endl;
-		coutMaster << " - with best epssqr = " << epssqr_best << std::endl;
+		coutMaster << " - with best epssqr = " << epssqr_best << ", abserr = " << abserr_best << std::endl;
 		oss << filename_out;
 		mydata.save_gammavector(oss.str());
 		mydata.save_reconstructed(oss.str(),data_type);

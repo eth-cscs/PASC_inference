@@ -15,7 +15,7 @@ K=2
 ANNEALING=1
 NPROC=3
 
-FEM_REDUCE=0.2
+FEM_REDUCE=0.5
 FEM_TYPE=1
 
 MATRIX_TYPE=0
@@ -23,7 +23,7 @@ MATRIX_SIGMA=0.5
 
 DATA_TYPE=0 # type of input data [0=TRn, 1=TnR, 2=nTR]
 NAME="usi"
-FILENAME_DATA="data/usi/usi_id0_idSigma5.bin"
+FILENAME_DATA="data/usi/usi_id0_idSigma6.bin"
 FILENAME_SOLUTION="data/usi/solution.bin"
 #FILENAME_GAMMA0="data/moviedot_gamma0.bin"
 FILENAME_GAMMA="results/usi_gamma.bin"

@@ -697,19 +697,12 @@ double TSData<VectorBase>::compute_SNR(double signal_value) const{
         double max_theta = max(*thetavector);
         double min_theta = min(*thetavector);
         theta_value = max_theta - min_theta;
-
-        coutMaster << "min theta: " << min_theta << std::endl;
-        coutMaster << "max theta: " << max_theta << std::endl;
-
     } else {
         theta_value = signal_value;
     }
 
     double max_data = max(*datavector);
     double min_data = min(*datavector);
-
-    coutMaster << "min data: " << min_data << std::endl;
-    coutMaster << "max data: " << max_data << std::endl;
 
     double return_value = theta_value/(max_data - min_data);
 
