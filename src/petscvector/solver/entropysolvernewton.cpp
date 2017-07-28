@@ -201,7 +201,7 @@ void EntropySolverNewton<PetscVector>::solve() {
 		this->timer_integrate.start();
 		 TRYCXX( VecGetArray(xk_Vec,&xk_arr));
 		 TRYCXX( VecGetArray(integralsk_Vec,&integralsk_arr));
- 		  entropyintegration->compute(integralsk_arr, Km, xk_arr, 2*Km+1);
+ 		  entropyintegration->compute(integralsk_arr, xk_arr, 2*Km+1);
 		 TRYCXX( VecRestoreArray(xk_Vec,&xk_arr));
 		 TRYCXX( VecRestoreArray(integralsk_Vec,&integralsk_arr));
 		this->timer_integrate.stop();
@@ -284,9 +284,10 @@ void EntropySolverNewton<PetscVector>::solve() {
 			this->timer_integrate.start();
 			 TRYCXX( VecGetArray(xk_Vec,&xk_arr));
 			 TRYCXX( VecGetArray(integralsk_Vec,&integralsk_arr));
-			  entropyintegration->compute(integralsk_arr, Km, xk_arr, 2*Km+1);
+			  entropyintegration->compute(integralsk_arr, xk_arr, 2*Km+1);
 			 TRYCXX( VecRestoreArray(xk_Vec,&xk_arr));
-			 TRYCXX( VecRestoreArray(integralsk_Vec,&integralsk_arr));			this->timer_integrate.stop();
+			 TRYCXX( VecRestoreArray(integralsk_Vec,&integralsk_arr));
+			this->timer_integrate.stop();
 			this->timer_g.start();
 			 externalcontent->compute_gradient(g_Vec, integralsk_Vec, momentsk_Vec);
 			this->timer_g.stop();
@@ -458,7 +459,7 @@ void EntropySolverNewton<PetscVector>::compute_residuum(GeneralVector<PetscVecto
 
 		/* compute int_X exp(-sum lambda_j x^j) dx for this cluster */
 		/* = only integral with km=0 */
-		entropyintegration->compute(integralsk_arr, Km, lambdak_arr, 1);
+		entropyintegration->compute(integralsk_arr, lambdak_arr, 1);
 
 		F_ = log(integralsk_arr[0]);
 

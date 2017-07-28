@@ -123,16 +123,11 @@ void add_options(boost::program_options::options_description *description, int c
 			("entropysolverdlib_maxit", boost::program_options::value<int>(), "maximum number of Theta iterations [int]")
 			("entropysolverdlib_eps", boost::program_options::value<double>(), "precision [double]")
 			("entropysolverdlib_integration_eps", boost::program_options::value<double>(), "precision of integration [double]")
-			("entropysolverdlib_integration_type", boost::program_options::value<int>(), "integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre]")
-			("entropysolverdlib_integration_mineval", boost::program_options::value<int>(), "the minimum number of integrand evaluations [int]")
-			("entropysolverdlib_integration_maxeval", boost::program_options::value<int>(), "the maximum number of integrand evaluations [int]")
-			("entropysolverdlib_integration_nstart", boost::program_options::value<int>(), "number of integrand evaluations to start with [int]")
-			("entropysolverdlib_integration_nincrease", boost::program_options::value<int>(), "the increase in number of integrand evaluations [int]")
+			("entropysolverdlib_integration_type", boost::program_options::value<int>(), "type of numerical integration [0=INTEGRATION_AUTO/1=INTEGRATION_DLIB/2=INTEGRATION_MC]")
 			("entropysolverdlib_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("entropysolverdlib_debug_print_moments", boost::program_options::value<bool>(), "print computed moments [bool]")
 			("entropysolverdlib_debug_print_content", boost::program_options::value<bool>(), "print variables during optimization [bool]")
-			("entropysolverdlib_debug_print_it", boost::program_options::value<bool>(), "print simple info about iterations [bool]")
-			("entropysolverdlib_debug_print_integration", boost::program_options::value<bool>(), "print CUBA integration output [bool]");
+			("entropysolverdlib_debug_print_it", boost::program_options::value<bool>(), "print simple info about iterations [bool]");
 		opt_solvers.add(opt_entropysolverdlib);
 
 		/* ENTROPYSOLVERNEWTON */
@@ -144,7 +139,7 @@ void add_options(boost::program_options::options_description *description, int c
 			("entropysolvernewton_eps_Axb", boost::program_options::value<double>(), "precision of inner Ax=b solver [double]")
 			("entropysolvernewton_newton_coeff", boost::program_options::value<double>(), "step-size coefficient of Newton update [double]")
 			("entropysolvernewton_integration_eps", boost::program_options::value<double>(), "precision of integration [double]")
-			("entropysolvernewton_integrationtype", boost::program_options::value<int>(), "type of numerical integration [0=INTEGRATION_AUTO/1=INTEGRATION_DLIB/2=INTEGRATION_MC]")
+			("entropysolvernewton_integration_type", boost::program_options::value<int>(), "type of numerical integration [0=INTEGRATION_AUTO/1=INTEGRATION_DLIB/2=INTEGRATION_MC]")
 			("entropysolvernewton_monitor", boost::program_options::value<bool>(), "export the descend of stopping criteria into .m file [bool]")
 			("entropysolvernewton_debugmode", boost::program_options::value<int>(), "basic debug mode schema [0/1/2]")
 			("entropysolvernewton_debug_print_it", boost::program_options::value<bool>(), "print simple info about outer iterations [bool]")
@@ -176,8 +171,25 @@ void add_options(boost::program_options::options_description *description, int c
 			("entropyh1femmodel_matrixtype", boost::program_options::value<int>(), "type of used regularization matrix [0=BlockGraphSparseMatrix/1=BlockGraphSparseTRMatrix]");
 		opt_models.add(opt_entropyh1femmodel);
 
-
 	description->add(opt_models);
+
+	/* ----- ENTROPYINTEGRATION ----- */
+	boost::program_options::options_description opt_entropyintegration("#### ENTROPY INTEGRATION ########################", console_nmb_cols);
+
+		/* ENTROPYINTEGRATIONCUBA */
+		boost::program_options::options_description opt_entropyintegrationcuba("ENTROPYINTEGRATIONCUBA", console_nmb_cols);
+		opt_entropyintegrationcuba.add_options()
+			("entropyintegrationcuba_type", boost::program_options::value<int>(), "integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre]")
+			("entropyintegrationcuba_mineval", boost::program_options::value<int>(), "the minimum number of integrand evaluations [int]")
+			("entropyintegrationcuba_maxeval", boost::program_options::value<int>(), "the maximum number of integrand evaluations [int]")
+			("entropyintegrationcuba_nstart", boost::program_options::value<int>(), "number of integrand evaluations to start with [int]")
+			("entropyintegrationcuba_nincrease", boost::program_options::value<int>(), "the increase in number of integrand evaluations [int]")
+			("entropyintegrationcuba_debug_print_integration", boost::program_options::value<bool>(), "print CUBA integration output [bool]");
+		opt_entropyintegration.add(opt_entropyintegrationcuba);
+
+	description->add(opt_entropyintegration);
+
+
 
 
 	/* ----- PETSC ---- */

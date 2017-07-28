@@ -12,6 +12,7 @@
 
 /* include integration algorithms */
 #include "general/algebra/integration/entropyintegrationdlib.h"
+#include "general/algebra/integration/entropyintegrationcuba.h"
 
 #define ENTROPYSOLVERNEWTON_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_AXB 100
@@ -100,6 +101,7 @@ class EntropySolverNewton: public GeneralSolver {
 		GeneralVector<VectorBase> *delta;	/**< vetor used in Newton method, size Km */
 
 		int number_of_moments;		/**< number of moments */
+		int xdim;					/**< dimension of the data = dimension of integrals */
 
 	public:
 
@@ -152,12 +154,14 @@ void EntropySolverNewton<VectorBase>::prepare_entropyintegration(int integration
 
 	/* dlib */
 	if(integration_type == 1){
-		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(integration_eps);
+		/* can be used only for xdim=1 */
+		//TODO: if(this->xdim != 1) throw error 
+		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(this->number_of_moments, integration_eps);
 	}
 
-	/* montecarlo */
+	/* cuba */
 	if(integration_type == 2){
-		// TODO
+		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->number_of_moments, this->xdim, integration_eps);
 	}
 
 	LOG_FUNC_END
@@ -253,6 +257,7 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(){
 	set_value_array(1, this->gnorms, std::numeric_limits<double>::max());
 
 	this->number_of_moments = 0;
+	this->xdim = 1;
 	
 	/* settings */
 	this->maxit = 0;
@@ -298,6 +303,7 @@ EntropySolverNewton<VectorBase>::EntropySolverNewton(EntropyData<VectorBase> &ne
 	set_value_array(K, this->gnorms, std::numeric_limits<double>::max());
 
 	this->number_of_moments = EntropyData<VectorBase>::compute_number_of_moments(get_xdim(), get_Km());
+	this->xdim = entropydata->get_xdim();
 
 	/* settings */
 	this->maxit = 0;
@@ -360,7 +366,10 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - eps_Axb           : " << this->eps_Axb << std::endl;
 	output <<  " - newton_coeff      : " << this->newton_coeff << std::endl;
 	output <<  " - integrationtype   : " << this->entropyintegration->get_name() << std::endl;
-
+	output.push();
+	this->entropyintegration->print(output);
+	output.pop();
+	
 	output <<  " - xdim              : " << this->get_xdim() << std::endl;
 	output <<  " - K                 : " << this->get_K() << std::endl;
 	output <<  " - Km                : " << this->get_Km() << std::endl;
@@ -392,6 +401,9 @@ void EntropySolverNewton<VectorBase>::print(ConsoleOutput &output_global, Consol
 	output_global <<  " - eps_Axb           : " << this->eps_Axb << std::endl;
 	output_global <<  " - newton_coeff      : " << this->newton_coeff << std::endl;
 	output_global <<  " - integrationtype   : " << this->entropyintegration->get_name() << std::endl;
+	output_global.push();
+	this->entropyintegration->print(output_global, output_local);
+	output_global.pop();
 
 	output_global <<  " - xdim              : " << this->get_xdim() << std::endl;
 	output_global <<  " - K                 : " << this->get_K() << std::endl;

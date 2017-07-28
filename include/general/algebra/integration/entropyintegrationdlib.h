@@ -29,12 +29,12 @@ class EntropyIntegrationDlib : public EntropyIntegration<VectorBase> {
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
 	public:
-		EntropyIntegrationDlib(double new_eps);
+		EntropyIntegrationDlib(int number_of_moments, double new_eps);
 		~EntropyIntegrationDlib();
 
 		virtual std::string get_name() const;
 
-		virtual void compute(double *integrals_out, int Km, double *lambda, int Km_max = -1);
+		virtual void compute(double *integrals_out, double *lambda, int Km_max = -1);
 };
 
 }
@@ -47,7 +47,7 @@ namespace algebra {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegrationDlib<VectorBase>::EntropyIntegrationDlib(double new_eps) : EntropyIntegration<VectorBase>(new_eps) {
+EntropyIntegrationDlib<VectorBase>::EntropyIntegrationDlib(int number_of_moments, double new_eps) : EntropyIntegration<VectorBase>(number_of_moments, 1, new_eps) { /* here xdim=1 */
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END
@@ -62,7 +62,7 @@ EntropyIntegrationDlib<VectorBase>::~EntropyIntegrationDlib(){
 }
 
 template<class VectorBase>
-void EntropyIntegrationDlib<VectorBase>::compute(double *integrals_out, int Km, double *lambda, int Km_max){
+void EntropyIntegrationDlib<VectorBase>::compute(double *integrals_out, double *lambda, int Km_max){
 	LOG_FUNC_BEGIN
 
 	//TODO
@@ -73,7 +73,8 @@ void EntropyIntegrationDlib<VectorBase>::compute(double *integrals_out, int Km, 
 /* get name of the model */
 template<class VectorBase>
 std::string EntropyIntegrationDlib<VectorBase>::get_name() const {
-	return "Entropy-Integration Dlib";
+	std::string return_value = "EntropyIntegrationDlib<" + GeneralVector<VectorBase>::get_name() + ">";
+	return return_value;
 }
 
 

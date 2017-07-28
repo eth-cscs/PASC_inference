@@ -10,16 +10,15 @@
 #include "general/solver/generalsolver.h"
 #include "general/data/entropydata.h"
 
+/* include integration algorithms */
+#include "general/algebra/integration/entropyintegrationdlib.h"
+#include "general/algebra/integration/entropyintegrationcuba.h"
+
 #define ENTROPYSOLVERDLIB_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERDLIB_DEFAULT_EPS 1e-6
 #define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_EPS 1e-10
 #define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_TYPE 0
 #define ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE 0
-
-#define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_MINEVAL 0
-#define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_MAXEVAL 5e4
-#define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_NSTART 1e4
-#define ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_NINCREASE 1e4
 
 namespace pascinference {
 namespace solver {
@@ -46,18 +45,14 @@ class EntropySolverDlib: public GeneralSolver {
 		/* aux vectors */
 		GeneralVector<VectorBase> *moments; /**< vector of computed moments */
 
+		EntropyIntegration<VectorBase> *entropyintegration;	/**< instance of integration tool */
+
 		/** @brief set settings of algorithm from arguments in console
 		* 
 		*/
 		void set_settings_from_console();
 
 		double integration_eps;		/**< precision of integration */
-		int integration_type;	/**< integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre] */
-
-		int integration_mineval;		/**< the minimum number of integrand evaluations */
-		int integration_maxeval;		/**< the maximum number of integrand evaluations */
-		int integration_nstart;			/**< number of integrand evaluations to start with */
-		int integration_nincrease;		/**< the increase in number of integrand evaluations */
 
 		/* debug */
 		int debugmode;					/**< basic debug mode schema [0/1/2] */
@@ -65,8 +60,9 @@ class EntropySolverDlib: public GeneralSolver {
 		bool debug_print_moments;		/**< print moments during iterations */
 		bool debug_print_content;		/**< print variables during optimization */
 		bool debug_print_integration;	/**< print CUBA integration output */
+
+		void prepare_entropyintegration(int integration_type, double integration_eps);
 		
-		std::string get_integration_type_name(int integration_type) const;
 	public:
 
 		EntropySolverDlib();
@@ -106,18 +102,41 @@ class EntropySolverDlib: public GeneralSolver {
 /* ------------- implementation ----------- */
 namespace pascinference {
 namespace solver {
-			
+
+template<class VectorBase>
+void EntropySolverDlib<VectorBase>::prepare_entropyintegration(int integration_type, double integration_eps) {
+	LOG_FUNC_BEGIN
+
+	/* auto */
+	if(integration_type == 0){
+		integration_type = 1;
+	}
+
+	/* dlib */
+	if(integration_type == 1){
+		/* can be used only for xdim=1 */
+		//TODO: if(this->xdim != 1) throw error 
+		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(this->get_Km(), integration_eps);
+	}
+
+	/* cuba */
+	if(integration_type == 2){
+		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->get_Km(), this->get_xdim(), integration_eps);
+	}
+
+	LOG_FUNC_END
+}
+
 template<class VectorBase>
 void EntropySolverDlib<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolverdlib_maxit", &this->maxit, ENTROPYSOLVERDLIB_DEFAULT_MAXIT);
 	consoleArg.set_option_value("entropysolverdlib_eps", &this->eps, ENTROPYSOLVERDLIB_DEFAULT_EPS);
-	consoleArg.set_option_value("entropysolverdlib_integration_eps", &this->integration_eps, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_EPS);
-	consoleArg.set_option_value("entropysolverdlib_integration_type", &this->integration_type, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_TYPE);
 
-	consoleArg.set_option_value("entropysolverdlib_integration_mineval", &this->integration_mineval, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_MINEVAL);
-	consoleArg.set_option_value("entropysolverdlib_integration_maxeval", &this->integration_maxeval, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_MAXEVAL);
-	consoleArg.set_option_value("entropysolverdlib_integration_nstart", &this->integration_nstart, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_NSTART);
-	consoleArg.set_option_value("entropysolverdlib_integration_nincrease", &this->integration_nincrease, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_NINCREASE);
+	int integration_type;
+	double integration_eps;
+	consoleArg.set_option_value("entropysolverdlib_integration_eps", &integration_eps, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_EPS);
+	consoleArg.set_option_value("entropysolverdlib_integration_type", &integration_type, ENTROPYSOLVERDLIB_DEFAULT_INTEGRATION_TYPE);
+	prepare_entropyintegration(integration_type, integration_eps);
 
 	/* set debug mode */
 	consoleArg.set_option_value("entropysolverdlib_debugmode", &this->debugmode, ENTROPYSOLVERDLIB_DEFAULT_DEBUGMODE);
@@ -133,7 +152,6 @@ void EntropySolverDlib<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropysolverdlib_debug_print_it",		&debug_print_it, debug_print_it);
 	consoleArg.set_option_value("entropysolverdlib_debug_print_moments",&debug_print_moments, debug_print_moments);
 	consoleArg.set_option_value("entropysolverdlib_debug_print_content",&debug_print_content, debug_print_content);
-	consoleArg.set_option_value("entropysolverdlib_debug_print_integration",&debug_print_integration, debug_print_integration);
 
 }
 
@@ -191,19 +209,6 @@ EntropySolverDlib<VectorBase>::~EntropySolverDlib(){
 	LOG_FUNC_END
 }
 
-template<class VectorBase>
-std::string EntropySolverDlib<VectorBase>::get_integration_type_name(int integration_type) const {
-	std::string return_string = "undefined";
-	switch(integration_type){
-		case 0: return_string = "Vegas"; break;
-		case 1: return_string = "Suave"; break;
-		case 2: return_string = "Divonne"; break;
-		case 3: return_string = "Cuhre"; break;
-	}
-	return return_string;
-}
-
-
 /* print info about problem */
 template<class VectorBase>
 void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
@@ -215,12 +220,10 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - maxit                   : " << this->maxit << std::endl;
 	output <<  " - eps                     : " << this->eps << std::endl;
 	output <<  " - integration_eps         : " << this->integration_eps << std::endl;
-	output <<  " - integration_type        : " << get_integration_type_name(this->integration_type) << std::endl;
-
-	output <<  " - integration_mineval     : " << integration_mineval << std::endl;
-	output <<  " - integration_maxeval     : " << integration_maxeval << std::endl;
-	output <<  " - integration_nstart      : " << integration_nstart << std::endl;
-	output <<  " - integration_nincrease   : " << integration_nincrease << std::endl;
+	output <<  " - integration_type        : " << this->entropyintegration->get_name() << std::endl;
+	output.push();
+	this->entropyintegration->print(output);
+	output.pop();
 	
 	output <<  " - xdim                    : " << this->get_xdim() << std::endl;
 	output <<  " - K                       : " << this->get_K() << std::endl;
@@ -235,9 +238,9 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output) const {
 
 	/* print data */
 	if(entropydata){
-		coutMaster.push();
+		output.push();
 		entropydata->print(output);
-		coutMaster.pop();
+		output.pop();
 	}
 	
 	LOG_FUNC_END
@@ -254,12 +257,10 @@ void EntropySolverDlib<VectorBase>::print(ConsoleOutput &output_global, ConsoleO
 	output_global <<  " - maxit                   : " << this->maxit << std::endl;
 	output_global <<  " - eps                     : " << this->eps << std::endl;
 	output_global <<  " - integration_eps         : " << this->integration_eps << std::endl;
-	output_global <<  " - integration_type        : " << get_integration_type_name(this->integration_type) << std::endl;
-
-	output_global <<  " - integration_mineval     : " << integration_mineval << std::endl;
-	output_global <<  " - integration_maxeval     : " << integration_maxeval << std::endl;
-	output_global <<  " - integration_nstart      : " << integration_nstart << std::endl;
-	output_global <<  " - integration_nincrease   : " << integration_nincrease << std::endl;
+	output_global <<  " - integration_type        : " << this->entropyintegration->get_name() << std::endl;
+	output_global.push();
+	this->entropyintegration->print(output_global);
+	output_global.pop();
 
 	output_global <<  " - xdim                    : " << this->get_xdim() << std::endl;
 	output_global <<  " - K                       : " << this->get_K() << std::endl;
@@ -334,7 +335,7 @@ void EntropySolverDlib<VectorBase>::printtimer(ConsoleOutput &output) const {
 	output <<  " - timers" << std::endl;
 	output <<  "  - t_solve     = " << this->timer_solve.get_value_sum() << std::endl;
 	output <<  "  - t_moments   = " << this->timer_compute_moments.get_value_sum() << std::endl;
-	output <<  "  - t_integrate = " << this->get_integration_time() << std::endl;
+	output <<  "  - t_integrate = " << this->entropyintegration->get_time() << std::endl;
 
 	LOG_FUNC_END
 }

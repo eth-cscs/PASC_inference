@@ -6,17 +6,17 @@ namespace pascinference {
 namespace algebra {
 
 template<>
-void EntropyIntegrationDlib<PetscVector>::compute(double *integrals_arr, int Km, double *lambda_arr, int Km_max) {
+void EntropyIntegrationDlib<PetscVector>::compute(double *integrals_arr, double *lambda_arr, int Km_max) {
 	LOG_FUNC_BEGIN
 	
 	if(Km_max < 0){
-		Km_max = Km;
+		Km_max = this->number_of_moments;
 	}
 	
-	column_vector lambda_Dlib(Km);
+	column_vector lambda_Dlib(this->number_of_moments);
 
 	/* from arr to Dlib-vec */
-	for(int km=0;km<Km;km++){
+	for(int km=0;km<this->number_of_moments;km++){
 		lambda_Dlib(km) = lambda_arr[km];
 	}
 

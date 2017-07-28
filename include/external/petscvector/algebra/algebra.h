@@ -33,6 +33,7 @@
 /* integration */
 //#include "external/petscvector/algebra/integration/entropyintegration.h"
 #include "external/petscvector/algebra/integration/entropyintegrationdlib.h"
+#include "external/petscvector/algebra/integration/entropyintegrationcuba.h"
 
 /* fem */
 #include "external/petscvector/algebra/fem/fem1Dsum.h"

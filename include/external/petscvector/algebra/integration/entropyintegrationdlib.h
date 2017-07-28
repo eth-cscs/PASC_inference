@@ -29,7 +29,7 @@ template<> class EntropyIntegrationDlib<PetscVector>::ExternalContent {
 };
 
 
-template<> void EntropyIntegrationDlib<PetscVector>::compute(double *integrals_out, int Km, double *lambda, int Km_max);
+template<> void EntropyIntegrationDlib<PetscVector>::compute(double *integrals_out, double *lambda, int Km_max);
 
 }
 } /* end of namespace */
