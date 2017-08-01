@@ -455,18 +455,6 @@ EntropySolverDlib<PetscVector>::ExternalContent::ExternalContent(EntropyIntegrat
 	this->debug_print_integration = debug_print_integration;
 }
 
-double EntropySolverDlib<PetscVector>::ExternalContent::gg(double y, int order, const column_vector& LM){
-    long  x_size = LM.size();
-    long  num_moments = x_size;
-    column_vector z(num_moments);
-
-    z = 0;
-    for (int i = 0; i < num_moments; ++i)
-        z(i) = pow(y,i+1);
-
-    return pow(y,order)*(exp(-trans(LM)*z));
-}
-
 double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const column_vector& _LM, const column_vector& _Mom, double eps, int k, const dlib::matrix<double>& mom_powers){
 	column_vector LM = _LM;
 	this->cLM = _LM;

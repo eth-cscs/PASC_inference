@@ -67,7 +67,7 @@ class EntropySolverNewton: public GeneralSolver {
 		EntropyData<VectorBase> *entropydata; 	/**< data on which the solver operates */
 
 		/* aux vectors */
-		GeneralVector<VectorBase> *moments_data; /**< vector of computed moments from data, size K*Km */
+		GeneralVector<VectorBase> *moments; /**< vector of computed moments from data, size K*Km */
 		GeneralVector<VectorBase> *integrals; /**< vector of computed integrals, size K*(2*Km+1) */
 		GeneralVector<VectorBase> *x_power; /**< global temp vector for storing power of x */
 		GeneralVector<VectorBase> *x_power_gammak; /**< global temp vector for storing power of x * gamma_k */
@@ -122,7 +122,7 @@ class EntropySolverNewton: public GeneralSolver {
 
 		EntropyData<VectorBase> *get_data() const;
 
-		void compute_moments_data();
+		void compute_moments();
 		
 		void compute_residuum(GeneralVector<VectorBase> *residuum) const;
 		
@@ -515,7 +515,7 @@ void EntropySolverNewton<VectorBase>::solve() {
 }
 
 template<class VectorBase>
-void EntropySolverNewton<VectorBase>::compute_moments_data() {
+void EntropySolverNewton<VectorBase>::compute_moments() {
 	LOG_FUNC_BEGIN
 
 	//TODO

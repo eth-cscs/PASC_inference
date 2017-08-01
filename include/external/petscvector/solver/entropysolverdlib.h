@@ -37,7 +37,6 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 	public:
 
 		ExternalContent(EntropyIntegration<PetscVector> *entropyintegration, bool debug_print_content = false, bool debug_print_integration = false);
-		double gg(double y, int order, const column_vector& LM);
 		double get_functions_obj(const column_vector& _LM, const column_vector& _Mom, double eps, int k, const dlib::matrix<double>& mom_powers);
 		column_vector get_functions_grad(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);
 		dlib::matrix<double> get_functions_hess(const column_vector& _LM, const column_vector& _Mom, int k, const dlib::matrix<double>& mom_powers);
