@@ -10,13 +10,13 @@ void EntropyIntegrationDlib<PetscVector>::compute(double *integrals_arr, double 
 	LOG_FUNC_BEGIN
 	
 	if(Km_max < 0){
-		Km_max = this->number_of_moments;
+		Km_max = this->entropydata->get_number_of_moments()-1;
 	}
 	
-	column_vector lambda_Dlib(this->number_of_moments);
+	column_vector lambda_Dlib(this->entropydata->get_number_of_moments()-1);
 
 	/* from arr to Dlib-vec */
-	for(int km=0;km<this->number_of_moments;km++){
+	for(int km=0;this->entropydata->get_number_of_moments()-1;km++){
 		lambda_Dlib(km) = lambda_arr[km];
 	}
 

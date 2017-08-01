@@ -157,12 +157,12 @@ void EntropySolverNewton<VectorBase>::prepare_entropyintegration(int integration
 	if(integration_type == 1){
 		/* can be used only for xdim=1 */
 		//TODO: if(this->xdim != 1) throw error 
-		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(this->number_of_moments, integration_eps);
+		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(this->entropydata, integration_eps);
 	}
 
 	/* cuba */
 	if(integration_type == 2){
-		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->number_of_moments, this->xdim, entropydata->get_matrix_D(), integration_eps);
+		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->entropydata, integration_eps);
 	}
 
 	LOG_FUNC_END

@@ -116,12 +116,12 @@ void EntropySolverDlib<VectorBase>::prepare_entropyintegration(int integration_t
 	if(integration_type == 1){
 		/* can be used only for xdim=1 */
 		//TODO: if(this->xdim != 1) throw error 
-		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(this->get_number_of_moments(), integration_eps);
+		this->entropyintegration = new EntropyIntegrationDlib<VectorBase>(this->entropydata, integration_eps);
 	}
 
 	/* cuba */
 	if(integration_type == 2){
-		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->get_number_of_moments()-1, this->get_xdim(), entropydata->get_matrix_D(), integration_eps);
+		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->entropydata, integration_eps);
 	}
 
 	LOG_FUNC_END

@@ -140,10 +140,10 @@ void EntropySolverDlib<PetscVector>::solve() {
 		auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return externalcontent->get_functions_hess(x, Mom, Km, mom_powers);};
 
 		/* initial value forms starting_point, take solution from previous iteration */
-//		for(int idx=0;idx<nmb_of_moments-1;idx++){
-//			starting_point(idx) = lambda_arr[k*nmb_of_moments+idx+1];
-//		}
-		starting_point = 1.0;
+		for(int idx=0;idx<nmb_of_moments-1;idx++){
+			starting_point(idx) = lambda_arr[k*nmb_of_moments+idx+1];
+		}
+//		starting_point = 1.0;
 
 		/* print cluster info */
 		if(debug_print_it){

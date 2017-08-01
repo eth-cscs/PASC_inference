@@ -29,7 +29,7 @@ class EntropyIntegrationDlib : public EntropyIntegration<VectorBase> {
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
 	public:
-		EntropyIntegrationDlib(int number_of_moments, double new_eps);
+		EntropyIntegrationDlib(EntropyData<VectorBase> *entropydata, double new_eps);
 		~EntropyIntegrationDlib();
 
 		virtual std::string get_name() const;
@@ -47,7 +47,7 @@ namespace algebra {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegrationDlib<VectorBase>::EntropyIntegrationDlib(int number_of_moments, double new_eps) : EntropyIntegration<VectorBase>(number_of_moments, 1, NULL, new_eps) { /* here xdim=1, matrix_D_arr=NULL */
+EntropyIntegrationDlib<VectorBase>::EntropyIntegrationDlib(EntropyData<VectorBase> *entropydata, double new_eps) : EntropyIntegration<VectorBase>(entropydata, new_eps) { /* here xdim=1, matrix_D_arr=NULL */
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END

@@ -127,7 +127,7 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
 	public:
-		EntropyIntegrationCuba(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps);
+		EntropyIntegrationCuba(EntropyData<VectorBase> *entropydata, double new_eps);
 		~EntropyIntegrationCuba();
 
 		virtual std::string get_name() const;
@@ -163,7 +163,7 @@ void EntropyIntegrationCuba<VectorBase>::set_settings_from_console() {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegrationCuba<VectorBase>::EntropyIntegrationCuba(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps) : EntropyIntegration<VectorBase>(number_of_moments, xdim, matrix_D_arr, new_eps) {
+EntropyIntegrationCuba<VectorBase>::EntropyIntegrationCuba(EntropyData<VectorBase> *entropydata, double new_eps) : EntropyIntegration<VectorBase>(entropydata, new_eps) {
 	LOG_FUNC_BEGIN
 
 	/* load parameters from console */
@@ -206,8 +206,8 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output) const {
 
 	output << this->get_name() << std::endl;
 	
-	output <<  " - number of moments       : " << this->number_of_moments << std::endl;
-	output <<  " - xdim                    : " << this->xdim << std::endl;
+	output <<  " - number of moments       : " << this->entropydata->get_number_of_moments() << std::endl;
+	output <<  " - xdim                    : " << this->entropydata->get_xdim() << std::endl;
 	output <<  " - eps                     : " << this->eps << std::endl;
 
 	output <<  " - integration_type        : " << get_integration_type_name(this->type) << std::endl;
@@ -228,8 +228,8 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output_global, Con
 
 	output_global <<  this->get_name() << std::endl;
 	
-	output_global <<  " - number of moments       : " << this->number_of_moments << std::endl;
-	output_global <<  " - xdim                    : " << this->xdim << std::endl;
+	output_global <<  " - number of moments       : " << this->entropydata->get_number_of_moments() << std::endl;
+	output_global <<  " - xdim                    : " << this->entropydata->get_xdim() << std::endl;
 	output_global <<  " - eps                     : " << this->eps << std::endl;
 
 	output_global <<  " - integration_type        : " << get_integration_type_name(this->type) << std::endl;
@@ -249,10 +249,10 @@ void EntropyIntegrationCuba<VectorBase>::compute(double *integrals_out, double *
 
 	this->timer.start();
 
-	Integrator integrator(this->type, this->xdim, Km_max, this->mineval, this->maxeval, this->nstart, this->nincrease, this->debug_print_integration);
+	Integrator integrator(this->type, this->entropydata->get_xdim(), Km_max, this->mineval, this->maxeval, this->nstart, this->nincrease, this->debug_print_integration);
 
 	/* setting to compute normalization constant */
-	ExtraParameters xp(lambda, this->matrix_D_arr, this->xdim, this->number_of_moments, 0.0);
+	ExtraParameters xp(lambda, this->entropydata->get_matrix_D(), this->entropydata->get_xdim(), this->entropydata->get_number_of_moments()-1, 0.0);
 	integrator.USERDATA = &xp;
 	
 	cubareal *computed_integrals;

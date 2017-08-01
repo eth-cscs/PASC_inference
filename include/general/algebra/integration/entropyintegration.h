@@ -15,8 +15,11 @@
 #include "general/common/logging.h"
 #include "general/common/timer.h"
 
+#include "general/data/entropydata.h"
+
 namespace pascinference {
 using namespace common;
+using namespace data;
 
 namespace algebra {
 
@@ -32,14 +35,12 @@ template<class VectorBase>
 class EntropyIntegration {
 	protected:
 		double eps;
-		int number_of_moments; /* nmb of rows in D */
-		int xdim; /* nmb of cols in D */
-		
-		int *matrix_D_arr;
+
+		EntropyData<VectorBase> *entropydata;
 		
 		Timer timer;
 	public:
-		EntropyIntegration(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps);
+		EntropyIntegration(EntropyData<VectorBase> *entropydata, double new_eps);
 		~EntropyIntegration();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -65,14 +66,12 @@ namespace algebra {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegration<VectorBase>::EntropyIntegration(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps) {
+EntropyIntegration<VectorBase>::EntropyIntegration(EntropyData<VectorBase> *entropydata, double new_eps) {
 	LOG_FUNC_BEGIN
 
 	/* set given parameters */
-	this->number_of_moments = number_of_moments;
-	this->xdim = xdim;
+	this->entropydata = entropydata;
 	this->eps = new_eps;
-	this->matrix_D_arr = matrix_D_arr;
 
 	this->timer.restart();
 	
@@ -106,8 +105,8 @@ void EntropyIntegration<VectorBase>::print(ConsoleOutput &output) const {
 
 	output << this->get_name() << std::endl;
 	
-	output <<  " - number of moments : " << this->number_of_moments << std::endl;
-	output <<  " - xdim              : " << this->xdim << std::endl;
+	output <<  " - number of moments : " << this->entropydata->get_number_of_moments() << std::endl;
+	output <<  " - xdim              : " << this->entropydata->get_xdim() << std::endl;
 	output <<  " - eps               : " << this->eps << std::endl;
 
 	output.synchronize();	
@@ -122,8 +121,8 @@ void EntropyIntegration<VectorBase>::print(ConsoleOutput &output_global, Console
 
 	output_global <<  this->get_name() << std::endl;
 	
-	output_global <<  " - number of moments : " << this->number_of_moments << std::endl;
-	output_global <<  " - xdim              : " << this->xdim << std::endl;
+	output_global <<  " - number of moments : " << this->entropydata->get_number_of_moments() << std::endl;
+	output_global <<  " - xdim              : " << this->entropydata->get_xdim() << std::endl;
 	output_global <<  " - eps               : " << this->eps << std::endl;
 
 	output_global.synchronize();
@@ -144,12 +143,12 @@ double EntropyIntegration<VectorBase>::get_eps() const {
 
 template<class VectorBase>
 int EntropyIntegration<VectorBase>::get_number_of_moments() const {
-	return this->number_of_moments;
+	return this->entropydata->get_number_of_moments();
 }
 
 template<class VectorBase>
 int EntropyIntegration<VectorBase>::get_xdim() const {
-	return this->xdim;
+	return this->entropydata->get_xdim();
 }
 
 template<class VectorBase>

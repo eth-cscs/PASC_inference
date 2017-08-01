@@ -25,9 +25,13 @@ template<> class EntropySolverNewton<PetscVector>::ExternalContent {
 		Mat H_petsc;						/**< Hessian matrix */
 		KSP ksp;							/**< linear solver context */
 		PC pc;           					/**< preconditioner context **/
+
+		Vec *x_powers_Vecs;
+
 };
 
 template<> EntropySolverNewton<PetscVector>::EntropySolverNewton(EntropyData<PetscVector> &new_entropydata);
+template<> EntropySolverNewton<PetscVector>::~EntropySolverNewton();
 
 template<> void EntropySolverNewton<PetscVector>::allocate_temp_vectors();
 template<> void EntropySolverNewton<PetscVector>::free_temp_vectors();
