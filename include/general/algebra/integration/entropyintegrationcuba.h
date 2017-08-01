@@ -7,6 +7,9 @@
 #ifndef PASC_ENTROPYINTEGRATIONCUBA_H
 #define	PASC_ENTROPYINTEGRATIONCUBA_H
 
+#ifdef USE_CUBA
+/* if we are not using CUBA, then this class does not make any sence */
+
 #include <string>
 #include <iostream>
 #include "general/algebra/integration/entropyintegration.h"
@@ -22,6 +25,9 @@
 
 #define ENTROPYINTEGRATIONCUBA_DEFAULT_DEBUG_PRINT_INTEGRATION false
 
+/* include Cuba stuff */
+#include "cuba.h"
+
 namespace pascinference {
 using namespace common;
 
@@ -31,6 +37,79 @@ template<class VectorBase>
 class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 	public:
 		class ExternalContent;
+
+		class Integrator {
+			public:
+				int NDIM; 		/**< number of dimensions of integral */
+				int NCOMP;		/**< number of components of the integrand */
+				int NVEC;	
+				double EPSREL;	/**< requested relative accuracy */
+				double EPSABS;	/**< requested absolute accuracy */
+				int VERBOSE; //log output
+				int LAST;
+				int SEED;
+				int MINEVAL;	/**< minimum number of integrand evaluations */
+				int MAXEVAL;	/**< maximum number of integrand evaluations allowed */
+				int NSTART;
+				int NINCREASE;
+				int NBATCH;
+				int GRIDNO;
+				char* STATEFILE = NULL;
+				void* SPIN = NULL;
+				int NNEW;
+				int NMIN;
+				double FLATNESS;
+				void* USERDATA = NULL; //this is to pass extra parameters to integral
+
+				int KEY1;
+				int KEY2;
+				int KEY3;
+				int MAXPASS;
+				double BORDER;
+				double MAXCHISQ;
+				double MINDEVIATION;
+				int NGIVEN;
+				int LDXGIVEN;
+				int NEXTRA;
+				int KEY;
+
+				int integration_type;
+
+				int comp, nregions, neval, fail;
+
+				cubareal *integral;
+				cubareal *error;
+				cubareal *prob;
+				
+				bool debug_print_integration;
+				
+				Integrator(int integration_type, int ndim, int ncomp, int integration_mineval, int integration_maxeval, int integration_nstart, int integration_nincrease, bool debug_print_integration = ENTROPYINTEGRATIONCUBA_DEFAULT_DEBUG_PRINT_INTEGRATION);
+				~Integrator();
+
+				//four methods of integration implemented in CUBA library,
+				//more info at http://www.feynarts.de/cuba/
+				void computeVegas();
+				void computeSuave();
+				void computeDivonne();
+				void computeCuhre();
+				cubareal *compute();
+
+				static int Integrand(const int *ndim, const double xx[], const int *ncomp, cubareal ff2[], void *userdata);
+		};
+		
+		class ExtraParameters {
+			public:
+				double *LM;
+				double eps;
+				int *matrix_D_arr;
+				int xdim; /* number of columns in D */
+				int number_of_moments; /* number of rows in D */
+
+				ExtraParameters();
+				ExtraParameters(double *_LM, int *_matrix_D_arr, int _xdim, int _number_of_moments, double _eps);
+				~ExtraParameters();
+				void Copy(ExtraParameters& _ExtraParameters);			
+		};
 
 		int type;					/**< integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre] */
 		int mineval;				/**< the minimum number of integrand evaluations */
@@ -42,12 +121,13 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 
 		void set_settings_from_console();
 
+		
 	protected:
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
 	public:
-		EntropyIntegrationCuba(int number_of_moments, int xdim, double new_eps);
+		EntropyIntegrationCuba(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps);
 		~EntropyIntegrationCuba();
 
 		virtual std::string get_name() const;
@@ -83,7 +163,7 @@ void EntropyIntegrationCuba<VectorBase>::set_settings_from_console() {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegrationCuba<VectorBase>::EntropyIntegrationCuba(int number_of_moments, int xdim, double new_eps) : EntropyIntegration<VectorBase>(number_of_moments, xdim, new_eps) {
+EntropyIntegrationCuba<VectorBase>::EntropyIntegrationCuba(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps) : EntropyIntegration<VectorBase>(number_of_moments, xdim, matrix_D_arr, new_eps) {
 	LOG_FUNC_BEGIN
 
 	/* load parameters from console */
@@ -97,15 +177,6 @@ template<class VectorBase>
 EntropyIntegrationCuba<VectorBase>::~EntropyIntegrationCuba(){
 	LOG_FUNC_BEGIN
 	
-	LOG_FUNC_END
-}
-
-template<class VectorBase>
-void EntropyIntegrationCuba<VectorBase>::compute(double *integrals_out, double *lambda, int Km_max){
-	LOG_FUNC_BEGIN
-
-	//TODO
-
 	LOG_FUNC_END
 }
 
@@ -172,12 +243,270 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output_global, Con
 	LOG_FUNC_END
 }
 
+template<class VectorBase>
+void EntropyIntegrationCuba<VectorBase>::compute(double *integrals_out, double *lambda, int Km_max) {
+	LOG_FUNC_BEGIN
 
+	this->timer.start();
+
+	Integrator integrator(this->type, this->xdim, Km_max, this->mineval, this->maxeval, this->nstart, this->nincrease, this->debug_print_integration);
+
+	/* setting to compute normalization constant */
+	ExtraParameters xp(lambda, this->matrix_D_arr, this->xdim, this->number_of_moments, 0.0);
+	integrator.USERDATA = &xp;
+	
+	cubareal *computed_integrals;
+	computed_integrals = integrator.compute();
+
+	for(int i=0;i<Km_max;i++){
+		integrals_out[i] = computed_integrals[i];
+	}
+
+	//TODO: temp
+//	std::cout << "lambda:    " << print_array(lambda, this->number_of_moments-1) << std::endl;
+//	std::cout << "integrals: " << print_array(computed_integrals, Km_max) << std::endl;
+
+	this->timer.stop();
+
+	LOG_FUNC_END
+}
+
+
+
+
+
+/* ------------ Integrator ----------------- */
+template<class VectorBase>
+int EntropyIntegrationCuba<VectorBase>::Integrator::Integrand(const int *ndim, const double xx[],
+                     const int *ncomp, cubareal ff2[], void *userdata) {
+
+    ExtraParameters* xp = (ExtraParameters*)userdata;
+    int *D = xp->matrix_D_arr;
+    long d = xp->xdim;
+    long n = xp->number_of_moments;
+
+    double *LM = xp->LM;
+    
+    double V = 0.0;
+    double p = 0.0;
+
+    for (int i = 0; i < n; i++){
+        p = 1.0;
+        for (int j = 0; j < d; j++){
+            p = p*pow(xx[j], D[(i+1)*d+j]);
+		}
+		
+        V = V - p*LM[i];
+    }
+
+	/* ff2[0] - type = 0 */
+    ff2[0] = exp(V);
+
+    /* ff2[1-n] - for gradient, type =2 */
+	for(int order = 0; order < n; order++){
+		p = 1.0;
+		for (int j = 0; j < d; j++){
+			p = p*pow(xx[j], D[(order+1)*d+j]);
+		}
+        ff2[1+order] = p*ff2[0];
+    }
+
+	/* ff2[n+1 - n+1+n*(n+1)/2] - for Hessian, type = 3 */
+	int counter = 1+n;
+	for(int order = 0; order < n; order++){
+		for(int order2 = order; order2 < n; order2++){
+			p = 1.0;
+			for(int j=0; j<d;j++){
+				p = p*pow(xx[j], D[(order+1)*d+j] + D[(order2+1)*d+j]);
+			}
+			ff2[counter] = p*ff2[0];
+			counter++;
+		}
+	}
+
+    return 0;
+}
+
+template<class VectorBase>
+EntropyIntegrationCuba<VectorBase>::Integrator::Integrator(int integration_type, int ndim, int ncomp, int integration_mineval, int integration_maxeval, int integration_nstart, int integration_nincrease, bool debug_print_integration){
+	//all this paramterers are from example file demo-c.c
+	NDIM = ndim;
+	NCOMP = ncomp;
+	NVEC = 1;
+	EPSREL = 1e-12;//1e-3;
+	EPSABS = 1e-12;
+	VERBOSE = 0; //log output
+	LAST = 4;
+	SEED = 0;
+	MINEVAL = integration_mineval;
+	MAXEVAL = integration_maxeval;//50000;
+	NSTART = integration_nstart;//1000;
+	NINCREASE = integration_nincrease;//500;
+	NBATCH = 1000;
+	GRIDNO = 0;
+	STATEFILE = NULL;
+	SPIN = NULL;
+	NNEW = 1000;
+	NMIN = 2;
+	FLATNESS = 25.0;
+	USERDATA = NULL; //this is to pass extra parameters to integral
+
+	KEY1 = 47;
+	KEY2 = 1;
+	KEY3 = 1;
+	MAXPASS = 5;
+	BORDER = 0.0;
+	MAXCHISQ = 10.0;
+	MINDEVIATION = 0.25;
+	NGIVEN = 0;
+	LDXGIVEN = NDIM;
+	NEXTRA = 0;
+
+	KEY = 0;
+
+	this->integration_type = integration_type;
+	this->integral = new cubareal[ncomp];
+	this->error = new cubareal[ncomp];
+	this->prob = new cubareal[ncomp];
+
+	this->debug_print_integration = debug_print_integration;
+
+}
+
+template<class VectorBase>
+cubareal* EntropyIntegrationCuba<VectorBase>::Integrator::compute() {
+	switch(this->integration_type){
+		case 0: this->computeVegas(); break;
+		case 1: this->computeSuave(); break;
+		case 2: this->computeDivonne(); break;
+		case 3: this->computeCuhre(); break;
+	}
+    return integral;
+}
+
+template<class VectorBase>
+void EntropyIntegrationCuba<VectorBase>::Integrator::computeVegas(){
+    Vegas(NDIM, NCOMP, Integrand, USERDATA, NVEC,
+          EPSREL, EPSABS, VERBOSE, SEED,
+          MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
+          GRIDNO, STATEFILE, SPIN,
+          &neval, &fail, integral, error, prob);
+
+    if(this->debug_print_integration){
+		coutMaster << "VEGAS RESULT: " << neval << " neval," << fail << " fail" << std::endl;
+		for(int comp = 0; comp < NCOMP; comp++ ){
+			coutMaster.push();
+            coutMaster << "value: " << (double)integral[comp] << ", error: " << (double)error[comp] << ", prob: " << (double)prob[comp] << std::endl;
+			coutMaster.pop();
+		}
+	}
+}
+
+template<class VectorBase>
+void EntropyIntegrationCuba<VectorBase>::Integrator::computeSuave(){
+    Suave(NDIM, NCOMP, Integrand, USERDATA, NVEC,
+              EPSREL, EPSABS, VERBOSE | LAST, SEED,
+              MINEVAL, MAXEVAL, NNEW, NMIN, FLATNESS,
+              STATEFILE, SPIN,
+              &nregions, &neval, &fail, integral, error, prob);
+
+    if(this->debug_print_integration){
+		coutMaster << "SUAVE RESULT: " << nregions << " nregions, " << neval << " neval," << fail << " fail" << std::endl;
+		for(int comp = 0; comp < NCOMP; comp++ ){
+			coutMaster.push();
+            coutMaster << "value: " << (double)integral[comp] << ", error: " << (double)error[comp] << ", prob: " << (double)prob[comp] << std::endl;
+			coutMaster.pop();
+		}
+	}
+
+}
+
+template<class VectorBase>
+void EntropyIntegrationCuba<VectorBase>::Integrator::computeDivonne(){
+    Divonne(NDIM, NCOMP, Integrand, USERDATA, NVEC,
+                EPSREL, EPSABS, VERBOSE, SEED,
+                MINEVAL, MAXEVAL, KEY1, KEY2, KEY3, MAXPASS,
+                BORDER, MAXCHISQ, MINDEVIATION,
+                NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
+                STATEFILE, SPIN,
+                &nregions, &neval, &fail, integral, error, prob);
+
+    if(this->debug_print_integration){
+		coutMaster << "DIVONNE RESULT: " << nregions << " nregions, " << neval << " neval," << fail << " fail" << std::endl;
+		for(int comp = 0; comp < NCOMP; comp++ ){
+			coutMaster.push();
+            coutMaster << "value: " << (double)integral[comp] << ", error: " << (double)error[comp] << ", prob: " << (double)prob[comp] << std::endl;
+			coutMaster.pop();
+		}
+	}
+
+}
+
+template<class VectorBase>
+void EntropyIntegrationCuba<VectorBase>::Integrator::computeCuhre(){
+    Cuhre(NDIM, NCOMP, Integrand, USERDATA, NVEC,
+              EPSREL, EPSABS, VERBOSE | LAST,
+              MINEVAL, MAXEVAL, KEY,
+              STATEFILE, SPIN,
+              &nregions, &neval, &fail, integral, error, prob);
+
+    if(this->debug_print_integration){
+		coutMaster << "CUHRE RESULT: " << nregions << " nregions, " << neval << " neval," << fail << " fail" << std::endl;
+		for(int comp = 0; comp < NCOMP; comp++ ){
+			coutMaster.push();
+            coutMaster << "value: " << (double)integral[comp] << ", error: " << (double)error[comp] << ", prob: " << (double)prob[comp] << std::endl;
+			coutMaster.pop();
+		}
+	}
+
+}
+
+template<class VectorBase>
+EntropyIntegrationCuba<VectorBase>::Integrator::~Integrator(){
+	free(this->integral);
+	free(this->error);
+	free(this->prob);
+}
+
+
+/* ------------ ExtraParameters ----------------- */
+template<class VectorBase>
+EntropyIntegrationCuba<VectorBase>::ExtraParameters::ExtraParameters(){
+    this->D = NULL;
+    this->xdim = 1;
+    this->number_of_moments = 0;
+    eps= 0.0;
+    LM = NULL;
+}
+
+template<class VectorBase>
+EntropyIntegrationCuba<VectorBase>::ExtraParameters::ExtraParameters(double *_LM, int *_matrix_D_arr, int _xdim, int _number_of_moments, double _eps){
+    this->LM = _LM;
+    this->eps = _eps;
+    this->matrix_D_arr = _matrix_D_arr;
+    this->xdim = _xdim;
+    this->number_of_moments = _number_of_moments;
+}
+
+template<class VectorBase>
+void EntropyIntegrationCuba<VectorBase>::ExtraParameters::Copy(ExtraParameters &_ExtraParameters){
+    eps = _ExtraParameters.eps;
+    matrix_D_arr = _ExtraParameters.matrix_D_arr;
+    LM = _ExtraParameters.LM;
+    xdim = _ExtraParameters.xdim;
+    number_of_moments = _ExtraParameters.number_of_moments;
+}
+
+template<class VectorBase>
+EntropyIntegrationCuba<VectorBase>::ExtraParameters::~ExtraParameters(){
+}
 
 
 }
 } /* end namespace */
 
+
+#endif /* USE_CUBA */
 
 #endif
 

@@ -19,6 +19,7 @@
 #define ENTROPYSOLVERNEWTON_DEFAULT_EPS 1e-6
 #define ENTROPYSOLVERNEWTON_DEFAULT_EPS_AXB 1e-6
 #define ENTROPYSOLVERNEWTON_DEFAULT_INTEGRATION_EPS 1e-10
+#define ENTROPYSOLVERNEWTON_DEFAULT_INTEGRATION_TYPE 0
 #define ENTROPYSOLVERNEWTON_DEFAULT_NEWTON_COEFF 0.9
 #define ENTROPYSOLVERNEWTON_DEFAULT_DEBUGMODE 0
 
@@ -161,7 +162,7 @@ void EntropySolverNewton<VectorBase>::prepare_entropyintegration(int integration
 
 	/* cuba */
 	if(integration_type == 2){
-		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->number_of_moments, this->xdim, integration_eps);
+		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->number_of_moments, this->xdim, entropydata->get_matrix_D(), integration_eps);
 	}
 
 	LOG_FUNC_END
@@ -181,8 +182,7 @@ void EntropySolverNewton<VectorBase>::set_settings_from_console() {
 	int integration_type;
 	double integration_eps;
 	consoleArg.set_option_value("entropysolvernewton_integration_eps", &integration_eps, ENTROPYSOLVERNEWTON_DEFAULT_INTEGRATION_EPS);
-	consoleArg.set_option_value("entropysolvernewton_integrationtype", &integration_type, 0);
-//	this->integrationtype = static_cast<IntegrationType>(integrationtype_int);
+	consoleArg.set_option_value("entropysolvernewton_integration_type", &integration_type, ENTROPYSOLVERNEWTON_DEFAULT_INTEGRATION_TYPE);
 	prepare_entropyintegration(integration_type, integration_eps);
 	
 	/* based on integration type allocate EntropyIntegration */

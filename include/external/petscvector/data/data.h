@@ -15,7 +15,7 @@
 //#include "external/petscvector/data/generaldata.h"
 //#include "external/petscvector/data/diagdata.h"
 #include "external/petscvector/data/edfdata.h"
-#include "external/petscvector/data/entropydata.h"
+//#include "external/petscvector/data/entropydata.h"
 #include "external/petscvector/data/imagedata.h"
 #include "external/petscvector/data/moviedata.h"
 //#include "external/petscvector/data/qpdata.h"

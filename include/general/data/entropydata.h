@@ -34,7 +34,7 @@ class EntropyData: public GeneralData {
 		int T; /**< length of time-series */
 		int xdim; /**< dimension of data */
 
-		GeneralVector<VectorBase> *matrix_D; /**< matrix with power exponents in moments */
+		int *matrix_D; /**< matrix with power exponents in moments */
 
 		/** @brief fill matrix with power indexes corresponding to moments
 		* 
@@ -42,6 +42,10 @@ class EntropyData: public GeneralData {
 		void prepare_matrix_D();
 
 		int number_of_moments;		/**< number of moments */
+
+		void prepare_matrix_D_recursion(int *idx, int top_i, int level, int Km, int xdim);
+		void set_D_value(int value, int row, int col, int ncols);
+		int get_D_value(int row, int col, int ncols) const;
 		
 	public:
 	
@@ -92,7 +96,7 @@ class EntropyData: public GeneralData {
 		int get_Km() const;
 		int get_xdim() const;
 
-		GeneralVector<VectorBase> *get_matrix_D() const;
+		int *get_matrix_D() const;
 
 		int get_number_of_moments() const;
 		static int compute_number_of_moments(int xdim, int Km);
@@ -126,6 +130,8 @@ EntropyData<VectorBase>::EntropyData(int T, int xdim, int K, int Km){
 
 	this->number_of_moments = compute_number_of_moments(this->xdim, this->Km);
 
+	this->matrix_D = new int[this->xdim*this->number_of_moments];
+
 	this->prepare_matrix_D();
 
 	LOG_FUNC_END
@@ -135,6 +141,8 @@ EntropyData<VectorBase>::EntropyData(int T, int xdim, int K, int Km){
 template<class VectorBase>
 EntropyData<VectorBase>::~EntropyData(){
 	LOG_FUNC_BEGIN
+	
+	free(this->matrix_D);
 	
 	LOG_FUNC_END
 }
@@ -371,17 +379,8 @@ int EntropyData<VectorBase>::compute_number_of_moments(int xdim, int Km){
 }
 
 template<class VectorBase>
-GeneralVector<VectorBase> *EntropyData<VectorBase>::get_matrix_D() const {
+int *EntropyData<VectorBase>::get_matrix_D() const {
 	return this->matrix_D;
-}
-
-template<class VectorBase>
-void EntropyData<VectorBase>::prepare_matrix_D() {
-	LOG_FUNC_BEGIN
-
-	//TODO
-		
-	LOG_FUNC_END
 }
 
 template<class VectorBase>
@@ -390,7 +389,7 @@ void EntropyData<VectorBase>::print_matrix_D(ConsoleOutput &output) const {
 
 	for(int i_moment=0;i_moment < get_number_of_moments(); i_moment++){
 		for(int i_xdim=0;i_xdim < get_xdim(); i_xdim++){
-			output << (*matrix_D)( i_moment*get_xdim() + i_xdim);
+			output << matrix_D[ i_moment*get_xdim() + i_xdim];
 			if(i_xdim < get_xdim()-1) output << ", ";
 		}
 		output << std::endl;
@@ -398,6 +397,57 @@ void EntropyData<VectorBase>::print_matrix_D(ConsoleOutput &output) const {
 		
 	LOG_FUNC_END
 }
+
+
+template<class VectorBase>
+void EntropyData<VectorBase>::prepare_matrix_D() {
+	LOG_FUNC_BEGIN
+
+	/* run outer for cycle and call recursion */
+	int idx = 0;
+	prepare_matrix_D_recursion(&idx, get_Km(), 0, get_Km(), get_xdim());
+
+	LOG_FUNC_END
+}
+
+template<class VectorBase>
+void EntropyData<VectorBase>::prepare_matrix_D_recursion(int *idx, int top_i, int level, int Km, int xdim){
+
+	for(int i=0; i<=top_i; i++){ /* FOR cycle on this level */
+		/* copy values from upper row to new row
+			(represents constant iterators of outer for cycles) */
+		if(i>0){
+			for(int previous_level=0;previous_level <= level-1; previous_level++){
+				double temp = get_D_value(*idx - 1, previous_level, xdim);
+				set_D_value(temp, *idx, previous_level, xdim);
+			}
+		}
+
+		/* add my own value */
+		set_D_value(i, *idx, level, xdim);
+
+		if(level < xdim - 1){
+			/* go deeper with recursion */
+			prepare_matrix_D_recursion(idx, top_i - i, level+1, Km, xdim);
+		} else {
+			/* last level wrote the last value into this row */
+			*idx += 1;
+		}
+	}
+
+}
+
+template<class VectorBase>
+void EntropyData<VectorBase>::set_D_value(int value, int row, int col, int ncols){
+	this->matrix_D[row*ncols + col] = value;
+}
+
+template<class VectorBase>
+int EntropyData<VectorBase>::get_D_value(int row, int col, int ncols) const {
+	return this->matrix_D[row*ncols + col];
+}
+
+
 
 /* define blank external content for general VectorBase */
 template<class VectorBase>

@@ -32,12 +32,14 @@ template<class VectorBase>
 class EntropyIntegration {
 	protected:
 		double eps;
-		int number_of_moments;
-		int xdim;
+		int number_of_moments; /* nmb of rows in D */
+		int xdim; /* nmb of cols in D */
+		
+		int *matrix_D_arr;
 		
 		Timer timer;
 	public:
-		EntropyIntegration(int number_of_moments, int xdim, double new_eps);
+		EntropyIntegration(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps);
 		~EntropyIntegration();
 
 		virtual void print(ConsoleOutput &output) const;
@@ -63,15 +65,16 @@ namespace algebra {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegration<VectorBase>::EntropyIntegration(int number_of_moments, int xdim, double new_eps) {
+EntropyIntegration<VectorBase>::EntropyIntegration(int number_of_moments, int xdim, int *matrix_D_arr, double new_eps) {
 	LOG_FUNC_BEGIN
 
 	/* set given parameters */
 	this->number_of_moments = number_of_moments;
 	this->xdim = xdim;
 	this->eps = new_eps;
+	this->matrix_D_arr = matrix_D_arr;
 
-	timer.restart();
+	this->timer.restart();
 	
 	LOG_FUNC_END
 }

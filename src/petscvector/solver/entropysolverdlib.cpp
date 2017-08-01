@@ -120,21 +120,18 @@ void EntropySolverDlib<PetscVector>::solve() {
     dlib::matrix<double> mom_powers;
     mom_powers.set_size(nmb_of_moments-1, xdim);
 
-	Vec matrix_D_Vec = entropydata->get_matrix_D()->get_vector();
-	double *matrix_D_arr;
-	TRYCXX( VecGetArray(matrix_D_Vec, &matrix_D_arr) );
+	int *matrix_D_arr = entropydata->get_matrix_D();
 	for(int D_row_idx=0; D_row_idx < nmb_of_moments-1; D_row_idx++){
 		for(int D_col_idx=0; D_col_idx < xdim; D_col_idx++){
 			mom_powers(D_row_idx,D_col_idx) = matrix_D_arr[(D_row_idx+1)*xdim + D_col_idx];
 		}
 	}
-	TRYCXX( VecRestoreArray(matrix_D_Vec, &matrix_D_arr) );
 
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
 		/* Mom: from PETSc vector to Dlib column_vector, without first component */
-		for(int idx=0;idx < nmb_of_moments-1;idx++){
-			Mom(idx) = moments_arr[k*nmb_of_moments + idx+1];
+		for(int idx=1;idx < nmb_of_moments;idx++){
+			Mom(idx-1) = moments_arr[k*nmb_of_moments + idx];
 		}
 
 		/* prepare lambda-functions for Dlib */
@@ -146,7 +143,7 @@ void EntropySolverDlib<PetscVector>::solve() {
 //		for(int idx=0;idx<nmb_of_moments-1;idx++){
 //			starting_point(idx) = lambda_arr[k*nmb_of_moments+idx+1];
 //		}
-		starting_point = 0.0;
+		starting_point = 1.0;
 
 		/* print cluster info */
 		if(debug_print_it){
@@ -251,8 +248,6 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	Vec gammak_Vec;
 	IS gammak_is;
 
-	Vec matrix_D_Vec = entropydata->get_matrix_D()->get_vector();
-
 	/* temp = (x_1^D*x_2^D*...) */
 	Vec temp_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_WORLD,&temp_Vec) );
@@ -278,8 +273,7 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	double *moments_arr;
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
 
-	double *matrix_D_arr;
-	TRYCXX( VecGetArray(matrix_D_Vec, &matrix_D_arr) );
+	int *matrix_D_arr = entropydata->get_matrix_D();
 
 	double mysum, gammaksum;
 
@@ -339,7 +333,6 @@ void EntropySolverDlib<PetscVector>::compute_moments() {
 	}
 
 	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
-	TRYCXX( VecRestoreArray(matrix_D_Vec, &matrix_D_arr) );
 
 	this->timer_compute_moments.stop();
 
@@ -363,9 +356,7 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 	TRYCXX( VecGetArray(entropydata->get_lambda()->get_vector(), &lambda_arr) );
 
 	/* mom_powers - exponents */
-	Vec matrix_D_Vec = entropydata->get_matrix_D()->get_vector();
-	double *matrix_D_arr;
-	TRYCXX( VecGetArray(matrix_D_Vec, &matrix_D_arr) );
+	int *matrix_D_arr = entropydata->get_matrix_D();
 
 	/* index set of the data for given dimension component 1,...,xdim */
 	IS xn_is;
@@ -408,7 +399,7 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 	}
 
 	int D_value;
-	for(int D_row_idx=0; D_row_idx < number_of_moments; D_row_idx++){ /* go through all rows of matrix D */
+	for(int D_row_idx=1; D_row_idx < number_of_moments; D_row_idx++){ /* go through all rows of matrix D */
 
 		/* temp = 1 */
 		TRYCXX( VecSet(temp_Vec, 1.0) );
@@ -444,7 +435,6 @@ void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector>
 	}
 
 	/* restore arrays */
-	TRYCXX( VecRestoreArray(matrix_D_Vec, &matrix_D_arr) );
 	TRYCXX( VecRestoreArray(entropydata->get_lambda()->get_vector(), &lambda_arr) );
 
 	LOG_FUNC_END
@@ -492,11 +482,13 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 	hess.set_size(n,n);
 
 	/* DLIB to array */
-	double lambda[LM.size()];
-	for(int i=0;i<LM.size();i++) lambda[i] = LM(i);
+	double *lambda = new double[n];
+	for(int i=0;i<n;i++) lambda[i] = LM(i);
 
-	double *computed_integrals;
-	this->entropyintegration->compute(computed_integrals, lambda, 1 + n + (int)(0.5*n*(n+1)));
+	int number_of_integrals = 1 + n + (int)(0.5*n*(n+1));
+
+	double *computed_integrals = new double[number_of_integrals];
+	this->entropyintegration->compute(computed_integrals, lambda, number_of_integrals);
 
 	double F_ = computed_integrals[0];
 
@@ -526,7 +518,14 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 	this->chess = hess;
 	this->cF = F_;
 
+	free(lambda);
+	free(computed_integrals);
+
 	if(debug_print_content){
+		std::cout << "integrals:" << std::endl;
+		std::cout << print_array(computed_integrals,number_of_integrals) << std::endl;
+		std::cout << std::endl;
+		
 		std::cout << "_F:" << std::endl;
 		std::cout << F_ << std::endl;
 		std::cout << std::endl;

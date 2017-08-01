@@ -47,7 +47,7 @@ namespace algebra {
 
 /* constructor */
 template<class VectorBase>
-EntropyIntegrationDlib<VectorBase>::EntropyIntegrationDlib(int number_of_moments, double new_eps) : EntropyIntegration<VectorBase>(number_of_moments, 1, new_eps) { /* here xdim=1 */
+EntropyIntegrationDlib<VectorBase>::EntropyIntegrationDlib(int number_of_moments, double new_eps) : EntropyIntegration<VectorBase>(number_of_moments, 1, NULL, new_eps) { /* here xdim=1, matrix_D_arr=NULL */
 	LOG_FUNC_BEGIN
 
 	LOG_FUNC_END
