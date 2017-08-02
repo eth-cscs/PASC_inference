@@ -1,9 +1,9 @@
 /** @file entropyintegrationcuba.h
  *  @brief Computes numerical integrals using cuba library
  *
- *  @author Lukas Pospisil 
+ *  @author Lukas Pospisil
  */
- 
+
 #ifndef PASC_ENTROPYINTEGRATIONCUBA_H
 #define	PASC_ENTROPYINTEGRATIONCUBA_H
 
@@ -42,7 +42,7 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 			public:
 				int NDIM; 		/**< number of dimensions of integral */
 				int NCOMP;		/**< number of components of the integrand */
-				int NVEC;	
+				int NVEC;
 				double EPSREL;	/**< requested relative accuracy */
 				double EPSABS;	/**< requested absolute accuracy */
 				int VERBOSE; //log output
@@ -80,9 +80,9 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 				cubareal *integral;
 				cubareal *error;
 				cubareal *prob;
-				
+
 				bool debug_print_integration;
-				
+
 				Integrator(int integration_type, int ndim, int ncomp, int integration_mineval, int integration_maxeval, int integration_nstart, int integration_nincrease, bool debug_print_integration = ENTROPYINTEGRATIONCUBA_DEFAULT_DEBUG_PRINT_INTEGRATION);
 				~Integrator();
 
@@ -96,7 +96,7 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 
 				static int Integrand(const int *ndim, const double xx[], const int *ncomp, cubareal ff2[], void *userdata);
 		};
-		
+
 		class ExtraParameters {
 			public:
 				double *LM;
@@ -108,7 +108,7 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 				ExtraParameters();
 				ExtraParameters(double *_LM, int *_matrix_D_arr, int _xdim, int _number_of_moments, double _eps);
 				~ExtraParameters();
-				void Copy(ExtraParameters& _ExtraParameters);			
+				void Copy(ExtraParameters& _ExtraParameters);
 		};
 
 		int type;					/**< integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre] */
@@ -121,7 +121,7 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 
 		void set_settings_from_console();
 
-		
+
 	protected:
 		friend class ExternalContent;
 		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
@@ -136,7 +136,7 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 
 		virtual void compute(double *integrals_out, double *lambda, int Km_max = -1);
 
-		std::string get_integration_type_name(int integration_type) const;		
+		std::string get_integration_type_name(int integration_type) const;
 
 };
 
@@ -176,7 +176,7 @@ EntropyIntegrationCuba<VectorBase>::EntropyIntegrationCuba(EntropyData<VectorBas
 template<class VectorBase>
 EntropyIntegrationCuba<VectorBase>::~EntropyIntegrationCuba(){
 	LOG_FUNC_BEGIN
-	
+
 	LOG_FUNC_END
 }
 
@@ -205,7 +205,7 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output) const {
 	LOG_FUNC_BEGIN
 
 	output << this->get_name() << std::endl;
-	
+
 	output <<  " - number of moments       : " << this->entropydata->get_number_of_moments() << std::endl;
 	output <<  " - xdim                    : " << this->entropydata->get_xdim() << std::endl;
 	output <<  " - eps                     : " << this->eps << std::endl;
@@ -216,7 +216,7 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - integration_nstart      : " << this->nstart << std::endl;
 	output <<  " - integration_nincrease   : " << this->nincrease << std::endl;
 
-	output.synchronize();	
+	output.synchronize();
 
 	LOG_FUNC_END
 }
@@ -227,7 +227,7 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output_global, Con
 	LOG_FUNC_BEGIN
 
 	output_global <<  this->get_name() << std::endl;
-	
+
 	output_global <<  " - number of moments       : " << this->entropydata->get_number_of_moments() << std::endl;
 	output_global <<  " - xdim                    : " << this->entropydata->get_xdim() << std::endl;
 	output_global <<  " - eps                     : " << this->eps << std::endl;
@@ -254,7 +254,7 @@ void EntropyIntegrationCuba<VectorBase>::compute(double *integrals_out, double *
 	/* setting to compute normalization constant */
 	ExtraParameters xp(lambda, this->entropydata->get_matrix_D(), this->entropydata->get_xdim(), this->entropydata->get_number_of_moments()-1, 0.0);
 	integrator.USERDATA = &xp;
-	
+
 	cubareal *computed_integrals;
 	computed_integrals = integrator.compute();
 
@@ -262,9 +262,11 @@ void EntropyIntegrationCuba<VectorBase>::compute(double *integrals_out, double *
 		integrals_out[i] = computed_integrals[i];
 	}
 
-	//TODO: temp
-//	std::cout << "lambda:    " << print_array(lambda, this->number_of_moments-1) << std::endl;
-//	std::cout << "integrals: " << print_array(computed_integrals, Km_max) << std::endl;
+    if(debug_print_integration){
+        coutAll << "lambda:    " << print_array(lambda, this->entropydata->get_number_of_moments()-1) << std::endl;
+        coutAll << "integrals: " << print_array(computed_integrals, Km_max) << std::endl;
+        coutAll.synchronize();
+    }
 
 	this->timer.stop();
 
@@ -286,7 +288,7 @@ int EntropyIntegrationCuba<VectorBase>::Integrator::Integrand(const int *ndim, c
     long n = xp->number_of_moments;
 
     double *LM = xp->LM;
-    
+
     double V = 0.0;
     double p = 0.0;
 
@@ -295,7 +297,7 @@ int EntropyIntegrationCuba<VectorBase>::Integrator::Integrand(const int *ndim, c
         for (int j = 0; j < d; j++){
             p = p*pow(xx[j], D[(i+1)*d+j]);
 		}
-		
+
         V = V - p*LM[i];
     }
 

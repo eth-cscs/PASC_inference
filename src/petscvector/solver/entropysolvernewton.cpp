@@ -1,6 +1,7 @@
 #include "external/petscvector/solver/entropysolvernewton.h"
 
-#ifdef USE_DLIB
+//TODO: uncomment
+//#ifdef USE_DLIB
 
 namespace pascinference {
 namespace solver {
@@ -38,7 +39,7 @@ template<> EntropySolverNewton<PetscVector>::EntropySolverNewton(EntropyData<Pet
 	set_settings_from_console();
 
 	/* prepare timers */
-	this->timer_compute_moments.restart();	
+	this->timer_compute_moments.restart();
 	this->timer_solve.restart();
 	this->timer_Axb.restart();
 	this->timer_update.restart();
@@ -72,8 +73,8 @@ template<> EntropySolverNewton<PetscVector>::EntropySolverNewton(EntropyData<Pet
 		TRYCXX( VecAssemblyBegin(externalcontent->x_powers_Vecs[km]));
 		TRYCXX( VecAssemblyEnd(externalcontent->x_powers_Vecs[km]));
 	}
-	
-	LOG_FUNC_END	
+
+	LOG_FUNC_END
 }
 
 template<>
@@ -94,7 +95,7 @@ EntropySolverNewton<PetscVector>::~EntropySolverNewton(){
 	if(this->entropyintegration){
 		free(this->entropyintegration);
 	}
-	
+
 	/* destroy auxiliary vectors of powers */
 	free(externalcontent->x_powers_Vecs);
 	//TODO: VecDestroy to x_powers_Vecs?
@@ -105,18 +106,18 @@ EntropySolverNewton<PetscVector>::~EntropySolverNewton(){
 	LOG_FUNC_END
 }
 
-template<> 
+template<>
 void EntropySolverNewton<PetscVector>::allocate_temp_vectors(){
 	LOG_FUNC_BEGIN
 
 	int number_of_moments = this->number_of_moments;
 	int n = number_of_moments-1;
 	int number_of_integrals = 1 + n + (int)(0.5*n*(n+1));
-	
+
 	/* prepare auxiliary vectors */
 	x_power = new GeneralVector<PetscVector>(*entropydata->get_x());
 	x_power_gammak = new GeneralVector<PetscVector>(*entropydata->get_x());
-	
+
 	/* create aux vector for the computation of moments and integrals */
 	Vec moments_Vec;
 	Vec integrals_Vec;
@@ -154,12 +155,12 @@ void EntropySolverNewton<PetscVector>::allocate_temp_vectors(){
 	TRYCXX( MatCreate(PETSC_COMM_SELF, &(externalcontent->H_petsc)) );
 	TRYCXX( MatSetSizes(externalcontent->H_petsc,n,n,PETSC_DECIDE,PETSC_DECIDE) );
 	#ifdef USE_CUDA
-		TRYCXX( MatSetType(externalcontent->H_petsc,MATSEQAIJCUSPARSE) ); 
+		TRYCXX( MatSetType(externalcontent->H_petsc,MATSEQAIJCUSPARSE) );
 	#else
-		TRYCXX( MatSetType(externalcontent->H_petsc,MATSEQAIJ) ); 
+		TRYCXX( MatSetType(externalcontent->H_petsc,MATSEQAIJ) );
 	#endif
 	TRYCXX( MatSetFromOptions(externalcontent->H_petsc) );
-	TRYCXX( MatMPIAIJSetPreallocation(externalcontent->H_petsc,n,NULL,n-1,NULL) ); 
+	TRYCXX( MatMPIAIJSetPreallocation(externalcontent->H_petsc,n,NULL,n-1,NULL) );
 	TRYCXX( MatSeqAIJSetPreallocation(externalcontent->H_petsc,n,NULL) );
 
 	TRYCXX( MatAssemblyBegin(externalcontent->H_petsc,MAT_FLUSH_ASSEMBLY) );
@@ -193,13 +194,13 @@ void EntropySolverNewton<PetscVector>::solve() {
 	this->timer_compute_moments.start();
 	 this->compute_moments();
 	this->timer_compute_moments.stop();
-	
+
 //	coutMaster << "Moments: " << *moments << std::endl;
 
-	this->timer_solve.start(); 
+	this->timer_solve.start();
 	int it; /* actual number of iterations */
 	int itAxb, itAxb_one_newton_iteration; /* number of all KSP iterations, number of KSP iterations in one newton iteration */
-	
+
 	/* get dimensions */
 	int number_of_moments = entropydata->get_number_of_moments();
 	int n = number_of_moments-1;
@@ -214,6 +215,9 @@ void EntropySolverNewton<PetscVector>::solve() {
 	Vec delta_Vec = delta->get_vector();
 	Vec integrals_Vec = integrals->get_vector();
 
+    /* restart solver - initial approximation */
+	TRYCXX( VecSet(lambda_Vec, 1.0) );
+
 	/* stuff for clusters (subvectors) - LOCAL */
 	IS lambdak_is;
 	IS momentsk_is;
@@ -227,43 +231,33 @@ void EntropySolverNewton<PetscVector>::solve() {
 
 	double gnorm, fx; /* norm(g),f(x) */
 	double deltanorm = std::numeric_limits<double>::max(); /* norm(delta) - for debug */
-	double deltanorm_old;
 
 	/* postprocess */
 	Vec g_inner_Vec;
-	double gnorm_inner;
+	double gnorm_inner = std::numeric_limits<double>::max();
 
 	/* through all clusters */
 	for(int k = 0; k < K; k++){
-		
+
 		/* print iteration info */
 		if(debug_print_it){
 			coutMaster << "cluster = " << k << std::endl;
 		}
-		
+
 		/* prepare index set to get subvectors from moments, x, g, s, y */
 		TRYCXX( ISCreateStride(PETSC_COMM_SELF, n, k*number_of_moments+1, 1, &lambdak_is) );
 		TRYCXX( ISCreateStride(PETSC_COMM_SELF, n, k*number_of_moments+1, 1, &momentsk_is) );
-		TRYCXX( ISCreateStride(PETSC_COMM_SELF, number_of_integrals, k*number_of_integrals, 1, &integralsk_is) ); 
-	
+		TRYCXX( ISCreateStride(PETSC_COMM_SELF, number_of_integrals, k*number_of_integrals, 1, &integralsk_is) );
+
 		/* get subvectors for this cluster */
 		TRYCXX( VecGetSubVector(lambda_Vec, lambdak_is, &lambdak_Vec) );
 		TRYCXX( VecGetSubVector(moments_Vec, momentsk_is, &momentsk_Vec) );
 		TRYCXX( VecGetSubVector(integrals_Vec, integralsk_is, &integralsk_Vec) );
 
-		//TODO: temp
-/*		coutMaster << "lambdak : " << std::endl;
-		TRYCXX( VecView(lambdak_Vec, PETSC_VIEWER_STDOUT_WORLD) );
-		coutMaster << "moments : " << std::endl;
-		TRYCXX( VecView(momentsk_Vec, PETSC_VIEWER_STDOUT_WORLD) );
-		coutMaster << "integrals : " << std::endl;
-		TRYCXX( VecView(integralsk_Vec, PETSC_VIEWER_STDOUT_WORLD) );
-*/
-
 		/* -------------- Newton algorithm (for k-th problem) ------------ */
 		it = 0;
 		itAxb = 0;
-		
+
 		/* compute integrals and gradient */
 		this->timer_integrate.start();
 		 TRYCXX( VecGetArray(lambdak_Vec,&lambdak_arr));
@@ -278,10 +272,27 @@ void EntropySolverNewton<PetscVector>::solve() {
 		this->timer_fs.start();
 		 fx = externalcontent->compute_function_value(lambdak_Vec, integralsk_Vec, momentsk_Vec);
 		this->timer_fs.stop();
-		
+
 		while(it < this->maxit){
 			/* compute stopping criteria - norm of gradient */
 			TRYCXX( VecNorm(g_Vec, NORM_2, &gnorm) );
+
+			/* print progress of algorithm */
+			if(debug_print_it){
+				TRYCXX( VecNorm(delta_Vec, NORM_2, &deltanorm) );
+
+				coutMaster << "\033[33m   it = \033[0m" << it;
+				std::streamsize ss = std::cout.precision();
+				coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
+				coutMaster << ", \t\033[36mnorm(delta) = \033[0m" << std::setprecision(17) << deltanorm << std::setprecision(ss);
+				coutMaster << ", \t\033[36mnorm(g_inner) = \033[0m" << gnorm_inner;
+				coutMaster << ", \t\033[36mnorm(g_outer) = \033[0m" << gnorm << std::endl;
+
+				/* log function value */
+				LOG_FX(fx)
+			}
+
+            /* use stopping criteria */
 			if(gnorm < this->eps){
 				break;
 			}
@@ -290,47 +301,63 @@ void EntropySolverNewton<PetscVector>::solve() {
 			this->timer_H.start();
 			 externalcontent->compute_hessian(integralsk_Vec);
 			this->timer_H.stop();
-			
+
 			/* ------ KSP Solver ----- */
 			/* for solving H*delta=-g */
 			TRYCXX( VecScale(g_Vec,-1.0) );
-			
+
 			/* Create linear solver context */
 			TRYCXX( KSPCreate(PETSC_COMM_SELF,&(externalcontent->ksp)) ); // TODO: really every iteration?
-			
+
 			/* Set operators. Here the matrix that defines the linear system */
 			/* also serves as the preconditioning matrix. */
-			TRYCXX( KSPSetOperators(externalcontent->ksp,externalcontent->H_petsc,externalcontent->H_petsc) ); 
-			
+			TRYCXX( KSPSetOperators(externalcontent->ksp,externalcontent->H_petsc,externalcontent->H_petsc) );
+
 			/* precondition - maybe we can try LU factorization - then system will be solved in one iteration */
 			TRYCXX( KSPGetPC(externalcontent->ksp,&(externalcontent->pc)) );
-			TRYCXX( PCSetType(externalcontent->pc,PCJACOBI) );
-			
+//			TRYCXX( PCSetType(externalcontent->pc,PCJACOBI) );
+			TRYCXX( PCSetType(externalcontent->pc,PCNONE) );
+
 			/* set stopping criteria */
 			TRYCXX( KSPSetTolerances(externalcontent->ksp,this->eps_Axb,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT) ); // TODO: look onto all arguments
 
 			/* some funny stuff can be loaded from petsc console parameters */
 			TRYCXX( KSPSetFromOptions(externalcontent->ksp) );
-			
+
 			/* I think that these thing will use actual values in delta as initial approximation */
 			TRYCXX( KSPSetInitialGuessNonzero(externalcontent->ksp,PETSC_TRUE) );
-			
+
+            /* before solving the system, print content */
+            if(debug_print_vectors){
+            	coutMaster << "lambdak : " << std::endl;
+                TRYCXX( VecView(lambdak_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+                coutMaster << "moments : " << std::endl;
+                TRYCXX( VecView(momentsk_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+                coutMaster << "integrals : " << std::endl;
+                TRYCXX( VecView(integralsk_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+            	coutMaster << "gradient : " << std::endl;
+                TRYCXX( VecView(g_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+            	coutMaster << "Hessian : " << std::endl;
+                TRYCXX( MatView(externalcontent->H_petsc, PETSC_VIEWER_STDOUT_WORLD) );
+            }
+
+
 			/* Solve linear system */
 			this->timer_Axb.start();
 			 TRYCXX( KSPSolve(externalcontent->ksp,g_Vec,delta_Vec) );
 			this->timer_Axb.stop();
-			
+
 			/* get some informations about solution process */
 			TRYCXX( KSPGetIterationNumber(externalcontent->ksp,&itAxb_one_newton_iteration) );
 			itAxb += itAxb_one_newton_iteration;
-			
+
 			/* print info about KSP */
 			if(debug_print_Axb){
 				TRYCXX( KSPView(externalcontent->ksp,PETSC_VIEWER_STDOUT_SELF) );
 			}
-			
+
 			/* destroy KSP solver */
-			TRYCXX( KSPDestroy(&(externalcontent->ksp)) ); 
+			TRYCXX( KSPDestroy(&(externalcontent->ksp)) );
 
 			/* compute norm of inner error */
 			if(debug_print_it){
@@ -338,15 +365,15 @@ void EntropySolverNewton<PetscVector>::solve() {
 				TRYCXX( VecDuplicate(g_Vec,&g_inner_Vec) );
 				TRYCXX( MatMult(externalcontent->H_petsc,delta_Vec,g_inner_Vec) );
 				TRYCXX( VecAXPY(g_inner_Vec,-1.0,g_Vec) );
-				
+
 				TRYCXX( VecNorm(g_inner_Vec, NORM_2, &gnorm_inner) );
 			}
-			
+
 			/* use solution from KSP to update newton iterations */
 			this->timer_update.start();
 			 TRYCXX( VecAXPY(lambdak_Vec,this->newton_coeff,delta_Vec)); /* x = x + delta; */
 			this->timer_update.stop();
-			
+
 			/* recompute integrals, gradient, function value */
 			this->timer_integrate.start();
 			 TRYCXX( VecGetArray(lambdak_Vec,&lambdak_arr));
@@ -361,31 +388,8 @@ void EntropySolverNewton<PetscVector>::solve() {
 			this->timer_fs.start();
 			 fx = externalcontent->compute_function_value(lambdak_Vec, integralsk_Vec, momentsk_Vec);
 			this->timer_fs.stop();
-			
+
 			it++;
-
-			deltanorm_old = deltanorm;
-			TRYCXX( VecNorm(delta_Vec, NORM_2, &deltanorm) );
-
-			if(deltanorm > deltanorm_old){
-				break; //TODO: hotfix
-			}
-
-			/* print progress of algorithm */
-			if(debug_print_it){
-				TRYCXX( VecNorm(delta_Vec, NORM_2, &deltanorm) );
-				
-				coutMaster << "\033[33m   it = \033[0m" << it;
-				std::streamsize ss = std::cout.precision();
-				coutMaster << ", \t\033[36mfx = \033[0m" << std::setprecision(17) << fx << std::setprecision(ss);
-				coutMaster << ", \t\033[36mnorm(delta) = \033[0m" << std::setprecision(17) << deltanorm << std::setprecision(ss);
-				coutMaster << ", \t\033[36mnorm(g_inner) = \033[0m" << gnorm_inner;
-				coutMaster << ", \t\033[36mnorm(g_outer) = \033[0m" << gnorm << std::endl;
-
-				/* log function value */
-				LOG_FX(fx)
-			}
-
 
 			///* monitor - export values of stopping criteria */
 			//if(this->monitor && GlobalManager.get_rank() == 0){
@@ -395,14 +399,14 @@ void EntropySolverNewton<PetscVector>::solve() {
 
 				//std::streamsize ss = myfile.precision();
 				//myfile << std::setprecision(17);
-			
-				//myfile << "fx(" << it << ") = " << fx << "; "; 
+
+				//myfile << "fx(" << it << ") = " << fx << "; ";
 				//myfile << "alpha_bb(" << it << ") = " << alpha_bb << "; ";
 				//myfile << "gnorm(" << it << ") = " << gnorm << "; ";
 				//myfile << std::endl;
-			
+
 				//myfile << std::setprecision(ss);
-				//myfile.close();			
+				//myfile.close();
 			//}
 
 		}
@@ -425,12 +429,12 @@ void EntropySolverNewton<PetscVector>::solve() {
 		/* destroy index set */
 		TRYCXX( ISDestroy(&lambdak_is) );
 		TRYCXX( ISDestroy(&momentsk_is) );
-		TRYCXX( ISDestroy(&integralsk_is) );	
+		TRYCXX( ISDestroy(&integralsk_is) );
 
 	} /* endfor through clusters */
 
 
-	this->timer_solve.stop(); 
+	this->timer_solve.stop();
 
 	LOG_FUNC_END
 }
@@ -564,7 +568,7 @@ void EntropySolverNewton<PetscVector>::compute_residuum(GeneralVector<PetscVecto
 
 	int n = number_of_moments-1;
 	int number_of_integrals = 1 + n + (int)(0.5*n*(n+1));
-	
+
 	/* update gamma_solver data - prepare new linear term */
 	/* theta includes all moments */
 	double *lambda_arr;
@@ -665,7 +669,7 @@ void EntropySolverNewton<PetscVector>::ExternalContent::compute_gradient(Vec &g_
 
 	int n;
 	TRYCXX( VecGetSize(moments_Vec, &n) );
-    
+
     double *g_arr;
     double *integrals_arr;
     double *moments_arr;
@@ -673,7 +677,7 @@ void EntropySolverNewton<PetscVector>::ExternalContent::compute_gradient(Vec &g_
 	TRYCXX( VecGetArray(g_Vec, &g_arr) );
 	TRYCXX( VecGetArray(integrals_Vec, &integrals_arr) );
 	TRYCXX( VecGetArray(moments_Vec, &moments_arr) );
-    
+
     /* compute gradient */
 
 	for (int j = 0; j < n; j++){
@@ -683,7 +687,7 @@ void EntropySolverNewton<PetscVector>::ExternalContent::compute_gradient(Vec &g_
 	TRYCXX( VecRestoreArray(g_Vec, &g_arr) );
 	TRYCXX( VecRestoreArray(integrals_Vec, &integrals_arr) );
 	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
-	
+
 	LOG_FUNC_END
 }
 
@@ -692,7 +696,7 @@ void EntropySolverNewton<PetscVector>::ExternalContent::compute_hessian(Vec &int
 
 	int n;
 	TRYCXX( MatGetSize(H_petsc, &n, NULL) );
-	    
+
     double *integrals_arr;
 
 	TRYCXX( VecGetArray(integrals_Vec, &integrals_arr) );
@@ -710,28 +714,24 @@ void EntropySolverNewton<PetscVector>::ExternalContent::compute_hessian(Vec &int
 
 	/* assemble matrix */
 	TRYCXX( MatAssemblyBegin(H_petsc,MAT_FINAL_ASSEMBLY) );
-	TRYCXX( MatAssemblyEnd(H_petsc,MAT_FINAL_ASSEMBLY) );	
+	TRYCXX( MatAssemblyEnd(H_petsc,MAT_FINAL_ASSEMBLY) );
 
 	TRYCXX( VecRestoreArray(integrals_Vec, &integrals_arr) );
-	
+
 	LOG_FUNC_END
 }
 
 double EntropySolverNewton<PetscVector>::ExternalContent::compute_function_value(Vec &lambda_Vec, Vec &integrals_Vec, Vec &moments_Vec) {
 	LOG_FUNC_BEGIN
-	
+
 	double f, momTlambda;
     double *integrals_arr;
 
-//	TRYCXX( VecDot(moments_Vec, lambda_Vec, &momTlambda) );
-//	TRYCXX( VecGetArray(integrals_Vec, &integrals_arr) );
-//	f = log(integrals_arr[0]) + momTlambda;
-//	TRYCXX( VecRestoreArray(integrals_Vec, &integrals_arr) );
-
+	TRYCXX( VecDot(moments_Vec, lambda_Vec, &momTlambda) );
 	TRYCXX( VecGetArray(integrals_Vec, &integrals_arr) );
-	f = integrals_arr[0];
+	f = log(integrals_arr[0]) + momTlambda;
 	TRYCXX( VecRestoreArray(integrals_Vec, &integrals_arr) );
-		
+
 	LOG_FUNC_END
 
 	return f;
@@ -746,4 +746,4 @@ template<> EntropySolverNewton<PetscVector>::ExternalContent * EntropySolverNewt
 }
 } /* end namespace */
 
-#endif
+//#endif

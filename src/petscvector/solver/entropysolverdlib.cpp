@@ -1,7 +1,8 @@
 #include "external/petscvector/solver/entropysolverdlib.h"
 
-#ifdef USE_DLIB
-#ifdef USE_CUBA
+//TODO: uncomment
+//#ifdef USE_DLIB
+//#ifdef USE_CUBA
 /* if DLib and Cuba are not used, then this class is quite useless */
 
 namespace pascinference {
@@ -140,10 +141,10 @@ void EntropySolverDlib<PetscVector>::solve() {
 		auto get_functions_hess_lambda = [&](const column_vector& x)->dlib::matrix<double> { return externalcontent->get_functions_hess(x, Mom, Km, mom_powers);};
 
 		/* initial value forms starting_point, take solution from previous iteration */
-		for(int idx=0;idx<nmb_of_moments-1;idx++){
-			starting_point(idx) = lambda_arr[k*nmb_of_moments+idx+1];
-		}
-//		starting_point = 1.0;
+//		for(int idx=0;idx<nmb_of_moments-1;idx++){
+//			starting_point(idx) = lambda_arr[k*nmb_of_moments+idx+1];
+//		}
+		starting_point = 1.0;
 
 		/* print cluster info */
 		if(debug_print_it){
@@ -506,14 +507,11 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 	this->chess = hess;
 	this->cF = F_;
 
-	free(lambda);
-	free(computed_integrals);
-
 	if(debug_print_content){
 		std::cout << "integrals:" << std::endl;
 		std::cout << print_array(computed_integrals,number_of_integrals) << std::endl;
 		std::cout << std::endl;
-		
+
 		std::cout << "_F:" << std::endl;
 		std::cout << F_ << std::endl;
 		std::cout << std::endl;
@@ -533,6 +531,9 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 		std::cout << "Hessian matrix" << std::endl;
 		std::cout << this->chess << std::endl;
 	}
+
+	free(lambda);
+	free(computed_integrals);
 
 	return trans(Mom)*LM + log(F_);// + eps*sum(LM);
 }
@@ -567,5 +568,5 @@ template<> EntropySolverDlib<PetscVector>::ExternalContent * EntropySolverDlib<P
 }
 } /* end namespace */
 
-#endif /* Cuba */
-#endif /* Dlib */
+//#endif /* Cuba */
+//#endif /* Dlib */
