@@ -267,6 +267,7 @@ int main( int argc, char *argv[] )
     TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec) );
     GeneralVector<PetscVector> solution(solution_Vec);
 
+    double snr = std::numeric_limits<double>::max(); // TODO: how to compute without solution?
 	if(given_solution){
         Vec solution_Vec_preload;
 		TRYCXX( VecDuplicate(mydata.get_datavector()->get_vector(),&solution_Vec_preload) );
@@ -276,6 +277,8 @@ int main( int argc, char *argv[] )
 
 		TRYCXX( VecCopy(solution_Vec_preload, solution.get_vector()));
 		TRYCXX( VecDestroy(&solution_Vec_preload) );
+
+        snr = mydata.compute_SNR(solution);
 	}
 
 	/* cut data */
@@ -343,8 +346,6 @@ int main( int argc, char *argv[] )
 	Vec thetavector_best_Vec; /* here we store solution with best abserr value */
 	TRYCXX( VecDuplicate(mydata.get_thetavector()->get_vector(),&thetavector_best_Vec) );
 
-	double snr = mydata.compute_SNR(); /* signal to noise ratio */
-
 /* 7.) solve the problems with other epssqr */
 	for(int depth = 0; depth < epssqr_list.size();depth++){
 		epssqr = epssqr_list[depth];
@@ -398,9 +399,6 @@ int main( int argc, char *argv[] )
 
 		/* store short info */
 		if(shortinfo_write_or_not){
-            /* if we compute new theta, then recompote snr */
-            if(!given_Theta) snr = mydata.compute_SNR();
-
 			/* add provided strings from console parameters and info about the problem */
 			if(depth==0) oss_short_output_header << shortinfo_header << "width,height,K,depth,epssqr,abserr,snr,";
 			oss_short_output_values << shortinfo_values << width << "," << height << "," << K << "," << depth << "," << epssqr_list[depth] << "," << abserr << "," << snr << ",";

@@ -143,7 +143,7 @@ class TSData: public GeneralData {
 		 */
 		double compute_gammavector_nbins();
 
-        double compute_SNR(double signal_value = -1.0) const;
+        double compute_SNR(GeneralVector<VectorBase> &solution) const;
 };
 
 
@@ -689,22 +689,12 @@ double TSData<VectorBase>::compute_abserr_reconstructed(GeneralVector<VectorBase
 }
 
 template<class VectorBase>
-double TSData<VectorBase>::compute_SNR(double signal_value) const{
+double TSData<VectorBase>::compute_SNR(GeneralVector<VectorBase> &solution) const{
 	LOG_FUNC_BEGIN
 
-    double theta_value;
-    if(signal_value < 0.0){
-        double max_theta = max(*thetavector);
-        double min_theta = min(*thetavector);
-        theta_value = max_theta - min_theta;
-    } else {
-        theta_value = signal_value;
-    }
-
-    double max_data = max(*datavector);
-    double min_data = min(*datavector);
-
-    double return_value = theta_value/(max_data - min_data);
+    double std_solution = standard_deviation(solution);
+    double std_data = standard_deviation(*datavector);
+    double return_value = std_solution/std_data;
 
 	LOG_FUNC_END
 

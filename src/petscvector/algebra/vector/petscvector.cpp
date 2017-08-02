@@ -2,7 +2,7 @@
 
 namespace petscvector {
 
-int DEBUG_MODE_PETSCVECTOR; 
+int DEBUG_MODE_PETSCVECTOR;
 bool PETSC_INITIALIZED = false;
 petscvector_all_type all;
 
@@ -40,7 +40,7 @@ PetscVector::PetscVector(const PetscVector &vec){
 	/* there is duplicate... this function has to be called as less as possible */
 	TRYCXX( VecDuplicate(vec.inner_vector, &inner_vector) );
 	TRYCXX( VecCopy(vec.inner_vector, inner_vector) );
-	
+
 }
 
 
@@ -99,7 +99,7 @@ void PetscVector::set(int index, double new_value){
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)FUNCTION: set(int,double)" << std::endl;
 
 	TRYCXX( VecSetValue(this->inner_vector,index,new_value, INSERT_VALUES) );
-	
+
 	valuesUpdate();
 }
 
@@ -119,7 +119,7 @@ void PetscVector::load_local(std::string filename){
 	PetscViewer mviewer;
 	TRYCXX( PetscViewerCreate(PETSC_COMM_SELF, &mviewer) );
 	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_SELF ,filename.c_str(), FILE_MODE_READ, &mviewer) );
-	
+
 	/* load vector from viewer */
 	TRYCXX( VecLoad(this->inner_vector, mviewer) );
 
@@ -144,7 +144,7 @@ void PetscVector::load_global(std::string filename){
 	PetscViewer mviewer;
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
 	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_READ, &mviewer) );
-	
+
 	/* load vector from viewer */
 	TRYCXX( VecLoad(this->inner_vector, mviewer) );
 
@@ -161,7 +161,7 @@ void PetscVector::save_binary(std::string filename){
 	PetscViewer mviewer;
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
 	TRYCXX( PetscViewerBinaryOpen(PETSC_COMM_WORLD ,filename.c_str(), FILE_MODE_WRITE, &mviewer) );
-	
+
 	/* save vector using viewer */
 	TRYCXX( VecView(this->inner_vector, mviewer) );
 
@@ -178,7 +178,7 @@ void PetscVector::save_ascii(std::string filename){
 	PetscViewer mviewer;
 	TRYCXX( PetscViewerCreate(PETSC_COMM_WORLD, &mviewer) );
 	TRYCXX( PetscViewerASCIIOpen(PETSC_COMM_WORLD ,filename.c_str(), &mviewer) );
-	
+
 	/* save vector using viewer */
 	TRYCXX( VecView(this->inner_vector, mviewer) );
 
@@ -229,11 +229,11 @@ double PetscVector::get(int i)
 	PetscInt ni = 1;
 	PetscInt ix[1];
 	PetscScalar y[1];
-			
+
 	ix[0] = i;
 
 	TRYCXX( VecGetValues(inner_vector,ni,ix,y) );
-			
+
 	return y[0];
 }
 
@@ -271,13 +271,13 @@ void PetscVector::scale(double alpha){
 }
 
 
-std::ostream &operator<<(std::ostream &output, const PetscVector &vector)		
+std::ostream &operator<<(std::ostream &output, const PetscVector &vector)
 {
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: <<" << std::endl;
 
 	PetscScalar *arr_vector;
 	PetscInt i,local_size;
-	
+
 	// TODO: make more sofisticated for parallel vectors
 
 	output << "[";
@@ -289,7 +289,7 @@ std::ostream &operator<<(std::ostream &output, const PetscVector &vector)
 	}
 	TRYCXX( VecRestoreArray(vector.inner_vector,&arr_vector) );
 	output << "]";
-			
+
 	return output;
 }
 
@@ -300,27 +300,27 @@ PetscVector &PetscVector::operator=(const PetscVector &vec2){
 	/* check for self-assignment by comparing the address of the implicit object and the parameter */
 	/* vec1 = vec1 */
     if (this == &vec2){
-		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - self assignment" << std::endl;		
+		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - self assignment" << std::endl;
         return *this;
 	}
 
 	/* vec1 is not initialized yet */
 	if (!inner_vector){
-		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - creating new vector" << std::endl;		
+		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - creating new vector" << std::endl;
 		TRYCXX( VecDuplicate(vec2.inner_vector,&(this->inner_vector)) );
 		this->valuesUpdate(); // TODO: has to be called?
 	}
 
 	/* else copy the values of inner vectors */
-	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - copy values" << std::endl;		
-	
+	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - copy values" << std::endl;
+
 	TRYCXX( VecCopy(vec2.inner_vector,inner_vector) );
 	this->valuesUpdate(); // TODO: has to be called?
-	
-	return *this;	
+
+	return *this;
 }
 
-/* vec1 = linear_combination, perform full linear combination 
+/* vec1 = linear_combination, perform full linear combination
  * assemble linear combination and perform maxpy
  * */
 PetscVector &PetscVector::operator=(PetscVectorWrapperComb comb){
@@ -328,14 +328,14 @@ PetscVector &PetscVector::operator=(PetscVectorWrapperComb comb){
 
 	/* vec1 is not initialized yet */
 	if (!inner_vector){
-		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - duplicate vector" << std::endl;		
+		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - duplicate vector" << std::endl;
 		TRYCXX( VecDuplicate(comb.get_first_vector(),&inner_vector) );
 	}
 
 	/* vec = comb */
 	comb.compute(inner_vector,0.0);
 
-	return *this;	
+	return *this;
 }
 
 /* vec1 = scalar_value <=> vec1(all) = scalar_value, assignment operator */
@@ -343,48 +343,48 @@ PetscVector &PetscVector::operator=(double scalar_value){
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: (vec = double)" << std::endl;
 
 	this->set(scalar_value);
-	return *this;	
+	return *this;
 }
 
-/* vec1 = mul(v1,v2), call vector-vector multiplication on mul 
+/* vec1 = mul(v1,v2), call vector-vector multiplication on mul
  * */
 PetscVector &PetscVector::operator=(PetscVectorWrapperMul mulinstance){
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: (vec = mul)" << std::endl;
 
 	/* vec1 is not initialized yet */
 	if (!inner_vector){
-		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - duplicate vector" << std::endl;		
+		if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - duplicate vector" << std::endl;
 		TRYCXX( VecDuplicate(mulinstance.get_vector1(),&inner_vector) );
 	}
 
 	/* vec = mul */
 	mulinstance.mul(inner_vector);
 
-	return *this;	
+	return *this;
 }
 
-/* return subvector to be able to overload vector(index) = new_value */ 
+/* return subvector to be able to overload vector(index) = new_value */
 PetscVectorWrapperSub PetscVector::operator()(int index) const
-{   
+{
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: (int) returns WrapperSub" << std::endl;
-	
+
 	/* create new indexset */
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << " - create index set" << std::endl;
 	IS new_subvector_is;
 	PetscInt *idxs;
 	TRYCXX(PetscMalloc(sizeof(PetscInt),&idxs));
-	
+
 	idxs[0] = index;
-	
+
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, 1, idxs, PETSC_OWN_POINTER, &new_subvector_is));
 	// TODO: when to delete this index set?
-	
+
 	return PetscVectorWrapperSub(this->inner_vector, new_subvector_is, true);
 }
 
-/* return subvector vector(index_begin:index_end), i.e. components with indexes: [index_begin, index_begin+1, ..., index_end] */ 
+/* return subvector vector(index_begin:index_end), i.e. components with indexes: [index_begin, index_begin+1, ..., index_end] */
 PetscVectorWrapperSub PetscVector::operator()(int index_begin, int index_end) const
-{   
+{
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: (int,int) returns WrapperSub" << std::endl;
 
 	/* create new indexset */
@@ -392,15 +392,15 @@ PetscVectorWrapperSub PetscVector::operator()(int index_begin, int index_end) co
 	IS new_subvector_is;
 	TRYCXX( ISCreateStride(PETSC_COMM_WORLD, index_end-index_begin+1, index_begin,1, &new_subvector_is) );
 	// TODO: when to delete this index set?
-		
+
 	return PetscVectorWrapperSub(this->inner_vector, new_subvector_is, true);
 }
 
-/* return subvector based on provided index set */ 
+/* return subvector based on provided index set */
 PetscVectorWrapperSub PetscVector::operator()(const IS new_subvector_is) const // TODO: are ju sure that this IS will be nt destroyed?
-{   
+{
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: vec(IS)" << std::endl;
-	
+
 	return PetscVectorWrapperSub(inner_vector,new_subvector_is, false);
 }
 
@@ -410,9 +410,9 @@ PetscVectorWrapperSub PetscVector::operator()(petscvector_all_type all_type) con
 
 	IS new_subvector_is; // TODO: this is quite stupid, what about returning *this?
 	ISCreateStride(PETSC_COMM_WORLD, this->size(), 0,1, &new_subvector_is);
-	
+
 	return PetscVectorWrapperSub(this->inner_vector, new_subvector_is, true);
-} 
+}
 
 
 
@@ -420,7 +420,7 @@ PetscVectorWrapperSub PetscVector::operator()(petscvector_all_type all_type) con
 void operator*=(PetscVector &vec1, double alpha)
 {
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: vec *= double" << std::endl;
-	
+
 	vec1.scale(alpha);
 }
 
@@ -428,7 +428,7 @@ void operator*=(PetscVector &vec1, double alpha)
 void operator+=(const PetscVector &vec1, PetscVectorWrapperComb comb)
 {
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: vec += comb" << std::endl;
-	
+
 	/* vec1.inner_vector should be allocated */
 	comb.compute(vec1.inner_vector,1.0);
 }
@@ -437,7 +437,7 @@ void operator+=(const PetscVector &vec1, PetscVectorWrapperComb comb)
 void operator-=(PetscVector &vec1, PetscVectorWrapperComb comb)
 {
 	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)OPERATOR: vec -= comb" << std::endl;
-	
+
 	vec1 += (-1.0)*comb;
 }
 
@@ -490,6 +490,37 @@ double sum(const PetscVector &vec1)
 	TRYCXX( VecSum(vec1.inner_vector,&sum_value) );
 	return sum_value;
 }
+
+/* avg = avg(vec1) */
+double avg(const PetscVector &vec1)
+{
+	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)FUNCTION: avg(vec)" << std::endl;
+
+	return sum(vec1)/(double)vec1.size();
+}
+
+/* std = std(vec1) */
+double standard_deviation(const PetscVector &vec1)
+{
+	if(DEBUG_MODE_PETSCVECTOR >= 100) std::cout << "(PetscVector)FUNCTION: std(vec)" << std::endl;
+
+    double value;
+    double myavg = avg(vec1);
+    int mysize = vec1.size();
+
+    Vec temp_Vec;
+   	TRYCXX( VecDuplicate(vec1.inner_vector, &temp_Vec) );
+	TRYCXX( VecCopy(vec1.inner_vector, temp_Vec) );
+	TRYCXX( VecShift(temp_Vec, -myavg) );
+	TRYCXX( VecDot(temp_Vec, temp_Vec, &value) );
+
+    value = std::sqrt(value/(double)mysize);
+
+    TRYCXX( VecDestroy(&temp_Vec) );
+
+	return value;
+}
+
 
 /* vec3 = vec1./vec2 */
 const PetscVector operator/(const PetscVector &vec1, const PetscVector &vec2)
