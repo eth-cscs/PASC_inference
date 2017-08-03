@@ -31,5 +31,6 @@ void BGMGraphGrid2D<PetscVector>::ExternalContent::process_grid_cuda(int *neighb
 }
 
 
+
 }
 } /* end of namespace */

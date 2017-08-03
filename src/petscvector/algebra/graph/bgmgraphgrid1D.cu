@@ -5,6 +5,8 @@ namespace pascinference {
 namespace algebra {
 
 void BGMGraphGrid1D<PetscVector>::ExternalContent::process_grid_cuda(int *neighbor_nmbs, int **neighbor_ids){
+	LOG_FUNC_BEGIN
+
 	/* copy data to gpu */
 	gpuErrchk( cudaMalloc((void **)&neighbor_nmbs_gpu, n*sizeof(int)) );	
 	gpuErrchk( cudaMemcpy( neighbor_nmbs_gpu, neighbor_nmbs, n*sizeof(int), cudaMemcpyHostToDevice) );
@@ -24,6 +26,8 @@ void BGMGraphGrid1D<PetscVector>::ExternalContent::process_grid_cuda(int *neighb
 	gpuErrchk( cudaMemcpy( neighbor_ids_gpu, neighbor_ids_cpugpu, n*sizeof(int*), cudaMemcpyHostToDevice) );
 
 	gpuErrchk( cudaDeviceSynchronize() );
+
+	LOG_FUNC_END
 }
 
 

@@ -184,5 +184,9 @@ void BGMGraphGrid2D<PetscVector>::saveVTK_bounding_box(std::string filename, int
 	LOG_FUNC_END
 }
 
+template<> BGMGraphGrid2D<PetscVector>::ExternalContent * BGMGraphGrid2D<PetscVector>::get_externalcontent() const {
+	return externalcontent;
+}
+
 }
 } /* end of namespace */
