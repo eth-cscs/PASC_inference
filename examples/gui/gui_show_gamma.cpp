@@ -20,7 +20,6 @@
 #define DEFAULT_K 1
 
 using namespace dlib;
-using namespace pascinference;
 
 class gammaplotter : public drawable {
 	private:
