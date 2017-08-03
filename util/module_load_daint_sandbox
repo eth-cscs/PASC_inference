@@ -10,11 +10,22 @@ module load daint-gpu
 #module load craype-accel-nvidia60
 #module load Python/2.7.12-CrayGNU-2016.11
 module load Boost
-module load cudatoolkit/8.0.44_GA_2.2.7_g4a6c213-2.1
+
+# CUDA modules
+#module load cudatoolkit/8.0.44_GA_2.2.7_g4a6c213-2.1
+#module load cudatoolkit/8.0.54_2.2.8_ga620558-2.1
+module load cudatoolkit
 module load craype-accel-nvidia60
+
+# additional stuff
 #module load cray-netcdf-hdf5parallel
 #module load cray-hdf5-parallel
+
+# MPI support
 module load cray-mpich
+
+# cuba integration with cuba needs following:
+module load cuDNN
 
 # nvcc doesn't work with gcc 4.9, so we load 4.8.2
 #module swap gcc/4.8.2

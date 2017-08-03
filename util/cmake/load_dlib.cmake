@@ -41,13 +41,16 @@ if(${USE_DLIB})
 #				GIT_SUBMODULES util/dlib
 #				URL ${PASCINFERENCE_ROOT}/util/dlib/
 				PREFIX ${CMAKE_BINARY_DIR}/dlib_build
-				CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DDLIB_ENABLE_ASSERTS=ON -DDLIB_NO_GUI_SUPPORT=OFF
+				CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DDLIB_ENABLE_ASSERTS=ON -DDLIB_NO_GUI_SUPPORT=OFF -DCMAKE_CXX_FLAGS="-fPIC" -DCMAKE_C_FLAGS="-fPIC"
 #				EXCLUDE_FROM_ALL TRUE
 #				STEP_TARGETS build
 				INSTALL_COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/dlib_build/src/project_dlib-build/dlib/libdlib.so ${CMAKE_BINARY_DIR}/lib/libdlib.so && ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/dlib_build/src/project_dlib-build/dlib/libdlib.so.19.4.99 ${CMAKE_BINARY_DIR}/lib/libdlib.so.19.4.99
 			)
+			
+#			set_property(TARGET project_dlib PROPERTY COMPILE_FLAGS "-fpic")
 
 			add_library(dlib SHARED IMPORTED)
+			
 		endif()
 		
 	else()
