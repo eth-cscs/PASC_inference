@@ -98,7 +98,7 @@ endif()
 option(TEST_PETSCVECTOR_DLIB						"TEST_PETSCVECTOR_DLIB" OFF)
 option(TEST_PETSCVECTOR_DLIB_ANNA					  "TEST_PETSCVECTOR_DLIB_ANNA" OFF)
 option(TEST_PETSCVECTOR_DLIB_INTEGRAL				  "TEST_PETSCVECTOR_DLIB_INTEGRAL" OFF)
-option(TEST_PETSCVECTOR_DLIB_GUI					  "TEST_PETSCVECTOR_DLIB_GUI" OFF)
+#option(TEST_PETSCVECTOR_DLIB_GUI					  "TEST_PETSCVECTOR_DLIB_GUI" OFF)
 if(${TEST_PETSCVECTOR_DLIB})
 	# define shortcut to compile all tests of this group
 	getListOfVarsStartingWith("TEST_PETSCVECTOR_DLIB_" matchedVars)
@@ -146,8 +146,8 @@ printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_DOT                          (dot
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE                    (fem on images)            " "${TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE}")
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_FEM_MOVIE                    (fem on movies)            " "${TEST_PETSCVECTOR_ALGEBRA_FEM_MOVIE}")
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH                     (BGMGraph)                 " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPH}")
-#printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D               (BGMGraphGrid1D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D}")
-#printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D               (BGMGraphGrid2D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D}")
+printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D               (BGMGraphGrid1D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D}")
+printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D               (BGMGraphGrid2D)           " "${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKDIAGMATRIX              (BlockDiagMatrix)          " "${TEST_PETSCVECTOR_ALGEBRA_BLOCKDIAGMATRIX}")
 printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX       (BlockGraphSparseMatrix)   " "${TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_DECOMPOSITION                (Decomposition)            " "${TEST_PETSCVECTOR_ALGEBRA_DECOMPOSITION}")
@@ -174,12 +174,12 @@ printinfo_onoff("   TEST_PETSCVECTOR_SOLVER                               (...) 
 #printinfo_onoff("     TEST_PETSCVECTOR_SOLVER_SIMPLE                        (SimpleSolver)             " "${TEST_PETSCVECTOR_SOLVER_SIMPLE}")
 #printinfo_onoff("     TEST_PETSCVECTOR_SOLVER_SPGQP                         (SPGQPSolver)              " "${TEST_PETSCVECTOR_SOLVER_SPGQP}")
 printinfo_onoff("   TEST_PETSCVECTOR_DLIB                                 (...)                        " "${TEST_PETSCVECTOR_DLIB}")
-#printinfo_onoff("     TEST_PETSCVECTOR_DLIB_ANNA                            (benchmark from Anna)      " "${TEST_PETSCVECTOR_DLIB_ANNA}")
-#printinfo_onoff("     TEST_PETSCVECTOR_DLIB_INTEGRAL                        (numerical integration)    " "${TEST_PETSCVECTOR_DLIB_INTEGRAL}")
+printinfo_onoff("     TEST_PETSCVECTOR_DLIB_ANNA                            (benchmark from Anna)      " "${TEST_PETSCVECTOR_DLIB_ANNA}")
+printinfo_onoff("     TEST_PETSCVECTOR_DLIB_INTEGRAL                        (numerical integration)    " "${TEST_PETSCVECTOR_DLIB_INTEGRAL}")
 #printinfo_onoff("     TEST_PETSCVECTOR_DLIB_GUI                             (fun with X11)             " "${TEST_PETSCVECTOR_DLIB_GUI}")
 printinfo_onoff("   TEST_PETSCVECTOR_CUBA                                 (...)                        " "${TEST_PETSCVECTOR_CUBA}")
-printinfo_onoff("     TEST_PETSCVECTOR_CUBA_DEMO                            (demo from cuba library)    " "${TEST_PETSCVECTOR_CUBA_DEMO}")
-printinfo_onoff("     TEST_PETSCVECTOR_CUBA_ANNA                            (benchmark from Anna)       " "${TEST_PETSCVECTOR_CUBA_ANNA}")
+printinfo_onoff("     TEST_PETSCVECTOR_CUBA_DEMO                            (demo from cuba library)   " "${TEST_PETSCVECTOR_CUBA_DEMO}")
+printinfo_onoff("     TEST_PETSCVECTOR_CUBA_ANNA                            (benchmark from Anna)      " "${TEST_PETSCVECTOR_CUBA_ANNA}")
  
 
 # ----- COMMON -----
@@ -275,11 +275,7 @@ endif()
 
 if(${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID1D})
 	# BGMGraphGrid1D
-	if(${USE_CUDA})
-		testadd_executable("test_classes/petscvector/algebra/test_bgmgraphgrid1D.cu" "test_petscvector_bgmgraphgrid1D")
-	else()
-		testadd_executable("test_classes/petscvector/algebra/test_bgmgraphgrid1D.cpp" "test_petscvector_bgmgraphgrid1D")
-	endif()
+	testadd_executable("test_classes/petscvector/algebra/test_bgmgraphgrid1D.cpp" "test_petscvector_bgmgraphgrid1D")
 endif()
 
 if(${TEST_PETSCVECTOR_ALGEBRA_BGMGRAPHGRID2D})
@@ -313,33 +309,18 @@ endif()
 # ----- DLIB ------
 if(${TEST_PETSCVECTOR_DLIB_ANNA})
 	# benchmark from anna - first experiences with dlib
-	if(${USE_CUDA})
-		testadd_executable("test_classes/petscvector/dlib/test_anna.cu" "test_petscvector_anna")
-	else()
-		testadd_executable("test_classes/petscvector/dlib/test_anna.cpp" "test_petscvector_anna")
-	endif()
-
+	testadd_executable("test_classes/petscvector/dlib/test_anna.cpp" "test_petscvector_anna")
 endif()
 
 if(${TEST_PETSCVECTOR_DLIB_INTEGRAL})
 	# test numerical integration
-	if(${USE_CUDA})
-		testadd_executable("test_classes/petscvector/dlib/test_integral.cu" "test_petscvector_integral")
-	else()
-		testadd_executable("test_classes/petscvector/dlib/test_integral.cpp" "test_petscvector_integral")
-	endif()
-
+	testadd_executable("test_classes/petscvector/dlib/test_integral.cpp" "test_petscvector_integral")
 endif()
 
-if(${TEST_PETSCVECTOR_DLIB_GUI})
+#if(${TEST_PETSCVECTOR_DLIB_GUI})
 	# test graphical user interface
-	if(${USE_CUDA})
-		testadd_executable("test_classes/petscvector/dlib/test_gui.cu" "test_petscvector_gui")
-	else()
-		testadd_executable("test_classes/petscvector/dlib/test_gui.cpp" "test_petscvector_gui")
-	endif()
-
-endif()
+#	testadd_executable("test_classes/petscvector/dlib/test_gui.cpp" "test_petscvector_gui")
+#endif()
 
 # ----- CUBA ------
 if(${TEST_PETSCVECTOR_CUBA_DEMO})

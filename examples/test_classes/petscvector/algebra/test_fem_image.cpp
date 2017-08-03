@@ -17,6 +17,7 @@
 #define DEFAULT_XDIM 1
 #define DEFAULT_WIDTH 250
 #define DEFAULT_HEIGHT 150
+#define DEFAULT_TYPE 1
 #define DEFAULT_GRAPH_SAVE false
 #define DEFAULT_PRINTINFO false
 #define DEFAULT_FILENAME_IN "data/test_image/usi_text/usi_250_150_02.bin"
@@ -37,6 +38,7 @@ int main( int argc, char *argv[] )
 		("test_width", boost::program_options::value<int>(), "width of image [int]")
 		("test_height", boost::program_options::value<int>(), "height of image [int]")
 		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
+		("test_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_graph_save", boost::program_options::value<bool>(), "save VTK with graph or not [bool]")
 		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]");
 
@@ -47,7 +49,7 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	int width, height, xdim, fem_type;
+	int width, height, xdim, fem_type, type;
 	double fem_reduce;
 	bool printinfo, graph_save;
 
@@ -59,6 +61,7 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("test_width", &width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("test_height", &height, DEFAULT_HEIGHT);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("test_graph_save", &graph_save, DEFAULT_GRAPH_SAVE);
 	consoleArg.set_option_value("test_printinfo", &printinfo, DEFAULT_PRINTINFO);
 	consoleArg.set_option_value("test_filename_in", &filename_in, DEFAULT_FILENAME_IN);
@@ -80,6 +83,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_width                  = " << std::setw(50) << width << " (width of image)" << std::endl;
 	coutMaster << " test_height                 = " << std::setw(50) << height << " (height of image)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 
 	coutMaster << " test_fem_type               = " << std::setw(50) << fem_type << " (type of used FEM to reduce problem [0=FEM2D_SUM/1=FEM2D_HAT])" << std::endl;
 	coutMaster << " test_fem_reduce             = " << std::setw(50) << fem_reduce << " (parameter of the reduction of FEM node)" << std::endl;
@@ -129,7 +133,7 @@ int main( int argc, char *argv[] )
 	coutMaster << "--- PREPARING DATA ---" << std::endl;
 
 	/* load data from file and store it subject to decomposition */
-	ImageData<PetscVector> mydata(decomposition_orig, width, height, filename_in);
+	ImageData<PetscVector> mydata(decomposition_orig, width, height, filename_in, type);
 
 	/* print information about loaded data */
 	if(printinfo) mydata.print(coutMaster);
@@ -186,7 +190,7 @@ int main( int argc, char *argv[] )
 
     /* save reduced image */
     oss << filename_out << "_reduced";
-    mydata_reduced.saveImage_datavector(oss.str());
+    mydata_reduced.save_datavector(oss.str(), type);
     oss.str("");
 
     /* prolongate gamma, however gamma is data now (that's the reason why K=xdim) */
@@ -194,7 +198,7 @@ int main( int argc, char *argv[] )
 
     /* save prolongated image */
     oss << filename_out << "_prolongated";
-    mydata.saveImage_datavector(oss.str());
+    mydata.save_datavector(oss.str(), type);
     oss.str("");
 
 	/* say bye */

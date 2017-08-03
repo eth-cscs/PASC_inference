@@ -194,7 +194,7 @@ int main( int argc, char *argv[] )
 
     /* save reduced image */
     oss << filename_out << "_reduced";
-    mydata_reduced.saveMovie_datavector(oss.str(), type);
+    mydata_reduced.save_datavector(oss.str(), type);
     oss.str("");
 
     /* prolongate gamma, however gamma is data now (that's the reason why K=xdim) */
@@ -202,7 +202,7 @@ int main( int argc, char *argv[] )
 
     /* save prolongated image */
     oss << filename_out << "_prolongated";
-    mydata.saveMovie_datavector(oss.str(), type);
+    mydata.save_datavector(oss.str(), type);
     oss.str("");
 
 	/* say bye */
