@@ -35,8 +35,8 @@ if not os.path.exists(outputdirectory):
 
 # generate solution
 filename = "solution.bin";
-#os.system("./util_dlib_image_to_vec --filename_in=%s --new_width=%s --xdim=%s --type=0 --noise=%s --filename_out=%s/%s" % (inputimage, width, xdim, 0.0,outputdirectory,filename) )
-os.system("./util_dlib_image_to_vec --filename_in=%s --xdim=%s --type=0 --noise=%s --filename_out=%s/%s" % (inputimage, xdim, 0.0,outputdirectory,filename) )
+os.system("./util_dlib_image_to_vec --filename_in=%s --new_width=%s --xdim=%s --type=0 --noise=%s --filename_out=%s/%s" % (inputimage, width, xdim, 0.0,outputdirectory,filename) )
+#os.system("./util_dlib_image_to_vec --filename_in=%s --xdim=%s --type=0 --noise=%s --filename_out=%s/%s" % (inputimage, xdim, 0.0,outputdirectory,filename) )
 os.remove("%s/%s.info" % (outputdirectory, filename));
 
 for n in range(int(n_mc)):
