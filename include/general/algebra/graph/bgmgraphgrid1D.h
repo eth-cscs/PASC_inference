@@ -32,8 +32,8 @@ class BGMGraphGrid1D: public BGMGraph<VectorBase> {
 		
 	public:
 		BGMGraphGrid1D(int width);
-		BGMGraphGrid1D(std::string filename, int dim=2) : BGMGraph<VectorBase>(filename, dim) {};
-		BGMGraphGrid1D(const double *coordinates_array, int n, int dim) : BGMGraph<VectorBase>(coordinates_array, n, dim) {};
+		BGMGraphGrid1D(std::string filename) : BGMGraph<VectorBase>(filename, 1) {};
+		BGMGraphGrid1D(const double *coordinates_array, int n) : BGMGraph<VectorBase>(coordinates_array, n, 1) {};
 
 		~BGMGraphGrid1D();
 		
@@ -58,7 +58,7 @@ BGMGraphGrid1D<VectorBase>::BGMGraphGrid1D(int width) : BGMGraph<VectorBase>(){
 
 	this->width = width;
 
-	this->dim = 2;
+	this->dim = 1;
 	this->n = width;
 	
 	//TODO

@@ -29,6 +29,7 @@
 #include "external/petscvector/algebra/graph/bgmgraph.h"
 #include "external/petscvector/algebra/graph/bgmgraphgrid1D.h"
 #include "external/petscvector/algebra/graph/bgmgraphgrid2D.h"
+#include "external/petscvector/algebra/graph/bgmgraphgrid3D.h"
 
 /* integration */
 //#include "external/petscvector/algebra/integration/entropyintegration.h"

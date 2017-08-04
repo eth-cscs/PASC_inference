@@ -36,8 +36,8 @@ class BGMGraphGrid2D: public BGMGraph<VectorBase> {
 	public:
 
 		BGMGraphGrid2D(int width, int height);
-		BGMGraphGrid2D(std::string filename, int dim=2) : BGMGraph<VectorBase>(filename, dim) {};
-		BGMGraphGrid2D(const double *coordinates_array, int n, int dim) : BGMGraph<VectorBase>(coordinates_array, n, dim) {};
+		BGMGraphGrid2D(std::string filename) : BGMGraph<VectorBase>(filename, 2) {};
+		BGMGraphGrid2D(const double *coordinates_array, int n) : BGMGraph<VectorBase>(coordinates_array, n, 2) {};
 
 		~BGMGraphGrid2D();
 
@@ -90,7 +90,7 @@ void BGMGraphGrid2D<VectorBase>::process_grid(){
 	LOG_FUNC_BEGIN
 
 	this->threshold = 1.1;
-	this->m = height*(width-1) + width*(height-1);
+	this->m = height*(width-1) + width*(height-1); /* number of edges */
 	this->m_max = 4;
 
 	/* prepare array for number of neighbors */

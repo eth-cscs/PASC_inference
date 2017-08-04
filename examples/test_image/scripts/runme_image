@@ -4,8 +4,8 @@ WIDTH=1000
 HEIGHT=600 
 XDIM=1
 
-MU0="0.5"
-MU1="0.51"
+MU0="0.498039215686275"
+MU1="0.501960784313725"
 
 #XDIM=3
 #MU0="0.51,1.0,1.0"
@@ -13,17 +13,17 @@ MU1="0.51"
 
 K=2
 ANNEALING=1
-NPROC=3
+NPROC=2
 
-FEM_REDUCE=0.5
-FEM_TYPE=1
+FEM_REDUCE=1.0
+FEM_TYPE=0
 
 MATRIX_TYPE=0
 MATRIX_SIGMA=0.5
 
 DATA_TYPE=0 # type of input data [0=TRn, 1=TnR, 2=nTR]
 NAME="usi"
-FILENAME_DATA="data/usi/usi_id0_idSigma6.bin"
+FILENAME_DATA="data/usi/usi_id0_idSigma5.bin"
 FILENAME_SOLUTION="data/usi/solution.bin"
 #FILENAME_GAMMA0="data/moviedot_gamma0.bin"
 FILENAME_GAMMA="results/usi_gamma.bin"
@@ -44,8 +44,10 @@ PARAM_THETA="--test_Theta=$MU0 --test_Theta=$MU1 --tssolver_thetasolver_updatebe
 #PARAM_TEST="--tssolver_gammasolver_updatebeforesolve=false --tssolver_gammasolver_solve=false  --tssolver_gammasolver_updateaftersolve=true"
 
 PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
-#PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-2 --test_epssqr=3e-2 --test_epssqr=4e-2 --test_epssqr=5e-2 --test_epssqr=6e-2 --test_epssqr=7e-2 --test_epssqr=8e-2 --test_epssqr=9e-2"
-#PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-1 --test_epssqr=3e-1 --test_epssqr=4e-1 --test_epssqr=5e-1 --test_epssqr=6e-1 --test_epssqr=7e-1 --test_epssqr=8e-1 --test_epssqr=9e-1"
+PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-2 --test_epssqr=3e-2 --test_epssqr=4e-2 --test_epssqr=5e-2 --test_epssqr=6e-2 --test_epssqr=7e-2 --test_epssqr=8e-2 --test_epssqr=9e-2"
+PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-3 --test_epssqr=3e-3 --test_epssqr=4e-3 --test_epssqr=5e-3 --test_epssqr=6e-3 --test_epssqr=7e-3 --test_epssqr=8e-3 --test_epssqr=9e-3"
+#PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-4 --test_epssqr=3e-4 --test_epssqr=4e-4 --test_epssqr=5e-4 --test_epssqr=6e-4 --test_epssqr=7e-4 --test_epssqr=8e-4 --test_epssqr=9e-4"
+
 
 #PARAM_EPSSQR="--test_epssqr=1e-1"
 

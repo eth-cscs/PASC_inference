@@ -16,6 +16,7 @@
 #include "general/algebra/graph/bgmgraph.h"
 #include "general/algebra/graph/bgmgraphgrid1D.h"
 #include "general/algebra/graph/bgmgraphgrid2D.h"
+#include "general/algebra/graph/bgmgraphgrid3D.h"
 
 /* integration */
 #include "general/algebra/integration/entropyintegration.h"
