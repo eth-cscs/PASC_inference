@@ -100,7 +100,7 @@ void BGMGraphGrid3D<PetscVector>::process_grid(){
 	}
 
 	#ifdef USE_CUDA
-		externalcontent->process_grid_cuda(neighbor_nmbs, neighbor_ids);
+//		externalcontent->process_grid_cuda(neighbor_nmbs, neighbor_ids);
 	#endif
 
 	this->processed = true;
