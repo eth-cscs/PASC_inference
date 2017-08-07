@@ -1,0 +1,25 @@
+#!/bin/bash
+
+KM=2
+K=1
+T=3000
+XDIM=2
+
+NAME=xt_1lag
+FILENAME_CSV=data/test_entropy/xt_1lag.csv
+FILENAME_DATA=data/test_entropy/xt_1lag_data.bin
+DATA_TYPE=2
+
+# from csv to bin
+./util_csv_to_vec --filename_in=$FILENAME_CSV --filename_out=$FILENAME_DATA --T=$T --xdim=$XDIM --print=false --permute=false
+
+PARAM_BASIC="--test_K=$K --test_Km=$KM --test_filename_in=$FILENAME_DATA --test_data_type=$DATA_TYPE --test_xdim=$XDIM"
+PARAM_PRINT="--test_printinfo=true"
+PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
+
+PARAM_INTEGRATION="--test_type=1 --entropyintegrationcuba_type=0 --entropyintegrationcuba_mineval=0 --entropyintegrationcuba_maxeval=100000 --entropyintegrationcuba_nstart=10000 --entropyintegrationcuba_nincrease=10000"
+
+PARAM_ALL="$PARAM_BASIC $PARAM_PRINT $PARAM_LOG $PARAM_INTEGRATION"
+
+./test_integration $PARAM_ALL
+

@@ -20,12 +20,12 @@
  #error 'This example is for DLIB'
 #endif
 
-#define DEFAULT_T 100
 #define DEFAULT_K 1
+#define DEFAULT_DATA_TYPE 2
 #define DEFAULT_XDIM 1
 #define DEFAULT_TYPE 1
 #define DEFAULT_PRINTINFO true
-#define DEFAULT_FILENAME_IN "data/test_image/usi_text/usi_250_150_02.bin"
+#define DEFAULT_FILENAME_IN "data/entropy_small_data.bin"
 #define DEFAULT_EPS 1e-6
 #define DEFAULT_KM 2
 
@@ -36,10 +36,10 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("TEST ENTROPYINTEGRATION", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
+		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with signal data (vector in PETSc format) [string]")
 		("test_eps", boost::program_options::value<double>(), "integration precision [double]")
-		("test_T", boost::program_options::value<int>(), "length of data [int]")
 		("test_xdim", boost::program_options::value<int>(), "dimension of data [int]")
+		("test_data_type", boost::program_options::value< int >(), "type of input/output vector [0=TRn, 1=TnR, 2=nTR]")
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_type", boost::program_options::value< int >(), "type of integration [0=Dlib, 1=Cuba]")
 		("test_Km", boost::program_options::value< int >(), "number of moments [int]")
@@ -54,14 +54,14 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	int xdim, type, Km, T, K;
+	int xdim, type, Km, K, data_type;
 	double eps;
 	bool printinfo;
 
 	std::string filename_in;
 
-	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("test_data_type", &data_type, DEFAULT_DATA_TYPE);
 	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
 	consoleArg.set_option_value("test_Km", &Km, DEFAULT_KM);
 	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
@@ -76,8 +76,8 @@ int main( int argc, char *argv[] )
 	coutMaster << " computing on CPU" << std::endl;
 #endif
 	coutMaster << " test_filename_in            = " << std::setw(50) << filename_in << " (name of input file with image data)" << std::endl;
+	coutMaster << " test_data_type              = " << std::setw(50) << Decomposition<PetscVector>::get_type_name(data_type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 
-	coutMaster << " test_T                      = " << std::setw(50) << T << " (length of time-series)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (dimension of variables)" << std::endl;
 	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_Km                     = " << std::setw(50) << Km << " (number of moments)" << std::endl;
@@ -98,11 +98,22 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
+/* prepare preliminary time-series data (to get the size of the problem T) */
+	coutMaster << "--- PREPARING PRELIMINARY DATA ---" << std::endl;
+	SignalData<PetscVector> mydata(filename_in);
+
 /* Decomposition in time */
-	Decomposition<PetscVector> decomposition(T, 1, K, xdim, GlobalManager.get_size());
+	Decomposition<PetscVector> decomposition(mydata.get_Tpreliminary()/(double)xdim, 1, K, xdim, GlobalManager.get_size());
 
 	/* print info about decomposition */
 	if(printinfo) decomposition.print(coutMaster);
+
+/* prepare time-series data */
+	coutMaster << "--- APPLY DECOMPOSITION TO DATA ---" << std::endl;
+	mydata.set_decomposition(decomposition, data_type);
+
+	/* print information about loaded data */
+	if(printinfo) mydata.print(coutMaster);
 
 /* EntropyData */
 	coutMaster << "--- PREPARING ENTROPYDATA ---" << std::endl;
@@ -110,7 +121,31 @@ int main( int argc, char *argv[] )
 
 	entropydata = new EntropyData<PetscVector>(&decomposition, Km);
 
+	/* set data to entropy */
+	entropydata->set_x(mydata.get_datavector());
+
+	/* for testing purposes create Gamma=1 - this step is typically performed by model */
+	Vec gamma_Vec;
+	decomposition.createGlobalVec_gamma(&gamma_Vec);
+	GeneralVector<PetscVector> gammavector(gamma_Vec);
+    TRYCXX( VecSet(gammavector.get_vector(),1.0));
+	entropydata->set_gamma(&gammavector);
+
+    /* prepare vector where store computed lambda - this step is typically performed by model */
+	Vec lambda_Vec;
+	TRYCXX( VecCreate(PETSC_COMM_SELF,&lambda_Vec) );
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(lambda_Vec, VECSEQCUDA));
+	#else
+		TRYCXX(VecSetType(lambda_Vec, VECSEQ));
+	#endif
+	TRYCXX( VecSetSizes(lambda_Vec, K*entropydata->get_number_of_moments(), PETSC_DECIDE) );
+	TRYCXX( VecSetFromOptions(lambda_Vec) );
+	GeneralVector<PetscVector> lambda(lambda_Vec);
+    entropydata->set_lambda(&lambda);
+
 	if(printinfo) entropydata->print(coutMaster);
+
 
 /* EntropyIntegration */
 	coutMaster << "--- PREPARING ENTROPYINTEGRATION ---" << std::endl;
@@ -123,6 +158,10 @@ int main( int argc, char *argv[] )
 	}
 
 	if(printinfo) entropyintegration->print(coutMaster);
+
+
+/* ----------- PERFORM INTEGRATION --------- */
+    entropyintegration->compute(   );
 
 	/* say bye */
 	coutMaster << "- end program" << std::endl;

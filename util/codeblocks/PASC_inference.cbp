@@ -13,8 +13,35 @@
 				<Option compiler="null" />
 			</Target>
 		</Build>
+		<Unit filename="../../examples/build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../examples/build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" />
+		<Unit filename="../../examples/build/CMakeFiles/feature_tests.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../examples/build/CMakeFiles/feature_tests.cxx" />
+		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" />
+		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/CheckTypeSize/SIZE_OF_VOID_PTR.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/feature_tests.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/CMakeFiles/feature_tests.cxx" />
 		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/dlib/config.h" />
 		<Unit filename="../../examples/build/dlib_build/src/project_dlib-build/dlib/revision.h" />
+		<Unit filename="../../examples/build/metis_build/src/project_metis-build/CMakeFiles/3.2.2/CompilerIdC/CMakeCCompilerId.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../examples/build/metis_build/src/project_metis-build/CMakeFiles/3.2.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" />
+		<Unit filename="../../examples/build/metis_build/src/project_metis-build/CMakeFiles/feature_tests.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../examples/build/metis_build/src/project_metis-build/CMakeFiles/feature_tests.cxx" />
 		<Unit filename="../../examples/gui/gui_show_gamma.cpp" />
 		<Unit filename="../../examples/gui/gui_show_image.cpp" />
 		<Unit filename="../../examples/gui/gui_show_movie.cpp" />
@@ -36,6 +63,7 @@
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_dot.cu" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_fem_image.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_fem_movie.cpp" />
+		<Unit filename="../../examples/test_classes/petscvector/algebra/test_integration.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_seqarrayvector_dot.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consolearg.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consoleoutput.cpp" />
@@ -91,6 +119,7 @@
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraph.h" />
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraphgrid1D.h" />
 		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraphgrid2D.h" />
+		<Unit filename="../../include/external/petscvector/algebra/graph/bgmgraphgrid3D.h" />
 		<Unit filename="../../include/external/petscvector/algebra/integration/entropyintegrationdlib.h" />
 		<Unit filename="../../include/external/petscvector/algebra/matrix/blockgraphsparse.h" />
 		<Unit filename="../../include/external/petscvector/algebra/matrix/blockgraphsparseTR.h" />
@@ -139,7 +168,9 @@
 		<Unit filename="../../include/general/algebra/graph/bgmgraph.h" />
 		<Unit filename="../../include/general/algebra/graph/bgmgraphgrid1D.h" />
 		<Unit filename="../../include/general/algebra/graph/bgmgraphgrid2D.h" />
+		<Unit filename="../../include/general/algebra/graph/bgmgraphgrid3D.h" />
 		<Unit filename="../../include/general/algebra/integration/entropyintegration.h" />
+		<Unit filename="../../include/general/algebra/integration/entropyintegrationcuba.h" />
 		<Unit filename="../../include/general/algebra/integration/entropyintegrationdlib.h" />
 		<Unit filename="../../include/general/algebra/matrix/blockgraphsparse.h" />
 		<Unit filename="../../include/general/algebra/matrix/blockgraphsparseTR.h" />
@@ -216,6 +247,7 @@
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraphgrid1D.cu" />
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraphgrid2D.cpp" />
 		<Unit filename="../../src/petscvector/algebra/graph/bgmgraphgrid2D.cu" />
+		<Unit filename="../../src/petscvector/algebra/graph/bgmgraphgrid3D.cpp" />
 		<Unit filename="../../src/petscvector/algebra/integration/entropyintegrationdlib.cpp" />
 		<Unit filename="../../src/petscvector/algebra/matrix/blockgraphsparse.cpp" />
 		<Unit filename="../../src/petscvector/algebra/matrix/blockgraphsparseTR.cpp" />
