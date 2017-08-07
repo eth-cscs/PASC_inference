@@ -71,26 +71,20 @@ PARAM_PETSC="--petsc_options=\"\""
 PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PARAM_EPSSQR $PARAM_PREPROCESS $PARAM_TSSOLVER $PARAM_SHORTINFO $PARAM_LOG $PARAM_SOLVER $PARAM_SOLVER_PRINT $PARAM_PETSC $PARAM_MATRIX"
 
 ## run the job
-./test_image $PARAM_ALL
-#/home/lukas/soft/petsc_old/arch-linux2-c-debug/bin/mpiexec -n $NPROC ./test_image $PARAM_ALL
-#mpiexec -n $NPROC ./test_image $PARAM_ALL
+srun -N $NPROC ./test_image $PARAM_ALL
 
 # show results
 if [ -f $FILENAME_DATA ]
 then
-	./gui_show_image --filename=$FILENAME_DATA --width=$WIDTH --xdim=$XDIM --title="image data" --type=$DATA_TYPE &
+	srun -N $NPROC ./gui_show_image --filename=$FILENAME_DATA --width=$WIDTH --xdim=$XDIM --title="image data" --type=$DATA_TYPE &
 fi
 
 if [ -f $FILENAME_RECOVERED ]
 then
-	./gui_show_image --filename=$FILENAME_RECOVERED --width=$WIDTH --xdim=$XDIM --title="image solution" --type=$DATA_TYPE &
+	srun -N $NPROC ./gui_show_image --filename=$FILENAME_RECOVERED --width=$WIDTH --xdim=$XDIM --title="image solution" --type=$DATA_TYPE &
 fi
 
 if [ -f $FILENAME_GAMMA ]
 then
-	./gui_show_image --filename=$FILENAME_GAMMA --width=$WIDTH --xdim=1 --title="image gamma" --type=1 &
+	srun -N $NPROC ./gui_show_image --filename=$FILENAME_GAMMA --width=$WIDTH --xdim=1 --title="image gamma" --type=1 &
 fi
-
-# create image from data
-#./util_dlib_vec_to_image --filename_in=$FILENAME_DATA --filename_in2=$FILENAME_RECOVERED --filename_in3=$FILENAME_GAMMA --K3=$K --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
-

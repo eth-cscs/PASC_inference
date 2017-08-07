@@ -184,7 +184,7 @@ void EntropyData<VectorBase>::print(ConsoleOutput &output) const {
 	}
 
 	/* print matrix with exponents */
-	output <<  " - D             : ";
+	output <<  " - D             : " << std::endl;
 	output.push();
 	this->print_matrix_D(output);
 	output.pop();
@@ -275,7 +275,7 @@ void EntropyData<VectorBase>::printcontent(ConsoleOutput &output) const {
 		output << "not set" << std::endl;
 	}
 
-	output <<  " - D            : ";
+	output <<  " - D            : " << std::endl;
 	this->print_matrix_D(output);
 
 	LOG_FUNC_END

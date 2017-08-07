@@ -40,6 +40,7 @@ option(TEST_PETSCVECTOR_ALGEBRA_LOCALDENSEMATRIX	  "TEST_PETSCVECTOR_ALGEBRA_LOC
 option(TEST_PETSCVECTOR_ALGEBRA_SIMPLEXFEASIBLESETLOCAL "TEST_PETSCVECTOR_ALGEBRA_SIMPLEXFEASIBLESETLOCAL" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE             "TEST_PETSCVECTOR_ALGEBRA_FEM_IMAGE" OFF)
 option(TEST_PETSCVECTOR_ALGEBRA_FEM_MOVIE             "TEST_PETSCVECTOR_ALGEBRA_FEM_MOVIE" OFF)
+option(TEST_PETSCVECTOR_ALGEBRA_INTEGRATION			  "TEST_PETSCVECTOR_ALGEBRA_INTEGRATION" OFF)
 
 if(${TEST_PETSCVECTOR_ALGEBRA})
 	# define shortcut to compile all tests of this group
@@ -119,7 +120,6 @@ if(${TEST_PETSCVECTOR_CUBA})
 	endforeach()
 endif()
 
-
 # ----- general switching option
 option(TEST_PETSCVECTOR "TEST_PETSCVECTOR" OFF)
 if(${TEST_PETSCVECTOR})
@@ -155,6 +155,7 @@ printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX       (Blo
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_PETSCVECTOR                  (PetscVector)              " "${TEST_PETSCVECTOR_ALGEBRA_PETSCVECTOR}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_LOCALDENSEMATRIX             (LocalDenseMatrix)         " "${TEST_PETSCVECTOR_ALGEBRA_LOCALDENSEMATRIX}")
 #printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_SIMPLEXFEASIBLESETLOCAL      (SimplexFeasibleSet_Local) " "${TEST_PETSCVECTOR_ALGEBRA_SIMPLEXFEASIBLESETLOCAL}")
+printinfo_onoff("     TEST_PETSCVECTOR_ALGEBRA_INTEGRATION                  (EntropyIntegration)       " "${TEST_PETSCVECTOR_ALGEBRA_INTEGRATION}")
 printinfo_onoff("   TEST_PETSCVECTOR_DATA                                 (...)                        " "${TEST_PETSCVECTOR_DATA}")
 #printinfo_onoff("     TEST_PETSCVECTOR_DATA_DIAG                            (DiagData)                 " "${TEST_PETSCVECTOR_DATA_DIAG}")
 #printinfo_onoff("     TEST_PETSCVECTOR_DATA_EDF                             (EdfData)                  " "${TEST_PETSCVECTOR_DATA_EDF}")
@@ -299,6 +300,19 @@ if(${TEST_PETSCVECTOR_ALGEBRA_BLOCKGRAPHSPARSEMATRIX})
 	file(COPY "test_classes/petscvector/data/test_algebra_blockgraphsparse/" DESTINATION "data/test_classes/" FILES_MATCHING PATTERN "*")
 	
 endif()
+
+if(${TEST_PETSCVECTOR_ALGEBRA_INTEGRATION})
+	testadd_executable("test_classes/petscvector/algebra/test_integration.cpp" "test_integration")
+
+	# copy scripts
+	test_classes_petscvector_copy_scripts()
+
+	# copy data with sample graphs
+	make_directory("data/test_classes/")
+	file(COPY "test_classes/petscvector/data/test_algebra_integration/" DESTINATION "data/test_classes/" FILES_MATCHING PATTERN "*")
+
+endif()
+
 
 # ----- DATA -----
 
