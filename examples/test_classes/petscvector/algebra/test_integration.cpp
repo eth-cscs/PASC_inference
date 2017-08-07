@@ -20,6 +20,8 @@
  #error 'This example is for DLIB'
 #endif
 
+#define DEFAULT_T 100
+#define DEFAULT_K 1
 #define DEFAULT_XDIM 1
 #define DEFAULT_TYPE 1
 #define DEFAULT_PRINTINFO true
@@ -36,7 +38,9 @@ int main( int argc, char *argv[] )
 	opt_problem.add_options()
 		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
 		("test_eps", boost::program_options::value<double>(), "integration precision [double]")
-		("test_xdim", boost::program_options::value<int>(), "number of values in every pixel [1=greyscale, 3=rgb]")
+		("test_T", boost::program_options::value<int>(), "length of data [int]")
+		("test_xdim", boost::program_options::value<int>(), "dimension of data [int]")
+		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
 		("test_type", boost::program_options::value< int >(), "type of integration [0=Dlib, 1=Cuba]")
 		("test_Km", boost::program_options::value< int >(), "number of moments [int]")
 
@@ -50,13 +54,15 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	int xdim, type, Km;
+	int xdim, type, Km, T, K;
 	double eps;
 	bool printinfo;
 
 	std::string filename_in;
 
+	consoleArg.set_option_value("test_T", &T, DEFAULT_T);
 	consoleArg.set_option_value("test_xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("test_K", &K, DEFAULT_K);
 	consoleArg.set_option_value("test_Km", &Km, DEFAULT_KM);
 	consoleArg.set_option_value("test_type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("test_printinfo", &printinfo, DEFAULT_PRINTINFO);
@@ -71,7 +77,9 @@ int main( int argc, char *argv[] )
 #endif
 	coutMaster << " test_filename_in            = " << std::setw(50) << filename_in << " (name of input file with image data)" << std::endl;
 
+	coutMaster << " test_T                      = " << std::setw(50) << T << " (length of time-series)" << std::endl;
 	coutMaster << " test_xdim                   = " << std::setw(50) << xdim << " (dimension of variables)" << std::endl;
+	coutMaster << " test_K                      = " << std::setw(50) << K << " (number of clusters)" << std::endl;
 	coutMaster << " test_Km                     = " << std::setw(50) << Km << " (number of moments)" << std::endl;
 	coutMaster << " test_eps                    = " << std::setw(50) << eps << " (integration precision)" << std::endl;
 
@@ -80,10 +88,6 @@ int main( int argc, char *argv[] )
 
 	coutMaster << "-------------------------------------------" << std::endl;
 	coutMaster << std::endl;
-
-	/* this test is only for one cluster */
-	int K = 1;
-	int T = 10;
 
 	/* start logging */
 	std::ostringstream oss;
@@ -94,11 +98,17 @@ int main( int argc, char *argv[] )
 	/* say hello */
 	coutMaster << "- start program" << std::endl;
 
+/* Decomposition in time */
+	Decomposition<PetscVector> decomposition(T, 1, K, xdim, GlobalManager.get_size());
+
+	/* print info about decomposition */
+	if(printinfo) decomposition.print(coutMaster);
+
 /* EntropyData */
 	coutMaster << "--- PREPARING ENTROPYDATA ---" << std::endl;
 	EntropyData<PetscVector> *entropydata;
 
-	entropydata = new EntropyData<PetscVector>(T, xdim, K, Km);
+	entropydata = new EntropyData<PetscVector>(&decomposition, Km);
 
 	if(printinfo) entropydata->print(coutMaster);
 
@@ -122,4 +132,3 @@ int main( int argc, char *argv[] )
 
 	return 0;
 }
-

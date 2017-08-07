@@ -34,6 +34,7 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 		bool debug_print_integration;
 
 		EntropyIntegration<PetscVector> *entropyintegration;
+
 	public:
 
 		ExternalContent(EntropyIntegration<PetscVector> *entropyintegration, bool debug_print_content = false, bool debug_print_integration = false);
@@ -43,17 +44,15 @@ template<> class EntropySolverDlib<PetscVector>::ExternalContent {
 
 		double get_F() const;
 
-		Vec *x_powers_Vecs;
-		double *Fs; /**< value of F for all clusters */
 		double integration_time; /**< total integration time */
+		double *computed_integrals; /**< array for storing computed integrals */
+
 };
 
 template<> EntropySolverDlib<PetscVector>::EntropySolverDlib(EntropyData<PetscVector> &new_entropydata);
 template<> EntropySolverDlib<PetscVector>::~EntropySolverDlib();
 
 template<> void EntropySolverDlib<PetscVector>::solve();
-template<> void EntropySolverDlib<PetscVector>::compute_moments();
-template<> void EntropySolverDlib<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const;
 
 template<> double EntropySolverDlib<PetscVector>::get_integration_time() const;
 

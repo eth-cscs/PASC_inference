@@ -44,6 +44,7 @@ class EntropySolverDlib: public GeneralSolver {
 
 		/* aux vectors */
 		GeneralVector<VectorBase> *moments; /**< vector of computed moments */
+		GeneralVector<VectorBase> *integrals; /**< vector of computed integrals, size K*(2*Km+1) */
 
 		EntropyIntegration<VectorBase> *entropyintegration;	/**< instance of integration tool */
 
@@ -362,8 +363,8 @@ template<class VectorBase>
 void EntropySolverDlib<VectorBase>::compute_moments() {
 	LOG_FUNC_BEGIN
 
-	//TODO
-	
+	entropydata->compute_moments(this->moments);
+
 	LOG_FUNC_END
 }
 
@@ -371,7 +372,7 @@ template<class VectorBase>
 void EntropySolverDlib<VectorBase>::compute_residuum(GeneralVector<VectorBase> *residuum) const {
 	LOG_FUNC_BEGIN
 
-	//TODO
+	entropydata->compute_residuum(residuum, this->integrals);
 		
 	LOG_FUNC_END
 }

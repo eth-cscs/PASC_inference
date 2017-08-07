@@ -101,9 +101,6 @@ class EntropySolverNewton: public GeneralSolver {
 		GeneralVector<VectorBase> *g; 		/**< local gradient, size Km */
 		GeneralVector<VectorBase> *delta;	/**< vetor used in Newton method, size Km */
 
-		int number_of_moments;		/**< number of moments */
-		int xdim;					/**< dimension of the data = dimension of integrals */
-
 	public:
 
 		EntropySolverNewton();
@@ -123,7 +120,6 @@ class EntropySolverNewton: public GeneralSolver {
 		EntropyData<VectorBase> *get_data() const;
 
 		void compute_moments();
-		
 		void compute_residuum(GeneralVector<VectorBase> *residuum) const;
 		
 		ExternalContent *get_externalcontent() const;
@@ -518,7 +514,7 @@ template<class VectorBase>
 void EntropySolverNewton<VectorBase>::compute_moments() {
 	LOG_FUNC_BEGIN
 
-	//TODO
+	entropydata->compute_moments(this->moments);
 
 	LOG_FUNC_END
 }
@@ -527,7 +523,7 @@ template<class VectorBase>
 void EntropySolverNewton<VectorBase>::compute_residuum(GeneralVector<VectorBase> *residuum) const {
 	LOG_FUNC_BEGIN
 
-	//TODO
+	entropydata->compute_residuum(residuum, this->integrals);
 		
 	LOG_FUNC_END
 }
@@ -549,7 +545,7 @@ int EntropySolverNewton<VectorBase>::get_Km() const {
 
 template<class VectorBase>
 int EntropySolverNewton<VectorBase>::get_number_of_moments() const {
-	return this->number_of_moments;
+	return entropydata->get_number_of_moments();
 }
 
 

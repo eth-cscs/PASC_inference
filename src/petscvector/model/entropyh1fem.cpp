@@ -166,12 +166,11 @@ void EntropyH1FEMModel<PetscVector>::thetasolver_initialize(GeneralSolver **thet
 	LOG_FUNC_BEGIN
 
 	/* create data */
-	thetadata = new EntropyData<PetscVector>(this->tsdata->get_T(), this->get_xdim(), this->tsdata->get_K(), this->get_Km());
+	thetadata = new EntropyData<PetscVector>(tsdata->get_decomposition(), this->get_Km());
 
 	thetadata->set_lambda(tsdata->get_thetavector());
 	thetadata->set_x(tsdata->get_datavector());
 	thetadata->set_gamma(tsdata->get_gammavector());
-	thetadata->set_decomposition(tsdata->get_decomposition());
 
 	/* automatic choice of solver */
 	if(this->thetasolvertype == TSOLVER_AUTO){

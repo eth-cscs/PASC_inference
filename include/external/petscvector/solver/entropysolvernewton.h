@@ -26,8 +26,6 @@ template<> class EntropySolverNewton<PetscVector>::ExternalContent {
 		KSP ksp;							/**< linear solver context */
 		PC pc;           					/**< preconditioner context **/
 
-		Vec *x_powers_Vecs;
-
 };
 
 template<> EntropySolverNewton<PetscVector>::EntropySolverNewton(EntropyData<PetscVector> &new_entropydata);
@@ -37,9 +35,6 @@ template<> void EntropySolverNewton<PetscVector>::allocate_temp_vectors();
 template<> void EntropySolverNewton<PetscVector>::free_temp_vectors();
 
 template<> void EntropySolverNewton<PetscVector>::solve();
-
-template<> void EntropySolverNewton<PetscVector>::compute_moments();
-template<> void EntropySolverNewton<PetscVector>::compute_residuum(GeneralVector<PetscVector> *residuum) const;
 
 template<> EntropySolverNewton<PetscVector>::ExternalContent * EntropySolverNewton<PetscVector>::get_externalcontent() const;
 

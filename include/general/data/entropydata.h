@@ -29,11 +29,7 @@ class EntropyData: public GeneralData {
 
 		Decomposition<VectorBase> *decomposition;
 
-		int K; /**< number of clusters */
 		int Km; /**< number of moments */
-		int T; /**< length of time-series */
-		int xdim; /**< dimension of data */
-
 		int *matrix_D; /**< matrix with power exponents in moments */
 
 		/** @brief fill matrix with power indexes corresponding to moments
@@ -51,7 +47,7 @@ class EntropyData: public GeneralData {
 	
 		/** @brief default constructor
 		 */ 
-		EntropyData(int T, int xdim, int K, int Km);
+		EntropyData(Decomposition<VectorBase> *decomposition, int Km);
 		
 		/** @brief default destructor
 		 */ 
@@ -88,7 +84,6 @@ class EntropyData: public GeneralData {
 		void set_gamma(GeneralVector<VectorBase> *gamma);
 		GeneralVector<VectorBase> *get_gamma() const;
 
-		void set_decomposition(Decomposition<VectorBase> *decomposition);
 		Decomposition<VectorBase> *get_decomposition() const;
 
 		int get_T() const;
@@ -100,6 +95,9 @@ class EntropyData: public GeneralData {
 
 		int get_number_of_moments() const;
 		static int compute_number_of_moments(int xdim, int Km);
+
+		void compute_residuum(GeneralVector<VectorBase> *residuum, GeneralVector<VectorBase> *integrals) const;
+		void compute_moments(GeneralVector<VectorBase> *moments);
 
 		ExternalContent *get_externalcontent() const;
 };
@@ -115,7 +113,7 @@ namespace data {
 
 /* constructor */
 template<class VectorBase>
-EntropyData<VectorBase>::EntropyData(int T, int xdim, int K, int Km){
+EntropyData<VectorBase>::EntropyData(Decomposition<VectorBase> *decomposition, int Km){
 	LOG_FUNC_BEGIN
 
 	/* set initial content */
@@ -123,15 +121,11 @@ EntropyData<VectorBase>::EntropyData(int T, int xdim, int K, int Km){
 	this->x = NULL;
 	this->gamma = NULL;
 
-	this->T = T;
-	this->xdim = xdim;
-	this->K = K;
+	this->decomposition = decomposition;
 	this->Km = Km;
 
-	this->number_of_moments = compute_number_of_moments(this->xdim, this->Km);
-
-	this->matrix_D = new int[this->xdim*this->number_of_moments];
-
+	this->number_of_moments = compute_number_of_moments(get_xdim(), this->Km);
+	this->matrix_D = new int[get_xdim()*this->number_of_moments];
 	this->prepare_matrix_D();
 
 	LOG_FUNC_END
@@ -155,28 +149,28 @@ void EntropyData<VectorBase>::print(ConsoleOutput &output) const {
 
 	output <<  this->get_name() << std::endl;
 
-	output <<  " - T                 : " << T << std::endl;
-	output <<  " - xdim              : " << xdim << std::endl;
-	output <<  " - K                 : " << K << std::endl;
-	output <<  " - Km                : " << Km << std::endl;
-	output <<  " - number_of_moments : " << number_of_moments << std::endl;
+	output <<  " - T                 : " << get_T() << std::endl;
+	output <<  " - xdim              : " << get_xdim() << std::endl;
+	output <<  " - K                 : " << get_K() << std::endl;
+	output <<  " - Km                : " << get_Km() << std::endl;
+	output <<  " - number_of_moments : " << get_number_of_moments() << std::endl;
 	
 	/* give information about presence of the data */
-	output <<  " - lambda        : ";
+	output <<  " - lambda            : ";
 	if(this->lambda){
 		output << "YES (size: " << this->lambda->size() << ")" << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
 
-	output <<  " - x             : ";
+	output <<  " - x                 : ";
 	if(this->x){
 		output << "YES (size: " << this->x->size() << ")" << std::endl;
 	} else {
 		output << "not set" << std::endl;
 	}
 
-	output <<  " - gamma         : ";
+	output <<  " - gamma             : ";
 	if(this->gamma){
 		output << "YES (size: " << this->gamma->size() << ")" << std::endl;
 	} else {
@@ -198,14 +192,14 @@ void EntropyData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput 
 
 	output_global <<  this->get_name() << std::endl;
 
-	output_global <<  " - T                 : " << T << std::endl;
-	output_global <<  " - xdim              : " << xdim << std::endl;
-	output_global <<  " - K                 : " << K << std::endl;
-	output_global <<  " - Km                : " << Km << std::endl;
-	output_global <<  " - number_of_moments : " << number_of_moments << std::endl;
+	output_global <<  " - T                 : " << get_T() << std::endl;
+	output_global <<  " - xdim              : " << get_xdim() << std::endl;
+	output_global <<  " - K                 : " << get_K() << std::endl;
+	output_global <<  " - Km                : " << get_Km() << std::endl;
+	output_global <<  " - number_of_moments : " << get_number_of_moments() << std::endl;
 	
 	/* give information about presence of the data */
-	output_global <<  " - lambda        : ";
+	output_global <<  " - lambda            : ";
 	if(this->lambda){
 		output_global << "YES (size: " << this->lambda->size() << ")" << std::endl;
 		output_global.push();
@@ -216,7 +210,7 @@ void EntropyData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput 
 		output_global << "not set" << std::endl;
 	}
 
-	output_global <<  " - x             : ";
+	output_global <<  " - x                : ";
 	if(this->x){
 		output_global << "YES (size: " << this->x->size() << ")" << std::endl;
 		output_global.push();
@@ -227,7 +221,7 @@ void EntropyData<VectorBase>::print(ConsoleOutput &output_global, ConsoleOutput 
 		output_global << "not set" << std::endl;
 	}
 
-	output_global <<  " - gamma         : ";
+	output_global <<  " - gamma            : ";
 	if(this->gamma){
 		output_global << "YES (size: " << this->gamma->size() << ")" << std::endl;
 		output_global.push();
@@ -329,12 +323,12 @@ GeneralVector<VectorBase> *EntropyData<VectorBase>::get_gamma() const{
 
 template<class VectorBase>
 int EntropyData<VectorBase>::get_T() const {
-	return this->T;
+	return this->decomposition->get_T();
 }
 
 template<class VectorBase>
 int EntropyData<VectorBase>::get_K() const {
-	return this->K;
+	return this->decomposition->get_K();
 }
 
 template<class VectorBase>
@@ -344,17 +338,12 @@ int EntropyData<VectorBase>::get_Km() const {
 
 template<class VectorBase>
 int EntropyData<VectorBase>::get_xdim() const {
-	return this->xdim;
+	return this->decomposition->get_xdim();
 }
 
 template<class VectorBase>
 int EntropyData<VectorBase>::get_number_of_moments() const {
 	return this->number_of_moments;
-}
-
-template<class VectorBase>
-void EntropyData<VectorBase>::set_decomposition(Decomposition<VectorBase> *decomposition){
-	this->decomposition = decomposition;
 }
 
 template<class VectorBase>
@@ -447,7 +436,23 @@ int EntropyData<VectorBase>::get_D_value(int row, int col, int ncols) const {
 	return this->matrix_D[row*ncols + col];
 }
 
+template<class VectorBase>
+void EntropyData<VectorBase>::compute_moments(GeneralVector<VectorBase> *moments) {
+	LOG_FUNC_BEGIN
+	
+	//TODO
+	
+	LOG_FUNC_END
+}
 
+template<class VectorBase> 
+void EntropyData<VectorBase>::compute_residuum(GeneralVector<VectorBase> *residuum, GeneralVector<VectorBase> *integrals) const {
+	LOG_FUNC_BEGIN
+
+	//TODO
+	
+	LOG_FUNC_END
+}
 
 /* define blank external content for general VectorBase */
 template<class VectorBase>
