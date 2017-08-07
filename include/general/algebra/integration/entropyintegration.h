@@ -49,6 +49,7 @@ class EntropyIntegration {
 
 		double get_eps() const;
 		int get_number_of_moments() const;
+		int get_number_of_integrals() const;
 		int get_xdim() const;
 		
 		virtual void compute(double *integrals_out, double *lambda, int Km_max = -1);
@@ -144,6 +145,12 @@ double EntropyIntegration<VectorBase>::get_eps() const {
 template<class VectorBase>
 int EntropyIntegration<VectorBase>::get_number_of_moments() const {
 	return this->entropydata->get_number_of_moments();
+}
+
+template<class VectorBase>
+int EntropyIntegration<VectorBase>::get_number_of_integrals() const {
+	int n = get_number_of_moments() - 1;
+	return 1 + n + (int)(0.5*n*(n+1));
 }
 
 template<class VectorBase>

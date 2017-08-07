@@ -181,7 +181,7 @@ void EntropySolverNewton<PetscVector>::solve() {
 	/* get dimensions */
 	int number_of_moments = entropydata->get_number_of_moments();
 	int n = number_of_moments-1;
-	int number_of_integrals = 1 + n + (int)(0.5*n*(n+1));
+	int number_of_integrals = entropyintegration->get_number_of_integrals();
 	int K = entropydata->get_K();
 	int Km = entropydata->get_Km();
 

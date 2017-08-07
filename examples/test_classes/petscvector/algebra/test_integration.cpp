@@ -159,9 +159,54 @@ int main( int argc, char *argv[] )
 
 	if(printinfo) entropyintegration->print(coutMaster);
 
+    coutMaster << std::endl;
+    coutMaster << "----------------------------------------------" << std::endl;
+    coutMaster << std::endl;
+
+/* ----------- prepare vector for moments --------- */
+	Vec moments_Vec;
+	TRYCXX( VecCreate(PETSC_COMM_SELF,&moments_Vec) );
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(moments_Vec, VECSEQCUDA));
+	#else
+		TRYCXX(VecSetType(moments_Vec, VECSEQ));
+	#endif
+	TRYCXX( VecSetSizes(moments_Vec, K*entropydata->get_number_of_moments(), PETSC_DECIDE) );
+	TRYCXX( VecSetFromOptions(moments_Vec) );
+	GeneralVector<PetscVector> moments(moments_Vec);
+
+    Timer moments_timer;
+    moments_timer.restart();
+    moments_timer.start();
+    entropydata->compute_moments(&moments);
+    moments_timer.stop();
+
+    coutMaster << "   moments computed in     : " << moments_timer.get_value_sum() << "s " << std::endl;
+
+/* ----------- prepare vector for integration --------- */
+	Vec integrals_Vec;
+	TRYCXX( VecCreate(PETSC_COMM_SELF,&integrals_Vec) );
+	#ifdef USE_CUDA
+		TRYCXX(VecSetType(integrals_Vec, VECSEQCUDA));
+	#else
+		TRYCXX(VecSetType(integrals_Vec, VECSEQ));
+	#endif
+	TRYCXX( VecSetSizes(integrals_Vec, K*entropyintegration->get_number_of_integrals(), PETSC_DECIDE) );
+	TRYCXX( VecSetFromOptions(integrals_Vec) );
+	GeneralVector<PetscVector> integrals(integrals_Vec);
 
 /* ----------- PERFORM INTEGRATION --------- */
-    entropyintegration->compute(   );
+    Timer integration_timer;
+    integration_timer.restart();
+    integration_timer.start();
+//    entropyintegration->compute(integrals);
+    integration_timer.stop();
+
+    coutMaster << "   integrals computed in   : " << integration_timer.get_value_sum() << "s " << std::endl;
+
+    coutMaster << std::endl;
+    coutMaster << "----------------------------------------------" << std::endl;
+    coutMaster << std::endl;
 
 	/* say bye */
 	coutMaster << "- end program" << std::endl;
