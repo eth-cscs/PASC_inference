@@ -30,15 +30,15 @@ PARAM_TSSOLVER_PRINT="--tssolver_debug_print_it=true --tssolver_debug_print_anne
 PARAM_QPSOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_eps=1e-6 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true"
 PARAM_QPSOLVER_PRINT="--spgqpsolver_debug_print_it=false" 
 
-#PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=0"
-#PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=10  --entropysolverdlib_eps=1e-4 --entropysolverdlib_integration_eps=1e-8"
-#PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=false --entropysolverdlib_debug_print_content=false --entropyintegrationcuba_debug_print_integration=false"
-#PARAM_ENTROPYSOLVER_INTEGRATION="--entropysolverdlib_integration_type=2 --entropyintegrationcuba_type=0 --entropyintegrationcuba_mineval=0 --entropyintegrationcuba_maxeval=100000 --entropyintegrationcuba_nstart=10000 --entropyintegrationcuba_nincrease=10000"
+PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=0"
+PARAM_ENTROPYSOLVER2="--entropysolverdlib_maxit=10  --entropysolverdlib_eps=1e-4 --entropysolverdlib_integration_eps=1e-8"
+PARAM_ENTROPYSOLVER_PRINT="--entropysolverdlib_debug_print_moments=false --entropysolverdlib_debug_print_it=true --entropysolverdlib_debug_print_content=false --entropyintegrationcuba_debug_print_integration=false"
+PARAM_ENTROPYSOLVER_INTEGRATION="--entropysolverdlib_integration_type=2 --entropyintegrationcuba_type=0 --entropyintegrationcuba_mineval=0 --entropyintegrationcuba_maxeval=100000 --entropyintegrationcuba_nstart=10000 --entropyintegrationcuba_nincrease=10000"
 
-PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=2"
-PARAM_ENTROPYSOLVER2="--entropysolvernewton_maxit=20 --entropysolvernewton_eps=1e-6 --entropysolvernewton_integration_eps=1e-8 --entropysolvernewton_newton_coeff=0.8"
-PARAM_ENTROPYSOLVER_PRINT="--entropysolvernewton_debug_print_it=true --entropysolvernewton_debug_print_Axb=false"
-PARAM_ENTROPYSOLVER_INTEGRATION="--entropysolvernewton_integration_type=2 --entropyintegrationcuba_type=0 --entropyintegrationcuba_mineval=0 --entropyintegrationcuba_maxeval=100000 --entropyintegrationcuba_nstart=10000 --entropyintegrationcuba_nincrease=10000"
+#PARAM_ENTROPYSOLVER1="--entropyh1femmodel_thetasolvertype=2"
+#PARAM_ENTROPYSOLVER2="--entropysolvernewton_maxit=20 --entropysolvernewton_eps=1e-6 --entropysolvernewton_integration_eps=1e-8 --entropysolvernewton_newton_coeff=0.8"
+#PARAM_ENTROPYSOLVER_PRINT="--entropysolvernewton_debug_print_it=true --entropysolvernewton_debug_print_Axb=false"
+#PARAM_ENTROPYSOLVER_INTEGRATION="--entropysolvernewton_integration_type=2 --entropyintegrationcuba_type=0 --entropyintegrationcuba_mineval=0 --entropyintegrationcuba_maxeval=100000 --entropyintegrationcuba_nstart=10000 --entropyintegrationcuba_nincrease=10000"
 
 PARAM_ALL="$PARAM_BASIC $PARAM_GAMMA0 $PARAM_EPSSQR $PARAM_PRINT $PARAM_THETA $PARAM_SHORTINFO $PARAM_LOG $PARAM_TSSOLVER $PARAM_TSSOLVER_PRINT $PARAM_QPSOLVER $PARAM_QPSOLVER_PRINT $PARAM_ENTROPYSOLVER1 $PARAM_ENTROPYSOLVER2 $PARAM_ENTROPYSOLVER_PRINT $PARAM_ENTROPYSOLVER_INTEGRATION"
 

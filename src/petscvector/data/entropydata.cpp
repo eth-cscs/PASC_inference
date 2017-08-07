@@ -1,5 +1,8 @@
 #include "external/petscvector/data/entropydata.h"
 
+namespace pascinference {
+namespace data {
+	
 /* constructor */
 template<>
 EntropyData<PetscVector>::EntropyData(Decomposition<PetscVector> *decomposition, int Km){
@@ -14,7 +17,7 @@ EntropyData<PetscVector>::EntropyData(Decomposition<PetscVector> *decomposition,
 	this->Km = Km;
 
 	this->number_of_moments = compute_number_of_moments(get_xdim(), this->Km);
-	this->matrix_D = new int[get_dim()*this->number_of_moments];
+	this->matrix_D = new int[get_xdim()*this->number_of_moments];
 	this->prepare_matrix_D();
 
 	/* prepare external content */
@@ -43,6 +46,10 @@ EntropyData<PetscVector>::~EntropyData(){
 
 template<> 
 void EntropyData<PetscVector>::set_x(GeneralVector<PetscVector> *x) {
+	LOG_FUNC_BEGIN
+
+	this->x = x;
+
 	/* prepare and compute auxiliary array of powers */
 	// TODO: aaaah! bottleneck, maybe can be performed in different way (I hope so)
 	Vec x_Vec = this->x->get_vector();
@@ -57,17 +64,19 @@ void EntropyData<PetscVector>::set_x(GeneralVector<PetscVector> *x) {
 		TRYCXX( VecAssemblyBegin(externalcontent->x_powers_Vecs[km]));
 		TRYCXX( VecAssemblyEnd(externalcontent->x_powers_Vecs[km]));
 	}
+
+	LOG_FUNC_END
 }
 
 template<>
-void EntropySolverNewton<PetscVector>::compute_moments(GeneralVector<PetscVector> *moments) {
+void EntropyData<PetscVector>::compute_moments(GeneralVector<PetscVector> *moments) {
 	LOG_FUNC_BEGIN
 
 	int Tlocal = get_decomposition()->get_Tlocal();
 	int Rlocal = get_decomposition()->get_Rlocal();
 
-	int T = get_T();
-	int R = get_R();
+	int T = get_decomposition()->get_T();
+	int R = get_decomposition()->get_R();
 
 	/* I assume that externalcontent->x_powers_Vecs is computed and constant */
 	/* I assume that D_matrix is computed and prepared */
@@ -167,8 +176,6 @@ void EntropySolverNewton<PetscVector>::compute_moments(GeneralVector<PetscVector
 	}
 
 	TRYCXX( VecRestoreArray(moments_Vec, &moments_arr) );
-
-	this->timer_compute_moments.stop();
 
 	LOG_FUNC_END
 }
@@ -283,4 +290,7 @@ void EntropyData<PetscVector>::compute_residuum(GeneralVector<PetscVector> *resi
 
 template<> EntropyData<PetscVector>::ExternalContent * EntropyData<PetscVector>::get_externalcontent() const {
 	return externalcontent;
+}
+
+}
 }

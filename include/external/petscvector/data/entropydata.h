@@ -1,8 +1,8 @@
 #ifndef PASC_PETSCVECTOR_ENTROPYDATA_H
 #define	PASC_PETSCVECTOR_ENTROPYDATA_H
 
-#include "external/petscvector/algebra/vector/generalvector.h"
 #include "general/data/entropydata.h"
+#include "external/petscvector/algebra/vector/generalvector.h"
 
 namespace pascinference {
 namespace data {

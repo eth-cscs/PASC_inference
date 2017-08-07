@@ -5,7 +5,7 @@
 //#include "external/petscvector/algebra/integration/entropyintegration.h"
 
 //#include "external/petscvector/solver/generalsolver.h"
-//#include "external/petscvector/data/entropydata.h"
+#include "external/petscvector/data/entropydata.h"
 
 /* petsc stuff */
 #include <petscksp.h>

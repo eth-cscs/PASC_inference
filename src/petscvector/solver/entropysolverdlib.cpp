@@ -317,7 +317,6 @@ double EntropySolverDlib<PetscVector>::ExternalContent::get_functions_obj(const 
 	}
 
 	free(lambda);
-	free(computed_integrals);
 
 	return trans(Mom)*LM + log(F_);// + eps*sum(LM);
 }

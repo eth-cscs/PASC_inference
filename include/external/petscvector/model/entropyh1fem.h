@@ -22,7 +22,7 @@
 /* theta problem */
 #include "external/petscvector/solver/entropysolverdlib.h"
 #include "external/petscvector/solver/entropysolvernewton.h"
-//#include "external/petscvector/data/entropydata.h"
+#include "external/petscvector/data/entropydata.h"
 #include "external/petscvector/data/tsdata.h"
 
 namespace pascinference {
