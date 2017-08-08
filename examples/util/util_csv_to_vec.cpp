@@ -40,8 +40,6 @@ void ReadCSVFile(std::string s_Path, long T, int xdim, double *values){
     
     std::string line;
     std::getline(dataFile, line);
-    dataFile.close();
-   
 	std::stringstream iss(line);
     
     int i = 0; int j = 0;
@@ -65,6 +63,8 @@ void ReadCSVFile(std::string s_Path, long T, int xdim, double *values){
         else
             i++;
     }
+
+    dataFile.close();
 }
 
 int main( int argc, char *argv[] )

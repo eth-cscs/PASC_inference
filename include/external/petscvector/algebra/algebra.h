@@ -32,7 +32,7 @@
 #include "external/petscvector/algebra/graph/bgmgraphgrid3D.h"
 
 /* integration */
-//#include "external/petscvector/algebra/integration/entropyintegration.h"
+#include "external/petscvector/algebra/integration/entropyintegration.h"
 #include "external/petscvector/algebra/integration/entropyintegrationdlib.h"
 //#include "external/petscvector/algebra/integration/entropyintegrationcuba.h"
 

@@ -53,6 +53,8 @@ class EntropyIntegration {
 		int get_xdim() const;
 		
 		virtual void compute(double *integrals_out, double *lambda, int Km_max = -1);
+		
+		void compute(GeneralVector<VectorBase> &integrals);
 
 		double get_time() const;
 };
@@ -161,6 +163,15 @@ int EntropyIntegration<VectorBase>::get_xdim() const {
 template<class VectorBase>
 double EntropyIntegration<VectorBase>::get_time() const {
 	return timer.get_value_sum();
+}
+
+template<class VectorBase>
+void EntropyIntegration<VectorBase>::compute(GeneralVector<VectorBase> &integrals){
+	LOG_FUNC_BEGIN	
+
+	//TODO
+
+	LOG_FUNC_END	
 }
 
 

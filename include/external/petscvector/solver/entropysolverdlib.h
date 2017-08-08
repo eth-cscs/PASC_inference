@@ -3,6 +3,11 @@
 
 #include "general/solver/entropysolverdlib.h"
 
+/* include integration algorithms */
+#include "external/petscvector/algebra/integration/entropyintegration.h"
+#include "external/petscvector/algebra/integration/entropyintegrationdlib.h"
+//#include "external/petscvector/algebra/integration/entropyintegrationcuba.h"
+
 //#include "external/petscvector/solver/generalsolver.h"
 #include "external/petscvector/data/entropydata.h"
 

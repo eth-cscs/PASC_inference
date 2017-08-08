@@ -396,7 +396,7 @@ void EntropySolverNewton<PetscVector>::solve() {
 		this->fxs[k] = fx;
 		this->gnorms[k] = gnorm;
 
-		/* -------------- end of SPG algorithm ------------ */
+		/* -------------- end of Newton algorithm ------------ */
 
 		/* restore subvectors */
 		TRYCXX( VecRestoreSubVector(lambda_Vec, lambdak_is, &lambdak_Vec) );

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# LENGTH = 1/xdim! * prod_{i=1}^{xdim} (Km + i)
+
+KM=4
+K=1
+XDIM=3
+
+#KM=2
+#K=1
+#XDIM=3
+#LENGTH=10
+
+FILENAME_CSV=data/test_classes/entropy_lambda.csv
+FILENAME_DATA=data/test_classes/entropy_lambda.bin
+
+# from csv to bin
+#./util_csv_to_vec --filename_in=$FILENAME_CSV --filename_out=$FILENAME_DATA --T=$LENGTH --xdim=$K --print=true --permute=false
+
+#PARAM_BASIC="--test_K=$K --test_Km=$KM --test_filename_in=$FILENAME_DATA --test_xdim=$XDIM"
+PARAM_BASIC="--test_K=$K --test_Km=$KM --test_xdim=$XDIM"
+PARAM_PRINT="--test_printinfo=true"
+PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
+
+PARAM_INTEGRATION="--test_type=1 --entropyintegrationcuba_debug_print_integration=false --entropyintegrationcuba_type=0 --entropyintegrationcuba_mineval=0 --entropyintegrationcuba_maxeval=100000 --entropyintegrationcuba_nstart=10000 --entropyintegrationcuba_nincrease=10000"
+
+PARAM_ALL="$PARAM_BASIC $PARAM_PRINT $PARAM_LOG $PARAM_INTEGRATION"
+
+./test_entropyintegration $PARAM_ALL
+
