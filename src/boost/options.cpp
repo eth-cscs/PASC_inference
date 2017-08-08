@@ -184,6 +184,8 @@ void add_options(boost::program_options::options_description *description, int c
 			("entropyintegrationcuba_maxeval", boost::program_options::value<int>(), "the maximum number of integrand evaluations [int]")
 			("entropyintegrationcuba_nstart", boost::program_options::value<int>(), "number of integrand evaluations to start with [int]")
 			("entropyintegrationcuba_nincrease", boost::program_options::value<int>(), "the increase in number of integrand evaluations [int]")
+			("entropyintegrationcuba_cudaaccel", boost::program_options::value<int>(), "number of accelerators [int]")
+			("entropyintegrationcuba_cudaaccelmax", boost::program_options::value<int>(), "number of threads per accelerator [int]")
 			("entropyintegrationcuba_debug_print_integration", boost::program_options::value<bool>(), "print CUBA integration output [bool]");
 		opt_entropyintegration.add(opt_entropyintegrationcuba);
 
