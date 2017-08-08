@@ -360,6 +360,13 @@ void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec
 
 	coutMaster << "test2" << std::endl;
 
+	coutMaster << "orig_Vec:" << std::endl;
+	TRYCXX( VecView(orig_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+
+	coutMaster << "orig_local_is:" << std::endl;
+	TRYCXX( ISView(orig_local_is, PETSC_VIEWER_STDOUT_WORLD) );
+
+
 	TRYCXX( VecGetSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
 
 	coutMaster << "test3" << std::endl;
