@@ -233,7 +233,7 @@ void Decomposition<PetscVector>::createGlobalVec_data(Vec *x_Vec) const {
 }
 
 template<>
-void Decomposition<PetscVector>::permute_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, int type, bool invert) const {
+void Decomposition<PetscVector>::permute_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, int type, bool invert) const {
 	LOG_FUNC_BEGIN
 
     /*	TRn */
@@ -250,7 +250,7 @@ void Decomposition<PetscVector>::permute_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, i
 
 
 template<>
-void Decomposition<PetscVector>::permute_gTRb_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, bool invert) const {
+void Decomposition<PetscVector>::permute_gTRb_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
 	int TRbegin = get_TRbegin();
@@ -312,7 +312,7 @@ void Decomposition<PetscVector>::permute_gTRb_to_pdTRb(Vec &orig_Vec, Vec &new_V
 }
 
 template<>
-void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, bool invert) const {
+void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
 	int TRbegin = get_TRbegin();
@@ -403,7 +403,7 @@ void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec &orig_Vec, Vec &new_V
 }
 
 template<>
-void Decomposition<PetscVector>::permute_gbTR_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, bool invert) const {
+void Decomposition<PetscVector>::permute_gbTR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const {
 	LOG_FUNC_BEGIN
 
 	int Tbegin = get_Tbegin();

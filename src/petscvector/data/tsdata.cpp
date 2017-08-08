@@ -327,6 +327,11 @@ void TSData<PetscVector>::save_gammavector(std::string filename) const {
 
 	Vec gammasave_Vec;
     TRYCXX( VecDuplicate(gammavector->get_vector(), &gammasave_Vec) );
+
+	//TODO: temp
+    TRYCXX( VecSet(gammasave_Vec, 1.0) );
+    TRYCXX( VecView(gammasave_Vec, PETSC_VIEWER_STDOUT_WORLD) );
+    
 	this->decomposition->permute_gTbR_to_pdTRb(gammasave_Vec, gammavector->get_vector(), decomposition->get_K(), true);
 	GeneralVector<PetscVector> gammasave(gammasave_Vec);
 	gammasave.save_binary(oss_name_of_file.str());
