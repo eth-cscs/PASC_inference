@@ -345,7 +345,8 @@ void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec
 	}
 
 	coutMaster << print_array(orig_local_arr, local_size) << std::endl;
-
+	TRYCXX( PetscBarrier(NULL));
+	
 	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_COPY_VALUES, &orig_local_is) );
 //	TRYCXX( ISCreateGeneral(PETSC_COMM_WORLD, local_size, orig_local_arr, PETSC_OWN_POINTER,&orig_local_is) );
 
