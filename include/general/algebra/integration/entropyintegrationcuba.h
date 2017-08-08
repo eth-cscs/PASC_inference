@@ -27,11 +27,11 @@
 
 /* define number of accellerators used for integration */ 
 #ifdef USE_GPU
-	#define ENTROPYINTEGRATIONCUBA_DEFAULT_CUDAACCEL 0
+	#define ENTROPYINTEGRATIONCUBA_DEFAULT_CUBAACCEL 0
 #else
-	#define ENTROPYINTEGRATIONCUBA_DEFAULT_CUDAACCEL 1
+	#define ENTROPYINTEGRATIONCUBA_DEFAULT_CUBAACCEL 1
 #endif
-#define ENTROPYINTEGRATIONCUBA_DEFAULT_CUDAACCELMAX 1000
+#define ENTROPYINTEGRATIONCUBA_DEFAULT_CUBAACCELMAX 1000
 
 /* include Cuba stuff */
 #include "cuba.h"
@@ -128,8 +128,8 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 		int nstart;					/**< number of integrand evaluations to start with */
 		int nincrease;				/**< the increase in number of integrand evaluations */
 
-		int cudaaccel;
-		int cudaaccelmax;
+		int cubaaccel;
+		int cubaaccelmax;
 
 		bool debug_print_integration;
 
@@ -171,8 +171,8 @@ void EntropyIntegrationCuba<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropyintegrationcuba_nstart", &this->nstart, ENTROPYINTEGRATIONCUBA_DEFAULT_NSTART);
 	consoleArg.set_option_value("entropyintegrationcuba_nincrease", &this->nincrease, ENTROPYINTEGRATIONCUBA_DEFAULT_NINCREASE);
 
-	consoleArg.set_option_value("entropyintegrationcuba_cudaaccel", &this->cudaaccel, ENTROPYINTEGRATIONCUBA_DEFAULT_CUDAACCEL);
-	consoleArg.set_option_value("entropyintegrationcuba_cudaaccelmax", &this->cudaaccelmax, ENTROPYINTEGRATIONCUBA_DEFAULT_CUDAACCELMAX);
+	consoleArg.set_option_value("entropyintegrationcuba_cubaaccel", &this->cubaaccel, ENTROPYINTEGRATIONCUBA_DEFAULT_CUBAACCEL);
+	consoleArg.set_option_value("entropyintegrationcuba_cubaaccelmax", &this->cubaaccelmax, ENTROPYINTEGRATIONCUBA_DEFAULT_CUBAACCELMAX);
 
 	consoleArg.set_option_value("entropyintegrationcuba_debug_print_integration",&debug_print_integration, ENTROPYINTEGRATIONCUBA_DEFAULT_DEBUG_PRINT_INTEGRATION);
 }
@@ -232,8 +232,8 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output) const {
 	output <<  " - integration_nstart       : " << this->nstart << std::endl;
 	output <<  " - integration_nincrease    : " << this->nincrease << std::endl;
 
-	output <<  " - integration_cubaaccel    : " << this->cudaaccel << std::endl;
-	output <<  " - integration_cubaaccelmax : " << this->cudaaccelmax << std::endl;
+	output <<  " - integration_cubaaccel    : " << this->cubaaccel << std::endl;
+	output <<  " - integration_cubaaccelmax : " << this->cubaaccelmax << std::endl;
 
 	output.synchronize();
 
@@ -257,8 +257,8 @@ void EntropyIntegrationCuba<VectorBase>::print(ConsoleOutput &output_global, Con
 	output_global <<  " - integration_nstart      : " << this->nstart << std::endl;
 	output_global <<  " - integration_nincrease   : " << this->nincrease << std::endl;
 
-	output_global <<  " - integration_cubaaccel    : " << this->cudaaccel << std::endl;
-	output_global <<  " - integration_cubaaccelmax : " << this->cudaaccelmax << std::endl;
+	output_global <<  " - integration_cubaaccel    : " << this->cubaaccel << std::endl;
+	output_global <<  " - integration_cubaaccelmax : " << this->cubaaccelmax << std::endl;
 
 	output_global.synchronize();
 
@@ -271,7 +271,7 @@ void EntropyIntegrationCuba<VectorBase>::compute(double *integrals_out, double *
 
 	this->timer.start();
 
-	Integrator integrator(this->type, this->entropydata->get_xdim(), Km_max, this->mineval, this->maxeval, this->nstart, this->nincrease, this->cudaaccel, this->cudaaccelmax, this->debug_print_integration);
+	Integrator integrator(this->type, this->entropydata->get_xdim(), Km_max, this->mineval, this->maxeval, this->nstart, this->nincrease, this->cubaaccel, this->cubaaccelmax, this->debug_print_integration);
 
 	/* setting to compute normalization constant */
 	ExtraParameters xp(lambda, this->entropydata->get_matrix_D(), this->entropydata->get_xdim(), this->entropydata->get_number_of_moments()-1, 0.0);
