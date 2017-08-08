@@ -429,7 +429,7 @@ void EdfData<PetscVector>::saveVector(std::string filename, bool save_original) 
 	/* save datavector - just for fun; to see if it was loaded in a right way */
 	if(save_original){
 		oss_name_of_file << "results/" << filename << "_original.bin";
-		this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, datavector_Vec, decomposition->get_xdim(), true);
+		this->decomposition->permute_gbTR_to_pdTRb(datasave_Vec, datavector->get_vector(), decomposition->get_xdim(), true);
 		datasave.save_binary(oss_name_of_file.str());
 		oss_name_of_file.str("");
 	}
