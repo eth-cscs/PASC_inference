@@ -350,8 +350,16 @@ void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec
 	createIS_dTR_to_pdTRb(&new_local_is, blocksize);
 
 	/* get subvector with local values from original data */
+	
+	coutMaster << "test1" << std::endl;
+	
 	TRYCXX( VecGetSubVector(new_Vec, new_local_is, &new_local_Vec) );
+
+	coutMaster << "test2" << std::endl;
+
 	TRYCXX( VecGetSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+
+	coutMaster << "test3" << std::endl;
 
 	/* copy values */
 	if(!invert){
@@ -362,15 +370,24 @@ void Decomposition<PetscVector>::permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec
 //		TRYCXX( VecCopy(new_Vec, orig_local_Vec) );
 	}
 
+	coutMaster << "test4" << std::endl;
+
 	/* restore subvector with local values from original data */
 	TRYCXX( VecRestoreSubVector(new_Vec, new_local_is, &new_local_Vec) );
 	TRYCXX( VecRestoreSubVector(orig_Vec, orig_local_is, &orig_local_Vec) );
+
+	coutMaster << "test5" << std::endl;
 
 	/* destroy used stuff */
 	TRYCXX( ISDestroy(&orig_local_is) );
 	TRYCXX( ISDestroy(&new_local_is) );
 
+	coutMaster << "test6" << std::endl;
+
 	TRYCXX( PetscBarrier(NULL));
+
+	coutMaster << "test7" << std::endl;
+
 
 	LOG_FUNC_END
 }
