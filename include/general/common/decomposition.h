@@ -254,11 +254,11 @@ class Decomposition {
 		int get_DDR_permutation(int r_global) const;
 
 #ifdef USE_PETSC
-		void permute_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, int type, bool invert) const;
+		void permute_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, int type, bool invert) const;
 
-		void permute_gTRb_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
-		void permute_gTbR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
-		void permute_gbTR_to_pdTRb(Vec orig_Vec, Vec new_Vec, int blocksize, bool invert) const;
+		void permute_gTRb_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, bool invert) const;
+		void permute_gTbR_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, bool invert) const;
+		void permute_gbTR_to_pdTRb(Vec &orig_Vec, Vec &new_Vec, int blocksize, bool invert) const;
 
 		void createIS_dTR_to_pdTRb(IS *is, int blocksize) const; //TODO: private?
 
