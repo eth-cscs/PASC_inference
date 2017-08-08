@@ -61,9 +61,9 @@
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_blockgraphsparsematrix.cu" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_dot.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_dot.cu" />
+		<Unit filename="../../examples/test_classes/petscvector/algebra/test_entropyintegration.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_fem_image.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_fem_movie.cpp" />
-		<Unit filename="../../examples/test_classes/petscvector/algebra/test_integration.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/algebra/test_seqarrayvector_dot.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consolearg.cpp" />
 		<Unit filename="../../examples/test_classes/petscvector/common/test_consoleoutput.cpp" />
