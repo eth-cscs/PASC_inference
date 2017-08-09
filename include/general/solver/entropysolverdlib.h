@@ -13,6 +13,7 @@
 /* include integration algorithms */
 #include "general/algebra/integration/entropyintegrationdlib.h"
 #include "general/algebra/integration/entropyintegrationcuba.h"
+#include "general/algebra/integration/entropyintegrationcudavegas.h"
 
 #define ENTROPYSOLVERDLIB_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERDLIB_DEFAULT_EPS 1e-6
@@ -123,6 +124,12 @@ void EntropySolverDlib<VectorBase>::prepare_entropyintegration(int integration_t
 	/* cuba */
 	if(integration_type == 2){
 		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->entropydata, integration_eps);
+	}
+
+	/* cudavegas */
+	if(integration_type == 3){
+		/* can be used only with CUDA enabled */
+		this->entropyintegration = new EntropyIntegrationCudaVegas<VectorBase>(this->entropydata, integration_eps);
 	}
 
 	LOG_FUNC_END

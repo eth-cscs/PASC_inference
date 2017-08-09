@@ -122,6 +122,10 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 				void Copy(ExtraParameters& _ExtraParameters);
 		};
 
+	protected:
+		friend class ExternalContent;
+		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
+
 		int type;					/**< integration type [0=Vegas,1=Suave,2=Divonne,3=Cuhre] */
 		int mineval;				/**< the minimum number of integrand evaluations */
 		int maxeval;				/**< the maximum number of integrand evaluations */
@@ -132,13 +136,7 @@ class EntropyIntegrationCuba : public EntropyIntegration<VectorBase> {
 		int cubaaccelmax;
 
 		bool debug_print_integration;
-
 		void set_settings_from_console();
-
-
-	protected:
-		friend class ExternalContent;
-		ExternalContent *externalcontent;			/**< for manipulation with external-specific stuff */
 
 	public:
 		EntropyIntegrationCuba(EntropyData<VectorBase> *entropydata, double new_eps);

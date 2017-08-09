@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
 		("test_eps", boost::program_options::value<double>(), "integration precision [double]")
 		("test_xdim", boost::program_options::value<int>(), "dimension of data [int]")
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
-		("test_type", boost::program_options::value< int >(), "type of integration [0=Dlib, 1=Cuba]")
+		("test_type", boost::program_options::value< int >(), "type of integration [0=Dlib, 1=Cuba, 2=CudaVegas]")
 		("test_Km", boost::program_options::value< int >(), "number of moments [int]")
 		("test_printinfo", boost::program_options::value<bool>(), "print informations about created objects [bool]")
 		("test_printcontent", boost::program_options::value<bool>(), "print computed integrals [bool]");
@@ -85,7 +85,7 @@ int main( int argc, char *argv[] )
 	coutMaster << " test_Km                     = " << std::setw(50) << Km << " (number of moments)" << std::endl;
 	coutMaster << " test_eps                    = " << std::setw(50) << eps << " (integration precision)" << std::endl;
 
-	coutMaster << " test_type                   = " << std::setw(50) << type << " (type of integration [0=Dlib/1=Cuba])" << std::endl;
+	coutMaster << " test_type                   = " << std::setw(50) << type << " (type of integration [0=Dlib/1=Cuba/2=CudaVegas])" << std::endl;
 	coutMaster << " test_printinfo              = " << std::setw(50) << print_bool(printinfo) << " (print informations about created objects)" << std::endl;
 	coutMaster << " test_printcontent           = " << std::setw(50) << print_bool(printcontent) << " (print computed moments and integrals)" << std::endl;
 
@@ -154,6 +154,9 @@ int main( int argc, char *argv[] )
 	}
 	if(type == 1){
 		entropyintegration = new EntropyIntegrationCuba<PetscVector>(entropydata, eps);
+	}
+	if(type == 1){
+		entropyintegration = new EntropyIntegrationCudaVegas<PetscVector>(entropydata, eps);
 	}
 
 	if(printinfo) entropyintegration->print(coutMaster);

@@ -13,6 +13,7 @@
 /* include integration algorithms */
 #include "general/algebra/integration/entropyintegrationdlib.h"
 #include "general/algebra/integration/entropyintegrationcuba.h"
+#include "general/algebra/integration/entropyintegrationcudavegas.h"
 
 #define ENTROPYSOLVERNEWTON_DEFAULT_MAXIT 1000
 #define ENTROPYSOLVERNEWTON_DEFAULT_MAXIT_AXB 100
@@ -159,6 +160,11 @@ void EntropySolverNewton<VectorBase>::prepare_entropyintegration(int integration
 	/* cuba */
 	if(integration_type == 2){
 		this->entropyintegration = new EntropyIntegrationCuba<VectorBase>(this->entropydata, integration_eps);
+	}
+
+	/* cudavegas */
+	if(integration_type == 3){
+		this->entropyintegration = new EntropyIntegrationCudaVegas<VectorBase>(this->entropydata, integration_eps);
 	}
 
 	LOG_FUNC_END

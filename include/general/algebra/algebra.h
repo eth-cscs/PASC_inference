@@ -22,6 +22,7 @@
 #include "general/algebra/integration/entropyintegration.h"
 #include "general/algebra/integration/entropyintegrationdlib.h"
 #include "general/algebra/integration/entropyintegrationcuba.h"
+#include "general/algebra/integration/entropyintegrationcudavegas.h"
 
 /* matrix */
 #include "general/algebra/matrix/generalmatrixrhs.h"
