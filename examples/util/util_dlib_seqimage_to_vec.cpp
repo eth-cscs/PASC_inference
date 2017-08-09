@@ -1,5 +1,5 @@
-/** @file util_dlib_image_to_vec.cpp
- *  @brief transform image to PETSc vector
+/** @file util_dlib_seqimage_to_vec.cpp
+ *  @brief transform sequence of images to PETSc vector
  *
  *  @author Lukas Pospisil
  */
@@ -15,12 +15,13 @@
  #error 'This example is for DLIB'
 #endif
 
+#define DEFAULT_T 1
 #define DEFAULT_XDIM 1
 #define DEFAULT_TYPE 1
 #define DEFAULT_WIDTH -1
 #define DEFAULT_HEIGHT -1
 #define DEFAULT_NOISE 0.0
-#define DEFAULT_OUT_FILENAME "results/image_output.bin"
+#define DEFAULT_OUT_FILENAME "results/movie_output.bin"
 
 #define ENABLE_ASSERTS
 #define DLIB_JPEG_SUPPORT
@@ -33,17 +34,46 @@ using namespace dlib;
 
 using namespace pascinference;
 
+int compute_length_of_zeros(int T){
+    int counter = 0;
+
+    if(T <= 1){
+        counter = 1;
+    } else {
+        double Tcounter = T;
+        while(Tcounter >= 1){
+            Tcounter = Tcounter/10.0;
+            counter++;
+        }
+    }
+
+    return counter;
+}
+
+std::string get_name_with_zeros(int t, int length_with_zeros){
+    int t_length = compute_length_of_zeros(t);
+
+	std::ostringstream sout;
+    for(int i=0; i<length_with_zeros-t_length;i++){
+        sout << "0";
+    }
+    sout << t;
+
+	return sout.str();
+}
+
 int main( int argc, char *argv[] )
 {
 	/* add local program options */
-	boost::program_options::options_description opt_problem("UTIL_DLIB_IMAGE_TO_VEC", consoleArg.get_console_nmb_cols());
+	boost::program_options::options_description opt_problem("UTIL_DLIB_SEQIMAGE_TO_VEC", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("filename_in", boost::program_options::value< std::string >(), "input image [string]")
+		("filename_in", boost::program_options::value< std::string >(), "part of input image <image>0t.jpg (t=1,..,T) [string]")
 		("filename_out", boost::program_options::value< std::string >(), "output vector in PETSc format [string]")
 		("xdim", boost::program_options::value< int >(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("new_width", boost::program_options::value< int >(), "width of new image [int]")
 		("new_height", boost::program_options::value< int >(), "height of new image [int]")
-		("type", boost::program_options::value< int >(), "type of output vector [0=Rn, 1=nR]")
+		("T", boost::program_options::value<int>(), "number of frames [int]")
+		("type", boost::program_options::value< int >(), "type of output vector [0=TRn, 1=TnR, 2=nTR]")
 		("noise", boost::program_options::value< double >(), "added noise [double]");
 	consoleArg.get_description()->add(opt_problem);
 
@@ -54,6 +84,7 @@ int main( int argc, char *argv[] )
 
 	std::string filename_in;
 	std::string filename_out;
+	int T;
 	int xdim;
 	int type;
 	int new_width, new_height;
@@ -66,6 +97,7 @@ int main( int argc, char *argv[] )
 
 	consoleArg.set_option_value("filename_out", &filename_out, DEFAULT_OUT_FILENAME);
 	consoleArg.set_option_value("xdim", &xdim, DEFAULT_XDIM);
+	consoleArg.set_option_value("T", &T, DEFAULT_T);
 	consoleArg.set_option_value("type", &type, DEFAULT_TYPE);
 	consoleArg.set_option_value("new_width", &new_width, DEFAULT_WIDTH);
 	consoleArg.set_option_value("new_height", &new_height, DEFAULT_HEIGHT);
@@ -75,19 +107,26 @@ int main( int argc, char *argv[] )
 	coutMaster << " filename_in            = " << std::setw(30) << filename_in << " (input image)" << std::endl;
 	coutMaster << " filename_out           = " << std::setw(30) << filename_out << " (output vector in PETSc format)" << std::endl;
 	coutMaster << " xdim                   = " << std::setw(30) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
-	coutMaster << " type                   = " << std::setw(30) << type << " (type of output vector [0=Rn, 1=nR])" << std::endl;
+	coutMaster << " type                   = " << std::setw(30) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
 	coutMaster << " new_width              = " << std::setw(30) << new_width << " (width of new image)" << std::endl;
 	coutMaster << " new_height             = " << std::setw(30) << new_height << " (height of new image)" << std::endl;
+	coutMaster << " T                      = " << std::setw(30) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << " noise                  = " << std::setw(30) << noise << " (added noise)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
 	array2d<rgb_pixel> *image_dlib;
 
-	/* rescale image */
+	/* construct name of first image */
+	int length_with_zeros = compute_length_of_zeros(T);
+	std::ostringstream oss;
+	oss.str("");
+    oss << filename_in << get_name_with_zeros(1, length_with_zeros) << ".jpg";	
+
+	/* open first image set size */
 	if(new_width > 1 || new_height > 1){
 		/* open image */
 		array2d<rgb_pixel> image_orig;
-		load_image(image_orig, filename_in);
+		load_image(image_orig, oss.str());
 		
 		int width_orig = image_orig.nc();
 		int height_orig = image_orig.nr();
@@ -113,17 +152,17 @@ int main( int argc, char *argv[] )
 		image_dlib = new array2d<rgb_pixel>;
 		
 		/* open image */
-		load_image(*image_dlib, filename_in);
+		load_image(*image_dlib, oss.str());
 	}
 
 	/* print informations about image */
 	int width = image_dlib->nc();
 	int height = image_dlib->nr();
-	int size =  width * height;
-	int nvalues = xdim * size;
+	int R =  width * height;
+	int nvalues = xdim * R * T;
 	coutMaster << " width                  = " << std::setw(30) << width << " px" << std::endl;
 	coutMaster << " height                 = " << std::setw(30) << height << " px" << std::endl;
-	coutMaster << " size                   = " << std::setw(30) << size << std::endl;
+	coutMaster << " R                      = " << std::setw(30) << R << std::endl;
 	coutMaster << " nvalues                = " << std::setw(30) << nvalues << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
@@ -134,44 +173,78 @@ int main( int argc, char *argv[] )
 	TRYCXX( VecSetType(x_Vec, VECSEQ) );
 	TRYCXX( VecSetFromOptions(x_Vec) );
 
-	coutMaster << " - convert Dlib image to PETSc Vec" << std::endl;
+	coutMaster << " - convert Dlib images to PETSc Vec" << std::endl;
 	double *x_arr;
 	TRYCXX( VecGetArray(x_Vec, &x_arr) );
-	for(int i=0;i<height;i++){
-		for(int j=0;j<width;j++){
+
+	for(int t=0;t<T;t++){
+		/* construct name of file */
+		oss.str("");
+		oss << filename_in << get_name_with_zeros(t+1, length_with_zeros) << ".jpg";	
+		
+		/* open image */
+		array2d<rgb_pixel> image_orig;
+		load_image(image_orig, oss.str());
+		
+		/* scale image */
+		resize_image(image_orig, *image_dlib);
+
+		//TODO: rescale loaded image?
+		
+		for(int i=0;i<height;i++){
+			for(int j=0;j<width;j++){
 			
-			/* type Rn */
-			if(type==0){
-				/* greyscale */
-				if(xdim == 1){
-					x_arr[i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
+				/* 0=TRn, 1=TnR, 2=nTR */
+			
+				/* type TRn */
+				if(type==0){
+					/* greyscale */
+					if(xdim == 1){
+						x_arr[t*R*xdim + i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
+					}
+
+					/* rgb */
+					if(xdim == 3){
+						x_arr[t*R*xdim + i*width*xdim + j*xdim + 0] = ((int)(*image_dlib)[i][j].red)/255.0;
+						x_arr[t*R*xdim + i*width*xdim + j*xdim + 1] = ((int)(*image_dlib)[i][j].green)/255.0;
+						x_arr[t*R*xdim + i*width*xdim + j*xdim + 2] = ((int)(*image_dlib)[i][j].blue)/255.0;
+					}
 				}
 
-				/* rgb */
-				if(xdim == 3){
-					x_arr[i*width*xdim + j*xdim + 0] = ((int)(*image_dlib)[i][j].red)/255.0;
-					x_arr[i*width*xdim + j*xdim + 1] = ((int)(*image_dlib)[i][j].green)/255.0;
-					x_arr[i*width*xdim + j*xdim + 2] = ((int)(*image_dlib)[i][j].blue)/255.0;
+				/* type TnR */
+				if(type==1){
+					/* greyscale */
+					if(xdim == 1){
+						x_arr[t*R*xdim + i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
+					}
+
+					/* rgb */
+					if(xdim == 3){
+						x_arr[t*R*xdim + 0*width*height + i*width + j] = ((int)(*image_dlib)[i][j].red)/255.0;
+						x_arr[t*R*xdim + 1*width*height + i*width + j] = ((int)(*image_dlib)[i][j].green)/255.0;
+						x_arr[t*R*xdim + 2*width*height + i*width + j] = ((int)(*image_dlib)[i][j].blue)/255.0;
+					}
 				}
+
+				/* type nTR */
+				if(type==2){
+					/* greyscale */
+					if(xdim == 1){
+						x_arr[t*R + i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
+					}
+
+					/* rgb */
+					if(xdim == 3){
+						x_arr[0*T*R + t*R + i*width + j] = ((int)(*image_dlib)[i][j].red)/255.0;
+						x_arr[1*T*R + t*R + i*width + j] = ((int)(*image_dlib)[i][j].green)/255.0;
+						x_arr[2*T*R + t*R + i*width + j] = ((int)(*image_dlib)[i][j].blue)/255.0;
+					}
+				}
+				
 			}
-
-			/* type nR */
-			if(type==1){
-				/* greyscale */
-				if(xdim == 1){
-					x_arr[i*width + j] = ((int)(*image_dlib)[i][j].red + (int)(*image_dlib)[i][j].green + (int)(*image_dlib)[i][j].blue)/(255.0*3.0);
-				}
-
-				/* rgb */
-				if(xdim == 3){
-					x_arr[0*width*height + i*width + j] = ((int)(*image_dlib)[i][j].red)/255.0;
-					x_arr[1*width*height + i*width + j] = ((int)(*image_dlib)[i][j].green)/255.0;
-					x_arr[2*width*height + i*width + j] = ((int)(*image_dlib)[i][j].blue)/255.0;
-				}
-			}
-
 		}
 	}
+	
 	TRYCXX( VecRestoreArray(x_Vec, &x_arr) );
 
 	/* add noise */

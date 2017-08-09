@@ -7,6 +7,7 @@ option(UTIL_STAT_VEC "UTIL_STAT_VEC" OFF)
 option(UTIL_PRINT_VEC "UTIL_PRINT_VEC" OFF)
 option(UTIL_PROCESS_LOG "UTIL_PROCESS_LOG" OFF)
 option(UTIL_DLIB_IMAGE_TO_VEC "UTIL_DLIB_IMAGE_TO_VEC" OFF)
+option(UTIL_DLIB_SEQIMAGE_TO_VEC "UTIL_DLIB_SEQIMAGE_TO_VEC" OFF)
 option(UTIL_DLIB_VEC_TO_IMAGE "UTIL_DLIB_VEC_TO_IMAGE" OFF)
 option(UTIL_CSV_TO_VEC "UTIL_CSV_TO_VEC" OFF)
 
@@ -27,6 +28,7 @@ printinfo_onoff("   UTIL_STAT_VEC                                         (Conso
 printinfo_onoff("   UTIL_PRINT_VEC                                        (ConsoleArg)                 " "${UTIL_PRINT_VEC}")
 printinfo_onoff("   UTIL_PROCESS_LOG                                      (ConsoleArg)                 " "${UTIL_PROCESS_LOG}")
 printinfo_onoff("   UTIL_DLIB_IMAGE_TO_VEC                                (ConsoleArg)                 " "${UTIL_DLIB_IMAGE_TO_VEC}")
+printinfo_onoff("   UTIL_DLIB_SEQIMAGE_TO_VEC                             (ConsoleArg)                 " "${UTIL_DLIB_SEQIMAGE_TO_VEC}")
 printinfo_onoff("   UTIL_DLIB_VEC_TO_IMAGE                                (ConsoleArg)                 " "${UTIL_DLIB_VEC_TO_IMAGE}")
 printinfo_onoff("   UTIL_CSV_TO_VEC                                       (ConsoleArg)                 " "${UTIL_CSV_TO_VEC}")
 
@@ -49,6 +51,10 @@ endif()
 
 if(${UTIL_DLIB_IMAGE_TO_VEC})
 	testadd_executable("util/util_dlib_image_to_vec.cpp" "util_dlib_image_to_vec")
+endif()
+
+if(${UTIL_DLIB_SEQIMAGE_TO_VEC})
+	testadd_executable("util/util_dlib_seqimage_to_vec.cpp" "util_dlib_seqimage_to_vec")
 endif()
 
 if(${UTIL_DLIB_VEC_TO_IMAGE})
