@@ -62,25 +62,14 @@ int main(int argc, char** argv)
    //  Initialization
    //------------------
 
-   int itmx0 = 10;
-   int nBlockSize0 = 256;
    int GPUdevice = 0;
 
-   float acc0 = 0.0001f;
+   ncall = 10000; // number of calls
+   itmx = 10;
+   acc = 0.0001; // accuracy
+   nBlockSize = 256; // CUDA size of the block
 
-   char* nCallStr = "e06n1";
-   cutGetCmdLineArgumentstr(argc, (const char**)argv, "ncall", &nCallStr);
-   cutGetCmdLineArgumenti(argc, (const char**)argv, "itmx", &itmx0);
-   cutGetCmdLineArgumentf(argc, (const char**)argv, "acc", &acc0);
-   cutGetCmdLineArgumenti(argc, (const char**)argv, "blk", &nBlockSize0);
-   cutGetCmdLineArgumenti(argc, (const char**)argv, "dev", &GPUdevice);
-
-   ncall = DecodeInt((std::string)nCallStr);
-   itmx = itmx0;
-   acc = 0.01*acc0;
-   nBlockSize = nBlockSize0;
-
-   cutilSafeCallNoSync(cudaSetDevice(GPUdevice));
+   cutilSafeCall(cudaSetDevice(GPUdevice));
 
    mds = 1;
    ndim = 8;

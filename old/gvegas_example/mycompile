@@ -1,0 +1,1 @@
+nvcc -o myvegas -arch=sm_60 gVegasMain.cu getrusage_sec.cpp xorshift.cu -I.

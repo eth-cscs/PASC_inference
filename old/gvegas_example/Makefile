@@ -54,5 +54,5 @@ NVCCFLAGS := -OPT:Olimit=0
 ################################################################################
 # Rules and targets
 
-ROOTDIR = ../../
-include ${ROOTDIR}/../common/common.mk
+#ROOTDIR = ../../
+#include ${ROOTDIR}/../common/common.mk
