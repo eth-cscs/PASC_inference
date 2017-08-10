@@ -4,7 +4,7 @@ WIDTH=100
 HEIGHT=50
 T=100
 K=2
-NOISE=0.2
+NOISE=0.016
 ANNEALING=1
 NPROC=1
 
@@ -12,8 +12,8 @@ FEM_REDUCE=1.0
 FEM_TYPE=0
 
 XDIM=1
-MU0="0.0"
-MU1="1.0"
+MU0="0.5"
+MU1="0.51"
 
 #XDIM=3
 #MU0="0.51,1.0,1.0"
@@ -26,6 +26,7 @@ DATA_TYPE=0 # type of input data [0=TRn, 1=TnR, 2=nTR]
 
 NAME="planetary"
 FILENAME_JPEG="data/planetary/frame"
+FILENAME_EXTENSION="bmp"
 FILENAME_DATA="data/planetary_data.bin"
 FILENAME_SOLUTION="data/planetary_solution.bin"
 
@@ -41,8 +42,20 @@ DIRNAME_OUT="results/planetary/"
 rm -f $FILENAME_DATA $FILENAME_RECOVERED $FILENAME_SOLUTION $FILENAME_GAMMA $FILENAME_OUT $DIRNAME_OUT/* $FILENAME_OUT_MOVIE
 
 # generate solution
-./util_dlib_seqimage_to_vec --filename_in=$FILENAME_JPEG --filename_out=$FILENAME_SOLUTION --T=$T --new_width=$WIDTH --new_height=$HEIGHT --type=$DATA_TYPE --noise=0.0
-./util_dlib_seqimage_to_vec --filename_in=$FILENAME_JPEG --filename_out=$FILENAME_DATA --T=$T --new_width=$WIDTH --new_height=$HEIGHT --type=$DATA_TYPE --noise=$NOISE
+./util_dlib_seqimage_to_vec --filename_in=$FILENAME_JPEG --filename_extension=$FILENAME_EXTENSION --filename_out=$FILENAME_SOLUTION --T=$T --new_width=$WIDTH --new_height=$HEIGHT --type=$DATA_TYPE --noise=0.0
+./util_dlib_seqimage_to_vec --filename_in=$FILENAME_JPEG --filename_extension=$FILENAME_EXTENSION --filename_out=$FILENAME_DATA --T=$T --new_width=$WIDTH --new_height=$HEIGHT --type=$DATA_TYPE --noise=$NOISE
+
+# show data
+if [ -f $FILENAME_SOLUTION ]
+then
+	./gui_show_movie --filename=$FILENAME_SOLUTION --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$DATA_TYPE &
+fi
+
+if [ -f $FILENAME_DATA ]
+then
+	./gui_show_movie --filename=$FILENAME_DATA --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$DATA_TYPE &
+fi
+
 
 # define parameters
 PARAM_FILENAME="--test_filename_in=$FILENAME_DATA --test_filename_solution=$FILENAME_SOLUTION --test_data_type=$DATA_TYPE --test_filename_out=$NAME --test_width=$WIDTH --test_height=$HEIGHT --test_T=$T --test_xdim=$XDIM"
@@ -53,8 +66,9 @@ PARAM_THETA="--test_Theta=$MU0 --test_Theta=$MU1 --tssolver_thetasolver_updatebe
 #PARAM_TEST="--tssolver_gammasolver_updatebeforesolve=false --tssolver_gammasolver_solve=false  --tssolver_gammasolver_updateaftersolve=true"
 
 PARAM_EPSSQR="--test_epssqr=1e-6 --test_epssqr=1e-5 --test_epssqr=1e-4 --test_epssqr=1e-3 --test_epssqr=1e-2 --test_epssqr=1e-1 --test_epssqr=1e0 --test_epssqr=1e1 --test_epssqr=1e2 --test_epssqr=1e3"
-#PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-2 --test_epssqr=3e-2 --test_epssqr=4e-2 --test_epssqr=5e-2 --test_epssqr=6e-2 --test_epssqr=7e-2 --test_epssqr=8e-2 --test_epssqr=9e-2"
-#PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-1 --test_epssqr=3e-1 --test_epssqr=4e-1 --test_epssqr=5e-1 --test_epssqr=6e-1 --test_epssqr=7e-1 --test_epssqr=8e-1 --test_epssqr=9e-1"
+PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-3 --test_epssqr=3e-3 --test_epssqr=4e-3 --test_epssqr=5e-3 --test_epssqr=6e-3 --test_epssqr=7e-3 --test_epssqr=8e-3 --test_epssqr=9e-3"
+PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-2 --test_epssqr=3e-2 --test_epssqr=4e-2 --test_epssqr=5e-2 --test_epssqr=6e-2 --test_epssqr=7e-2 --test_epssqr=8e-2 --test_epssqr=9e-2"
+PARAM_EPSSQR="$PARAM_EPSSQR --test_epssqr=2e-1 --test_epssqr=3e-1 --test_epssqr=4e-1 --test_epssqr=5e-1 --test_epssqr=6e-1 --test_epssqr=7e-1 --test_epssqr=8e-1 --test_epssqr=9e-1"
 
 #PARAM_EPSSQR="--test_epssqr=1e-1"
 
@@ -63,7 +77,7 @@ PARAM_TSSOLVER="--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0"
 PARAM_SHORTINFO="--test_shortinfo=true --test_shortinfo_filename=$FILENAME_SHORTINFO --tssolver_debug_print_gamma_solution=false"
 PARAM_LOG="--log_or_not=true --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true"
 
-PARAM_SOLVER="--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-4"
+PARAM_SOLVER="--spgqpsolver_maxit=5000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-8"
 PARAM_SOLVER_PRINT="--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false"
 
 PARAM_FEM="--test_fem_reduce=$FEM_REDUCE --test_fem_type=$FEM_TYPE"
@@ -84,14 +98,9 @@ PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PAR
 
 
 # show results
-if [ -f $FILENAME_DATA ]
-then
-	./gui_show_movie --filename=$FILENAME_DATA --width=$WIDTH --T=$T --xdim=$XDIM --title="movie data" --type=$DATA_TYPE &
-fi
-
 if [ -f $FILENAME_RECOVERED ]
 then
-	./gui_show_movie --filename=$FILENAME_RECOVERED --width=$WIDTH --T=$T --xdim=$XDIM --title="movie solution" --type=$DATA_TYPE &
+	./gui_show_movie --filename=$FILENAME_RECOVERED --width=$WIDTH --T=$T --xdim=$XDIM --title="movie recovered" --type=$DATA_TYPE &
 fi
 
 if [ -f $FILENAME_GAMMA ]
@@ -100,8 +109,8 @@ then
 fi
 
 # create movie - generate images
-#./util_dlib_vec_to_image --filename_in=$FILENAME_DATA --filename_in2=$FILENAME_RECOVERED --filename_in3=$FILENAME_GAMMA --K3=$K --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$TYPE
+./util_dlib_vec_to_image --filename_in=$FILENAME_SOLUTION --filename_in2=$FILENAME_DATA --filename_in3=$FILENAME_GAMMA --K3=$K --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$DATA_TYPE
 
 # create movie - put images together
-#mencoder mf://./results/movie_dot/*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o results/output.avi
-#ffmpeg -framerate 2 -i $DIRNAME_OUT%02d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE
+#mencoder mf://./results/planetary/*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o results/output.avi
+ffmpeg -framerate 5 -i $DIRNAME_OUT%03d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE

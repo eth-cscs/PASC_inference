@@ -21,7 +21,8 @@
 #define DEFAULT_WIDTH -1
 #define DEFAULT_HEIGHT -1
 #define DEFAULT_NOISE 0.0
-#define DEFAULT_OUT_FILENAME "results/movie_output.bin"
+#define DEFAULT_FILENAME_OUT "results/movie_output.bin"
+#define DEFAULT_FILENAME_EXTENSION "jpg"
 
 #define ENABLE_ASSERTS
 #define DLIB_JPEG_SUPPORT
@@ -68,6 +69,7 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("UTIL_DLIB_SEQIMAGE_TO_VEC", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("filename_in", boost::program_options::value< std::string >(), "part of input image <image>0t.jpg (t=1,..,T) [string]")
+		("filename_extension", boost::program_options::value< std::string >(), "extension of input images [jpg/bmp]")
 		("filename_out", boost::program_options::value< std::string >(), "output vector in PETSc format [string]")
 		("xdim", boost::program_options::value< int >(), "number of values in every pixel [1=greyscale, 3=rgb]")
 		("new_width", boost::program_options::value< int >(), "width of new image [int]")
@@ -83,6 +85,7 @@ int main( int argc, char *argv[] )
 	} 
 
 	std::string filename_in;
+	std::string filename_extension;
 	std::string filename_out;
 	int T;
 	int xdim;
@@ -95,7 +98,8 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	consoleArg.set_option_value("filename_out", &filename_out, DEFAULT_OUT_FILENAME);
+	consoleArg.set_option_value("filename_out", &filename_out, DEFAULT_FILENAME_OUT);
+	consoleArg.set_option_value("filename_extension", &filename_extension, DEFAULT_FILENAME_EXTENSION);
 	consoleArg.set_option_value("xdim", &xdim, DEFAULT_XDIM);
 	consoleArg.set_option_value("T", &T, DEFAULT_T);
 	consoleArg.set_option_value("type", &type, DEFAULT_TYPE);
@@ -105,6 +109,7 @@ int main( int argc, char *argv[] )
 
 	coutMaster << "- UTIL INFO ----------------------------" << std::endl;
 	coutMaster << " filename_in            = " << std::setw(30) << filename_in << " (input image)" << std::endl;
+	coutMaster << " filename_extension     = " << std::setw(30) << filename_extension << " (jpg/bmp)" << std::endl;
 	coutMaster << " filename_out           = " << std::setw(30) << filename_out << " (output vector in PETSc format)" << std::endl;
 	coutMaster << " xdim                   = " << std::setw(30) << xdim << " (number of values in every pixel [1=greyscale, 3=rgb])" << std::endl;
 	coutMaster << " type                   = " << std::setw(30) << Decomposition<PetscVector>::get_type_name(type) << " (type of output vector [" << Decomposition<PetscVector>::get_type_list() << "])" << std::endl;
@@ -120,7 +125,7 @@ int main( int argc, char *argv[] )
 	int length_with_zeros = compute_length_of_zeros(T);
 	std::ostringstream oss;
 	oss.str("");
-    oss << filename_in << get_name_with_zeros(1, length_with_zeros) << ".jpg";	
+    oss << filename_in << get_name_with_zeros(1, length_with_zeros) << "." << filename_extension;	
 
 	/* open first image set size */
 	if(new_width > 1 || new_height > 1){
@@ -180,7 +185,7 @@ int main( int argc, char *argv[] )
 	for(int t=0;t<T;t++){
 		/* construct name of file */
 		oss.str("");
-		oss << filename_in << get_name_with_zeros(t+1, length_with_zeros) << ".jpg";	
+		oss << filename_in << get_name_with_zeros(t+1, length_with_zeros) << "." << filename_extension;	
 		
 		/* open image */
 		array2d<rgb_pixel> image_orig;
