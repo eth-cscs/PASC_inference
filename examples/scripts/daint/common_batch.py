@@ -40,7 +40,7 @@ def commit_batch(batchfile_list, additional_parameters):
     for batchfile_name in batchfile_list:
         print  " - %s %s" % (batchfile_name, additional_parameters);
 #        call(["sbatch",additional_parameters, batchfile_name])
-        call(["sbatch", batchfile_name, additional_parameters])
+        call(["sbatch", additional_parameters, batchfile_name])
     return
 
 def show_jobs(account):

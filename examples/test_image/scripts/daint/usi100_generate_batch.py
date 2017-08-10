@@ -13,8 +13,7 @@ library_path = "~/soft/PASC_inference/";
 problem_name="usi";
 exec_name = "./test_image";
 mpiexec = "srun"
-#build_path = "%s/build_gpu/" % (os.getenv( "SCRATCH"));
-build_path = "";
+build_path = "%s/build_gpu/" % (os.getenv( "SCRATCH"));
 batch_path = "batch/%s/" %(problem_name);
 module_name = "module_load_daint_sandbox";
 
@@ -36,13 +35,13 @@ problem_time = "00:05:00";
 
 # noise of input signal
 nmbfilesmax = 2;
-Sigma = [1,2];
+Sigma = [0,1,2];
 #nmbfilesmax = 100;
 #Sigma = [1,2,3,4,5,6,7,8,9,10];
 
 # used penalty
-epssqrs = [1e-7, 1e-6, 1e2];
-#epssqrs = [1e-14, 1e-12, 1e-10, 1e-8, 1e-7, 5e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 5e-1, 1e0, 5e0, 1e1, 5e1, 1e2];
+#epssqrs = [1e-7, 1e-6, 1e2];
+epssqrs = [1e-8, 5e-8, 1e-7, 5e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 5e-1, 1e0, 5e0, 1e1, 5e1, 1e2, 5e2, 1e3];
 
 # define console parameters
 params_list = [];
@@ -53,7 +52,7 @@ params_list.append("--test_Theta=%s --test_Theta=%s --tssolver_thetasolver_updat
 params_list.append("--test_cutdata=false --test_scaledata=false" );
 params_list.append("--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0" );
 params_list.append("--log_or_not=false --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true" );
-params_list.append("--spgqpsolver_maxit=1000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-4" );
+params_list.append("--spgqpsolver_maxit=5000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6" );
 params_list.append("--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false" );
 params_list.append("--test_fem_reduce=%s --test_fem_type=%s" % (fem_reduce, fem_type) );
 params_list.append("--graphh1femmodel_matrixtype=%s" % (matrix_type) );
@@ -69,7 +68,7 @@ if not os.path.exists(batch_path):
 
 # generate bash scripts
 batchfile_list = [];
-for n in range(1,nmbfilesmax+1):
+for n in range(0,nmbfilesmax):
     print "Preparing batch scripts: %s" % (n)
     for sigma in Sigma:
         filename_in = "data/%s/%s_id%s_idSigma%s.bin" % (problem_name,problem_name,n,sigma);
@@ -85,7 +84,7 @@ for n in range(1,nmbfilesmax+1):
 
 
 # run bash scripts
-commit_batchfiles(batchfile_list, "--account=s747 --constraint=gpu")
+commit_batch(batchfile_list, "--account=s747")
 
 # show the queue
 #show_jobs("s747")
