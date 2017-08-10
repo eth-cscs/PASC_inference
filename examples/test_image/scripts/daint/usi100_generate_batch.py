@@ -35,7 +35,7 @@ problem_time = "00:05:00";
 
 # noise of input signal
 nmbfilesmax = 2;
-Sigma = [0,1,2];
+Sigma = [0];
 #nmbfilesmax = 100;
 #Sigma = [1,2,3,4,5,6,7,8,9,10];
 
@@ -45,7 +45,6 @@ epssqrs = [1e-8, 5e-8, 1e-7, 5e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-
 
 # define console parameters
 params_list = [];
-
 params_list.append("--test_filename_solution=%s --test_data_type=%s --test_width=%s --test_height=%s --test_xdim=%s" %(filename_solution, data_type, width,height,xdim) );
 params_list.append("--test_K=%s --test_annealing=%s --test_printstats=false --test_printinfo=true" % (K, annealing) );
 params_list.append("--test_Theta=%s --test_Theta=%s --tssolver_thetasolver_updatebeforesolve=false" % (mu0,mu1) );
@@ -70,6 +69,7 @@ if not os.path.exists(batch_path):
 batchfile_list = [];
 for n in range(0,nmbfilesmax):
     print "Preparing batch scripts: %s" % (n)
+    exec_list = [];
     for sigma in Sigma:
         filename_in = "data/%s/%s_id%s_idSigma%s.bin" % (problem_name,problem_name,n,sigma);
         filename_out = "%s_id%s_idSigma%s" % (problem_name,n,sigma);
@@ -78,13 +78,13 @@ for n in range(0,nmbfilesmax):
         shortinfo_filename = "shortinfo/%s_id%s_idSigma%d.txt" % (problem_name,n,sigma);
         params2 = "--test_filename_in=\"%s\" --test_filename_out=\"%s\" --test_shortinfo_header=\"%s\" --test_shortinfo_values=\"%s\" --test_shortinfo_filename=\"%s\"" % (filename_in, filename_out, shortinfo_header, shortinfo_values, shortinfo_filename);
         exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N, exec_name, params, params2, filename_out)
-        batch_filename = os.path.join(batch_path, "%s.batch" % (filename_out))
-        write_batch(filename_out, N, 1, 1, problem_time, library_path, batch_path, exec_name_full, module_name)
-        batchfile_list.append(batch_filename);
-
+        exec_list.append(exec_name_full)        
+    batch_filename = os.path.join(batch_path, "%s_id%.batch" % (problem_name,n))
+    write_batch(filename_out, N, 1, 1, problem_time, library_path, batch_path, exec_list, module_name)
+    batchfile_list.append(batch_filename);
 
 # run bash scripts
-commit_batch(batchfile_list, "--account=s747")
+#commit_batch(batchfile_list, "--account=s747")
 
 # show the queue
 #show_jobs("s747")
