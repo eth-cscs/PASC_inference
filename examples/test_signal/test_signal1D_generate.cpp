@@ -125,7 +125,7 @@ int main( int argc, char *argv[] )
 
 	/* vector for data with noise */
 	if(generate_data){
-		std::default_random_engine generator;
+		std::default_random_engine generator(time(0));
 		std::normal_distribution<double> distribution(0.0,noise);
 
 		Vec x_data;

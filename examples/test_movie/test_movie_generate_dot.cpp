@@ -176,7 +176,7 @@ int main( int argc, char *argv[] )
         TRYCXX( VecGetArray(xdata_Vec, &xdata_arr) );
 
         /* Gaussian random number generator */
-		std::default_random_engine generator;
+		std::default_random_engine generator(time(0));
 		std::normal_distribution<double> distribution(0.0,noise);
 //		std::uniform_real_distribution<double> distribution(0.0,noise);
 

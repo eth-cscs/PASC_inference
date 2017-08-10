@@ -178,7 +178,7 @@ int main( int argc, char *argv[] )
 	if(noise > 0){
 		coutMaster << " - adding noise" << std::endl;
 
-		std::default_random_engine generator;
+		std::default_random_engine generator(time(0));
 		std::normal_distribution<double> distribution(0.0,noise);
 		
 		coutMaster << " - projection to [0,1]" << std::endl;
