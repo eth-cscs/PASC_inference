@@ -31,11 +31,11 @@ fem_type=1;
 matrix_type=1;
 
 N = 1;
-problem_time = "00:05:00";
+problem_time = "00:20:00";
 
 # noise of input signal
 nmbfilesmax = 2;
-Sigma = [0];
+Sigma = [0,1,2,3,4,5,6,7,8,9];
 #nmbfilesmax = 100;
 #Sigma = [1,2,3,4,5,6,7,8,9,10];
 
@@ -51,7 +51,7 @@ params_list.append("--test_Theta=%s --test_Theta=%s --tssolver_thetasolver_updat
 params_list.append("--test_cutdata=false --test_scaledata=false" );
 params_list.append("--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=0" );
 params_list.append("--log_or_not=false --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true" );
-params_list.append("--spgqpsolver_maxit=5000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-6" );
+params_list.append("--spgqpsolver_maxit=5000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-5" );
 params_list.append("--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false" );
 params_list.append("--test_fem_reduce=%s --test_fem_type=%s" % (fem_reduce, fem_type) );
 params_list.append("--graphh1femmodel_matrixtype=%s" % (matrix_type) );
@@ -79,12 +79,13 @@ for n in range(0,nmbfilesmax):
         params2 = "--test_filename_in=\"%s\" --test_filename_out=\"%s\" --test_shortinfo_header=\"%s\" --test_shortinfo_values=\"%s\" --test_shortinfo_filename=\"%s\"" % (filename_in, filename_out, shortinfo_header, shortinfo_values, shortinfo_filename);
         exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N, exec_name, params, params2, filename_out)
         exec_list.append(exec_name_full)        
-    batch_filename = os.path.join(batch_path, "%s_id%.batch" % (problem_name,n))
-    write_batch(filename_out, N, 1, 1, problem_time, library_path, batch_path, exec_list, module_name)
+    batch_name = "%s_id%s" % (problem_name, n);
+    batch_filename = os.path.join(batch_path, "%s.batch" % (batch_name))
+    write_batch(batch_name, N, 1, 1, problem_time, library_path, batch_path, exec_list, module_name)
     batchfile_list.append(batch_filename);
 
 # run bash scripts
-#commit_batch(batchfile_list, "--account=s747")
+commit_batch(batchfile_list, "--account=s747")
 
 # show the queue
 #show_jobs("s747")
