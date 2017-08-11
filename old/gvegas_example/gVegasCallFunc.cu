@@ -1,5 +1,3 @@
-#include "const.h"
-
 __global__
 void gVegasCallFunc(double* gFval, int* gIAval)
 {
