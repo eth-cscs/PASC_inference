@@ -1,6 +1,6 @@
 #include "external/petscvector/solver/entropysolvernewton.h"
 
-//TODO: uncomment
+//TODO: uncomment, or maybe remove?
 //#ifdef USE_DLIB
 
 namespace pascinference {
