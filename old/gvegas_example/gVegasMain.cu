@@ -2,19 +2,56 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <stdio.h> /* printf in cuda */
+#include <cmath>
 
 #include <ctime>
 #include <sys/time.h>
 #include <sys/resource.h>
 
-// includes, project
-#include <cutil_inline.h>
-// include initial files
+#include <cuda.h>
+#include <cuda_runtime_api.h>
+#include <device_launch_parameters.h>
+#include <device_functions.h>
 
-#define __MAIN_LOGIC
-#include "vegas.h"
-#include "gvegas.h"
-#undef __MAIN_LOGIC
+/* cuda error check */ 
+#define cutilSafeCall(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+    if (code != cudaSuccess){
+	fprintf(stderr,"\n\x1B[31mCUDA error:\x1B[0m %s %s \x1B[33m%d\x1B[0m\n\n", cudaGetErrorString(code), file, line);
+	if (abort) exit(code);
+    }
+}
+
+void gVegas(double& avgi, double& sd, double& chi2a);
+
+const int ndim_max = 20;
+const double alph = 1.5;
+double dx[ndim_max];
+double randm[ndim_max];
+const int nd_max = 50;
+double xin[nd_max];
+double xjac;
+double xl[ndim_max],xu[ndim_max];
+double acc;
+int ndim, ncall, itmx, nprn;
+
+double xi[ndim_max][nd_max];
+double si, si2, swgt, schi;
+int ndo, it;
+int mds;
+double calls, ti, tsi;
+int npg, ng, nd;
+double dxg, xnd;
+unsigned nCubes;
+
+int nBlockSize;
+double timeVegasCall;
+double timeVegasMove;
+double timeVegasFill;
+double timeVegasRefine;
+
 
 #include "kernels.h"
 
