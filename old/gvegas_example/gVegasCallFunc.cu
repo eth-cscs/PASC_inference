@@ -1,8 +1,5 @@
 #include "const.h"
 
-#include "vegasconst.h"
-#include "vegas.h"
-
 __global__
 void gVegasCallFunc(double* gFval, int* gIAval)
 {

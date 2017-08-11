@@ -1,14 +1,4 @@
-#include <iostream>
-#include <iomanip>
-#include <cmath>
-
-#include <cutil_inline.h>
-
-#include "vegas.h" 
-#include "vegasconst.h"
 #include "kernels.h"
-
-#include "gvegas.h"
 
 #include "getrusage_sec.h"
 

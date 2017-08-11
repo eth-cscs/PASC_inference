@@ -1,1 +1,3 @@
-nvcc -o myvegas -arch=sm_60 gVegasMain.cu getrusage_sec.cpp xorshift.cu -I.
+#!/bin/bash
+
+nvcc -o myvegas -arch=sm_60 gVegasMain.cu getrusage_sec.cpp -I.
