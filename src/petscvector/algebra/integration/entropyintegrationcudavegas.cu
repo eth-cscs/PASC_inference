@@ -23,10 +23,10 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent() {
 	LOG_FUNC_BEGIN
 
 	/* restart timers */
-	this->timeVegasCall = 0.0;
-	this->timeVegasMove = 0.0;
-	this->timeVegasFill = 0.0;
-	this->timeVegasRefine = 0.0;
+	this->timerVegasCall.restart();
+	this->timerVegasMove.restart();
+	this->timerVegasFill.restart();
+	this->timerVegasRefine.restart();
 
 	LOG_FUNC_END
 }
@@ -36,6 +36,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 	int mds = 1;
 	int nprn = 1;
+	const double alph = 1.5;
 
 	int it;
 	int nd;
@@ -263,16 +264,185 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	gpuErrchk(cudaMalloc((void**)&gIAval, sizeIAval));
 
 	/* perform main iterations */
-	
+	do {
+		it++;
+		
+		/* call integral function */
+		timerVegasCall.start();
+		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval);
+		cudaThreadSynchronize();
+		timerVecgasCall.stop();
 
+		/* move computed results */
+		timerVegasMove.start();
+		gpuErrchk(cudaMemcpy(hFval, gFval,  sizeFval,
+                               cudaMemcpyDeviceToHost));
+		gpuErrchk(cudaMemcpy(hIAval, gIAval,  sizeIAval,
+                               cudaMemcpyDeviceToHost));
+		timerVegasMove.stop();
+
+		/* fill */
+		timerVegasFill.start();
+
+		ti = 0.;
+		tsi = 0.;
+
+		double d[ndim_max][nd_max];
+
+		for (int j=0;j<ndim;++j) {
+			for (int i=0;i<nd;++i) {
+				d[j][i] = 0.;
+			}
+		}
+
+		for (unsigned ig=0;ig<nCubes;ig++) {
+			double fb = 0.;
+			double f2b = 0.;
+			for(int ipg=0;ipg<npg;ipg++) {
+				int idx = npg*ig+ipg;
+				double f = hFval[idx];
+				double f2 = f*f;
+				fb += f;
+				f2b += f2;
+			}
+			f2b = sqrt(f2b*npg);
+			f2b = (f2b-fb)*(f2b+fb);
+			ti += fb;
+			tsi += f2b;
+			if(mds<0){
+				int idx = npg*ig;
+				for(int idim=0;idim<ndim;idim++) {
+					int iaj = hIAval[idim*nCubeNpg+idx];
+					d[idim][iaj] += f2b;
+				}
+			}
+		}
+
+		if(mds>0){
+			for (int idim=0;idim<ndim;idim++) {
+				int idimCube = idim*nCubeNpg;
+				for(int idx=0;idx<nCubeNpg;idx++) {
+					double f = hFval[idx];
+					int iaj = hIAval[idimCube+idx];
+					d[idim][iaj] += f*f;
+				}
+			}
+		}
+
+		endVegasFill = getrusage_usec();
+		timerVegasFill.stop();
+
+		tsi *= dv2g;
+		double ti2 = ti*ti;
+		double wgt = ti2/tsi;
+		si += ti*wgt;
+		si2 += ti2;
+		swgt += wgt;
+		schi += ti2*wgt;
+		avgi = si/swgt;
+		sd = swgt*it/si2;
+		chi2a = 0.;
+		if(it>1) chi2a = sd*(schi/swgt-avgi*avgi)/((double)it-1.);
+		sd = sqrt(1./sd);
+      
+		if(nprn!=0) {
+			tsi = sqrt(tsi);
+			coutMaster << std::endl;
+			coutMaster << " << integration by vegas >>" << std::endl;
+			coutMaster << "     iteration no. " << std::setw(4) << it
+						<< std::setw(10) << std::setprecision(6)
+						<< "   integral=  " << ti << std::endl;
+			coutMaster << "                          std dev  = " << tsi << std::endl;
+			coutMaster << "     accumulated results: integral = " << avgi << std::endl;
+			coutMaster << "                          std dev  = " << sd << std::endl;
+			if(it > 1){
+				coutMaster << "                          chi**2 per it'n = "
+							<< std::setw(10) << std::setprecision(4) << chi2a << std::endl;
+			}
+			if(nprn<0){
+				for (int j=0;j<ndim;j++) {
+					coutMaster << "   == data for axis "
+								<< std::setw(2) << j << " --" << std::endl;
+					coutMaster << "    x    delt i   convce";
+					coutMaster << "    x    delt i   convce";
+					coutMaster << "    x    delt i   convce"<<std::endl;
+				}
+			}
+		}
+
+		/* refine grid */
+		timerVegasRefine.start();
+
+		double r[nd_max];
+		double dt[ndim_max];
+		for(int j=0;j<ndim;j++) {
+			double xo = d[j][0];
+			double xn = d[j][1];
+			d[j][0] = 0.5*(xo+xn);
+			dt[j] = d[j][0];
+			for (int i=1;i<nd-1;i++) {
+				d[j][i] = xo+xn;
+				xo = xn;
+				xn = d[j][i+1];
+				d[j][i] = (d[j][i]+xn)/3.;
+				dt[j] += d[j][i];
+			}
+			d[j][nd-1] = 0.5*(xn+xo);
+			dt[j] += d[j][nd-1];
+		}
+      
+		for(int j=0;j<ndim;j++) {
+			double rc = 0.;
+			for(int i=0;i<nd;i++) {
+				r[i] = 0.;
+				if(d[j][i]>0.) {
+					double xo = dt[j]/d[j][i];
+					if(!isinf(xo)){
+						r[i] = pow(((xo-1.)/xo/log(xo)),alph);
+					}
+				}
+				rc += r[i];
+			}
+			rc /= xnd;
+			int k = -1;
+			double xn = 0.;
+			double dr = xn;
+			int i = k;
+			k++;
+			dr += r[k];
+			double xo = xn;
+			xn = xi[j][k];
+
+			do{
+				while (dr<=rc) {
+					k++;
+					dr += r[k];
+					xo = xn;
+					xn = xi[j][k];
+				}
+				i++;
+				dr -= rc;
+				xin[i] = xn-(xn-xo)*dr/r[k];
+			} while (i<nd-2);
+
+			for (int i=0;i<nd-1;i++) {
+				xi[j][i] = (double)xin[i];
+			}
+			
+			xi[j][nd-1] = 1.;
+		}
+
+		gpuErrchk(cudaMemcpyToSymbol(g_xi, xi, sizeof(xi)));
+		cudaThreadSynchronize();
+
+		timerVegasRefine.stop();
+   } while (it<itmx && acc*fabs(avgi)<sd);
 
 	gpuErrchk(cudaFreeHost(hFval));
 	gpuErrchk(cudaFree(gFval));
 
 	gpuErrchk(cudaFreeHost(hIAval));
 	gpuErrchk(cudaFree(gIAval));
-
-
 
 	avgi = 11.1;
 	sd = 22.2;

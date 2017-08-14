@@ -50,6 +50,11 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		timer.stop();
 
 		double timeTotal = timer.get_value_sum();
+		double timeVegasCall = externalcontent->timerVegasCall.get_value_sum();
+		double timeVegasMove = externalcontent->timerVegasMove.get_value_sum();
+		double timeVegasFill = externalcontent->timerVegasFill.get_value_sum();
+		double timeVegasRefine = externalcontent->timerVegasRefine.get_value_sum();
+
 		coutMaster.clear();
 		coutMaster << std::setw(10)<<std::setprecision(6)<<std::endl;
 		coutMaster << "#==================================" << std::endl;
@@ -74,21 +79,21 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		coutMaster << "# Total Execution Time(sec) : " << std::setw(10) << std::setprecision(4) << timeTotal << std::endl;
 		coutMaster << "#==================================" << std::endl;
 		coutMaster << "# Time for func calls (sec) : "
-            << std::setw(10) << std::setprecision(4) << externalcontent->timeVegasCall
+            << std::setw(10) << std::setprecision(4) << timeVegasCall
             << " ( " << std::setw(5) << std::setprecision(2)
-            << 100.*externalcontent->timeVegasCall/timeTotal << "%)" << std::endl;
+            << 100.*timeVegasCall/timeTotal << "%)" << std::endl;
 		coutMaster << "# Time for data transf (sec): "
-            << std::setw(10) << std::setprecision(4) << externalcontent->timeVegasMove
+            << std::setw(10) << std::setprecision(4) << timeVegasMove
             << " ( " << std::setw(5) << std::setprecision(2)
-            << 100.*externalcontent->timeVegasMove/timeTotal << "%)" << std::endl;
+            << 100.*timeVegasMove/timeTotal << "%)" << std::endl;
 		coutMaster << "# Time for data fill (sec)  : "
-            << std::setw(10) << std::setprecision(4) << externalcontent->timeVegasFill
+            << std::setw(10) << std::setprecision(4) << timeVegasFill
             << " ( " << std::setw(5) << std::setprecision(2)
-            << 100.*externalcontent->timeVegasFill/timeTotal << "%)" << std::endl;
+            << 100.*timeVegasFill/timeTotal << "%)" << std::endl;
 		coutMaster << "# Time for grid refine (sec): "
-            << std::setw(10) << std::setprecision(4) << externalcontent->timeVegasRefine
+            << std::setw(10) << std::setprecision(4) << timeVegasRefine
             << " ( "<< std::setw(5) << std::setprecision(2)
-            << 100.*externalcontent->timeVegasRefine/timeTotal << "%)" << std::endl;
+            << 100.*timeVegasRefine/timeTotal << "%)" << std::endl;
 		coutMaster << "#==================================" << std::endl;
 
 	#else
