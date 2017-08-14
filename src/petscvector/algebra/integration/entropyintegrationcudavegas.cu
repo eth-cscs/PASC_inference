@@ -19,8 +19,8 @@ __device__ __constant__ double g_dx[xdim_max];
 __device__ __constant__ double g_xi[xdim_max][nd_max];
 __device__ __constant__ unsigned g_nCubes;
 
-__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr);
-__device__ void func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments);
+__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr);
+__device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
 
@@ -42,10 +42,11 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 
 	/* allocate variables on cuda */
 	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), number_of_moments*sizeof(double)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(double)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
 
 	/* copy variables to CUDA */
 	gpuErrchk( cudaMemcpy(this->g_matrix_D_arr, &matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
+	cudaThreadSynchronize(); /* wait for synchronize */
 
 
 	LOG_FUNC_END
@@ -63,8 +64,12 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::~ExternalContent(){
 }
 
 
-void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(double &avgi, double &sd, double &chi2a) {
+void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(double &avgi, double &sd, double &chi2a, double *lambda_arr) {
 	LOG_FUNC_BEGIN
+
+	/* copy given lambda to GPU */
+	gpuErrchk( cudaMemcpy(this->g_lambda, &lambda_arr, number_of_moments*sizeof(double), cudaMemcpyHostToDevice ) );
+	cudaThreadSynchronize(); /* wait for synchronize */
 
 	int mds = 1;
 	int nprn = 1;
@@ -482,7 +487,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr){
+void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr){
 	
 	/* --------------------
 	 * Check the thread ID
@@ -538,8 +543,8 @@ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integral
       
 		/* compute function value for this x */
 		double fs;
-		//func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments)
-		func_entropy(&fs,x, g_lambda, xdim, g_matrix_D_arr, g_number_of_moments);
+		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
+		func_entropy(&fs,x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
 		fs = wgt*fs;
 
 		gFval[tid] = fs;
@@ -624,40 +629,40 @@ void fxorshift128(unsigned int seed, int n, double* a){
 }
 
 __device__
-void func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments){
+void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr){
     double V = 0.0;
     double p = 0.0;
 
-    for (int i = 0; i < cnumber_of_moments; i++){
+    for (int i = 0; i < number_of_moments; i++){
         p = 1.0;
-        for (int j = 0; j < cxdim; j++){
-            p = p*pow(cx[j], cmatrix_D_arr[(i+1)*cxdim+j]);
+        for (int j = 0; j < xdim; j++){
+            p = p*pow(xx[j], g_matrix_D_arr[(i+1)*xdim+j]);
 		}
 
-        V = V - p*clambda[i];
+        V = V - p*g_lambda[i];
     }
 
 	/* ff2[0] - type = 0 */
-    cvalues_out[0] = exp(V);
+    g_values_out[0] = exp(V);
 
     /* ff2[1-n] - for gradient, type =2 */
-	for(int order = 0; order < cnumber_of_moments; order++){
+	for(int order = 0; order < number_of_moments; order++){
 		p = 1.0;
-		for (int j = 0; j < cxdim; j++){
-			p = p*pow(cx[j], cmatrix_D_arr[(order+1)*cxdim+j]);
+		for (int j = 0; j < xdim; j++){
+			p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j]);
 		}
-//        cvalues_out[1+order] = p*ff2[0];
+//        g_values_out[1+order] = p*g_values_out[0];
     }
 
 	/* ff2[n+1 - n+1+n*(n+1)/2] - for Hessian, type = 3 */
-	int counter = 1+cnumber_of_moments;
-	for(int order = 0; order < cnumber_of_moments; order++){
-		for(int order2 = order; order2 < cnumber_of_moments; order2++){
+	int counter = 1+number_of_moments;
+	for(int order = 0; order < number_of_moments; order++){
+		for(int order2 = order; order2 < number_of_moments; order2++){
 			p = 1.0;
-			for(int j=0; j<cxdim;j++){
-				p = p*pow(cx[j], cmatrix_D_arr[(order+1)*cxdim+j] + cmatrix_D_arr[(order2+1)*cxdim+j]);
+			for(int j=0; j<xdim;j++){
+				p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j] + g_matrix_D_arr[(order2+1)*xdim+j]);
 			}
-//			cvalues_out[counter] = p*ff2[0];
+//			g_values_out[counter] = p*g_values_out[0];
 			counter++;
 		}
 	}

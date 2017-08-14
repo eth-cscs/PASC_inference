@@ -44,7 +44,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		double chi2a = 0.;
 
 		timer.start();
-		externalcontent->cuda_gVegas(avgi, sd, chi2a);
+		externalcontent->cuda_gVegas(avgi, sd, chi2a, lambda_arr);
 		timer.stop();
 
 		double timeTotal = timer.get_value_sum();

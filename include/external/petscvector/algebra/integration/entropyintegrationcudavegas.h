@@ -56,7 +56,7 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 
 template<> EntropyIntegrationCudaVegas<PetscVector>::EntropyIntegrationCudaVegas(EntropyData<PetscVector> *entropydata, double new_eps);
 template<> EntropyIntegrationCudaVegas<PetscVector>::~EntropyIntegrationCudaVegas();
-template<> void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_out, double *lambda, int Km_max);
+template<> void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_out, double *lambda, int Km_max, double *lambda_arr);
 
 }
 } /* end of namespace */
