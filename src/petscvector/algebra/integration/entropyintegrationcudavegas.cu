@@ -48,10 +48,10 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	gpuErrchk(cudaMalloc((void**)&g_matrix_D_arr, number_of_moments*xdim, sizeof(double)));
 
 	/* copy variables to CUDA */
-	gpuErrchk( cudaMemcpy(g_xdim, &xdim, sizeof(int), cudaMemcpyHostToDevice );
-	gpuErrchk( cudaMemcpy(g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice );
-	gpuErrchk( cudaMemcpy(g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice );
-	gpuErrchk( cudaMemcpy(g_matrix_D_arr, &matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice );
+	gpuErrchk( cudaMemcpy(g_xdim, &xdim, sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(g_matrix_D_arr, &matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
 
 
 	LOG_FUNC_END
