@@ -12,6 +12,16 @@ namespace algebra {
 
 /* external-specific stuff */
 template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
+	private:
+		#ifdef USE_CUDA
+			__device__ __constant__ int g_ndim;	/**< dimension of integral on CUDA */
+			__device__ __constant__ int g_number_of_moments; /**< number of moments on CUDA */
+			__device__ __constant__ int g_number_of_integrals; /**< number of integrals on CUDA */
+			__device__ __constant__ double *g_lambda;  /**< lagrange multipliers on CUDA */
+			__device__ __constant__ int *g_matrix_D_arr;  /**< matrix with powers on CUDA */
+
+		#endif
+
 	public:
 		int nBlockSize; /**< number of thread block size */
 		int ncall;	/**< number of calls */

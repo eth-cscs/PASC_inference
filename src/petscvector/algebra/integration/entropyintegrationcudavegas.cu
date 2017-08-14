@@ -9,7 +9,6 @@ namespace algebra {
 const int ndim_max = 10;
 const int nd_max = 50;
 
-__device__ __constant__ int g_ndim;
 __device__ __constant__ int g_ng;
 __device__ __constant__ int g_npg;
 __device__ __constant__ int g_nd;
@@ -21,7 +20,7 @@ __device__ __constant__ double g_xi[ndim_max][nd_max];
 __device__ __constant__ unsigned g_nCubes;
 
 __global__ void gVegasCallFunc(double* gFval, int* gIAval);
-__device__ void func_entropy(double *value_out, double* rx);
+__device__ void func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
 
@@ -34,6 +33,10 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent() {
 	this->timerVegasMove.restart();
 	this->timerVegasFill.restart();
 	this->timerVegasRefine.restart();
+
+	/* copy variables to CUDA */
+	gpuErrchk(cudaMemcpyToSymbol(this->g_ndim, &(this->ndim), sizeof(int)));
+
 
 	LOG_FUNC_END
 }
@@ -102,7 +105,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		}
 	}
 
-	gpuErrchk(cudaMemcpyToSymbol(g_ndim, &(this->ndim), sizeof(int)));
 	gpuErrchk(cudaMemcpyToSymbol(g_ng,   &ng,   sizeof(int)));
 	gpuErrchk(cudaMemcpyToSymbol(g_nd,   &nd,   sizeof(int)));
 	cudaThreadSynchronize(); /* wait for synchronize */
@@ -511,11 +513,13 @@ void gVegasCallFunc(double* gFval, int* gIAval)
 			wgt *= xo*(double)g_nd;
 		}
       
-		double f;
-		func_entropy(&f,x);
-		f = wgt *f;
-      
-		gFval[tid] = f;
+		/* compute function value for this x */
+		double fs;
+		//func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments)
+		func_entropy(&fs,x, g_lambda, g_ndim, g_matrix_D_arr, g_number_of_moments);
+		fs = wgt*fs;
+
+		gFval[tid] = fs;
 		for(int idim=0;idim<g_ndim;idim++) {
 			gIAval[idim*nCubeNpg+tid] = ia[idim];
 		}
@@ -597,13 +601,43 @@ void fxorshift128(unsigned int seed, int n, double* a){
 }
 
 __device__
-void func_entropy(double *value_out, double* rx){
-	double value = 1.;
-	for(int i=0;i<g_ndim;i++){
-		value *= 2.*rx[i];
-	}
+void func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments){
+    double V = 0.0;
+    double p = 0.0;
 
-	*value_out = value;
+    for (int i = 0; i < cnumber_of_moments; i++){
+        p = 1.0;
+        for (int j = 0; j < cxdim; j++){
+            p = p*pow(cx[j], cmatrix_D_arr[(i+1)*cxdim+j]);
+		}
+
+        V = V - p*clambda[i];
+    }
+
+	/* ff2[0] - type = 0 */
+    cvalues_out[0] = exp(V);
+
+    /* ff2[1-n] - for gradient, type =2 */
+	for(int order = 0; order < cnumber_of_moments; order++){
+		p = 1.0;
+		for (int j = 0; j < cxdim; j++){
+			p = p*pow(cx[j], cmatrix_D_arr[(order+1)*cxdim+j]);
+		}
+//        cvalues_out[1+order] = p*ff2[0];
+    }
+
+	/* ff2[n+1 - n+1+n*(n+1)/2] - for Hessian, type = 3 */
+	int counter = 1+cnumber_of_moments;
+	for(int order = 0; order < cnumber_of_moments; order++){
+		for(int order2 = order; order2 < cnumber_of_moments; order2++){
+			p = 1.0;
+			for(int j=0; j<cxdim;j++){
+				p = p*pow(cx[j], cmatrix_D_arr[(order+1)*cxdim+j] + cmatrix_D_arr[(order2+1)*cxdim+j]);
+			}
+//			cvalues_out[counter] = p*ff2[0];
+			counter++;
+		}
+	}
 }
 
 
