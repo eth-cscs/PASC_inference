@@ -13,13 +13,17 @@ namespace algebra {
 /* external-specific stuff */
 template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 	private:
-		#ifdef USE_CUDA
-			__device__ __constant__ int g_ndim;	/**< dimension of integral on CUDA */
-			__device__ __constant__ int g_number_of_moments; /**< number of moments on CUDA */
-			__device__ __constant__ int g_number_of_integrals; /**< number of integrals on CUDA */
-			__device__ __constant__ double *g_lambda;  /**< lagrange multipliers on CUDA */
-			__device__ __constant__ int *g_matrix_D_arr;  /**< matrix with powers on CUDA */
+		int xdim;	/**< dimension of integral on CPU */
+		int number_of_moments; /**< number of moments on CPU */
+		int number_of_integrals; /**< number of integrals on CPU */
+		int *matrix_D_arr;  /**< matrix with powers on CPU */
 
+		#ifdef USE_CUDA
+			int *g_xdim;	/**< dimension of integral on CUDA */
+			int *g_number_of_moments; /**< number of moments on CUDA */
+			int *g_number_of_integrals; /**< number of integrals on CUDA */
+			double *g_lambda;  /**< lagrange multipliers on CUDA */
+			int *g_matrix_D_arr;  /**< matrix with powers on CUDA */
 		#endif
 
 	public:
@@ -27,7 +31,6 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		int ncall;	/**< number of calls */
 		int itmx;	/**< number of max. iterations */
 		double acc; /**< precision */
-		int ndim; /**< dimension of integral */
 
 		Timer timerVegasCall;
 		Timer timerVegasMove;
@@ -36,8 +39,21 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		
 		#ifdef USE_CUDA
 			ExternalContent();		
+			~ExternalContent();		
 			void cuda_gVegas(double &avgi, double &sd, double &chi2a);
 		#endif
+
+		int get_xdim() const {
+			return this->xdim;
+		}
+
+		int get_number_of_moments() const {
+			return this->number_of_moments;
+		}
+
+		int get_number_of_integrals() const {
+			return this->number_of_integrals;
+		}
 
 };
 
