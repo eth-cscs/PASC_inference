@@ -10,13 +10,14 @@ template<> EntropyIntegrationCudaVegas<PetscVector>::EntropyIntegrationCudaVegas
 	set_settings_from_console();
 
 	/* prepare external content */
-	externalcontent = new ExternalContent();
+	#ifdef USE_CUDA
+		externalcontent = new ExternalContent();
 	
-	externalcontent->ncall = 10000; 
-	externalcontent->itmx = 10;
-	externalcontent->acc = 0.0001; // accuracy
-	externalcontent->nBlockSize = 256; // CUDA size of the block
-
+		externalcontent->ncall = 10000; 
+		externalcontent->itmx = 10;
+		externalcontent->acc = 0.0001; // accuracy
+		externalcontent->nBlockSize = 256; // CUDA size of the block
+	#endif
 	
 	LOG_FUNC_END
 }
@@ -25,7 +26,9 @@ template<> EntropyIntegrationCudaVegas<PetscVector>::~EntropyIntegrationCudaVega
 	LOG_FUNC_BEGIN
 	
 	/* destroy external content */
-	free(externalcontent);
+	#ifdef USE_CUDA
+		free(externalcontent);
+	#endif
 	
 	LOG_FUNC_END
 }
@@ -41,7 +44,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		double chi2a = 0.;
 
 		timer.start();
-		externalcontent->gVegas(avgi, sd, chi2a);
+		externalcontent->cuda_gVegas(avgi, sd, chi2a);
 		timer.stop();
 
 		double timeTotal = timer.get_value_sum();

@@ -22,12 +22,10 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		double timeVegasMove;
 		double timeVegasFill;
 		double timeVegasRefine;
-
-		ExternalContent();		
 		
 		#ifdef USE_CUDA
+			ExternalContent();		
 			void cuda_gVegas(double &avgi, double &sd, double &chi2a);
-			
 		#endif
 
 };
