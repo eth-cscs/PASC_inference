@@ -17,8 +17,18 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		int ncall;	/**< number of calls */
 		int itmx;	/**< number of max. iterations */
 		double acc; /**< precision */
+
+		double timeVegasCall;
+		double timeVegasMove;
+		double timeVegasFill;
+		double timeVegasRefine;
+
+		ExternalContent();		
 		
-		void gVegas(double &avgi, double &sd, double &chi2a);
+		#ifdef USE_CUDA
+			void cuda_gVegas(double &avgi, double &sd, double &chi2a);
+			
+		#endif
 
 };
 
