@@ -23,6 +23,30 @@ __global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_
 __device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
+__global__ void print_kernel(int xdim, int number_of_moments, int number_of_integrals, double *g_lambda, int *g_matrix_D_arr){
+	printf("============ from GPU =========== \n");
+	printf("xdim                : %d \n", xdim);
+	printf("number_of_moments   : %d \n", number_of_moments);
+	printf("number_of_integrals : %d \n", number_of_integrals);
+	printf("g_lambda            : [");
+	for(int i=0; i < number_of_moments; i++){
+		printf("%f, ", g_lambda[i]);
+		if(i<number_of_moments-1){
+			printf(", ");
+		}
+	}
+	printf("] \n");
+	printf("matrix D: \n");
+	for(int i_moment=0;i_moment < number_of_moments; i_moment++){
+		for(int i_xdim=0;i_xdim < xdim; i_xdim++){
+			printf("%d", matrix_D[ i_moment*get_xdim() + i_xdim]);
+			
+			if(i_xdim < get_xdim()-1) printf(", ");
+		}
+		printf("\n");
+	}
+}
+
 
 
 EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int xdim, int number_of_moments, int number_of_integrals, int *matrix_D_arr) {
@@ -70,6 +94,10 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	/* copy given lambda to GPU */
 	gpuErrchk( cudaMemcpy(this->g_lambda, &lambda_arr, number_of_moments*sizeof(double), cudaMemcpyHostToDevice ) );
 	cudaThreadSynchronize(); /* wait for synchronize */
+
+	//TODO: temp
+	print_kernel<<<1, 1>>>(xdim, number_of_moments, number_of_integrals, this->g_lambda, this->g_matrix_D_arr);
+
 
 	int mds = 1;
 	int nprn = 1;
