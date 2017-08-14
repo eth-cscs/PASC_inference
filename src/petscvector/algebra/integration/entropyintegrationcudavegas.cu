@@ -181,7 +181,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		coutMaster << std::endl;
 		coutMaster << " << input parameters for vegas >>" << std::endl;
 		coutMaster << "     ndim =" << std::setw(3) << this->ndim
-					<< "   ncall = " << std::setw(10) << this->ncalls <<std::endl;
+					<< "   ncall = " << std::setw(10) << this->ncall <<std::endl;
 		coutMaster << "     it   =  0"
 					<< "   itmx = " << std::setw(5) << this->itmx << std::endl;
 		coutMaster << "     acc  = " << std::fixed
