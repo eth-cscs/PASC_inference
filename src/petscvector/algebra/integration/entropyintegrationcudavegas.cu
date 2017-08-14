@@ -41,17 +41,17 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	this->matrix_D_arr = matrix_D_arr;
 
 	/* allocate variables on cuda */
-	gpuErrchk(cudaMalloc((void**)&g_xdim, sizeof(int)));
-	gpuErrchk(cudaMalloc((void**)&g_number_of_moments, sizeof(int)));
-	gpuErrchk(cudaMalloc((void**)&g_number_of_integrals, sizeof(int)));
-	gpuErrchk(cudaMalloc((void**)&g_lambda, number_of_moments*sizeof(double)));
-	gpuErrchk(cudaMalloc((void**)&g_matrix_D_arr, number_of_moments*xdim, sizeof(double)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_xdim), sizeof(int)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_number_of_moments), sizeof(int)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_number_of_integrals), sizeof(int)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), number_of_moments*sizeof(double)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(double)));
 
 	/* copy variables to CUDA */
-	gpuErrchk( cudaMemcpy(g_xdim, &xdim, sizeof(int), cudaMemcpyHostToDevice ) );
-	gpuErrchk( cudaMemcpy(g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
-	gpuErrchk( cudaMemcpy(g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
-	gpuErrchk( cudaMemcpy(g_matrix_D_arr, &matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->g_xdim, &xdim, sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->g_matrix_D_arr, &matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
 
 
 	LOG_FUNC_END
