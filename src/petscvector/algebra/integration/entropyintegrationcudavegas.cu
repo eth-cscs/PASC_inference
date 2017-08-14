@@ -123,9 +123,9 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	if (nprn!=0) {
 		coutMaster << std::endl;
 		coutMaster << " << vegas internal parameters >> " << std::endl;
-		coutMaster << "            ng: " << std::setw(5) << ng << std::endl;
-		coutMaster << "            nd: " << std::setw(5) << nd << std::endl;
-		coutMaster << "           npg: " << std::setw(5) << npg << std::endl;
+		coutMaster << "            ng: " << std::setw(12) << ng << std::endl;
+		coutMaster << "            nd: " << std::setw(12) << nd << std::endl;
+		coutMaster << "           npg: " << std::setw(12) << npg << std::endl;
 		coutMaster << "        nCubes: " << std::setw(12) << nCubes << std::endl;
 		coutMaster << "    nCubes*npg: " << std::setw(12) << nCubeNpg << std::endl;
 	}
@@ -228,8 +228,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	if (nprn!=0) {
 		coutMaster << std::endl;
 		coutMaster << " << kernel parameters for CUDA >> " << std::endl;
-		coutMaster << "       Block size           = " << std::setw(7) << ThBk.x << std::endl;
-		coutMaster << "       Grid size            = " << std::setw(7) << BkGd.x
+		coutMaster << "       Block size           = " << std::setw(12) << ThBk.x << std::endl;
+		coutMaster << "       Grid size            = " << std::setw(12) << BkGd.x
 					<< " x " << BkGd.y << std::endl;
 		int nThreadsTot = ThBk.x*BkGd.x*BkGd.y;
 		coutMaster << "     Actual Number of calls = " << std::setw(12)
