@@ -48,6 +48,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	double dxg;
 	double dnpg;
 	double dv2g;
+	double ti;
+	double tsi;
 	
 	int nGridSizeX, nGridSizeY;
 	int nBlockTot;
@@ -238,11 +240,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	int* hIAval;
 	int* gIAval;
 
-	double startVegasCall, endVegasCall;
-	double startVegasMove, endVegasMove;
-	double startVegasFill, endVegasFill;
-	double startVegasRefine, endVegasRefine;
-
 	/* allocate Fval */
 	sizeFval = nCubeNpg*sizeof(double);
 
@@ -271,7 +268,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		timerVegasCall.start();
 		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval);
 		cudaThreadSynchronize();
-		timerVecgasCall.stop();
+		timerVegasCall.stop();
 
 		/* move computed results */
 		timerVegasMove.start();
@@ -329,7 +326,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			}
 		}
 
-		endVegasFill = getrusage_usec();
 		timerVegasFill.stop();
 
 		tsi *= dv2g;

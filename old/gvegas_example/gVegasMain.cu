@@ -28,29 +28,37 @@ void gVegas(double& avgi, double& sd, double& chi2a);
 
 const int ndim_max = 20;
 const double alph = 1.5;
-double dx[ndim_max];
+double dx[ndim_max]; //
 double randm[ndim_max];
-const int nd_max = 50;
+const int nd_max = 50; //
 double xin[nd_max];
 double xjac;
-double xl[ndim_max],xu[ndim_max];
+double xl[ndim_max]; //
+double xu[ndim_max]; //
 double acc;
-int ndim, ncall, itmx, nprn;
+int ndim, ncall, itmx;
+int nprn; //
 
-double xi[ndim_max][nd_max];
-double si, si2, swgt, schi;
-int ndo, it;
-int mds;
-double calls, ti, tsi;
-int npg, ng, nd;
-double dxg, xnd;
-unsigned nCubes;
+double xi[ndim_max][nd_max]; //
+double si, si2, swgt, schi; //
+int ndo; //
+int it;
+int mds; //
+double calls; //
+double ti; //
+double tsi; //
+int npg; //
+int ng; //
+int nd; //
+double dxg; //
+double xnd; //
+unsigned nCubes; //
 
-int nBlockSize;
-double timeVegasCall;
-double timeVegasMove;
-double timeVegasFill;
-double timeVegasRefine;
+int nBlockSize; //
+double timeVegasCall; //
+double timeVegasMove; //
+double timeVegasFill; //
+double timeVegasRefine; //
 
 
 #include "kernels.h"
