@@ -12,11 +12,13 @@ namespace algebra {
 
 /* external-specific stuff */
 template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
-	private:
-		int nBlockSize;
-
-
 	public:
+		int nBlockSize; /**< number of thread block size */
+		int ncall;	/**< number of calls */
+		int itmx;	/**< number of max. iterations */
+		double acc; /**< precision */
+		
+		void gVegas(double &avgi, double &sd, double &chi2a);
 
 };
 

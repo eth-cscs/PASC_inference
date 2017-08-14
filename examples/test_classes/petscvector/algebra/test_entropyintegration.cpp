@@ -155,7 +155,7 @@ int main( int argc, char *argv[] )
 	if(type == 1){
 		entropyintegration = new EntropyIntegrationCuba<PetscVector>(entropydata, eps);
 	}
-	if(type == 1){
+	if(type == 2){
 		entropyintegration = new EntropyIntegrationCudaVegas<PetscVector>(entropydata, eps);
 	}
 
