@@ -92,7 +92,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	LOG_FUNC_BEGIN
 
 	/* copy given lambda to GPU */
-	gpuErrchk( cudaMemcpy(this->g_lambda, &lambda_arr, number_of_moments*sizeof(double), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->g_lambda, lambda_arr, number_of_moments*sizeof(double), cudaMemcpyHostToDevice ) );
 	cudaThreadSynchronize(); /* wait for synchronize */
 
 	//TODO: temp
