@@ -22,6 +22,8 @@ __device__ __constant__ unsigned g_nCubes;
 
 __global__ void gVegasCallFunc(double* gFval, int* gIAval);
 __device__ double func_entropy(double* rx, double wgt);
+__device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
+
 
 
 
@@ -510,7 +512,7 @@ void gVegasCallFunc(double* gFval, int* gIAval)
          wgt *= xo*(double)g_nd;
       }
       
-      double f = wgt * func(x,wgt);
+      double f = wgt * func_entropy(x,wgt);
       
       gFval[tid] = f;
       for (int idim=0;idim<g_ndim;idim++) {
