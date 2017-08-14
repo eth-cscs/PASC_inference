@@ -11,7 +11,7 @@ template<> EntropyIntegrationCudaVegas<PetscVector>::EntropyIntegrationCudaVegas
 
 	/* prepare external content */
 	#ifdef USE_CUDA
-		externalcontent = new ExternalContent(entropydata->get_xdim(), entropydata->get_number_of_moments(), entropydata->get_number_of_integrals(), entropydata->get_matrix_D_arr());
+		externalcontent = new ExternalContent(this->get_xdim(), this->get_number_of_moments(), this->get_number_of_integrals(), entropydata->get_matrix_D());
 	
 		externalcontent->ncall = 10000; 
 		externalcontent->itmx = 10;
@@ -58,7 +58,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		coutMaster << "#==================================" << std::endl;
 		coutMaster << "# No. of Thread Block Size  : " << externalcontent->nBlockSize << std::endl;
 		coutMaster << "#==================================" << std::endl;
-		coutMaster << "# No. of dimensions         : " << externalcontent->get_ndim() << std::endl;
+		coutMaster << "# No. of dimensions         : " << externalcontent->get_xdim() << std::endl;
 		coutMaster << "# No. of moments            : " << externalcontent->get_number_of_moments() << std::endl;
 		coutMaster << "# No. of integrals          : " << externalcontent->get_number_of_integrals() << std::endl;
 		coutMaster << "# No. of func calls / iter  : " << externalcontent->ncall << std::endl;
