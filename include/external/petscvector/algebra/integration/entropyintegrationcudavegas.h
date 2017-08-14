@@ -19,9 +19,6 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		int *matrix_D_arr;  /**< matrix with powers on CPU */
 
 		#ifdef USE_CUDA
-			int *g_xdim;	/**< dimension of integral on CUDA */
-			int *g_number_of_moments; /**< number of moments on CUDA */
-			int *g_number_of_integrals; /**< number of integrals on CUDA */
 			double *g_lambda;  /**< lagrange multipliers on CUDA */
 			int *g_matrix_D_arr;  /**< matrix with powers on CUDA */
 		#endif

@@ -19,7 +19,7 @@ __device__ __constant__ double g_dx[xdim_max];
 __device__ __constant__ double g_xi[xdim_max][nd_max];
 __device__ __constant__ unsigned g_nCubes;
 
-__global__ void gVegasCallFunc(double* gFval, int* gIAval);
+__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr);
 __device__ void func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
@@ -41,16 +41,10 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	this->matrix_D_arr = matrix_D_arr;
 
 	/* allocate variables on cuda */
-	gpuErrchk(cudaMalloc((void**)&(this->g_xdim), sizeof(int)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_number_of_moments), sizeof(int)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_number_of_integrals), sizeof(int)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), number_of_moments*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(double)));
 
 	/* copy variables to CUDA */
-	gpuErrchk( cudaMemcpy(this->g_xdim, &xdim, sizeof(int), cudaMemcpyHostToDevice ) );
-	gpuErrchk( cudaMemcpy(this->g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
-	gpuErrchk( cudaMemcpy(this->g_number_of_moment, &number_of_moments, sizeof(int), cudaMemcpyHostToDevice ) );
 	gpuErrchk( cudaMemcpy(this->g_matrix_D_arr, &matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
 
 
@@ -61,11 +55,8 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::~ExternalContent(){
 	LOG_FUNC_BEGIN
 
 	/* free cuda variables */
-	gpuErrchk(cudaFree(g_xdim));
-	gpuErrchk(cudaFree(g_number_of_moments));
-	gpuErrchk(cudaFree(g_number_of_integrals));
-	gpuErrchk(cudaFree(g_lambda));
-	gpuErrchk(cudaFree(g_matrix_D_arr));
+	gpuErrchk(cudaFree(this->g_lambda));
+	gpuErrchk(cudaFree(this->g_matrix_D_arr));
 	
 
 	LOG_FUNC_END
@@ -306,7 +297,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		
 		/* call integral function */
 		timerVegasCall.start();
-		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval);
+		 /* double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr */
+		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr);
 		cudaThreadSynchronize();
 		timerVegasCall.stop();
 
@@ -490,8 +482,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(double* gFval, int* gIAval)
-{
+void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr){
+	
 	/* --------------------
 	 * Check the thread ID
 	 * -------------------- */
@@ -518,18 +510,18 @@ void gVegasCallFunc(double* gFval, int* gIAval)
 		int kg[xdim_max];
       
 		unsigned igg = ig;
-		for(int j=0;j<g_xdim;j++) {
+		for(int j=0;j<xdim;j++) {
 			kg[j] = igg%g_ng+1;
 			igg /= g_ng;
 		}
       
 		double randm[xdim_max];
-		fxorshift128(tidRndm, g_xdim, randm);
+		fxorshift128(tidRndm, xdim, randm);
       
 		double x[xdim_max];
       
 		double wgt = g_xjac;
-		for(int j=0;j<g_xdim;j++){
+		for(int j=0;j<xdim;j++){
 			double xo,xn,rc;
 			xn = (kg[j]-randm[j])*g_dxg+1.;
 			ia[j] = (int)xn-1;
@@ -547,11 +539,11 @@ void gVegasCallFunc(double* gFval, int* gIAval)
 		/* compute function value for this x */
 		double fs;
 		//func_entropy(double *cvalues_out, double *cx, double *clambda, int cxdim, int *cmatrix_D_arr, int cnumber_of_moments)
-		func_entropy(&fs,x, g_lambda, g_xdim, g_matrix_D_arr, g_number_of_moments);
+		func_entropy(&fs,x, g_lambda, xdim, g_matrix_D_arr, g_number_of_moments);
 		fs = wgt*fs;
 
 		gFval[tid] = fs;
-		for(int idim=0;idim<g_xdim;idim++) {
+		for(int idim=0;idim<xdim;idim++) {
 			gIAval[idim*nCubeNpg+tid] = ia[idim];
 		}
 	}
