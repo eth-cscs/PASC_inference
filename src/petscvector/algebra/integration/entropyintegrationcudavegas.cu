@@ -16,7 +16,7 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent() {
 	LOG_FUNC_END
 }
 
-void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::gVegas(double &avgi, double &sd, double &chi2a) {
+void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(double &avgi, double &sd, double &chi2a) {
 	LOG_FUNC_BEGIN
 
 	avgi = 11.1;
