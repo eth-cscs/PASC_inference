@@ -74,7 +74,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		coutMaster << "# Time for func calls (sec) : "
             << std::setw(10) << std::setprecision(4) << externalcontent->timeVegasCall
             << " ( " << std::setw(5) << std::setprecision(2)
-            << 100.*externalContent->timeVegasCall/timeTotal << "%)" << std::endl;
+            << 100.*externalcontent->timeVegasCall/timeTotal << "%)" << std::endl;
 		coutMaster << "# Time for data transf (sec): "
             << std::setw(10) << std::setprecision(4) << externalcontent->timeVegasMove
             << " ( " << std::setw(5) << std::setprecision(2)
