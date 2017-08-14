@@ -4,8 +4,8 @@
 namespace pascinference {
 namespace algebra {
 
-int ndim_max = 10;
-int nd_max = 50;
+const int ndim_max = 10;
+const int nd_max = 50;
 
 __device__ __constant__ int g_ndim;
 __device__ __constant__ int g_ng;
@@ -70,7 +70,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		}
 	}
 
-   gpuErrchk(cudaMemcpyToSymbol(g_ndim, &ndim, sizeof(int)));
+   gpuErrchk(cudaMemcpyToSymbol(g_ndim, &(this->ndim), sizeof(int)));
    gpuErrchk(cudaMemcpyToSymbol(g_ng,   &ng,   sizeof(int)));
    gpuErrchk(cudaMemcpyToSymbol(g_nd,   &nd,   sizeof(int)));
    cudaThreadSynchronize(); /* wait for synchronize */
