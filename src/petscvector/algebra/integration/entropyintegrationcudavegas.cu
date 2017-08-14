@@ -4,6 +4,9 @@
 namespace pascinference {
 namespace algebra {
 
+int ndim_max = 10;
+int nd_max = 50;
+
 __device__ __constant__ int g_ndim;
 __device__ __constant__ int g_ng;
 __device__ __constant__ int g_npg;
@@ -31,7 +34,6 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent() {
 void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(double &avgi, double &sd, double &chi2a) {
 	LOG_FUNC_BEGIN
 
-	int nd_max = 50;
 	int mds = 1;
 
 	int it;
@@ -39,7 +41,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	int ng;
 	int npg;
 	int nCubes;
-	double xi[this->ndim][nd_max];
+	double xi[ndim_max][nd_max];
 	
 
 
