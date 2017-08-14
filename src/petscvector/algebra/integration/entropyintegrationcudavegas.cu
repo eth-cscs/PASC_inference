@@ -39,9 +39,9 @@ __global__ void print_kernel(int xdim, int number_of_moments, int number_of_inte
 	printf("matrix D: \n");
 	for(int i_moment=0;i_moment < number_of_moments; i_moment++){
 		for(int i_xdim=0;i_xdim < xdim; i_xdim++){
-			printf("%d", matrix_D[ i_moment*get_xdim() + i_xdim]);
+			printf("%d", g_matrix_D_arr[ i_moment*xdim + i_xdim]);
 			
-			if(i_xdim < get_xdim()-1) printf(", ");
+			if(i_xdim < xdim-1) printf(", ");
 		}
 		printf("\n");
 	}
