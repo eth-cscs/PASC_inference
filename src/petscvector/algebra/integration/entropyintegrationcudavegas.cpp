@@ -17,6 +17,8 @@ template<> EntropyIntegrationCudaVegas<PetscVector>::EntropyIntegrationCudaVegas
 		externalcontent->itmx = 10;
 		externalcontent->acc = 0.0001; // accuracy
 		externalcontent->nBlockSize = 256; // CUDA size of the block
+		externalcontent->ndim = entropydata->get_xdim(); 
+
 	#endif
 	
 	LOG_FUNC_END
@@ -53,7 +55,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		coutMaster << "#==================================" << std::endl;
 		coutMaster << "# No. of Thread Block Size  : " << externalcontent->nBlockSize << std::endl;
 		coutMaster << "#==================================" << std::endl;
-		coutMaster << "# No. of dimensions         : " << entropydata->get_xdim() << std::endl;
+		coutMaster << "# No. of dimensions         : " << externalcontent->ndim << std::endl;
 		coutMaster << "# No. of func calls / iter  : " << externalcontent->ncall << std::endl;
 		coutMaster << "# No. of max. iterations    : " << externalcontent->itmx << std::endl;
 		coutMaster << "# Desired accuracy          : " << externalcontent->acc << std::endl;

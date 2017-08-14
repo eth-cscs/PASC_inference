@@ -17,6 +17,7 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		int ncall;	/**< number of calls */
 		int itmx;	/**< number of max. iterations */
 		double acc; /**< precision */
+		int ndim; /**< dimension of integral */
 
 		double timeVegasCall;
 		double timeVegasMove;
