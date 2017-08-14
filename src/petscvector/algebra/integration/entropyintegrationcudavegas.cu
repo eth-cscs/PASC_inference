@@ -47,7 +47,14 @@ __global__ void print_kernel(int xdim, int number_of_moments, int number_of_inte
 	}
 }
 
-
+__global__ void kernel_set_zero(int size, double *arr1){
+	
+	//TODO: make it in a different way!!!
+	for(int i=0;i<size;i++){
+		arr1[i] = 0.0;
+	}
+	
+}
 
 EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int xdim, int number_of_moments, int number_of_integrals, int *matrix_D_arr) {
 	LOG_FUNC_BEGIN
@@ -64,7 +71,12 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	this->number_of_integrals = number_of_integrals;
 	this->matrix_D_arr = matrix_D_arr;
 
+	/* allocate host arrays */
+	this->sd = new double[this->get_number_of_integrals];
+	this->chi2a = new double[this->get_number_of_integrals];
+
 	/* allocate variables on cuda */
+	gpuErrchk(cudaMalloc((void**)&(this->g_avgi), number_of_integrals*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), (number_of_moments-1)*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
 
@@ -79,7 +91,12 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::~ExternalContent(){
 	LOG_FUNC_BEGIN
 
+	/* free host arrays */
+	free(this->sd);
+	free(this->chi2a);
+
 	/* free cuda variables */
+	gpuErrchk(cudaFree(this->g_avgi));
 	gpuErrchk(cudaFree(this->g_lambda));
 	gpuErrchk(cudaFree(this->g_matrix_D_arr));
 	
@@ -88,11 +105,15 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::~ExternalContent(){
 }
 
 
-void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(double &avgi, double &sd, double &chi2a, double *lambda_arr) {
+void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(double *avgi, double *lambda_arr) {
 	LOG_FUNC_BEGIN
 
 	/* copy given lambda to GPU */
 	gpuErrchk( cudaMemcpy(this->g_lambda, lambda_arr, (number_of_moments-1)*sizeof(double), cudaMemcpyHostToDevice ) );
+	cudaThreadSynchronize(); /* wait for synchronize */
+
+	/* zero arrays */
+	kernel_set_zero<<<1, 1>>>(number_of_integrals, this->g_avgi);
 	cudaThreadSynchronize(); /* wait for synchronize */
 
 	//TODO: temp
@@ -401,11 +422,11 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		si2 += ti2;
 		swgt += wgt;
 		schi += ti2*wgt;
-		avgi = si/swgt;
-		sd = swgt*it/si2;
+		avgi[0] = si/swgt;
+		sd[0] = swgt*it/si2;
 		chi2a = 0.;
-		if(it>1) chi2a = sd*(schi/swgt-avgi*avgi)/((double)it-1.);
-		sd = sqrt(1./sd);
+		if(it>1) chi2a = sd[0]*(schi/swgt-avgi[0]*avgi[0])/((double)it-1.);
+		sd[0] = sqrt(1./sd[0]);
       
 		if(nprn!=0) {
 			tsi = sqrt(tsi);
@@ -415,8 +436,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 						<< std::setw(10) << std::setprecision(6)
 						<< "   integral=  " << ti << std::endl;
 			coutMaster << "                          std dev  = " << tsi << std::endl;
-			coutMaster << "     accumulated results: integral = " << avgi << std::endl;
-			coutMaster << "                          std dev  = " << sd << std::endl;
+			coutMaster << "     accumulated results: integral = " << avgi[0] << std::endl;
+			coutMaster << "                          std dev  = " << sd[0] << std::endl;
 			if(it > 1){
 				coutMaster << "                          chi**2 per it'n = "
 							<< std::setw(10) << std::setprecision(4) << chi2a << std::endl;
@@ -498,13 +519,18 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		cudaThreadSynchronize();
 
 		timerVegasRefine.stop();
-   } while (it<itmx && acc*fabs(avgi)<sd);
+   } while (it<itmx && acc*fabs(avgi[0])<sd[0]);
 
 	gpuErrchk(cudaFreeHost(hFval));
 	gpuErrchk(cudaFree(gFval));
 
 	gpuErrchk(cudaFreeHost(hIAval));
 	gpuErrchk(cudaFree(gIAval));
+
+	/* copy results back to host */
+//	gpuErrchk( cudaMemcpy(avgi, this->g_avgi, number_of_integrals*sizeof(double), cudaMemcpyDeviceToHost ) );
+//	cudaThreadSynchronize(); /* wait for synchronize */
+
 
 	LOG_FUNC_END
 }

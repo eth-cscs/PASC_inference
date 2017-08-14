@@ -38,13 +38,10 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 	LOG_FUNC_BEGIN
 
 	#ifdef USE_CUDA
-		/* call appropriate cuda kernel for integral computation */
-		double avgi = 0.;
-		double sd = 0.;
-		double chi2a = 0.;
 
+		/* call appropriate cuda kernel for integral computation */
 		timer.start();
-		externalcontent->cuda_gVegas(avgi, sd, chi2a, lambda_arr);
+		externalcontent->cuda_gVegas(integrals_arr, lambda_arr);
 		timer.stop();
 
 		double timeTotal = timer.get_value_sum();
@@ -68,12 +65,12 @@ void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_arr, do
 		coutMaster << std::scientific;
 		coutMaster << std::left << std::setfill(' ');
 		coutMaster << "# Result                    : "
-            << std::setw(12) << std::setprecision(5) << avgi << " +- "
-            << std::setw(12) << std::setprecision(5) << sd <<" ( "
+            << std::setw(12) << std::setprecision(5) << integrals_arr[0] << " +- "
+            << std::setw(12) << std::setprecision(5) << externalcontent->sd[0] <<" ( "
             << std::setw(7) << std::setprecision(4)
-            << std::fixed << 100.*sd/avgi << "%)" << std::endl;
+            << std::fixed << 100.*externalcontent->sd[0]/integrals_arr[0] << "%)" << std::endl;
 		coutMaster << std::fixed;
-		coutMaster << "# Chisquare                 : " << std::setprecision(4) << chi2a << std::endl;
+		coutMaster << "# Chisquare                 : " << std::setprecision(4) << externalcontent->chi2a[0] << std::endl;
 		coutMaster << "#==================================" << std::endl;
 		coutMaster << std::right;
 		coutMaster << "# Total Execution Time(sec) : " << std::setw(10) << std::setprecision(4) << timeTotal << std::endl;

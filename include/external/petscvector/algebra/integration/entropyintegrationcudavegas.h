@@ -21,6 +21,9 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		#ifdef USE_CUDA
 			double *g_lambda;  /**< lagrange multipliers on CUDA */
 			int *g_matrix_D_arr;  /**< matrix with powers on CUDA */
+
+			double *g_avgi;	/**< array of results on CUDA */
+
 		#endif
 
 	public:
@@ -28,6 +31,9 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		int ncall;	/**< number of calls */
 		int itmx;	/**< number of max. iterations */
 		double acc; /**< precision */
+
+		double *sd;	/**< array of standard deviations of integration */
+		double *chi2a; /** < array of chi2 of integration */
 
 		Timer timerVegasCall;
 		Timer timerVegasMove;
@@ -37,7 +43,7 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		#ifdef USE_CUDA
 			ExternalContent(int xdim, int number_of_moments, int number_of_integrals, int *matrix_D_arr);		
 			~ExternalContent();		
-			void cuda_gVegas(double &avgi, double &sd, double &chi2a, double *lambda_arr);
+			void cuda_gVegas(double *avgi, double *lambda_arr);
 		#endif
 
 		int get_xdim() const {
