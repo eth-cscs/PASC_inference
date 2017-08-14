@@ -1,6 +1,8 @@
 #include "external/petscvector/petscvector.cuh"
 #include "external/petscvector/algebra/integration/entropyintegrationcudavegas.h"
 
+#define Norum 0.0000000001*2.32830643653869628906
+
 namespace pascinference {
 namespace algebra {
 
@@ -16,7 +18,11 @@ __device__ __constant__ double g_dxg;
 __device__ __constant__ double g_xl[ndim_max];
 __device__ __constant__ double g_dx[ndim_max];
 __device__ __constant__ double g_xi[ndim_max][nd_max];
-__device__ __constant__ unsigned g_nCubes;		
+__device__ __constant__ unsigned g_nCubes;
+
+__global__ void gVegasCallFunc(double* gFval, int* gIAval);
+__device__ double func_entropy(double* rx, double wgt);
+
 
 
 EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent() {
@@ -447,6 +453,156 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 
 	LOG_FUNC_END
+}
+
+__global__
+void gVegasCallFunc(double* gFval, int* gIAval)
+{
+   //--------------------
+   // Check the thread ID
+   //--------------------
+   const unsigned int tIdx  = threadIdx.x;
+   const unsigned int bDimx = blockDim.x;
+
+   const unsigned int bIdx  = blockIdx.x;
+   const unsigned int gDimx = gridDim.x;
+   const unsigned int bIdy  = blockIdx.y;
+
+   unsigned int bid  = bIdy*gDimx+bIdx;
+   const unsigned int tid = bid*bDimx+tIdx;
+
+   int ig = tid/g_npg;
+
+   unsigned nCubeNpg = g_nCubes*g_npg;
+
+   if (tid<nCubeNpg) {
+
+      unsigned ia[ndim_max];
+      
+      unsigned int tidRndm = tid;
+      
+      int kg[ndim_max];
+      
+      unsigned igg = ig;
+      for (int j=0;j<g_ndim;j++) {
+         kg[j] = igg%g_ng+1;
+         igg /= g_ng;
+      }
+      
+      double randm[ndim_max];
+      fxorshift128(tidRndm, g_ndim, randm);
+      
+      double x[ndim_max];
+      
+      double wgt = g_xjac;
+      for (int j=0;j<g_ndim;j++) {
+         double xo,xn,rc;
+         xn = (kg[j]-randm[j])*g_dxg+1.;
+         ia[j] = (int)xn-1;
+         if (ia[j]<=0) {
+            xo = g_xi[j][ia[j]];
+            rc = (xn-(double)(ia[j]+1))*xo;
+         } else {
+            xo = g_xi[j][ia[j]]-g_xi[j][ia[j]-1];
+            rc = g_xi[j][ia[j]-1]+(xn-(double)(ia[j]+1))*xo;
+         }
+         x[j] = g_xl[j]+rc*g_dx[j];
+         wgt *= xo*(double)g_nd;
+      }
+      
+      double f = wgt * func(x,wgt);
+      
+      gFval[tid] = f;
+      for (int idim=0;idim<g_ndim;idim++) {
+         gIAval[idim*nCubeNpg+tid] = ia[idim];
+      }
+   }
+}
+
+__device__ __host__ __forceinline__
+void fxorshift128(unsigned int seed,
+                  int n,
+                  double* a)
+{
+    unsigned int x,y,z,w,t;
+
+    seed=seed*2357+123456789U;
+    
+    //1812433253 = 0x6C078965h;
+    x=seed=1812433253U*(seed^(seed>>30))+1;
+    y=seed=1812433253U*(seed^(seed>>30))+2;
+    z=seed=1812433253U*(seed^(seed>>30))+3;
+    w=seed=1812433253U*(seed^(seed>>30))+4;
+
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+    t=x^x<<11;x=y;y=z;z=w;w^=w>>19^t^t>>8;
+
+    for(int i=0;i<n;++i){
+        t=x^x<<11;
+        x=y;
+        y=z;
+        z=w;
+        w^=(w>>19)^(t^(t>>8));
+        a[i]=w*Norum;
+    }
+    return;
+}
+
+__device__
+double func_entropy(double* rx, double wgt){
+   double value = 1.;
+   for (int i=0;i<g_ndim;i++) {
+      value *= 2.*rx[i];
+   }
+   return value;
 }
 
 
