@@ -31,7 +31,7 @@ __global__ void print_kernel(int xdim, int number_of_moments, int number_of_inte
 	printf("g_lambda            : [");
 	for(int i=0; i < number_of_moments-1; i++){
 		printf("%f", g_lambda[i]);
-		if(i<number_of_moments-1){
+		if(i<number_of_moments-2){
 			printf(", ");
 		}
 	}
@@ -505,12 +505,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 	gpuErrchk(cudaFreeHost(hIAval));
 	gpuErrchk(cudaFree(gIAval));
-
-	avgi = 11.1;
-	sd = 22.2;
-	chi2a = 33.33;
-
-
 
 	LOG_FUNC_END
 }
