@@ -54,6 +54,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	double xi[ndim_max][nd_max];
 	double xl[ndim_max],xu[ndim_max];
 	double dx[ndim_max];
+	double xin[nd_max];
 
 	double xnd;
 	double xjac;
@@ -180,7 +181,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		coutMaster << std::endl;
 		coutMaster << " << input parameters for vegas >>" << std::endl;
 		coutMaster << "     ndim =" << std::setw(3) << this->ndim
-					<< "   ncall = " << std::setw(10) << this->calls <<std::endl;
+					<< "   ncall = " << std::setw(10) << this->ncalls <<std::endl;
 		coutMaster << "     it   =  0"
 					<< "   itmx = " << std::setw(5) << this->itmx << std::endl;
 		coutMaster << "     acc  = " << std::fixed
