@@ -29,7 +29,7 @@ __global__ void print_kernel(int xdim, int number_of_moments, int number_of_inte
 	printf("number_of_moments   : %d \n", number_of_moments);
 	printf("number_of_integrals : %d \n", number_of_integrals);
 	printf("g_lambda            : [");
-	for(int i=0; i < number_of_moments; i++){
+	for(int i=0; i < number_of_moments-1; i++){
 		printf("%f", g_lambda[i]);
 		if(i<number_of_moments-1){
 			printf(", ");
@@ -65,7 +65,7 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	this->matrix_D_arr = matrix_D_arr;
 
 	/* allocate variables on cuda */
-	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), number_of_moments*sizeof(double)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), (number_of_moments-1)*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
 
 	/* copy variables to CUDA */
@@ -92,7 +92,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	LOG_FUNC_BEGIN
 
 	/* copy given lambda to GPU */
-	gpuErrchk( cudaMemcpy(this->g_lambda, lambda_arr, number_of_moments*sizeof(double), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->g_lambda, lambda_arr, (number_of_moments-1)*sizeof(double), cudaMemcpyHostToDevice ) );
 	cudaThreadSynchronize(); /* wait for synchronize */
 
 	//TODO: temp
