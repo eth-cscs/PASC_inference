@@ -19,10 +19,10 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		double acc; /**< precision */
 		int ndim; /**< dimension of integral */
 
-		timer timerVegasCall;
-		timer timerVegasMove;
-		timer timerVegasFill;
-		timer timerVegasRefine;
+		Timer timerVegasCall;
+		Timer timerVegasMove;
+		Timer timerVegasFill;
+		Timer timerVegasRefine;
 		
 		#ifdef USE_CUDA
 			ExternalContent();		
