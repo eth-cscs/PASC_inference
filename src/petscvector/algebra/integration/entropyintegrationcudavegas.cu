@@ -35,17 +35,28 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	LOG_FUNC_BEGIN
 
 	int mds = 1;
+	int nprn = 1;
 
 	int it;
 	int nd;
 	int ng;
 	int npg;
 	int nCubes;
-	double xi[ndim_max][nd_max];
+	double calls;
+	double dxg;
+	double dnpg;
+	double dv2g;
 	
+	double xi[ndim_max][nd_max];
+	double xl[ndim_max],xu[ndim_max];
+	double dx[ndim_max];
 
-
-
+	double xjac;
+	
+   for (int i=0;i< this->ndim;i++) {
+      xl[i] = 0.;
+      xu[i] = 1.;
+   }
 
 	for (int j=0; j < this->ndim; j++) {
 		xi[j][0] = 1.;
@@ -70,34 +81,43 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		}
 	}
 
-   gpuErrchk(cudaMemcpyToSymbol(g_ndim, &(this->ndim), sizeof(int)));
-   gpuErrchk(cudaMemcpyToSymbol(g_ng,   &ng,   sizeof(int)));
-   gpuErrchk(cudaMemcpyToSymbol(g_nd,   &nd,   sizeof(int)));
-   cudaThreadSynchronize(); /* wait for synchronize */
+	gpuErrchk(cudaMemcpyToSymbol(g_ndim, &(this->ndim), sizeof(int)));
+	gpuErrchk(cudaMemcpyToSymbol(g_ng,   &ng,   sizeof(int)));
+	gpuErrchk(cudaMemcpyToSymbol(g_nd,   &nd,   sizeof(int)));
+	cudaThreadSynchronize(); /* wait for synchronize */
 
-   nCubes = (unsigned)(pow(ng,this->ndim));
-   gpuErrchk(cudaMemcpyToSymbol(g_nCubes, &nCubes, sizeof(nCubes)));
-   cudaThreadSynchronize(); /* wait for synchronize */
+	nCubes = (unsigned)(pow(ng,this->ndim));
+	gpuErrchk(cudaMemcpyToSymbol(g_nCubes, &nCubes, sizeof(nCubes)));
+	cudaThreadSynchronize(); /* wait for synchronize */
 
-   npg = ncall/(double)nCubes;
-   if(npg < 2){
-	   npg = 2;
-   }
-   calls = (double)(npg*nCubes);
+	npg = ncall/(double)nCubes;
+	if(npg < 2){
+		npg = 2;
+	}
+	calls = (double)(npg*nCubes);
 
-   unsigned nCubeNpg = nCubes*npg;
+	unsigned nCubeNpg = nCubes*npg;
 
-   if (nprn!=0) {
-      coutMaster << std::endl;
-      coutMaster << " << vegas internal parameters >> " << std::endl;
-      coutMaster << "            ng: " << std::setw(5) << ng << std::endl;
-      coutMaster << "            nd: " << std::setw(5) << nd << std::endl;
-      coutMaster << "           npg: " << std::setw(5) << npg << std::endl;
-      coutMaster << "        nCubes: " << std::setw(12) << nCubes << std::endl;
-      coutMaster << "    nCubes*npg: " << std::setw(12) << nCubeNpg << std::endl;
-   }
+	if (nprn!=0) {
+		coutMaster << std::endl;
+		coutMaster << " << vegas internal parameters >> " << std::endl;
+		coutMaster << "            ng: " << std::setw(5) << ng << std::endl;
+		coutMaster << "            nd: " << std::setw(5) << nd << std::endl;
+		coutMaster << "           npg: " << std::setw(5) << npg << std::endl;
+		coutMaster << "        nCubes: " << std::setw(12) << nCubes << std::endl;
+		coutMaster << "    nCubes*npg: " << std::setw(12) << nCubeNpg << std::endl;
+	}
 
-
+	dxg = 1./(double)ng;
+	dnpg = (double)npg;
+	dv2g = calls*calls*pow(dxg,ndim)*pow(dxg,ndim)/(dnpg*dnpg*(dnpg-1.));
+	xnd = (double)nd;
+	dxg *= xnd;
+	xjac = 1./(double)calls;
+	for (int j=0;j<ndim;j++) {
+		dx[j] = xu[j]-xl[j];
+		xjac *= dx[j];
+	}
 
 
 
