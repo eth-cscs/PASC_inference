@@ -37,7 +37,7 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		#ifdef USE_CUDA
 			ExternalContent(int xdim, int number_of_moments, int number_of_integrals, int *matrix_D_arr);		
 			~ExternalContent();		
-			void cuda_gVegas(double &avgi, double &sd, double &chi2a);
+			void cuda_gVegas(double &avgi, double &sd, double &chi2a, double *lambda_arr);
 		#endif
 
 		int get_xdim() const {
@@ -56,7 +56,7 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 
 template<> EntropyIntegrationCudaVegas<PetscVector>::EntropyIntegrationCudaVegas(EntropyData<PetscVector> *entropydata, double new_eps);
 template<> EntropyIntegrationCudaVegas<PetscVector>::~EntropyIntegrationCudaVegas();
-template<> void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_out, double *lambda, int Km_max, double *lambda_arr);
+template<> void EntropyIntegrationCudaVegas<PetscVector>::compute(double *integrals_out, double *lambda, int Km_max);
 
 }
 } /* end of namespace */
