@@ -12,6 +12,7 @@
 
 namespace pascinference {
 using namespace data;	
+using namespace algebra;
 
 namespace solver {
 
