@@ -38,7 +38,7 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		Timer timerVegasRefine;
 		
 		#ifdef USE_CUDA
-			ExternalContent();		
+			ExternalContent(int xdim, int number_of_moments, int number_of_integrals, int *matrix_D_arr);		
 			~ExternalContent();		
 			void cuda_gVegas(double &avgi, double &sd, double &chi2a);
 		#endif
