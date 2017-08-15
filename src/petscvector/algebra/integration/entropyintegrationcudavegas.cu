@@ -72,8 +72,8 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	this->matrix_D_arr = matrix_D_arr;
 
 	/* allocate host arrays */
-	this->sd = new double[this->get_number_of_integrals];
-	this->chi2a = new double[this->get_number_of_integrals];
+	this->sd = new double[this->get_number_of_integrals()];
+	this->chi2a = new double[this->get_number_of_integrals()];
 
 	/* allocate variables on cuda */
 	gpuErrchk(cudaMalloc((void**)&(this->g_avgi), number_of_integrals*sizeof(double)));
