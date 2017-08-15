@@ -687,6 +687,11 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
         p = 1.0;
         for (int j = 0; j < xdim; j++){
             p = p*pow(xx[j], g_matrix_D_arr[(i+1)*xdim+j]);
+            
+            printf("nmb_m: %d", number_of_moments);
+            printf("xdim: %d", xdim);
+            printf("xx: %f", xx[j]);
+            printf("D:  %d", g_matrix_D_arr[(i+1)*xdim+j]);
 		}
 
         V = V - p*g_lambda[i];
