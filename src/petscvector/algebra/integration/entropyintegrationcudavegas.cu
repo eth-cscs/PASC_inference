@@ -544,7 +544,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(int g_ng, double* gFval, int* gIAval, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
+void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
 	
 	/* --------------------
 	 * Check the thread ID
