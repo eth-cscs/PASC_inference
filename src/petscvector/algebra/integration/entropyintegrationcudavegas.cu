@@ -19,8 +19,8 @@ __device__ __constant__ double g_dx[xdim_max];
 __device__ __constant__ double g_xi[xdim_max][nd_max];
 __device__ __constant__ unsigned g_nCubes;
 
-__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr);
-__device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr);
+__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral);
+__device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
 __global__ void print_kernel(int xdim, int number_of_moments, int number_of_integrals, double *g_lambda, int *g_matrix_D_arr){
@@ -114,7 +114,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	cudaThreadSynchronize(); /* wait for synchronize */
 
 	/* through all integrals which has to be computed */
-	for(id_integral=0;id_integral<number_of_integrals;id_integral++){
+	for(int id_integral=0;id_integral<number_of_integrals;id_integral++){
 
 		int mds = 1;
 		int nprn = 1;
@@ -348,7 +348,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			/* call integral function */
 			timerVegasCall.start();
 			 /* double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr */
-			gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr);
+			gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr, id_integral);
 			cudaThreadSynchronize();
 			timerVegasCall.stop();
 	
@@ -532,7 +532,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr){
+void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral){
 	
 	/* --------------------
 	 * Check the thread ID
@@ -589,7 +589,7 @@ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integral
 		/* compute function value for this x */
 		double fs;
 		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
-		func_entropy(&fs,x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
+		func_entropy(&fs,x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr, id_integral);
 		fs = wgt*fs;
 
 		gFval[tid] = fs;
@@ -674,7 +674,7 @@ void fxorshift128(unsigned int seed, int n, double* a){
 }
 
 __device__
-void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr){
+void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral){
     double V = 0.0;
     double p = 0.0;
 
@@ -688,29 +688,39 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
     }
 
 	/* ff2[0] - type = 0 */
-    g_values_out[0] = exp(V);
+    double FF= exp(V);
 
-    /* ff2[1-n] - for gradient, type =2 */
-	for(int order = 0; order < number_of_moments; order++){
+	/* function value */
+	if(id_integral == 0){
+		g_values_out[0] = FF;		
+	}
+
+	/* gradient */
+	if(id_integral >= 1 && id_integral< 1+number_of_moments){
+		int order = id_integral-1;
 		p = 1.0;
 		for (int j = 0; j < xdim; j++){
 			p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j]);
 		}
-//        g_values_out[1+order] = p*g_values_out[0];
-    }
-
-	/* ff2[n+1 - n+1+n*(n+1)/2] - for Hessian, type = 3 */
-	int counter = 1+number_of_moments;
-	for(int order = 0; order < number_of_moments; order++){
-		for(int order2 = order; order2 < number_of_moments; order2++){
-			p = 1.0;
-			for(int j=0; j<xdim;j++){
-				p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j] + g_matrix_D_arr[(order2+1)*xdim+j]);
-			}
-//			g_values_out[counter] = p*g_values_out[0];
+        g_values_out[0] = p*FF;
+	}
+	
+	/* hessian */
+	if(id_integral >= 1+number_of_moments){
+		int counter = 1+number_of_moments;
+		for(int order = 0; order < number_of_moments; order++){
+			for(int order2 = order; order2 < number_of_moments; order2++){
+				if(counter == id_integral){
+					p = 1.0;
+					for(int j=0; j<xdim;j++){
+						p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j] + g_matrix_D_arr[(order2+1)*xdim+j]);
+					}
+					g_values_out[0] = p*FF;
+				}
 			counter++;
 		}
 	}
+		
 }
 
 
