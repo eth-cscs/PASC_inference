@@ -424,8 +424,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		schi += ti2*wgt;
 		avgi[0] = si/swgt;
 		sd[0] = swgt*it/si2;
-		chi2a = 0.;
-		if(it>1) chi2a = sd[0]*(schi/swgt-avgi[0]*avgi[0])/((double)it-1.);
+		chi2a[0] = 0.;
+		if(it>1) chi2a[0] = sd[0]*(schi/swgt-avgi[0]*avgi[0])/((double)it-1.);
 		sd[0] = sqrt(1./sd[0]);
       
 		if(nprn!=0) {
