@@ -24,7 +24,7 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		#endif
 
 	public:
-		bool debug_print_integration;
+		bool debug_print_integration_inner;
 
 		int nBlockSize; /**< number of thread block size */
 		int ncall;	/**< number of calls */
