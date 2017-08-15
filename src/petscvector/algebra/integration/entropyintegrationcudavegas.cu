@@ -106,7 +106,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 	/* copy given lambda to GPU */
 	gpuErrchk( cudaMemcpy(this->g_lambda, lambda_arr, (number_of_moments-1)*sizeof(double), cudaMemcpyHostToDevice ) );
-	cudaThreadSynchronize(); /* wait for synchronize */
+	cudaDeviceSynchronize(); /* wait for synchronize */
 
 	//TODO: temp
 //	print_kernel<<<1, 1>>>(xdim, number_of_moments, number_of_integrals, this->g_lambda, this->g_matrix_D_arr);
@@ -178,7 +178,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 		nCubes = (unsigned)(pow(ng,this->xdim));
 		gpuErrchk(cudaMemcpyToSymbol(g_nCubes, &nCubes, sizeof(nCubes)));
-		cudaThreadSynchronize(); /* wait for synchronize */
+		cudaDeviceSynchronize();; /* wait for synchronize */
 
 		npg = ncall/(double)nCubes;
 		if(npg < 2){
@@ -213,7 +213,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		gpuErrchk(cudaMemcpyToSymbol(g_npg,  &npg,  sizeof(int)));
 		gpuErrchk(cudaMemcpyToSymbol(g_xjac, &xjac, sizeof(double)));
 		gpuErrchk(cudaMemcpyToSymbol(g_dxg,  &dxg,  sizeof(double)));
-		cudaThreadSynchronize();
+		cudaDeviceSynchronize();
 
 		ndo = 1;
 
@@ -254,7 +254,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		gpuErrchk(cudaMemcpyToSymbol(g_xl, xl, sizeof(xl)));
 		gpuErrchk(cudaMemcpyToSymbol(g_dx, dx, sizeof(dx)));
 		gpuErrchk(cudaMemcpyToSymbol(g_xi, xi, sizeof(xi)));
-		cudaThreadSynchronize();
+		cudaDeviceSynchronize();
 	
 		if (debug_print_integration_inner) {
 			coutMaster << std::endl;
@@ -335,6 +335,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 		/* GPU */
 		gpuErrchk(cudaMalloc((void**)&gIAval, sizeIAval));
+
+		cudaDeviceSynchronize();
 
 		/* perform main iterations */
 		do {
@@ -531,7 +533,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	
 		gpuErrchk(cudaFreeHost(hIAval));
 		gpuErrchk(cudaFree(gIAval));
-
+		cudaDeviceSynchronize();
 
 	} /* for id_integral=0:number_of_integrals-1 */
 
