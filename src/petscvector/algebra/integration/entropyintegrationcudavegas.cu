@@ -328,7 +328,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	memset(hFval, '\0', sizeFval);
 
 	/* GPU */
-	gpuErrchk(cudaMalloc((void**)&gFval, sizeFval));
+	gpuErrchk(cudaMalloc((void**)&gFval, sizeFval*this->number_of_integrals));
 
 	/* allocate IAval */
 	sizeIAval = nCubeNpg*xdim*sizeof(int);
@@ -353,7 +353,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 		/* move computed results */
 		timerVegasMove.start();
-		gpuErrchk(cudaMemcpy(hFval, gFval,  sizeFval,
+		gpuErrchk(cudaMemcpy(hFval, gFval,  sizeFval*this->number_of_integrals,
                                cudaMemcpyDeviceToHost));
 		gpuErrchk(cudaMemcpy(hIAval, gIAval,  sizeIAval,
                                cudaMemcpyDeviceToHost));
@@ -364,8 +364,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 		ti = 0.;
 		tsi = 0.;
-
-		coutMaster << "hFval = " << print_array(hFval, nCubeNpg) << std::endl;
 
 		double d[xdim_max][nd_max];
 
@@ -424,19 +422,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		if(it>1) chi2a[0] = sd[0]*(schi/swgt-avgi[0]*avgi[0])/((double)it-1.);
 		sd[0] = sqrt(1./sd[0]);
 
-
-		coutMaster << "dv2g=" << dv2g << std::endl;
-		coutMaster << "ti=" << ti << std::endl;
-		coutMaster << "ti2=" << ti2 << std::endl;
-		coutMaster << "wgt=" << wgt << std::endl;
-		coutMaster << "si=" << si << std::endl;
-		coutMaster << "swgt=" << swgt << std::endl;
-		coutMaster << "it=" << it << std::endl;
-		coutMaster << "chi2a=" << chi2a << std::endl;
-
-      
 		if(nprn!=0) {
-						
 			tsi = sqrt(tsi);
 			coutMaster << std::endl;
 			coutMaster << " << integration by vegas >>" << std::endl;
@@ -596,9 +582,15 @@ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integral
 		/* compute function value for this x */
 		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
 		func_entropy(g_fs, x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
-		g_fs[0] = wgt*g_fs[0];
+		
+		/* store computed function value */
+		for(int i=0; i < number_of_integrals; i++){
+			g_fs[i] = wgt*g_fs[i];
+			
+			//TODO: here
+			gFval[i*nCubeNpg + tid] = g_fs[i];
+		}
 
-		gFval[tid] = g_fs[0];
 		for(int idim=0;idim<xdim;idim++) {
 			gIAval[idim*nCubeNpg+tid] = ia[idim];
 		}
@@ -702,7 +694,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 		for (int j = 0; j < xdim; j++){
 			p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j]);
 		}
-//        g_values_out[1+order] = p*g_values_out[0];
+        g_values_out[1+order] = p*g_values_out[0];
     }
 
 	/* ff2[n+1 - n+1+n*(n+1)/2] - for Hessian, type = 3 */
@@ -713,7 +705,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 			for(int j=0; j<xdim;j++){
 				p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j] + g_matrix_D_arr[(order2+1)*xdim+j]);
 			}
-//			g_values_out[counter] = p*g_values_out[0];
+			g_values_out[counter] = p*g_values_out[0];
 			counter++;
 		}
 	}
