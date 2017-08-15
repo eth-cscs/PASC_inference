@@ -419,6 +419,17 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		chi2a[0] = 0.;
 		if(it>1) chi2a[0] = sd[0]*(schi/swgt-avgi[0]*avgi[0])/((double)it-1.);
 		sd[0] = sqrt(1./sd[0]);
+
+
+		coutMaster << "dv2g=" << dv2g << std::endl;
+		coutMaster << "ti=" << ti << std::endl;
+		coutMaster << "ti2=" << ti2 << std::endl;
+		coutMaster << "wgt=" << wgt << std::endl;
+		coutMaster << "si=" << si << std::endl;
+		coutMaster << "swgt=" << swgt << std::endl;
+		coutMaster << "it=" << it << std::endl;
+		coutMaster << "chi2a=" << chi2a << std::endl;
+
       
 		if(nprn!=0) {
 						
