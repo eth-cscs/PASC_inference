@@ -348,7 +348,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			/* call integral function */
 			timerVegasCall.start();
 			 /* double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr */
-			gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr, id_integral);
+			gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments-1, this->g_lambda, this->g_matrix_D_arr, id_integral);
 			cudaThreadSynchronize();
 			timerVegasCall.stop();
 	
@@ -544,7 +544,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral){
+void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
 	
 	/* --------------------
 	 * Check the thread ID
@@ -601,7 +601,7 @@ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integral
 		/* compute function value for this x */
 		double fs;
 		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
-		func_entropy(&fs,x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr, id_integral);
+		func_entropy(&fs,x, xdim, number_of_integrals, n, g_lambda, g_matrix_D_arr, id_integral);
 		fs = wgt*fs;
 
 		gFval[tid] = fs;
@@ -686,11 +686,11 @@ void fxorshift128(unsigned int seed, int n, double* a){
 }
 
 __device__
-void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral){
+void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
     double V = 0.0;
     double p = 0.0;
-
-    for (int i = 0; i < number_of_moments; i++){
+    
+    for (int i = 0; i < n; i++){
         p = 1.0;
         for (int j = 0; j < xdim; j++){
             p = p*pow(xx[j], g_matrix_D_arr[(i+1)*xdim+j]);
@@ -708,20 +708,23 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 	}
 
 	/* gradient */
-	if(id_integral >= 1 && id_integral< 1+number_of_moments){
-		int order = id_integral-1;
-		p = 1.0;
-		for (int j = 0; j < xdim; j++){
-			p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j]);
+	if(id_integral >= 1 && id_integral< 1+n){
+		for(int order = 0; order < n; order++){
+			if(1+order == id_integral){
+				p = 1.0;
+				for (int j = 0; j < d; j++){
+					p = p*pow(xx[j], D[(order+1)*d+j]);
+				}
+				g_values_out[0] = p*FF;
+			}
 		}
-        g_values_out[0] = p*FF;
 	}
 	
 	/* hessian */
-	if(id_integral >= 1+number_of_moments && id_integral < number_of_integrals){
-		int counter = 1+number_of_moments;
-		for(int order = 0; order < number_of_moments; order++){
-			for(int order2 = order; order2 < number_of_moments; order2++){
+	if(id_integral >= 1+n && id_integral < number_of_integrals){
+		int counter = 1+n;
+		for(int order = 0; order < n; order++){
+			for(int order2 = order; order2 < n; order2++){
 				if(counter == id_integral){
 					p = 1.0;
 					for(int j=0; j<xdim;j++){
