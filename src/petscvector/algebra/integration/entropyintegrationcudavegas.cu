@@ -78,7 +78,7 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	/* allocate variables on cuda */
 	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), (number_of_moments-1)*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_fs), number_of_integrals*sizeof(int)));
+	gpuErrchk(cudaMalloc((void**)&(this->g_fs), number_of_integrals*sizeof(double)));
 
 	/* copy variables to CUDA */
 	gpuErrchk( cudaMemcpy(this->g_matrix_D_arr, matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
