@@ -107,12 +107,14 @@ void EntropyIntegrationCudaVegas<VectorBase>::print(ConsoleOutput &output) const
 
 	output << this->get_name() << std::endl;
 
-	output <<  " - number of moments        : " << this->entropydata->get_number_of_moments() << std::endl;
-	output <<  " - xdim                     : " << this->entropydata->get_xdim() << std::endl;
-	output <<  " - ncall                    : " << this->ncall << std::endl;
-	output <<  " - itmx                     : " << this->itmx << std::endl;
-	output <<  " - nblocksize               : " << this->nBlockSize << std::endl;
-	output <<  " - eps                      : " << this->eps << std::endl;
+	output <<  " - number of moments              : " << this->entropydata->get_number_of_moments() << std::endl;
+	output <<  " - xdim                           : " << this->entropydata->get_xdim() << std::endl;
+	output <<  " - ncall                          : " << this->ncall << std::endl;
+	output <<  " - itmx                           : " << this->itmx << std::endl;
+	output <<  " - nblocksize                     : " << this->nBlockSize << std::endl;
+	output <<  " - eps                            : " << this->eps << std::endl;
+	output <<  " - debug_print_integration        : " << print_bool(this->debug_print_integration) << std::endl;
+	output <<  " - debug_print_integration_inner  : " << print_bool(this->debug_print_integration_inner) << std::endl;
 
 	output.synchronize();
 
@@ -126,12 +128,14 @@ void EntropyIntegrationCudaVegas<VectorBase>::print(ConsoleOutput &output_global
 
 	output_global <<  this->get_name() << std::endl;
 
-	output_global <<  " - number of moments       : " << this->entropydata->get_number_of_moments() << std::endl;
-	output_global <<  " - xdim                    : " << this->entropydata->get_xdim() << std::endl;
-	output_global <<  " - ncall                   : " << this->ncall << std::endl;
-	output_global <<  " - itmx                    : " << this->itmx << std::endl;
-	output_global <<  " - nblocksize              : " << this->nBlockSize << std::endl;
-	output_global <<  " - eps                     : " << this->eps << std::endl;
+	output_global <<  " - number of moments              : " << this->entropydata->get_number_of_moments() << std::endl;
+	output_global <<  " - xdim                           : " << this->entropydata->get_xdim() << std::endl;
+	output_global <<  " - ncall                          : " << this->ncall << std::endl;
+	output_global <<  " - itmx                           : " << this->itmx << std::endl;
+	output_global <<  " - nblocksize                     : " << this->nBlockSize << std::endl;
+	output_global <<  " - eps                            : " << this->eps << std::endl;
+	output_global <<  " - debug_print_integration        : " << print_bool(this->debug_print_integration) << std::endl;
+	output_global <<  " - debug_print_integration_inner  : " << print_bool(this->debug_print_integration_inner) << std::endl;
 
 	output_global.synchronize();
 
