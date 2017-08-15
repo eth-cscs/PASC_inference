@@ -363,6 +363,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		ti = 0.;
 		tsi = 0.;
 
+		coutMaster << "hFval = " << print_array(hFval, nCubeNpg) << std::endl;
+
 		double d[xdim_max][nd_max];
 
 		for (int j=0;j<xdim;++j) {
