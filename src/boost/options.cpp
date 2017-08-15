@@ -189,6 +189,16 @@ void add_options(boost::program_options::options_description *description, int c
 			("entropyintegrationcuba_debug_print_integration", boost::program_options::value<bool>(), "print CUBA integration output [bool]");
 		opt_entropyintegration.add(opt_entropyintegrationcuba);
 
+		/* ENTROPYINTEGRATIONCUDAVEGAS */
+		boost::program_options::options_description opt_entropyintegrationcudavegas("ENTROPYINTEGRATIONCUDAVEGAS", console_nmb_cols);
+		opt_entropyintegrationcudavegas.add_options()
+			("entropyintegrationcudavegas_ncall", boost::program_options::value<int>(), "number of kernel calls [int]")
+			("entropyintegrationcudavegas_itmx", boost::program_options::value<int>(), "the maximum number of iterations [int]")
+			("entropyintegrationcudavegas_nblocksize", boost::program_options::value<int>(), "size of the block [int]")
+			("entropyintegrationcudavegas_debug_print_integration", boost::program_options::value<bool>(), "print CUDA integration results during iterations [bool]");
+		opt_entropyintegration.add(opt_entropyintegrationcudavegas);
+
+
 	description->add(opt_entropyintegration);
 
 

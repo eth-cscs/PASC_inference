@@ -193,7 +193,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 		unsigned nCubeNpg = nCubes*npg;
 
-		if (nprn!=0) {
+		if (debug_print_integration) {
 			coutMaster << std::endl;
 			coutMaster << " << vegas internal parameters >> " << std::endl;
 			coutMaster << "            ng: " << std::setw(12) << ng << std::endl;
@@ -261,7 +261,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		gpuErrchk(cudaMemcpyToSymbol(g_xi, xi, sizeof(xi)));
 		cudaThreadSynchronize();
 	
-		if (nprn!=0) {
+		if (debug_print_integration) {
 			coutMaster << std::endl;
 			coutMaster << " << input parameters for vegas >>" << std::endl;
 			coutMaster << "     xdim =" << std::setw(3) << this->xdim
@@ -298,7 +298,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		nGridSizeX = (nBlockTot-1)/nGridSizeY+1;
 		dim3 BkGd(nGridSizeX, nGridSizeY);
 
-		if (nprn!=0) {
+		if (debug_print_integration) {
 			coutMaster << std::endl;
 			coutMaster << " << kernel parameters for CUDA >> " << std::endl;
 			coutMaster << "       Block size           = " << std::setw(12) << ThBk.x << std::endl;
@@ -437,7 +437,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 				avgi[id_integral] = 0.0;
 			}
 
-			if(nprn!=0) {
+			if(debug_print_integration) {
 							
 				tsi = sqrt(tsi);
 				coutMaster << std::endl;

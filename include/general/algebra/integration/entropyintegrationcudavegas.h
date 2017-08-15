@@ -14,6 +14,9 @@
 #include "general/common/logging.h"
 #include "general/common/timer.h"
 
+#define ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_NCALL 500000
+#define ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_ITMX 500000
+#define ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_NBLOCKSIZE 256
 #define ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_DEBUG_PRINT_INTEGRATION false
 
 namespace pascinference {
@@ -26,6 +29,9 @@ class EntropyIntegrationCudaVegas : public EntropyIntegration<VectorBase> {
 	public:
 		class ExternalContent;
 
+		int ncall;
+		int itmx;
+		int nBlockSize;
 		bool debug_print_integration;
 
 
@@ -58,6 +64,9 @@ namespace algebra {
 template<class VectorBase>
 void EntropyIntegrationCudaVegas<VectorBase>::set_settings_from_console() {
 
+	consoleArg.set_option_value("entropyintegrationcudavegas_ncall",&ncall, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_NCALL);
+	consoleArg.set_option_value("entropyintegrationcudavegas_itmx",&itmx, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_ITMX);
+	consoleArg.set_option_value("entropyintegrationcudavegas_nblocksize",&nBlockSize, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_NBLOCKSIZE);
 	consoleArg.set_option_value("entropyintegrationcudavegas_debug_print_integration",&debug_print_integration, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_DEBUG_PRINT_INTEGRATION);
 }
 
