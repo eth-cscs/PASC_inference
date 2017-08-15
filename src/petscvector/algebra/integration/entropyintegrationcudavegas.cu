@@ -19,7 +19,7 @@ __device__ __constant__ double g_dx[xdim_max];
 __device__ __constant__ double g_xi[xdim_max][nd_max];
 __device__ __constant__ unsigned g_nCubes;
 
-__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, double *g_fs);
+__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr);
 __device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
@@ -78,7 +78,6 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	/* allocate variables on cuda */
 	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), (number_of_moments-1)*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_fs), number_of_integrals*sizeof(double)));
 
 	/* copy variables to CUDA */
 	gpuErrchk( cudaMemcpy(this->g_matrix_D_arr, matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
@@ -96,7 +95,6 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::~ExternalContent(){
 	free(this->chi2a);
 
 	/* free cuda variables */
-	gpuErrchk(cudaFree(this->g_fs));
 	gpuErrchk(cudaFree(this->g_lambda));
 	gpuErrchk(cudaFree(this->g_matrix_D_arr));
 
@@ -324,11 +322,11 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	sizeFval = nCubeNpg*sizeof(double);
 
 	/* CPU */
-	gpuErrchk(cudaMallocHost((void**)&hFval, this->number_of_integrals*sizeFval));
+	gpuErrchk(cudaMallocHost((void**)&hFval, sizeFval));
 	memset(hFval, '\0', sizeFval);
 
 	/* GPU */
-	gpuErrchk(cudaMalloc((void**)&gFval, this->number_of_integrals*sizeFval));
+	gpuErrchk(cudaMalloc((void**)&gFval, sizeFval));
 
 	/* allocate IAval */
 	sizeIAval = nCubeNpg*xdim*sizeof(int);
@@ -347,13 +345,13 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		/* call integral function */
 		timerVegasCall.start();
 		 /* double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr */
-		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr, this->g_fs);
+		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr);
 		cudaThreadSynchronize();
 		timerVegasCall.stop();
 
 		/* move computed results */
 		timerVegasMove.start();
-		gpuErrchk(cudaMemcpy(hFval, gFval,  sizeFval*this->number_of_integrals,
+		gpuErrchk(cudaMemcpy(hFval, gFval,  sizeFval,
                                cudaMemcpyDeviceToHost));
 		gpuErrchk(cudaMemcpy(hIAval, gIAval,  sizeIAval,
                                cudaMemcpyDeviceToHost));
@@ -364,6 +362,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 		ti = 0.;
 		tsi = 0.;
+
+		coutMaster << "hFval = " << print_array(hFval, nCubeNpg) << std::endl;
 
 		double d[xdim_max][nd_max];
 
@@ -422,7 +422,19 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		if(it>1) chi2a[0] = sd[0]*(schi/swgt-avgi[0]*avgi[0])/((double)it-1.);
 		sd[0] = sqrt(1./sd[0]);
 
+
+		coutMaster << "dv2g=" << dv2g << std::endl;
+		coutMaster << "ti=" << ti << std::endl;
+		coutMaster << "ti2=" << ti2 << std::endl;
+		coutMaster << "wgt=" << wgt << std::endl;
+		coutMaster << "si=" << si << std::endl;
+		coutMaster << "swgt=" << swgt << std::endl;
+		coutMaster << "it=" << it << std::endl;
+		coutMaster << "chi2a=" << chi2a << std::endl;
+
+      
 		if(nprn!=0) {
+						
 			tsi = sqrt(tsi);
 			coutMaster << std::endl;
 			coutMaster << " << integration by vegas >>" << std::endl;
@@ -525,7 +537,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, double *g_fs){
+void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr){
 	
 	/* --------------------
 	 * Check the thread ID
@@ -580,17 +592,12 @@ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integral
 		}
       
 		/* compute function value for this x */
+		double fs;
 		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
-		func_entropy(g_fs, x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
-		
-		/* store computed function value */
-		for(int i=0; i < number_of_integrals; i++){
-			g_fs[i] = wgt*g_fs[i];
-			
-			//TODO: here
-			gFval[i*nCubeNpg + tid] = g_fs[i];
-		}
+		func_entropy(&fs,x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
+		fs = wgt*fs;
 
+		gFval[tid] = fs;
 		for(int idim=0;idim<xdim;idim++) {
 			gIAval[idim*nCubeNpg+tid] = ia[idim];
 		}
@@ -694,7 +701,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 		for (int j = 0; j < xdim; j++){
 			p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j]);
 		}
-        g_values_out[1+order] = p*g_values_out[0];
+//        g_values_out[1+order] = p*g_values_out[0];
     }
 
 	/* ff2[n+1 - n+1+n*(n+1)/2] - for Hessian, type = 3 */
@@ -705,7 +712,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 			for(int j=0; j<xdim;j++){
 				p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j] + g_matrix_D_arr[(order2+1)*xdim+j]);
 			}
-			g_values_out[counter] = p*g_values_out[0];
+//			g_values_out[counter] = p*g_values_out[0];
 			counter++;
 		}
 	}
