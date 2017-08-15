@@ -693,7 +693,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
     }
 
 	/* ff2[0] - type = 0 */
-    *g_values_out = exp(V);
+    g_values_out[0] = exp(V);
 
     /* ff2[1-n] - for gradient, type =2 */
 	for(int order = 0; order < number_of_moments; order++){
