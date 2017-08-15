@@ -592,12 +592,12 @@ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integral
 		}
       
 		/* compute function value for this x */
-		double fs;
+		double fs[1];
 		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
-		func_entropy(&fs,x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
-		fs = wgt*fs;
+		func_entropy(fs,x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
+		fs[0] = wgt*fs[0];
 
-		gFval[tid] = fs;
+		gFval[tid] = fs[0];
 		for(int idim=0;idim<xdim;idim++) {
 			gIAval[idim*nCubeNpg+tid] = ia[idim];
 		}
