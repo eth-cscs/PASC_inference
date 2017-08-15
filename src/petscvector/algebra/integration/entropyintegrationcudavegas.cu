@@ -423,6 +423,20 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			if(it>1) chi2a[id_integral] = sd[id_integral]*(schi/swgt-avgi[id_integral]*avgi[id_integral])/((double)it-1.);
 			sd[id_integral] = sqrt(1./sd[id_integral]);
 
+			/* check Nan */
+			if(avgi[id_integral] != avgi[id_integral]){
+				coutMaster << "dv2g=" << dv2g << std::endl;
+				coutMaster << "ti=" << ti << std::endl;
+				coutMaster << "ti2=" << ti2 << std::endl;
+				coutMaster << "wgt=" << wgt << std::endl;
+				coutMaster << "si=" << si << std::endl;
+				coutMaster << "swgt=" << swgt << std::endl;
+				coutMaster << "it=" << it << std::endl;
+				coutMaster << "chi2a=" << chi2a << std::endl;
+				
+				avgi[id_integral] = 0.0;
+			}
+
 			if(nprn!=0) {
 							
 				tsi = sqrt(tsi);
@@ -436,7 +450,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 				coutMaster << "                          std dev  = " << sd[id_integral] << std::endl;
 				if(it > 1){
 					coutMaster << "                          chi**2 per it'n = "
-								<< std::setw(10) << std::setprecision(4) << chi2a << std::endl;
+								<< std::setw(10) << std::setprecision(4) << chi2a[id_integral] << std::endl;
 				}
 				if(nprn<0){
 					for (int j=0;j<xdim;j++) {
@@ -704,7 +718,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 	}
 	
 	/* hessian */
-	if(id_integral >= 1+number_of_moments){
+	if(id_integral >= 1+number_of_moments && id_integral < number_of_integrals){
 		int counter = 1+number_of_moments;
 		for(int order = 0; order < number_of_moments; order++){
 			for(int order2 = order; order2 < number_of_moments; order2++){
