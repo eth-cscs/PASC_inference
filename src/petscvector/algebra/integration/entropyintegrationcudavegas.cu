@@ -717,7 +717,8 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 					}
 					g_values_out[0] = p*FF;
 				}
-			counter++;
+				counter++;
+			}
 		}
 	}
 		
