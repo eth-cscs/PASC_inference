@@ -324,11 +324,11 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	sizeFval = nCubeNpg*sizeof(double);
 
 	/* CPU */
-	gpuErrchk(cudaMallocHost((void**)&hFval, sizeFval));
+	gpuErrchk(cudaMallocHost((void**)&hFval, this->number_of_integrals*sizeFval));
 	memset(hFval, '\0', sizeFval);
 
 	/* GPU */
-	gpuErrchk(cudaMalloc((void**)&gFval, sizeFval*this->number_of_integrals));
+	gpuErrchk(cudaMalloc((void**)&gFval, this->number_of_integrals*sizeFval));
 
 	/* allocate IAval */
 	sizeIAval = nCubeNpg*xdim*sizeof(int);

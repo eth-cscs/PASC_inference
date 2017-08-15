@@ -13,9 +13,9 @@ template<> EntropyIntegrationCudaVegas<PetscVector>::EntropyIntegrationCudaVegas
 	#ifdef USE_CUDA
 		externalcontent = new ExternalContent(this->get_xdim(), this->get_number_of_moments(), this->get_number_of_integrals(), entropydata->get_matrix_D());
 	
-		externalcontent->ncall = 10000000; 
+		externalcontent->ncall = 400000; 
 		externalcontent->itmx = 10;
-		externalcontent->acc = 0.0001; // accuracy
+		externalcontent->acc = 0.00001; // accuracy
 		externalcontent->nBlockSize = 256; // CUDA size of the block
 	#endif
 	
