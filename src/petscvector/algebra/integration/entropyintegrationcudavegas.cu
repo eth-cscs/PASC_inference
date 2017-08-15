@@ -9,7 +9,6 @@ namespace algebra {
 const int xdim_max = 10;
 const int nd_max = 50;
 
-__device__ __constant__ int g_ng;
 __device__ __constant__ int g_npg;
 __device__ __constant__ int g_nd;
 __device__ __constant__ double g_xjac;
@@ -19,7 +18,7 @@ __device__ __constant__ double g_dx[xdim_max];
 __device__ __constant__ double g_xi[xdim_max][nd_max];
 __device__ __constant__ unsigned g_nCubes;
 
-__global__ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral);
+__global__ void gVegasCallFunc(int g_ng, double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral);
 __device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr, int id_integral);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
@@ -176,10 +175,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 				ng = npg*nd;
 			}
 		}
-
-		gpuErrchk(cudaMemcpyToSymbol(g_ng,   &ng,   sizeof(int)));
-		gpuErrchk(cudaMemcpyToSymbol(g_nd,   &nd,   sizeof(int)));
-		cudaThreadSynchronize(); /* wait for synchronize */
 
 		nCubes = (unsigned)(pow(ng,this->xdim));
 		gpuErrchk(cudaMemcpyToSymbol(g_nCubes, &nCubes, sizeof(nCubes)));
@@ -348,7 +343,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			/* call integral function */
 			timerVegasCall.start();
 			 /* double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr */
-			gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments-1, this->g_lambda, this->g_matrix_D_arr, id_integral);
+			gVegasCallFunc<<<BkGd, ThBk>>>(ng, gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments-1, this->g_lambda, this->g_matrix_D_arr, id_integral);
 			cudaThreadSynchronize();
 			timerVegasCall.stop();
 	
@@ -544,7 +539,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
+void gVegasCallFunc(int g_ng, double* gFval, int* gIAval, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
 	
 	/* --------------------
 	 * Check the thread ID
