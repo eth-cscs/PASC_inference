@@ -110,8 +110,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	cudaThreadSynchronize(); /* wait for synchronize */
 
 	//TODO: temp
-	print_kernel<<<1, 1>>>(xdim, number_of_moments, number_of_integrals, this->g_lambda, this->g_matrix_D_arr);
-	cudaThreadSynchronize(); /* wait for synchronize */
+//	print_kernel<<<1, 1>>>(xdim, number_of_moments, number_of_integrals, this->g_lambda, this->g_matrix_D_arr);
+//	cudaThreadSynchronize(); /* wait for synchronize */
 
 	/* through all integrals which has to be computed */
 	for(int id_integral=0;id_integral<number_of_integrals;id_integral++){
@@ -365,8 +365,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	
 			ti = 0.;
 			tsi = 0.;
-	
-			coutMaster << "hFval = " << print_array(hFval, nCubeNpg) << std::endl;
 	
 			double d[xdim_max][nd_max];
 	
