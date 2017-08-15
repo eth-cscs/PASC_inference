@@ -70,7 +70,7 @@ void EntropyIntegrationCudaVegas<VectorBase>::set_settings_from_console() {
 	consoleArg.set_option_value("entropyintegrationcudavegas_itmx",&itmx, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_ITMX);
 	consoleArg.set_option_value("entropyintegrationcudavegas_nblocksize",&nBlockSize, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_NBLOCKSIZE);
 	consoleArg.set_option_value("entropyintegrationcudavegas_debug_print_integration",&debug_print_integration, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_DEBUG_PRINT_INTEGRATION);
-	consoleArg.set_option_value("entropyintegrationcudavegas_debug_print_integration_inner",&debug_print_integration_inner, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_DEBUG_PRINT_INTEGRATION_INNER);
+	consoleArg.set_option_value("entropyintegrationcudavegas_debug_print_inner",&debug_print_integration_inner, ENTROPYINTEGRATIONCUDAVEGAS_DEFAULT_DEBUG_PRINT_INTEGRATION_INNER);
 
 }
 
