@@ -347,7 +347,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		/* call integral function */
 		timerVegasCall.start();
 		 /* double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr */
-		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr, this->fs);
+		gVegasCallFunc<<<BkGd, ThBk>>>(gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments, this->g_lambda, this->g_matrix_D_arr, this->g_fs);
 		cudaThreadSynchronize();
 		timerVegasCall.stop();
 
@@ -595,10 +595,10 @@ void gVegasCallFunc(double* gFval, int* gIAval, int xdim, int number_of_integral
       
 		/* compute function value for this x */
 		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
-		func_entropy(fs, x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
-		fs[0] = wgt*fs[0];
+		func_entropy(g_fs, x, xdim, number_of_integrals, number_of_moments, g_lambda, g_matrix_D_arr);
+		g_fs[0] = wgt*g_fs[0];
 
-		gFval[tid] = fs[0];
+		gFval[tid] = g_fs[0];
 		for(int idim=0;idim<xdim;idim++) {
 			gIAval[idim*nCubeNpg+tid] = ia[idim];
 		}
