@@ -53,7 +53,7 @@ __global__ void kernel_set_zero(int size, double *arr1){
 	for(int i=0;i<size;i++){
 		arr1[i] = 0.0;
 	}
-	
+
 }
 
 EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int xdim, int number_of_moments, int number_of_integrals, int *matrix_D_arr) {
@@ -76,7 +76,6 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	this->chi2a = new double[this->get_number_of_integrals()];
 
 	/* allocate variables on cuda */
-	gpuErrchk(cudaMalloc((void**)&(this->g_avgi), number_of_integrals*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), (number_of_moments-1)*sizeof(double)));
 	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
 
@@ -96,10 +95,8 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::~ExternalContent(){
 	free(this->chi2a);
 
 	/* free cuda variables */
-	gpuErrchk(cudaFree(this->g_avgi));
 	gpuErrchk(cudaFree(this->g_lambda));
 	gpuErrchk(cudaFree(this->g_matrix_D_arr));
-	
 
 	LOG_FUNC_END
 }
@@ -112,14 +109,9 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	gpuErrchk( cudaMemcpy(this->g_lambda, lambda_arr, (number_of_moments-1)*sizeof(double), cudaMemcpyHostToDevice ) );
 	cudaThreadSynchronize(); /* wait for synchronize */
 
-	/* zero arrays */
-	kernel_set_zero<<<1, 1>>>(number_of_integrals, this->g_avgi);
-	cudaThreadSynchronize(); /* wait for synchronize */
-
 	//TODO: temp
 	print_kernel<<<1, 1>>>(xdim, number_of_moments, number_of_integrals, this->g_lambda, this->g_matrix_D_arr);
 	cudaThreadSynchronize(); /* wait for synchronize */
-
 
 	int mds = 1;
 	int nprn = 1;
@@ -429,6 +421,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		sd[0] = sqrt(1./sd[0]);
       
 		if(nprn!=0) {
+						
 			tsi = sqrt(tsi);
 			coutMaster << std::endl;
 			coutMaster << " << integration by vegas >>" << std::endl;
@@ -526,11 +519,6 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 
 	gpuErrchk(cudaFreeHost(hIAval));
 	gpuErrchk(cudaFree(gIAval));
-
-	/* copy results back to host */
-//	gpuErrchk( cudaMemcpy(avgi, this->g_avgi, number_of_integrals*sizeof(double), cudaMemcpyDeviceToHost ) );
-//	cudaThreadSynchronize(); /* wait for synchronize */
-
 
 	LOG_FUNC_END
 }
