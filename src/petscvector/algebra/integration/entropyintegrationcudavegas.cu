@@ -712,8 +712,8 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 		for(int order = 0; order < n; order++){
 			if(1+order == id_integral){
 				p = 1.0;
-				for (int j = 0; j < d; j++){
-					p = p*pow(xx[j], D[(order+1)*d+j]);
+				for (int j = 0; j < xdim; j++){
+					p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j]);
 				}
 				g_values_out[0] = p*FF;
 			}
