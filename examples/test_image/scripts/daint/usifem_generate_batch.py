@@ -26,14 +26,14 @@ K=2;
 mu0="0.498039215686275";
 mu1="0.501960784313725";
 annealing=1;
-fem_type=3;
+fem_type=0;
 matrix_type=1;
 
 N = 1;
 problem_time = "00:20:00";
 
 # noise of input signal
-nmbfilesmax = 4;
+nmbfilesmax = 5;
 sigma = 9;
 fem_reduces= [1.0, 0.5, 0.25, 0.125, 0.0625, 0.0312];
 
