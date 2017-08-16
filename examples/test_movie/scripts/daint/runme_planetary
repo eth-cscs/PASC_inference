@@ -6,7 +6,7 @@ T=100
 K=2
 NOISE=0.064
 ANNEALING=1
-NPROC=1
+NPROC=2
 
 FEM_REDUCE=1.0
 FEM_TYPE=0
@@ -93,7 +93,7 @@ PARAM_ALL="$PARAM_TEST $PARAM_FILENAME $PARAM_BASIC $PARAM_THETA $PARAM_FEM $PAR
 
 ## run the job
 #./test_movie $PARAM_ALL
-srun -N 2 $NPROC ./test_movie $PARAM_ALL
+srun -N $NPROC ./test_movie $PARAM_ALL
 #mpiexec -n $NPROC ./test_movie $PARAM_ALL
 
 
