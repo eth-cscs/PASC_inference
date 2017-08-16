@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
 	boost::program_options::options_description opt_problem("PROBLEM EXAMPLE", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
 		("test_K", boost::program_options::value<int>(), "number of clusters [int]")
-		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [3=FEM2D_SUM/4=FEM2D_HAT]")
+		("test_fem_type", boost::program_options::value<int>(), "type of used FEM to reduce problem [0=FEM2D_SUM/1=FEM2D_HAT]")
 		("test_fem_reduce", boost::program_options::value<double>(), "parameter of the reduction of FEM nodes [int,-1=false]")
 		("test_filename_in", boost::program_options::value< std::string >(), "name of input file with image data (vector in PETSc format) [string]")
 		("test_filename_out", boost::program_options::value< std::string >(), "name of output file with image data (vector in PETSc format) [string]")
