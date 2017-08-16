@@ -26,8 +26,7 @@ K=2;
 mu0="0.498039215686275";
 mu1="0.501960784313725";
 annealing=1;
-fem_reduce=1.0;
-fem_type=1;
+fem_type=3;
 matrix_type=1;
 
 N = 1;
@@ -35,10 +34,10 @@ problem_time = "00:20:00";
 
 # noise of input signal
 nmbfilesmax = 4;
-Sigma = [0,1,2,3,4,5,6,7,8,9];
+sigma = 9;
+fem_reduces= [1.0, 0.5, 0.25, 0.125, 0.0625, 0.0312];
 
 # used penalty
-#epssqrs = [1e-7, 1e-6, 1e2];
 epssqrs = [1e-7, 5e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1, 5e-1, 1e0, 5e0, 1e1, 5e1, 1e2, 5e2, 1e3];
 
 # define console parameters
@@ -51,7 +50,7 @@ params_list.append("--tssolver_maxit=1 --tssolver_eps=1e-5 --tssolver_debugmode=
 params_list.append("--log_or_not=false --log_or_not_func_call=true --log_or_not_file_line=true --log_or_not_level=true" );
 params_list.append("--spgqpsolver_maxit=5000 --spgqpsolver_debugmode=0 --spgqpsolver_stop_difff=false --spgqpsolver_stop_normgp=true --spgqpsolver_eps=1e-5" );
 params_list.append("--spgqpsolver_debug_print_it=false --tssolver_debug_print_gamma=false --tssolver_debug_print_theta=false --tssolver_debug_print_it=false" );
-params_list.append("--test_fem_reduce=%s --test_fem_type=%s" % (fem_reduce, fem_type) );
+params_list.append("--test_fem_type=%s" % (fem_type) );
 params_list.append("--graphh1femmodel_matrixtype=%s" % (matrix_type) );
 params = ' '.join(params_list);
 
@@ -68,13 +67,13 @@ batchfile_list = [];
 for n in range(0,nmbfilesmax):
     print "Preparing batch scripts: %s" % (n)
     exec_list = [];
-    for sigma in Sigma:
+    for fem_reduce in fem_reduces:
         filename_in = "data/%s/%s_id%s_idSigma%s.bin" % (problem_name,problem_name,n,sigma);
-        filename_out = "%s_id%s_idSigma%s" % (problem_name,n,sigma);
-        shortinfo_header = "n,sigmaid,";
-        shortinfo_values = "%s,%s," % (n,sigma);
+        filename_out = "%s_id%s_idSigma%s_fem%s" % (problem_name,n,sigma,fem_reduce);
+        shortinfo_header = "n,fem_reduce,";
+        shortinfo_values = "%s,%s," % (n,fem_reduce);
         shortinfo_filename = "shortinfo/%s_id%s_idSigma%d.txt" % (problem_name,n,sigma);
-        params2 = "--test_filename_in=\"%s\" --test_filename_out=\"%s\" --test_shortinfo_header=\"%s\" --test_shortinfo_values=\"%s\" --test_shortinfo_filename=\"%s\"" % (filename_in, filename_out, shortinfo_header, shortinfo_values, shortinfo_filename);
+        params2 = "--test_fem_reduce=%s --test_filename_in=\"%s\" --test_filename_out=\"%s\" --test_shortinfo_header=\"%s\" --test_shortinfo_values=\"%s\" --test_shortinfo_filename=\"%s\"" % (fem_reduce, filename_in, filename_out, shortinfo_header, shortinfo_values, shortinfo_filename);
         exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N, exec_name, params, params2, filename_out)
         exec_list.append(exec_name_full)        
     batch_name = "%s_id%s" % (problem_name, n);

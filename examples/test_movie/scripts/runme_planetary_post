@@ -1,0 +1,25 @@
+#!/bin/bash   
+
+WIDTH=256
+HEIGHT=128
+T=1000
+K=2
+
+XDIM=1
+DATA_TYPE=0 # type of input data [0=TRn, 1=TnR, 2=nTR]
+
+NAME="planetary"
+FILENAME_DATA="planetary/planetary_data.bin"
+FILENAME_SOLUTION="planetary/planetary_solution.bin"
+FILENAME_GAMMA="planetary/planetary_gamma.bin"
+FILENAME_RECOVERED="planetary/planetary_recovered.bin"
+FILENAME_OUT_MOVIE="planetary/planetary.mp4"
+FILENAME_OUT="planetary/planetary.jpg"
+DIRNAME_OUT="planetary/planetary/"
+
+# create movie - generate images
+./util_dlib_vec_to_image --filename_in1=$FILENAME_DATA --filename_in3=$FILENAME_GAMMA --K3=$K --K3only=1 --filename_out=$FILENAME_OUT --width=$WIDTH --T=$T --xdim=$XDIM --type=$DATA_TYPE
+
+# create movie - put images together
+#mencoder mf://./results/planetary/*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o results/output.avi
+ffmpeg -framerate 25 -i $DIRNAME_OUT%04d.jpg -c:v libx264 -r 30 -pix_fmt yuv420p $FILENAME_OUT_MOVIE

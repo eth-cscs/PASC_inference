@@ -68,10 +68,11 @@ int main( int argc, char *argv[] )
 	/* add local program options */
 	boost::program_options::options_description opt_problem("UTIL_DLIB_IMAGE_TO_VEC", consoleArg.get_console_nmb_cols());
 	opt_problem.add_options()
-		("filename_in", boost::program_options::value< std::string >(), "input vector in PETSc format [string]")
+		("filename_in1", boost::program_options::value< std::string >(), "input vector in PETSc format [string]")
 		("filename_in2", boost::program_options::value< std::string >(), "optional second input vector in PETSc format [string]")
 		("filename_in3", boost::program_options::value< std::string >(), "optional third input vector in PETSc format [string]")
 		("K3", boost::program_options::value< int >(), "number of clusters for third image representing gamma [int]")
+		("K3only", boost::program_options::value< int >(), "the only cluster which is plotted, otherwise all are plotted [int]")
 		("filename_out", boost::program_options::value< std::string >(), "output image in jpeg format [string]")
 		("width", boost::program_options::value< int >(), "width of image [int]")
 		("T", boost::program_options::value<int>(), "number of frames [int]")
@@ -85,11 +86,17 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	std::string filename_in;
+	std::string filename_in1; bool given_first;
 	std::string filename_in2; bool given_second;
 	std::string filename_in3; bool given_third;
 	std::string filename_out;
-    int width, T, xdim, type, K3;
+    int width, T, xdim, type, K3, K3only;
+
+	if(consoleArg.set_option_value("filename_in1", &filename_in1)){
+		given_first = true;
+	} else {
+        given_first = false;
+	}
 
 	if(consoleArg.set_option_value("filename_in2", &filename_in2)){
 		given_second = true;
@@ -103,13 +110,12 @@ int main( int argc, char *argv[] )
 			std::cout << "K3 for last input vector has to be set! Call application with parameter -h to see all parameters\n";
 			return 0;
 		}
+		if(!consoleArg.set_option_value("K3only", &K3only)){
+			K3only = -1;
+		}
+
 	} else {
         given_third = false;
-	}
-
-	if(!consoleArg.set_option_value("filename_in", &filename_in)){
-		std::cout << "filename_in has to be set! Call application with parameter -h to see all parameters\n";
-		return 0;
 	}
 
 	if(!consoleArg.set_option_value("width", &width)){
@@ -123,7 +129,15 @@ int main( int argc, char *argv[] )
 	consoleArg.set_option_value("T", &T, DEFAULT_T);
 
 	coutMaster << "- UTIL INFO ----------------------------" << std::endl;
-	coutMaster << " filename_in            = " << std::setw(30) << filename_in << " (input vector in PETSc format)" << std::endl;
+
+	coutMaster << " filename_in1           = ";
+    if(given_first){
+        coutMaster << std::setw(30) << filename_in1;
+    } else {
+        coutMaster << std::setw(30) << print_bool(false);
+    }
+    coutMaster << " (input vector in PETSc format)" << std::endl;
+
     coutMaster << " filename_in2           = ";
     if(given_second){
         coutMaster << std::setw(30) << filename_in2;
@@ -131,10 +145,12 @@ int main( int argc, char *argv[] )
         coutMaster << std::setw(30) << print_bool(false);
     }
     coutMaster << " (optional second input vector in PETSc format)" << std::endl;
+
     coutMaster << " filename_in3           = ";
     if(given_third){
         coutMaster << std::setw(30) << filename_in3 << " (optional third input vector in PETSc format)" << std::endl;
 		coutMaster << " K3                     = " << std::setw(30) << K3 << " (number of clusters for third image representing gamma)" << std::endl;
+		coutMaster << " K3only                 = " << std::setw(30) << K3only << " (the only cluster which is plotted, otherwise all are plotted)" << std::endl;
     } else {
         coutMaster << std::setw(30) << print_bool(false) << " (optional third input vector in PETSc format)" << std::endl; 
     }
@@ -145,11 +161,16 @@ int main( int argc, char *argv[] )
 	coutMaster << " T                      = " << std::setw(30) << T << " (number of frames in movie)" << std::endl;
 	coutMaster << "-------------------------------------------" << std::endl;
 
+	int how_many_widths = 0;
+
 	/* prepare and load data vector */
-	Vec data_Vec;
-	TRYCXX( VecCreate(PETSC_COMM_WORLD,&data_Vec) );
-	GeneralVector<PetscVector> data(data_Vec);
-	data.load_local(filename_in);
+	Vec data1_Vec;
+	TRYCXX( VecCreate(PETSC_COMM_WORLD,&data1_Vec) );
+	GeneralVector<PetscVector> data1(data1_Vec);
+    if(given_first){
+        data1.load_local(filename_in1);
+        how_many_widths++;
+    }
 
     /* prepare second optional vector */
 	Vec data2_Vec;
@@ -157,6 +178,7 @@ int main( int argc, char *argv[] )
     GeneralVector<PetscVector> data2(data2_Vec);
     if(given_second){
         data2.load_local(filename_in2);
+		how_many_widths++;
     }
 
     /* prepare third optional vector */
@@ -165,6 +187,11 @@ int main( int argc, char *argv[] )
     GeneralVector<PetscVector> data3(data3_Vec);
     if(given_third){
         data3.load_local(filename_in3);
+		if(K3only > 0){
+			how_many_widths++;
+		} else {
+			how_many_widths += K3;
+		}
     }
 
 	/* get filename path and extension */
@@ -191,32 +218,25 @@ int main( int argc, char *argv[] )
 
     /* compute height of image */
 	int data_size;
-	TRYCXX( VecGetSize(data.get_vector(), &data_size) );
+	TRYCXX( VecGetSize(data1.get_vector(), &data_size) );
 	int height = (int)((data_size/(double)xdim)/(double)(width*T));
 
     /* prepare Dlib stuff for exporting */
 	array2d<rgb_pixel> image_dlib;
-    if(!given_second & !given_third){
-        image_dlib.set_size(height,width);
-    } else {
-        if(given_second){
-            image_dlib.set_size(height,2*width);
-        }
-        if(given_third){
-            image_dlib.set_size(height,(2+K3)*width);
-        }
-    }
+    image_dlib.set_size(height,how_many_widths*width);
 
 	int R = width*height;
 
-	double *x_arr;
-	TRYCXX( VecGetArray(data.get_vector(), &x_arr) );
+	double *x1_arr;
+	if(given_first) TRYCXX( VecGetArray(data1.get_vector(), &x1_arr) );
 
 	double *x2_arr;
     if(given_second) TRYCXX( VecGetArray(data2.get_vector(), &x2_arr) );
 
 	double *x3_arr;
     if(given_third) TRYCXX( VecGetArray(data3.get_vector(), &x3_arr) );
+
+	double left_start;
 
     for(int t=0; t < T; t++){
         for(int i=0;i<height;i++){
@@ -225,21 +245,38 @@ int main( int argc, char *argv[] )
                 /* greyscale */
                 if(xdim==1){
                     if(type == 0 | type == 1 | type == 2){
-                        image_dlib[i][j].red = x_arr[t*R + i*width + j]*255;
-                        image_dlib[i][j].green = x_arr[t*R + i*width + j]*255;
-                        image_dlib[i][j].blue = x_arr[t*R + i*width + j]*255;
 
+                        left_start = 0.0;
+
+                        if(given_first){
+							image_dlib[i][left_start+j].red = x1_arr[t*R + i*width + j]*255;
+							image_dlib[i][left_start+j].green = x1_arr[t*R + i*width + j]*255;
+							image_dlib[i][left_start+j].blue = x1_arr[t*R + i*width + j]*255;
+							
+							left_start += width;
+						}
+						
                         if(given_second){
-                            image_dlib[i][width+j].red = x2_arr[t*R + i*width + j]*255;
-                            image_dlib[i][width+j].green = x2_arr[t*R + i*width + j]*255;
-                            image_dlib[i][width+j].blue = x2_arr[t*R + i*width + j]*255;
+                            image_dlib[i][left_start+j].red = x2_arr[t*R + i*width + j]*255;
+                            image_dlib[i][left_start+j].green = x2_arr[t*R + i*width + j]*255;
+                            image_dlib[i][left_start+j].blue = x2_arr[t*R + i*width + j]*255;
+
+							left_start += width;
                         }
 
                         if(given_third){
-							for(int k=0;k<K3;k++){
-								image_dlib[i][(2+k)*width+j].red = x3_arr[t*K3*R + k*R + i*width + j]*255;
-								image_dlib[i][(2+k)*width+j].green = x3_arr[t*K3*R + k*R + i*width + j]*255;
-								image_dlib[i][(2+k)*width+j].blue = x3_arr[t*K3*R + k*R + i*width + j]*255;
+							if(K3only < 0){
+								left_start += width;
+								image_dlib[i][left_start+j].red = x3_arr[t*K3*R + K3only*R + i*width + j]*255;
+								image_dlib[i][left_start+j].green = x3_arr[t*K3*R + K3only*R + i*width + j]*255;
+								image_dlib[i][left_start+j].blue = x3_arr[t*K3*R + K3only*R + i*width + j]*255;
+							} else {
+								for(int k=0;k<K3;k++){
+									left_start += width;
+									image_dlib[i][left_start+j].red = x3_arr[t*K3*R + k*R + i*width + j]*255;
+									image_dlib[i][left_start+j].green = x3_arr[t*K3*R + k*R + i*width + j]*255;
+									image_dlib[i][left_start+j].blue = x3_arr[t*K3*R + k*R + i*width + j]*255;
+								}
 							}
                         }
                     }
@@ -248,9 +285,9 @@ int main( int argc, char *argv[] )
                 if(xdim==3){
                     /* TRn */
                     if(type == 0){
-                        image_dlib[i][j].red   = x_arr[t*xdim*width*height + i*width*xdim + j*xdim + 0]*255;
-                        image_dlib[i][j].green = x_arr[t*xdim*width*height + i*width*xdim + j*xdim + 1]*255;
-                        image_dlib[i][j].blue  = x_arr[t*xdim*width*height + i*width*xdim + j*xdim + 2]*255;
+                        image_dlib[i][j].red   = x1_arr[t*xdim*width*height + i*width*xdim + j*xdim + 0]*255;
+                        image_dlib[i][j].green = x1_arr[t*xdim*width*height + i*width*xdim + j*xdim + 1]*255;
+                        image_dlib[i][j].blue  = x1_arr[t*xdim*width*height + i*width*xdim + j*xdim + 2]*255;
 
                         if(given_second){
                             image_dlib[i][width+j].red   = x2_arr[t*xdim*width*height + i*width*xdim + j*xdim + 0]*255;
@@ -267,9 +304,9 @@ int main( int argc, char *argv[] )
 
                     /* TnR */
                     if(type == 1){
-                        image_dlib[i][j].red   = x_arr[t*xdim*width*height + 0*width*height + i*width + j]*255;
-                        image_dlib[i][j].green = x_arr[t*xdim*width*height + 1*width*height + i*width + j]*255;
-                        image_dlib[i][j].blue  = x_arr[t*xdim*width*height + 2*width*height + i*width + j]*255;
+                        image_dlib[i][j].red   = x1_arr[t*xdim*width*height + 0*width*height + i*width + j]*255;
+                        image_dlib[i][j].green = x1_arr[t*xdim*width*height + 1*width*height + i*width + j]*255;
+                        image_dlib[i][j].blue  = x1_arr[t*xdim*width*height + 2*width*height + i*width + j]*255;
 
                         if(given_second){
                             image_dlib[i][width+j].red   = x2_arr[t*xdim*width*height + 0*width*height + i*width + j]*255;
@@ -286,9 +323,9 @@ int main( int argc, char *argv[] )
 
                     /* nTR */
                     if(type == 2){
-                        image_dlib[i][j].red   = x_arr[0*T*width*height + t*width*height + i*width + j]*255;
-                        image_dlib[i][j].green = x_arr[1*T*width*height + t*width*height + i*width + j]*255;
-                        image_dlib[i][j].blue  = x_arr[2*T*width*height + t*width*height + i*width + j]*255;
+                        image_dlib[i][j].red   = x1_arr[0*T*width*height + t*width*height + i*width + j]*255;
+                        image_dlib[i][j].green = x1_arr[1*T*width*height + t*width*height + i*width + j]*255;
+                        image_dlib[i][j].blue  = x1_arr[2*T*width*height + t*width*height + i*width + j]*255;
 
                         if(given_second){
                             image_dlib[i][width+j].red   = x2_arr[0*T*width*height + t*width*height + i*width + j]*255;
@@ -319,9 +356,9 @@ int main( int argc, char *argv[] )
             save_jpeg(image_dlib, oss.str(), JPEG_QUALITY);
         }
     }
-	TRYCXX( VecRestoreArray(data.get_vector(), &x_arr) );
+	if(given_first) TRYCXX( VecRestoreArray(data1.get_vector(), &x1_arr) );
     if(given_second) TRYCXX( VecRestoreArray(data2.get_vector(), &x2_arr) );
-    if(given_third) TRYCXX( VecRestoreArray(data2.get_vector(), &x2_arr) );
+    if(given_third) TRYCXX( VecRestoreArray(data3.get_vector(), &x3_arr) );
 
     //TODO: destroy vectors?
 
