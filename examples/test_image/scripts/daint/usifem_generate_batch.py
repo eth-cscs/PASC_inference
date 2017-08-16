@@ -69,10 +69,10 @@ for n in range(0,nmbfilesmax):
     exec_list = [];
     for fem_reduce in fem_reduces:
         filename_in = "data/%s/%s_id%s_idSigma%s.bin" % (problem_name,problem_name,n,sigma);
-        filename_out = "%s_id%s_idSigma%s_fem%s" % (problem_name,n,sigma,fem_reduce);
+        filename_out = "%s_id%s_idSigma%s_fem%s_type%s" % (problem_name,n,sigma,fem_reduce, fem_type);
         shortinfo_header = "n,fem_reduce,";
         shortinfo_values = "%s,%s," % (n,fem_reduce);
-        shortinfo_filename = "shortinfo/%s_id%s_idSigma%d.txt" % (problem_name,n,sigma);
+        shortinfo_filename = "shortinfo/%s.txt" % (filename_out);
         params2 = "--test_fem_reduce=%s --test_filename_in=\"%s\" --test_filename_out=\"%s\" --test_shortinfo_header=\"%s\" --test_shortinfo_values=\"%s\" --test_shortinfo_filename=\"%s\"" % (fem_reduce, filename_in, filename_out, shortinfo_header, shortinfo_values, shortinfo_filename);
         exec_name_full = "%s -n %d %s %s %s > batch_out/%s.log" %(mpiexec, N, exec_name, params, params2, filename_out)
         exec_list.append(exec_name_full)        
