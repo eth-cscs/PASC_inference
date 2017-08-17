@@ -11,18 +11,21 @@ const int nd_max = 50;
 
 __device__ __constant__ double g_xi[xdim_max][nd_max];
 
-__global__ void gVegasCallFunc(int g_ng, int g_npg, int g_nd, double g_xjac, double g_dxg, int g_nCubes, double *g_xl, double *g_dx, double* gFval, int* gIAval, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral);
-__device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral);
+__global__ void gVegasCallFunc(int g_ng, int g_npg, int g_nd, double g_xjac, double device_dxg, int g_nCubes, double *device_xl, double *device_dx, double* device_Fval, int* device_IAval, int xdim, int number_of_integrals, int n, double *device_lambda, int *device_matrix_D_arr, int id_integral);
+__device__ void func_entropy(double *cvalues_out, double *cx, int xdim, int number_of_integrals, int n, double *device_lambda, int *device_matrix_D_arr, int id_integral);
 __device__ __host__ __forceinline__ void fxorshift128(unsigned int seed, int n, double* a);
 
-__global__ void print_kernel(int xdim, int number_of_moments, int number_of_integrals, double *g_lambda, int *g_matrix_D_arr){
+__global__ void gVegasFill(double *device_d, double *device_ti, double *device_tsi, int nCubes, double *device_Fval, int *device_IAval, int npg, int nd, int mds, int xdim);
+
+
+__global__ void print_kernel(int xdim, int number_of_moments, int number_of_integrals, double *device_lambda, int *device_matrix_D_arr){
 	printf("============ from GPU =========== \n");
 	printf("xdim                : %d \n", xdim);
 	printf("number_of_moments   : %d \n", number_of_moments);
 	printf("number_of_integrals : %d \n", number_of_integrals);
-	printf("g_lambda            : [");
+	printf("device_lambda            : [");
 	for(int i=0; i < number_of_moments-1; i++){
-		printf("%f", g_lambda[i]);
+		printf("%f", device_lambda[i]);
 		if(i<number_of_moments-2){
 			printf(", ");
 		}
@@ -31,7 +34,7 @@ __global__ void print_kernel(int xdim, int number_of_moments, int number_of_inte
 	printf("matrix D: \n");
 	for(int i_moment=0;i_moment < number_of_moments; i_moment++){
 		for(int i_xdim=0;i_xdim < xdim; i_xdim++){
-			printf("%d", g_matrix_D_arr[ i_moment*xdim + i_xdim]);
+			printf("%d", device_matrix_D_arr[ i_moment*xdim + i_xdim]);
 			
 			if(i_xdim < xdim-1) printf(", ");
 		}
@@ -39,7 +42,7 @@ __global__ void print_kernel(int xdim, int number_of_moments, int number_of_inte
 	}
 }
 
-__global__ void kernel_set_zero(int size, double *arr1){
+__global__ void kernel_set_zero(double *arr1, int size){
 	
 	//TODO: make it in a different way!!!
 	for(int i=0;i<size;i++){
@@ -71,13 +74,13 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::ExternalContent(int x
 	this->dx = new double[xdim_max];
 
 	/* allocate variables on cuda */
-	gpuErrchk(cudaMalloc((void**)&(this->g_xl), xdim_max*sizeof(double)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_dx), xdim_max*sizeof(double)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_lambda), (number_of_moments-1)*sizeof(double)));
-	gpuErrchk(cudaMalloc((void**)&(this->g_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
+	gpuErrchk(cudaMalloc((void**)&(this->device_xl), xdim_max*sizeof(double)));
+	gpuErrchk(cudaMalloc((void**)&(this->device_dx), xdim_max*sizeof(double)));
+	gpuErrchk(cudaMalloc((void**)&(this->device_lambda), (number_of_moments-1)*sizeof(double)));
+	gpuErrchk(cudaMalloc((void**)&(this->device_matrix_D_arr), number_of_moments*xdim*sizeof(int)));
 
 	/* copy variables to CUDA */
-	gpuErrchk( cudaMemcpy(this->g_matrix_D_arr, matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->device_matrix_D_arr, matrix_D_arr, number_of_moments*xdim*sizeof(int), cudaMemcpyHostToDevice ) );
 	cudaThreadSynchronize(); /* wait for synchronize */
 
 
@@ -95,10 +98,10 @@ EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::~ExternalContent(){
 	free(this->dx);
 
 	/* free cuda variables */
-	gpuErrchk(cudaFree(this->g_xl));
-	gpuErrchk(cudaFree(this->g_dx));
-	gpuErrchk(cudaFree(this->g_lambda));
-	gpuErrchk(cudaFree(this->g_matrix_D_arr));
+	gpuErrchk(cudaFree(this->device_xl));
+	gpuErrchk(cudaFree(this->device_dx));
+	gpuErrchk(cudaFree(this->device_lambda));
+	gpuErrchk(cudaFree(this->device_matrix_D_arr));
 
 	LOG_FUNC_END
 }
@@ -108,11 +111,11 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	LOG_FUNC_BEGIN
 
 	/* copy given lambda to GPU */
-	gpuErrchk( cudaMemcpy(this->g_lambda, lambda_arr, (number_of_moments-1)*sizeof(double), cudaMemcpyHostToDevice ) );
+	gpuErrchk( cudaMemcpy(this->device_lambda, lambda_arr, (number_of_moments-1)*sizeof(double), cudaMemcpyHostToDevice ) );
 	cudaThreadSynchronize(); /* wait for synchronize */
 
 	//TODO: temp
-//	print_kernel<<<1, 1>>>(xdim, number_of_moments, number_of_integrals, this->g_lambda, this->g_matrix_D_arr);
+//	print_kernel<<<1, 1>>>(xdim, number_of_moments, number_of_integrals, this->device_lambda, this->device_matrix_D_arr);
 //	cudaThreadSynchronize(); /* wait for synchronize */
 
 	/* through all integrals which has to be computed */
@@ -245,8 +248,8 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		}
 
 		/* transfer data to GPU */
-		gpuErrchk( cudaMemcpy(this->g_xl, this->xl, xdim_max*sizeof(double), cudaMemcpyHostToDevice ) );
-		gpuErrchk( cudaMemcpy(this->g_dx, this->dx, xdim_max*sizeof(double), cudaMemcpyHostToDevice ) );
+		gpuErrchk( cudaMemcpy(this->device_xl, this->xl, xdim_max*sizeof(double), cudaMemcpyHostToDevice ) );
+		gpuErrchk( cudaMemcpy(this->device_dx, this->dx, xdim_max*sizeof(double), cudaMemcpyHostToDevice ) );
 		gpuErrchk(cudaMemcpyToSymbol(g_xi, xi, sizeof(xi)));
 		cudaThreadSynchronize();
 	
@@ -303,32 +306,37 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 		}
 
 		int sizeFval;
-		double* hFval;
-		double* gFval;
-
 		int sizeIAval;
-		int* hIAval;
-		int* gIAval;
+		int sized;
+		
+		double* host_Fval;
+		int* host_IAval;
+		double* host_d;
 
-		/* allocate Fval */
+		double* device_Fval;
+		int* device_IAval;
+		double* device_d;
+		double *device_ti;
+		double *device_tsi;
+
+		/* set sizes */
 		sizeFval = nCubeNpg*sizeof(double);
-
-		/* CPU */
-		gpuErrchk(cudaMallocHost((void**)&hFval, sizeFval));
-		memset(hFval, '\0', sizeFval);
-
-		/* GPU */
-		gpuErrchk(cudaMalloc((void**)&gFval, sizeFval));
-
-		/* allocate IAval */
 		sizeIAval = nCubeNpg*xdim*sizeof(int);
+		sized = xdim*nd*sizeof(double);
 
 		/* CPU */
-		gpuErrchk(cudaMallocHost((void**)&hIAval, sizeIAval));
-		memset(hIAval, '\0', sizeIAval);
+		gpuErrchk(cudaMallocHost((void**)&host_Fval, sizeFval));
+		gpuErrchk(cudaMallocHost((void**)&host_IAval, sizeIAval));
+		gpuErrchk(cudaMallocHost((void**)&host_d, sized));
+		memset(host_Fval, '\0', sizeFval);
+		memset(host_IAval, '\0', sizeIAval);
 
 		/* GPU */
-		gpuErrchk(cudaMalloc((void**)&gIAval, sizeIAval));
+		gpuErrchk(cudaMalloc((void**)&device_Fval, sizeFval));
+		gpuErrchk(cudaMalloc((void**)&device_IAval, sizeIAval));
+		gpuErrchk(cudaMalloc((void**)&device_d, sized));
+		gpuErrchk(cudaMalloc((void**)&device_ti, sizeof(double)));
+		gpuErrchk(cudaMalloc((void**)&device_tsi, sizeof(double)));
 
 		/* perform main iterations */
 		do {
@@ -336,16 +344,17 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			
 			/* call integral function */
 			timerVegasCall.start();
-			 /* double* gFval, int* gIAval, int xdim, int number_of_integrals, int number_of_moments, int *g_lambda, int *g_matrix_D_arr */
-			gVegasCallFunc<<<BkGd, ThBk>>>(ng, npg, nd, xjac, dxg, nCubes, g_xl, g_dx, gFval, gIAval, this->xdim, this->number_of_integrals, this->number_of_moments-1, this->g_lambda, this->g_matrix_D_arr, id_integral);
+			 /* double* device_Fval, int* device_IAval, int xdim, int number_of_integrals, int number_of_moments, int *device_lambda, int *device_matrix_D_arr */
+			gVegasCallFunc<<<BkGd, ThBk>>>(ng, npg, nd, xjac, dxg, nCubes, device_xl, device_dx, device_Fval, device_IAval, this->xdim, this->number_of_integrals, this->number_of_moments-1, this->device_lambda, this->device_matrix_D_arr, id_integral);
 			cudaThreadSynchronize();
+			gpuErrchk( cudaDeviceSynchronize() );
 			timerVegasCall.stop();
 	
 			/* move computed results */
 			timerVegasMove.start();
-			gpuErrchk(cudaMemcpy(hFval, gFval,  sizeFval,
+			gpuErrchk(cudaMemcpy(host_Fval, device_Fval,  sizeFval,
 	                               cudaMemcpyDeviceToHost));
-			gpuErrchk(cudaMemcpy(hIAval, gIAval,  sizeIAval,
+			gpuErrchk(cudaMemcpy(host_IAval, device_IAval,  sizeIAval,
 	                               cudaMemcpyDeviceToHost));
 			timerVegasMove.stop();
 	
@@ -354,48 +363,48 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 	
 			ti = 0.;
 			tsi = 0.;
-	
-			double d[xdim_max][nd_max];
-	
-			for (int j=0;j<xdim;++j) {
-				for (int i=0;i<nd;++i) {
-					d[j][i] = 0.;
-				}
-			}
-	
-			for (unsigned ig=0;ig<nCubes;ig++) {
-				double fb = 0.;
-				double f2b = 0.;
-				for(int ipg=0;ipg<npg;ipg++) {
-					int idx = npg*ig+ipg;
-					double f = hFval[idx];
-					double f2 = f*f;
-					fb += f;
-					f2b += f2;
-				}
-				f2b = sqrt(f2b*npg);
-				f2b = (f2b-fb)*(f2b+fb);
-				ti += fb;
-				tsi += f2b;
-				if(mds<0){
-					int idx = npg*ig;
-					for(int idim=0;idim<xdim;idim++) {
-						int iaj = hIAval[idim*nCubeNpg+idx];
-						d[idim][iaj] += f2b;
-					}
-				}
-			}
-	
+
+			/* zero device_d */
+//			kernel_set_zero<<<1,1>>>(device_d, xdim*nd);
+
+			/* call fill kernel */
+			int nBlockTot_Fill = (nCubes-1)/nBlockSize+1;
+			int nGridSizeY_Fill = (nBlockTot_Fill-1)/nGridSizeMax+1;
+			int nGridSizeX_Fill = (nBlockTot_Fill-1)/nGridSizeY+1;
+			dim3 BkGd_Fill(nGridSizeX_Fill, nGridSizeY_Fill);
+/*
+			coutMaster << "shared memory size: " << nBlockSize*xdim*nd << std::endl;
+			coutMaster << "nBlockTot_Fill  : " << nBlockTot_Fill << std::endl;
+			coutMaster << "nGridSizeX_Fill : " << nGridSizeX_Fill << std::endl;
+			coutMaster << "nGridSizeY_Fill : " << nGridSizeY_Fill << std::endl;
+*/			
+			gVegasFill<<<BkGd_Fill, ThBk, nBlockSize*xdim*nd*sizeof(double) + 2*nBlockSize*sizeof(double) >>>(device_d, device_ti, device_tsi, nCubes, device_Fval, device_IAval, npg, nd, mds, xdim);
+//			gVegasFill<<<BkGd_Fill, ThBk >>>(device_d, nCubes, device_Fval, device_IAval, npg, nd, mds, xdim);
+			gpuErrchk( cudaDeviceSynchronize() );
+
+			/* transfer data from device to host */
+			gpuErrchk(cudaMemcpy(host_d, device_d,  sized, cudaMemcpyDeviceToHost));
+			gpuErrchk(cudaMemcpy(&ti, device_ti,  sizeof(double), cudaMemcpyDeviceToHost));
+			gpuErrchk(cudaMemcpy(&tsi, device_tsi,  sizeof(double), cudaMemcpyDeviceToHost));
+			gpuErrchk( cudaDeviceSynchronize() );
+			
+			coutMaster << "ti = " << ti << std::endl;
+			coutMaster << "tsi = " << tsi << std::endl;
+			
+			
 			if(mds>0){
 				for (int idim=0;idim<xdim;idim++) {
 					int idimCube = idim*nCubeNpg;
 					for(int idx=0;idx<nCubeNpg;idx++) {
-						double f = hFval[idx];
-						int iaj = hIAval[idimCube+idx];
-						d[idim][iaj] += f*f;
+						double f = host_Fval[idx];
+						int iaj = host_IAval[idimCube+idx];
+						host_d[idim*nd + iaj] += f*f;
 					}
 				}
 			}
+
+			
+			coutMaster << "host_d: " << print_array(host_d,xdim*nd) << std::endl;
 	
 			timerVegasFill.stop();
 	
@@ -458,27 +467,27 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			double r[nd_max];
 			double dt[xdim_max];
 			for(int j=0;j<xdim;j++) {
-				double xo = d[j][0];
-				double xn = d[j][1];
-				d[j][0] = 0.5*(xo+xn);
-				dt[j] = d[j][0];
+				double xo = host_d[j*nd + 0];
+				double xn = host_d[j*nd + 1];
+				host_d[j*nd + 0] = 0.5*(xo+xn);
+				dt[j] = host_d[j*nd + 0];
 				for (int i=1;i<nd-1;i++) {
-					d[j][i] = xo+xn;
+					host_d[j*nd + i] = xo+xn;
 					xo = xn;
-					xn = d[j][i+1];
-					d[j][i] = (d[j][i]+xn)/3.;
-					dt[j] += d[j][i];
+					xn = host_d[j*nd + (i+1)];
+					host_d[j*nd + i] = (host_d[j*nd + i]+xn)/3.;
+					dt[j] += host_d[j*nd + i];
 				}
-				d[j][nd-1] = 0.5*(xn+xo);
-				dt[j] += d[j][nd-1];
+				host_d[j*nd + (nd-1)] = 0.5*(xn+xo);
+				dt[j] += host_d[j*nd + (nd-1)];
 			}
 	      
 			for(int j=0;j<xdim;j++) {
 				double rc = 0.;
 				for(int i=0;i<nd;i++) {
 					r[i] = 0.;
-					if(d[j][i]>0.) {
-						double xo = dt[j]/d[j][i];
+					if(host_d[j*nd + i]>0.) {
+						double xo = dt[j]/host_d[j*nd + i];
 						if(!isinf(xo)){
 							r[i] = pow(((xo-1.)/xo/log(xo)),alph);
 						}
@@ -520,11 +529,11 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 			timerVegasRefine.stop();
 	   } while (it<itmx && acc*fabs(avgi[id_integral])<sd[id_integral]);
 	
-		gpuErrchk(cudaFreeHost(hFval));
-		gpuErrchk(cudaFree(gFval));
+		gpuErrchk(cudaFreeHost(host_Fval));
+		gpuErrchk(cudaFree(device_Fval));
 	
-		gpuErrchk(cudaFreeHost(hIAval));
-		gpuErrchk(cudaFree(gIAval));
+		gpuErrchk(cudaFreeHost(host_IAval));
+		gpuErrchk(cudaFree(device_IAval));
 
 
 	} /* for id_integral=0:number_of_integrals-1 */
@@ -533,7 +542,7 @@ void EntropyIntegrationCudaVegas<PetscVector>::ExternalContent::cuda_gVegas(doub
 }
 
 __global__
-void gVegasCallFunc(int g_ng, int g_npg, int g_nd, double g_xjac, double g_dxg, int g_nCubes, double *g_xl, double *g_dx, double* gFval, int* gIAval, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
+void gVegasCallFunc(int g_ng, int g_npg, int g_nd, double g_xjac, double device_dxg, int g_nCubes, double *device_xl, double *device_dx, double* device_Fval, int* device_IAval, int xdim, int number_of_integrals, int n, double *device_lambda, int *device_matrix_D_arr, int id_integral){
 	
 	/* --------------------
 	 * Check the thread ID
@@ -574,7 +583,7 @@ void gVegasCallFunc(int g_ng, int g_npg, int g_nd, double g_xjac, double g_dxg, 
 		double wgt = g_xjac;
 		for(int j=0;j<xdim;j++){
 			double xo,xn,rc;
-			xn = (kg[j]-randm[j])*g_dxg+1.;
+			xn = (kg[j]-randm[j])*device_dxg+1.;
 			ia[j] = (int)xn-1;
 			if (ia[j]<=0) {
 				xo = g_xi[j][ia[j]];
@@ -583,19 +592,19 @@ void gVegasCallFunc(int g_ng, int g_npg, int g_nd, double g_xjac, double g_dxg, 
 				xo = g_xi[j][ia[j]]-g_xi[j][ia[j]-1];
 				rc = g_xi[j][ia[j]-1]+(xn-(double)(ia[j]+1))*xo;
 			}
-			x[j] = g_xl[j]+rc*g_dx[j];
+			x[j] = device_xl[j]+rc*device_dx[j];
 			wgt *= xo*(double)g_nd;
 		}
       
 		/* compute function value for this x */
 		double fs;
-		//func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *g_lambda, int *g_matrix_D_arr)
-		func_entropy(&fs,x, xdim, number_of_integrals, n, g_lambda, g_matrix_D_arr, id_integral);
+		//func_entropy(double *device_values_out, double *xx, int xdim, int number_of_integrals, int number_of_moments, double *device_lambda, int *device_matrix_D_arr)
+		func_entropy(&fs,x, xdim, number_of_integrals, n, device_lambda, device_matrix_D_arr, id_integral);
 		fs = wgt*fs;
 
-		gFval[tid] = fs;
+		device_Fval[tid] = fs;
 		for(int idim=0;idim<xdim;idim++) {
-			gIAval[idim*nCubeNpg+tid] = ia[idim];
+			device_IAval[idim*nCubeNpg+tid] = ia[idim];
 		}
 	}
 }
@@ -674,18 +683,106 @@ void fxorshift128(unsigned int seed, int n, double* a){
 	return;
 }
 
+
+__global__ void gVegasFill( double *device_d, double *device_ti, double *device_tsi, int nCubes, double *device_Fval, int *device_IAval, int npg, int nd, int mds, int xdim) {
+	
+	/* compute thread id */
+	const unsigned int tIdx  = threadIdx.x;
+	const unsigned int bDimx = blockDim.x;
+
+	const unsigned int bIdx  = blockIdx.x;
+	const unsigned int gDimx = gridDim.x;
+	const unsigned int bIdy  = blockIdx.y;
+
+	unsigned int bid  = bIdy*gDimx+bIdx; /* block id */
+	const unsigned int tid = bid*bDimx+tIdx; /* thread id */
+
+	int ig = tid; /* index of cube */
+	
+	/* shared memory for reduction */
+	extern __shared__ double shared_d[];
+	extern __shared__ double shared_ti[];
+	extern __shared__ double shared_tsi[];
+
+	/* zero my part of shared memory */
+	for (int i=0;i<xdim*nd;i++) {
+		shared_d[(tIdx*xdim*nd) + i] = 0.;
+	}
+	shared_ti[tIdx] = 0.0;
+	shared_tsi[tIdx] = 0.0;
+
+	if(ig < nCubes){ /* maybe we call more threads then nCubes */
+		unsigned nCubeNpg = nCubes*npg;
+
+		double ti=0.;
+		double tsi=0.;
+
+		double fb = 0.;
+		double f2b = 0.;
+		for(int ipg=0;ipg<npg;ipg++) {
+			int idx = npg*ig+ipg;
+			double f = device_Fval[idx];
+			double f2 = f*f;
+			fb += f;
+			f2b += f2;
+		}
+		f2b = sqrt(f2b*npg);
+		f2b = (f2b-fb)*(f2b+fb);
+		ti += fb;
+		tsi += f2b;
+
+		if(mds<0){
+			int idx = npg*ig;
+			for(int idim=0;idim<xdim;idim++) {
+				int iaj = device_IAval[idim*nCubeNpg+idx];
+				shared_d[(tIdx * xdim*nd) + idim*nd + iaj] += f2b;
+			}
+		}
+		
+		shared_ti[tIdx] = ti;
+		shared_tsi[tIdx] = tsi;
+	}
+
+	/* do reduction in shared mem */
+	for (int s=1; s < blockDim.x; s *=2){
+		int index = 2 * s * threadIdx.x;;
+
+		if (index < blockDim.x){
+			for (int i=0;i<xdim*nd;i++) {
+				shared_d[(index * xdim*nd) + i] += shared_d[((index + s) * xdim*nd) + i];
+			}
+
+			shared_ti[index] += shared_ti[index + s];
+			shared_tsi[index] += shared_tsi[index + s];
+		}
+		__syncthreads();
+	}
+
+    /* write result for this block to global mem */
+    if (tIdx == 0){
+		for (int i=0;i<xdim*nd;i++) {
+			atomicAdd(&(device_d[i]), shared_d[i]);
+		}
+		atomicAdd(device_ti, shared_ti[0]);
+		atomicAdd(device_tsi, shared_tsi[0]);
+
+	}
+
+}
+
+
 __device__
-void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_integrals, int n, double *g_lambda, int *g_matrix_D_arr, int id_integral){
+void func_entropy(double *device_values_out, double *xx, int xdim, int number_of_integrals, int n, double *device_lambda, int *device_matrix_D_arr, int id_integral){
     double V = 0.0;
     double p = 0.0;
     
     for (int i = 0; i < n; i++){
         p = 1.0;
         for (int j = 0; j < xdim; j++){
-            p = p*pow(xx[j], g_matrix_D_arr[(i+1)*xdim+j]);
+            p = p*pow(xx[j], device_matrix_D_arr[(i+1)*xdim+j]);
 		}
 
-        V = V - p*g_lambda[i];
+        V = V - p*device_lambda[i];
     }
 
 	/* ff2[0] - type = 0 */
@@ -693,7 +790,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 
 	/* function value */
 	if(id_integral == 0){
-		g_values_out[0] = FF;		
+		device_values_out[0] = FF;		
 	}
 
 	/* gradient */
@@ -702,9 +799,9 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 			if(1+order == id_integral){
 				p = 1.0;
 				for (int j = 0; j < xdim; j++){
-					p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j]);
+					p = p*pow(xx[j], device_matrix_D_arr[(order+1)*xdim+j]);
 				}
-				g_values_out[0] = p*FF;
+				device_values_out[0] = p*FF;
 			}
 		}
 	}
@@ -717,9 +814,9 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 				if(counter == id_integral){
 					p = 1.0;
 					for(int j=0; j<xdim;j++){
-						p = p*pow(xx[j], g_matrix_D_arr[(order+1)*xdim+j] + g_matrix_D_arr[(order2+1)*xdim+j]);
+						p = p*pow(xx[j], device_matrix_D_arr[(order+1)*xdim+j] + device_matrix_D_arr[(order2+1)*xdim+j]);
 					}
-					g_values_out[0] = p*FF;
+					device_values_out[0] = p*FF;
 				}
 				counter++;
 			}
@@ -727,6 +824,7 @@ void func_entropy(double *g_values_out, double *xx, int xdim, int number_of_inte
 	}
 		
 }
+
 
 
 

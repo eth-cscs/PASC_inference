@@ -113,12 +113,6 @@ int main( int argc, char *argv[] )
 
 	entropydata = new EntropyData<PetscVector>(&decomposition, Km);
 
-    if(printinfo){
-        coutMaster << std::endl;
-        coutMaster << "number of moments: " << entropydata->get_number_of_moments() << std::endl;
-        coutMaster << std::endl;
-    }
-
     /* prepare vector where store computed lambda - this step is typically performed by model */
 	Vec lambda_Vec;
 	TRYCXX( VecCreate(PETSC_COMM_SELF,&lambda_Vec) );

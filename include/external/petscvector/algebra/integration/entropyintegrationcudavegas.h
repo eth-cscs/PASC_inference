@@ -23,11 +23,11 @@ template<> class EntropyIntegrationCudaVegas<PetscVector>::ExternalContent {
 		double *dx;
 
 		#ifdef USE_CUDA
-			double *g_xl;
-			double *g_dx;
+			double *device_xl;
+			double *device_dx;
 
-			double *g_lambda;  /**< lagrange multipliers on CUDA */
-			int *g_matrix_D_arr;  /**< matrix with powers on CUDA */
+			double *device_lambda;  /**< lagrange multipliers on CUDA */
+			int *device_matrix_D_arr;  /**< matrix with powers on CUDA */
 		#endif
 
 	public:
