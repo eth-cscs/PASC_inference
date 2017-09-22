@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo This script mount daint folder into local folder
+
+sshfs pospisil@ela.cscs.ch:soft/PASC_inference ~/ela_mount
+
