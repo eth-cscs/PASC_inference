@@ -1,39 +1,18 @@
-% load data/generate new testing data and show how matlab implementation of
-% FEMH1 regularisation works
-%
-% Lukas Pospisil, USI, Lugano 2016
-%
-
 clear all
 close all
 
-fem_type = 0;
-%fem_type = 1;
-
 addpath('common') % add common stuff
 addpath('compute_femh1') % add functions for femh1 computation 
-
-fem_reduce = 0.5;
 
 % load data or create new
 C_true=[2*ones(1,60) ones(1,50) 2*ones(1,30) ones(1,133) 2*ones(1,20)];
 
 C_true = [C_true C_true C_true C_true]';
 sigma=1; 
-C_orig=C_true+sigma*randn(size(C_true)); % gaussian
-
-% reduce original problem
-T2 = ceil(length(C_orig)*fem_reduce);
-if fem_type == 0
-    C = reduce0( C_orig, T2 );
-end
-if fem_type == 1
-    C = reduce1( C_orig, T2 );
-end
-
+C=C_true+sigma*randn(size(C_true)); % gaussian
 
 Theta = [1.0, 2.0]; % given Theta, K = length(Theta)
-epssqrs = 10.^(0:0.2:7); % used penalties
+epssqrs = 10.^(0:0.1:7); % used penalties
 T = length(C_true);
 
 C_err = Inf*ones(size(epssqrs)); % here store errors (to plot final error curve)
@@ -57,20 +36,13 @@ for i = 1:length(epssqrs)
     [C_filtered, gamma, qp_lin(i), qp_quad(i), L ] = compute_femh1( C, H1, B, gamma, Theta, epssqr );
     
 	% compute error
-%    C_err(i) = mean(abs(C_filtered-C_true));
-    if fem_type == 0
-        C_filtered_orig = prolongate0(C_filtered,length(C_orig));
-    end
-    if fem_type == 1
-        C_filtered_orig = prolongate1(C_filtered,length(C_orig));
-    end
-    C_err(i) = norm(C_filtered_orig-C_true,2);
+    C_err(i) = norm(C_filtered-C_true,2);
     L_values(i) = L;
 
 	% if this choice of penalty is the best (subject to error), then store the solution
     if C_err(i) < best_epssqr
 		best_epssqr_id = i;
-        best_C_filtered = C_filtered_orig;
+        best_C_filtered = C_filtered;
         best_epssqr = C_err(best_epssqr_id);
 	end
 end
@@ -78,7 +50,7 @@ end
 
 % plot the error curve (epssqr vs. err)
 figure
-subplot(1,3,1);
+subplot(1,4,1);
 hold on
 title('Error curve');
 xlabel('epssqr');
@@ -92,7 +64,7 @@ hold off
 
 
 % plot the L curve (linear_part vs. quadratic_part)
-subplot(1,3,2);
+subplot(1,4,2);
 hold on
 title('L-curve');
 xlabel('linear term (model error)');
@@ -111,7 +83,7 @@ hold off
 
 
 % plot values of L
-subplot(1,3,3);
+subplot(1,4,3);
 hold on
 title('values of L');
 xlabel('epssqr');
@@ -123,6 +95,22 @@ plot(epssqrs(best_epssqr_id),L_values(best_epssqr_id),'mo', 'MarkerSize', 15)
 set(gca,'xscale','log')
 hold off
 
+% plot the ratio curve (linear_part/quadratic_part vs epssqr)
+subplot(1,4,4);
+hold on
+title('ratio curve');
+xlabel('epssqr');
+ylabel('penalty value/model error')
+
+myratio = qp_quad./qp_lin;
+
+% plot curve
+plot(epssqrs,myratio,'b.-','LineWidth',1.0);
+% plot the best choice
+plot(epssqrs(best_epssqr_id),myratio(best_epssqr_id),'mo', 'MarkerSize', 15)
+set(gca,'xscale','log','yscale','log')
+hold off
+
 
 % plot solution
 figure
@@ -131,7 +119,7 @@ title(['solution, epssqr = ' num2str(epssqrs(best_epssqr_id))]);
 xlabel('t');
 ylabel('x(t)')
 % plot signals
-plot(1:length(C_orig),C_orig,'b-','LineWidth',1.0);
+plot(1:length(C),C,'b-','LineWidth',1.0);
 plot(1:length(C_true),C_true,'r--','LineWidth',2.0);
 plot(1:length(C_true),best_C_filtered,'-','LineWidth',2.0,'Color',[0.0,0.4,0.0]);
 legend('with noise','original', 'reconstructed');
