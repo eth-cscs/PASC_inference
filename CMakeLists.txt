@@ -50,6 +50,7 @@ message(STATUS "${Blue}compiling PASCInference library${ColourReset}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") # we are compiling shared library
 
 # include header files
+include_directories("include" )
 include_directories("${PASCINFERENCE_INCLUDE}")
 
 # create list of general targets and seqarrayvector

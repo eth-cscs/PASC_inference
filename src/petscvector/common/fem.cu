@@ -38,7 +38,7 @@ void Fem<PetscVector>::ExternalContent::cuda_prolongate_data(double *data1_arr, 
 
 
 
-__global__ void kernel_Fem_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
+__global__ void kernel_fem_reduce_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t2 < T2local){
@@ -52,7 +52,7 @@ __global__ void kernel_Fem_reduce_data(double *data1, double *data2, int T1, int
 }
 
 
-__global__ void kernel_Fem_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
+__global__ void kernel_fem_prolongate_data(double *data1, double *data2, int T1, int T2, int T2local, double diff) {
 	int t2 = blockIdx.x*blockDim.x + threadIdx.x;
 
 	if(t2 < T2local){

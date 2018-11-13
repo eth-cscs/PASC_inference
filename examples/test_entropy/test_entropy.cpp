@@ -122,7 +122,7 @@ int main( int argc, char *argv[] )
 	int DDT_size = GlobalManager.get_size();
 
 	coutMaster << "- PROBLEM INFO ----------------------------" << std::endl;
-#ifdef USE_GPU
+#ifdef USE_CUDA
 	coutMaster << " computing on GPU" << std::endl;
 #else
 	coutMaster << " computing on CPU" << std::endl;
